@@ -547,7 +547,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 .nav-tabs::-webkit-scrollbar { display: none; }
 .nav-item {
   flex: 1 1 132px;
-  height: 88px;
+  aspect-ratio: 3/2;
   display: flex;
   flex-direction: column;
   align-items: center;
