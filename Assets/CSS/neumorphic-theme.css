@@ -3781,10 +3781,15 @@ body.royal-indigo{
   
   /* ===== 6. ACHIEVEMENTS - 2 PER LINE ===== */
   
-  .dashboard-achievements .grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 1rem;
-  }
+.dashboard-achievements .achievements-grid {
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 1rem;
+}
+
+.dashboard-achievements .badges-grid {
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 1rem;
+}
   
   .dashboard-achievement-card {
     padding: 0.875rem;
