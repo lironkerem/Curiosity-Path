@@ -428,7 +428,7 @@ renderRecentAchievements(status) {
           <h3 class="dashboard-achievements-title">🎖️ Badges Earned</h3>
           <div class="badges-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
             ${status.badges.length > 0 ? status.badges.map(b => `
-              <div class="dashboard-achievement-card-inset">
+              <div class="dashboard-achievement-card-inset dashboard-badge-card">
                 <div class="dashboard-achievement-icon" style="font-size:2.5rem;">${b.icon || '🎖️'}</div>
                 <h4 class="dashboard-achievement-name" style="font-size:0.9rem;">${b.name}</h4>
                 ${b.description ? `<p class="dashboard-achievement-desc" style="font-size:0.75rem;">${b.description}</p>` : ''}
