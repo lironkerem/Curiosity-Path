@@ -327,7 +327,7 @@ export default class DailyCards {
     const intensityEmoji = { 1: '🌱', 2: '🌿', 3: '🌳', 4: '🔥' };
     
     return `
-      <div class="daily-card-full-container md:hidden">
+      <div class="daily-card-full-container">
         <!-- Container 1: Flippable Card -->
         <div class="card dashboard-daily-card">
           <div class="daily-card-wrapper ${flippedClass}" onclick="window.app.dailyCards.flipDailyCard('inquiry')">
@@ -379,7 +379,7 @@ export default class DailyCards {
         <div class="dashboard-quest-header" style="text-align:center; margin-top: 3rem; margin-bottom: 2rem;">
           <h3 class="dashboard-quest-title">🎴 Your Daily Cards</h3>
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-2 gap-6">
           ${this.renderDailyCard('tarot', dailyCard, 'Daily Tarot Card', this.CARD_BACK_URL)}
           ${this.renderAffirmationCard(dailyAff)}
           ${this.renderBoosterCard(dailyBooster)}
