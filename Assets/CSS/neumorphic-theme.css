@@ -1207,22 +1207,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   .daily-card-header-front {
     padding: 0.5rem;
   }
-@media (max-width: 768px) {
-  /* Remove padding from the daily cards parent container */
-  .dashboard-quest-hub {
-    padding: 0 !important;
-  }
-  
-  /* Keep spacing for the "Your Daily Cards" header */
-  .dashboard-quest-header {
-    padding: 1rem;
-  }
-  
-  /* Also ensure timer badge has some margin */
-  #daily-cards-timer {
-    margin: 0.5rem !important;
-  }
-}
 }
 
 /* ===== QUOTE SECTION ===== */
