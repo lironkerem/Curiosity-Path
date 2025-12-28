@@ -194,6 +194,7 @@ export default class DailyCards {
     wrapperEl.classList.toggle('flipped');
     
     if (cardEl.classList.contains('flipped')) {
+      localStorage.setItem(`daily_card_flipped_${type}`, new Date().toDateString());
       const msg = {
         tarot: '✨ Tarot card revealed!',
         affirmation: '💫 Affirmation revealed!',
@@ -205,13 +206,18 @@ export default class DailyCards {
   }
 
   renderDailyCard(type, card, title, backImage) {
+    const today = new Date().toDateString();
+    const wasFlipped = localStorage.getItem(`daily_card_flipped_${type}`) === today;
+    const flippedClass = wasFlipped ? 'flipped' : '';
+    
     return `
       <div class="daily-card-full-container">
         <!-- Container 1: Flippable Card -->
         <div class="card dashboard-daily-card">
-          <div class="daily-card-wrapper" onclick="window.app.dailyCards.flipDailyCard('${type}')">
-            <div class="daily-card-inner" id="${type}-flip">
+          <div class="daily-card-wrapper ${flippedClass}" onclick="window.app.dailyCards.flipDailyCard('${type}')">
+            <div class="daily-card-inner ${flippedClass}" id="${type}-flip">
               <div class="daily-card-back">
+                <p style="text-align: center; color: var(--neuro-text); font-weight: 600; margin: 1rem 0 0.5rem 0;">Click to reveal</p>
                 <img src="${backImage}" alt="Card Back" class="dashboard-card-image">
               </div>
               <div class="daily-card-front">
@@ -222,10 +228,9 @@ export default class DailyCards {
         </div>
         
         <!-- Container 2: Header Info -->
-        <div class="daily-card-header-container" id="${type}-header">
+        <div class="daily-card-header-container ${flippedClass}" id="${type}-header">
           <div class="daily-card-header-back">
             <h3 class="daily-card-header-title">${title}</h3>
-            <p class="daily-card-header-subtitle">Click to Reveal</p>
           </div>
           <div class="daily-card-header-front">
             <h3 class="daily-card-header-title">${card.name}</h3>
@@ -236,13 +241,18 @@ export default class DailyCards {
   }
 
   renderAffirmationCard(affirmation) {
+    const today = new Date().toDateString();
+    const wasFlipped = localStorage.getItem(`daily_card_flipped_affirmation`) === today;
+    const flippedClass = wasFlipped ? 'flipped' : '';
+    
     return `
       <div class="daily-card-full-container">
         <!-- Container 1: Flippable Card -->
         <div class="card dashboard-daily-card">
-          <div class="daily-card-wrapper" onclick="window.app.dailyCards.flipDailyCard('affirmation')">
-            <div class="daily-card-inner" id="affirmation-flip">
+          <div class="daily-card-wrapper ${flippedClass}" onclick="window.app.dailyCards.flipDailyCard('affirmation')">
+            <div class="daily-card-inner ${flippedClass}" id="affirmation-flip">
               <div class="daily-card-back">
+                <p style="text-align: center; color: var(--neuro-text); font-weight: 600; margin: 1rem 0 0.5rem 0;">Click to reveal</p>
                 <img src="${this.CARD_BACK_URL}" alt="Card Back" class="dashboard-card-image">
               </div>
               <div class="daily-card-front daily-card-gradient-affirmation">
@@ -255,10 +265,9 @@ export default class DailyCards {
         </div>
         
         <!-- Container 2: Header Info -->
-        <div class="daily-card-header-container" id="affirmation-header">
+        <div class="daily-card-header-container ${flippedClass}" id="affirmation-header">
           <div class="daily-card-header-back">
             <h3 class="daily-card-header-title">Daily Affirmation</h3>
-            <p class="daily-card-header-subtitle">Click to Reveal</p>
           </div>
           <div class="daily-card-header-front">
             <h3 class="daily-card-header-title">Your Daily Affirmation</h3>
@@ -268,13 +277,18 @@ export default class DailyCards {
   }
 
   renderBoosterCard(booster) {
+    const today = new Date().toDateString();
+    const wasFlipped = localStorage.getItem(`daily_card_flipped_booster`) === today;
+    const flippedClass = wasFlipped ? 'flipped' : '';
+    
     return `
       <div class="daily-card-full-container">
         <!-- Container 1: Flippable Card -->
         <div class="card dashboard-daily-card">
-          <div class="daily-card-wrapper" onclick="window.app.dailyCards.flipDailyCard('booster')">
-            <div class="daily-card-inner" id="booster-flip">
+          <div class="daily-card-wrapper ${flippedClass}" onclick="window.app.dailyCards.flipDailyCard('booster')">
+            <div class="daily-card-inner ${flippedClass}" id="booster-flip">
               <div class="daily-card-back">
+                <p style="text-align: center; color: var(--neuro-text); font-weight: 600; margin: 1rem 0 0.5rem 0;">Click to reveal</p>
                 <img src="${this.CARD_BACK_URL}" alt="Card Back" class="dashboard-card-image">
               </div>
               <div class="daily-card-front daily-card-gradient-booster">
@@ -292,10 +306,9 @@ export default class DailyCards {
         </div>
         
         <!-- Container 2: Header Info -->
-        <div class="daily-card-header-container" id="booster-header">
+        <div class="daily-card-header-container ${flippedClass}" id="booster-header">
           <div class="daily-card-header-back">
             <h3 class="daily-card-header-title">Happiness Booster</h3>
-            <p class="daily-card-header-subtitle">Click to Reveal</p>
           </div>
           <div class="daily-card-header-front">
             <h3 class="daily-card-header-title">Boost Now!</h3>
@@ -305,15 +318,19 @@ export default class DailyCards {
   }
 
   renderInquiryCard(inquiry) {
+    const today = new Date().toDateString();
+    const wasFlipped = localStorage.getItem('daily_card_flipped_inquiry') === today;
+    const flippedClass = wasFlipped ? 'flipped' : '';
     const intensityEmoji = { 1: '🌱', 2: '🌿', 3: '🌳', 4: '🔥' };
     
     return `
       <div class="daily-card-full-container md:hidden">
         <!-- Container 1: Flippable Card -->
         <div class="card dashboard-daily-card">
-          <div class="daily-card-wrapper" onclick="window.app.dailyCards.flipDailyCard('inquiry')">
-            <div class="daily-card-inner" id="inquiry-flip">
+          <div class="daily-card-wrapper ${flippedClass}" onclick="window.app.dailyCards.flipDailyCard('inquiry')">
+            <div class="daily-card-inner ${flippedClass}" id="inquiry-flip">
               <div class="daily-card-back">
+                <p style="text-align: center; color: var(--neuro-text); font-weight: 600; margin: 1rem 0 0.5rem 0;">Click to reveal</p>
                 <img src="${this.CARD_BACK_URL}" alt="Card Back" class="dashboard-card-image">
               </div>
               <div class="daily-card-front daily-card-gradient-inquiry">
@@ -334,10 +351,9 @@ export default class DailyCards {
         </div>
         
         <!-- Container 2: Header Info -->
-        <div class="daily-card-header-container" id="inquiry-header">
+        <div class="daily-card-header-container ${flippedClass}" id="inquiry-header">
           <div class="daily-card-header-back">
             <h3 class="daily-card-header-title">Daily Inquiry</h3>
-            <p class="daily-card-header-subtitle">Click to Reveal</p>
           </div>
           <div class="daily-card-header-front">
             <h3 class="daily-card-header-title">Ask Yourself Truly!</h3>
