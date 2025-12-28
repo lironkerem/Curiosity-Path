@@ -600,36 +600,42 @@ window.app.enablePushNotifications = async function() {
         this.showToast('✅ Notification settings saved!', 'success');
       };
 window.app.sendTestNotification = async function() {
-        try {
-          const res = await fetch('/api/subs');
-          const subs = await res.json();
-          
-          if (!subs.length) {
-            this.showToast('❌ No subscriptions found. Enable notifications first.', 'error');
-            return;
-          }
+  try {
+    const res = await fetch('/api/subs');
+    const subs = await res.json();
+    
+    if (!subs.length) {
+      this.showToast('❌ No subscriptions found', 'error');
+      return;
+    }
 
-          await fetch('/api/send', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-              sub: subs[0],
-              payload: {
-                title: '✨ Digital Curiosity',
-                body: 'Test notification working perfectly!',
-                icon: '/Icons/icon-192x192.png',
-                data: { url: '/' }
-              }
-            })
-          });
-
-          this.showToast('📱 Test notification sent!', 'success');
-        } catch (err) {
-          console.error('Test notification error:', err);
-          this.showToast('❌ Failed to send test notification', 'error');
+    // Try latest subscription first
+    const latest = subs[subs.length - 1];
+    const response = await fetch('/api/send', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        sub: latest,
+        payload: {
+          title: '✨ Digital Curiosity',
+          body: 'Test notification working!',
+          icon: '/Icons/icon-192x192.png',
+          data: { url: '/' }
         }
-      };
+      })
+    });
 
+    const result = await response.json();
+    if (response.ok) {
+      this.showToast('📱 Test notification sent!', 'success');
+    } else {
+      throw new Error(result.error);
+    }
+  } catch (err) {
+    console.error('Test notification error:', err);
+    this.showToast('❌ Failed: ' + err.message, 'error');
+  }
+};
       window.app.scheduleNotifications = function(settings) {
         if (this._notificationTimers) {
           this._notificationTimers.forEach(timer => clearTimeout(timer));
