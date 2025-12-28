@@ -4877,6 +4877,7 @@ body.royal-indigo{
   border-radius: var(--radius-md) !important;
   box-shadow: var(--shadow-inset) !important;
   margin-bottom: 1.5rem !important;
+  border: none !important;
 }
 
 #gratitude-tab .suggestion-label {
@@ -4894,22 +4895,27 @@ body.royal-indigo{
 }
 
 #gratitude-tab .suggestion-btn {
-  font-size: 0.875rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--radius-md);
-  border: none;
-  background: var(--neuro-bg);
-  color: var(--neuro-text);
+  font-size: 0.75rem;
+  padding: 0.5rem 0.5rem;
+  border-radius: var(--radius-md) !important;
+  border: none !important;
+  background: var(--neuro-bg) !important;
+  color: var(--neuro-text) !important;
   cursor: pointer;
-  box-shadow: 4px 4px 8px var(--neuro-shadow-dark), -4px -4px 8px var(--neuro-shadow-light);
+  box-shadow: 4px 4px 8px var(--neuro-shadow-dark), -4px -4px 8px var(--neuro-shadow-light) !important;
   transition: all 0.2s ease;
-  white-space: nowrap;
+  white-space: normal;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.2;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #gratitude-tab .suggestion-btn:hover {
-  box-shadow: var(--shadow-inset-sm);
+  box-shadow: var(--shadow-inset-sm) !important;
 }
   
   
