@@ -158,7 +158,8 @@ export default class DailyCards {
   flipDailyCard(type) {
     const cardEl = document.getElementById(`${type}-flip`);
     const headerEl = document.getElementById(`${type}-header`);
-    if (!cardEl || !headerEl) return;
+    const wrapperEl = cardEl?.closest('.daily-card-wrapper');
+    if (!cardEl || !headerEl || !wrapperEl) return;
     
     const isFlipped = cardEl.classList.contains('flipped');
     
@@ -187,9 +188,10 @@ export default class DailyCards {
         <p class="dashboard-booster-description">${inquiry.question}</p>`;
     }
     
-    // Flip card and header
+    // Flip card, header, and wrapper
     cardEl.classList.toggle('flipped');
     headerEl.classList.toggle('flipped');
+    wrapperEl.classList.toggle('flipped');
     
     if (cardEl.classList.contains('flipped')) {
       localStorage.setItem(`daily_card_flipped_${type}`, new Date().toDateString());
@@ -212,7 +214,7 @@ export default class DailyCards {
       <div class="daily-card-full-container">
         <!-- Container 1: Flippable Card -->
         <div class="card dashboard-daily-card">
-          <div class="daily-card-wrapper" onclick="window.app.dailyCards.flipDailyCard('${type}')">
+          <div class="daily-card-wrapper ${flippedClass}" onclick="window.app.dailyCards.flipDailyCard('${type}')">
             <div class="daily-card-inner ${flippedClass}" id="${type}-flip">
               <div class="daily-card-back">
                 <img src="${backImage}" alt="Card Back" class="dashboard-card-image">
@@ -247,7 +249,7 @@ export default class DailyCards {
       <div class="daily-card-full-container">
         <!-- Container 1: Flippable Card -->
         <div class="card dashboard-daily-card">
-          <div class="daily-card-wrapper" onclick="window.app.dailyCards.flipDailyCard('affirmation')">
+          <div class="daily-card-wrapper ${flippedClass}" onclick="window.app.dailyCards.flipDailyCard('affirmation')">
             <div class="daily-card-inner ${flippedClass}" id="affirmation-flip">
               <div class="daily-card-back">
                 <img src="${this.CARD_BACK_URL}" alt="Card Back" class="dashboard-card-image">
@@ -283,7 +285,7 @@ export default class DailyCards {
       <div class="daily-card-full-container">
         <!-- Container 1: Flippable Card -->
         <div class="card dashboard-daily-card">
-          <div class="daily-card-wrapper" onclick="window.app.dailyCards.flipDailyCard('booster')">
+          <div class="daily-card-wrapper ${flippedClass}" onclick="window.app.dailyCards.flipDailyCard('booster')">
             <div class="daily-card-inner ${flippedClass}" id="booster-flip">
               <div class="daily-card-back">
                 <img src="${this.CARD_BACK_URL}" alt="Card Back" class="dashboard-card-image">
@@ -325,7 +327,7 @@ export default class DailyCards {
       <div class="daily-card-full-container md:hidden">
         <!-- Container 1: Flippable Card -->
         <div class="card dashboard-daily-card">
-          <div class="daily-card-wrapper" onclick="window.app.dailyCards.flipDailyCard('inquiry')">
+          <div class="daily-card-wrapper ${flippedClass}" onclick="window.app.dailyCards.flipDailyCard('inquiry')">
             <div class="daily-card-inner ${flippedClass}" id="inquiry-flip">
               <div class="daily-card-back">
                 <img src="${this.CARD_BACK_URL}" alt="Card Back" class="dashboard-card-image">
