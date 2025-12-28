@@ -83,6 +83,12 @@
   <script type=module>
   async function init(){
     console.log('🚀 Digital Curiosity - Aanandoham\'s Spiritual Platform Online');
+    // ===== Register Service Worker =====
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(reg => console.log('✅ SW registered:', reg))
+        .catch(err => console.error('❌ SW registration failed:', err));
+    }
     try{
       const [aff,{QUOTES,getRandomQuote,getQuoteOfTheDay}]=await Promise.all([
         import('./Features/Data/AffirmationsList.js'),
