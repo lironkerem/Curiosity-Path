@@ -1005,12 +1005,14 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   text-align: center;
   transition: transform 0.6s ease;
   transform-style: preserve-3d;
+  display: flex;
+  flex-direction: column;
 }
 .daily-card-inner.flipped {
   transform: rotateY(180deg);
 }
 
-/* Both sides positioned absolutely within inner container */
+/* Both sides */
 .daily-card-back,
 .daily-card-front {
   width: 100%;
@@ -1021,12 +1023,14 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   overflow: hidden;
 }
 
-/* Back side - scaled down 30% in height */
+/* Back side - fits image exactly, no empty space */
 .daily-card-back {
   position: relative;
-  transform: rotateY(0deg) scaleY(0.7);
-  transform-origin: top center;
+  transform: rotateY(0deg);
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* Front side */
@@ -1040,16 +1044,15 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   min-height: 350px;
 }
 
-/* When flipped, remove scale from back and swap z-index */
+/* When flipped, swap z-index */
 .daily-card-inner.flipped .daily-card-back {
   z-index: 1;
-  transform: rotateY(0deg) scaleY(0.7);
 }
 .daily-card-inner.flipped .daily-card-front {
   z-index: 2;
 }
 
-/* Images fill container, maintaining aspect ratio */
+/* Images fill container width, height auto to maintain ratio */
 .dashboard-card-image {
   width: 100%;
   height: auto;
