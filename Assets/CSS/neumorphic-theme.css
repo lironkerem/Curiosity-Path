@@ -1011,6 +1011,23 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   max-height: 350px;
 }
 
+/* Desktop: larger fixed height */
+@media (min-width: 768px) {
+  .daily-card-wrapper:not(.flipped) .daily-card-inner {
+    min-height: 500px;
+    max-height: 500px;
+  }
+  
+  .daily-card-wrapper.flipped .daily-card-inner {
+    min-height: 500px;
+    max-height: 500px;
+  }
+  
+  .daily-card-content-wrapper {
+    height: 500px;
+  }
+}
+
 .daily-card-inner {
   position: relative;
   width: 100%;
