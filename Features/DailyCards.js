@@ -217,7 +217,7 @@ export default class DailyCards {
           <div class="daily-card-wrapper ${flippedClass}" onclick="window.app.dailyCards.flipDailyCard('${type}')">
             <div class="daily-card-inner ${flippedClass}" id="${type}-flip">
               <div class="daily-card-back">
-                <p style="text-align: center; color: var(--neuro-text); font-weight: 600; margin: 1rem 0 0.5rem 0;">Click to reveal</p>
+                <p style="text-align: center; color: var(--neuro-text); font-weight: 600; margin: 0; position: absolute; top: 0.5rem; left: 0; right: 0; z-index: 10;">Click to reveal</p>
                 <img src="${backImage}" alt="Card Back" class="dashboard-card-image">
               </div>
               <div class="daily-card-front">
@@ -252,7 +252,7 @@ export default class DailyCards {
           <div class="daily-card-wrapper ${flippedClass}" onclick="window.app.dailyCards.flipDailyCard('affirmation')">
             <div class="daily-card-inner ${flippedClass}" id="affirmation-flip">
               <div class="daily-card-back">
-                <p style="text-align: center; color: var(--neuro-text); font-weight: 600; margin: 1rem 0 0.5rem 0;">Click to reveal</p>
+                <p style="text-align: center; color: var(--neuro-text); font-weight: 600; margin: 0; position: absolute; top: 0.5rem; left: 0; right: 0; z-index: 10;">Click to reveal</p>
                 <img src="${this.CARD_BACK_URL}" alt="Card Back" class="dashboard-card-image">
               </div>
               <div class="daily-card-front daily-card-gradient-affirmation">
