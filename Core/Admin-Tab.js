@@ -517,45 +517,45 @@ async sendPushNotificationToUser(userId, title, body) {
     }
   }
 
-  async batchUpdate(container, xp, karma) {
-    this.showMessage(container, 'Updating users...', 'info');
-    let success = 0;
-    let failed = 0;
+async batchUpdate(container, xp, karma) {
+  this.showMessage(container, 'Updating users...', 'info');
+  let success = 0;
+  let failed = 0;
 
-    for (const user of this.selectedUsers) {
-      try {
-        const { error } = await this.supabase.rpc('update_user_gamification', {
-          target_user_id: user.id,
-          xp_delta: xp,
-          karma_delta: karma
-        });
-        if (error) throw error;
+  for (const user of this.selectedUsers) {
+    try {
+      const { error } = await this.supabase.rpc('update_user_gamification', {
+        target_user_id: user.id,
+        xp_delta: xp,
+        karma_delta: karma
+      });
+      if (error) throw error;
 
-        // Send push notification
-        let notificationBody = '';
-        if (xp > 0 && karma > 0) {
-          notificationBody = `You received +${xp} XP and +${karma} Karma from Aanandoham!`;
-        } else if (xp > 0) {
-          notificationBody = `You received +${xp} XP from Aanandoham!`;
-        } else if (karma > 0) {
-          notificationBody = `You received +${karma} Karma from Aanandoham!`;
-        }
-        
-        if (notificationBody) {
-          await this.sendPushNotificationToUser(user.id, '🎁 Aanandoham's Gift!', notificationBody);
-        }
-
-        success++;
-      } catch (error) {
-        console.error(`Failed for user ${user.name}:`, error);
-        failed++;
+      // Send push notification
+      let notificationBody = '';
+      if (xp > 0 && karma > 0) {
+        notificationBody = `You received +${xp} XP and +${karma} Karma from Aanandoham!`;
+      } else if (xp > 0) {
+        notificationBody = `You received +${xp} XP from Aanandoham!`;
+      } else if (karma > 0) {
+        notificationBody = `You received +${karma} Karma from Aanandoham!`;
       }
-    }
+      
+      if (notificationBody) {
+        await this.sendPushNotificationToUser(user.id, '🎁 Aanandoham\'s Gift!', notificationBody);
+      }
 
-    this.showMessage(container, `✅ Updated ${success} users${failed > 0 ? `, ${failed} failed` : ''}`, 'success');
-    await this.fetchUsers();
-    this.renderUserCheckboxes(container);
+      success++;
+    } catch (error) {
+      console.error(`Failed for user ${user.name}:`, error);
+      failed++;
+    }
   }
+
+  this.showMessage(container, `✅ Updated ${success} users${failed > 0 ? `, ${failed} failed` : ''}`, 'success');
+  await this.fetchUsers();
+  this.renderUserCheckboxes(container);
+}
 
   async batchUnlockFeatures(container, features, duration) {
     this.showMessage(container, 'Unlocking features...', 'info');
@@ -645,56 +645,56 @@ async sendPushNotificationToUser(userId, title, body) {
     this.showMessage(container, `✅ Awarded badge to ${success} users`, 'success');
   }
 
-async batchSendMessage(container, title, content) {
-  this.showMessage(container, 'Sending messages...', 'info');
-  
-  let success = 0;
-  for (const user of this.selectedUsers) {
-    try {
-      const { data: progressData } = await this.supabase
-        .from('user_progress')
-        .select('payload')
-        .eq('user_id', user.id)
-        .single();
+  async batchSendMessage(container, title, content) {
+    this.showMessage(container, 'Sending messages...', 'info');
+    
+    let success = 0;
+    for (const user of this.selectedUsers) {
+      try {
+        const { data: progressData } = await this.supabase
+          .from('user_progress')
+          .select('payload')
+          .eq('user_id', user.id)
+          .single();
 
-      const currentPayload = progressData?.payload || {};
-      const messages = currentPayload.adminMessages || [];
-      
-      messages.push({
-        id: Date.now() + Math.random(),
-        title,
-        content,
-        date: new Date().toISOString(),
-        read: false
-      });
+        const currentPayload = progressData?.payload || {};
+        const messages = currentPayload.adminMessages || [];
+        
+        messages.push({
+          id: Date.now() + Math.random(),
+          title,
+          content,
+          date: new Date().toISOString(),
+          read: false
+        });
 
-      const { error } = await this.supabase
-        .from('user_progress')
-        .update({ 
-          payload: { ...currentPayload, adminMessages: messages },
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', user.id);
+        const { error } = await this.supabase
+          .from('user_progress')
+          .update({ 
+            payload: { ...currentPayload, adminMessages: messages },
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      // Send push notification
-      await this.sendPushNotificationToUser(
-        user.id,
-        `💬 ${title}`,
-        content.substring(0, 100) + (content.length > 100 ? '...' : '')
-      );
+        // Send push notification
+        await this.sendPushNotificationToUser(
+          user.id,
+          `💬 ${title}`,
+          content.substring(0, 100) + (content.length > 100 ? '...' : '')
+        );
 
-      success++;
-    } catch (error) {
-      console.error(`Failed for user ${user.name}:`, error);
+        success++;
+      } catch (error) {
+        console.error(`Failed for user ${user.name}:`, error);
+      }
     }
-  }
 
-  this.showMessage(container, `✅ Sent message to ${success} users`, 'success');
-  container.querySelector('#messageTitle').value = '';
-  container.querySelector('#messageContent').value = '';
-}
+    this.showMessage(container, `✅ Sent message to ${success} users`, 'success');
+    container.querySelector('#messageTitle').value = '';
+    container.querySelector('#messageContent').value = '';
+  }
 
   showMessage(container, text, type) {
     const msgDiv = container.querySelector('#message');
