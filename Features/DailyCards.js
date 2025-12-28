@@ -220,9 +220,9 @@ export default class DailyCards {
                 <p style="text-align: center; color: var(--neuro-text); font-weight: 600; margin: 0; position: absolute; top: 0.5rem; left: 0; right: 0; z-index: 10;">Click to reveal</p>
                 <img src="${backImage}" alt="Card Back" class="dashboard-card-image">
               </div>
-              <div class="daily-card-front" style="display: flex; flex-direction: column; height: 100%;">
-                <img src="${card.image}" alt="${card.name}" style="width: 100%; flex-shrink: 0; object-fit: contain;">
-                <div style="text-align: center; overflow-y: auto; padding: 0.75rem;">
+              <div class="daily-card-front" style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
+                <img src="${card.image}" alt="${card.name}" style="width: 100%; max-height: 70%; flex-shrink: 0; object-fit: contain;">
+                <div style="text-align: center; overflow-y: auto; padding: 0.75rem; flex: 1;">
                   <h4 style="color: var(--neuro-text); font-weight: 700; margin: 0 0 0.5rem 0; font-size: 1.1rem;">${card.name}</h4>
                   <p style="color: var(--neuro-text-light); font-size: 0.9rem; line-height: 1.5; margin: 0;">${card.meaning}</p>
                 </div>
