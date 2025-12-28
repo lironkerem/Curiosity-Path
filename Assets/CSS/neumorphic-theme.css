@@ -1033,6 +1033,17 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   align-items: center;
 }
 
+/* Mobile: restrict back container height */
+@media (max-width: 768px) {
+  .daily-card-back {
+    max-height: 250px;
+  }
+  .daily-card-back .dashboard-card-image {
+    max-height: 250px;
+    object-fit: contain;
+  }
+}
+
 /* Front side */
 .daily-card-front {
   position: absolute;
