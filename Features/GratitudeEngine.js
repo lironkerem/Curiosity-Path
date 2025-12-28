@@ -60,8 +60,8 @@ tab.innerHTML = `
 
           <form onsubmit="window.featuresManager.engines.gratitude.addEntry(event)" style="margin-bottom: 2rem;">
             <div class="flex space-x-3">
-              <input type="text" id="gratitude-input" class="form-input flex-1"
-                     placeholder="Today, I am Grateful for..." required />
+              <textarea id="gratitude-input" class="form-input flex-1" rows="5"
+               placeholder="Today, I am Grateful for..." required></textarea>
               <button type="submit" class="btn btn-primary">Add</button>
             </div>
           </form>
