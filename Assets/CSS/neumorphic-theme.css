@@ -999,16 +999,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   transition: all 0.6s ease;
 }
 
-/* Back state: compact height */
-.daily-card-wrapper:not(.flipped) .daily-card-inner {
-  max-height: fit-content;
-}
-
-/* Front state: taller for content */
-.daily-card-wrapper.flipped .daily-card-inner {
-  min-height: 350px;
-}
-
 .daily-card-inner {
   position: relative;
   width: 100%;
@@ -1031,10 +1021,11 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   overflow: hidden;
 }
 
-/* Back side */
+/* Back side - scaled down 30% in height */
 .daily-card-back {
   position: relative;
-  transform: rotateY(0deg);
+  transform: rotateY(0deg) scaleY(0.7);
+  transform-origin: top center;
   z-index: 2;
 }
 
@@ -1049,9 +1040,10 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   min-height: 350px;
 }
 
-/* When flipped, swap z-index */
+/* When flipped, remove scale from back and swap z-index */
 .daily-card-inner.flipped .daily-card-back {
   z-index: 1;
+  transform: rotateY(0deg) scaleY(0.7);
 }
 .daily-card-inner.flipped .daily-card-front {
   z-index: 2;
