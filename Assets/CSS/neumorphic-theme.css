@@ -1006,6 +1006,8 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   -moz-backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
 }
 .daily-card-back {
   position: relative;
@@ -1018,10 +1020,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   left: 0;
   transform: rotateY(180deg);
   z-index: 1;
-  display: flex;
-  flex-direction: column;
-  border-radius: 0.75rem;
-  overflow: hidden;
 }
 .daily-card-inner.flipped .daily-card-back {
   z-index: 1;
@@ -1029,55 +1027,65 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 .daily-card-inner.flipped .daily-card-front {
   z-index: 2;
 }
-.card-content {
+
+/* Image/Gradient Container - fills card, no padding */
+.daily-card-image-container {
   width: 100%;
-  height: 100%;
-  background: transparent;
+  flex: 1;
   display: flex;
-  flex-direction: column;
-  padding: 0;
-  overflow-y: auto;
-}
-.daily-card-front .card-content {
-  min-height: auto;
-  height: auto;
-  padding: 1.5rem;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 0.75rem 0.75rem 0 0;
 }
 .dashboard-card-image {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: contain;
   display: block;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  object-fit: cover;
+}
+
+/* Content Container for Gradient Cards */
+.daily-card-content-container {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+/* Text section below image/gradient */
+.daily-card-text {
+  padding: 1rem 1.5rem;
+  text-align: center;
+  background: transparent;
 }
 .dashboard-card-title {
   font-size: 1.25rem;
   font-weight: 700;
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
+  margin: 0 0 0.5rem 0;
   color: var(--neuro-text);
 }
 .dashboard-card-subtitle {
   font-size: 0.875rem;
   color: var(--neuro-text-light);
+  margin: 0;
 }
 .dashboard-card-title-front {
   font-size: 1.25rem;
   font-weight: 700;
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-  color: white;
+  margin: 0 0 0.5rem 0;
+  color: var(--neuro-text);
 }
-.daily-card-front .dashboard-card-subtitle {
-  color: rgba(255, 255, 255, 0.9);
+.dashboard-card-subtitle-front {
+  font-size: 0.875rem;
+  color: var(--neuro-text-light);
+  margin: 0;
 }
-/* --------------------------------------------------
-   UNIFIED TEXT RULES – same font/size/weight/colour
-   -------------------------------------------------- */
-.dashboard-card-meaning,
+
+/* Content styling */
 .dashboard-affirmation-text,
 .dashboard-booster-title,
 .dashboard-booster-description {
@@ -1088,7 +1096,15 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   color: rgba(255, 255, 255, .92);
   overflow-wrap: break-word;
 }
-/* keep emoji sizes intact */
+.dashboard-card-meaning {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--neuro-text-light);
+  overflow-wrap: break-word;
+  margin: 0.5rem 0 0 0;
+}
 .dashboard-booster-emoji {
   font-size: 4rem;
   margin-bottom: 1rem;
@@ -1102,14 +1118,20 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   color: rgba(255, 255, 255, 0.7);
   margin-top: 0.5rem;
 }
+
 /* ===== GRADIENT FRONTS ===== */
-.daily-card-gradient-affirmation {
+.daily-card-gradient-affirmation,
+.daily-card-gradient-booster,
+.daily-card-gradient-inquiry {
+  border-radius: 0.75rem 0.75rem 0 0;
+}
+.daily-card-gradient-affirmation .daily-card-content-container {
   background: linear-gradient(135deg, var(--neuro-warning), var(--neuro-accent-light));
 }
-.daily-card-gradient-booster {
+.daily-card-gradient-booster .daily-card-content-container {
   background: linear-gradient(135deg, var(--neuro-warning), var(--neuro-success));
 }
-.daily-card-gradient-inquiry {
+.daily-card-gradient-inquiry .daily-card-content-container {
   background: linear-gradient(135deg, var(--neuro-warning), var(--neuro-error));
 }
 
