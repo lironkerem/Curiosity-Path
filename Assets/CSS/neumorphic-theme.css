@@ -999,20 +999,28 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   transition: all 0.6s ease;
 }
 
+/* Back state: compact height */
+.daily-card-wrapper:not(.flipped) .daily-card-inner {
+  max-height: fit-content;
+}
+
+/* Front state: taller for content */
+.daily-card-wrapper.flipped .daily-card-inner {
+  min-height: 350px;
+}
+
 .daily-card-inner {
   position: relative;
   width: 100%;
   text-align: center;
   transition: transform 0.6s ease;
   transform-style: preserve-3d;
-  display: flex;
-  flex-direction: column;
 }
 .daily-card-inner.flipped {
   transform: rotateY(180deg);
 }
 
-/* Both sides */
+/* Both sides positioned absolutely within inner container */
 .daily-card-back,
 .daily-card-front {
   width: 100%;
@@ -1023,25 +1031,11 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   overflow: hidden;
 }
 
-/* Back side - fits image exactly, no empty space */
+/* Back side */
 .daily-card-back {
   position: relative;
   transform: rotateY(0deg);
   z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* Mobile: restrict back container height */
-@media (max-width: 768px) {
-  .daily-card-back {
-    max-height: 150px;
-  }
-  .daily-card-back .dashboard-card-image {
-    max-height: 150px;
-    object-fit: contain;
-  }
 }
 
 /* Front side */
@@ -1063,7 +1057,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   z-index: 2;
 }
 
-/* Images fill container width, height auto to maintain ratio */
+/* Images fill container, maintaining aspect ratio */
 .dashboard-card-image {
   width: 100%;
   height: auto;
