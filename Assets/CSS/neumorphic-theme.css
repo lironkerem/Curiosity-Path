@@ -1039,7 +1039,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
     max-height: 250px;
   }
   .daily-card-back .dashboard-card-image {
-    max-height: 250px;
+    max-height: 150px;
     object-fit: contain;
   }
 }
