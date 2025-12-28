@@ -1179,34 +1179,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   padding: 0 0.5rem; /* Horizontal padding for scrollable content */
 }
 
-/* ===== MOBILE OPTIMIZATIONS ===== */
-@media (max-width: 768px) {
-  /* Remove gap between card and header */
-  .daily-card-full-container {
-    gap: 0;
-  }
-  
-  /* Remove border radius for edge-to-edge look */
-  .daily-card-back,
-  .daily-card-front {
-    border-radius: 0;
-  }
-  
-  /* Reduce content padding on gradients */
-  .daily-card-content-wrapper {
-    padding: 0.5rem;
-  }
-  
-  /* Reduce header padding */
-  .daily-card-header-container {
-    padding: 0.5rem;
-    border-radius: 0;
-  }
-  
-  .daily-card-header-back,
-  .daily-card-header-front {
-    padding: 0.5rem;
-  }
 }
 
 /* ===== QUOTE SECTION ===== */
