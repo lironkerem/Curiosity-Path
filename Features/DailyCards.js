@@ -187,20 +187,6 @@ export default class DailyCards {
         <p class="dashboard-booster-description">${inquiry.question}</p>`;
     }
     
-    // Adjust container height for smooth transition
-    const wrapper = cardEl.closest('.daily-card-wrapper');
-    if (wrapper && !isFlipped) {
-      const backHeight = cardEl.querySelector('.daily-card-back').offsetHeight;
-      const frontHeight = cardEl.querySelector('.daily-card-front').scrollHeight;
-      wrapper.style.height = `${backHeight}px`;
-      setTimeout(() => {
-        wrapper.style.height = `${frontHeight}px`;
-      }, 50);
-    } else if (wrapper && isFlipped) {
-      const backHeight = cardEl.querySelector('.daily-card-back').offsetHeight;
-      wrapper.style.height = `${backHeight}px`;
-    }
-    
     // Flip card and header
     cardEl.classList.toggle('flipped');
     headerEl.classList.toggle('flipped');
