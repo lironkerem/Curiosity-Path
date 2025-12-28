@@ -645,56 +645,56 @@ async sendPushNotificationToUser(userId, title, body) {
     this.showMessage(container, `✅ Awarded badge to ${success} users`, 'success');
   }
 
-  async batchSendMessage(container, title, content) {
-    this.showMessage(container, 'Sending messages...', 'info');
-    
-    let success = 0;
-    for (const user of this.selectedUsers) {
-      try {
-        const { data: progressData } = await this.supabase
-          .from('user_progress')
-          .select('payload')
-          .eq('user_id', user.id)
-          .single();
+async batchSendMessage(container, title, content) {
+  this.showMessage(container, 'Sending messages...', 'info');
+  
+  let success = 0;
+  for (const user of this.selectedUsers) {
+    try {
+      const { data: progressData } = await this.supabase
+        .from('user_progress')
+        .select('payload')
+        .eq('user_id', user.id)
+        .single();
 
-        const currentPayload = progressData?.payload || {};
-        const messages = currentPayload.adminMessages || [];
-        
-        messages.push({
-          id: Date.now() + Math.random(),
-          title,
-          content,
-          date: new Date().toISOString(),
-          read: false
-        });
+      const currentPayload = progressData?.payload || {};
+      const messages = currentPayload.adminMessages || [];
+      
+      messages.push({
+        id: Date.now() + Math.random(),
+        title,
+        content,
+        date: new Date().toISOString(),
+        read: false
+      });
 
-        const { error } = await this.supabase
-          .from('user_progress')
-          .update({ 
-            payload: { ...currentPayload, adminMessages: messages },
-            updated_at: new Date().toISOString()
-          })
-          .eq('user_id', user.id);
+      const { error } = await this.supabase
+        .from('user_progress')
+        .update({ 
+          payload: { ...currentPayload, adminMessages: messages },
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id);
 
-        if (error) throw error;
+      if (error) throw error;
 
-        // Send push notification
-        await this.sendPushNotificationToUser(
-          user.id,
-          `💬 ${title}`,
-          content.substring(0, 100) + (content.length > 100 ? '...' : '')
-        );
+      // Send push notification
+      await this.sendPushNotificationToUser(
+        user.id,
+        `💬 ${title}`,
+        content.substring(0, 100) + (content.length > 100 ? '...' : '')
+      );
 
-        success++;
-      } catch (error) {
-        console.error(`Failed for user ${user.name}:`, error);
-      }
+      success++;
+    } catch (error) {
+      console.error(`Failed for user ${user.name}:`, error);
     }
-
-    this.showMessage(container, `✅ Sent message to ${success} users`, 'success');
-    container.querySelector('#messageTitle').value = '';
-    container.querySelector('#messageContent').value = '';
   }
+
+  this.showMessage(container, `✅ Sent message to ${success} users`, 'success');
+  container.querySelector('#messageTitle').value = '';
+  container.querySelector('#messageContent').value = '';
+}
 
   showMessage(container, text, type) {
     const msgDiv = container.querySelector('#message');
