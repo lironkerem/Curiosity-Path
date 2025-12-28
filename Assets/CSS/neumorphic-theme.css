@@ -1104,7 +1104,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 .dashboard-card-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
