@@ -14,6 +14,20 @@ export default class DailyCards {
     // Initialize Inquiry Engine
     this.inquiryEngine = new InquiryEngine('beginner');
     
+    // Load boosters synchronously with fallback
+    this.initializeBoosters();
+  }
+
+  initializeBoosters() {
+    // Set fallback boosters immediately
+    this.happinessBoosters = [
+      { id: 1, title: '5-Minute Dance Party', emoji: '💃', description: 'Put on your favorite song and move!', duration: '5 min', category: 'Movement' },
+      { id: 2, title: 'Gratitude Snapshot', emoji: '📸', description: 'Notice 3 beautiful things around you', duration: '3 min', category: 'Gratitude' },
+      { id: 3, title: 'Power Pose', emoji: '🦸', description: 'Stand like a superhero for 2 minutes', duration: '2 min', category: 'Confidence' }
+    ];
+    this.boostersLoaded = true;
+    
+    // Try to load from JSON asynchronously
     this.loadHappinessBoosters();
   }
 
@@ -24,24 +38,39 @@ export default class DailyCards {
       if (!res.ok) throw new Error(res.status);
       const data = await res.json();
       this.happinessBoosters = data.boosters;
-      this.boostersLoaded = true;
     } catch {
       this.happinessBoosters = [
         { id: 1, title: '5-Minute Dance Party', emoji: '💃', description: 'Put on your favorite song and move!', duration: '5 min', category: 'Movement' },
         { id: 2, title: 'Gratitude Snapshot', emoji: '📸', description: 'Notice 3 beautiful things around you', duration: '3 min', category: 'Gratitude' },
         { id: 3, title: 'Power Pose', emoji: '🦸', description: 'Stand like a superhero for 2 minutes', duration: '2 min', category: 'Confidence' }
       ];
-      this.boostersLoaded = true;
     }
+    this.boostersLoaded = true;
   }
 
   getRandomBooster() {
-    if (!this.boostersLoaded || !this.happinessBoosters?.length) {
+    if (!this.happinessBoosters?.length) {
       return { id: 0, title: 'Loading...', emoji: '⏳', description: 'Please wait', duration: '...', category: 'Loading' };
     }
     const i = Math.floor(Math.random() * this.happinessBoosters.length);
     this.currentBoosterIndex = i;
     return this.happinessBoosters[i];
+  }
+
+  getDailyBooster() {
+    const today = new Date().toDateString();
+    const stored = localStorage.getItem('daily_booster');
+    
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        if (data.date === today) return data.booster;
+      } catch {}
+    }
+    
+    const booster = this.getRandomBooster();
+    localStorage.setItem('daily_booster', JSON.stringify({ booster, date: today }));
+    return booster;
   }
 
   /* ===== Daily Tarot Card ===== */
@@ -109,6 +138,34 @@ export default class DailyCards {
     return inquiry;
   }
 
+  /* ===== Midnight Timer ===== */
+  initMidnightTimer() {
+    const updateTimer = () => {
+      const now = new Date();
+      const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      const msUntilMidnight = tomorrow - now;
+      
+      const hours = Math.floor(msUntilMidnight / (1000 * 60 * 60));
+      const minutes = Math.floor((msUntilMidnight % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((msUntilMidnight % (1000 * 60)) / 1000);
+      
+      const timerEl = document.getElementById('daily-cards-timer');
+      if (timerEl) {
+        timerEl.textContent = `Resets in ${hours}h ${minutes}m ${seconds}s`;
+      }
+      
+      // Reset at midnight
+      if (msUntilMidnight <= 1000) {
+        setTimeout(() => {
+          location.reload();
+        }, msUntilMidnight);
+      }
+    };
+    
+    updateTimer();
+    setInterval(updateTimer, 1000);
+  }
+
   /* ===== Card Flip Handler ===== */
   flipDailyCard(type) {
     const el = document.getElementById(`${type}-flip`);
@@ -173,14 +230,14 @@ export default class DailyCards {
         <div class="daily-card-wrapper" onclick="window.app.dailyCards.flipDailyCard('${type}')">
           <div class="daily-card-inner ${flippedClass}" id="${type}-flip">
             <div class="daily-card-back">
-              <div class="card-content">
+              <div class="card-content h-full overflow-y-auto">
                 <img src="${backImage}" alt="Card Back" class="dashboard-card-image">
                 <h3 class="dashboard-card-title">${title}</h3>
                 <p class="dashboard-card-subtitle">Click to Reveal</p>
               </div>
             </div>
             <div class="daily-card-front">
-              <div class="card-content">
+              <div class="card-content h-full overflow-y-auto">
                 <img src="${card.image}" alt="${card.name}" class="dashboard-card-image">
                 <h3 class="dashboard-card-title-front">${card.name}</h3>
                 <p class="dashboard-card-meaning">${card.meaning}</p>
@@ -201,19 +258,19 @@ export default class DailyCards {
         <div class="daily-card-wrapper" onclick="window.app.dailyCards.flipDailyCard('affirmation')">
           <div class="daily-card-inner ${flippedClass}" id="affirmation-flip">
             <div class="daily-card-back">
-              <div class="card-content">
+              <div class="card-content h-full overflow-y-auto">
                 <img src="${this.CARD_BACK_URL}" alt="Card Back" class="dashboard-card-image">
                 <h3 class="dashboard-card-title">Daily Affirmation</h3>
                 <p class="dashboard-card-subtitle">Click to Reveal</p>
               </div>
             </div>
             <div class="daily-card-front">
-              <div class="card-content">
-                <div class="dashboard-affirmation-box">
-                  <p class="dashboard-affirmation-text">"${affirmation}"</p>
+              <div class="card-content daily-front-split">
+                <div class="dashboard-affirmation-box-scroll">
+                  <p class="dashboard-affirmation-text">${affirmation}</p>
                 </div>
-                <h3 class="dashboard-card-title-front">Your Daily Affirmation</h3>
-                <p class="dashboard-card-subtitle">Embrace this message today</p>
+                <h3 class="dashboard-card-title-front daily-heading-bottom">Your Daily Affirmation</h3>
+                <p class="dashboard-card-subtitle daily-sub-bottom">Embrace this message today</p>
               </div>
             </div>
           </div>
@@ -231,15 +288,15 @@ export default class DailyCards {
         <div class="daily-card-wrapper" onclick="window.app.dailyCards.flipDailyCard('booster')">
           <div class="daily-card-inner ${flippedClass}" id="booster-flip">
             <div class="daily-card-back">
-              <div class="card-content">
+              <div class="card-content h-full overflow-y-auto">
                 <img src="${this.CARD_BACK_URL}" alt="Card Back" class="dashboard-card-image">
                 <h3 class="dashboard-card-title">Happiness Booster</h3>
                 <p class="dashboard-card-subtitle">Click to Reveal</p>
               </div>
             </div>
             <div class="daily-card-front">
-              <div class="card-content">
-                <div class="dashboard-booster-box">
+              <div class="card-content daily-front-split">
+                <div class="dashboard-booster-box-scroll">
                   <div class="dashboard-booster-content">
                     <div class="dashboard-booster-emoji">${booster.emoji}</div>
                     <h4 class="dashboard-booster-title">${booster.title}</h4>
@@ -247,8 +304,8 @@ export default class DailyCards {
                     <p class="dashboard-booster-meta">${booster.duration} • ${booster.category}</p>
                   </div>
                 </div>
-                <h3 class="dashboard-card-title-front">Your Happiness Booster</h3>
-                <p class="dashboard-card-subtitle">Do this to refresh yourself</p>
+                <h3 class="dashboard-card-title-front daily-heading-bottom">Your Happiness Booster</h3>
+                <p class="dashboard-card-subtitle daily-sub-bottom">Do this to refresh yourself</p>
               </div>
             </div>
           </div>
@@ -267,26 +324,24 @@ export default class DailyCards {
         <div class="daily-card-wrapper" onclick="window.app.dailyCards.flipDailyCard('inquiry')">
           <div class="daily-card-inner ${flippedClass}" id="inquiry-flip">
             <div class="daily-card-back">
-              <div class="card-content">
+              <div class="card-content h-full overflow-y-auto">
                 <img src="${this.CARD_BACK_URL}" alt="Card Back" class="dashboard-card-image">
                 <h3 class="dashboard-card-title">Daily Inquiry</h3>
                 <p class="dashboard-card-subtitle">Click to Reveal</p>
               </div>
             </div>
             <div class="daily-card-front">
-              <div class="card-content">
-                <div class="dashboard-booster-box" style="padding: 1.5rem;">
+              <div class="card-content daily-front-split">
+                <div class="dashboard-inquiry-box-scroll">
                   <div class="dashboard-booster-content">
-                    <div class="dashboard-booster-emoji" style="font-size: 3rem; margin-bottom: 1.5rem;">
+                    <div class="dashboard-booster-emoji" style="font-size: 3rem; margin-bottom: 1rem;">
                       ${intensityEmoji[inquiry.intensity] || '💭'}
                     </div>
-                    <p class="dashboard-booster-description" style="font-size: 1rem; line-height: 1.5; margin-bottom: 0.75rem; color: rgba(255, 255, 255, 0.9);">
-                      ${inquiry.question}
-                    </p>
+                    <p class="dashboard-booster-description">${inquiry.question}</p>
                   </div>
                 </div>
-                <h3 class="dashboard-card-title-front">Your Daily Inquiry</h3>
-                <p class="dashboard-card-subtitle">Contemplate deeply</p>
+                <h3 class="dashboard-card-title-front daily-heading-bottom">Your Daily Inquiry</h3>
+                <p class="dashboard-card-subtitle daily-sub-bottom">Contemplate deeply</p>
               </div>
             </div>
           </div>
@@ -298,14 +353,26 @@ export default class DailyCards {
   renderDailyCardsSection() {
     const dailyCard = this.getDailyTarotCard();
     const dailyAff = this.getDailyAffirmation();
+    const dailyBooster = this.getDailyBooster();
     const dailyInquiry = this.getDailyInquiry();
     
+    // Start timer after render
+    setTimeout(() => this.initMidnightTimer(), 100);
+    
     return `
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        ${this.renderDailyCard('tarot', dailyCard, 'Daily Tarot Card', this.CARD_BACK_URL)}
-        ${this.renderAffirmationCard(dailyAff)}
-        ${this.renderBoosterCard(this.getRandomBooster())}
-        ${this.renderInquiryCard(dailyInquiry)}
+      <div class="card dashboard-quest-hub mb-8" style="position: relative;">
+        <span id="daily-cards-timer" class="countdown-badge mt-4 md:mt-0" style="position: absolute; top: 1.5rem; right: 1.5rem;"></span>
+        <div class="dashboard-quest-header mt-8 md:mt-0" style="text-align:center;">
+          <h3 class="dashboard-quest-title">🎴 Your Daily Cards</h3>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+          ${this.renderDailyCard('tarot', dailyCard, 'Daily Tarot Card', this.CARD_BACK_URL)}
+          ${this.renderAffirmationCard(dailyAff)}
+          ${this.renderBoosterCard(dailyBooster)}
+          <div class="md:hidden">
+            ${this.renderInquiryCard(dailyInquiry)}
+          </div>
+        </div>
       </div>`;
   }
 }

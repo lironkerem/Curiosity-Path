@@ -981,7 +981,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 .dashboard-daily-card {
   padding: 1.875rem;
 }
-
 .daily-card-wrapper {
   perspective: 1000px;
   width: 100%;
@@ -989,7 +988,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   height: auto;
   position: relative;
 }
-
 .daily-card-inner {
   position: relative;
   width: 100%;
@@ -998,11 +996,9 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   transition: transform 0.6s ease;
   transform-style: preserve-3d;
 }
-
 .daily-card-inner.flipped {
   transform: rotateY(180deg);
 }
-
 .daily-card-back,
 .daily-card-front {
   width: 100%;
@@ -1011,13 +1007,11 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   -webkit-backface-visibility: hidden;
   -moz-backface-visibility: hidden;
 }
-
 .daily-card-back {
   position: relative;
   transform: rotateY(0deg);
   z-index: 2;
 }
-
 .daily-card-front {
   position: absolute;
   top: 0;
@@ -1027,15 +1021,12 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   display: flex;
   flex-direction: column;
 }
-
 .daily-card-inner.flipped .daily-card-back {
   z-index: 1;
 }
-
 .daily-card-inner.flipped .daily-card-front {
   z-index: 2;
 }
-
 .card-content {
   width: 100%;
   height: 100%;
@@ -1045,12 +1036,10 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   padding: 0;
   overflow-y: auto;          /* overflow safeguard */
 }
-
 .daily-card-front .card-content {
   min-height: auto;
   height: auto;
 }
-
 .dashboard-card-image {
   width: 100%;
   height: auto;
@@ -1059,7 +1048,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   object-fit: cover;
 }
-
 .dashboard-card-title {
   font-size: 1.25rem;
   font-weight: 700;
@@ -1067,12 +1055,10 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   margin-bottom: 0.5rem;
   color: var(--neuro-text);
 }
-
 .dashboard-card-subtitle {
   font-size: 0.875rem;
   color: var(--neuro-text-light);
 }
-
 .dashboard-card-title-front {
   font-size: 1.25rem;
   font-weight: 700;
@@ -1080,7 +1066,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   margin-bottom: 0.5rem;
   color: var(--neuro-accent);
 }
-
 /* --------------------------------------------------
    UNIFIED TEXT RULES – same font/size/weight/colour
    -------------------------------------------------- */
@@ -1096,12 +1081,10 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   color: rgba(255, 255, 255, .92);
   overflow-wrap: break-word;
 }
-
 /* keep emoji sizes intact */
 .dashboard-booster-emoji {
   font-size: 4rem;
 }
-
 /* ===== AFFIRMATION BOX ===== */
 .dashboard-affirmation-box {
   width: 100%;
@@ -1117,7 +1100,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   overflow: visible;
   background: linear-gradient(135deg, var(--neuro-accent), var(--neuro-accent-light));
 }
-
 /* ===== BOOSTER BOX ===== */
 .dashboard-booster-box {
   width: 100%;
@@ -1135,14 +1117,59 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   overflow: visible;
   background: linear-gradient(135deg, var(--neuro-success), #16a34a);
 }
-
 .dashboard-booster-content {
   width: 100%;
 }
-
 .dashboard-booster-meta {
   font-size: 0.875rem;
   color: rgba(255, 255, 255, 0.7);
+}
+/* ===== INQUIRY BOX ===== */
+.dashboard-inquiry-box {
+  width: 100%;
+  min-height: 180px;
+  max-height: none;
+  aspect-ratio: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: visible;
+}
+/* ===== GRADIENT FRONTS ===== */
+.daily-card-gradient-affirmation {
+  background: linear-gradient(135deg, var(--neuro-warning), var(--neuro-accent-light)) !important;
+}
+.daily-card-gradient-booster {
+  background: linear-gradient(135deg, var(--neuro-warning), var(--neuro-success)) !important;
+}
+.daily-card-gradient-inquiry {
+  background: linear-gradient(135deg, var(--neuro-warning), var(--neuro-error)) !important;
+}
+/* ===== CARD CONTAINER WITH TITLE BELOW ===== */
+.dashboard-daily-card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.daily-card-title-below {
+  text-align: center;
+  padding: 0.5rem 0;
+}
+.daily-card-title-below h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--neuro-text);
+  margin: 0 0 0.25rem 0;
+}
+.daily-card-subtitle-below {
+  font-size: 0.85rem;
+  color: var(--neuro-text-light);
+  margin: 0;
 }
 
 /* ===== QUOTE SECTION ===== */
