@@ -1043,6 +1043,10 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 .daily-card-back,
 .daily-card-front {
   width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   -moz-backface-visibility: hidden;
@@ -1052,10 +1056,8 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 
 /* Back side */
 .daily-card-back {
-  position: relative;
   transform: rotateY(0deg);
   z-index: 2;
-  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1083,13 +1085,8 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 
 /* Front side */
 .daily-card-front {
-  position: absolute;
-  top: 0;
-  left: 0;
   transform: rotateY(180deg);
   z-index: 1;
-  width: 100%;
-  height: 100%;
 }
 
 /* When flipped, swap z-index */
@@ -1104,8 +1101,17 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 .dashboard-card-image {
   width: 100%;
   height: 100%;
+  max-height: 100%;
   object-fit: contain;
   display: block;
+}
+
+/* Desktop: constrain image size */
+@media (min-width: 768px) {
+  .dashboard-card-image {
+    max-height: 450px;
+    margin: auto;
+  }
 }
 
 /* Gradient content wrapper - scrollable if needed */
