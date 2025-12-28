@@ -4870,8 +4870,8 @@ body.royal-indigo{
   
 /* ===== 6. INSPIRATION SECTION ===== */
 
-/* Inspiration card styling - neumorphic - MUST come after base .card styles */
-#gratitude-tab .card.inspiration-card {
+/* Inspiration container - neumorphic inset */
+#gratitude-tab .gratitude-inspiration-container {
   padding: 0.75rem !important;
   background: var(--neuro-bg) !important;
   border-radius: var(--radius-md) !important;

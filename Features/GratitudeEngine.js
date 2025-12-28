@@ -67,7 +67,7 @@ tab.innerHTML = `
           </form>
 
 <!-- Need Inspiration -->
-<div class="card inspiration-card">
+<div class="gratitude-inspiration-container">
   <p class="suggestion-label">💭 Need Inspiration?</p>
   <div class="gratitude-inspiration-grid">
     ${'A person who made you smile,A comfortable place you enjoy,Something in nature,A skill or talent you have,A recent act of kindness,A small win you had today'
