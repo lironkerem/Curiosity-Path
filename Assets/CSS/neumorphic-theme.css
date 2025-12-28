@@ -1047,17 +1047,20 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 /* "Click to reveal" text on card back */
 .card-back-reveal-text {
   position: absolute;
-  top: 1rem;
-  left: 0;
-  right: 0;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
   text-align: center;
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
   color: white;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-  z-index: 10;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  z-index: 100;
   margin: 0;
   pointer-events: none;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
 }
 
 /* Front side */
