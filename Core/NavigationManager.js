@@ -314,8 +314,8 @@ rightBtn.addEventListener('touchend', e => {
 /* -------------------------------------------------- */
 setupSheetSwipeClose() {
   const sheets = document.querySelectorAll('.mobile-sheet');
-  const OVERSCROLL_THRESHOLD = 80;
-  const VELOCITY_THRESHOLD = 0.4;
+  const OVERSCROLL_THRESHOLD = 120;  // increased from 80
+  const VELOCITY_THRESHOLD = 0.7;    // increased from 0.4
 
   sheets.forEach(sheet => {
     const scroller = sheet.querySelector('.sheet-scroller');
