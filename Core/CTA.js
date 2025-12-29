@@ -195,7 +195,7 @@ setupCTASwipeClose() {
 
               <section class="lux-section" data-section="sessions">
                 <button class="lux-section-header" aria-expanded="false">
-                  <h3>Private and Groups Sessions & Classes (In-Person and Online)</h3>
+                  <h3>Private Sessions & Group Classes</h3>
                   <span class="lux-chevron"></span>
                 </button>
                 <div class="lux-section-body">
@@ -205,7 +205,7 @@ setupCTASwipeClose() {
 
               <section class="lux-section" data-section="workshops">
                 <button class="lux-section-header" aria-expanded="false">
-                  <h3>Groups Workshops & Retreats (In-Person)</h3>
+                  <h3>Group Workshops, Courses & Retreats</h3>
                   <span class="lux-chevron"></span>
                 </button>
                 <div class="lux-section-body">
