@@ -356,7 +356,7 @@ export default class DailyCards {
         <!-- Container 2: Header Info -->
         <div class="daily-card-header-container ${flippedClass}" id="inquiry-header">
           <div class="daily-card-header-back">
-            <h3 class="daily-card-header-title">Daily Inquiry</h3>
+            <h3 class="daily-card-header-title">Daily Self-Inquiry</h3>
           </div>
           <div class="daily-card-header-front">
             <h3 class="daily-card-header-title">Be Honest</h3>
@@ -380,7 +380,7 @@ export default class DailyCards {
           <h3 class="dashboard-quest-title">🎴 Your Daily Cards</h3>
         </div>
         <div class="grid grid-cols-2 gap-6">
-          ${this.renderDailyCard('tarot', dailyCard, 'Daily Tarot Card', this.CARD_BACK_URL)}
+          ${this.renderDailyCard('tarot', dailyCard, 'Daily Tarot Guidance', this.CARD_BACK_URL)}
           ${this.renderAffirmationCard(dailyAff)}
           ${this.renderBoosterCard(dailyBooster)}
           ${this.renderInquiryCard(dailyInquiry)}
