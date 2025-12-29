@@ -316,7 +316,7 @@ setupSheetSwipeClose() {
   const sheets = document.querySelectorAll('.mobile-sheet');
   const OVERSCROLL_THRESHOLD = 150;  // increased from 120
   const VELOCITY_THRESHOLD = 1.0;    // increased from 0.7
-  const MIN_DRAG_START = 15;         // must drag 15px before activating
+  const MIN_DRAG_START = 20;         // must drag 20px before activating
 
   sheets.forEach(sheet => {
     const scroller = sheet.querySelector('.sheet-scroller');

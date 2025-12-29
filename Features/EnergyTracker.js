@@ -317,6 +317,9 @@ tab.innerHTML = `
     const pxW   = parent.clientWidth;
     const pxH   = parent.clientHeight;
 
+    const extraSpace = 90;  // ✅ ADD THIS - space for labels below
+    const viewBoxHeight = pxH + extraSpace;  // ✅ ADD THIS
+
 /*  3.  narrower / shorter / gapped  */
 const narrow = 0.55;   // % of slot width
 const short  = 1.00;   // % of slot height
@@ -336,7 +339,7 @@ const barW = dayW * narrow - gap;    // narrowed bar
     };
 
     /*  4.  view-box = exact pixels  –  nothing can overflow  */
-    let svg = `<svg viewBox="0 0 ${pxW} ${pxH}" style="width:100%;height:100%;display:block">`;
+       let svg = `<svg viewBox="0 0 ${pxW} ${viewBoxHeight}" style="width:100%;height:100%;display:block">`;
 
 /*  5.  bolder labels + average below chart  */
 const bigLabel = (x, y, txt) => `<text x="${x}" y="${y}" font-size="14" font-weight="bold" fill="var(--neuro-text-light)" text-anchor="middle">${txt}</text>`;
