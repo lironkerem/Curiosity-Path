@@ -310,33 +310,30 @@ rightBtn.addEventListener('touchend', e => {
     }
 
 /* -------------------------------------------------- */
-/*  OPTION #1: Grip Handle Only Swipe-to-Close       */
+/*  swipe-down-to-close for open sheets               */
 /* -------------------------------------------------- */
 setupSheetSwipeClose() {
   const sheets = document.querySelectorAll('.mobile-sheet');
-  const SWIPE_Y_THRESHOLD = 60;
-  const VELOCITY_THRESHOLD = 0.5;
+  const SWIPE_Y_THRESHOLD = 60;   // px
+  const VELOCITY_THRESHOLD = 0.5; // px/ms
 
-  sheets.forEach(sheet => {
-    const grip = sheet.querySelector('.sheet-grip');
+  sheets.forEach(sheet => {          // ← added parentheses
     let startY = 0, startT = 0;
 
-    // Only attach listeners to the grip element
-    grip.addEventListener('touchstart', e => {
+    sheet.addEventListener('touchstart', e => {
       startY = e.touches[0].clientY;
       startT = Date.now();
     }, {passive: true});
 
-    grip.addEventListener('touchmove', e => {
+    sheet.addEventListener('touchmove', e => {
       const currentY = e.touches[0].clientY;
       const deltaY = currentY - startY;
-      // Only drag down
       if (deltaY > 0) {
         sheet.style.transform = `translateY(${deltaY}px)`;
       }
     }, {passive: true});
 
-    grip.addEventListener('touchend', e => {
+    sheet.addEventListener('touchend', e => {
       const endY = e.changedTouches[0].clientY;
       const deltaY = endY - startY;
       const deltaT = Date.now() - startT;
