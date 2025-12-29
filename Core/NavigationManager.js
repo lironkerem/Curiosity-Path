@@ -220,7 +220,7 @@ sheets.forEach(sheet=>{
     const navItem = document.querySelector(`[data-tab="${row.dataset.tab}"]`);
     this.switchTab(row.dataset.tab, navItem?.dataset.label);
   });
-})
+});
     }
 
     /* -------------------------------------------------- */

@@ -35,7 +35,7 @@ static float(opts = {}) {
   window.openChatBot = () => instance._openPanel();
   
   return instance;
-}
+};
 
   /* ----------  DOM builders  ---------- */
   _renderChatBox() {
