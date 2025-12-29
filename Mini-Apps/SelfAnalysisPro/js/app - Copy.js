@@ -5,7 +5,6 @@ import { UIManager } from './ui.js';
 import { AstrologyEngine } from './astrology.js';
 import NumerologyEngine from './numerology.js';
 import { buildNarrative, getNumerologySummary, getAstrologySummary, getTreeSummary } from './narrativeEngine.js';
-import { renderNatalChartBlock } from './ui.natal.js';
 
 // Lazy loaders
 const loadPDFAssembler = () => import('./PDFAssembler.js').then(m => m.default);
@@ -226,58 +225,50 @@ collectFormData() {
     }
   }
 
-renderResults() {
-  const { numerology, astrology, narrative } = this.appState.analysis;
-  
-  // Build summaries
-  const numSum = getNumerologySummary({
-    lifePath: numerology.lifePath?.value,
-    destiny: numerology.expression?.value,
-    soulUrge: numerology.soulUrge?.value
-  });
-  
-  const astroSum = getAstrologySummary({
-    sun: astrology?.zodiac?.name?.toLowerCase()
-  });
-  
-  const treeSum = getTreeSummary(astrology?.sefira?.toLowerCase()?.split('(')[0]?.trim());
-  
-  // Update UI
-  const fill = (id, html) => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.classList.remove('placeholder-text');
-      el.innerHTML = html;
-    }
-  };
-  
-  fill('summary-numerology-content', numSum.join('<br><br>'));
-  fill('summary-astrology-content', 
-    (astrology?.zodiac 
-      ? `<strong>Zodiac:</strong> ${astrology.zodiac.name}<br>
-         <strong>Planet:</strong> ${astrology.zodiac.planet}<br>
-         <strong>Element:</strong> ${astrology.zodiac.element}<br><br>`
-      : '') + astroSum.join('<br><br>')
-  );
-  fill('summary-tree-content', 
-    (astrology?.sefira ? `<strong>Sefira:</strong> ${astrology.sefira}<br><br>` : '') + treeSum
-  );
-  fill('personal-narrative-content', narrative.replace(/\n/g, '\n'));
-  
-  // Populate deep cards
-  this.ui.populateResults(
-    { ...numerology, zodiac: astrology?.zodiac, sefira: astrology?.sefira },
-    null
-  );
-  
-  // ✅ Render natal chart if available
-  if (astrology && (astrology.planets || astrology.houses || astrology.natalChart)) {
-    console.log('🎯 Rendering natal chart with data:', astrology);
-    renderNatalChartBlock(astrology);
-  } else {
-    console.log('⚠️ No natal chart data available');
+  renderResults() {
+    const { numerology, astrology, narrative } = this.appState.analysis;
+    
+    // Build summaries
+    const numSum = getNumerologySummary({
+      lifePath: numerology.lifePath?.value,
+      destiny: numerology.expression?.value,
+      soulUrge: numerology.soulUrge?.value
+    });
+    
+    const astroSum = getAstrologySummary({
+      sun: astrology?.zodiac?.name?.toLowerCase()
+    });
+    
+    const treeSum = getTreeSummary(astrology?.sefira?.toLowerCase()?.split('(')[0]?.trim());
+    
+    // Update UI
+    const fill = (id, html) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.remove('placeholder-text');
+        el.innerHTML = html;
+      }
+    };
+    
+    fill('summary-numerology-content', numSum.join('<br><br>'));
+    fill('summary-astrology-content', 
+      (astrology?.zodiac 
+        ? `<strong>Zodiac:</strong> ${astrology.zodiac.name}<br>
+           <strong>Planet:</strong> ${astrology.zodiac.planet}<br>
+           <strong>Element:</strong> ${astrology.zodiac.element}<br><br>`
+        : '') + astroSum.join('<br><br>')
+    );
+    fill('summary-tree-content', 
+      (astrology?.sefira ? `<strong>Sefira:</strong> ${astrology.sefira}<br><br>` : '') + treeSum
+    );
+    fill('personal-narrative-content', narrative.replace(/\n/g, '\n'));
+    
+    // Populate deep cards
+    this.ui.populateResults(
+      { ...numerology, zodiac: astrology?.zodiac, sefira: astrology?.sefira },
+      null
+    );
   }
-}
 
   clearAll() {
     const form = document.getElementById('analysis-form');
