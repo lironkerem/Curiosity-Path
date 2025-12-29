@@ -310,44 +310,57 @@ rightBtn.addEventListener('touchend', e => {
     }
 
 /* -------------------------------------------------- */
-/*  OPTION #1: Grip Handle Only Swipe-to-Close       */
+/*  OPTION #2: Overscroll Detection (Pull-to-Close)  */
 /* -------------------------------------------------- */
 setupSheetSwipeClose() {
   const sheets = document.querySelectorAll('.mobile-sheet');
-  const SWIPE_Y_THRESHOLD = 60;
-  const VELOCITY_THRESHOLD = 0.5;
+  const OVERSCROLL_THRESHOLD = 80;
+  const VELOCITY_THRESHOLD = 0.4;
 
   sheets.forEach(sheet => {
-    const grip = sheet.querySelector('.sheet-grip');
-    let startY = 0, startT = 0;
+    const scroller = sheet.querySelector('.sheet-scroller');
+    let startY = 0, startT = 0, startScrollTop = 0;
+    let isDragging = false;
 
-    // Only attach listeners to the grip element
-    grip.addEventListener('touchstart', e => {
+    sheet.addEventListener('touchstart', e => {
       startY = e.touches[0].clientY;
       startT = Date.now();
+      startScrollTop = scroller.scrollTop;
+      isDragging = false;
     }, {passive: true});
 
-    grip.addEventListener('touchmove', e => {
+    sheet.addEventListener('touchmove', e => {
       const currentY = e.touches[0].clientY;
       const deltaY = currentY - startY;
-      // Only drag down
-      if (deltaY > 0) {
-        sheet.style.transform = `translateY(${deltaY}px)`;
+      
+      // Only activate when at top AND pulling down
+      if (scroller.scrollTop === 0 && deltaY > 0) {
+        isDragging = true;
+        // Visual feedback: drag the sheet down
+        const dragAmount = Math.min(deltaY * 0.5, 150); // resistance effect
+        sheet.style.transform = `translateY(${dragAmount}px)`;
+        sheet.style.transition = 'none';
       }
     }, {passive: true});
 
-    grip.addEventListener('touchend', e => {
+    sheet.addEventListener('touchend', e => {
+      if (!isDragging) return;
+      
       const endY = e.changedTouches[0].clientY;
       const deltaY = endY - startY;
       const deltaT = Date.now() - startT;
       const velocity = deltaY / deltaT;
 
+      sheet.style.transition = 'transform 0.3s ease';
       sheet.style.transform = '';
 
-      if (deltaY > SWIPE_Y_THRESHOLD && velocity > VELOCITY_THRESHOLD) {
+      // Close if pulled far enough OR fast enough
+      if (deltaY > OVERSCROLL_THRESHOLD || velocity > VELOCITY_THRESHOLD) {
         if (navigator.vibrate) navigator.vibrate(8);
         this.closeSheets();
       }
+      
+      isDragging = false;
     }, {passive: true});
   });
 }
