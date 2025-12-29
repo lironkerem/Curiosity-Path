@@ -2472,6 +2472,30 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   color: var(--neuro-text);
 }
 
+#calculator-tab .input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+#calculator-tab .location-dropdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%; /* Position it right below the input */
+  margin-top: 0.25rem;
+  background: var(--neuro-bg);
+  border-radius: var(--radius-md);
+  display: none;
+  z-index: 200;
+  max-height: 220px;
+  overflow-y: auto;
+  box-shadow: var(--shadow-raised);
+}
+
+#calculator-tab .location-dropdown.active {
+  display: block !important;
+}
+
 #calculator-tab input[type="checkbox"] {
   appearance: none;
   width: 20px;
