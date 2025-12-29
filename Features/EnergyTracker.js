@@ -358,7 +358,7 @@ points.forEach((p, i) => {
   const y    = pxH - barH;
   svg += `<rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="2" fill="${barColour(val)}"/>`;
   // weekday below the chart
-  const labelX = x + barW / 2 + 15;  // Add +15 to shift right
+  const labelX = x + barW / 2 + 20;  // Add +20 to shift right
   const labelY = pxH + 30;
   svg += `<text x="${labelX}" y="${labelY}" font-size="14" font-weight="bold" fill="var(--neuro-text-light)" text-anchor="middle" transform="rotate(-90,${labelX},${labelY})">${days[i]}</text>`;
 });
