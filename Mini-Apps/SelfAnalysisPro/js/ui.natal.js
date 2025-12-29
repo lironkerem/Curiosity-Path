@@ -82,32 +82,5 @@ export function renderNatalChartBlock(astrologyResults) {
     container.appendChild(houseSection);
   }
   
-  // === 4. Aspects ===
-  if (astrologyResults.aspects && astrologyResults.aspects.output) {
-    const aspectsSection = document.createElement("div");
-    aspectsSection.className = "natal-aspects-section";
-    const title = document.createElement("h3");
-    title.textContent = "Aspects";
-    aspectsSection.appendChild(title);
-    
-    const table = document.createElement("table");
-    table.className = "natal-table aspects-table";
-    table.innerHTML = `
-      <thead>
-        <tr><th>Planet 1</th><th>Aspect</th><th>Planet 2</th></tr>
-      </thead>
-      <tbody>
-        ${astrologyResults.aspects.output
-          .map(a => `
-          <tr>
-            <td>${a.planet_1?.en || 'Unknown'}</td>
-            <td>${a.aspect?.en || 'Unknown'}</td>
-            <td>${a.planet_2?.en || 'Unknown'}</td>
-          </tr>`)
-          .join("")}
-      </tbody>
-    `;
-    aspectsSection.appendChild(table);
-    container.appendChild(aspectsSection);
-  }
+
 }

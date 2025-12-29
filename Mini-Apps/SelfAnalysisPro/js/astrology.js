@@ -120,9 +120,6 @@ export class AstrologyEngine {
       const houses = await getHouses(params);
       console.log('✅ Houses received:', houses);
       
-      const aspects = await getAspects(params);
-      console.log('✅ Aspects received:', aspects);
-      
       const natalChart = await getNatalWheelChart(params);
       console.log('✅ Natal chart received:', natalChart);
       
@@ -131,7 +128,6 @@ export class AstrologyEngine {
         sefira: sefira,
         planets,
         houses,
-        aspects,
         natalChart
       };
     } catch (err) {
