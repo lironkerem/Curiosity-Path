@@ -314,8 +314,9 @@ rightBtn.addEventListener('touchend', e => {
 /* -------------------------------------------------- */
 setupSheetSwipeClose() {
   const sheets = document.querySelectorAll('.mobile-sheet');
-  const OVERSCROLL_THRESHOLD = 120;  // increased from 80
-  const VELOCITY_THRESHOLD = 0.7;    // increased from 0.4
+  const OVERSCROLL_THRESHOLD = 150;  // increased from 120
+  const VELOCITY_THRESHOLD = 1.0;    // increased from 0.7
+  const MIN_DRAG_START = 15;         // must drag 15px before activating
 
   sheets.forEach(sheet => {
     const scroller = sheet.querySelector('.sheet-scroller');
@@ -333,8 +334,8 @@ setupSheetSwipeClose() {
       const currentY = e.touches[0].clientY;
       const deltaY = currentY - startY;
       
-      // Only activate when at top AND pulling down
-      if (scroller.scrollTop === 0 && deltaY > 0) {
+      // Only activate when at top AND pulling down past threshold
+      if (scroller.scrollTop === 0 && deltaY > MIN_DRAG_START) {
         isDragging = true;
         // Visual feedback: drag the sheet down
         const dragAmount = Math.min(deltaY * 0.5, 150); // resistance effect
