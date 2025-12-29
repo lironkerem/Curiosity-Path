@@ -3099,8 +3099,13 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
+  z-index: 10000; /* FIX: Increased from 999 to match JS and ensure above all content */
   animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .modal-card {
@@ -3114,7 +3119,8 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   flex-direction: column;
   box-shadow: var(--shadow-raised-lg);
   animation: slideUpShadow 0.4s ease;
-  z-index: 10001;
+  position: relative; /* FIX: Added for proper stacking */
+  z-index: 10001; /* Keep higher than overlay */
 }
 
 @keyframes slideUpShadow {
@@ -3122,8 +3128,17 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   to { transform: translateY(0); opacity: 1; }
 }
 
-.scrollable-content { overflow-y: auto; padding-right: var(--spacing-sm); }
-.modal-actions { margin-top: var(--spacing-lg); display: flex; justify-content: flex-end; gap: var(--spacing-sm); }
+.scrollable-content { 
+  overflow-y: auto; 
+  padding-right: var(--spacing-sm); 
+}
+
+.modal-actions { 
+  margin-top: var(--spacing-lg); 
+  display: flex; 
+  justify-content: flex-end; 
+  gap: var(--spacing-sm); 
+}
 
 .case-selection-grid {
   display: grid;
@@ -3157,8 +3172,16 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   border: none;
 }
 
-.archetype-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-raised-hover); }
-.modal-close-btn { padding: 0.5rem 0.75rem; font-size: 1.2rem; min-height: auto; }
+.archetype-card:hover { 
+  transform: translateY(-2px); 
+  box-shadow: var(--shadow-raised-hover); 
+}
+
+.modal-close-btn { 
+  padding: 0.5rem 0.75rem; 
+  font-size: 1.2rem; 
+  min-height: auto; 
+}
 
 /* Keep Shadow-Alchemy badge in corner */
 .nav-item[data-tab="shadow-alchemy"] {
@@ -3169,6 +3192,19 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   position: absolute;
   top: 0.35rem;
   right: 0.35rem;
+}
+
+/* FIX: Mobile-specific modal adjustments */
+@media (max-width: 767px) {
+  .modal-overlay {
+    z-index: 10000; /* Ensure it stays on top on mobile */
+  }
+  
+  .modal-card {
+    width: 95%;
+    max-height: 95vh;
+    padding: 1.25rem;
+  }
 }
 /* =========================================================
    CTA FOOTER
@@ -4376,10 +4412,10 @@ body.royal-indigo{
 
 #energy-tab .weekly-chart-box svg {
   width: 100% !important;
-  height: auto !important;  /* ✅ Changed from 100% to auto */
+  height: 100% !important;  /* ✅ Change from auto to 100% */
   max-width: 100%;
   display: block;
-  transform: none;  /* ✅ REMOVED the scale(0.60) */
+  transform: none;
   transform-origin: center center;
   padding: 0;
   margin: 0;

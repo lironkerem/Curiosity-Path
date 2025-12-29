@@ -6,6 +6,7 @@ export function createModal({ id, title, subtitle, content, actions, onClose }) 
   const modal = document.createElement('div');
   modal.id = id;
   modal.className = 'modal-overlay';
+  modal.style.zIndex = '10000'; // FIX: Ensure modal appears on top
   modal.innerHTML = `
     <div class="modal-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:var(--spacing-md)">

@@ -227,35 +227,34 @@ class HappinessEngine {
   }
 
   /* --------------- RENDER --------------- */
-  render() {
-    const tab = document.getElementById('happiness-tab');
-    if (!tab) return;
-    if (!this.currentBooster) this.currentBooster = this.getDailyBooster();
-    if (!this.currentQuote)   this.currentQuote   = window.QuotesData ? window.QuotesData.getQuoteOfTheDay() : { text: 'Stay positive!', author: 'Unknown' };
-    if (!this.currentAffirmation) this.currentAffirmation = this.getDailyAffirmation();
-    if (!this.currentInquiry) this.currentInquiry = this.getRandomInquiry(); // NEW
-    
-    const viewCount = this.getTodayViewCount();
-    const viewsRemaining = Math.max(0, 5 - viewCount);
-    const intensityEmoji = { 1: '🌱', 2: '🌿', 3: '🌳', 4: '🔥' };
+// Updated render() method section - replace lines ~195-345
+
+render() {
+  const tab = document.getElementById('happiness-tab');
+  if (!tab) return;
+  if (!this.currentBooster) this.currentBooster = this.getDailyBooster();
+  if (!this.currentQuote)   this.currentQuote   = window.QuotesData ? window.QuotesData.getQuoteOfTheDay() : { text: 'Stay positive!', author: 'Unknown' };
+  if (!this.currentAffirmation) this.currentAffirmation = this.getDailyAffirmation();
+  if (!this.currentInquiry) this.currentInquiry = this.getRandomInquiry();
+  
+  const viewCount = this.getTodayViewCount();
+  const intensityEmoji = { 1: '🌱', 2: '🌿', 3: '🌳', 4: '🔥' };
 
 tab.innerHTML = `
   <div style="padding:1.5rem;min-height:100vh;">
     <div class="universal-content">
 
-      <header class="text-center" style="margin-bottom: 2.5rem;">
-        <div class="main-header project-curiosity">
-          <h1>Happiness and Motivation</h1>
-          <h3>Your daily dose of Inspirational Quotes with Happiness Boosters, Positive-Affirmations, and Self-Inquiry.</h3>
+      <header class="main-header project-curiosity">
+        <div class="flex items-center justify-between" style="margin-bottom: 1rem;">
+          <div>
+            <h1>Happiness and Motivation</h1>
+          </div>
+          <span class="badge ${viewCount >= 5 ? 'badge-success' : 'badge-primary'}">${viewCount} / 5 (Quest)</span>
         </div>
-        ${viewCount > 0 ? `
-          <div class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full" style="background: rgba(102, 126, 234, 0.1);">
-            <span style="color: var(--neuro-accent); font-weight: bold;">${viewCount}/5 views today</span>
-            ${viewCount >= 5 ? `
-              <span style="color: var(--neuro-success);">✓ Quest Complete!</span>
-            ` : `
-              <span style="color: var(--neuro-text-light);">(${viewsRemaining} more to complete quest)</span>
-            `}
+        <h3>Your daily dose of Inspirational Quotes with Happiness Boosters, Positive-Affirmations, and Self-Inquiry.</h3>
+        ${viewCount >= 5 ? `
+          <div style="margin-top: 1rem;padding:1rem;border-radius:0.5rem;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);">
+            <p class="text-center" style="color: #22c55e;">🎉 Daily quest complete! Keep exploring if you'd like!</p>
           </div>
         ` : ''}
       </header>
@@ -325,7 +324,7 @@ tab.innerHTML = `
           </div>
         </div>
 
-        <!--  NEW: Self Inquiry Card  -->
+        <!--  Self Inquiry Card  -->
         <div class="neuro-card flip-card" id="inquiry-card">
           <div class="flip-card-inner">
             <div class="flip-card-front">
@@ -361,7 +360,7 @@ tab.innerHTML = `
     </div>
   </div>
 `;
-  }
+}
 }
 
 if (typeof window !== 'undefined') window.HappinessEngine = HappinessEngine;
