@@ -23,15 +23,19 @@ export class ChatBotAI {
     return this;
   }
 
-  static float(opts = {}) {
-    if (document.getElementById('chatbot-float-root')) return;
-    const instance = new ChatBotAI({...opts, attach:null});
-    instance.isFloat = true;
-    instance._injectFloatCSS();
-    instance._renderFloatSkeleton();
-    instance._pushMessage('Hello! How can I help you today my friend?', 'bot');
-    return instance;
-  }
+static float(opts = {}) {
+  if (document.getElementById('chatbot-float-root')) return;
+  const instance = new ChatBotAI({...opts, attach:null});
+  instance.isFloat = true;
+  instance._injectFloatCSS();
+  instance._renderFloatSkeleton();
+  instance._pushMessage('Hello! How can I help you today my friend?', 'bot');
+  
+  // NEW: Expose global method to open panel
+  window.openChatBot = () => instance._openPanel();
+  
+  return instance;
+}
 
   /* ----------  DOM builders  ---------- */
   _renderChatBox() {
