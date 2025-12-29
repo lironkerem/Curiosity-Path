@@ -209,10 +209,25 @@ sheets.forEach(sheet=>{
     if(!row) return;
     closeSheets();
     
-    // Special case: open chatbot popup instead of switching tabs
+    // Special case: open chatbot popup
     if(row.dataset.tab === 'chatbot') {
-      const bubble = document.getElementById('chatbot-float-panel');
-      if(bubble) bubble.classList.add('open');
+      // Wait for ChatBot to be ready
+      const checkAndOpen = () => {
+        const panel = document.getElementById('chatbot-float-panel');
+        if(panel) {
+          panel.classList.add('open');
+          const bubble = document.getElementById('chatbot-float-bubble');
+          if(bubble) bubble.style.display = 'none';
+          setTimeout(() => {
+            const input = panel.querySelector('.chatbot-ai-input');
+            if(input) input.focus();
+          }, 100);
+        } else {
+          // ChatBot not ready yet, try again
+          setTimeout(checkAndOpen, 100);
+        }
+      };
+      checkAndOpen();
       return;
     }
     
