@@ -135,50 +135,50 @@ export default class DashboardManager {
   }
 
   /* -------------- QUOTE CARD (360° flip) -------------- */
-  renderQuoteCard() {
-    return `
-      <div class="neuro-card flip-card" id="dashboard-quote-card">
-        <div class="flip-card-inner">
-          <div class="flip-card-front">
-            <div class="flex items-center mb-4">
-              <span class="text-3xl mr-4">📜</span>
-              <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2>
-            </div>
-            <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent); line-height: 1.5; padding-top: 1.5rem; padding-bottom: 1.5rem;">
-             "${this.currentQuote.text}"
-            </p>
-            <p class="mt-3 text-center text-lg" style="color: var(--neuro-text);">
-              — ${this.currentQuote.author}
-            </p>
-            <div class="mt-6 flex justify-end">
-              <button onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">🔄 Refresh Quote</button>
-            </div>
+renderQuoteCard() {
+  return `
+    <div class="neuro-card flip-card" id="dashboard-quote-card">
+      <div class="flip-card-inner">
+        <div class="flip-card-front">
+          <div class="flex items-center mb-8">
+            <span class="text-3xl mr-4">📜</span>
+            <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2>
           </div>
-          <div class="flip-card-back"></div>
+          <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent); line-height: 1.5; padding-top: 2rem; padding-bottom: 2rem;">
+           "${this.currentQuote.text}"
+          </p>
+          <p class="mt-6 text-center text-lg" style="color: var(--neuro-text);">
+            — ${this.currentQuote.author}
+          </p>
+          <div class="mt-8 flex justify-end">
+            <button onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">🔄 Refresh Quote</button>
+          </div>
         </div>
-      </div>`;
-  }
-
-  refreshQuote() {
-    if (!window.QuotesData) return;
-    this.currentQuote = window.QuotesData.getRandomQuote();
-    const html = `
-      <div class="flex items-center mb-4">
-        <span class="text-3xl mr-4">📜</span>
-        <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2>
+        <div class="flip-card-back"></div>
       </div>
-      <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
-        "${this.currentQuote.text}"
-      </p>
-      <p class="mt-3 text-center text-lg" style="color: var(--neuro-text);">
-        — ${this.currentQuote.author}
-      </p>
-      <div class="mt-6 flex justify-end">
-        <button onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">🔄 Refresh Quote</button>
-      </div>`;
-    this._flipCard('dashboard-quote-card', html);
-    if (this.app.showToast) this.app.showToast('📜 New quote revealed!', 'success');
-  }
+    </div>`;
+}
+
+refreshQuote() {
+  if (!window.QuotesData) return;
+  this.currentQuote = window.QuotesData.getRandomQuote();
+  const html = `
+    <div class="flex items-center mb-8">
+      <span class="text-3xl mr-4">📜</span>
+      <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2>
+    </div>
+    <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent); line-height: 1.5; padding-top: 2rem; padding-bottom: 2rem;">
+      "${this.currentQuote.text}"
+    </p>
+    <p class="mt-6 text-center text-lg" style="color: var(--neuro-text);">
+      — ${this.currentQuote.author}
+    </p>
+    <div class="mt-8 flex justify-end">
+      <button onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">🔄 Refresh Quote</button>
+    </div>`;
+  this._flipCard('dashboard-quote-card', html);
+  if (this.app.showToast) this.app.showToast('📜 New quote revealed!', 'success');
+}
 
   renderGamificationWidget(status, stats) {
     if (!this.app.gamification) return '';
