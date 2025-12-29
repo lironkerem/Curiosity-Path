@@ -37,61 +37,49 @@ export default class CTA {
     this.setupCTASwipeClose();   // NEW
   }
 
-/* -------------------------------------------------- */
-/*  swipe-down-to-close for CTA panel                 */
-/* -------------------------------------------------- */
-setupCTASwipeClose() {
-  const panel = document.getElementById('cta-panel');
-  const toggle = document.getElementById('cta-toggle');
-  const SWIPE_Y_THRESHOLD = 60;   // px
-  const VELOCITY_THRESHOLD = 0.5; // px/ms
+  /* -------------------------------------------------- */
+  /*  swipe-down-to-close for CTA panel                 */
+  /* -------------------------------------------------- */
+  setupCTASwipeClose() {
+    const panel = document.getElementById('cta-panel');
+    const toggle = document.getElementById('cta-toggle');
+    const SWIPE_Y_THRESHOLD = 60;   // px
+    const VELOCITY_THRESHOLD = 0.5; // px/ms
 
-  let startY = 0, startT = 0, canSwipeClose = false;
+    let startY = 0, startT = 0;
 
-  panel.addEventListener('touchstart', e => {
-    startY = e.touches[0].clientY;
-    startT = Date.now();
-    
-    // Allow swipe-close only if NOT touching a grid or section body
-    const target = e.target;
-    const touchingGrid = target.closest('.lux-grid, .lux-section-body');
-    canSwipeClose = !touchingGrid;
-  }, {passive: true});
+    panel.addEventListener('touchstart', e => {
+      startY = e.touches[0].clientY;
+      startT = Date.now();
+    }, {passive: true});
 
-  panel.addEventListener('touchmove', e => {
-    if (!canSwipeClose) return;
-    
-    const currentY = e.touches[0].clientY;
-    const deltaY = currentY - startY;
-    if (deltaY > 0) {                       // only downward
-      panel.style.transform = `translateY(${deltaY}px)`;
-    }
-  }, {passive: true});
+    panel.addEventListener('touchmove', e => {
+      const currentY = e.touches[0].clientY;
+      const deltaY = currentY - startY;
+      if (deltaY > 0) {                       // only downward
+        panel.style.transform = `translateY(${deltaY}px)`;
+      }
+    }, {passive: true});
 
-  panel.addEventListener('touchend', e => {
-    if (!canSwipeClose) {
-      panel.style.transform = '';
-      return;
-    }
-    
-    const endY = e.changedTouches[0].clientY;
-    const deltaY = endY - startY;
-    const deltaT = Date.now() - startT;
-    const velocity = deltaY / deltaT;
+    panel.addEventListener('touchend', e => {
+      const endY = e.changedTouches[0].clientY;
+      const deltaY = endY - startY;
+      const deltaT = Date.now() - startT;
+      const velocity = deltaY / deltaT;
 
-    panel.style.transform = '';             // reset
+      panel.style.transform = '';             // reset
 
-    if (deltaY > SWIPE_Y_THRESHOLD && velocity > VELOCITY_THRESHOLD) {
-      if (navigator.vibrate) navigator.vibrate(8);
-      // close the footer exactly like the toggle click does
-      this.isOpen = false;
-      toggle.classList.remove('open');
-      toggle.setAttribute('aria-expanded', 'false');
-      panel.classList.remove('open');
-      document.getElementById('cta-aria-live').textContent = 'Footer panel closed';
-    }
-  }, {passive: true});
-}
+      if (deltaY > SWIPE_Y_THRESHOLD && velocity > VELOCITY_THRESHOLD) {
+        if (navigator.vibrate) navigator.vibrate(8);
+        // close the footer exactly like the toggle click does
+        this.isOpen = false;
+        toggle.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+        panel.classList.remove('open');
+        document.getElementById('cta-aria-live').textContent = 'Footer panel closed';
+      }
+    }, {passive: true});
+  }
 
   markup() {
     return `
