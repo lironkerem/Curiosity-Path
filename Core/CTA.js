@@ -106,7 +106,7 @@ setupCTASwipeClose() {
           <span class="lux-chevron"></span>
         </button>
 
-        <div id="cta-panel" class="lux-panel">
+        <div id="cta-panel" class="lux-panel" style="touch-action: pan-y;">
           <div class="lux-scroll">
             <div class="lux-inner">
               <header class="lux-header">
