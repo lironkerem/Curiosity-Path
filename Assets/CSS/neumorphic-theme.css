@@ -2304,17 +2304,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   color: var(--neuro-text);
 }
 
-/* Fix Astrology summary alignment */
-#calculator-tab #summary-astrology-content {
-  text-align: left;
-  display: block;
-}
-
-#calculator-tab #summary-astrology-content strong {
-  display: inline-block;
-  min-width: 140px;
-}
-
 #calculator-tab .details-card {
   width: 100%;
   max-width: 100%;  /* CHANGED from 920px */
@@ -2788,6 +2777,23 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 #calculator-tab .cta-image-card:hover .cta-image-inner {
   box-shadow: var(--shadow-raised-hover);
   transform: scale(1.02);
+}
+
+/* Full Natal Chart Section Styling */
+#calculator-tab .natal-chart-section h3,
+#calculator-tab .natal-planets-section h3,
+#calculator-tab .natal-houses-section h3 {
+  font-size: clamp(1.5rem, 3vw + 0.5rem, 2.5rem);
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: var(--neuro-text);
+}
+
+#calculator-tab .natal-chart-section,
+#calculator-tab .natal-planets-section,
+#calculator-tab .natal-houses-section {
+  margin-bottom: 2rem;
 }
 
 #calculator-tab .natal-table {

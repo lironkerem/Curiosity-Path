@@ -253,12 +253,12 @@ renderResults() {
   
   fill('summary-numerology-content', numSum.join('<br><br>'));
   fill('summary-astrology-content', 
-    (astrology?.zodiac 
-      ? `<strong>Zodiac:</strong> ${astrology.zodiac.name}<br>
-         <strong>Planet:</strong> ${astrology.zodiac.planet}<br>
-         <strong>Element:</strong> ${astrology.zodiac.element}<br><br>`
-      : '') + astroSum.join('<br><br>')
-  );
+  (astrology?.zodiac 
+    ? `<strong>Zodiac:</strong> ${astrology.zodiac.name}<br>
+<strong>Planet:</strong> ${astrology.zodiac.planet}<br>
+<strong>Element:</strong> ${astrology.zodiac.element}<br><br>`
+    : '') + astroSum.join('<br><br>')
+);
   fill('summary-tree-content', 
     (astrology?.sefira ? `<strong>Sefira:</strong> ${astrology.sefira}<br><br>` : '') + treeSum
   );
