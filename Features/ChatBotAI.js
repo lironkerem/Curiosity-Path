@@ -2,7 +2,7 @@
 
 export class ChatBotAI {
   constructor(opts = {}) {
-    this.apiUrl        = opts.apiUrl   || '/API/chat';
+    this.apiUrl        = opts.apiUrl   || '/api/chat';
     this.placeholder   = opts.placeholder || 'Type your message/query/question…';
     this.title         = opts.title      || 'AI Assistant by Aanandoham';
     this.target        = opts.attach     || null;
