@@ -237,7 +237,7 @@ export default class DailyCards {
             <h3 class="daily-card-header-title">${title}</h3>
           </div>
           <div class="daily-card-header-front">
-            <h3 class="daily-card-header-title">Daily vibe</h3>
+            <h3 class="daily-card-header-title">Daily Vibe</h3>
           </div>
         </div>
       </div>`;
@@ -273,7 +273,7 @@ export default class DailyCards {
             <h3 class="daily-card-header-title">Daily Affirmation</h3>
           </div>
           <div class="daily-card-header-front">
-            <h3 class="daily-card-header-title">Your Daily Affirmation</h3>
+            <h3 class="daily-card-header-title">Today's Mantra</h3>
           </div>
         </div>
       </div>`;
@@ -314,7 +314,7 @@ export default class DailyCards {
             <h3 class="daily-card-header-title">Happiness Booster</h3>
           </div>
           <div class="daily-card-header-front">
-            <h3 class="daily-card-header-title">Boost Now!</h3>
+            <h3 class="daily-card-header-title">Just Do It</h3>
           </div>
         </div>
       </div>`;
@@ -359,7 +359,7 @@ export default class DailyCards {
             <h3 class="daily-card-header-title">Daily Inquiry</h3>
           </div>
           <div class="daily-card-header-front">
-            <h3 class="daily-card-header-title">Ask Yourself Truly!</h3>
+            <h3 class="daily-card-header-title">Be Honest</h3>
           </div>
         </div>
       </div>`;
