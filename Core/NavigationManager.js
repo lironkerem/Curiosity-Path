@@ -203,15 +203,23 @@ export default class NavigationManager {
         openSheet('sheet-features'); e.currentTarget.setAttribute('aria-expanded','true');
       });
       scrim.addEventListener('click',closeSheets);
-      sheets.forEach(sheet=>{
-        sheet.addEventListener('click',(e)=>{
-          const row = e.target.closest('.sheet-row');
-          if(!row) return;
-          closeSheets();
-          const navItem = document.querySelector(`[data-tab="${row.dataset.tab}"]`);
-          this.switchTab(row.dataset.tab, navItem?.dataset.label);
-        });
-      });
+sheets.forEach(sheet=>{
+  sheet.addEventListener('click',(e)=>{
+    const row = e.target.closest('.sheet-row');
+    if(!row) return;
+    closeSheets();
+    
+    // Special case: open chatbot popup instead of switching tabs
+    if(row.dataset.tab === 'chatbot') {
+      const bubble = document.getElementById('chatbot-float-panel');
+      if(bubble) bubble.classList.add('open');
+      return;
+    }
+    
+    const navItem = document.querySelector(`[data-tab="${row.dataset.tab}"]`);
+    this.switchTab(row.dataset.tab, navItem?.dataset.label);
+  });
+});
     }
 
     /* -------------------------------------------------- */
