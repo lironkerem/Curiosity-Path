@@ -318,7 +318,7 @@ tab.innerHTML = `
     const pxH   = parent.clientHeight;
 
     const topSpace = 20;  // ✅ ADD THIS - space for top label
-    const extraSpace = 90;
+    const extraSpace = 105;
     const viewBoxHeight = pxH + extraSpace + topSpace;  // ✅ UPDATED
 
 /*  3.  narrower / shorter / gapped  */
@@ -358,15 +358,15 @@ points.forEach((p, i) => {
   const y    = pxH - barH;
   svg += `<rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="2" fill="${barColour(val)}"/>`;
   // weekday below the chart
-  const labelX = x + barW / 2;
-  const labelY = pxH + 30;                // 18 px below bottom edge
+  const labelX = x + barW / 2 + 15;  // Add +15 to shift right
+  const labelY = pxH + 30;
   svg += `<text x="${labelX}" y="${labelY}" font-size="14" font-weight="bold" fill="var(--neuro-text-light)" text-anchor="middle" transform="rotate(-90,${labelX},${labelY})">${days[i]}</text>`;
 });
 
 /*  average BELOW the chart  */
 const nonZero = points.filter(v => v > 0);
 const avg = nonZero.length ? (nonZero.reduce((s, v) => s + v, 0) / nonZero.length).toFixed(1) : '—';
-svg += `<text x="${pxW / 2}" y="${pxH + 70}" font-size="14" font-weight="bold" fill="var(--neuro-text)" text-anchor="middle">7 Days Avarage: ${avg}</text></svg>`;
+svg += `<text x="${pxW / 2}" y="${pxH + 85}" font-size="14" font-weight="bold" fill="var(--neuro-text)" text-anchor="middle">7 Days Avarage: ${avg}</text></svg>`;
 return svg;
 }
 
