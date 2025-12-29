@@ -229,6 +229,8 @@ class HappinessEngine {
   /* --------------- RENDER --------------- */
 // Updated render() method section - replace lines ~195-345
 
+// Updated render() method section - replace lines ~195-345
+
 render() {
   const tab = document.getElementById('happiness-tab');
   if (!tab) return;
@@ -245,19 +247,20 @@ tab.innerHTML = `
     <div class="universal-content">
 
       <header class="main-header project-curiosity">
-        <div class="flex items-center justify-between" style="margin-bottom: 1rem;">
-          <div>
-            <h1>Happiness and Motivation</h1>
-          </div>
-          <span class="badge ${viewCount >= 5 ? 'badge-success' : 'badge-primary'}">${viewCount} / 5 (Quest)</span>
-        </div>
+        <h1>Happiness and Motivation</h1>
         <h3>Your daily dose of Inspirational Quotes with Happiness Boosters, Positive-Affirmations, and Self-Inquiry.</h3>
-        ${viewCount >= 5 ? `
-          <div style="margin-top: 1rem;padding:1rem;border-radius:0.5rem;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);">
-            <p class="text-center" style="color: #22c55e;">🎉 Daily quest complete! Keep exploring if you'd like!</p>
-          </div>
-        ` : ''}
       </header>
+
+      <div class="flex items-center justify-between" style="margin-bottom: 2rem; padding: 1rem; background: rgba(102, 126, 234, 0.05); border-radius: 8px;">
+        <span style="color: var(--neuro-text); font-weight: 600;">Daily Quest Progress</span>
+        <span class="badge ${viewCount >= 5 ? 'badge-success' : 'badge-primary'}">${viewCount} / 5 (Quest)</span>
+      </div>
+
+      ${viewCount >= 5 ? `
+        <div style="margin-bottom: 2rem;padding:1rem;border-radius:0.5rem;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);">
+          <p class="text-center" style="color: #22c55e;">🎉 Daily quest complete! Keep exploring if you'd like!</p>
+        </div>
+      ` : ''}
 
       <main class="space-y-6">
         <!--  Booster Card  -->
