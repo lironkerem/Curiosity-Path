@@ -6964,40 +6964,52 @@ body.royal-indigo{
   }
   
   
-  /* ===== 3. STEP INDICATOR - MOBILE OPTIMIZED ===== */
-  
-  #calculator-tab .step-indicator,
-  .step-indicator {
-    padding: 0.75rem 0.5rem !important;
-    margin-bottom: 1rem !important;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  #calculator-tab .step-item,
-  .step-item {
-    flex: 0 0 auto;
-    min-width: 80px;
-    padding: 0 0.25rem;
-  }
-  
-  #calculator-tab .step-label,
-  .step-label {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  #calculator-tab .step-dot,
-  .step-dot {
-    width: 12px;
-    height: 12px;
-  }
-  
-  #calculator-tab .step-connector,
-  .step-connector {
-    top: 6px;
-  }
+/* ===== 3. STEP INDICATOR - MOBILE OPTIMIZED ===== */
+
+#calculator-tab .step-indicator,
+.step-indicator {
+  padding: 0.5rem 0.25rem !important;
+  margin-bottom: 1rem !important;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  justify-content: flex-start;
+}
+
+#calculator-tab .step-item,
+.step-item {
+  flex: 0 0 auto;
+  min-width: 65px !important;
+  max-width: 85px !important;
+  padding: 0 0.15rem !important;
+  gap: 0.25rem !important;
+}
+
+#calculator-tab .step-label,
+.step-label {
+  font-size: clamp(0.6rem, 2vw, 0.75rem) !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+#calculator-tab .step-dot,
+.step-dot {
+  width: 10px !important;
+  height: 10px !important;
+}
+
+#calculator-tab .step-connector,
+.step-connector {
+  top: 5px !important;
+  height: 1.5px !important;
+}
+
+#calculator-tab .step-item.active .step-dot,
+.step-item.active .step-dot {
+  transform: scale(1.2) !important;
+}
   
   
   /* ===== 4. FORM LAYOUT - STACKED ===== */
