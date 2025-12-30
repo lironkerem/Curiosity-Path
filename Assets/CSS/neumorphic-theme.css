@@ -5754,28 +5754,29 @@ body.royal-indigo{
   }
   
   
-/* ===== 7. PYRAMID SPREAD - MOBILE LAYOUT ===== */
+/* ===== 7. PYRAMID SPREAD - MOBILE LAYOUT (FIXED) ===== */
 
 #tarot-tab .pyramid-triangle {
   row-gap: 0.5rem !important;
   transform: scale(0.85);
   transform-origin: top center;
-
-  /* NEW – stop the jump */
-  scroll-padding-top: 0;
-  scroll-behavior: auto;
+  position: relative;
 }
 
-/* NEW – stop browser scrolling the tapped card into view */
-#tarot-tab .tarot-card-flip-container {
-  scroll-margin: 0;
-  -webkit-scroll-margin: 0;
+/* Lock card wrapper height to prevent jumping */
+#tarot-tab .pyramid-triangle .flex.flex-col.items-center.mx-auto {
+  position: relative;
+  min-height: 280px;
 }
 
-/* NEW – lock height while flipping (optional but nice) */
-#tarot-tab .pyramid-triangle.flipping {
-  height: var(--pyramid-height, auto);
-  overflow: hidden;
+/* Position card details absolutely so they don't push layout */
+#tarot-tab .pyramid-triangle [id^="tarot-card-details-"] {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Pyramid rows - tighter gaps for mobile */
@@ -5982,11 +5983,16 @@ body.royal-indigo{
     font-size: 0.6rem;
   }
   
+  /* Pyramid card wrappers on very small screens */
+  #tarot-tab .pyramid-triangle .flex.flex-col.items-center.mx-auto {
+    min-height: 260px;
+  }
+  
 }
 
 /* =========================================================
    END OF TAROT SPREADS MOBILE OPTIMIZATION
-   ========================================================= */
+   =========================================================*/
 /* =========================================================
    GUIDED MEDITATIONS MOBILE OPTIMIZATION - UNDER 768px ONLY
    ========================================================= */
