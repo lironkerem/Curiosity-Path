@@ -13,18 +13,22 @@ export class ChatBotAI {
     
     // If tab doesn't exist, create it
     if (!tab) {
-      alert('Creating chatbot-tab dynamically');
       const mainContent = document.getElementById('main-content');
       if (mainContent) {
         tab = document.createElement('div');
         tab.id = 'chatbot-tab';
-        tab.className = 'tab-content hidden';
+        tab.className = 'tab-content';
         mainContent.appendChild(tab);
       } else {
-        alert('ERROR: main-content not found!');
+        console.error('main-content not found');
         return;
       }
     }
+    
+    // Make sure tab is visible
+    tab.classList.add('active');
+    tab.style.display = 'block';
+    tab.setAttribute('aria-hidden', 'false');
 
     tab.innerHTML = `
 <div style="padding:1.5rem;min-height:100vh;">
