@@ -89,14 +89,12 @@ setupCTASwipeClose() {
     const deltaY = currentY - startY;
     if (deltaY > 0) {                       // only downward
       panel.style.transform = `translateY(${deltaY}px)`;
-      toggle.style.transform = `translateY(${deltaY}px)`;
     }
   }, {passive: true});
 
   panel.addEventListener('touchend', e => {
     if (!canSwipeClose) {
       panel.style.transform = '';
-      toggle.style.transform = '';
       return;
     }
     
@@ -118,12 +116,10 @@ setupCTASwipeClose() {
       // Remove transform after CSS transition completes
       setTimeout(() => {
         panel.style.transform = '';
-        toggle.style.transform = '';
       }, 300);  // match CSS transition duration
     } else {
       // Swipe didn't meet threshold, snap back
       panel.style.transform = '';
-      toggle.style.transform = '';
     }
   }, {passive: true});
 }
