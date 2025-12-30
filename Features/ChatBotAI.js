@@ -9,14 +9,22 @@ export class ChatBotAI {
   }
 
   render() {
+    alert('ChatBot render() called');
+    
+    const mainApp = document.getElementById('main-app');
+    alert('main-app found: ' + !!mainApp);
+    
+    const mainContent = document.getElementById('main-content');
+    alert('main-content found: ' + !!mainContent);
+    
     const tab = document.getElementById('chatbot-tab');
+    alert('chatbot-tab found: ' + !!tab);
+    
     if (!tab) {
       alert('ERROR: chatbot-tab not found!');
       console.error('chatbot-tab not found');
       return;
     }
-    
-    alert('ChatBot render() is running!');
 
     tab.innerHTML = `
 <div style="padding:1.5rem;min-height:100vh;">
