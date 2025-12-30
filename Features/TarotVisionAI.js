@@ -241,14 +241,14 @@ async function toggleCamera() {
   }
 
   /* ---------- POPUP STYLES (injected once) ---------- */
-  function injectStyles() {
-    if (document.getElementById('vision-popup-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'vision-popup-styles';
-    style.textContent = `
-      #tarot-vision-popup { position: fixed; inset: 0; z-index: 9999; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.6); backdrop-filter: blur(4px); }
-      #tarot-vision-popup.active { display: flex; }
-      .vision-popup-card { background: var(--neuro-bg, #fff); border-radius: 12px; width: 90%; max-width: 600px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,.3); overflow: hidden; }
+function injectStyles() {
+  if (document.getElementById('vision-popup-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'vision-popup-styles';
+  style.textContent = `
+    #tarot-vision-popup { position: fixed; inset: 0; z-index: 9999; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.6); backdrop-filter: blur(4px); padding: 1rem; }
+    #tarot-vision-popup.active { display: flex; }
+    .vision-popup-card { background: var(--neuro-bg, #fff); border-radius: 12px; width: 90%; max-width: 600px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,.3); overflow: hidden; margin: auto; }
       .vision-popup-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid var(--neuro-border, #e5e7eb); }
       .vision-popup-title { font-size: 1.25rem; font-weight: 700; color: var(--neuro-text, #111); }
       .vision-close-btn { background: none; border: none; font-size: 1.5rem; line-height: 1; cursor: pointer; color: var(--neuro-text-light, #666); }
