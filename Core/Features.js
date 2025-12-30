@@ -38,22 +38,37 @@ class FeaturesManager {
     this.engines = {}; 
   }
   
-  init(id) {
-    const C = MAP[id];
-    if (!C) return console.error(`Unknown feature: ${id}`);
-    
-    // Special handling for ChatBotAI
-    if (id === 'chatbot') {
-      if (!this.engines[id]) {
+init(id) {
+  const C = MAP[id];
+  if (!C) return console.error(`Unknown feature: ${id}`);
+  
+  // Special handling for ChatBotAI
+  if (id === 'chatbot') {
+    if (!this.engines[id]) {
+      // Add delay for mobile to ensure tab is visible
+      const initChatbot = () => {
+        const target = document.querySelector('#chatbot-tab');
+        if (!target || target.style.display === 'none') {
+          // Tab not ready, retry
+          setTimeout(initChatbot, 50);
+          return;
+        }
         this.engines[id] = new C({apiUrl: '/api/chat'});
         this.engines[id].mount('#chatbot-tab');
+      };
+      
+      // Small delay for mobile devices
+      if (window.innerWidth <= 767) {
+        setTimeout(initChatbot, 100);
+      } else {
+        initChatbot();
       }
-      return;
     }
-    
-    // Standard initialization for other features
-    (this.engines[id] ??= new C(this.app)).render?.();
+    return;
   }
+  
+  // Standard initialization for other features
+  (this.engines[id] ??= new C(this.app)).render?.();
 }
 
 /* expose to window for legacy code */
