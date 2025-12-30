@@ -71,13 +71,6 @@ setupCTASwipeClose() {
   const VELOCITY_THRESHOLD = 0.5; // px/ms
 
   let startY = 0, startT = 0, canSwipeClose = false;
-  
-  // Calculate max movement (distance between open and closed state)
-  const getMaxMovement = () => {
-    const panelRect = panel.getBoundingClientRect();
-    const toggleRect = toggle.getBoundingClientRect();
-    return panelRect.top - (toggleRect.bottom);
-  };
 
   panel.addEventListener('touchstart', e => {
     startY = e.touches[0].clientY;
@@ -93,14 +86,16 @@ setupCTASwipeClose() {
     if (!canSwipeClose) return;
     
     const currentY = e.touches[0].clientY;
-    const deltaY = currentY - startY;
-    const maxMovement = getMaxMovement();
+    let deltaY = currentY - startY;
     
     if (deltaY > 0) {
-      // Limit movement to not go past closed position
-      const limitedDelta = Math.min(deltaY, Math.abs(maxMovement));
-      panel.style.transform = `translateY(${limitedDelta}px)`;
-      toggle.style.transform = `translateY(${limitedDelta}px)`;
+      // Calculate the current height of the open panel
+      const panelHeight = panel.offsetHeight;
+      // Limit movement to panel height (so footer doesn't go past closed position)
+      deltaY = Math.min(deltaY, panelHeight);
+      
+      panel.style.transform = `translateY(${deltaY}px)`;
+      toggle.style.transform = `translateY(${deltaY}px)`;
     }
   }, {passive: true});
 
