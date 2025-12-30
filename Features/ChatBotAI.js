@@ -11,9 +11,12 @@ export class ChatBotAI {
   render() {
     const tab = document.getElementById('chatbot-tab');
     if (!tab) {
+      alert('ERROR: chatbot-tab not found!');
       console.error('chatbot-tab not found');
       return;
     }
+    
+    alert('ChatBot render() is running!');
 
     tab.innerHTML = `
 <div style="padding:1.5rem;min-height:100vh;">
