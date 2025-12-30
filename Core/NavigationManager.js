@@ -1,4 +1,4 @@
-// NavigationManager.js - TESTING: ChatBot added to desktop nav
+// NavigationManager.js - Final version with ChatBot on Desktop + Mobile
 import UserTab from './User-Tab.js';
 
 export default class NavigationManager {
@@ -59,7 +59,6 @@ export default class NavigationManager {
           <li class="nav-item" data-tab="karma-shop" data-label="Karma Shop" role="tab" aria-selected="false" tabindex="-1">
             <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavShop.png" alt="Karma Shop">
           </li>
-          <!-- TESTING: ChatBot Desktop Tab -->
           <li class="nav-item" data-tab="chatbot" data-label="AI Assistant" role="tab" aria-selected="false" tabindex="-1">
             <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/Chat.png" alt="AI Assistant">
           </li>

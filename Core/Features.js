@@ -42,12 +42,8 @@ class FeaturesManager {
     const C = MAP[id];
     if (!C) return console.error(`Unknown feature: ${id}`);
     
-    console.log(`🔧 Initializing feature: ${id}`, C);
-    
     // Standard initialization for all features
     (this.engines[id] ??= new C(this.app)).render?.();
-    
-    console.log(`✅ Feature initialized: ${id}`);
   }
 }
 
