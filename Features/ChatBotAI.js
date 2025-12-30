@@ -1,7 +1,8 @@
 // ChatBotAI.js - Tab version matching app design
 
 export class ChatBotAI {
-  constructor(opts = {}) {
+  constructor(app, opts = {}) {
+    this.app = app;
     this.apiUrl = opts.apiUrl || '/api/chat';
     this.placeholder = opts.placeholder || 'Type your message/query/question…';
     this.title = opts.title || 'AI Assistant by Aanandoham';
