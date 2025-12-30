@@ -147,7 +147,7 @@ renderQuoteCard() {
           <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent); line-height: 1.5; padding-top: 2rem; padding-bottom: 2rem;">
            "${this.currentQuote.text}"
           </p>
-          <p class="mt-6 text-center text-lg" style="color: var(--neuro-text);">
+          <p class="mt-6 mb-6 text-center text-lg" style="color: var(--neuro-text);">
             — ${this.currentQuote.author}
           </p>
           <div class="mt-8 flex justify-end">
@@ -170,7 +170,7 @@ refreshQuote() {
     <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent); line-height: 1.5; padding-top: 2rem; padding-bottom: 2rem;">
       "${this.currentQuote.text}"
     </p>
-    <p class="mt-6 text-center text-lg" style="color: var(--neuro-text);">
+    <p class="mt-6 mb-6 text-center text-lg" style="color: var(--neuro-text);">
       — ${this.currentQuote.author}
     </p>
     <div class="mt-8 flex justify-end">
