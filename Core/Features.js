@@ -42,13 +42,7 @@ class FeaturesManager {
     const C = MAP[id];
     if (!C) return console.error(`Unknown feature: ${id}`);
     
-    // ChatBotAI needs apiUrl in second param
-    if (id === 'chatbot') {
-      (this.engines[id] ??= new C(this.app, {apiUrl: '/api/chat'})).render?.();
-      return;
-    }
-    
-    // Standard initialization for other features
+    // Standard initialization for all features
     (this.engines[id] ??= new C(this.app)).render?.();
   }
 }

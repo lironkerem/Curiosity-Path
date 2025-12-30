@@ -1,48 +1,43 @@
-// ChatBotAI.js - Tab version matching app design
+// Features/ChatBotAI.js - Matching app structure
 
 export class ChatBotAI {
-  constructor(app, opts = {}) {
+  constructor(app) {
     this.app = app;
-    this.apiUrl = opts.apiUrl || '/api/chat';
-    this.placeholder = opts.placeholder || 'Type your message/query/question…';
-    this.title = opts.title || 'AI Assistant by Aanandoham';
+    this.apiUrl = '/api/chat';
     this.messages = [];
     this.abortCtrl = null;
   }
 
   render() {
-    const container = document.getElementById('chatbot-tab');
-    if (!container) {
+    const tab = document.getElementById('chatbot-tab');
+    if (!tab) {
       console.error('chatbot-tab not found');
       return;
     }
 
-    container.innerHTML = `
+    tab.innerHTML = `
 <div style="padding:1.5rem;min-height:100vh;">
   <div class="universal-content">
 
-    <!-- HEADER matching other tabs -->
     <header class="main-header project-curiosity">
       <h1>Aanandoham's AI Assistant</h1>
       <h3>Ask me anything about spirituality, self-development, guidance, or just chat with me</h3>
     </header>
 
-    <!-- CHAT CARD -->
     <div class="card" style="display:flex;flex-direction:column;height:calc(100vh - 300px);min-height:500px;">
       
-      <!-- Chat Messages Area -->
       <div class="chatbot-messages" style="flex:1;overflow-y:auto;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;background:var(--neuro-bg);border-radius:12px;margin-bottom:1rem;">
       </div>
 
-      <!-- Input Area -->
       <div style="display:flex;gap:0.75rem;align-items:flex-end;">
         <textarea 
-          class="chatbot-input form-input" 
-          placeholder="${this.placeholder}" 
+          id="chatbot-input"
+          class="form-input" 
+          placeholder="Type your message/query/question…" 
           rows="1"
           style="flex:1;resize:none;max-height:120px;min-height:52px;"
         ></textarea>
-        <button class="chatbot-send btn btn-primary" style="min-width:52px;height:52px;padding:0;display:grid;place-content:center;">
+        <button id="chatbot-send" class="btn btn-primary" style="min-width:52px;height:52px;padding:0;display:grid;place-content:center;">
           ${this._sendSVG()}
         </button>
       </div>
@@ -52,61 +47,72 @@ export class ChatBotAI {
   </div>
 </div>`;
 
-    this.$body = container.querySelector('.chatbot-messages');
-    this.$input = container.querySelector('.chatbot-input');
-    this.$btn = container.querySelector('.chatbot-send');
-    this._bindForm();
+    this.attachHandlers();
     this._pushMessage('Hello! How can I help you today my friend?', 'bot');
   }
 
-  _bindForm() {
-    this.$btn.addEventListener('click', () => this._onSubmit());
-    this.$input.addEventListener('keydown', e => {
+  attachHandlers() {
+    const btn = document.getElementById('chatbot-send');
+    const input = document.getElementById('chatbot-input');
+    
+    if (!btn || !input) return;
+
+    btn.addEventListener('click', () => this._onSubmit());
+    
+    input.addEventListener('keydown', e => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         this._onSubmit();
       }
     });
-    this.$input.addEventListener('input', () => {
-      this.$input.style.height = 'auto';
-      this.$input.style.height = `${this.$input.scrollHeight}px`;
+    
+    input.addEventListener('input', () => {
+      input.style.height = 'auto';
+      input.style.height = `${input.scrollHeight}px`;
     });
   }
 
   _onSubmit() {
-    const text = this.$input.value.trim();
-    if (!text || this.$btn.disabled) return;
+    const input = document.getElementById('chatbot-input');
+    const btn = document.getElementById('chatbot-send');
+    const text = input?.value.trim();
+    
+    if (!text || btn?.disabled) return;
+    
     this._pushMessage(text, 'user');
-    this.$input.value = '';
-    this.$input.style.height = 'auto';
+    input.value = '';
+    input.style.height = 'auto';
     this._callBot(text);
   }
 
   _pushMessage(text, sender) {
+    const container = document.querySelector('.chatbot-messages');
+    if (!container) return;
+
     const bubble = document.createElement('div');
     bubble.className = `chat-bubble ${sender}`;
     bubble.style.cssText = sender === 'user' 
       ? 'align-self:flex-end;background:var(--neuro-accent);color:#fff;padding:0.875rem 1.25rem;border-radius:1rem;max-width:80%;word-wrap:break-word;border-bottom-right-radius:0.25rem;'
       : 'align-self:flex-start;background:var(--neuro-bg-secondary);color:var(--neuro-text);padding:0.875rem 1.25rem;border-radius:1rem;max-width:80%;word-wrap:break-word;border-bottom-left-radius:0.25rem;box-shadow:var(--neuro-shadow-sm);';
     bubble.textContent = text;
-    this.$body.appendChild(bubble);
-    this._scrollToBottom();
-  }
-
-  _scrollToBottom() {
-    this.$body.scrollTop = this.$body.scrollHeight;
+    container.appendChild(bubble);
+    container.scrollTop = container.scrollHeight;
   }
 
   async _callBot(userText) {
-    this.$btn.disabled = true;
-    this.$btn.innerHTML = '<div class="spinner"></div>';
+    const btn = document.getElementById('chatbot-send');
+    const container = document.querySelector('.chatbot-messages');
+    if (!btn || !container) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div>';
     this.abortCtrl = new AbortController();
 
     const bubble = document.createElement('div');
     bubble.className = 'chat-bubble bot';
     bubble.style.cssText = 'align-self:flex-start;background:var(--neuro-bg-secondary);color:var(--neuro-text);padding:0.875rem 1.25rem;border-radius:1rem;max-width:80%;word-wrap:break-word;border-bottom-left-radius:0.25rem;box-shadow:var(--neuro-shadow-sm);';
-    this.$body.appendChild(bubble);
-    this._scrollToBottom();
+    container.appendChild(bubble);
+    container.scrollTop = container.scrollHeight;
 
     try {
       const res = await fetch(this.apiUrl, {
@@ -115,6 +121,7 @@ export class ChatBotAI {
         body: JSON.stringify({ message: userText }),
         signal: this.abortCtrl.signal
       });
+      
       if (!res.ok) throw new Error(await res.text());
       
       const reader = res.body.getReader();
@@ -126,15 +133,15 @@ export class ChatBotAI {
         if (done) break;
         buf += dec.decode(value, {stream:true});
         bubble.textContent = buf;
-        this._scrollToBottom();
+        container.scrollTop = container.scrollHeight;
       }
     } catch (err) {
       bubble.textContent = 'Sorry, something went wrong. Please try again.';
       bubble.style.background = 'rgba(239, 68, 68, 0.1)';
       bubble.style.borderLeft = '3px solid #ef4444';
     } finally {
-      this.$btn.disabled = false;
-      this.$btn.innerHTML = this._sendSVG();
+      btn.disabled = false;
+      btn.innerHTML = this._sendSVG();
       this.abortCtrl = null;
     }
   }
@@ -144,7 +151,7 @@ export class ChatBotAI {
   }
 }
 
-// Add spinner style if not exists
+// Spinner style
 if (!document.getElementById('chatbot-spinner-style')) {
   const style = document.createElement('style');
   style.id = 'chatbot-spinner-style';
@@ -161,3 +168,5 @@ if (!document.getElementById('chatbot-spinner-style')) {
   `;
   document.head.appendChild(style);
 }
+
+export default ChatBotAI;
