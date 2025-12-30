@@ -70,6 +70,7 @@ init(id) {
   // Standard initialization for other features
   (this.engines[id] ??= new C(this.app)).render?.();
 }
+}
 
 /* expose to window for legacy code */
 typeof window !== 'undefined' && (window.FeaturesManager = FeaturesManager, Object.assign(window, MAP));
