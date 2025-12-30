@@ -5,21 +5,23 @@
 
 /* ===== ROOT DESIGN TOKENS - EARTH TEMPLE THEME ==== */
 :root {
-  /* Main colors */
-  --neuro-bg: #2d2520;  /* Rich brown */
-  --neuro-shadow-dark: #1a1612;
-  --neuro-shadow-light: #3f362f;
-  --neuro-text: #f2ebe3;  /* Cream */
-  --neuro-text-light: #d9cfc4;
-  --neuro-text-lighter: #bfb5aa;
+  /* Backgrounds */
+  --neuro-bg: #faf7f2;  /* Pale cream */
+  --neuro-shadow-dark: #e0ddd5;
+  --neuro-shadow-light: #ffffff;
+  
+  /* Text */
+  --neuro-text: #1f1b17;  /* Deep black-brown */
+  --neuro-text-light: #49443e;
+  --neuro-text-lighter: #6f6a63;
   
   /* Accents */
-  --neuro-accent: #c9a96e;  /* Bronze gold */
-  --neuro-accent-light: #e0c28f;
-  --neuro-success: #7a9b6e;  /* Moss green */
-  --neuro-warning: #d4a574;  /* Warm gold */
-  --neuro-error: #b87b6e;  /* Terra cotta */
-  --neuro-info: #8b9aa8;  /* Stone gray */
+  --neuro-accent: #c9a96e;  /* Rich gold */
+  --neuro-accent-light: #ddc194;
+  --neuro-success: #4a7c59;  /* Emerald green */
+  --neuro-warning: #d4a574;  /* Bright gold */
+  --neuro-error: #d4705a;  /* Vivid terracotta */
+  --neuro-info: #6b8f7b;  /* Teal-green */
 
   /* spacing - unchanged */
   --spacing-xs: 0.25rem;
