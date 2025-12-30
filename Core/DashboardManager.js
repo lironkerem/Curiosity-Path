@@ -413,7 +413,7 @@ renderRecentAchievements(status) {
         <!-- Recent Achievements -->
         <div style="text-align:center;">
           <h3 class="dashboard-achievements-title">🏆 Recent Achievements</h3>
-          <div class="grid achievements-grid grid-cols-2 gap-4" id="achievements-grid">
+          <div class="grid achievements-grid grid-cols-2 gap-4" id="achievements-grid" style="margin-bottom: 1.5rem;">
             ${status.achievements.slice(-4).reverse().map(a => `
               <div class="dashboard-achievement-card-inset">
                 <div class="dashboard-achievement-icon">${a.icon || '🏆'}</div>
@@ -423,7 +423,7 @@ renderRecentAchievements(status) {
               </div>`).join('')}
           </div>
           ${status.achievements.length > 4 ? `
-            <button class="btn btn-secondary mt-6" id="toggle-achievements-btn" 
+            <button class="btn btn-secondary" id="toggle-achievements-btn" 
                     onclick="window.app.dashboard.toggleAchievements()">
               See All Achievements (${status.achievements.length})
             </button>
@@ -432,7 +432,7 @@ renderRecentAchievements(status) {
         <!-- Badges -->
         <div style="text-align:center;">
           <h3 class="dashboard-achievements-title">🎖️ Badges Earned</h3>
-          <div class="badges-grid" id="badges-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+          <div class="badges-grid" id="badges-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1.5rem;">
             ${status.badges.length > 0 ? status.badges.slice().reverse().slice(0, 9).map(b => `
               <div class="dashboard-achievement-card-inset dashboard-badge-card">
                 <div class="dashboard-achievement-icon" style="font-size:2.5rem;">${b.icon || '🎖️'}</div>
@@ -441,7 +441,7 @@ renderRecentAchievements(status) {
               </div>`).join('') : '<p style="color:var(--neuro-text);opacity:0.7;">No badges earned yet. Keep going!</p>'}
           </div>
           ${status.badges.length > 9 ? `
-            <button class="btn btn-secondary mt-6" id="toggle-badges-btn" 
+            <button class="btn btn-secondary" id="toggle-badges-btn" 
                     onclick="window.app.dashboard.toggleBadges()">
               See All Badges (${status.badges.length})
             </button>
