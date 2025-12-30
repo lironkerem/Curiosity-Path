@@ -105,17 +105,25 @@ setupCTASwipeClose() {
     const deltaT = Date.now() - startT;
     const velocity = deltaY / deltaT;
 
-    panel.style.transform = '';
-    toggle.style.transform = '';
-
     if (deltaY > SWIPE_Y_THRESHOLD && velocity > VELOCITY_THRESHOLD) {
       if (navigator.vibrate) navigator.vibrate(8);
-      // close the footer exactly like the toggle click does
+      
+      // Close the footer
       this.isOpen = false;
       toggle.classList.remove('open');
       toggle.setAttribute('aria-expanded', 'false');
       panel.classList.remove('open');
       document.getElementById('cta-aria-live').textContent = 'Footer panel closed';
+      
+      // Remove transform after CSS transition completes
+      setTimeout(() => {
+        panel.style.transform = '';
+        toggle.style.transform = '';
+      }, 300);  // match CSS transition duration
+    } else {
+      // Swipe didn't meet threshold, snap back
+      panel.style.transform = '';
+      toggle.style.transform = '';
     }
   }, {passive: true});
 }
