@@ -71,6 +71,13 @@ setupCTASwipeClose() {
   const VELOCITY_THRESHOLD = 0.5; // px/ms
 
   let startY = 0, startT = 0, canSwipeClose = false;
+  
+  // Calculate max movement (distance between open and closed state)
+  const getMaxMovement = () => {
+    const panelRect = panel.getBoundingClientRect();
+    const toggleRect = toggle.getBoundingClientRect();
+    return panelRect.top - (toggleRect.bottom);
+  };
 
   panel.addEventListener('touchstart', e => {
     startY = e.touches[0].clientY;
@@ -87,14 +94,20 @@ setupCTASwipeClose() {
     
     const currentY = e.touches[0].clientY;
     const deltaY = currentY - startY;
-    if (deltaY > 0) {                       // only downward
-      panel.style.transform = `translateY(${deltaY}px)`;
+    const maxMovement = getMaxMovement();
+    
+    if (deltaY > 0) {
+      // Limit movement to not go past closed position
+      const limitedDelta = Math.min(deltaY, Math.abs(maxMovement));
+      panel.style.transform = `translateY(${limitedDelta}px)`;
+      toggle.style.transform = `translateY(${limitedDelta}px)`;
     }
   }, {passive: true});
 
   panel.addEventListener('touchend', e => {
     if (!canSwipeClose) {
       panel.style.transform = '';
+      toggle.style.transform = '';
       return;
     }
     
@@ -113,13 +126,13 @@ setupCTASwipeClose() {
       panel.classList.remove('open');
       document.getElementById('cta-aria-live').textContent = 'Footer panel closed';
       
-      // Remove transform after CSS transition completes
-      setTimeout(() => {
-        panel.style.transform = '';
-      }, 300);  // match CSS transition duration
+      // Remove transform immediately since we're already at closed position
+      panel.style.transform = '';
+      toggle.style.transform = '';
     } else {
       // Swipe didn't meet threshold, snap back
       panel.style.transform = '';
+      toggle.style.transform = '';
     }
   }, {passive: true});
 }
