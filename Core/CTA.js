@@ -43,18 +43,26 @@ export default class CTA {
 /* -------------------------------------------------- */
 preventBackgroundScroll() {
   const panel = document.getElementById('cta-panel');
+  const scroller = panel.querySelector('.lux-scroll');
+  
+  let startScrollTop = 0;
   
   panel.addEventListener('touchstart', e => {
-    e.stopPropagation();
+    startScrollTop = scroller.scrollTop;
   }, {passive: true});
   
   panel.addEventListener('touchmove', e => {
-    e.stopPropagation();
-  }, {passive: true});
-  
-  panel.addEventListener('touchend', e => {
-    e.stopPropagation();
-  }, {passive: true});
+    const scrollTop = scroller.scrollTop;
+    const scrollHeight = scroller.scrollHeight;
+    const clientHeight = scroller.clientHeight;
+    const deltaY = e.touches[0].clientY;
+    
+    // Prevent background scroll when at boundaries
+    if ((scrollTop === 0 && deltaY > startScrollTop) || 
+        (scrollTop + clientHeight >= scrollHeight && deltaY < startScrollTop)) {
+      e.preventDefault();
+    }
+  }, {passive: false});
 }
 
 /* -------------------------------------------------- */
