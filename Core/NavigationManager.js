@@ -211,8 +211,10 @@ export default class NavigationManager {
         const row = e.target.closest('.sheet-row');
         if (!row) return;
         closeSheets();
-        const navItem = document.querySelector(`[data-tab="${row.dataset.tab}"]`);
-        this.switchTab(row.dataset.tab, navItem?.dataset.label);
+        const tabName = row.dataset.tab;
+        const navItem = document.querySelector(`[data-tab="${tabName}"]`);
+        const label = navItem?.dataset.label || row.querySelector('span')?.textContent || tabName;
+        this.switchTab(tabName, label);
       });
     });
   }
