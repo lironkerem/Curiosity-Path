@@ -3,27 +3,23 @@
    Production-ready, optimized, fully integrated
    ========================================================= */
 
-/* ===== ROOT DESIGN TOKENS - EARTH TEMPLE THEME ==== */
+/* ===== ROOT DESIGN TOKENS ===== */
 :root {
-  /* Backgrounds */
-  --neuro-bg: #faf7f2;  /* Pale cream */
-  --neuro-shadow-dark: #e0ddd5;
+  /* colours */
+  --neuro-bg: #e0e5ec;
+  --neuro-shadow-dark: #b8bec5;
   --neuro-shadow-light: #ffffff;
-  
-  /* Text */
-  --neuro-text: #1f1b17;  /* Deep black-brown */
-  --neuro-text-light: #49443e;
-  --neuro-text-lighter: #6f6a63;
-  
-  /* Accents */
-  --neuro-accent: #c9a96e;  /* Rich gold */
-  --neuro-accent-light: #ddc194;
-  --neuro-success: #4a7c59;  /* Emerald green */
-  --neuro-warning: #d4a574;  /* Bright gold */
-  --neuro-error: #d4705a;  /* Vivid terracotta */
-  --neuro-info: #6b8f7b;  /* Teal-green */
+  --neuro-text: #2c3e50;
+  --neuro-text-light: #6c757d;
+  --neuro-text-lighter: #8e9aaf;
+  --neuro-accent: #667eea;
+  --neuro-accent-light: #764ba2;
+  --neuro-success: #22c55e;
+  --neuro-warning: #f59e0b;
+  --neuro-error: #ef4444;
+  --neuro-info: #3b82f6;
 
-  /* spacing - unchanged */
+  /* spacing */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -31,7 +27,7 @@
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
 
-  /* radius - unchanged */
+  /* radius */
   --radius-sm: 12px;
   --radius-md: 16px;
   --radius-lg: 20px;
@@ -39,7 +35,7 @@
   --radius-2xl: 30px;
   --radius-full: 9999px;
 
-  /* motion - unchanged */
+  /* motion */
   --transition-fast: 150ms ease-in-out;
   --transition-normal: 300ms ease-in-out;
   --transition-slow: 500ms ease-in-out;
