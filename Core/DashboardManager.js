@@ -134,23 +134,25 @@ export default class DashboardManager {
     }, 3000);
   }
 
-  /* -------------- QUOTE CARD (360° flip) -------------- */
+/* -------------- QUOTE CARD (360° flip) -------------- */
 renderQuoteCard() {
   return `
     <div class="neuro-card flip-card" id="dashboard-quote-card">
       <div class="flip-card-inner">
-        <div class="flip-card-front">
-          <div class="flex items-center mb-8">
-            <span class="text-3xl mr-4">📜</span>
-            <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2>
+        <div class="flip-card-front flex flex-col justify-between">
+          <div>
+            <div class="flex items-center mb-8">
+              <span class="text-3xl mr-4">📜</span>
+              <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2>
+            </div>
+            <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent); line-height: 1.5; padding-top: 2rem; padding-bottom: 2rem;">
+              "${this.currentQuote.text}"
+            </p>
+            <p class="mt-6 text-center text-lg" style="color: var(--neuro-text);">
+              — ${this.currentQuote.author}
+            </p>
           </div>
-          <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent); line-height: 1.5; padding-top: 2rem; padding-bottom: 2rem;">
-           "${this.currentQuote.text}"
-          </p>
-          <p class="mt-6 mb-6 text-center text-lg" style="color: var(--neuro-text);">
-            — ${this.currentQuote.author}
-          </p>
-          <div class="mt-12 flex justify-end">
+          <div class="pt-8 flex justify-end">
             <button onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">🔄 Refresh Quote</button>
           </div>
         </div>
@@ -163,18 +165,22 @@ refreshQuote() {
   if (!window.QuotesData) return;
   this.currentQuote = window.QuotesData.getRandomQuote();
   const html = `
-    <div class="flex items-center mb-8">
-      <span class="text-3xl mr-4">📜</span>
-      <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2>
-    </div>
-    <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent); line-height: 1.5; padding-top: 2rem; padding-bottom: 2rem;">
-      "${this.currentQuote.text}"
-    </p>
-    <p class="mt-6 mb-6 text-center text-lg" style="color: var(--neuro-text);">
-      — ${this.currentQuote.author}
-    </p>
-    <div class="mt-12 flex justify-end">
-      <button onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">🔄 Refresh Quote</button>
+    <div class="flex flex-col justify-between">
+      <div>
+        <div class="flex items-center mb-8">
+          <span class="text-3xl mr-4">📜</span>
+          <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2>
+        </div>
+        <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent); line-height: 1.5; padding-top: 2rem; padding-bottom: 2rem;">
+          "${this.currentQuote.text}"
+        </p>
+        <p class="mt-6 text-center text-lg" style="color: var(--neuro-text);">
+          — ${this.currentQuote.author}
+        </p>
+      </div>
+      <div class="pt-8 flex justify-end">
+        <button onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">🔄 Refresh Quote</button>
+      </div>
     </div>`;
   this._flipCard('dashboard-quote-card', html);
   if (this.app.showToast) this.app.showToast('📜 New quote revealed!', 'success');
