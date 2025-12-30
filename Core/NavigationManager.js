@@ -208,12 +208,8 @@ sheets.forEach(sheet=>{
     const row = e.target.closest('.sheet-row');
     if(!row) return;
     closeSheets();
-    
-    // Get label from row's text content if navItem doesn't exist
     const navItem = document.querySelector(`[data-tab="${row.dataset.tab}"]`);
-    const label = navItem?.dataset.label || row.querySelector('span')?.textContent || row.dataset.tab;
-    
-    this.switchTab(row.dataset.tab, label);
+    this.switchTab(row.dataset.tab, navItem?.dataset.label);
   });
 });
     }
