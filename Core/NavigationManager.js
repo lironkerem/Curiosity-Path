@@ -207,9 +207,17 @@ sheets.forEach(sheet=>{
   sheet.addEventListener('click',(e)=>{
     const row = e.target.closest('.sheet-row');
     if(!row) return;
+    
+    const tabToSwitch = row.dataset.tab;
+    const navItem = document.querySelector(`[data-tab="${tabToSwitch}"]`);
+    const label = navItem?.dataset.label || row.querySelector('span')?.textContent || tabToSwitch;
+    
     closeSheets();
-    const navItem = document.querySelector(`[data-tab="${row.dataset.tab}"]`);
-    this.switchTab(row.dataset.tab, navItem?.dataset.label);
+    
+    // Wait for sheet close animation to complete (300ms is typical)
+    setTimeout(() => {
+      this.switchTab(tabToSwitch, label);
+    }, 350);
   });
 });
     }
