@@ -4,7 +4,7 @@
   /* ---------- CONFIG ---------- */
   const MAX_FILE_SIZE   = 4 * 1024 * 1024;          // 4 MB
   const ALLOWED_TYPES   = ['image/jpeg', 'image/png'];
-  const API_ROUTE       = '/API/tarot-vision';      // serverless function
+  const API_ROUTE       = '/api/tarot-vision';      // serverless function
   const RETRY_COUNT     = 3;
   const TIMEOUT_MS      = 25_000;
 
@@ -53,7 +53,7 @@
           </header>
 
           <section class="vision-popup-body">
-            <video id="video" class="hidden" playsinline></video>
+          <video id="video" class="hidden" playsinline autoplay muted></video>
             <canvas id="canvas" class="hidden"></canvas>
             <img  id="image-preview" class="hidden">
 
@@ -103,22 +103,41 @@
   }
 
   /* ---------- CORE FUNCTIONS ---------- */
-  async function toggleCamera() {
-    if (stream) { takePhoto(); return; }
-    try {
-      loader.classList.remove('hidden');
-      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      video.srcObject = stream;
-      video.classList.remove('hidden');
-      ph.classList.add('hidden');
-      preview.classList.add('hidden');
-      capture.innerHTML = icon('photo') + ' Take Photo';
-    } catch (e) {
-      alert('Camera access denied or unavailable.');
-    } finally {
-      loader.classList.add('hidden');
+async function toggleCamera() {
+  if (stream) { takePhoto(); return; }
+  try {
+    loader.classList.remove('hidden');
+    
+    // Check if getUserMedia is available
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      throw new Error('Camera API not supported');
     }
+    
+    stream = await navigator.mediaDevices.getUserMedia({ 
+      video: { 
+        facingMode: 'environment',
+        width: { ideal: 1920 },
+        height: { ideal: 1080 }
+      },
+      audio: false
+    });
+    
+    video.srcObject = stream;
+    video.muted = true;
+    video.setAttribute('playsinline', '');
+    await video.play(); // Explicitly start playback
+    
+    video.classList.remove('hidden');
+    ph.classList.add('hidden');
+    preview.classList.add('hidden');
+    capture.innerHTML = icon('photo') + ' Take Photo';
+  } catch (e) {
+    console.error('Camera error:', e.name, e.message);
+    alert(`Camera error: ${e.name} - ${e.message}`);
+  } finally {
+    loader.classList.add('hidden');
   }
+}
   function takePhoto() {
     const ctx = canvas.getContext('2d');
     canvas.width  = video.videoWidth;

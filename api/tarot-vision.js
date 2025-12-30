@@ -1,4 +1,4 @@
-// API/tarot-vision.js
+// api/tarot-vision.js
 import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });

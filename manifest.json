@@ -16,5 +16,9 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "permissions": ["camera"],
+  "feature_policy": {
+    "camera": ["self"]
+  }
 }
