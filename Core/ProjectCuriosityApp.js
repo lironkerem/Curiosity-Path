@@ -258,6 +258,7 @@ case 'admin':
       case 'gratitude':
       case 'journal':
       case 'shadow-alchemy':
+      case 'chatbot':
         window.featuresManager?.init(tab);
         break;
       default:
