@@ -5,23 +5,18 @@ export class ChatBotAI {
     this.apiUrl = opts.apiUrl || '/api/chat';
     this.placeholder = opts.placeholder || 'Type your message/query/question…';
     this.title = opts.title || 'AI Assistant by Aanandoham';
-    this.target = opts.attach || null;
     this.messages = [];
     this.abortCtrl = null;
   }
 
-  mount(selector) {
-    this.target = typeof selector === 'string'
-                ? document.querySelector(selector)
-                : selector;
-    if (!this.target) throw new Error('ChatBotAI: mount target not found');
-    this._renderChatBox();
-    this._pushMessage('Hello! How can I help you today my friend?', 'bot');
-    return this;
-  }
+  render() {
+    const container = document.getElementById('chatbot-tab');
+    if (!container) {
+      console.error('chatbot-tab not found');
+      return;
+    }
 
-  _renderChatBox() {
-    this.target.innerHTML = `
+    container.innerHTML = `
 <div style="padding:1.5rem;min-height:100vh;">
   <div class="universal-content">
 
@@ -56,10 +51,11 @@ export class ChatBotAI {
   </div>
 </div>`;
 
-    this.$body = this.target.querySelector('.chatbot-messages');
-    this.$input = this.target.querySelector('.chatbot-input');
-    this.$btn = this.target.querySelector('.chatbot-send');
+    this.$body = container.querySelector('.chatbot-messages');
+    this.$input = container.querySelector('.chatbot-input');
+    this.$btn = container.querySelector('.chatbot-send');
     this._bindForm();
+    this._pushMessage('Hello! How can I help you today my friend?', 'bot');
   }
 
   _bindForm() {

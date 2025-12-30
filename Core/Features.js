@@ -42,17 +42,9 @@ class FeaturesManager {
     const C = MAP[id];
     if (!C) return console.error(`Unknown feature: ${id}`);
     
-    // Special handling for ChatBotAI
+    // ChatBotAI gets apiUrl option
     if (id === 'chatbot') {
-      const container = document.getElementById('chatbot-tab');
-      if (!container) {
-        console.error('chatbot-tab container not found');
-        return;
-      }
-      if (!this.engines[id]) {
-        this.engines[id] = new C({apiUrl: '/api/chat'});
-        this.engines[id].mount('#chatbot-tab');
-      }
+      (this.engines[id] ??= new C({apiUrl: '/api/chat'})).render?.();
       return;
     }
     
