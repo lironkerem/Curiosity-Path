@@ -207,28 +207,9 @@ sheets.forEach(sheet=>{
   sheet.addEventListener('click',(e)=>{
     const row = e.target.closest('.sheet-row');
     if(!row) return;
-    
-    const tabToSwitch = row.dataset.tab;
-    const navItem = document.querySelector(`[data-tab="${tabToSwitch}"]`);
-    const label = navItem?.dataset.label || row.querySelector('span')?.textContent || tabToSwitch;
-    
-    // First: make tab visible immediately
-    const targetTab = document.getElementById(`${tabToSwitch}-tab`);
-    if (targetTab) {
-      targetTab.style.display = 'block';
-      targetTab.classList.remove('hidden');
-      targetTab.classList.add('active');
-    }
-    
-    // Then: close sheet and initialize
     closeSheets();
-    
-    // Finally: proper switch with delay for mobile
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        this.switchTab(tabToSwitch, label);
-      }, 100);
-    });
+    const navItem = document.querySelector(`[data-tab="${row.dataset.tab}"]`);
+    this.switchTab(row.dataset.tab, navItem?.dataset.label);
   });
 });
     }
@@ -388,7 +369,7 @@ setupSheetSwipeClose() {
     /* -------------------------------------------------- */
     /*  tab switching helper                              */
     /* -------------------------------------------------- */
-    switchTab(tabName, label){
+  switchTab(tabName, label){
       if(tabName==='calculator' && !window.calculatorChunk) window.calculatorChunk='requested';
       document.querySelectorAll('.nav-item').forEach(t=>{
         t.classList.toggle('active',t.dataset.tab===tabName);
@@ -408,6 +389,7 @@ setupSheetSwipeClose() {
       }
       this.app.initializeTab(tabName);
       localStorage.setItem('pc_active_tab',tabName);
+      window.scrollTo(0, 0);
       if(navigator.vibrate) navigator.vibrate(10);
     }
 }
