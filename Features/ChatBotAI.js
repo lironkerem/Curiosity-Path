@@ -9,21 +9,21 @@ export class ChatBotAI {
   }
 
   render() {
-    alert('ChatBot render() called');
+    let tab = document.getElementById('chatbot-tab');
     
-    const mainApp = document.getElementById('main-app');
-    alert('main-app found: ' + !!mainApp);
-    
-    const mainContent = document.getElementById('main-content');
-    alert('main-content found: ' + !!mainContent);
-    
-    const tab = document.getElementById('chatbot-tab');
-    alert('chatbot-tab found: ' + !!tab);
-    
+    // If tab doesn't exist, create it
     if (!tab) {
-      alert('ERROR: chatbot-tab not found!');
-      console.error('chatbot-tab not found');
-      return;
+      alert('Creating chatbot-tab dynamically');
+      const mainContent = document.getElementById('main-content');
+      if (mainContent) {
+        tab = document.createElement('div');
+        tab.id = 'chatbot-tab';
+        tab.className = 'tab-content hidden';
+        mainContent.appendChild(tab);
+      } else {
+        alert('ERROR: main-content not found!');
+        return;
+      }
     }
 
     tab.innerHTML = `
