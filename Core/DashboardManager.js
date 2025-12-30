@@ -150,7 +150,7 @@ renderQuoteCard() {
           <p class="mt-6 mb-6 text-center text-lg" style="color: var(--neuro-text);">
             — ${this.currentQuote.author}
           </p>
-          <div class="mt-8 flex justify-end">
+          <div class="mt-12 flex justify-end">
             <button onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">🔄 Refresh Quote</button>
           </div>
         </div>
@@ -173,7 +173,7 @@ refreshQuote() {
     <p class="mt-6 mb-6 text-center text-lg" style="color: var(--neuro-text);">
       — ${this.currentQuote.author}
     </p>
-    <div class="mt-8 flex justify-end">
+    <div class="mt-12 flex justify-end">
       <button onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">🔄 Refresh Quote</button>
     </div>`;
   this._flipCard('dashboard-quote-card', html);
