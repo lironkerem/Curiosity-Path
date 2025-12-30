@@ -423,7 +423,7 @@ renderRecentAchievements(status) {
               </div>`).join('')}
           </div>
           ${status.achievements.length > 4 ? `
-            <button class="btn btn-secondary mt-4" id="toggle-achievements-btn" 
+            <button class="btn btn-secondary mt-6" id="toggle-achievements-btn" 
                     onclick="window.app.dashboard.toggleAchievements()">
               See All Achievements (${status.achievements.length})
             </button>
@@ -441,7 +441,7 @@ renderRecentAchievements(status) {
               </div>`).join('') : '<p style="color:var(--neuro-text);opacity:0.7;">No badges earned yet. Keep going!</p>'}
           </div>
           ${status.badges.length > 9 ? `
-            <button class="btn btn-secondary mt-4" id="toggle-badges-btn" 
+            <button class="btn btn-secondary mt-6" id="toggle-badges-btn" 
                     onclick="window.app.dashboard.toggleBadges()">
               See All Badges (${status.badges.length})
             </button>
