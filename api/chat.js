@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
   const prompt = `You are a friendly chat assistant.\nUser: ${message}\nAssistant:`;
 
   try {
