@@ -55,12 +55,6 @@
   <!-- ===== Global UI ===== -->
   <div id=toast-container></div>
 
-  <!-- ===== ChatBot Floater ===== -->
-  <script type=module>
-  import{ChatBotAI}from'./Features/ChatBotAI.js';
-  ChatBotAI.float({apiUrl:'/api/chat'});
-  </script>
-
   <!-- ===== Dark-mode ASAP ===== -->
   <script>document.body.classList.toggle('dark-mode',localStorage.darkMode==='true')</script>
 

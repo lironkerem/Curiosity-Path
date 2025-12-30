@@ -208,15 +208,6 @@ sheets.forEach(sheet=>{
     const row = e.target.closest('.sheet-row');
     if(!row) return;
     closeSheets();
-    
-    // Special case: open chatbot popup
-    if(row.dataset.tab === 'chatbot') {
-      if(window.openChatBot) {
-        window.openChatBot();
-      }
-      return;
-    }
-    
     const navItem = document.querySelector(`[data-tab="${row.dataset.tab}"]`);
     this.switchTab(row.dataset.tab, navItem?.dataset.label);
   });
