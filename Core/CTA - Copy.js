@@ -1,4 +1,4 @@
-/* CTA.js — neumorphic, skin-aware, images show when accordion opens */
+/* CTA.js – neumorphic, skin-aware, images show when accordion opens */
 export default class CTA {
   constructor() {
     this.isOpen = false;
@@ -34,28 +34,8 @@ export default class CTA {
     });
 
     this.populateGrids();
-    this.setupCTASwipeClose();
-    this.preventBackgroundScroll();   // NEW
+    this.setupCTASwipeClose();   // NEW
   }
-
-/* -------------------------------------------------- */
-/*  prevent background scroll when footer is open     */
-/* -------------------------------------------------- */
-preventBackgroundScroll() {
-  const panel = document.getElementById('cta-panel');
-  
-  panel.addEventListener('touchstart', e => {
-    e.stopPropagation();
-  }, {passive: true});
-  
-  panel.addEventListener('touchmove', e => {
-    e.stopPropagation();
-  }, {passive: true});
-  
-  panel.addEventListener('touchend', e => {
-    e.stopPropagation();
-  }, {passive: true});
-}
 
 /* -------------------------------------------------- */
 /*  swipe-down-to-close for CTA panel                 */
@@ -126,13 +106,13 @@ setupCTASwipeClose() {
           <span class="lux-chevron"></span>
         </button>
 
-        <div id="cta-panel" class="lux-panel" style="touch-action: manipulation;">
+        <div id="cta-panel" class="lux-panel" style="touch-action: pan-y;">
           <div class="lux-scroll">
             <div class="lux-inner">
               <header class="lux-header">
                 <h2 class="lux-title">Empower your <em>'Self'</em></h2>
                 <p class="lux-intro">
-                  Welcome to Project Curiosity — founded 2010.<br>
+                  Welcome to Project Curiosity – founded 2010.<br>
                   Explore my unique In-Person and Online offerings
                 </p>
 
