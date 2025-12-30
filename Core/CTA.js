@@ -80,6 +80,12 @@ setupCTASwipeClose() {
     const target = e.target;
     const touchingGrid = target.closest('.lux-grid, .lux-section-body');
     canSwipeClose = !touchingGrid;
+    
+    // Disable transition during drag
+    if (canSwipeClose) {
+      panel.style.transition = 'none';
+      toggle.style.transition = 'none';
+    }
   }, {passive: true});
 
   panel.addEventListener('touchmove', e => {
@@ -100,6 +106,10 @@ setupCTASwipeClose() {
   }, {passive: true});
 
   panel.addEventListener('touchend', e => {
+    // Re-enable transitions
+    panel.style.transition = '';
+    toggle.style.transition = '';
+    
     if (!canSwipeClose) {
       panel.style.transform = '';
       toggle.style.transform = '';
@@ -121,11 +131,13 @@ setupCTASwipeClose() {
       panel.classList.remove('open');
       document.getElementById('cta-aria-live').textContent = 'Footer panel closed';
       
-      // Remove transform immediately since we're already at closed position
-      panel.style.transform = '';
-      toggle.style.transform = '';
+      // Remove transform after transition completes
+      setTimeout(() => {
+        panel.style.transform = '';
+        toggle.style.transform = '';
+      }, 300);
     } else {
-      // Swipe didn't meet threshold, snap back
+      // Swipe didn't meet threshold, snap back smoothly
       panel.style.transform = '';
       toggle.style.transform = '';
     }
