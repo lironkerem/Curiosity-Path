@@ -212,12 +212,23 @@ sheets.forEach(sheet=>{
     const navItem = document.querySelector(`[data-tab="${tabToSwitch}"]`);
     const label = navItem?.dataset.label || row.querySelector('span')?.textContent || tabToSwitch;
     
+    // First: make tab visible immediately
+    const targetTab = document.getElementById(`${tabToSwitch}-tab`);
+    if (targetTab) {
+      targetTab.style.display = 'block';
+      targetTab.classList.remove('hidden');
+      targetTab.classList.add('active');
+    }
+    
+    // Then: close sheet and initialize
     closeSheets();
     
-    // Wait for sheet close animation to complete (300ms is typical)
-    setTimeout(() => {
-      this.switchTab(tabToSwitch, label);
-    }, 350);
+    // Finally: proper switch with delay for mobile
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        this.switchTab(tabToSwitch, label);
+      }, 100);
+    });
   });
 });
     }
