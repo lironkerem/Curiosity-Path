@@ -413,7 +413,7 @@ renderRecentAchievements(status) {
         <!-- Recent Achievements -->
         <div style="text-align:center;">
           <h3 class="dashboard-achievements-title">🏆 Recent Achievements</h3>
-          <div class="grid achievements-grid grid-cols-2 gap-4" id="achievements-grid">
+          <div class="grid achievements-grid grid-cols-2 gap-4">
             ${status.achievements.slice(-4).reverse().map(a => `
               <div class="dashboard-achievement-card-inset">
                 <div class="dashboard-achievement-icon">${a.icon || '🏆'}</div>
@@ -422,85 +422,21 @@ renderRecentAchievements(status) {
                 <span class="dashboard-achievement-xp">+${a.xp} XP</span>
               </div>`).join('')}
           </div>
-          ${status.achievements.length > 4 ? `
-            <button class="btn btn-secondary mt-4" id="toggle-achievements-btn" 
-                    onclick="window.app.dashboard.toggleAchievements()">
-              See All Achievements (${status.achievements.length})
-            </button>
-          ` : ''}
         </div>
         <!-- Badges -->
         <div style="text-align:center;">
           <h3 class="dashboard-achievements-title">🎖️ Badges Earned</h3>
-          <div class="badges-grid" id="badges-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
-            ${status.badges.length > 0 ? status.badges.slice().reverse().slice(0, 9).map(b => `
+          <div class="badges-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+            ${status.badges.length > 0 ? status.badges.map(b => `
               <div class="dashboard-achievement-card-inset dashboard-badge-card">
                 <div class="dashboard-achievement-icon" style="font-size:2.5rem;">${b.icon || '🎖️'}</div>
                 <h4 class="dashboard-achievement-name" style="font-size:0.9rem;">${b.name}</h4>
                 ${b.description ? `<p class="dashboard-achievement-desc" style="font-size:0.75rem;">${b.description}</p>` : ''}
               </div>`).join('') : '<p style="color:var(--neuro-text);opacity:0.7;">No badges earned yet. Keep going!</p>'}
           </div>
-          ${status.badges.length > 9 ? `
-            <button class="btn btn-secondary mt-4" id="toggle-badges-btn" 
-                    onclick="window.app.dashboard.toggleBadges()">
-              See All Badges (${status.badges.length})
-            </button>
-          ` : ''}
         </div>
       </div>
     </div>`;
-}
-
-toggleAchievements() {
-  const status = this.app.gamification.getStatusSummary();
-  const grid = document.getElementById('achievements-grid');
-  const btn = document.getElementById('toggle-achievements-btn');
-  const isExpanded = btn.textContent.includes('Show Less');
-  
-  if (isExpanded) {
-    grid.innerHTML = status.achievements.slice(-4).reverse().map(a => `
-      <div class="dashboard-achievement-card-inset">
-        <div class="dashboard-achievement-icon">${a.icon || '🏆'}</div>
-        <h4 class="dashboard-achievement-name">${a.name}</h4>
-        <p class="dashboard-achievement-desc">${a.inspirational || ''}</p>
-        <span class="dashboard-achievement-xp">+${a.xp} XP</span>
-      </div>`).join('');
-    btn.textContent = `See All Achievements (${status.achievements.length})`;
-  } else {
-    grid.innerHTML = status.achievements.slice().reverse().map(a => `
-      <div class="dashboard-achievement-card-inset">
-        <div class="dashboard-achievement-icon">${a.icon || '🏆'}</div>
-        <h4 class="dashboard-achievement-name">${a.name}</h4>
-        <p class="dashboard-achievement-desc">${a.inspirational || ''}</p>
-        <span class="dashboard-achievement-xp">+${a.xp} XP</span>
-      </div>`).join('');
-    btn.textContent = 'Show Less';
-  }
-}
-
-toggleBadges() {
-  const status = this.app.gamification.getStatusSummary();
-  const grid = document.getElementById('badges-grid');
-  const btn = document.getElementById('toggle-badges-btn');
-  const isExpanded = btn.textContent.includes('Show Less');
-  
-  if (isExpanded) {
-    grid.innerHTML = status.badges.slice().reverse().slice(0, 9).map(b => `
-      <div class="dashboard-achievement-card-inset dashboard-badge-card">
-        <div class="dashboard-achievement-icon" style="font-size:2.5rem;">${b.icon || '🎖️'}</div>
-        <h4 class="dashboard-achievement-name" style="font-size:0.9rem;">${b.name}</h4>
-        ${b.description ? `<p class="dashboard-achievement-desc" style="font-size:0.75rem;">${b.description}</p>` : ''}
-      </div>`).join('');
-    btn.textContent = `See All Badges (${status.badges.length})`;
-  } else {
-    grid.innerHTML = status.badges.slice().reverse().map(b => `
-      <div class="dashboard-achievement-card-inset dashboard-badge-card">
-        <div class="dashboard-achievement-icon" style="font-size:2.5rem;">${b.icon || '🎖️'}</div>
-        <h4 class="dashboard-achievement-name" style="font-size:0.9rem;">${b.name}</h4>
-        ${b.description ? `<p class="dashboard-achievement-desc" style="font-size:0.75rem;">${b.description}</p>` : ''}
-      </div>`).join('');
-    btn.textContent = 'Show Less';
-  }
 }
 
   /* -------------- FINAL RENDER -------------- */
