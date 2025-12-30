@@ -89,12 +89,14 @@ setupCTASwipeClose() {
     const deltaY = currentY - startY;
     if (deltaY > 0) {                       // only downward
       panel.style.transform = `translateY(${deltaY}px)`;
+      toggle.style.transform = `translateY(${deltaY}px)`;
     }
   }, {passive: true});
 
   panel.addEventListener('touchend', e => {
     if (!canSwipeClose) {
       panel.style.transform = '';
+      toggle.style.transform = '';
       return;
     }
     
@@ -103,7 +105,8 @@ setupCTASwipeClose() {
     const deltaT = Date.now() - startT;
     const velocity = deltaY / deltaT;
 
-    panel.style.transform = '';             // reset
+    panel.style.transform = '';
+    toggle.style.transform = '';
 
     if (deltaY > SWIPE_Y_THRESHOLD && velocity > VELOCITY_THRESHOLD) {
       if (navigator.vibrate) navigator.vibrate(8);
