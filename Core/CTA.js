@@ -42,27 +42,23 @@ export default class CTA {
 /*  prevent background scroll when footer is open     */
 /* -------------------------------------------------- */
 preventBackgroundScroll() {
-  const panel = document.getElementById('cta-panel');
-  const scroller = panel.querySelector('.lux-scroll');
+  const toggle = document.getElementById('cta-toggle');
   
-  let startScrollTop = 0;
-  
-  panel.addEventListener('touchstart', e => {
-    startScrollTop = scroller.scrollTop;
-  }, {passive: true});
-  
-  panel.addEventListener('touchmove', e => {
-    const scrollTop = scroller.scrollTop;
-    const scrollHeight = scroller.scrollHeight;
-    const clientHeight = scroller.clientHeight;
-    const deltaY = e.touches[0].clientY;
-    
-    // Prevent background scroll when at boundaries
-    if ((scrollTop === 0 && deltaY > startScrollTop) || 
-        (scrollTop + clientHeight >= scrollHeight && deltaY < startScrollTop)) {
-      e.preventDefault();
+  // Lock body scroll when footer opens
+  const observer = new MutationObserver(() => {
+    const isOpen = toggle.classList.contains('open');
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
     }
-  }, {passive: false});
+  });
+  
+  observer.observe(toggle, { attributes: true, attributeFilter: ['class'] });
 }
 
 /* -------------------------------------------------- */
