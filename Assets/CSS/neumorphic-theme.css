@@ -258,14 +258,12 @@ body {
   color: #fff;
 }
 
-/*  ----------  MOBILE-ONLY IMAGE + SHORT TITLE / SUB-TITLE  ----------  */
-@media (max-width: 768px) {
-  .main-header.project-curiosity {
-    display: flex;
-    flex-direction: column;
-  }
+/*  ==========================================
+    GLOBAL MOBILE HEADER RULES
+    ========================================== */
 
-  /* image first */
+/*  -----  IMAGE (all features)  -----  */
+@media (max-width: 768px) {
   .main-header.project-curiosity::before {
     content: "";
     width: 100%;
@@ -274,10 +272,27 @@ body {
     display: block;
     margin-bottom: 1rem;
   }
+}
 
-  /* hide real nodes */
-  .main-header.project-curiosity h1,
-  .main-header.project-curiosity h3 {
+/*  -----  DASHBOARD : image + full title + subtitle  -----  */
+@media (max-width: 768px) {
+  /*  keep <h1> visible – no hide rule  */
+  .main-header.project-curiosity h3::after {          /* optional mobile subtitle */
+    content: var(--header-tag);
+    font-size: clamp(0.875rem, 2vw + 0.25rem, 1.375rem);
+    font-weight: 400;
+    opacity: 0.95;
+    line-height: 1.2;
+    color: #fff;
+    display: block;
+    margin-top: 0.375rem;
+  }
+}
+
+/*  -----  OTHER FEATURES : image + subtitle only (no title)  -----  */
+@media (max-width: 768px) {
+  /*  hide title  */
+  .main-header.project-curiosity h1 {
     font-size: 0;
     line-height: 0;
     margin: 0;
@@ -285,22 +300,7 @@ body {
     height: 0;
     overflow: hidden;
   }
-
-  /* title (bold) */
-  .main-header.project-curiosity::after {
-    content: var(--header-title);
-    font-size: clamp(1.8rem, 4vw + 1rem, 2.75rem);
-    font-weight: 700;
-    line-height: 1.1;
-    color: #fff;
-    order: 2;                 /* force after image */
-    margin-bottom: 0.375rem;
-  }
-
-  /* subtitle (light) */
-  .main-header.project-curiosity .header-sub {
-    order: 3;                 /* force after title */
-  }
+  /*  show subtitle  */
   .main-header.project-curiosity .header-sub::after {
     content: var(--header-tag);
     font-size: clamp(0.875rem, 2vw + 0.25rem, 1.375rem);
@@ -309,6 +309,7 @@ body {
     line-height: 1.2;
     color: #fff;
     display: block;
+    margin-top: 0.375rem;
   }
 }
 
