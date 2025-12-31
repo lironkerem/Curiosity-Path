@@ -276,18 +276,23 @@ body {
     display: none;
   }
 
-  /*  Dashboard mobile: show ONLY user-name, drop “Spiritual Dashboard”  */
+  /*  Dashboard mobile: hide real node, show only pseudo-text  */
   #dashboard-tab .main-header.project-curiosity h1 {
+    font-size: 0;
+    line-height: 0;
+    margin: 0;
+    padding: 0;
+    height: 0;
+    overflow: hidden;
+  }
+  #dashboard-tab .main-header.project-curiosity::after {
+    content: var(--header-title);   /* user-name only */
     font-size: clamp(1.8rem, 4vw + 1rem, 2.75rem);
     font-weight: 700;
     line-height: 1.1;
     color: #fff;
     display: block;
-    margin: 0;
-  }
-  #dashboard-tab .main-header.project-curiosity h1::after {
-    content: var(--header-title);   /* contains only user-name */
-    display: block;
+    margin-bottom: 0.375rem;
   }
 }
 
