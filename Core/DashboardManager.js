@@ -532,6 +532,7 @@ dashboard.innerHTML = `
                      --header-tag:'Your journey inward begins here, so practice. explore. transform.'">
         <h1>${userName}'s Spiritual Dashboard</h1>
         <h3>Your journey inward begins here, so practice. explore. transform.</h3>
+        <span class="header-sub"></span>
       </header>
           ${this.renderGamificationWidget(status, stats)}
           ${this.dailyCards.renderDailyCardsSection()}
