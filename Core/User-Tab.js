@@ -958,19 +958,33 @@ attachSettingsHandlers() {
     const darkModeToggle = document.getElementById('dark-mode-toggle');
     if (darkModeToggle) {
       darkModeToggle.addEventListener('change', e => {
-        // Check if premium theme is active
         const activeTheme = localStorage.getItem('activeTheme') || 'default';
+        const isChecked = e.target.checked;
         
-        if (activeTheme !== 'default') {
-          // For premium themes, keep dark-mode.css disabled
-          window.DarkMode.toggle(e.target.checked);
-          document.getElementById('dark-mode-css')?.setAttribute('disabled', 'true');
+        // Toggle dark-mode class on body
+        if (isChecked) {
+          document.body.classList.add('dark-mode');
         } else {
-          // For default theme, allow normal dark mode toggle
-          window.DarkMode.toggle(e.target.checked);
+          document.body.classList.remove('dark-mode');
+        }
+        
+        // Save preference
+        localStorage.setItem('darkMode', isChecked ? 'enabled' : 'disabled');
+        
+        // Only enable dark-mode.css for default theme
+        if (activeTheme === 'default') {
+          if (isChecked) {
+            document.getElementById('dark-mode-css')?.removeAttribute('disabled');
+          } else {
+            document.getElementById('dark-mode-css')?.setAttribute('disabled', 'true');
+          }
+        } else {
+          // Always keep dark-mode.css disabled for premium themes
+          document.getElementById('dark-mode-css')?.setAttribute('disabled', 'true');
         }
       });
     }
+    
     document.querySelectorAll('.theme-toggle').forEach(toggle => {
       toggle.addEventListener('change', e => {
         if (e.target.checked) {
