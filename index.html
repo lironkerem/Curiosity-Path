@@ -22,7 +22,12 @@
   <link rel="icon" href="Icons/favicon.ico">
 
 <!-- ===== Theme ===== -->
-  <!-- Prevent FOUC - Load correct theme immediately -->
+  <!-- Hide body until correct theme loads -->
+  <style>
+    body { visibility: hidden; }
+    body.theme-loaded { visibility: visible; }
+  </style>
+  
   <script>
   (function() {
     const theme = localStorage.getItem('activeTheme') || 'default';
@@ -39,6 +44,7 @@
       const neuro = document.createElement('link');
       neuro.rel = 'stylesheet';
       neuro.href = './Assets/CSS/neumorphic-theme.css';
+      neuro.onload = () => document.body.classList.add('theme-loaded');
       document.head.appendChild(neuro);
       
       // Load dark-mode.css if needed
@@ -58,6 +64,7 @@
       link.rel = 'stylesheet';
       link.href = './Assets/CSS/' + theme + '.css';
       link.setAttribute('data-premium-theme', theme);
+      link.onload = () => document.body.classList.add('theme-loaded');
       document.head.appendChild(link);
     }
   })();
