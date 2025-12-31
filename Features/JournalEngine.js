@@ -8,8 +8,20 @@ class JournalEngine {
     this.app = app;
   }
 
-  render() {
-tab.innerHTML = `
+render() {
+  let tab = document.getElementById('journal-tab');
+
+  // create tab if it doesn't exist
+  if (!tab) {
+    const mainContent = document.getElementById('main-content');
+    if (!mainContent) return;
+    tab = document.createElement('div');
+    tab.id = 'journal-tab';
+    tab.className = 'tab-content';
+    mainContent.appendChild(tab);
+  }
+
+  tab.innerHTML = `
   <div style="padding:1.5rem;min-height:100vh;">
     <div class="universal-content">
 
