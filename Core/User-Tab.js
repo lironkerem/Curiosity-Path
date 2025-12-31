@@ -1128,19 +1128,29 @@ attachNotificationsHandlers() {
     document.body.classList.remove('champagne-gold', 'royal-indigo', 'earth-luxury', 'matrix-code');
     document.querySelectorAll('link[data-premium-theme]').forEach(l => l.remove());
     localStorage.setItem('activeTheme', themeName);
+    
     if (themeName === 'default') {
+      // Re-enable default dark mode CSS when switching back to default theme
       document.getElementById('dark-mode-css')?.removeAttribute('disabled');
       const rain = document.querySelector('.matrix-rain-container');
       if (rain) rain.remove();
       return;
     }
+    
+    // For premium themes: DISABLE the default dark-mode.css to prevent conflicts
+    const darkModeCss = document.getElementById('dark-mode-css');
+    if (darkModeCss) {
+      darkModeCss.setAttribute('disabled', 'true');
+    }
+    
     document.body.classList.add(themeName);
-    document.getElementById('dark-mode-css')?.setAttribute('disabled', 'true');
+    
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = `./Assets/CSS/${themeName}.css`;
     link.setAttribute('data-premium-theme', themeName);
     document.head.appendChild(link);
+    
     if (themeName === 'matrix-code' && window.app?.initMatrixRain) {
       setTimeout(() => window.app.initMatrixRain(), 100);
     }
