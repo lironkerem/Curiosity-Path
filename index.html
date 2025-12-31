@@ -22,13 +22,10 @@
   <link rel="icon" href="Icons/favicon.ico">
 
 <!-- ===== Theme ===== -->
-  <link rel=stylesheet href=./Assets/CSS/neumorphic-theme.css>
-  <link rel=stylesheet href=./Assets/CSS/dark-mode.css id=dark-mode-css>
-  
-  <!-- Prevent FOUC - Load saved theme immediately -->
+  <!-- Prevent FOUC - Load correct theme immediately -->
   <script>
   (function() {
-    const theme = localStorage.getItem('activeTheme');
+    const theme = localStorage.getItem('activeTheme') || 'default';
     const darkMode = localStorage.getItem('darkMode');
     
     // Apply dark mode class immediately
@@ -37,15 +34,26 @@
       document.body.classList.add('dark-mode');
     }
     
-    // Load premium theme immediately
-    if (theme && theme !== 'default') {
+    if (theme === 'default') {
+      // Load default neumorphic theme
+      const neuro = document.createElement('link');
+      neuro.rel = 'stylesheet';
+      neuro.href = './Assets/CSS/neumorphic-theme.css';
+      document.head.appendChild(neuro);
+      
+      // Load dark-mode.css if needed
+      const darkCss = document.createElement('link');
+      darkCss.rel = 'stylesheet';
+      darkCss.href = './Assets/CSS/dark-mode.css';
+      darkCss.id = 'dark-mode-css';
+      if (darkMode !== 'enabled') {
+        darkCss.disabled = true;
+      }
+      document.head.appendChild(darkCss);
+    } else {
+      // Load premium theme directly
       document.body.classList.add(theme);
       
-      // Disable default dark-mode.css for premium themes
-      const darkCss = document.getElementById('dark-mode-css');
-      if (darkCss) darkCss.disabled = true;
-      
-      // Inject premium theme CSS
       const link = document.createElement('link');
       link.rel = 'stylesheet';
       link.href = './Assets/CSS/' + theme + '.css';
