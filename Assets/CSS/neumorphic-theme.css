@@ -270,16 +270,16 @@ body {
     margin-bottom: 1rem;
   }
 
-  /* ----- hide real nodes ----- */
+  /* ----- hide real node text ----- */
   .main-header.project-curiosity h1,
   .main-header.project-curiosity h3 {
     font-size: 0;
-    line-height: 0;
     margin: 0;
     padding: 0;
-    height: 0;
     overflow: hidden;
   }
+  .main-header.project-curiosity h1 { height: 0; line-height: 0; }
+  .main-header.project-curiosity h3 { position: relative; line-height: 1.2; }
 
   /* ----- title (bold) ----- */
   .main-header.project-curiosity::after {
