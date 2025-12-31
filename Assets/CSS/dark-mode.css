@@ -9,27 +9,20 @@ body.dark-mode{
   --neuro-bg:#1a1d28;
   --neuro-shadow-dark:#0f1118;
   --neuro-shadow-light:#252936;
-
   --neuro-text:#e8eaf0;
   --neuro-text-light:#b8bec9;
   --neuro-text-lighter:#8a92a8;
-
-  --neuro-accent:#c41e3a;        /* dark red → gold gradient */
+  --neuro-accent:#c41e3a;
   --neuro-accent-light:#d4a574;
   
   /* Red gradient colors */
   --neuro-red: #c41e3a;
   --neuro-red-dark: #a01828;
   --neuro-red-bright: #e63950;
-
   --neuro-success:#34d67a;
   --neuro-warning:#fbbf24;
   --neuro-error:#f87171;
   --neuro-info:#60a5fa;
-
-body.dark-mode img {
-  filter: invert(1);
-}
 
   /* deeper shadows with red glow */
   --shadow-raised:
@@ -56,6 +49,11 @@ body.dark-mode img {
   --shadow-red-intense:
     0 0 30px rgba(196,30,58,.7),
     0 0 60px rgba(196,30,58,.5);
+}
+
+/* ------  IMAGE INVERSION  ------ */
+body.dark-mode img {
+  filter: invert(1) brightness(1);
 }
 
 /* ------  ANIMATIONS  ------ */
