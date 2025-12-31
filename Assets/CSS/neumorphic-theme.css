@@ -269,9 +269,14 @@ body {
     margin-bottom: 1rem;          /* space UNDER the image */
   }
 
-  /* hide full desktop text */
+  /* collapse desktop text box */
   .main-header.project-curiosity h1 {
     font-size: 0;
+    line-height: 0;
+    margin: 0;
+    padding: 0;
+    height: 0;
+    overflow: hidden;
   }
   /* inject short mobile text */
   .main-header.project-curiosity h1::after {
@@ -280,6 +285,7 @@ body {
     font-weight: 700;
     line-height: 1.1;
     color: #fff;
+    display: block;               /* take over the h1 box */
   }
 }
 
