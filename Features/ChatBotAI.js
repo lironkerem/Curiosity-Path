@@ -34,9 +34,14 @@ export class ChatBotAI {
 <div style="padding:1.5rem;min-height:100vh;">
   <div class="universal-content">
 
-    <header class="main-header project-curiosity">
+    <!--  MOBILE-ONLY IMAGE + SUBTITLE HEADER  -->
+    <header class="main-header project-curiosity"
+            style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavChatBotAI.png');
+                   --header-title:'';
+                   --header-tag:'Ask me anything about spirituality, self-development, guidance, or just chat with me'">
       <h1>Aanandoham's AI Assistant</h1>
       <h3>Ask me anything about spirituality, self-development, guidance, or just chat with me</h3>
+      <span class="header-sub"></span>
     </header>
 
     <div class="card" style="display:flex;flex-direction:column;height:calc(100vh - 300px);min-height:500px;">
