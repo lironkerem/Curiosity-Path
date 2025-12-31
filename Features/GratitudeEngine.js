@@ -37,10 +37,14 @@ tab.innerHTML = `
   <div style="padding:1.5rem;min-height:100vh;">
     <div class="universal-content">
 
-      <!--  NEW UNIFIED HEADER  -->
-      <header class="main-header project-curiosity">
+<!--  MOBILE-ONLY IMAGE + SUBTITLE HEADER  -->
+      <header class="main-header project-curiosity"
+              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavGratitude.png');
+                     --header-title:'';
+                     --header-tag:'Log in your gratitudes, as much as possible, to open-up for abundance'">
         <h1>Gratitude Practice</h1>
         <h3>Log in your gratitudes, as much as possible, to open-up for abundance</h3>
+        <span class="header-sub"></span>
       </header>
 
       <!-- Single column layout -->
