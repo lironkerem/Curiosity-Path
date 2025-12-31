@@ -225,10 +225,14 @@ tab.innerHTML = `
   <div style="padding:1.5rem;min-height:100vh;">
     <div class="universal-content">
 
-<!--  NEW UNIFIED HEADER  -->
-      <header class="main-header project-curiosity">
+<!--  MOBILE-ONLY IMAGE + SUBTITLE HEADER  -->
+      <header class="main-header project-curiosity"
+              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavTarot.png');
+                     --header-title:'';
+                     --header-tag:'Self divination, through different Tarot spreads, to assist you in understanding yourself better'">
         <h1>Tarot Cards Guidance</h1>
         <h3>Self divination, through different Tarot spreads, to assist you in understanding yourself better</h3>
+        <span class="header-sub"></span>
       </header>
 
       <!-- Spread Selection Cards -->
