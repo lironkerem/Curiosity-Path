@@ -937,6 +937,7 @@ window.app.scheduleWellnessNotifications = function(settings) {
 
     this.syncAvatar();
     this.loadActiveTheme();
+    this.restoreDarkMode();
   }
 
   attachProfileHandlers() {
@@ -1185,7 +1186,29 @@ switchTheme(themeName) {
       setTimeout(() => window.app.initMatrixRain(), 100);
     }
   }
-
+restoreDarkMode() {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    const isDarkMode = savedDarkMode === 'enabled';
+    
+    if (isDarkMode) {
+      document.body.classList.add('dark-mode');
+      
+      const activeTheme = localStorage.getItem('activeTheme') || 'default';
+      
+      // Only enable dark-mode.css for default theme
+      if (activeTheme === 'default') {
+        document.getElementById('dark-mode-css')?.removeAttribute('disabled');
+      } else {
+        document.getElementById('dark-mode-css')?.setAttribute('disabled', 'true');
+      }
+      
+      // Update toggle state if settings panel exists
+      const darkModeToggle = document.getElementById('dark-mode-toggle');
+      if (darkModeToggle) {
+        darkModeToggle.checked = true;
+      }
+    }
+  }
 loadAdminPanel() {
   const mount = document.getElementById('admin-tab-mount');
   if (!mount) return;
