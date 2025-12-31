@@ -166,26 +166,38 @@ export default class ProjectCuriosityApp {
   initMatrixRain() {
     document.querySelector('.matrix-rain-container')?.remove();
     if (!document.body.classList.contains('matrix-code')) return;
-
+    
     const chars   = 'ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ0123456789';
     const isMob   = window.innerWidth <= 768;
     const baseSp  = isMob ? 0.8 : 3;
+    
+    // CHECK FOR DARK MODE - use red if dark, green if light
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    const matrixColor = isDarkMode ? '#ff0041' : '#00ff41';
+    const matrixGlow = isDarkMode ? 'rgba(255,0,65,.6)' : 'rgba(0,255,65,.6)';
+    
     const container = document.createElement('div');
     container.className = 'matrix-rain-container';
     container.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none;overflow:hidden';
-
+    
     const cols = [];
     for (let i = 0; i < 25; i++) {
       const col = document.createElement('div');
-      col.style.cssText = `font-family:'Share Tech Mono',monospace;font-size:24px;line-height:28px;color:#00ff41;opacity:.6;white-space:pre;text-shadow:0 0 10px #00ff41,0 0 20px rgba(0,255,65,.6);position:absolute;left:${4 * i}%;top:0;will-change:transform`;
+      col.className = 'matrix-column'; // Add class for CSS targeting
+      col.style.cssText = `font-family:'Share Tech Mono',monospace;font-size:24px;line-height:28px;color:${matrixColor};opacity:.6;white-space:pre;text-shadow:0 0 10px ${matrixColor},0 0 20px ${matrixGlow};position:absolute;left:${4 * i}%;top:0;will-change:transform`;
       col.textContent = Array.from({ length: 100 }, () => chars[Math.random() * chars.length | 0]).join('\n');
       container.appendChild(col);
       cols.push({ el: col, y: -Math.random() * 4000, sp: baseSp + (isMob ? Math.random() * 1.2 : Math.random() * 4) });
     }
+    
     document.body.insertBefore(container, document.body.firstChild);
-
+    
     const run = () => {
-      if (!document.body.classList.contains('matrix-code')) return;
+      if (!document.body.classList.contains('matrix-code')) {
+        // CLEANUP: Remove matrix rain if theme switched
+        container.remove();
+        return;
+      }
       cols.forEach(c => {
         c.y += c.sp;
         if (c.y > window.innerHeight + 2000) c.y = -2000;
@@ -194,7 +206,7 @@ export default class ProjectCuriosityApp {
       requestAnimationFrame(run);
     };
     run();
-    console.log('✅ Matrix rain initialized with 25 columns at z-index -1');
+    console.log(`✅ Matrix rain initialized (${isDarkMode ? 'RED' : 'GREEN'}) with 25 columns at z-index -1`);
   }
 
   /* ---------- DAILY RESET ---------- */

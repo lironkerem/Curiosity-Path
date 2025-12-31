@@ -982,6 +982,11 @@ attachSettingsHandlers() {
           // Always keep dark-mode.css disabled for premium themes
           document.getElementById('dark-mode-css')?.setAttribute('disabled', 'true');
         }
+        
+        // REINITIALIZE matrix rain if on matrix theme to update color
+        if (activeTheme === 'matrix-code' && window.app?.initMatrixRain) {
+          setTimeout(() => window.app.initMatrixRain(), 50);
+        }
       });
     }
     
@@ -1156,12 +1161,15 @@ switchTheme(themeName) {
     
     document.body.classList.remove('champagne-gold', 'royal-indigo', 'earth-luxury', 'matrix-code');
     document.querySelectorAll('link[data-premium-theme]').forEach(l => l.remove());
+    
+    // REMOVE matrix rain when switching away from matrix theme
+    const rain = document.querySelector('.matrix-rain-container');
+    if (rain) rain.remove();
+    
     localStorage.setItem('activeTheme', themeName);
     
     if (themeName === 'default') {
       document.getElementById('dark-mode-css')?.removeAttribute('disabled');
-      const rain = document.querySelector('.matrix-rain-container');
-      if (rain) rain.remove();
       return;
     }
     
