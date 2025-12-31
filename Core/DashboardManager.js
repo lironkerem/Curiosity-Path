@@ -523,14 +523,13 @@ toggleBadges() {
     const stats = this.app.state?.getStats?.() || {};
 const userName = this.app.state.currentUser?.name || 'Seeker';
 
-const header = `
 <header class="main-header project-curiosity"
         style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavDashboard.png');
                --header-title:'${userName}\'s Spiritual Dashboard';
                --header-tag:'Your journey inward begins here, so practice. explore. transform.'">
   <h1>${userName}'s Spiritual Dashboard</h1>
   <h3>Your journey inward begins here, so practice. explore. transform.</h3>
-</header>`;
+</header>
           ${this.renderGamificationWidget(status, stats)}
           ${this.dailyCards.renderDailyCardsSection()}
           ${this.renderWellnessToolkit()}
