@@ -954,11 +954,21 @@ window.app.scheduleWellnessNotifications = function(settings) {
     });
   }
 
-  attachSettingsHandlers() {
+attachSettingsHandlers() {
     const darkModeToggle = document.getElementById('dark-mode-toggle');
     if (darkModeToggle) {
       darkModeToggle.addEventListener('change', e => {
-        window.DarkMode.toggle(e.target.checked);
+        // Check if premium theme is active
+        const activeTheme = localStorage.getItem('activeTheme') || 'default';
+        
+        if (activeTheme !== 'default') {
+          // For premium themes, keep dark-mode.css disabled
+          window.DarkMode.toggle(e.target.checked);
+          document.getElementById('dark-mode-css')?.setAttribute('disabled', 'true');
+        } else {
+          // For default theme, allow normal dark mode toggle
+          window.DarkMode.toggle(e.target.checked);
+        }
       });
     }
     document.querySelectorAll('.theme-toggle').forEach(toggle => {
