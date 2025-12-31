@@ -260,7 +260,6 @@ body {
 
 /* ===== MOBILE-ONLY OVERRIDES ===== */
 @media (max-width: 768px) {
-  /*  image everywhere  */
   .main-header.project-curiosity::before {
     content: "";
     width: 100%;
@@ -270,8 +269,9 @@ body {
     margin-bottom: 1rem;
   }
 
-  /*  hide H1 in every tab except Dashboard  */
-  :not(#dashboard-tab) .main-header.project-curiosity h1 {
+  /* hide H1 only when the title variable is empty (non-Dashboard tabs) */
+  .main-header.project-curiosity[style*="--header-title:''"] h1,
+  .main-header.project-curiosity[style*="--header-title: \"\" "] h1 {
     display: none;
   }
 }
