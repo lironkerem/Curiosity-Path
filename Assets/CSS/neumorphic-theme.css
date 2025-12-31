@@ -258,7 +258,7 @@ body {
   color: #fff;
 }
 
-/*  ----------  MOBILE-ONLY IMAGE + SHORT TITLE  ----------  */
+/*  ----------  MOBILE-ONLY IMAGE + SHORT TITLE / SUB-TITLE  ----------  */
 @media (max-width: 768px) {
   /* ----- image ----- */
   .main-header.project-curiosity::before {
@@ -293,9 +293,8 @@ body {
   }
 
   /* ----- subtitle (light) ----- */
-  .main-header.project-curiosity::after {
-    content: var(--header-title) "\A" var(--header-tag);
-    white-space: pre;
+  .main-header.project-curiosity h3::after {
+    content: var(--header-tag);
     font-size: clamp(0.875rem, 2vw + 0.25rem, 1.375rem);
     font-weight: 400;
     opacity: 0.95;
