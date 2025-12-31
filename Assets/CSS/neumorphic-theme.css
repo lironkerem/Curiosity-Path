@@ -3522,7 +3522,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   margin: var(--spacing-5) auto var(--spacing-4);
   max-width:1200px;
   border-radius: var(--spacing-3);
-  background: linear-gradient(90deg, #B00025 0%, #3A1A15 100%);
+  background: linear-gradient(90deg, #D4002B 0%, #4E2520 100%);
   box-shadow:12px 12px 24px var(--neuro-shadow-dark),
             -12px -12px 24px var(--neuro-shadow-light);
   contain: layout style paint;
