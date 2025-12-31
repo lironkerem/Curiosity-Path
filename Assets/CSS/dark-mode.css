@@ -56,6 +56,13 @@ body.dark-mode img {
   filter: invert(1) brightness(1);
 }
 
+/* Exclude Sessions and Workshops flyer images from inversion */
+body.dark-mode img[src*="/CTA/Sessions/"],
+body.dark-mode img[src*="/CTA/Workshops/"],
+body.dark-mode .disc-avatar-img {
+  filter: none;
+}
+
 /* ------  ANIMATIONS  ------ */
 @keyframes redPulse{
   0%,100%{
