@@ -71,6 +71,19 @@ body.earth-luxury{
     0 4px 20px rgba(107,155,55,.4);
 }
 
+/* ------  IMAGE INVERSION (Dark Mode Only)  ------ */
+body.earth-luxury.dark-mode img {
+  filter: invert(1) brightness(1);
+}
+
+/* Exclude Sessions, Workshops, Tarot, and avatar images from inversion */
+body.earth-luxury.dark-mode img[src*="/CTA/Sessions/"],
+body.earth-luxury.dark-mode img[src*="/CTA/Workshops/"],
+body.earth-luxury.dark-mode img[src*="/Tarot%20Cards%20images/"],
+body.earth-luxury.dark-mode .disc-avatar-img {
+  filter: none;
+}
+
 /* ------  ANIMATIONS  ------ */
 @keyframes earthGlow{
   0%,100%{box-shadow:var(--shadow-raised-lg),var(--shadow-glow)}
