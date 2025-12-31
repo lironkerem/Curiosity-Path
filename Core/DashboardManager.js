@@ -525,10 +525,13 @@ toggleBadges() {
     dashboard.innerHTML = `
       <div class="dashboard-container">
         <div class="dashboard-content">
-          <header class="main-header project-curiosity">
-            <h1>${this.app.state.currentUser?.name || 'Seeker'}'s Spiritual Dashboard</h1>
-            <h3>Your journey inward begins here, so practice. explore. transform.</h3>
-          </header>
+<header class="main-header project-curiosity"
+        style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavDashboard.png');
+               --header-title:'${this.app.state.currentUser?.name || 'Seeker'}'s Spiritual Dashboard';
+               --header-tag:'Your journey inward begins here, so practice. explore. transform.'">
+  <h1>${this.app.state.currentUser?.name || 'Seeker'}'s Spiritual Dashboard</h1>
+  <h3>Your journey inward begins here, so practice. explore. transform.</h3>
+</header>
           ${this.renderGamificationWidget(status, stats)}
           ${this.dailyCards.renderDailyCardsSection()}
           ${this.renderWellnessToolkit()}
