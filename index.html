@@ -21,9 +21,39 @@
   <link rel="icon" href="Icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="Icons/favicon.ico">
 
-  <!-- ===== Theme ===== -->
+<!-- ===== Theme ===== -->
   <link rel=stylesheet href=./Assets/CSS/neumorphic-theme.css>
   <link rel=stylesheet href=./Assets/CSS/dark-mode.css id=dark-mode-css>
+  
+  <!-- Prevent FOUC - Load saved theme immediately -->
+  <script>
+  (function() {
+    const theme = localStorage.getItem('activeTheme');
+    const darkMode = localStorage.getItem('darkMode');
+    
+    // Apply dark mode class immediately
+    if (darkMode === 'enabled') {
+      document.documentElement.classList.add('dark-mode');
+      document.body.classList.add('dark-mode');
+    }
+    
+    // Load premium theme immediately
+    if (theme && theme !== 'default') {
+      document.body.classList.add(theme);
+      
+      // Disable default dark-mode.css for premium themes
+      const darkCss = document.getElementById('dark-mode-css');
+      if (darkCss) darkCss.disabled = true;
+      
+      // Inject premium theme CSS
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = './Assets/CSS/' + theme + '.css';
+      link.setAttribute('data-premium-theme', theme);
+      document.head.appendChild(link);
+    }
+  })();
+  </script>
 </head>
 
 <body>
