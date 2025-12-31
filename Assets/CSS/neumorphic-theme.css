@@ -260,14 +260,8 @@ body {
 
 /* ===== MOBILE-ONLY OVERRIDES ===== */
 @media (max-width: 768px) {
-  /*  make header a vertical flex container  */
-  #dashboard-tab .main-header.project-curiosity {
-    display: flex;
-    flex-direction: column;
-  }
-
-  /*  image first  */
-  #dashboard-tab .main-header.project-curiosity::before {
+  /*  image everywhere  */
+  .main-header.project-curiosity::before {
     content: "";
     width: 100%;
     aspect-ratio: 1500 / 500;
@@ -276,31 +270,18 @@ body {
     margin-bottom: 1rem;
   }
 
-  /*  collapsed real h1  */
-  #dashboard-tab .main-header.project-curiosity h1 {
-    font-size: 0;
-    line-height: 0;
-    margin: 0;
-    padding: 0;
-    height: 0;
-    overflow: hidden;
-  }
+  /*  dashboard special handling (already added above)  */
+  #dashboard-tab .main-header.project-curiosity { display: flex; flex-direction: column; }
+  #dashboard-tab .main-header.project-curiosity::before { order: 1; margin-bottom: 1rem; }
+  #dashboard-tab .main-header.project-curiosity h1 { font-size: 0; line-height: 0; height: 0; overflow: hidden; }
+  #dashboard-tab .main-header.project-curiosity::after { content: var(--header-title); font-size: clamp(1.8rem,4vw + 1rem,2.75rem); font-weight: 700; line-height: 1.1; color: #fff; order: 2; margin-bottom: 0.375rem; }
+  #dashboard-tab .main-header.project-curiosity h3 { order: 3; }
 
-  /*  user-name second  */
-  #dashboard-tab .main-header.project-curiosity::after {
-    content: var(--header-title);
-    font-size: clamp(1.8rem, 4vw + 1rem, 2.75rem);
-    font-weight: 700;
-    line-height: 1.1;
-    color: #fff;
-    order: 2;                 /* after image */
-    margin-bottom: 0.375rem;
+  /*  OTHER FEATURES : image + subtitle only  */
+  :not(#dashboard-tab) .main-header.project-curiosity h1 {
+    display: none;   /* hide title on mobile */
   }
-
-  /*  subtitle third  */
-  #dashboard-tab .main-header.project-curiosity h3 {
-    order: 3;                 /* after title */
-  }
+  /*  <h3> stays visible; no extra pseudo-elements needed  */
 }
 
 /* ===== BASE CARDS ===== */
