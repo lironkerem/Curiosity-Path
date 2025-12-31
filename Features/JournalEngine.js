@@ -9,15 +9,18 @@ class JournalEngine {
   }
 
   render() {
-    const tab = document.getElementById('journal-tab');
 tab.innerHTML = `
   <div style="padding:1.5rem;min-height:100vh;">
     <div class="universal-content">
 
-<!--  NEW UNIFIED HEADER  -->
-      <header class="main-header project-curiosity">
+<!--  MOBILE-ONLY IMAGE + SUBTITLE HEADER  -->
+      <header class="main-header project-curiosity"
+              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavJournal.png');
+                     --header-title:'';
+                     --header-tag:'Your safe, private, secret space, to open up, vent and write down your emotions and thoughts'">
         <h1>My Personal Journal</h1>
         <h3>Your safe, private, secret space, to open up, vent and write down your emotions and thoughts</h3>
+        <span class="header-sub"></span>
       </header>
       
       <div class="card">

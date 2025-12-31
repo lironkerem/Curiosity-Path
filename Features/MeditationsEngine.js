@@ -133,10 +133,14 @@ class MeditationsEngine {
       <div style="padding:1.5rem;min-height:100vh;">
         <div class="universal-content">
 
-          <!--  UNIFIED HEADER  -->
-          <header class="main-header project-curiosity">
+          <!--  MOBILE-ONLY IMAGE + SUBTITLE HEADER  -->
+          <header class="main-header project-curiosity"
+                  style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavMeditations.png');
+                         --header-title:'';
+                         --header-tag:'Aanandoham\'s curated, unique collection of guided meditations'">
             <h1>Guided Meditations</h1>
             <h3>Aanandoham's curated, unique collection of guided meditations</h3>
+            <span class="header-sub"></span>
           </header>
 
           <!--  PDF BUTTON  -->

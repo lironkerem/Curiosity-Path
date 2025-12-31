@@ -303,12 +303,16 @@ export class KarmaShopEngine {
     const purchaseHistory = this.getPurchaseHistory();
     const categories = ['Power-Ups', 'Quest Helpers', 'Premium Features', 'Premium Skins', 'Meet the Master'];
 
-    tab.innerHTML = `
+tab.innerHTML = `
       <div class="karma-shop-container">
         <div class="karma-shop-content">
-          <header class="main-header project-curiosity">
+          <header class="main-header project-curiosity"
+                  style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavKarmaShop.png');
+                         --header-title:'';
+                         --header-tag:'Exchange your Karma tokens for goodies and upgrades'">
             <h1>The Karma Shop</h1>
             <h3>Exchange your Karma tokens for goodies and upgrades</h3>
+            <span class="header-sub"></span>
           </header>
 
           <div class="card karma-shop-balance">
