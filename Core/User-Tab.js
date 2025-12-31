@@ -1135,6 +1135,11 @@ attachNotificationsHandlers() {
   }
 
 switchTheme(themeName) {
+    // DISABLE dark-mode.css IMMEDIATELY for any non-default theme
+    if (themeName !== 'default') {
+      document.getElementById('dark-mode-css')?.setAttribute('disabled', 'true');
+    }
+    
     document.body.classList.remove('champagne-gold', 'royal-indigo', 'earth-luxury', 'matrix-code');
     document.querySelectorAll('link[data-premium-theme]').forEach(l => l.remove());
     localStorage.setItem('activeTheme', themeName);
@@ -1145,9 +1150,6 @@ switchTheme(themeName) {
       if (rain) rain.remove();
       return;
     }
-    
-    // For premium themes: ALWAYS disable dark-mode.css FIRST
-    document.getElementById('dark-mode-css')?.setAttribute('disabled', 'true');
     
     document.body.classList.add(themeName);
     
