@@ -294,7 +294,18 @@ body {
     margin-bottom: 1rem;
   }
 }
-
+/* anywhere in your global CSS */
+@media (max-width: 768px) {
+  .main-header.project-curiosity::before {
+    content: "";
+    width: 100%;
+    aspect-ratio: 1500 / 500;
+    height: 33vw;          /* or 160px / 12rem / 200px – any fixed value */
+    background: var(--header-img, none) center / contain no-repeat;
+    display: block;
+    margin-bottom: 1rem;
+  }
+}
 /* ===== BASE CARDS ===== */
 .card,
 .neuro-card,
