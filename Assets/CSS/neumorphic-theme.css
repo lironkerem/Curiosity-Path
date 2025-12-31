@@ -270,37 +270,38 @@ body {
     margin-bottom: 1rem;
   }
 
-  /* ----- hide real node text ----- */
+  /* ----- hide real nodes ----- */
   .main-header.project-curiosity h1,
   .main-header.project-curiosity h3 {
     font-size: 0;
+    line-height: 0;
     margin: 0;
     padding: 0;
+    height: 0;
     overflow: hidden;
   }
-  .main-header.project-curiosity h1 { height: 0; line-height: 0; }
-  .main-header.project-curiosity h3 { position: relative; line-height: 1.2; }
 
-  /* ----- title (bold) ----- */
+  /* ----- title + subtitle in correct order ----- */
   .main-header.project-curiosity::after {
-    content: var(--header-title);
+    content: var(--header-title) "\A" var(--header-tag);
+    white-space: pre;
+    display: block;
+    text-align: center;
+    color: #fff;
+  }
+  /* title line */
+  .main-header.project-curiosity::after {
     font-size: clamp(1.8rem, 4vw + 1rem, 2.75rem);
     font-weight: 700;
     line-height: 1.1;
-    color: #fff;
-    display: block;
     margin-bottom: 0.375rem;
   }
-
-  /* ----- subtitle (light) ----- */
-  .main-header.project-curiosity h3::after {
-    content: var(--header-tag);
+  /* subtitle line */
+  .main-header.project-curiosity::after {
     font-size: clamp(0.875rem, 2vw + 0.25rem, 1.375rem);
     font-weight: 400;
     opacity: 0.95;
-    color: #fff;
-    display: block;
-    margin-top: 0.375rem;
+    line-height: 1.2;
   }
 }
 
