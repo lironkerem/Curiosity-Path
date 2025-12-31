@@ -523,7 +523,7 @@ toggleBadges() {
     const stats = this.app.state?.getStats?.() || {};
 const userName = this.app.state.currentUser?.name || 'Seeker';
 
-header = `
+const header = `
 <header class="main-header project-curiosity"
         style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavDashboard.png');
                --header-title:'${userName}\'s Spiritual Dashboard';
