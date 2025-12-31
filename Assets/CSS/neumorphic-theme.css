@@ -266,6 +266,7 @@ body {
     aspect-ratio: 1500 / 500;
     background: var(--header-img, none) center / contain no-repeat;
     display: block;
+    margin-bottom: 1rem;   /* space UNDER the image */
   }
 }
 
