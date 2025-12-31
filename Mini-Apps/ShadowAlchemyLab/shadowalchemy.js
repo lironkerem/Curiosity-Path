@@ -18,7 +18,7 @@ tab.innerHTML = `
     <div class="universal-content">
 
    <header class="main-header project-curiosity"
-              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavShadowAlchemy.png');
+              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavShadow.png');
                      --header-title:'';
                      --header-tag:'Transform your Shadows into Golden wisdom'">
         <h1>Shadow Alchemy Lab</h1>

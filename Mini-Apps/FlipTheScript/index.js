@@ -60,7 +60,7 @@ export default class FlipTheScriptApp {
 
       <!--  MOBILE-ONLY IMAGE + SUBTITLE HEADER  -->
       <header class="main-header project-curiosity"
-              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavFlipTheScript.png');
+              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavFlip.png');
                      --header-title:'';
                      --header-tag:'Flip your Negative thoughts, into Positive affirmations'">
         <h1>Flip the Script</h1>
