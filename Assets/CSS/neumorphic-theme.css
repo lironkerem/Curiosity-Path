@@ -524,6 +524,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 .tab-content { display: none; background: var(--neuro-bg); min-height: 100vh; }
 .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
 .hidden { display: none !important; }
+
 /* ===== NAVIGATION ===== */
 .main-nav {
   background: transparent;
@@ -532,21 +533,22 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   position: relative;
   scroll-behavior: smooth;
 }
+
 .nav-tabs {
-  display: flex;
-  gap: 20px;
-  padding: 8px 8px;
-  margin: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-  flex-wrap: nowrap;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(2, auto);
+  gap: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 8px;
+  justify-items: center;
+  align-items: center;
 }
-.nav-tabs::-webkit-scrollbar { display: none; }
+
 .nav-item {
-  flex: 1 1 132px;
+  width: 100%;
+  max-width: 180px;
   aspect-ratio: 3/2;
   display: flex;
   flex-direction: column;
@@ -564,14 +566,17 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   overflow: hidden;
   box-shadow: none;
 }
+
 .nav-image{ 
   width: 100%;
-  height: auto;  /* ← Change this */
+  height: auto;
   object-fit: contain;
   display: block;
-  max-height: 100%;  /* ← Add this to prevent overflow */
+  max-height: 100%;
 }
+
 .nav-item:hover { background: rgba(255,255,255,.1); transform: translateY(-2px); }
+
 .nav-item.active { 
   background: linear-gradient(135deg, #6b4f35 0%, #b89b72 100%);
   color: #fff;
