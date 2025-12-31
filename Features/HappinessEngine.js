@@ -246,9 +246,14 @@ tab.innerHTML = `
   <div style="padding:1.5rem;min-height:100vh;">
     <div class="universal-content">
 
-      <header class="main-header project-curiosity">
+<!--  MOBILE-ONLY IMAGE + SUBTITLE HEADER  -->
+      <header class="main-header project-curiosity"
+              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavHappiness.png');
+                     --header-title:'';
+                     --header-tag:'Your daily dose of Inspirational Quotes with Happiness Boosters, Positive-Affirmations, and Self-Inquiry'">
         <h1>Happiness and Motivation</h1>
-        <h3>Your daily dose of Inspirational Quotes with Happiness Boosters, Positive-Affirmations, and Self-Inquiry.</h3>
+        <h3>Your daily dose of Inspirational Quotes with Happiness Boosters, Positive-Affirmations, and Self-Inquiry</h3>
+        <span class="header-sub"></span>
       </header>
 
       <div class="flex items-center justify-between" style="margin-bottom: 2rem; padding: 1rem; background: rgba(102, 126, 234, 0.05); border-radius: 8px;">
