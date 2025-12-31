@@ -54,14 +54,18 @@ export default class FlipTheScriptApp {
 
     /* 5.  build the responsive shell (1280 px desktop / 100 % - 3 rem mobile) */
     const tab = document.getElementById('flip-script-tab');
-tab.innerHTML = `
+    tab.innerHTML = `
   <div style="padding:1.5rem;min-height:100vh;">
     <div class="universal-content">
 
-      <!--  NEW UNIFIED HEADER  -->
-      <header class="main-header project-curiosity">
+      <!--  MOBILE-ONLY IMAGE + SUBTITLE HEADER  -->
+      <header class="main-header project-curiosity"
+              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavFlipTheScript.png');
+                     --header-title:'';
+                     --header-tag:'Flip your Negative thoughts, into Positive affirmations'">
         <h1>Flip the Script</h1>
         <h3>Flip your Negative thoughts, into Positive affirmations</h3>
+        <span class="header-sub"></span>
       </header>
 
       <!--  main card  -->

@@ -36,14 +36,18 @@ export default class SelfAnalysisLauncher {
         }
 
         // Build layout with Big-App header (NO WRAPPER CARD - FIXED WIDTH ISSUE)
-        host.innerHTML = `
+host.innerHTML = `
   <div style="padding:1.5rem;min-height:100vh;">
     <div class="universal-content">
 
       <!-- Big-App Unified Header -->
-      <header class="main-header project-curiosity">
+      <header class="main-header project-curiosity"
+              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavSelfAnalysis.png');
+                     --header-title:'';
+                     --header-tag:'Analyse your \'Self\', using Numerology, Astrology, Tree of Life and Tarot'">
         <h1>Self-Analysis Pro</h1>
         <h3>Analyse your 'Self', using Numerology, Astrology, Tree of Life and Tarot</h3>
+        <span class="header-sub"></span>
       </header>
 
       <!-- Mini-App Content -->

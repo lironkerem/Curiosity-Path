@@ -17,9 +17,13 @@ tab.innerHTML = `
   <div style="padding:1.5rem;min-height:100vh;">
     <div class="universal-content">
 
-      <header class="main-header project-curiosity">
+   <header class="main-header project-curiosity"
+              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavShadowAlchemy.png');
+                     --header-title:'';
+                     --header-tag:'Transform your Shadows into Golden wisdom'">
         <h1>Shadow Alchemy Lab</h1>
         <h3>Transform your Shadows into Golden wisdom</h3>
+        <span class="header-sub"></span>
       </header>
 
       <div class="card relative" style="padding:3rem; text-align:center; opacity: 0.75;">
@@ -44,9 +48,13 @@ tab.innerHTML = `
   <div style="background:var(--neuro-bg);padding:1.5rem;min-height:100vh;">
     <div class="universal-content">
 
-      <header class="main-header project-curiosity">
+   <header class="main-header project-curiosity"
+              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavShadowAlchemy.png');
+                     --header-title:'';
+                     --header-tag:'Transform your Shadows into Golden wisdom'">
         <h1>Shadow Alchemy Lab</h1>
         <h3>Transform your Shadows into Golden wisdom</h3>
+        <span class="header-sub"></span>
       </header>
 
       <div class="card" style="padding:2rem">
