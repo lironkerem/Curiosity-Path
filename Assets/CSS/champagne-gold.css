@@ -64,6 +64,14 @@ body.champagne-gold{
     0 4px 20px rgba(184,152,95,.5);
 }
 
+/* ------  IMAGE INVERSION (Navigation only - Dark Mode)  ------ */
+body.champagne-gold.dark-mode .nav-item img,
+body.champagne-gold.dark-mode .bottom-nav img,
+body.champagne-gold.dark-mode .tab-bar img,
+body.champagne-gold.dark-mode .bottom-sheet img {
+  filter: invert(1) brightness(1);
+}
+
 /* ------  ANIMATIONS  ------ */
 @keyframes luxuryShine{
   0%{background-position:-200% center}
