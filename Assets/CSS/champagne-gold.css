@@ -65,10 +65,9 @@ body.champagne-gold{
 }
 
 /* ------  IMAGE INVERSION (Navigation only - Dark Mode)  ------ */
-body.champagne-gold.dark-mode .nav-item img,
-body.champagne-gold.dark-mode .bottom-nav img,
-body.champagne-gold.dark-mode .tab-bar img,
-body.champagne-gold.dark-mode .bottom-sheet img {
+body.champagne-gold.dark-mode .nav-item .nav-image,
+body.champagne-gold.dark-mode .mobile-tab img,
+body.champagne-gold.dark-mode .sheet-row img {
   filter: invert(1) brightness(1);
 }
 
