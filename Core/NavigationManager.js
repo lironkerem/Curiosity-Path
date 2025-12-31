@@ -232,7 +232,7 @@ export default class NavigationManager {
     rightBtn.innerHTML = `<svg viewBox="0 0 200 180" style="transform:scale(0.5);"><path d="M115 10 L100 90 L115 170" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`;
 
     const goto = (dir) => {
-      const order = ['dashboard', 'energy', 'tarot', 'gratitude', 'happiness', 'journal', 'meditations', 'flip-script', 'calculator', 'shadow-alchemy', 'karma-shop', 'chatbot'];
+      const order = ['dashboard', 'energy', 'tarot', 'gratitude', 'happiness', 'journal', 'meditations', 'flip-script', 'calculator', 'shadow-alchemy', 'karma-shop'];
       const active = localStorage.getItem('pc_active_tab') || 'dashboard';
       let idx = order.indexOf(active);
       idx = (idx + dir + order.length) % order.length;
@@ -252,7 +252,7 @@ export default class NavigationManager {
   }
 
   setupSwipeGestures() {
-    const swipeOrder = ['dashboard', 'energy', 'tarot', 'gratitude', 'happiness', 'journal', 'meditations', 'flip-script', 'calculator', 'shadow-alchemy', 'karma-shop', 'chatbot'];
+    const swipeOrder = ['dashboard', 'energy', 'tarot', 'gratitude', 'happiness', 'journal', 'meditations', 'flip-script', 'calculator', 'shadow-alchemy', 'karma-shop'];
     let startX = 0, startT = 0;
     const SWIPE_THRESHOLD = 120;
     const SWIPE_TIME = 300;
