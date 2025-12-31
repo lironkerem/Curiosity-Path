@@ -527,7 +527,7 @@ toggleBadges() {
         <div class="dashboard-content">
 <header class="main-header project-curiosity"
         style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavDashboard.png');
-               --header-title:'${this.app.state.currentUser?.name || 'Seeker'}'s Spiritual Dashboard';
+               --header-title:'${this.app.state.currentUser?.name'}';
                --header-tag:'Your journey inward begins here, so practice. explore. transform.'">
   <h1>${this.app.state.currentUser?.name || 'Seeker'}'s Spiritual Dashboard</h1>
   <h3>Your journey inward begins here, so practice. explore. transform.</h3>
