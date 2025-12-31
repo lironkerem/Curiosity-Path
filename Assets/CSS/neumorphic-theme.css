@@ -258,7 +258,7 @@ body {
   color: #fff;
 }
 
-/*  ----------  MOBILE-ONLY IMAGE  ----------  */
+/*  ----------  MOBILE-ONLY IMAGE + SHORT TITLE  ----------  */
 @media (max-width: 768px) {
   .main-header.project-curiosity::before {
     content: "";
@@ -266,7 +266,20 @@ body {
     aspect-ratio: 1500 / 500;
     background: var(--header-img, none) center / contain no-repeat;
     display: block;
-    margin-bottom: 1rem;   /* space UNDER the image */
+    margin-bottom: 1rem;          /* space UNDER the image */
+  }
+
+  /* hide full desktop text */
+  .main-header.project-curiosity h1 {
+    font-size: 0;
+  }
+  /* inject short mobile text */
+  .main-header.project-curiosity h1::after {
+    content: var(--header-title);
+    font-size: clamp(1.8rem, 4vw + 1rem, 2.75rem);
+    font-weight: 700;
+    line-height: 1.1;
+    color: #fff;
   }
 }
 
