@@ -71,6 +71,19 @@ body.royal-indigo{
     0 0 40px rgba(212,175,55,.2);
 }
 
+/* ------  IMAGE INVERSION (Dark Mode Only)  ------ */
+body.royal-indigo.dark-mode img {
+  filter: invert(1) brightness(1);
+}
+
+/* Exclude Sessions, Workshops, Tarot, and avatar images from inversion */
+body.royal-indigo.dark-mode img[src*="/CTA/Sessions/"],
+body.royal-indigo.dark-mode img[src*="/CTA/Workshops/"],
+body.royal-indigo.dark-mode img[src*="/Tarot%20Cards%20images/"],
+body.royal-indigo.dark-mode .disc-avatar-img {
+  filter: none;
+}
+
 /* ------  ANIMATIONS  ------ */
 @keyframes royalPulse{
   0%,100%{box-shadow:var(--shadow-raised-lg),var(--shadow-glow)}
