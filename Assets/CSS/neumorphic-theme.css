@@ -286,6 +286,7 @@ body {
     line-height: 1.1;
     color: #fff;
     display: block;               /* take over the h1 box */
+    margin-top: 0.5rem;           /* tuck it under the image */
   }
 }
 
