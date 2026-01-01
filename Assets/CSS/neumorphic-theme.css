@@ -1414,6 +1414,57 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
     font-size: 1.75rem;
   }
 }
+
+/* =========================================================
+   GRATITUDE PRACTICE:
+   ========================================================= */
+#gratitude-tab .gratitude-inspiration-container {
+  padding: 1rem;
+  background: var(--neuro-bg);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-inset);
+  margin-bottom: 1.5rem;
+}
+
+#gratitude-tab .suggestion-label {
+  font-size: 1rem;
+  margin: 0 0 1rem 0;
+  color: var(--neuro-text);
+  text-align: center;
+  font-weight: 600;
+}
+
+#gratitude-tab .gratitude-inspiration-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+#gratitude-tab .suggestion-btn {
+  font-size: 0.875rem;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--neuro-bg);
+  color: var(--neuro-text);
+  cursor: pointer;
+  box-shadow: 4px 4px 8px var(--neuro-shadow-dark), -4px -4px 8px var(--neuro-shadow-light);
+  transition: all 0.2s ease;
+  line-height: 1.4;
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#gratitude-tab .suggestion-btn:hover {
+  box-shadow: var(--shadow-inset-sm);
+}
+
+#gratitude-tab .suggestion-btn:active {
+  box-shadow: var(--shadow-inset);
+}
+
 /* =========================================================
    KARMA SHOP STYLES
    ========================================================= */
