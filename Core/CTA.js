@@ -273,16 +273,17 @@ setupCTASwipeClose() {
 
   populateGrids() {
     const base = 'https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/CTA/';
-    const sessions = [
-      'https://lironkerem.wixsite.com/project-curiosity/tarot',
-      'https://lironkerem.wixsite.com/project-curiosity/reiki',
-      'https://lironkerem.wixsite.com/project-curiosity/meditation',
-      'https://lironkerem.wixsite.com/project-curiosity/osho',
-      'https://lironkerem.wixsite.com/project-curiosity/guided-visualizations',
-      'https://lironkerem.wixsite.com/project-curiosity/eft',
-      'https://lironkerem.wixsite.com/project-curiosity/yoga',
-      'https://lironkerem.wixsite.com/project-curiosity/tantra'
-    ];
+const sessions = [
+  'https://lironkerem.wixsite.com/project-curiosity/tarot',
+  'https://lironkerem.wixsite.com/project-curiosity/reiki',
+  'https://lironkerem.wixsite.com/project-curiosity/meditation',
+  'https://lironkerem.wixsite.com/project-curiosity/tarot',
+  'https://lironkerem.wixsite.com/project-curiosity/osho',
+  'https://lironkerem.wixsite.com/project-curiosity/guided-visualizations',
+  'https://lironkerem.wixsite.com/project-curiosity/eft',
+  'https://lironkerem.wixsite.com/project-curiosity/yoga',
+  'https://lironkerem.wixsite.com/project-curiosity/tantra'
+];
     const workshops = [
       'https://lironkerem.wixsite.com/project-curiosity/tarot',
       'https://lironkerem.wixsite.com/project-curiosity/reiki',
