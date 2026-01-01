@@ -7,59 +7,39 @@
   <meta name="permissions-policy" content="camera=(self)">
   <title>The Curiosity Path - by Aanandoham</title>
 
-  <!-- ===== Critical Inline Style: Prevent FOUC ===== -->
-  <style>
-    /* Hide content until correct theme is applied */
-    html:not(.themes-loaded) body {
-      opacity: 0;
-    }
-    html.themes-loaded body {
-      opacity: 1;
-      transition: opacity 0.1s ease-in;
+  <!-- ===== CRITICAL: Inline CSS to prevent FOUC ===== -->
+  <style id="fouc-prevention">
+    /* Hide body until correct theme CSS loads */
+    html:not(.theme-loaded) body {
+      visibility: hidden;
     }
   </style>
 
-  <!-- ===== Theme Detection & CSS Injection ===== -->
+  <!-- ===== Synchronous Theme Detection & CSS Loading ===== -->
   <script>
   (function() {
     const theme = localStorage.getItem('activeTheme') || 'default';
     const darkMode = localStorage.getItem('darkMode') === 'enabled';
     
-    // Apply theme class to html immediately
-    if (darkMode) {
-      document.documentElement.classList.add('dark-mode');
-    }
-    if (theme !== 'default') {
-      document.documentElement.classList.add(theme);
-    }
-
-    // Inject correct CSS synchronously
-    const head = document.head;
+    // Apply classes to HTML element
+    const html = document.documentElement;
+    if (darkMode) html.classList.add('dark-mode');
+    if (theme !== 'default') html.classList.add(theme);
     
-    if (theme === 'default') {
-      // Default theme
-      const link1 = document.createElement('link');
-      link1.rel = 'stylesheet';
-      link1.href = './Assets/CSS/neumorphic-theme.css';
-      head.appendChild(link1);
-      
-      if (darkMode) {
-        const link2 = document.createElement('link');
-        link2.rel = 'stylesheet';
-        link2.href = './Assets/CSS/dark-mode.css';
-        head.appendChild(link2);
-      }
-    } else {
-      // Custom theme
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = './Assets/CSS/' + theme + '.css';
-      head.appendChild(link);
+    // Synchronously inject theme CSS using document.write (blocks parser)
+    const themePath = theme === 'default' 
+      ? './Assets/CSS/neumorphic-theme.css'
+      : './Assets/CSS/' + theme + '.css';
+    
+    document.write('<link rel="stylesheet" href="' + themePath + '">');
+    
+    if (theme === 'default' && darkMode) {
+      document.write('<link rel="stylesheet" href="./Assets/CSS/dark-mode.css">');
     }
   })();
   </script>
 
-  <!-- ===== External Libraries (Load After Theme) ===== -->
+  <!-- ===== External Libraries - Load After Theme ===== -->
   <link rel="stylesheet" href="./Assets/CSS/tailwind-output.css">
   <script src=https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js></script>
 
@@ -73,17 +53,14 @@
   <link rel="icon" href="Icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="Icons/favicon.ico">
 
-  <!-- ===== Reveal Content When Ready ===== -->
+  <!-- ===== Remove FOUC Prevention After Load ===== -->
   <script>
-  (function() {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function() {
-        document.documentElement.classList.add('themes-loaded');
-      });
-    } else {
-      document.documentElement.classList.add('themes-loaded');
-    }
-  })();
+  window.addEventListener('DOMContentLoaded', function() {
+    document.documentElement.classList.add('theme-loaded');
+    // Remove inline style to clean DOM
+    const style = document.getElementById('fouc-prevention');
+    if (style) style.remove();
+  });
   </script>
 </head>
 
