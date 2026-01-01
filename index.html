@@ -7,6 +7,34 @@
   <meta name="permissions-policy" content="camera=(self)">
   <title>The Curiosity Path - by Aanandoham</title>
 
+  <!-- ===== Apply Theme Classes & Load CSS (No Flash) ===== -->
+  <script>
+  (function() {
+    const theme = localStorage.getItem('activeTheme') || 'default';
+    const darkMode = localStorage.getItem('darkMode');
+    
+    // Apply classes to html element immediately
+    if (darkMode === 'enabled') {
+      document.documentElement.classList.add('dark-mode');
+    }
+    
+    if (theme !== 'default') {
+      document.documentElement.classList.add(theme);
+    }
+    
+    // Load only the needed CSS file(s)
+    if (theme === 'default') {
+      document.write('<link rel="stylesheet" href="./Assets/CSS/neumorphic-theme.css">');
+      if (darkMode === 'enabled') {
+        document.write('<link rel="stylesheet" href="./Assets/CSS/dark-mode.css">');
+      }
+    } else {
+      // Load the theme CSS (matrix-code, champagne-gold, etc.)
+      document.write('<link rel="stylesheet" href="./Assets/CSS/' + theme + '.css">');
+    }
+  })();
+  </script>
+
   <!-- ===== External Libraries ===== -->
   <link rel="stylesheet" href="./Assets/CSS/tailwind-output.css">
   <script src=https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js></script>
@@ -20,37 +48,6 @@
   <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
   <link rel="icon" href="Icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="Icons/favicon.ico">
-
-<!-- ===== Theme ===== -->
-  <link rel="stylesheet" href="./Assets/CSS/neumorphic-theme.css" id="default-theme-css">
-  <link rel="stylesheet" href="./Assets/CSS/dark-mode.css" id="dark-mode-css" disabled>
-  <link rel="stylesheet" href="./Assets/CSS/matrix-code.css" id="matrix-code-css" disabled>
-  <link rel="stylesheet" href="./Assets/CSS/champagne-gold.css" id="champagne-gold-css" disabled>
-  <link rel="stylesheet" href="./Assets/CSS/royal-indigo.css" id="royal-indigo-css" disabled>
-  <link rel="stylesheet" href="./Assets/CSS/earth-luxury.css" id="earth-luxury-css" disabled>
-  
-  <script>
-  (function() {
-    const theme = localStorage.getItem('activeTheme') || 'default';
-    const darkMode = localStorage.getItem('darkMode');
-    
-    // Apply classes immediately
-    if (darkMode === 'enabled') {
-      document.documentElement.classList.add('dark-mode');
-      document.body.classList.add('dark-mode');
-    }
-    
-    // Disable/enable correct CSS files
-    if (theme === 'default') {
-      document.getElementById('dark-mode-css').disabled = (darkMode !== 'enabled');
-    } else {
-      document.body.classList.add(theme);
-      document.getElementById('default-theme-css').disabled = true;
-      document.getElementById('dark-mode-css').disabled = true;
-      document.getElementById(theme + '-css').disabled = false;
-    }
-  })();
-  </script>
 </head>
 
 <body>
