@@ -6,14 +6,14 @@
 /* ===== ROOT DESIGN TOKENS ===== */
 :root {
   /* colours */
-  --neuro-bg: #7A7A7A;
+  --neuro-bg: #c8c8c8;
   --neuro-shadow-dark: #b8bec5;
   --neuro-shadow-light: #ffffff;
-  --neuro-text: #2c3e50;
-  --neuro-text-light: #6c757d;
-  --neuro-text-lighter: #8e9aaf;
-  --neuro-accent: ##E09C0B;
-  --neuro-accent-light: ##FFD87A;
+  --neuro-text: #2e2e2e;
+  --neuro-text-light: #009b8c;
+  --neuro-text-lighter: #00c2a7;
+  --neuro-accent: #e09c0b;
+  --neuro-accent-light: #ffd87a;
   --neuro-success: #22c55e;
   --neuro-warning: #f59e0b;
   --neuro-error: #ef4444;
@@ -628,7 +628,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 .nav-item:hover { background: rgba(255,255,255,.1); transform: translateY(-2px); }
 
 .nav-item.active { 
-  background: linear-gradient(135deg, #6b4f35 0%, #b89b72 100%);
+  background: linear-gradient(135deg, #D4002B 0%, #4E2520 100%);
   color: #fff;
   border-color: rgba(107, 79, 53, 0.6);
   box-shadow: var(--shadow-inset-sm), 0 0 15px rgba(107, 79, 53, 0.3);

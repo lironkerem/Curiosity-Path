@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
+    "@google/generative-ai": "^0.21.0",
     "@supabase/supabase-js": "^2.89.0",
-    "web-push": "^3.6.7",
-    "@google/generative-ai": "^0.21.0"
+    "web-push": "^3.6.7"
   },
   "engines": {
     "node": ">=18.x"
