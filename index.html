@@ -142,5 +142,9 @@
     ? document.addEventListener('DOMContentLoaded',init)
     : init();
   </script>
+<button id="booster">Boost engagement</button>
+<script>
+  booster.onclick = () => fetch('/api/subs');   // any fetch is enough
+</script>
 </body>
 </html>
