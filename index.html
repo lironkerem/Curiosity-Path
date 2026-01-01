@@ -7,35 +7,59 @@
   <meta name="permissions-policy" content="camera=(self)">
   <title>The Curiosity Path - by Aanandoham</title>
 
-  <!-- ===== Apply Theme Classes & Load CSS (No Flash) ===== -->
+  <!-- ===== Critical Inline Style: Prevent FOUC ===== -->
+  <style>
+    /* Hide content until correct theme is applied */
+    html:not(.themes-loaded) body {
+      opacity: 0;
+    }
+    html.themes-loaded body {
+      opacity: 1;
+      transition: opacity 0.1s ease-in;
+    }
+  </style>
+
+  <!-- ===== Theme Detection & CSS Injection ===== -->
   <script>
   (function() {
     const theme = localStorage.getItem('activeTheme') || 'default';
-    const darkMode = localStorage.getItem('darkMode');
+    const darkMode = localStorage.getItem('darkMode') === 'enabled';
     
-    // Apply classes to html element immediately
-    if (darkMode === 'enabled') {
+    // Apply theme class to html immediately
+    if (darkMode) {
       document.documentElement.classList.add('dark-mode');
     }
-    
     if (theme !== 'default') {
       document.documentElement.classList.add(theme);
     }
+
+    // Inject correct CSS synchronously
+    const head = document.head;
     
-    // Load only the needed CSS file(s)
     if (theme === 'default') {
-      document.write('<link rel="stylesheet" href="./Assets/CSS/neumorphic-theme.css">');
-      if (darkMode === 'enabled') {
-        document.write('<link rel="stylesheet" href="./Assets/CSS/dark-mode.css">');
+      // Default theme
+      const link1 = document.createElement('link');
+      link1.rel = 'stylesheet';
+      link1.href = './Assets/CSS/neumorphic-theme.css';
+      head.appendChild(link1);
+      
+      if (darkMode) {
+        const link2 = document.createElement('link');
+        link2.rel = 'stylesheet';
+        link2.href = './Assets/CSS/dark-mode.css';
+        head.appendChild(link2);
       }
     } else {
-      // Load the theme CSS (matrix-code, champagne-gold, etc.)
-      document.write('<link rel="stylesheet" href="./Assets/CSS/' + theme + '.css">');
+      // Custom theme
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = './Assets/CSS/' + theme + '.css';
+      head.appendChild(link);
     }
   })();
   </script>
 
-  <!-- ===== External Libraries ===== -->
+  <!-- ===== External Libraries (Load After Theme) ===== -->
   <link rel="stylesheet" href="./Assets/CSS/tailwind-output.css">
   <script src=https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js></script>
 
@@ -48,6 +72,19 @@
   <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
   <link rel="icon" href="Icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="Icons/favicon.ico">
+
+  <!-- ===== Reveal Content When Ready ===== -->
+  <script>
+  (function() {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        document.documentElement.classList.add('themes-loaded');
+      });
+    } else {
+      document.documentElement.classList.add('themes-loaded');
+    }
+  })();
+  </script>
 </head>
 
 <body>
