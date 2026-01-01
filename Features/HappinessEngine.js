@@ -98,6 +98,29 @@ class HappinessEngine {
     } catch { return 0; }
   }
 
+updateQuestDisplay() {
+  const viewCount = this.getTodayViewCount();
+  const badge = document.querySelector('.badge');
+  const questProgress = badge?.parentElement;
+  
+  if (badge) {
+    badge.textContent = `${viewCount} / 5 (Quest)`;
+    badge.className = `badge ${viewCount >= 5 ? 'badge-success' : 'badge-primary'}`;
+  }
+  
+  // Update completion message
+  const completionMsg = document.querySelector('[style*="rgba(34,197,94"]');
+  if (viewCount >= 5 && !completionMsg) {
+    const main = document.querySelector('main.space-y-6');
+    if (main) {
+      const msg = document.createElement('div');
+      msg.style.cssText = 'margin-bottom:2rem;padding:1rem;border-radius:0.5rem;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);';
+      msg.innerHTML = '<p class="text-center" style="color: #22c55e;">🎉 Daily quest complete! Keep exploring if you\'d like!</p>';
+      main.parentElement.insertBefore(msg, main);
+    }
+  }
+}
+
   /* --------------- 360° flip helper --------------- */
   _flipCard(cardId, newHtml) {
     const card = document.getElementById(cardId);
@@ -134,6 +157,7 @@ class HappinessEngine {
         <button onclick="window.featuresManager.engines.happiness.refreshBooster()" class="btn btn-secondary">🔄 Refresh Booster</button>
       </div>`;
     this._flipCard('booster-card', html);
+    this.updateQuestDisplay(); // ADD THIS LINE
     if (window.app?.gamification) window.app.gamification.incrementHappinessViews();
     if (this.app.showToast) {
       if (viewCount >= 5) this.app.showToast('✨ Quest complete! You\'ve viewed 5 boosters today!', 'success');
@@ -159,6 +183,7 @@ class HappinessEngine {
         <button onclick="window.featuresManager.engines.happiness.refreshQuote()" class="btn btn-secondary">🔄 Refresh Quote</button>
       </div>`;
     this._flipCard('quote-card', html);
+    this.updateQuestDisplay(); // ADD THIS LINE
     if (window.app?.gamification) window.app.gamification.incrementHappinessViews();
     if (this.app.showToast) {
       if (viewCount >= 5) this.app.showToast('📜 Quest complete! You\'ve viewed 5 items today!', 'success');
@@ -181,6 +206,7 @@ class HappinessEngine {
         <button onclick="window.featuresManager.engines.happiness.refreshAffirmation()" class="btn btn-secondary">🔄 Refresh Affirmation</button>
       </div>`;
     this._flipCard('affirm-card', html);
+    this.updateQuestDisplay(); // ADD THIS LINE
     if (window.app?.gamification) window.app.gamification.incrementHappinessViews();
     if (this.app.showToast) {
       if (viewCount >= 5) this.app.showToast('💫 Quest complete! You\'ve viewed 5 items today!', 'success');
@@ -219,6 +245,7 @@ class HappinessEngine {
         <button onclick="window.featuresManager.engines.happiness.refreshInquiry()" class="btn btn-secondary">🔄 Refresh Inquiry</button>
       </div>`;
     this._flipCard('inquiry-card', html);
+    this.updateQuestDisplay(); // ADD THIS LINE
     if (window.app?.gamification) window.app.gamification.incrementHappinessViews();
     if (this.app.showToast) {
       if (viewCount >= 5) this.app.showToast('💭 Quest complete! You\'ve viewed 5 items today!', 'success');
