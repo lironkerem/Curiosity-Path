@@ -10,7 +10,7 @@
   --neuro-shadow-dark: #b8bec5;
   --neuro-shadow-light: #ffffff;
   --neuro-text: #2e2e2e;
-  --neuro-text-light: #009b8c;
+  --neuro-text-light: #A8002E;
   --neuro-text-lighter: #00c2a7;
   --neuro-accent: #e09c0b;
   --neuro-accent-light: #ffd87a;
@@ -1761,7 +1761,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   transition: all var(--transition-normal);
   box-shadow: var(--shadow-raised);
   min-height: 200px;
-  border: 2px solid rgba(102, 126, 234, 0.2);
 }
 
 .wellness-tool-btn:hover {
