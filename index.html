@@ -22,50 +22,32 @@
   <link rel="icon" href="Icons/favicon.ico">
 
 <!-- ===== Theme ===== -->
-  <!-- Hide body until correct theme loads -->
-  <style>
-    body { visibility: hidden; }
-    body.theme-loaded { visibility: visible; }
-  </style>
+  <link rel="stylesheet" href="./Assets/CSS/neumorphic-theme.css" id="default-theme-css">
+  <link rel="stylesheet" href="./Assets/CSS/dark-mode.css" id="dark-mode-css" disabled>
+  <link rel="stylesheet" href="./Assets/CSS/matrix-code.css" id="matrix-code-css" disabled>
+  <link rel="stylesheet" href="./Assets/CSS/champagne-gold.css" id="champagne-gold-css" disabled>
+  <link rel="stylesheet" href="./Assets/CSS/royal-indigo.css" id="royal-indigo-css" disabled>
+  <link rel="stylesheet" href="./Assets/CSS/earth-luxury.css" id="earth-luxury-css" disabled>
   
   <script>
   (function() {
     const theme = localStorage.getItem('activeTheme') || 'default';
     const darkMode = localStorage.getItem('darkMode');
     
-    // Apply dark mode class immediately
+    // Apply classes immediately
     if (darkMode === 'enabled') {
       document.documentElement.classList.add('dark-mode');
       document.body.classList.add('dark-mode');
     }
     
+    // Disable/enable correct CSS files
     if (theme === 'default') {
-      // Load default neumorphic theme
-      const neuro = document.createElement('link');
-      neuro.rel = 'stylesheet';
-      neuro.href = './Assets/CSS/neumorphic-theme.css';
-      neuro.onload = () => document.body.classList.add('theme-loaded');
-      document.head.appendChild(neuro);
-      
-      // Load dark-mode.css if needed
-      const darkCss = document.createElement('link');
-      darkCss.rel = 'stylesheet';
-      darkCss.href = './Assets/CSS/dark-mode.css';
-      darkCss.id = 'dark-mode-css';
-      if (darkMode !== 'enabled') {
-        darkCss.disabled = true;
-      }
-      document.head.appendChild(darkCss);
+      document.getElementById('dark-mode-css').disabled = (darkMode !== 'enabled');
     } else {
-      // Load premium theme directly
       document.body.classList.add(theme);
-      
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = './Assets/CSS/' + theme + '.css';
-      link.setAttribute('data-premium-theme', theme);
-      link.onload = () => document.body.classList.add('theme-loaded');
-      document.head.appendChild(link);
+      document.getElementById('default-theme-css').disabled = true;
+      document.getElementById('dark-mode-css').disabled = true;
+      document.getElementById(theme + '-css').disabled = false;
     }
   })();
   </script>
