@@ -9845,7 +9845,7 @@ body.royal-indigo{
   text-align: center;
   box-shadow: var(--shadow-inset);
   transition: transform .2s;
-  background: var(--grad);                 /* ➜  use the exact rarity gradient */
+  background: ${grad}; /* real gradient injected here */
   background-size: cover;
 }
 .dashboard-badge-card.badge-locked {

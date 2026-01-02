@@ -1,5 +1,5 @@
 // DashboardManager.js  –  complete patched file
-// Shows latest 9 earned badges + expandable "Show All Badges" with full 56-badge gallery by category, rarity colours + grey lock.
+// Shows latest 9 earned badges + 3-column "Show All" gallery with category headings and exact shop-grade rarity gradients.
 
 import { InquiryEngine } from '../Features/InquiryEngine.js';
 import DailyCards from '../Features/DailyCards.js';
@@ -409,9 +409,9 @@ export default class DashboardManager {
     const fullList = Object.entries(allDefs).map(([id, def]) => ({
       id, ...def, earned: earned.has(id),
       karma: { common: 3, uncommon: 5, rare: 10, epic: 15, legendary: 30 }[def.rarity]
-    }));
+    ]));
 
-    // category buckets
+    // category buckets (same 3-column grid)
     const categories = {
       'First Wins': ['first_step', 'first_gratitude', 'first_journal', 'first_energy', 'first_tarot', 'first_meditation', 'first_purchase'],
       'Gratitude': ['gratitude_warrior', 'gratitude_legend', 'gratitude_200', 'gratitude_500'],
@@ -429,15 +429,24 @@ export default class DashboardManager {
       'Cross-Feature': ['triple_threat', 'super_day', 'complete_explorer', 'renaissance_soul']
     };
 
+    // production-ready rarity gradients (same as Karma shop)
+    const rarityGrad = {
+      common: 'linear-gradient(135deg, rgba(245, 245, 247, 0.85) 0%, rgba(210, 214, 220, 0.85) 100%), linear-gradient(#f5f5f7, #d2d6dc)',
+      uncommon: 'linear-gradient(135deg, rgba(0, 224, 132, 0.85) 0%, rgba(0, 185, 108, 0.85) 100%), linear-gradient(#00e084, #00b96c)',
+      rare: 'linear-gradient(135deg, rgba(0, 168, 255, 0.85) 0%, rgba(0, 123, 204, 0.85) 100%), linear-gradient(#00a8ff, #007bcc)',
+      epic: 'linear-gradient(135deg, rgba(184, 0, 230, 0.85) 0%, rgba(142, 0, 204, 0.85) 100%), linear-gradient(#b800e6, #8e00cc)',
+      legendary: 'linear-gradient(135deg, rgba(255, 195, 0, 0.85) 0%, rgba(255, 135, 0, 0.85) 100%), linear-gradient(#ffc300, #ff8700)'
+    };
+
     const categoryHtml = Object.entries(categories).map(([cat, ids]) => {
       const catBadges = ids.map(id => fullList.find(b => b.id === id)).filter(Boolean);
       return `
         <div class="badge-category">
           <h4 class="badge-category-title">${cat}</h4>
-          <div class="badge-category-grid">
+          <div class="badge-category-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
             ${catBadges.map(b => {
               const cardCls = b.earned ? '' : 'badge-locked';
-              const grad = this.app.featuresManager?.engines['karma-shop']?.getRarityColor(b.rarity) || '';
+              const grad = rarityGrad[b.rarity] || rarityGrad.common;
               return `
                 <div class="dashboard-badge-card ${cardCls}" style="background:${grad};">
                   <div class="badge-icon">${b.earned ? b.icon : '🔒'}</div>
@@ -543,8 +552,8 @@ export default class DashboardManager {
 /* ----------  Tiny CSS  (add to global stylesheet) ---------- */
 /*
 .badge-category-title { font-size: 1.1rem; font-weight: 700; margin: 1.2rem 0 .6rem; color: var(--neuro-text); }
-.badge-category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; }
-.dashboard-badge-card { position: relative; border-radius: 12px; padding: 1rem; color: #fff; text-align: center; box-shadow: var(--shadow-inset); transition: transform .2s; }
+.badge-category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.dashboard-badge-card { position: relative; border-radius: 12px; padding: 1rem; color: #fff; text-align: center; box-shadow: var(--shadow-inset); transition: transform .2s; background: var(--grad); background-size: cover; }
 .dashboard-badge-card.badge-locked { filter: grayscale(1) brightness(0.6); opacity: .85; }
 .badge-icon { font-size: 2.5rem; margin-bottom: .5rem; }
 .badge-title { font-weight: 700; font-size: .95rem; margin-bottom: .25rem; }
