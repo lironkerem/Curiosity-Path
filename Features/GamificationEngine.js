@@ -7,7 +7,6 @@ export class GamificationEngine {
     this.app = app;
     this.listeners = {};
     this.state = this.loadState() || this.defaultState();
-    this.migrateBadgeIcons();
     this.checkAllBadges();
   }
 
