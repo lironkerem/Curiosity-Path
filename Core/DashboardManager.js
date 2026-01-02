@@ -1,5 +1,5 @@
 // DashboardManager.js  –  complete patched file
-// Shows 56-badge gallery (earned + locked) and removes achievements section.
+// Shows latest 9 earned badges + expandable "Show All Badges" with full 56-badge gallery by category, rarity colours + grey lock.
 
 import { InquiryEngine } from '../Features/InquiryEngine.js';
 import DailyCards from '../Features/DailyCards.js';
@@ -120,7 +120,7 @@ export default class DashboardManager {
   }
 
   /* ------------------------------------------------------------ */
-  /*  Quote Card (flip)
+  /*  Quote Card
   /* ------------------------------------------------------------ */
   renderQuoteCard() {
     this.currentQuote = window.QuotesData ? window.QuotesData.getQuoteOfTheDay()
@@ -398,17 +398,44 @@ export default class DashboardManager {
   renderRecentAchievements(status) {
     const allDefs = this.app.gamification.getBadgeDefinitions();
     const earned = new Set(status.badges.map(b => b.id));
-    const badgeList = Object.entries(allDefs).map(([id, def]) => ({
+
+    // latest 9 earned
+    const latestEarned = status.badges.slice().reverse().slice(0, 9).map(b => {
+      const def = allDefs[b.id];
+      return { ...b, ...def, karma: { common: 3, uncommon: 5, rare: 10, epic: 15, legendary: 30 }[def.rarity] };
+    });
+
+    // full list for expanded view
+    const fullList = Object.entries(allDefs).map(([id, def]) => ({
       id, ...def, earned: earned.has(id),
       karma: { common: 3, uncommon: 5, rare: 10, epic: 15, legendary: 30 }[def.rarity]
     }));
 
-    return `
-      <div class="card dashboard-achievements mb-8">
-        <div style="text-align:center;">
-          <h3 class="dashboard-achievements-title">🎖️ All Badges</h3>
-          <div class="badges-grid" id="badges-grid" style="display: grid; grid-template-columns: repeat(auto-fill,minmax(140px,1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-            ${badgeList.map(b => {
+    // category buckets
+    const categories = {
+      'First Wins': ['first_step', 'first_gratitude', 'first_journal', 'first_energy', 'first_tarot', 'first_meditation', 'first_purchase'],
+      'Gratitude': ['gratitude_warrior', 'gratitude_legend', 'gratitude_200', 'gratitude_500'],
+      'Journal': ['journal_keeper', 'journal_master', 'journal_150', 'journal_400'],
+      'Energy': ['energy_tracker', 'energy_sage', 'energy_300', 'energy_600'],
+      'Tarot': ['tarot_apprentice', 'tarot_mystic', 'tarot_oracle', 'tarot_150', 'tarot_400'],
+      'Meditation': ['meditation_devotee', 'meditation_master', 'meditation_100', 'meditation_200'],
+      'Happiness': ['happiness_seeker', 'joy_master', 'happiness_300', 'happiness_700'],
+      'Wellness': ['wellness_champion', 'wellness_guru', 'wellness_300', 'wellness_700'],
+      'Streak': ['perfect_week', 'dedication_streak', 'unstoppable', 'legendary_streak'],
+      'Quest Completion': ['weekly_warrior', 'monthly_master', 'quest_crusher', 'daily_champion'],
+      'Currency': ['karma_collector', 'karma_lord', 'xp_milestone', 'xp_titan'],
+      'Level': ['level_5_hero', 'level_7_hero', 'level_10_hero'],
+      'Chakra': ['chakra_balancer', 'chakra_master'],
+      'Cross-Feature': ['triple_threat', 'super_day', 'complete_explorer', 'renaissance_soul']
+    };
+
+    const categoryHtml = Object.entries(categories).map(([cat, ids]) => {
+      const catBadges = ids.map(id => fullList.find(b => b.id === id)).filter(Boolean);
+      return `
+        <div class="badge-category">
+          <h4 class="badge-category-title">${cat}</h4>
+          <div class="badge-category-grid">
+            ${catBadges.map(b => {
               const cardCls = b.earned ? '' : 'badge-locked';
               const grad = this.app.featuresManager?.engines['karma-shop']?.getRarityColor(b.rarity) || '';
               return `
@@ -424,11 +451,47 @@ export default class DashboardManager {
                 </div>`;
             }).join('')}
           </div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="card dashboard-achievements mb-8">
+        <div style="text-align:center;">
+          <h3 class="dashboard-achievements-title">🏆 Earned Badges</h3>
+          <div class="badges-grid" style="display: grid; grid-template-columns: repeat(auto-fill,minmax(140px,1fr)); gap: 1rem; margin-bottom: 1rem;">
+            ${latestEarned.map(b => {
+              const grad = this.app.featuresManager?.engines['karma-shop']?.getRarityColor(b.rarity) || '';
+              return `
+                <div class="dashboard-badge-card" style="background:${grad};">
+                  <div class="badge-icon">${b.icon}</div>
+                  <div class="badge-title">${b.name}</div>
+                  <div class="badge-sub">${b.description}</div>
+                  <div class="badge-rewards">
+                    <span>+${b.xp} XP</span>
+                    <span>+${b.karma} Karma</span>
+                  </div>
+                </div>`;
+            }).join('')}
+          </div>
+
+          <button class="btn btn-secondary" id="show-all-btn" onclick="window.app.dashboard.toggleAllBadges()">
+            Show All Badges (${fullList.length})
+          </button>
+
+          <div id="all-badges-container" style="display:none; margin-top:1.5rem;">
+            ${categoryHtml}
+          </div>
         </div>
       </div>`;
   }
 
-  toggleBadges() { /* every badge already visible */ }
+  toggleAllBadges() {
+    const container = document.getElementById('all-badges-container');
+    const btn = document.getElementById('show-all-btn');
+    const isOpen = container.style.display !== 'none';
+    container.style.display = isOpen ? 'none' : 'block';
+    btn.textContent = isOpen ? `Show All Badges (${this.app.gamification.getBadgeDefinitions().length})` : 'Show Less';
+  }
 
   /* ----------  FINAL RENDER  ---------- */
   render() {
@@ -479,11 +542,13 @@ export default class DashboardManager {
 
 /* ----------  Tiny CSS  (add to global stylesheet) ---------- */
 /*
-.dashboard-badge-card { position:relative; border-radius:12px; padding:1rem; color:#fff; text-align:center; box-shadow:var(--shadow-inset); transition:transform .2s; }
-.dashboard-badge-card.badge-locked { filter:grayscale(1) brightness(0.6); opacity:.85; }
-.badge-icon { font-size:2.5rem; margin-bottom:.5rem; }
-.badge-title { font-weight:700; font-size:.95rem; margin-bottom:.25rem; }
-.badge-sub { font-size:.7rem; opacity:.9; margin-bottom:.5rem; }
-.badge-rewards { display:flex; justify-content:space-around; font-size:.7rem; font-weight:600; }
-.badge-lock-overlay { position:absolute; inset:0; display:grid; place-content:center; background:rgba(0,0,0,.45); border-radius:inherit; font-size:.75rem; font-weight:700; letter-spacing:.5px; }
+.badge-category-title { font-size: 1.1rem; font-weight: 700; margin: 1.2rem 0 .6rem; color: var(--neuro-text); }
+.badge-category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; }
+.dashboard-badge-card { position: relative; border-radius: 12px; padding: 1rem; color: #fff; text-align: center; box-shadow: var(--shadow-inset); transition: transform .2s; }
+.dashboard-badge-card.badge-locked { filter: grayscale(1) brightness(0.6); opacity: .85; }
+.badge-icon { font-size: 2.5rem; margin-bottom: .5rem; }
+.badge-title { font-weight: 700; font-size: .95rem; margin-bottom: .25rem; }
+.badge-sub { font-size: .7rem; opacity: .9; margin-bottom: .5rem; }
+.badge-rewards { display: flex; justify-content: space-around; font-size: .7rem; font-weight: 600; }
+.badge-lock-overlay { position: absolute; inset: 0; display: grid; place-content: center; background: rgba(0,0,0,.45); border-radius: inherit; font-size: .75rem; font-weight: 700; letter-spacing: .5px; }
 */

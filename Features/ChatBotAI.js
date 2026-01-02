@@ -30,15 +30,15 @@ export class ChatBotAI {
     tab.style.display = 'block';
     tab.setAttribute('aria-hidden', 'false');
 
-    tab.innerHTML = `
-<div style="padding:1.5rem;min-height:100vh;">
-  <div class="universal-content">
+tab.innerHTML = `
+  <div style="padding:1.5rem;min-height:100vh;">
+    <div class="universal-content">
 
-    <!--  MOBILE-ONLY IMAGE + SUBTITLE HEADER  -->
-    <header class="main-header project-curiosity"
-            style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavChatBotAI.png');
-                   --header-title:'';
-                   --header-tag:'Ask me anything about spirituality, self-development, guidance, or just chat with me'">
+<!--  IMAGE-ONLY MOBILE HEADER  -->
+      <header class="main-header project-curiosity"
+              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/Chat.png');
+                     --header-title:'';
+                     --header-tag:'Ask me anything about spirituality, self-development, guidance, or just chat with me'">
       <h1>Aanandoham's AI Assistant</h1>
       <h3>Ask me anything about spirituality, self-development, guidance, or just chat with me</h3>
       <span class="header-sub"></span>

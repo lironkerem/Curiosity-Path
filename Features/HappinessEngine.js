@@ -144,7 +144,7 @@ updateQuestDisplay() {
     const html = `
       <div class="flex items-center" style="margin-bottom: 1rem;">
         <span class="text-3xl mr-4">${this.currentBooster.emoji}</span>
-        <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">A Quick Happiness Booster</h2>
+        <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> A Quick Happiness Booster</h2>
       </div>
       <div class="text-center">
         <h3 class="text-2xl font-bold" style="color: var(--neuro-accent);">${this.currentBooster.title}</h3>
@@ -171,7 +171,7 @@ updateQuestDisplay() {
     const html = `
       <div class="flex items-center" style="margin-bottom: 1rem;">
         <span class="text-3xl mr-4">📜</span>
-        <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2>
+        <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> Inspirational Quote</h2>
       </div>
       <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
         "${this.currentQuote.text}"
@@ -197,7 +197,7 @@ updateQuestDisplay() {
     const html = `
       <div class="flex items-center" style="margin-bottom: 1rem;">
         <span class="text-3xl mr-4">✨</span>
-        <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Positive Affirmation</h2>
+        <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> Positive Affirmation</h2>
       </div>
       <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
         "${this.currentAffirmation}"
@@ -223,7 +223,7 @@ updateQuestDisplay() {
     const html = `
       <div class="flex items-center" style="margin-bottom: 1rem;">
         <span class="text-3xl mr-4">${intensityEmoji[this.currentInquiry.intensity] || '💭'}</span>
-        <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Self Inquiry</h2>
+        <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> Self Inquiry</h2>
       </div>
       <div class="text-center">
         <div style="margin-bottom: 1rem; padding: 0.5rem; background: var(--neuro-bg-secondary); border-radius: 8px; display: inline-block;">

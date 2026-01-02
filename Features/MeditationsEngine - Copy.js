@@ -8,7 +8,7 @@ class MeditationsEngine {
     this.isPlaying = false;
     this.currentMeditation = null;
     this.sessionStartTime = null;
-    this.pdfGuideUrl = 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/PDFs/Meditation_Demo.pdf';
+    this.pdfGuideUrl = 'YOUR_PDF_URL_HERE'; // Replace with actual PDF URL
 
     //  load YouTube API once, globally
     if (!window.YT && !document.querySelector('script[src*="youtube.com/iframe_api"]')) {
@@ -209,8 +209,8 @@ class MeditationsEngine {
           <!--  GUIDED MEDITATIONS WRAPPER CARD  -->
           <div class="card" style="margin-bottom: 2rem;">
             <div class="dashboard-wellness-header" style="margin-bottom:1.5rem;">
-              <h3 class="dashboard-wellness-title">🎧 Guided Meditations</h3>
-              <p class="dashboard-wellness-subtitle">Aanandoham's private, curated, unique collection</p>
+              <h3 class="dashboard-wellness-title">🎧 Guided Meditations (Audio & Video)</h3>
+              <p class="dashboard-wellness-subtitle">Aanandoham's curated, unique collection</p>
             </div>
 
             <!--  CENTERED FLEX WRAP  -->
@@ -232,6 +232,7 @@ class MeditationsEngine {
                   
                   <h4 class="text-xl font-bold" style="color:var(--neuro-text);margin-bottom: 0.5rem;">${med.title}</h4>
                   <p style="color:var(--neuro-text-light);" class="text-sm" style="margin-bottom: 0.75rem;">${med.description}</p>
+                  <span class="badge badge-primary">${med.category}</span>
 
                   <div class="mt-4 flex gap-2">
                     <button class="btn btn-secondary flex-1" onclick="window.featuresManager.engines.meditations.playAudio(${med.id})">
