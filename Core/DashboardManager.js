@@ -395,104 +395,103 @@ export default class DashboardManager {
   }
 
   /* ----------  NEW: 56-BADGE GALLERY (earned + locked)  ---------- */
-  renderRecentAchievements(status) {
-    const allDefs = this.app.gamification.getBadgeDefinitions();
-    const earned = new Set(status.badges.map(b => b.id));
+renderRecentAchievements(status) {
+  const allDefs = this.app.gamification.getBadgeDefinitions();
+  const earned = new Set(status.badges.map(b => b.id));
 
-    // latest 9 earned
-    const latestEarned = status.badges.slice().reverse().slice(0, 9).map(b => {
-      const def = allDefs[b.id];
-      return { ...b, ...def, karma: { common: 3, uncommon: 5, rare: 10, epic: 15, legendary: 30 }[def.rarity] };
-    });
+  // latest 9 earned
+  const latestEarned = status.badges.slice().reverse().slice(0, 9).map(b => {
+    const def = allDefs[b.id];
+    return { ...b, ...def, karma: { common: 3, uncommon: 5, rare: 10, epic: 15, legendary: 30 }[def.rarity] };
+  });
 
-    // full list for expanded view
-    const fullList = Object.entries(allDefs).map(([id, def]) => ({
-      id, ...def, earned: earned.has(id),
-      karma: { common: 3, uncommon: 5, rare: 10, epic: 15, legendary: 30 }[def.rarity]
-    ]));
+  // full list for expanded view
+  const fullList = Object.entries(allDefs).map(([id, def]) => ({
+    id, ...def, earned: earned.has(id), karma: { common: 3, uncommon: 5, rare: 10, epic: 15, legendary: 30 }[def.rarity]
+  }));
 
-    // category buckets (same 3-column grid)
-    const categories = {
-      'First Wins': ['first_step', 'first_gratitude', 'first_journal', 'first_energy', 'first_tarot', 'first_meditation', 'first_purchase'],
-      'Gratitude': ['gratitude_warrior', 'gratitude_legend', 'gratitude_200', 'gratitude_500'],
-      'Journal': ['journal_keeper', 'journal_master', 'journal_150', 'journal_400'],
-      'Energy': ['energy_tracker', 'energy_sage', 'energy_300', 'energy_600'],
-      'Tarot': ['tarot_apprentice', 'tarot_mystic', 'tarot_oracle', 'tarot_150', 'tarot_400'],
-      'Meditation': ['meditation_devotee', 'meditation_master', 'meditation_100', 'meditation_200'],
-      'Happiness': ['happiness_seeker', 'joy_master', 'happiness_300', 'happiness_700'],
-      'Wellness': ['wellness_champion', 'wellness_guru', 'wellness_300', 'wellness_700'],
-      'Streak': ['perfect_week', 'dedication_streak', 'unstoppable', 'legendary_streak'],
-      'Quest Completion': ['weekly_warrior', 'monthly_master', 'quest_crusher', 'daily_champion'],
-      'Currency': ['karma_collector', 'karma_lord', 'xp_milestone', 'xp_titan'],
-      'Level': ['level_5_hero', 'level_7_hero', 'level_10_hero'],
-      'Chakra': ['chakra_balancer', 'chakra_master'],
-      'Cross-Feature': ['triple_threat', 'super_day', 'complete_explorer', 'renaissance_soul']
-    };
+  // category buckets (same 3-column grid)
+  const categories = {
+    'First Wins': ['first_step', 'first_gratitude', 'first_journal', 'first_energy', 'first_tarot', 'first_meditation', 'first_purchase'],
+    'Gratitude': ['gratitude_warrior', 'gratitude_legend', 'gratitude_200', 'gratitude_500'],
+    'Journal': ['journal_keeper', 'journal_master', 'journal_150', 'journal_400'],
+    'Energy': ['energy_tracker', 'energy_sage', 'energy_300', 'energy_600'],
+    'Tarot': ['tarot_apprentice', 'tarot_mystic', 'tarot_oracle', 'tarot_150', 'tarot_400'],
+    'Meditation': ['meditation_devotee', 'meditation_master', 'meditation_100', 'meditation_200'],
+    'Happiness': ['happiness_seeker', 'joy_master', 'happiness_300', 'happiness_700'],
+    'Wellness': ['wellness_champion', 'wellness_guru', 'wellness_300', 'wellness_700'],
+    'Streak': ['perfect_week', 'dedication_streak', 'unstoppable', 'legendary_streak'],
+    'Quest Completion': ['weekly_warrior', 'monthly_master', 'quest_crusher', 'daily_champion'],
+    'Currency': ['karma_collector', 'karma_lord', 'xp_milestone', 'xp_titan'],
+    'Level': ['level_5_hero', 'level_7_hero', 'level_10_hero'],
+    'Chakra': ['chakra_balancer', 'chakra_master'],
+    'Cross-Feature': ['triple_threat', 'super_day', 'complete_explorer', 'renaissance_soul']
+  };
 
-    // production-ready rarity gradients (same as Karma shop)
-    const rarityGrad = {
-      common: 'linear-gradient(135deg, rgba(245, 245, 247, 0.85) 0%, rgba(210, 214, 220, 0.85) 100%), linear-gradient(#f5f5f7, #d2d6dc)',
-      uncommon: 'linear-gradient(135deg, rgba(0, 224, 132, 0.85) 0%, rgba(0, 185, 108, 0.85) 100%), linear-gradient(#00e084, #00b96c)',
-      rare: 'linear-gradient(135deg, rgba(0, 168, 255, 0.85) 0%, rgba(0, 123, 204, 0.85) 100%), linear-gradient(#00a8ff, #007bcc)',
-      epic: 'linear-gradient(135deg, rgba(184, 0, 230, 0.85) 0%, rgba(142, 0, 204, 0.85) 100%), linear-gradient(#b800e6, #8e00cc)',
-      legendary: 'linear-gradient(135deg, rgba(255, 195, 0, 0.85) 0%, rgba(255, 135, 0, 0.85) 100%), linear-gradient(#ffc300, #ff8700)'
-    };
+  // production-ready rarity gradients (same as Karma shop)
+  const rarityGrad = {
+    common: 'linear-gradient(135deg, rgba(245, 245, 247, 0.85) 0%, rgba(210, 214, 220, 0.85) 100%), linear-gradient(#f5f5f7, #d2d6dc)',
+    uncommon: 'linear-gradient(135deg, rgba(0, 224, 132, 0.85) 0%, rgba(0, 185, 108, 0.85) 100%), linear-gradient(#00e084, #00b96c)',
+    rare: 'linear-gradient(135deg, rgba(0, 168, 255, 0.85) 0%, rgba(0, 123, 204, 0.85) 100%), linear-gradient(#00a8ff, #007bcc)',
+    epic: 'linear-gradient(135deg, rgba(184, 0, 230, 0.85) 0%, rgba(142, 0, 204, 0.85) 100%), linear-gradient(#b800e6, #8e00cc)',
+    legendary: 'linear-gradient(135deg, rgba(255, 195, 0, 0.85) 0%, rgba(255, 135, 0, 0.85) 100%), linear-gradient(#ffc300, #ff8700)'
+  };
 
-    const categoryHtml = Object.entries(categories).map(([cat, ids]) => {
-      const catBadges = ids.map(id => fullList.find(b => b.id === id)).filter(Boolean);
-      return `
-        <div class="badge-category">
-          <h4 class="badge-category-title">${cat}</h4>
-          <div class="badge-category-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
-            ${catBadges.map(b => {
-              const cardCls = b.earned ? '' : 'badge-locked';
-              const grad = rarityGrad[b.rarity] || rarityGrad.common;
-              return `
-                <div class="dashboard-badge-card ${cardCls}" style="background:${grad};">
-                  <div class="badge-icon">${b.earned ? b.icon : '🔒'}</div>
-                  <div class="badge-title">${b.name}</div>
-                  <div class="badge-sub">${b.description}</div>
-                  <div class="badge-rewards">
-                    <span>+${b.xp} XP</span>
-                    <span>+${b.karma} Karma</span>
-                  </div>
-                  ${!b.earned ? '<div class="badge-lock-overlay">Locked</div>' : ''}
-                </div>`;
-            }).join('')}
-          </div>
-        </div>`;
-    }).join('');
-
+  const categoryHtml = Object.entries(categories).map(([cat, ids]) => {
+    const catBadges = ids.map(id => fullList.find(b => b.id === id)).filter(Boolean);
     return `
-      <div class="card dashboard-achievements mb-8">
-        <div style="text-align:center;">
-          <h3 class="dashboard-achievements-title">🏆 Earned Badges</h3>
-          <div class="badges-grid" style="display: grid; grid-template-columns: repeat(auto-fill,minmax(140px,1fr)); gap: 1rem; margin-bottom: 1rem;">
-            ${latestEarned.map(b => {
-              const grad = this.app.featuresManager?.engines['karma-shop']?.getRarityColor(b.rarity) || '';
-              return `
-                <div class="dashboard-badge-card" style="background:${grad};">
-                  <div class="badge-icon">${b.icon}</div>
-                  <div class="badge-title">${b.name}</div>
-                  <div class="badge-sub">${b.description}</div>
-                  <div class="badge-rewards">
-                    <span>+${b.xp} XP</span>
-                    <span>+${b.karma} Karma</span>
-                  </div>
-                </div>`;
-            }).join('')}
-          </div>
-
-          <button class="btn btn-secondary" id="show-all-btn" onclick="window.app.dashboard.toggleAllBadges()">
-            Show All Badges (${fullList.length})
-          </button>
-
-          <div id="all-badges-container" style="display:none; margin-top:1.5rem;">
-            ${categoryHtml}
-          </div>
+      <div class="badge-category">
+        <h4 class="badge-category-title">${cat}</h4>
+        <div class="badge-category-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+          ${catBadges.map(b => {
+            const cardCls = b.earned ? '' : 'badge-locked';
+            const grad = rarityGrad[b.rarity] || rarityGrad.common;
+            return `
+              <div class="dashboard-badge-card ${cardCls}" style="background:${grad};">
+                <div class="badge-icon">${b.earned ? b.icon : '🔒'}</div>
+                <div class="badge-title">${b.name}</div>
+                <div class="badge-sub">${b.description}</div>
+                <div class="badge-rewards">
+                  <span>+${b.xp} XP</span>
+                  <span>+${b.karma} Karma</span>
+                </div>
+                ${!b.earned ? '<div class="badge-lock-overlay">Locked</div>' : ''}
+              </div>`;
+          }).join('')}
         </div>
       </div>`;
-  }
+  }).join('');
+
+  return `
+    <div class="card dashboard-achievements mb-8">
+      <div style="text-align:center;">
+        <h3 class="dashboard-achievements-title">🏆 Earned Badges</h3>
+        <div class="badges-grid" style="display: grid; grid-template-columns: repeat(auto-fill,minmax(140px,1fr)); gap: 1rem; margin-bottom: 1rem;">
+          ${latestEarned.map(b => {
+            const grad = this.app.featuresManager?.engines['karma-shop']?.getRarityColor(b.rarity) || '';
+            return `
+              <div class="dashboard-badge-card" style="background:${grad};">
+                <div class="badge-icon">${b.icon}</div>
+                <div class="badge-title">${b.name}</div>
+                <div class="badge-sub">${b.description}</div>
+                <div class="badge-rewards">
+                  <span>+${b.xp} XP</span>
+                  <span>+${b.karma} Karma</span>
+                </div>
+              </div>`;
+          }).join('')}
+        </div>
+
+        <button class="btn btn-secondary" id="show-all-btn" onclick="window.app.dashboard.toggleAllBadges()">
+          Show All Badges (${fullList.length})
+        </button>
+
+        <div id="all-badges-container" style="display:none; margin-top:1.5rem;">
+          ${categoryHtml}
+        </div>
+      </div>
+    </div>`;
+}
 
   toggleAllBadges() {
     const container = document.getElementById('all-badges-container');
