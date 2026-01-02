@@ -141,7 +141,7 @@ export class GamificationEngine {
     try {
       const boosts = JSON.parse(localStorage.getItem('karma_active_boosts')) || [];
       const now = Date.now();
-      return boosts.some(b => b.id === 'xp_boost' && b.expiresAt > now);
+      return boosts.some(b => b.id === 'xp_multiplier' && b.expiresAt > now);
     } catch {
       return false;
     }
@@ -536,6 +536,8 @@ export class GamificationEngine {
       this.emit('questCompleted', quest);
       if (this.state.quests.daily.every(q => q.completed)) {
         this.addXP(50, 'Daily Quest Streak Bonus');
+        this.state.karma += 5;
+        if (!this._bulkMode) this.app?.showToast('🎉 Daily quests finished! +50 XP +5 Karma', 'success');
         this.emit('dailyQuestsComplete', null);
       }
     }
@@ -552,14 +554,13 @@ export class GamificationEngine {
       if (quest.karmaReward) this.state.karma += quest.karmaReward;
       if (quest.badge) this.grantBadge(quest.badge);
       if (quest.inspirational) this.emit('inspirationalMessage', quest.inspirational);
-      this.emit('questCompleted', quest);
+      if (!this._bulkMode) this.emit('questCompleted', quest);
       if (questType === 'daily' && this.state.quests.daily.every(q => q.completed)) {
         this.addXP(50, 'Daily Quest Streak Bonus');
-        this.emit('dailyQuestsComplete', null);
+        this.state.karma += 5;
+        if (!this._bulkMode) this.app?.showToast('🎉 Daily quests finished! +50 XP +5 Karma', 'success');
+        if (!this._bulkMode) this.emit('dailyQuestsComplete', null);
       }
-      
-      if (!this.state.totalQuestCompletions) this.state.totalQuestCompletions = 0;
-      this.state.totalQuestCompletions++;
       this.checkQuestBadges();
     } else {
       this.emit('questProgress', quest);
@@ -591,10 +592,16 @@ export class GamificationEngine {
         if (!this.state.dailyQuestStreak) this.state.dailyQuestStreak = 0;
         this.state.dailyQuestStreak++;
       } else if (type === 'weekly') {
+        this.addXP(200, 'Weekly Quest Completion Bonus');
+        this.state.karma += 20;
+        this.app?.showToast('🎉 Weekly quests finished! +200 XP +20 Karma', 'success');
         if (!this.state.weeklyQuestCompletions) this.state.weeklyQuestCompletions = 0;
         this.state.weeklyQuestCompletions++;
         this.state.dailyQuestStreak = 0;
       } else if (type === 'monthly') {
+        this.addXP(800, 'Monthly Quest Completion Bonus');
+        this.state.karma += 80;
+        this.app?.showToast('🎉 Monthly quests finished! +800 XP +80 Karma', 'success');
         if (!this.state.monthlyQuestCompletions) this.state.monthlyQuestCompletions = 0;
         this.state.monthlyQuestCompletions++;
       }

@@ -124,9 +124,6 @@ export class KarmaShopEngine {
   safeUnlockFeature(flag) {
     try { this.app.gamification.unlockFeature(flag); } catch (e) { console.warn('[KarmaShop] unlockFeature error:', e); }
   }
-  safeCompleteQuest(type, id) {
-    try { this.app.gamification.completeQuest(type, id); } catch (e) { console.warn('[KarmaShop] completeQuest error:', e); }
-  }
   loadActiveBoosts() {
     try { return JSON.parse(localStorage.getItem('karma_active_boosts')) || []; } catch { return []; }
   }
@@ -161,13 +158,8 @@ export class KarmaShopEngine {
   }
   
   isItemOwned(itemId) {
-    // Check purchase history
     const inHistory = this.getPurchaseHistory().some(p => p.itemId === itemId);
-    
-    // Check if feature is actually unlocked in gamification system
     const isUnlocked = this.app.gamification?.state?.unlockedFeatures?.includes(itemId);
-    
-    // If either is true, item is owned for life
     return inHistory || isUnlocked;
   }
 
@@ -179,6 +171,17 @@ export class KarmaShopEngine {
     this.app.gamification.state.karma -= item.cost;
     this.app.gamification.saveState();
     this.recordPurchase(itemId, item.cost);
+const history = this.getPurchaseHistory();
+  if (history.length === 1) {          // first purchase ever
+    this.app.gamification.grantBadge({
+      id: 'first_purchase',
+      name: 'First Purchase',
+      icon: '🛒',
+      description: 'First purchase in the Karma Shop',
+      xp: 50,
+      rarity: 'epic'
+    });
+  }
     this.applyItemEffect(itemId, item);
     this.app.showToast(`✅ Purchased: ${item.name}!`, 'success');
     this.render();
@@ -213,17 +216,19 @@ export class KarmaShopEngine {
 
         /*  QUEST HELPERS — now behave like boosts  */
         case 'skip_all_daily':
-          this.app.gamification.state.quests.daily.filter(q => !q.completed).forEach(q => this.safeCompleteQuest('daily', q.id));
+          this.app.gamification._bulkMode = true;
+          this.app.gamification.state.quests.daily.filter(q => !q.completed).forEach(q => this.app.gamification.completeQuest('daily', q.id));
+          this.app.gamification._bulkMode = false;
           this.activateBoost('skip_all_daily', item.duration);
           this.app.showToast('✅ All daily quests completed!', 'success');
           break;
         case 'skip_all_weekly':
-          this.app.gamification.state.quests.weekly.filter(q => !q.completed).forEach(q => this.safeCompleteQuest('weekly', q.id));
+          this.app.gamification.state.quests.weekly.filter(q => !q.completed).forEach(q => this.app.gamification.completeQuest('weekly', q.id));
           this.activateBoost('skip_all_weekly', item.duration);
           this.app.showToast('✅ All weekly quests completed!', 'success');
           break;
         case 'skip_all_monthly':
-          this.app.gamification.state.quests.monthly.filter(q => !q.completed).forEach(q => this.safeCompleteQuest('monthly', q.id));
+          this.app.gamification.state.quests.monthly.filter(q => !q.completed).forEach(q => this.app.gamification.completeQuest('monthly', q.id));
           this.activateBoost('skip_all_monthly', item.duration);
           this.app.showToast('✅ All monthly quests completed!', 'success');
           break;
@@ -303,7 +308,7 @@ export class KarmaShopEngine {
     const purchaseHistory = this.getPurchaseHistory();
     const categories = ['Power-Ups', 'Quest Helpers', 'Premium Features', 'Premium Skins', 'Meet the Master'];
 
-tab.innerHTML = `
+    tab.innerHTML = `
       <div class="karma-shop-container">
         <div class="karma-shop-content">
           <header class="main-header project-curiosity"

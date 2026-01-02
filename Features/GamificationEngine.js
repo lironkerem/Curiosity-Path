@@ -1,13 +1,12 @@
 // =========================================================
-//  GamificationEngine.js - COMPLETE WITH 40 BADGE SYSTEM
+//  GamificationEngine.js - 56-BADGE SYSTEM ONLY
+//  Achievements removed; Karma reward per rarity added
 // =========================================================
 export class GamificationEngine {
   constructor(app) {
     this.app = app;
     this.listeners = {};
     this.state = this.loadState() || this.defaultState();
-    
-    // Migrate existing badges and check all badges
     this.migrateBadgeIcons();
     this.checkAllBadges();
   }
@@ -22,7 +21,6 @@ export class GamificationEngine {
       karma: 0,
       streak: { current: 0 },
       completedSessions: { daily: 0, weekly: 0 },
-      achievements: [],
       badges: [],
       unlockedFeatures: [],
       quests: { daily: [], weekly: [], monthly: [] },
@@ -128,7 +126,7 @@ export class GamificationEngine {
     this.checkAllBadges();
     this.saveState();
   }
-  
+
   addKarma(amount, source = 'general') {
     this.state.karma += amount;
     this.logAction('karma', { amount, source });
@@ -136,7 +134,7 @@ export class GamificationEngine {
     this.checkAllBadges();
     this.saveState();
   }
-  
+
   hasActiveXPBoost() {
     try {
       const boosts = JSON.parse(localStorage.getItem('karma_active_boosts')) || [];
@@ -146,7 +144,7 @@ export class GamificationEngine {
       return false;
     }
   }
-  
+
   calculateLevel() {
     const ladder = [
       { level: 1, title: 'Seeker', xp: 0 },
@@ -171,19 +169,15 @@ export class GamificationEngine {
       pointsToNext: Math.max(0, next.xp - this.state.xp)
     };
   }
-  
+
   checkLevelUp() {
     const prev = this.state.level;
     const { level, title } = this.calculateLevel();
     if (level > prev) {
       this.state.level = level;
       this.emit('levelUp', { level, title });
-      this.grantAchievement({
-        id: `level_${level}`,
-        name: `Reached Level ${level}: ${title}`,
-        xp: 50,
-        inspirational: `You are evolving into ${title}!`
-      });
+      this.addXP(50, `Level ${level}`);
+      this.app?.showToast(`🎉 Level ${level} – ${title}  +50 XP`, 'success');
       this.checkAllBadges();
     }
   }
@@ -208,131 +202,146 @@ export class GamificationEngine {
   }
 
   /* ---------------------------------------------------------
-     ACHIEVEMENTS
-  --------------------------------------------------------- */
-  grantAchievement(ach) {
-    if (this.state.achievements.find(a => a.id === ach.id)) return;
-    this.state.achievements.push({ ...ach, unlocked: true, date: new Date().toISOString() });
-    this.emit('achievementUnlocked', ach);
-    if (ach.xp) this.addXP(ach.xp, 'achievement');
-    if (ach.inspirational) this.emit('inspirationalMessage', ach.inspirational);
-    this.saveState();
-  }
-
-  /* ---------------------------------------------------------
-     BADGES - 40 BADGE SYSTEM
+     BADGES – 56 TOTAL – KARMA BY RARITY
   --------------------------------------------------------- */
   getBadgeDefinitions() {
     return {
-      // Milestones - Gratitude
-      gratitude_warrior: { name: 'Gratitude Warrior', icon: '❤️', description: 'Complete 30 gratitude entries' },
-      gratitude_legend: { name: 'Gratitude Legend', icon: '💝', description: 'Complete 100 gratitude entries' },
-      
-      // Milestones - Journal
-      journal_keeper: { name: 'Journal Keeper', icon: '📔', description: 'Write 20 journal entries' },
-      journal_master: { name: 'Journal Master', icon: '📚', description: 'Write 75 journal entries' },
-      
-      // Milestones - Energy
-      energy_tracker: { name: 'Energy Tracker', icon: '⚡', description: 'Log 30 energy check-ins' },
-      energy_sage: { name: 'Energy Sage', icon: '🔋', description: 'Log 100 energy check-ins' },
-      
-      // Milestones - Tarot
-      tarot_mystic: { name: 'Tarot Mystic', icon: '🔮', description: 'Complete 25 tarot spreads' },
-      tarot_oracle: { name: 'Tarot Oracle', icon: '🌙', description: 'Complete 75 tarot spreads' },
-      
-      // Milestones - Meditation
-      meditation_devotee: { name: 'Meditation Devotee', icon: '🧘', description: 'Complete 20 meditation sessions' },
-      meditation_master: { name: 'Meditation Master', icon: '🕉️', description: 'Complete 60 meditation sessions' },
-      
-      // Milestones - Happiness
-      happiness_seeker: { name: 'Happiness Seeker', icon: '😊', description: 'View 50 happiness boosters' },
-      joy_master: { name: 'Joy Master', icon: '🎉', description: 'View 150 happiness boosters' },
-      
-      // Milestones - Wellness
-      wellness_champion: { name: 'Wellness Champion', icon: '🌿', description: 'Complete 50 wellness exercises' },
-      wellness_guru: { name: 'Wellness Guru', icon: '🌳', description: 'Complete 150 wellness exercises' },
-      
-      // Quest-Based
-      weekly_warrior: { name: 'Weekly Warrior', icon: '🔥', description: 'Complete all weekly quests 4 times' },
-      monthly_master: { name: 'Monthly Master', icon: '🌟', description: 'Complete all monthly quests once' },
-      quest_crusher: { name: 'Quest Crusher', icon: '🎯', description: 'Complete 100 total quests' },
-      daily_champion: { name: 'Daily Champion', icon: '⭐', description: 'Complete all daily quests 30 times' },
-      
-      // Streak
-      perfect_week: { name: 'Perfect Week', icon: '⭐', description: 'Complete all daily quests 7 days in a row' },
-      dedication_streak: { name: 'Dedication', icon: '💎', description: 'Maintain a 30-day streak' },
-      unstoppable: { name: 'Unstoppable', icon: '🔱', description: 'Maintain a 60-day streak' },
-      legendary_streak: { name: 'Legendary Streak', icon: '👑', description: 'Maintain a 100-day streak' },
-      
-      // Level
-      level_5_hero: { name: 'Rising Star', icon: '🎯', description: 'Reach Level 5' },
-      level_7_hero: { name: 'Enlightened Soul', icon: '🌟', description: 'Reach Level 7' },
-      level_10_hero: { name: 'Enlightened Master', icon: '👑', description: 'Reach Level 10' },
-      
-      // Currency
-      karma_collector: { name: 'Karma Collector', icon: '💰', description: 'Accumulate 500 Karma' },
-      karma_lord: { name: 'Karma Lord', icon: '💎', description: 'Accumulate 2000 Karma' },
-      xp_milestone: { name: 'XP Legend', icon: '⚡', description: 'Earn 10,000 XP' },
-      xp_titan: { name: 'XP Titan', icon: '⚡', description: 'Earn 50,000 XP' },
-      
-      // Special
-      chakra_balancer: { name: 'Chakra Balancer', icon: '🌈', description: 'Log all 7 chakras at 8+ in one session' },
-      chakra_master: { name: 'Chakra Master', icon: '🎨', description: 'Log all 7 chakras at 9+ in one session' },
-      
-      // Time-Based
-      early_bird: { name: 'Early Bird', icon: '🌅', description: 'Complete 10 morning energy check-ins' },
-      night_owl: { name: 'Night Owl', icon: '🌙', description: 'Complete 10 evening energy check-ins' },
-      dawn_master: { name: 'Dawn Master', icon: '☀️', description: 'Complete 30 morning energy check-ins' },
-      midnight_sage: { name: 'Midnight Sage', icon: '🌌', description: 'Complete 30 evening energy check-ins' },
-      
-      // Cross-Feature
-      triple_threat: { name: 'Triple Threat', icon: '🎪', description: 'Use 3 different features in one day' },
-      super_day: { name: 'Super Day', icon: '💫', description: 'Complete gratitude, journal, energy, meditation in one day' },
-      complete_explorer: { name: 'Complete Explorer', icon: '🗺️', description: 'Use all 7 main features at least once' },
-      renaissance_soul: { name: 'Renaissance Soul', icon: '🎭', description: 'Complete 10+ actions in 5+ different features' },
-      
-      // Beginner
-      first_step: { name: 'First Step', icon: '🌱', description: 'Complete your first action' }
+      // FIRST-WIN COMMON
+      first_step: { name: 'First Step', icon: '🌱', description: 'Any first action in the app', xp: 10, rarity: 'common' },
+      first_gratitude: { name: 'First Gratitude', icon: '💚', description: 'First gratitude entry', xp: 10, rarity: 'common' },
+      first_journal: { name: 'First Journal', icon: '📝', description: 'First journal entry', xp: 10, rarity: 'common' },
+      first_energy: { name: 'First Energy', icon: '⚡', description: 'First energy check-in', xp: 10, rarity: 'common' },
+      first_tarot: { name: 'First Reading', icon: '🃏', description: 'First tarot spread', xp: 10, rarity: 'common' },
+      first_meditation: { name: 'First Meditation', icon: '🧘', description: 'First meditation session', xp: 10, rarity: 'common' },
+      first_purchase: { name: 'First Purchase', icon: '🛒', description: 'First purchase in the Karma Shop', xp: 50, rarity: 'epic' },
+
+      // GRATITUDE
+      gratitude_warrior: { name: 'Gratitude Warrior', icon: '❤️', description: '30 gratitude entries', xp: 50, rarity: 'uncommon' },
+      gratitude_legend: { name: 'Gratitude Legend', icon: '💝', description: '100 gratitude entries', xp: 100, rarity: 'rare' },
+      gratitude_200: { name: 'Gratitude Sage', icon: '💖', description: '200 gratitude entries', xp: 200, rarity: 'epic' },
+      gratitude_500: { name: 'Gratitude Titan', icon: '💘', description: '500 gratitude entries', xp: 500, rarity: 'legendary' },
+
+      // JOURNAL
+      journal_keeper: { name: 'Journal Keeper', icon: '📔', description: '20 journal entries', xp: 50, rarity: 'uncommon' },
+      journal_master: { name: 'Journal Master', icon: '📚', description: '75 journal entries', xp: 100, rarity: 'rare' },
+      journal_150: { name: 'Journal Sage', icon: '📖', description: '150 journal entries', xp: 200, rarity: 'epic' },
+      journal_400: { name: 'Journal Titan', icon: '📜', description: '400 journal entries', xp: 500, rarity: 'legendary' },
+
+      // ENERGY
+      energy_tracker: { name: 'Energy Tracker', icon: '⚡', description: '30 energy logs', xp: 50, rarity: 'uncommon' },
+      energy_sage: { name: 'Energy Sage', icon: '🔋', description: '100 energy logs', xp: 100, rarity: 'rare' },
+      energy_300: { name: 'Energy Titan', icon: '🔌', description: '300 energy logs', xp: 300, rarity: 'epic' },
+      energy_600: { name: 'Energy Legend', icon: '⚡️', description: '600 energy logs', xp: 600, rarity: 'legendary' },
+
+      // TAROT
+      tarot_apprentice: { name: 'Tarot Apprentice', icon: '🔮', description: '10 tarot spreads', xp: 25, rarity: 'common' },
+      tarot_mystic: { name: 'Tarot Mystic', icon: '🃏', description: '25 tarot spreads', xp: 50, rarity: 'uncommon' },
+      tarot_oracle: { name: 'Tarot Oracle', icon: '🌙', description: '75 tarot spreads', xp: 100, rarity: 'rare' },
+      tarot_150: { name: 'Tarot Sage', icon: '🧙', description: '150 tarot spreads', xp: 200, rarity: 'epic' },
+      tarot_400: { name: 'Tarot Titan', icon: '🔮', description: '400 tarot spreads', xp: 500, rarity: 'legendary' },
+
+      // MEDITATION
+      meditation_devotee: { name: 'Meditation Devotee', icon: '🧘', description: '20 meditation sessions', xp: 50, rarity: 'uncommon' },
+      meditation_master: { name: 'Meditation Master', icon: '🕉️', description: '60 meditation sessions', xp: 100, rarity: 'rare' },
+      meditation_100: { name: 'Meditation Sage', icon: '🧘‍♂️', description: '100 meditation sessions', xp: 300, rarity: 'epic' },
+      meditation_200: { name: 'Meditation Titan', icon: '🧘‍♀️', description: '200 meditation sessions', xp: 700, rarity: 'legendary' },
+
+      // HAPPINESS
+      happiness_seeker: { name: 'Happiness Seeker', icon: '😊', description: '50 happiness booster views', xp: 50, rarity: 'uncommon' },
+      joy_master: { name: 'Joy Master', icon: '🎉', description: '150 happiness booster views', xp: 100, rarity: 'rare' },
+      happiness_300: { name: 'Happiness Sage', icon: '😍', description: '300 happiness booster views', xp: 200, rarity: 'epic' },
+      happiness_700: { name: 'Happiness Titan', icon: '🤩', description: '700 happiness booster views', xp: 500, rarity: 'legendary' },
+
+      // WELLNESS
+      wellness_champion: { name: 'Wellness Champion', icon: '🌿', description: '50 wellness exercises', xp: 50, rarity: 'uncommon' },
+      wellness_guru: { name: 'Wellness Guru', icon: '🌳', description: '150 wellness exercises', xp: 100, rarity: 'rare' },
+      wellness_300: { name: 'Wellness Titan', icon: '🌲', description: '300 wellness exercises', xp: 300, rarity: 'epic' },
+      wellness_700: { name: 'Wellness Legend', icon: '🌎', description: '700 wellness exercises', xp: 1000, rarity: 'legendary' },
+
+      // STREAK
+      perfect_week: { name: 'Perfect Week', icon: '⭐', description: 'Complete all daily quests 7 days straight', xp: 75, rarity: 'rare' },
+      dedication_streak: { name: 'Dedication', icon: '💎', description: '30-day streak', xp: 100, rarity: 'epic' },
+      unstoppable: { name: 'Unstoppable', icon: '🔱', description: '60-day streak', xp: 150, rarity: 'epic' },
+      legendary_streak: { name: 'Legendary Streak', icon: '👑', description: '100-day streak', xp: 200, rarity: 'legendary' },
+
+      // QUEST COMPLETION
+      weekly_warrior: { name: 'Weekly Warrior', icon: '🔥', description: 'Finish every weekly quest 4 separate weeks', xp: 100, rarity: 'epic' },
+      monthly_master: { name: 'Monthly Master', icon: '🌟', description: 'Finish every monthly quest at least once', xp: 150, rarity: 'epic' },
+      quest_crusher: { name: 'Quest Crusher', icon: '🎯', description: '100 total quests (any type)', xp: 150, rarity: 'epic' },
+      daily_champion: { name: 'Daily Champion', icon: '⭐', description: 'Finish all dailies on 30 separate days', xp: 100, rarity: 'rare' },
+
+      // CURRENCY
+      karma_collector: { name: 'Karma Collector', icon: '💰', description: '500 karma accumulated', xp: 50, rarity: 'rare' },
+      karma_lord: { name: 'Karma Lord', icon: '💎', description: '2000 karma accumulated', xp: 200, rarity: 'legendary' },
+      xp_milestone: { name: 'XP Legend', icon: '⚡', description: '10000 XP earned', xp: 100, rarity: 'epic' },
+      xp_titan: { name: 'XP Titan', icon: '⚡', description: '50000 XP earned', xp: 200, rarity: 'legendary' },
+
+      // LEVEL MILESTONES
+      level_5_hero: { name: 'Rising Star', icon: '🎯', description: 'Reach Level 5', xp: 100, rarity: 'epic' },
+      level_7_hero: { name: 'Enlightened Soul', icon: '🌟', description: 'Reach Level 7', xp: 150, rarity: 'epic' },
+      level_10_hero: { name: 'Enlightened Master', icon: '👑', description: 'Reach Level 10', xp: 300, rarity: 'legendary' },
+
+      // CHAKRA
+      chakra_balancer: { name: 'Chakra Balancer', icon: '🌈', description: 'All 7 chakras ≥ 8 in one session', xp: 75, rarity: 'epic' },
+      chakra_master: { name: 'Chakra Master', icon: '🎨', description: 'All 7 chakras ≥ 9 in one session', xp: 150, rarity: 'legendary' },
+
+      // CROSS-FEATURE
+      triple_threat: { name: 'Triple Threat', icon: '🎪', description: 'Use 3 different features in one day', xp: 25, rarity: 'uncommon' },
+      super_day: { name: 'Super Day', icon: '💫', description: 'Gratitude + journal + energy + meditation in one day', xp: 50, rarity: 'rare' },
+      complete_explorer: { name: 'Complete Explorer', icon: '🗺️', description: 'Use every main feature at least once', xp: 100, rarity: 'epic' },
+      renaissance_soul: { name: 'Renaissance Soul', icon: '🎭', description: '≥ 10 actions in 5+ different features', xp: 150, rarity: 'epic' }
     };
   }
 
+  /* ---------------------------------------------------------
+     BADGE UNLOCK – XP + KARMA BY RARITY  (no achievements)
+  --------------------------------------------------------- */
   grantBadge(badge) {
     if (this.state.badges.find(b => b.id === badge.id)) return;
-    
-    if (!badge.icon) {
-      const defs = this.getBadgeDefinitions();
-      badge.icon = defs[badge.id]?.icon || '🎖️';
+
+    // 1. karma reward by rarity
+    const karmaMap = { common: 3, uncommon: 5, rare: 10, epic: 15, legendary: 30 };
+    const karma = karmaMap[badge.rarity] || 0;
+    if (karma) {
+      this.state.karma += karma;
+      this.logAction('karma', { amount: karma, source: `Badge: ${badge.id}` });
     }
-    
-    this.state.badges.push({ 
-      ...badge, 
-      unlocked: true, 
-      date: new Date().toISOString() 
-    });
-    
+
+    // 2. store badge
+    this.state.badges.push({ ...badge, unlocked: true, date: new Date().toISOString() });
     this.emit('badgeUnlocked', badge);
+
+    // 3. xp reward
+    if (badge.xp) this.addXP(badge.xp, `Badge: ${badge.id}`);
+
+    // 4. inspirational toast
+    if (badge.inspirational) this.emit('inspirationalMessage', badge.inspirational);
+
     this.saveState();
   }
 
   checkAndGrantBadge(badgeId, badgeDefinitions) {
     if (this.state.badges.find(b => b.id === badgeId)) return;
-    
     const def = badgeDefinitions[badgeId];
     this.grantBadge({
       id: badgeId,
       name: def.name,
       icon: def.icon,
-      description: def.description
+      description: def.description,
+      xp: def.xp,
+      rarity: def.rarity,
+      inspirational: def.inspirational
     });
   }
 
+  /* ---------------------------------------------------------
+     BADGE CHECKS – 56 TOTAL
+  --------------------------------------------------------- */
   checkAllBadges() {
     if (!this.app.state?.data) return;
-    
     const data = this.app.state.data;
     const badges = this.getBadgeDefinitions();
-    
-    // Get counts
+
     const gratitudeCount = (data.gratitudeEntries || []).length;
     const journalCount = (data.journalEntries || []).length;
     const energyCount = (data.energyEntries || []).length;
@@ -340,84 +349,104 @@ export class GamificationEngine {
     const meditationCount = (data.meditationHistory || []).length;
     const happinessCount = this.state.totalHappinessViews || 0;
     const wellnessCount = this.state.totalWellnessRuns || 0;
-    
-    // Milestone badges
+
+    // FIRST-WIN
+    const totalActions = gratitudeCount + journalCount + energyCount + tarotCount + meditationCount;
+    if (totalActions >= 1) this.checkAndGrantBadge('first_step', badges);
+    if (gratitudeCount >= 1) this.checkAndGrantBadge('first_gratitude', badges);
+    if (journalCount >= 1) this.checkAndGrantBadge('first_journal', badges);
+    if (energyCount >= 1) this.checkAndGrantBadge('first_energy', badges);
+    if (tarotCount >= 1) this.checkAndGrantBadge('first_tarot', badges);
+    if (meditationCount >= 1) this.checkAndGrantBadge('first_meditation', badges);
+
+    // GRATITUDE
     if (gratitudeCount >= 30) this.checkAndGrantBadge('gratitude_warrior', badges);
     if (gratitudeCount >= 100) this.checkAndGrantBadge('gratitude_legend', badges);
-    
+    if (gratitudeCount >= 200) this.checkAndGrantBadge('gratitude_200', badges);
+    if (gratitudeCount >= 500) this.checkAndGrantBadge('gratitude_500', badges);
+
+    // JOURNAL
     if (journalCount >= 20) this.checkAndGrantBadge('journal_keeper', badges);
     if (journalCount >= 75) this.checkAndGrantBadge('journal_master', badges);
-    
+    if (journalCount >= 150) this.checkAndGrantBadge('journal_150', badges);
+    if (journalCount >= 400) this.checkAndGrantBadge('journal_400', badges);
+
+    // ENERGY
     if (energyCount >= 30) this.checkAndGrantBadge('energy_tracker', badges);
     if (energyCount >= 100) this.checkAndGrantBadge('energy_sage', badges);
-    
+    if (energyCount >= 300) this.checkAndGrantBadge('energy_300', badges);
+    if (energyCount >= 600) this.checkAndGrantBadge('energy_600', badges);
+
+    // TAROT
+    if (tarotCount >= 10) this.checkAndGrantBadge('tarot_apprentice', badges);
     if (tarotCount >= 25) this.checkAndGrantBadge('tarot_mystic', badges);
     if (tarotCount >= 75) this.checkAndGrantBadge('tarot_oracle', badges);
-    
+    if (tarotCount >= 150) this.checkAndGrantBadge('tarot_150', badges);
+    if (tarotCount >= 400) this.checkAndGrantBadge('tarot_400', badges);
+
+    // MEDITATION
     if (meditationCount >= 20) this.checkAndGrantBadge('meditation_devotee', badges);
     if (meditationCount >= 60) this.checkAndGrantBadge('meditation_master', badges);
-    
+    if (meditationCount >= 100) this.checkAndGrantBadge('meditation_100', badges);
+    if (meditationCount >= 200) this.checkAndGrantBadge('meditation_200', badges);
+
+    // HAPPINESS
     if (happinessCount >= 50) this.checkAndGrantBadge('happiness_seeker', badges);
     if (happinessCount >= 150) this.checkAndGrantBadge('joy_master', badges);
-    
+    if (happinessCount >= 300) this.checkAndGrantBadge('happiness_300', badges);
+    if (happinessCount >= 700) this.checkAndGrantBadge('happiness_700', badges);
+
+    // WELLNESS
     if (wellnessCount >= 50) this.checkAndGrantBadge('wellness_champion', badges);
     if (wellnessCount >= 150) this.checkAndGrantBadge('wellness_guru', badges);
-    
-    // Streak badges
+    if (wellnessCount >= 300) this.checkAndGrantBadge('wellness_300', badges);
+    if (wellnessCount >= 700) this.checkAndGrantBadge('wellness_700', badges);
+
+    // STREAK
     const streak = this.state.streak?.current || 0;
+    if (streak >= 7) this.checkAndGrantBadge('perfect_week', badges);
     if (streak >= 30) this.checkAndGrantBadge('dedication_streak', badges);
     if (streak >= 60) this.checkAndGrantBadge('unstoppable', badges);
     if (streak >= 100) this.checkAndGrantBadge('legendary_streak', badges);
-    
-    // Level badges
+
+    // LEVEL
     const level = this.calculateLevel().level;
     if (level >= 5) this.checkAndGrantBadge('level_5_hero', badges);
     if (level >= 7) this.checkAndGrantBadge('level_7_hero', badges);
     if (level >= 10) this.checkAndGrantBadge('level_10_hero', badges);
-    
-    // Currency badges
+
+    // CURRENCY
     if (this.state.karma >= 500) this.checkAndGrantBadge('karma_collector', badges);
     if (this.state.karma >= 2000) this.checkAndGrantBadge('karma_lord', badges);
     if (this.state.xp >= 10000) this.checkAndGrantBadge('xp_milestone', badges);
     if (this.state.xp >= 50000) this.checkAndGrantBadge('xp_titan', badges);
-    
-    // Time-based badges
-    const morningCheckins = (data.energyEntries || []).filter(e => e.timeOfDay === 'day').length;
-    const nightCheckins = (data.energyEntries || []).filter(e => e.timeOfDay === 'night').length;
-    
-    if (morningCheckins >= 10) this.checkAndGrantBadge('early_bird', badges);
-    if (morningCheckins >= 30) this.checkAndGrantBadge('dawn_master', badges);
-    if (nightCheckins >= 10) this.checkAndGrantBadge('night_owl', badges);
-    if (nightCheckins >= 30) this.checkAndGrantBadge('midnight_sage', badges);
-    
-    // Cross-feature badges
+
+    // QUEST COMPLETION
+    if (this.state.weeklyQuestCompletions >= 4) this.checkAndGrantBadge('weekly_warrior', badges);
+    if (this.state.monthlyQuestCompletions >= 1) this.checkAndGrantBadge('monthly_master', badges);
+    if (this.state.totalQuestCompletions >= 100) this.checkAndGrantBadge('quest_crusher', badges);
+    if (this.state.dailyQuestCompletions >= 30) this.checkAndGrantBadge('daily_champion', badges);
+
+    // CHAKRA (single session – call after chakra log)
+    // CROSS-FEATURE (daily checks)
     this.checkCrossFeatureBadges(badges);
-    
-    // First step badge
-    const totalActions = gratitudeCount + journalCount + energyCount + tarotCount + meditationCount;
-    if (totalActions >= 1) this.checkAndGrantBadge('first_step', badges);
   }
 
   checkCrossFeatureBadges(badges) {
     if (!this.app.state?.data) return;
-    
     const today = new Date().toDateString();
     const data = this.app.state.data;
-    
+
     const todayGratitude = (data.gratitudeEntries || []).some(e => new Date(e.timestamp).toDateString() === today);
     const todayJournal = (data.journalEntries || []).some(e => new Date(e.timestamp).toDateString() === today);
     const todayEnergy = (data.energyEntries || []).some(e => new Date(e.timestamp).toDateString() === today);
     const todayTarot = (data.tarotReadings || []).some(e => new Date(e.timestamp).toDateString() === today);
     const todayMeditation = (data.meditationHistory || []).some(e => new Date(e.timestamp).toDateString() === today);
-    
+
     const todayFeatures = [todayGratitude, todayJournal, todayEnergy, todayTarot, todayMeditation].filter(Boolean).length;
-    
     if (todayFeatures >= 3) this.checkAndGrantBadge('triple_threat', badges);
-    
-    if (todayGratitude && todayJournal && todayEnergy && todayMeditation) {
-      this.checkAndGrantBadge('super_day', badges);
-    }
-    
+    if (todayGratitude && todayJournal && todayEnergy && todayMeditation) this.checkAndGrantBadge('super_day', badges);
+
     const usedGratitude = (data.gratitudeEntries || []).length > 0;
     const usedJournal = (data.journalEntries || []).length > 0;
     const usedEnergy = (data.energyEntries || []).length > 0;
@@ -425,11 +454,11 @@ export class GamificationEngine {
     const usedMeditation = (data.meditationHistory || []).length > 0;
     const usedHappiness = this.state.totalHappinessViews > 0;
     const usedWellness = this.state.totalWellnessRuns > 0;
-    
+
     if (usedGratitude && usedJournal && usedEnergy && usedTarot && usedMeditation && usedHappiness && usedWellness) {
       this.checkAndGrantBadge('complete_explorer', badges);
     }
-    
+
     const featureActions = [
       (data.gratitudeEntries || []).length,
       (data.journalEntries || []).length,
@@ -439,78 +468,35 @@ export class GamificationEngine {
       this.state.totalHappinessViews || 0,
       this.state.totalWellnessRuns || 0
     ];
-    
     const featuresWithTenPlus = featureActions.filter(count => count >= 10).length;
-    if (featuresWithTenPlus >= 5) {
-      this.checkAndGrantBadge('renaissance_soul', badges);
-    }
-  }
-
-  checkQuestBadges() {
-    const badges = this.getBadgeDefinitions();
-    
-    if (this.state.weeklyQuestCompletions >= 4) {
-      this.checkAndGrantBadge('weekly_warrior', badges);
-    }
-    
-    if (this.state.monthlyQuestCompletions >= 1) {
-      this.checkAndGrantBadge('monthly_master', badges);
-    }
-    
-    if (this.state.totalQuestCompletions >= 100) {
-      this.checkAndGrantBadge('quest_crusher', badges);
-    }
-    
-    if (this.state.dailyQuestCompletions >= 30) {
-      this.checkAndGrantBadge('daily_champion', badges);
-    }
-    
-    if (this.state.dailyQuestStreak >= 7) {
-      this.checkAndGrantBadge('perfect_week', badges);
-    }
+    if (featuresWithTenPlus >= 5) this.checkAndGrantBadge('renaissance_soul', badges);
   }
 
   checkChakraBadges(chakras) {
     const badges = this.getBadgeDefinitions();
     const chakraKeys = ['root', 'sacral', 'solar', 'heart', 'throat', 'thirdEye', 'crown'];
-    
     const all8Plus = chakraKeys.every(key => (chakras[key] || 0) >= 8);
-    if (all8Plus) {
-      this.checkAndGrantBadge('chakra_balancer', badges);
-    }
-    
     const all9Plus = chakraKeys.every(key => (chakras[key] || 0) >= 9);
-    if (all9Plus) {
-      this.checkAndGrantBadge('chakra_master', badges);
-    }
-  }
-
-  migrateBadgeIcons() {
-    const defs = this.getBadgeDefinitions();
-    let updated = false;
-    
-    this.state.badges.forEach(badge => {
-      if (!badge.icon && defs[badge.id]) {
-        badge.icon = defs[badge.id].icon;
-        badge.name = defs[badge.id].name;
-        badge.description = defs[badge.id].description;
-        updated = true;
-      }
-    });
-    
-    if (updated) {
-      this.saveState();
-      console.log('✅ Migrated existing badges with icons and descriptions');
-    }
+    if (all8Plus) this.checkAndGrantBadge('chakra_balancer', badges);
+    if (all9Plus) this.checkAndGrantBadge('chakra_master', badges);
   }
 
   /* ---------------------------------------------------------
-     UNLOCKS
+     STREAK
   --------------------------------------------------------- */
-  unlockFeature(featureId) {
-    if (this.state.unlockedFeatures.includes(featureId)) return;
-    this.state.unlockedFeatures.push(featureId);
-    this.emit('featureUnlocked', featureId);
+  updateStreak() {
+    const today = new Date().toDateString();
+    if (this.state.streak.lastCheckIn === today) return;
+    const last = this.state.streak.lastCheckIn ? new Date(this.state.streak.lastCheckIn) : null;
+    const diff = last ? (new Date(today) - last) / (1000 * 60 * 60 * 24) : null;
+    if (!last || diff > this.state.settings.streakResetDays) {
+      this.state.streak.current = 1;
+    } else {
+      this.state.streak.current += 1;
+    }
+    this.state.streak.lastCheckIn = today;
+    this.emit('streakUpdated', { current: this.state.streak.current });
+    this.checkAllBadges();
     this.saveState();
   }
 
@@ -584,7 +570,6 @@ export class GamificationEngine {
 
   _resetQuests(type) {
     const allComplete = this.state.quests[type]?.every(q => q.completed);
-    
     if (allComplete) {
       if (type === 'daily') {
         if (!this.state.dailyQuestCompletions) this.state.dailyQuestCompletions = 0;
@@ -605,10 +590,8 @@ export class GamificationEngine {
         if (!this.state.monthlyQuestCompletions) this.state.monthlyQuestCompletions = 0;
         this.state.monthlyQuestCompletions++;
       }
-      
       this.checkQuestBadges();
     }
-    
     this.state.quests[type]?.forEach(q => {
       q.progress = 0; q.completed = false;
       if (q.id === 'energy_checkin') q.subProgress = { day: false, night: false };
@@ -625,7 +608,6 @@ export class GamificationEngine {
   _completeBatch(type) {
     const quests = this.state.quests[type];
     if (!quests?.length) return;
-
     let done = 0, xp = 0, karma = 0;
     this._bulkMode = true;
     quests.forEach(q => {
@@ -637,10 +619,19 @@ export class GamificationEngine {
       }
     });
     this._bulkMode = false;
-
     if (done) {
       this.emit('bulkQuestsComplete', { type, done, xp, karma });
     }
+  }
+
+  /* ---------------------------------------------------------
+     UNLOCKS
+  --------------------------------------------------------- */
+  unlockFeature(featureId) {
+    if (this.state.unlockedFeatures.includes(featureId)) return;
+    this.state.unlockedFeatures.push(featureId);
+    this.emit('featureUnlocked', featureId);
+    this.saveState();
   }
 
   /* ---------------------------------------------------------
@@ -659,7 +650,6 @@ export class GamificationEngine {
       levelTitle: this.calculateLevel().title,
       karma: this.state.karma,
       streak: this.state.streak,
-      achievements: this.state.achievements,
       badges: this.state.badges,
       unlockedFeatures: this.state.unlockedFeatures,
       quests: this.state.quests,

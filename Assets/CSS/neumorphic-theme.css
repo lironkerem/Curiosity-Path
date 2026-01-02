@@ -9833,3 +9833,88 @@ body.royal-indigo{
 /* =========================================================
    END OF FILE — production-ready, unified, mobile-first
    ========================================================= */
+
+/* =========================================================
+   UPDATES TO ADD TO OPTIMIZED CSS
+   ========================================================= */
+.dashboard-badge-card {
+  position: relative;
+  border-radius: 12px;
+  padding: 1rem;
+  color: #fff;
+  text-align: center;
+  box-shadow: var(--shadow-inset);
+  transition: transform .2s;
+}
+.dashboard-badge-card.badge-locked {
+  filter: grayscale(1) brightness(0.6);
+  opacity: .85;
+}
+.badge-icon { font-size: 2.5rem; margin-bottom: .5rem; }
+.badge-title { font-weight: 700; font-size: .95rem; margin-bottom: .25rem; }
+.badge-sub { font-size: .7rem; opacity: .9; margin-bottom: .5rem; }
+.badge-rewards { display: flex; justify-content: space-around; font-size: .7rem; font-weight: 600; }
+.badge-lock-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  background: rgba(0,0,0,.45);
+  border-radius: inherit;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .5px;
+}
+
+/* ===== 3. STEP INDICATOR - MOBILE OPTIMIZED ===== */
+
+#calculator-tab .step-indicator,
+.step-indicator {
+  padding: 0.5rem 0.25rem !important;
+  margin-bottom: 1rem !important;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  justify-content: flex-start;
+}
+
+#calculator-tab .step-item,
+.step-item {
+  flex: 1 0 auto;          /* NEW: grow, shrink, natural base-width */
+  max-width: none;         /* NEW: remove 85 px ceiling */
+  min-width: 65px !important;
+  padding: 0 0.15rem !important;
+  gap: 0.25rem !important;
+}
+
+#calculator-tab .step-label,
+.step-label {
+  font-size: clamp(0.6rem, 2vw, 0.75rem) !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+#calculator-tab .step-dot,
+.step-dot {
+  width: 10px !important;
+  height: 10px !important;
+}
+
+#calculator-tab .step-connector,
+.step-connector {
+  top: 5px !important;
+  height: 1.5px !important;
+}
+
+#calculator-tab .step-item.active .step-dot,
+.step-item.active .step-dot {
+  transform: scale(1.2) !important;
+}
+
+/* Self-Analysis: let width follow viewport (keep Flip-Script at 980 px) */
+#calculator-tab .page {
+  width: auto !important;
+  max-width: 100% !important;
+}

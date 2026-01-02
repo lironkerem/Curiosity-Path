@@ -270,7 +270,7 @@ init() {
       };
 window.app.renderAboutHTML = () => `
         <div class="accordion-inner">
-          <p><strong>Digital Curiosity</strong> by Aanandoham, 2026.</p>
+          <p><strong>The Curiosity Path</strong> by Aanandoham, 2026.</p>
           <p>A digital way, for a digital practitioner, to continue practicing Spirituality in the 21st Century.</p>
           <p>This App was built to share tools, practices and ancient wisdom - digitally, from your device.</p>
           <p>It is a convenient, accessible way, to stay connected to your 'Self', by small daily practices.</p>
@@ -302,6 +302,108 @@ Level 8  - Buddha       - 50,000
 Level 9  - Light        - 150,000
 Level 10 - Emptiness    - 400,000
 ---------------------------
+COMPLETE BADGE GUIDE:
+--------------------------------------------------------
+FIRST-WINS
+
+🌱  First Step           -  do any single action                     +10 XP  +3 Karma
+💚  First Gratitude   -  log 1 gratitude entry                   +10 XP  +3 Karma
+📝  First Journal      -  save 1 journal entry                     +10 XP  +3 Karma
+⚡  First Energy       -  log 1 energy check-in                  +10 XP  +3 Karma
+🃏  First Reading      -  complete 1 tarot spread              +10 XP  +3 Karma
+🧘  First Meditation -  finish 1 meditation session           +10 XP  +3 Karma
+🛒  First Purchase   -  buy anything in the Karma Shop  +50 XP  +3 Karma
+
+GRATITUDE
+  ❤️  Gratitude Warrior -  30 entries    +50 XP   +5 Karma    (uncommon)
+  💝  Gratitude Legend -  100 entries  +100 XP  +10 Karma  (rare)
+  💖  Gratitude Sage     -  200 entries  +200 XP  +15 Karma  (epic)
+  💘  Gratitude Titan     -  500 entries  +500 XP  +30 Karma  (legendary)
+
+JOURNAL
+  📔  Journal Keeper -  20 entries   +50 XP   +5 Karma   (uncommon)
+  📚  Journal Master -  75 entries   +100 XP  +10 Karma   (rare)
+  📖  Journal Sage    -  150 entries +200 XP  +15 Karma   (epic)
+  📜  Journal Titan   -  400 entries  +500 XP  +30 Karma   (legendary)
+
+ENERGY CHECK-INS
+  ⚡  Energy Tracker  -  30 logs   + 50 XP   +5 Karma   (uncommon)
+  🔋  Energy Sage      -  100 logs  +100 XP  +10 Karma   (rare)
+  🔌  Energy Titan     -  300 logs  +300 XP  +15 Karma   (epic)
+  ⚡️  Energy Legend -  600 logs  +600 XP  +30 Karma   (legendary)
+
+TAROT SPREADS
+  🔮  Tarot Apprentice -  10 spreads   +25 XP   +3 Karma   (common)
+  🃏  Tarot Mystic        -  25 spreads   +50 XP   +5 Karma   (uncommon)
+  🌙  Tarot Oracle       -  75 spreads  +100 XP  +10 Karma   (rare)
+  🧙  Tarot Sage         -  150 spreads +200 XP  +15 Karma   (epic)
+  🔮  Tarot Titan         -  400 spreads +500 XP  +30 Karma   (legendary)
+
+MEDITATION SESSIONS
+  🧘  Meditation Devotee -  20 sessions  +50 XP   +5 Karma   (uncommon)
+  🕉️  Meditation Master  -  60 sessions  +100 XP  +10 Karma   (rare)
+  🧘‍♂️ Meditation Sage      -  100 sessions +300 XP  +15 Karma   (epic)
+  🧘‍♀️ Meditation Titan     -  200 sessions +700 XP  +30 Karma   (legendary)
+
+HAPPINESS BOOSTERS
+  😊  Happiness Seeker -  50 views   +50 XP   +5 Karma   (uncommon)
+  🎉  Joy Master           -  150 views +100 XP  +10 Karma   (rare)
+  😍  Happiness Sage   -  300 views +200 XP  +15 Karma   (epic)
+  🤩  Happiness Titan   -  700 views +500 XP  +30 Karma   (legendary)
+
+WELLNESS EXERCISES
+  🌿  Wellness Champion -  50 exercises   +50 XP   +5 Karma   (uncommon)
+  🌳  Wellness Guru         -  150 exercises +100 XP  +10 Karma   (rare)
+  🌲  Wellness Titan         -  300 exercises +300 XP  +15 Karma   (epic)
+  🌎  Wellness Legend     -  700 exercises +1000 XP  +30 Karma   (legendary)
+
+--------------------------------------------------------
+STREAK BADGES
+--------------------------------------------------------
+⭐  Perfect Week         -  complete every daily quest 7 days in a row   +75 XP  +10 Karma   (rare)
+💎  Dedication           -  30-day login streak                                      +100 XP  +15 Karma   (epic)
+🔱  Unstoppable        -  60-day login streak                                      +150 XP  +15 Karma   (epic)
+👑  Legendary Streak -  100-day login streak                                    +200 XP  +30 Karma   (legendary)
+
+--------------------------------------------------------
+QUEST-COMPLETION BADGES
+--------------------------------------------------------
+🔥  Weekly Warrior   -  complete all weekly quests 4 separate weeks +100 XP  +15 Karma   (epic)
+🌟  Monthly Master -  complete all monthly quests at least once     +150 XP  +15 Karma   (epic)
+🎯  Quest Crusher   -  finish 100 total quests (any type)                   +150 XP  +15 Karma   (epic)
+⭐  Daily Champion  -  complete all dailies on 30 separate days        +100 XP  +10 Karma   (rare)
+
+--------------------------------------------------------
+CURRENCY BADGES
+--------------------------------------------------------
+💰  Karma Collector -  accumulate 500 Karma   +50 XP  +10 Karma   (rare)
+💎  Karma Lord       -  accumulate 2000 Karma +200 XP  +30 Karma   (legendary)
+⚡  XP Legend         -  earn 10 000 XP              +100 XP  +15 Karma   (epic)
+⚡  XP Titan             -  earn 50 000 XP              +200 XP  +30 Karma   (legendary)
+
+--------------------------------------------------------
+LEVEL MILESTONES
+--------------------------------------------------------
+🎯  Rising Star                -  reach Level 5   +100 XP  +15 Karma   (epic)
+🌟  Enlightened Soul     -  reach Level 7    +150 XP  +15 Karma   (epic)
+👑  Enlightened Master -  reach Level 10  +300 XP  +30 Karma   (legendary)
+
+--------------------------------------------------------
+CHAKRA BADGES
+--------------------------------------------------------
+🌈  Chakra Balancer -  log all 7 chakras ≥ 8 in one session +75 XP  +15 Karma   (epic)
+🎨  Chakra Master    -  log all 7 chakras ≥ 9 in one session +150 XP  +30 Karma   (legendary)
+
+--------------------------------------------------------
+CROSS-FEATURE BADGES
+--------------------------------------------------------
+🎪  Triple Threat          -  use 3 different features in one day               +25 XP   +5 Karma   (uncommon)
+💫  Super Day              -  gratitude + journal + energy + meditation  +50 XP  +10 Karma   (rare)
+🗺️  Complete Explorer -  use every main feature at least once             +100 XP  +15 Karma   (epic)
+🎭  Renaissance Soul    -  ≥ 10 actions in 5+ different features            +150 XP  +30 Karma   (epic)
+
+--------------------------------------------------------
+
 Have fun,
 Aanandoham, 2026.
         </div>`;
@@ -617,8 +719,8 @@ window.app.sendTestNotification = async function() {
       body: JSON.stringify({
         sub: latest,
         payload: {
-          title: '✨ Digital Curiosity',
-          body: 'Test notification working!',
+          title: '✨ The Curiosity Path',
+          body: 'Test notification from Aanandoham!',
           icon: '/Icons/icon-192x192.png',
           data: { url: '/' }
         }

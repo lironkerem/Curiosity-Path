@@ -357,20 +357,20 @@ for (let r = 0; r <= 10; r += 2) {
 
 points.forEach((p, i) => {
   const val  = Math.min(10, Math.max(0, p));
-  const barH = val === 0 ? 6 : val * rowH;   // 6 px for missed day
+  const barH = val * rowH;
   const x    = i * dayW + gap;
-  const cx   = x + barW / 2;                   // centre of bar (and of label)
   const y    = pxH - barH;
   svg += `<rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="2" fill="${barColour(val)}"/>`;
   // weekday below the chart
-  const labelY = pxH + 22;
-  svg += `<text x="${cx}" y="${labelY}" font-size="14" font-weight="bold" fill="var(--neuro-text-light)" text-anchor="middle" transform="rotate(-90,${cx},${labelY})">${days[i]}</text>`;
+  const labelX = x + barW / 2 + 20;  // Add +20 to shift right
+  const labelY = pxH + 30;
+  svg += `<text x="${labelX}" y="${labelY}" font-size="14" font-weight="bold" fill="var(--neuro-text-light)" text-anchor="middle" transform="rotate(-90,${labelX},${labelY})">${days[i]}</text>`;
 });
 
 /*  average BELOW the chart  */
 const nonZero = points.filter(v => v > 0);
 const avg = nonZero.length ? (nonZero.reduce((s, v) => s + v, 0) / nonZero.length).toFixed(1) : '—';
-svg += `<text x="${pxW / 2}" y="${pxH + 85}" font-size="14" font-weight="bold" fill="var(--neuro-text)" text-anchor="middle">7 Days Average: ${avg}</text></svg>`;
+svg += `<text x="${pxW / 2}" y="${pxH + 85}" font-size="14" font-weight="bold" fill="var(--neuro-text)" text-anchor="middle">7 Days Avarage: ${avg}</text></svg>`;
 return svg;
 }
 
