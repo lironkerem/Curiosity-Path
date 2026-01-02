@@ -1,5 +1,5 @@
-// DashboardManager.js
-// Imports and Constructor
+// DashboardManager.js  –  complete patched file
+// Shows latest 9 earned badges + expandable "Show All Badges" with full 56-badge gallery by category, rarity colours + grey lock.
 
 import { InquiryEngine } from '../Features/InquiryEngine.js';
 import DailyCards from '../Features/DailyCards.js';
@@ -8,26 +8,19 @@ export default class DashboardManager {
   constructor(app) {
     this.app = app;
     this.currentQuote = null;
-    
-    // Initialize Daily Cards module
     this.dailyCards = new DailyCards(app);
-    
-    // Expose dailyCards globally for onclick handlers
-    if (window.app) {
-      window.app.dailyCards = this.dailyCards;
-    }
-    
+    if (window.app) window.app.dailyCards = this.dailyCards;
     this.setupQuestListeners();
     this.setupWellnessTracking();
     this.countdownInterval = setInterval(() => this.updateCountdownDisplays(), 1000);
   }
 
-  /* ===== 360° flip helper (used by quote card) ===== */
+  /* ----------  helpers  ---------- */
   _flipCard(cardId, newHtml) {
     const card = document.getElementById(cardId);
     if (!card) return;
     const inner = card.querySelector('.flip-card-inner');
-    const back  = card.querySelector('.flip-card-back');
+    const back = card.querySelector('.flip-card-back');
     back.innerHTML = newHtml;
     const currentY = parseFloat(inner.style.transform.replace(/[^\d.-]/g, '')) || 0;
     inner.style.transform = `rotateY(${currentY + 360}deg)`;
@@ -38,9 +31,6 @@ export default class DashboardManager {
     inner.addEventListener('transitionend', onEnd);
   }
 
-  /* ------------------------------------------------------------ */
-  /* ------------  Reset & Countdown Methods  ------------------- */
-  /* ------------------------------------------------------------ */
   _getNextResetTimes() {
     const now = new Date();
     const daily = new Date(now); daily.setDate(daily.getDate() + 1); daily.setHours(0, 0, 0, 0);
@@ -74,16 +64,12 @@ export default class DashboardManager {
 
   setupQuestListeners() {
     if (!this.app.gamification) return;
-
-    /* ----- single quest toast (silent during bulk) ----- */
     this.app.gamification.on('questCompleted', quest => {
       if (this.app.gamification._bulkMode) return;
       this.app.showToast(`✅ Quest Complete: ${quest.name}! +${quest.xpReward} XP`, 'success');
       if (quest.inspirational) setTimeout(() => this.app.showToast(`💫 ${quest.inspirational}`, 'info'), 1500);
       this.render();
     });
-
-    /* ----- one summary toast after bulk finish ----- */
     this.app.gamification.on('bulkQuestsComplete', ({ type, done, xp, karma }) => {
       const nice = type.charAt(0).toUpperCase() + type.slice(1);
       this.app.showToast(
@@ -91,7 +77,6 @@ export default class DashboardManager {
         'success'
       );
     });
-
     this.app.gamification.on('questProgress', () => this.render());
     this.app.gamification.on('dailyQuestsComplete', () => this.app.showToast('🌟 All Daily Quests Complete! +50 Bonus XP 🌟', 'success'));
     this.checkDailyReset();
@@ -134,62 +119,58 @@ export default class DashboardManager {
     }, 3000);
   }
 
-/* -------------- QUOTE CARD (360° flip) -------------- */
-renderQuoteCard() {
-  return `
-    <div class="neuro-card flip-card" id="dashboard-quote-card">
-      <div class="flip-card-inner">
-        <div class="flip-card-front flex flex-col justify-between">
-          <div>
-            <div class="flex items-center mb-8">
-              <span class="text-3xl mr-4">📜</span>
-              <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2>
+  /* ------------------------------------------------------------ */
+  /*  Quote Card
+  /* ------------------------------------------------------------ */
+  renderQuoteCard() {
+    this.currentQuote = window.QuotesData ? window.QuotesData.getQuoteOfTheDay()
+      : { text: 'What you think, you become. What you feel, you attract. What you imagine, you create.', author: 'Buddha' };
+    return `
+      <div class="neuro-card flip-card" id="dashboard-quote-card">
+        <div class="flip-card-inner">
+          <div class="flip-card-front flex flex-col justify-between">
+            <div>
+              <div class="flex items-center mb-8"><span class="text-3xl mr-4">📜</span>
+                <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2></div>
+              <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent); line-height: 1.5; padding-top: 2rem; padding-bottom: 2rem;">
+                "${this.currentQuote.text}"</p>
+              <p class="mt-6 text-center text-lg" style="color: var(--neuro-text);">— ${this.currentQuote.author}</p>
             </div>
-            <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent); line-height: 1.5; padding-top: 2rem; padding-bottom: 2rem;">
-              "${this.currentQuote.text}"
-            </p>
-            <p class="mt-6 text-center text-lg" style="color: var(--neuro-text);">
-              — ${this.currentQuote.author}
-            </p>
+            <div class="pt-8 flex justify-end">
+              <button onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">🔄 Refresh Quote</button>
+            </div>
           </div>
-          <div class="pt-8 flex justify-end">
-            <button onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">🔄 Refresh Quote</button>
-          </div>
+          <div class="flip-card-back"></div>
         </div>
-        <div class="flip-card-back"></div>
-      </div>
-    </div>`;
-}
+      </div>`;
+  }
 
-refreshQuote() {
-  if (!window.QuotesData) return;
-  this.currentQuote = window.QuotesData.getRandomQuote();
-  const html = `
-    <div class="flex flex-col justify-between">
-      <div>
-        <div class="flex items-center mb-8">
-          <span class="text-3xl mr-4">📜</span>
-          <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2>
+  refreshQuote() {
+    if (!window.QuotesData) return;
+    this.currentQuote = window.QuotesData.getRandomQuote();
+    const html = `
+      <div class="flex flex-col justify-between">
+        <div>
+          <div class="flex items-center mb-8"><span class="text-3xl mr-4">📜</span>
+            <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2></div>
+          <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent); line-height: 1.5; padding-top: 2rem; padding-bottom: 2rem;">
+            "${this.currentQuote.text}"</p>
+          <p class="mt-6 text-center text-lg" style="color: var(--neuro-text);">— ${this.currentQuote.author}</p>
         </div>
-        <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent); line-height: 1.5; padding-top: 2rem; padding-bottom: 2rem;">
-          "${this.currentQuote.text}"
-        </p>
-        <p class="mt-6 text-center text-lg" style="color: var(--neuro-text);">
-          — ${this.currentQuote.author}
-        </p>
-      </div>
-      <div class="pt-8 flex justify-end">
-        <button onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">🔄 Refresh Quote</button>
-      </div>
-    </div>`;
-  this._flipCard('dashboard-quote-card', html);
-  if (this.app.showToast) this.app.showToast('📜 New quote revealed!', 'success');
-}
+        <div class="pt-8 flex justify-end">
+          <button onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">🔄 Refresh Quote</button>
+        </div>
+      </div>`;
+    this._flipCard('dashboard-quote-card', html);
+    if (this.app.showToast) this.app.showToast('📜 New quote revealed!', 'success');
+  }
 
+  /* ------------------------------------------------------------ */
+  /*  Gamification Widget
+  /* ------------------------------------------------------------ */
   renderGamificationWidget(status, stats) {
     if (!this.app.gamification) return '';
     if (!this.app.state) return '<div class="card dashboard-gamification mb-6"><p style="text-align:center;padding:20px;">Loading your progress...</p></div>';
-
     const levelInfo = this.app.gamification.calculateLevel();
     const statItems = [
       { value: status.karma, label: 'Karma', emoji: '💎' },
@@ -208,7 +189,6 @@ refreshQuote() {
           <h3 class="dashboard-wellness-title">🧬 Your Online Spiritual Progress</h3>
           <p class="dashboard-wellness-subtitle">Track your online journey and celebrate every milestone</p>
         </div>
-
         <div class="dashboard-progress-track">
           <div class="dashboard-progress-fill" style="width:${levelInfo.progress}%">
             <div class="dashboard-progress-shimmer"></div>
@@ -219,13 +199,11 @@ refreshQuote() {
           <span class="dashboard-xp-sep">•</span>
           <span class="dashboard-xp-next">${levelInfo.pointsToNext}</span> to next
         </p>
-
         <div class="text-center mb-4">
           <h3 style="font-size:1.8rem;font-weight:bold;">
             You are ${levelInfo.title.match(/^[aeiou]/i) ? 'an' : 'a'} ${levelInfo.title} (Level ${levelInfo.level})
           </h3>
         </div>
-
         <div class="grid grid-cols-4 md:grid-cols-8 gap-2">
           ${statItems.map(item => `
             <div class="stat-card dashboard-stat-card" style="box-shadow:var(--shadow-inset);border-radius:12px;">
@@ -237,6 +215,9 @@ refreshQuote() {
       </div>`;
   }
 
+  /* ------------------------------------------------------------ */
+  /*  Wellness Toolkit
+  /* ------------------------------------------------------------ */
   renderWellnessToolkit() {
     return `
       <div class="card dashboard-wellness-toolkit mb-8">
@@ -293,6 +274,9 @@ refreshQuote() {
       </div>`;
   }
 
+  /* ------------------------------------------------------------ */
+  /*  Quest Hub
+  /* ------------------------------------------------------------ */
   renderQuestHub(status) {
     const dailyCompleted = status.quests?.daily?.filter(q => q.completed).length || 0;
     const dailyTotal = status.quests?.daily?.length || 0;
@@ -300,7 +284,7 @@ refreshQuote() {
     const weeklyTotal = status.quests?.weekly?.length || 0;
     const monthlyCompleted = status.quests?.monthly?.filter(q => q.completed).length || 0;
     const monthlyTotal = status.quests?.monthly?.length || 0;
-    
+
     return `
       <div class="card dashboard-quest-hub mb-8">
         <div class="dashboard-quest-header" style="text-align:center;">
@@ -368,7 +352,6 @@ refreshQuote() {
         <span>Progress</span>
         <span>${quest.progress || 0}/${quest.target || 1}</span>
       </div>`;
-    
     if (quest.id === 'energy_checkin') {
       const dayDone = quest.subProgress?.day || false;
       const nightDone = quest.subProgress?.night || false;
@@ -378,7 +361,6 @@ refreshQuote() {
           <span class="${nightDone ? 'dashboard-energy-done' : ''}">🌙 Night ${nightDone ? '✓' : ''}</span>
         </div>`;
     }
-    
     const isClickable = !quest.completed && quest.tab;
     const completedClass = quest.completed ? 'dashboard-quest-completed' : '';
     const clickableClass = isClickable ? 'dashboard-quest-clickable' : '';
@@ -412,104 +394,106 @@ refreshQuote() {
       </div>`;
   }
 
-renderRecentAchievements(status) {
-  return `
-    <div class="card dashboard-achievements mb-8">
-      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-        <!-- Recent Achievements -->
-        <div style="text-align:center;">
-          <h3 class="dashboard-achievements-title">🏆 Recent Achievements</h3>
-          <div class="grid achievements-grid grid-cols-2 gap-4" id="achievements-grid" style="margin-bottom: 1.5rem;">
-            ${status.achievements.slice(-4).reverse().map(a => `
-              <div class="dashboard-achievement-card-inset">
-                <div class="dashboard-achievement-icon">${a.icon || '🏆'}</div>
-                <h4 class="dashboard-achievement-name">${a.name}</h4>
-                <p class="dashboard-achievement-desc">${a.inspirational || ''}</p>
-                <span class="dashboard-achievement-xp">+${a.xp} XP</span>
-              </div>`).join('')}
+  /* ----------  NEW: 56-BADGE GALLERY (earned + locked)  ---------- */
+  renderRecentAchievements(status) {
+    const allDefs = this.app.gamification.getBadgeDefinitions();
+    const earned = new Set(status.badges.map(b => b.id));
+
+    // latest 9 earned
+    const latestEarned = status.badges.slice().reverse().slice(0, 9).map(b => {
+      const def = allDefs[b.id];
+      return { ...b, ...def, karma: { common: 3, uncommon: 5, rare: 10, epic: 15, legendary: 30 }[def.rarity] };
+    });
+
+    // full list for expanded view
+    const fullList = Object.entries(allDefs).map(([id, def]) => ({
+      id, ...def, earned: earned.has(id),
+      karma: { common: 3, uncommon: 5, rare: 10, epic: 15, legendary: 30 }[def.rarity]
+    }));
+
+    // category buckets
+    const categories = {
+      'First Wins': ['first_step', 'first_gratitude', 'first_journal', 'first_energy', 'first_tarot', 'first_meditation', 'first_purchase'],
+      'Gratitude': ['gratitude_warrior', 'gratitude_legend', 'gratitude_200', 'gratitude_500'],
+      'Journal': ['journal_keeper', 'journal_master', 'journal_150', 'journal_400'],
+      'Energy': ['energy_tracker', 'energy_sage', 'energy_300', 'energy_600'],
+      'Tarot': ['tarot_apprentice', 'tarot_mystic', 'tarot_oracle', 'tarot_150', 'tarot_400'],
+      'Meditation': ['meditation_devotee', 'meditation_master', 'meditation_100', 'meditation_200'],
+      'Happiness': ['happiness_seeker', 'joy_master', 'happiness_300', 'happiness_700'],
+      'Wellness': ['wellness_champion', 'wellness_guru', 'wellness_300', 'wellness_700'],
+      'Streak': ['perfect_week', 'dedication_streak', 'unstoppable', 'legendary_streak'],
+      'Quest Completion': ['weekly_warrior', 'monthly_master', 'quest_crusher', 'daily_champion'],
+      'Currency': ['karma_collector', 'karma_lord', 'xp_milestone', 'xp_titan'],
+      'Level': ['level_5_hero', 'level_7_hero', 'level_10_hero'],
+      'Chakra': ['chakra_balancer', 'chakra_master'],
+      'Cross-Feature': ['triple_threat', 'super_day', 'complete_explorer', 'renaissance_soul']
+    };
+
+    const categoryHtml = Object.entries(categories).map(([cat, ids]) => {
+      const catBadges = ids.map(id => fullList.find(b => b.id === id)).filter(Boolean);
+      return `
+        <div class="badge-category">
+          <h4 class="badge-category-title">${cat}</h4>
+          <div class="badge-category-grid">
+            ${catBadges.map(b => {
+              const cardCls = b.earned ? '' : 'badge-locked';
+              const grad = this.app.featuresManager?.engines['karma-shop']?.getRarityColor(b.rarity) || '';
+              return `
+                <div class="dashboard-badge-card ${cardCls}" style="background:${grad};">
+                  <div class="badge-icon">${b.earned ? b.icon : '🔒'}</div>
+                  <div class="badge-title">${b.name}</div>
+                  <div class="badge-sub">${b.description}</div>
+                  <div class="badge-rewards">
+                    <span>+${b.xp} XP</span>
+                    <span>+${b.karma} Karma</span>
+                  </div>
+                  ${!b.earned ? '<div class="badge-lock-overlay">Locked</div>' : ''}
+                </div>`;
+            }).join('')}
           </div>
-          ${status.achievements.length > 4 ? `
-            <button class="btn btn-secondary" id="toggle-achievements-btn" 
-                    onclick="window.app.dashboard.toggleAchievements()">
-              See All Achievements (${status.achievements.length})
-            </button>
-          ` : ''}
-        </div>
-        <!-- Badges -->
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="card dashboard-achievements mb-8">
         <div style="text-align:center;">
-          <h3 class="dashboard-achievements-title">🎖️ Badges Earned</h3>
-          <div class="badges-grid" id="badges-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1.5rem;">
-            ${status.badges.length > 0 ? status.badges.slice().reverse().slice(0, 9).map(b => `
-              <div class="dashboard-achievement-card-inset dashboard-badge-card">
-                <div class="dashboard-achievement-icon" style="font-size:2.5rem;">${b.icon || '🎖️'}</div>
-                <h4 class="dashboard-achievement-name" style="font-size:0.9rem;">${b.name}</h4>
-                ${b.description ? `<p class="dashboard-achievement-desc" style="font-size:0.75rem;">${b.description}</p>` : ''}
-              </div>`).join('') : '<p style="color:var(--neuro-text);opacity:0.7;">No badges earned yet. Keep going!</p>'}
+          <h3 class="dashboard-achievements-title">🏆 Earned Badges</h3>
+          <div class="badges-grid" style="display: grid; grid-template-columns: repeat(auto-fill,minmax(140px,1fr)); gap: 1rem; margin-bottom: 1rem;">
+            ${latestEarned.map(b => {
+              const grad = this.app.featuresManager?.engines['karma-shop']?.getRarityColor(b.rarity) || '';
+              return `
+                <div class="dashboard-badge-card" style="background:${grad};">
+                  <div class="badge-icon">${b.icon}</div>
+                  <div class="badge-title">${b.name}</div>
+                  <div class="badge-sub">${b.description}</div>
+                  <div class="badge-rewards">
+                    <span>+${b.xp} XP</span>
+                    <span>+${b.karma} Karma</span>
+                  </div>
+                </div>`;
+            }).join('')}
           </div>
-          ${status.badges.length > 9 ? `
-            <button class="btn btn-secondary" id="toggle-badges-btn" 
-                    onclick="window.app.dashboard.toggleBadges()">
-              See All Badges (${status.badges.length})
-            </button>
-          ` : ''}
+
+          <button class="btn btn-secondary" id="show-all-btn" onclick="window.app.dashboard.toggleAllBadges()">
+            Show All Badges (${fullList.length})
+          </button>
+
+          <div id="all-badges-container" style="display:none; margin-top:1.5rem;">
+            ${categoryHtml}
+          </div>
         </div>
-      </div>
-    </div>`;
-}
-
-toggleAchievements() {
-  const status = this.app.gamification.getStatusSummary();
-  const grid = document.getElementById('achievements-grid');
-  const btn = document.getElementById('toggle-achievements-btn');
-  const isExpanded = btn.textContent.includes('Show Less');
-  
-  if (isExpanded) {
-    grid.innerHTML = status.achievements.slice(-4).reverse().map(a => `
-      <div class="dashboard-achievement-card-inset">
-        <div class="dashboard-achievement-icon">${a.icon || '🏆'}</div>
-        <h4 class="dashboard-achievement-name">${a.name}</h4>
-        <p class="dashboard-achievement-desc">${a.inspirational || ''}</p>
-        <span class="dashboard-achievement-xp">+${a.xp} XP</span>
-      </div>`).join('');
-    btn.textContent = `See All Achievements (${status.achievements.length})`;
-  } else {
-    grid.innerHTML = status.achievements.slice().reverse().map(a => `
-      <div class="dashboard-achievement-card-inset">
-        <div class="dashboard-achievement-icon">${a.icon || '🏆'}</div>
-        <h4 class="dashboard-achievement-name">${a.name}</h4>
-        <p class="dashboard-achievement-desc">${a.inspirational || ''}</p>
-        <span class="dashboard-achievement-xp">+${a.xp} XP</span>
-      </div>`).join('');
-    btn.textContent = 'Show Less';
+      </div>`;
   }
-}
 
-toggleBadges() {
-  const status = this.app.gamification.getStatusSummary();
-  const grid = document.getElementById('badges-grid');
-  const btn = document.getElementById('toggle-badges-btn');
-  const isExpanded = btn.textContent.includes('Show Less');
-  
-  if (isExpanded) {
-    grid.innerHTML = status.badges.slice().reverse().slice(0, 9).map(b => `
-      <div class="dashboard-achievement-card-inset dashboard-badge-card">
-        <div class="dashboard-achievement-icon" style="font-size:2.5rem;">${b.icon || '🎖️'}</div>
-        <h4 class="dashboard-achievement-name" style="font-size:0.9rem;">${b.name}</h4>
-        ${b.description ? `<p class="dashboard-achievement-desc" style="font-size:0.75rem;">${b.description}</p>` : ''}
-      </div>`).join('');
-    btn.textContent = `See All Badges (${status.badges.length})`;
-  } else {
-    grid.innerHTML = status.badges.slice().reverse().map(b => `
-      <div class="dashboard-achievement-card-inset dashboard-badge-card">
-        <div class="dashboard-achievement-icon" style="font-size:2.5rem;">${b.icon || '🎖️'}</div>
-        <h4 class="dashboard-achievement-name" style="font-size:0.9rem;">${b.name}</h4>
-        ${b.description ? `<p class="dashboard-achievement-desc" style="font-size:0.75rem;">${b.description}</p>` : ''}
-      </div>`).join('');
-    btn.textContent = 'Show Less';
+  toggleAllBadges() {
+    const container = document.getElementById('all-badges-container');
+    const btn = document.getElementById('show-all-btn');
+    const isOpen = container.style.display !== 'none';
+    container.style.display = isOpen ? 'none' : 'block';
+    btn.textContent = isOpen ? `Show All Badges (${this.app.gamification.getBadgeDefinitions().length})` : 'Show Less';
   }
-}
 
-  /* -------------- FINAL RENDER -------------- */
+  /* ----------  FINAL RENDER  ---------- */
   render() {
     const dashboard = document.getElementById('dashboard-tab');
     if (!dashboard) return;
@@ -518,27 +502,27 @@ toggleBadges() {
       : { text: 'What you think, you become. What you feel, you attract. What you imagine, you create.', author: 'Buddha' };
 
     const status = this.app.gamification ? this.app.gamification.getStatusSummary()
-      : { quests: { daily: [], weekly: [], monthly: [] }, achievements: [], badges: [], xp: 0, karma: 0, streak: { current: 0 } };
+      : { quests: { daily: [], weekly: [], monthly: [] }, badges: [], xp: 0, karma: 0, streak: { current: 0 } };
 
     const stats = this.app.state?.getStats?.() || {};
-const userName = this.app.state.currentUser?.name || 'Seeker';
+    const userName = this.app.state.currentUser?.name || 'Seeker';
 
-dashboard.innerHTML = `
-  <div class="dashboard-container">
-    <div class="dashboard-content">
-      <header class="main-header project-curiosity"
-              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavDashboard.png');
-                     --header-title:'${userName}';
-                     --header-tag:'Your journey inward begins here, so practice. explore. transform.'">
-        <h1>${userName}'s Spiritual Dashboard</h1>
-        <h3>Your journey inward begins here, so practice. explore. transform.</h3>
-        <span class="header-sub"></span>
-      </header>
+    dashboard.innerHTML = `
+      <div class="dashboard-container">
+        <div class="dashboard-content">
+          <header class="main-header project-curiosity"
+                  style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavDashboard.png');
+                         --header-title:'${userName}';
+                         --header-tag:'Your journey inward begins here, so practice. explore. transform.'">
+            <h1>${userName}'s Spiritual Dashboard</h1>
+            <h3>Your journey inward begins here, so practice. explore. transform.</h3>
+            <span class="header-sub"></span>
+          </header>
           ${this.renderGamificationWidget(status, stats)}
           ${this.dailyCards.renderDailyCardsSection()}
           ${this.renderWellnessToolkit()}
           ${this.renderQuestHub(status)}
-          ${status.achievements.length > 0 ? this.renderRecentAchievements(status) : ''}
+          ${status.badges.length >= 0 ? this.renderRecentAchievements(status) : ''}
           <div class="mb-8">${this.renderQuoteCard()}</div>
         </div>
       </div>`;
@@ -550,8 +534,21 @@ dashboard.innerHTML = `
   }
 
   attachEventListeners() {
-    document.querySelectorAll('.dashboard-quest-fill, .dashboard-progress-width').forEach(el => {
+    document.querySelectorAll('.dashboard-progress-width, .dashboard-quest-fill').forEach(el => {
       el.style.width = el.dataset.width + '%';
     });
   }
 }
+
+/* ----------  Tiny CSS  (add to global stylesheet) ---------- */
+/*
+.badge-category-title { font-size: 1.1rem; font-weight: 700; margin: 1.2rem 0 .6rem; color: var(--neuro-text); }
+.badge-category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; }
+.dashboard-badge-card { position: relative; border-radius: 12px; padding: 1rem; color: #fff; text-align: center; box-shadow: var(--shadow-inset); transition: transform .2s; }
+.dashboard-badge-card.badge-locked { filter: grayscale(1) brightness(0.6); opacity: .85; }
+.badge-icon { font-size: 2.5rem; margin-bottom: .5rem; }
+.badge-title { font-weight: 700; font-size: .95rem; margin-bottom: .25rem; }
+.badge-sub { font-size: .7rem; opacity: .9; margin-bottom: .5rem; }
+.badge-rewards { display: flex; justify-content: space-around; font-size: .7rem; font-weight: 600; }
+.badge-lock-overlay { position: absolute; inset: 0; display: grid; place-content: center; background: rgba(0,0,0,.45); border-radius: inherit; font-size: .75rem; font-weight: 700; letter-spacing: .5px; }
+*/
