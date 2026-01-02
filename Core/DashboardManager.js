@@ -436,7 +436,7 @@ export default class DashboardManager {
       rare: 'linear-gradient(135deg, rgba(0, 168, 255, 0.85) 0%, rgba(0, 123, 204, 0.85) 100%), linear-gradient(#00a8ff, #007bcc)',
       epic: 'linear-gradient(135deg, rgba(184, 0, 230, 0.85) 0%, rgba(142, 0, 204, 0.85) 100%), linear-gradient(#b800e6, #8e00cc)',
       legendary: 'linear-gradient(135deg, rgba(255, 195, 0, 0.85) 0%, rgba(255, 135, 0, 0.85) 100%), linear-gradient(#ffc300, #ff8700)'
-    }
+    };
 
     const categoryHtml = Object.entries(categories).map(([cat, ids]) => {
       const catBadges = ids.map(id => fullList.find(b => b.id === id)).filter(Boolean);
@@ -548,16 +548,3 @@ export default class DashboardManager {
     });
   }
 }
-
-/* ----------  Tiny CSS  (add to global stylesheet) ---------- */
-/*
-.badge-category-title { font-size: 1.1rem; font-weight: 700; margin: 1.2rem 0 .6rem; color: var(--neuro-text); }
-.badge-category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
-.dashboard-badge-card { position: relative; border-radius: 12px; padding: 1rem; color: #fff; text-align: center; box-shadow: var(--shadow-inset); transition: transform .2s; background: var(--grad); background-size: cover; }
-.dashboard-badge-card.badge-locked { filter: grayscale(1) brightness(0.6); opacity: .85; }
-.badge-icon { font-size: 2.5rem; margin-bottom: .5rem; }
-.badge-title { font-weight: 700; font-size: .95rem; margin-bottom: .25rem; }
-.badge-sub { font-size: .7rem; opacity: .9; margin-bottom: .5rem; }
-.badge-rewards { display: flex; justify-content: space-around; font-size: .7rem; font-weight: 600; }
-.badge-lock-overlay { position: absolute; inset: 0; display: grid; place-content: center; background: rgba(0,0,0,.45); border-radius: inherit; font-size: .75rem; font-weight: 700; letter-spacing: .5px; }
-*/
