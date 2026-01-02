@@ -436,7 +436,7 @@ export default class DashboardManager {
       rare: 'linear-gradient(135deg, rgba(0, 168, 255, 0.85) 0%, rgba(0, 123, 204, 0.85) 100%), linear-gradient(#00a8ff, #007bcc)',
       epic: 'linear-gradient(135deg, rgba(184, 0, 230, 0.85) 0%, rgba(142, 0, 204, 0.85) 100%), linear-gradient(#b800e6, #8e00cc)',
       legendary: 'linear-gradient(135deg, rgba(255, 195, 0, 0.85) 0%, rgba(255, 135, 0, 0.85) 100%), linear-gradient(#ffc300, #ff8700)'
-    };
+    
 
     const categoryHtml = Object.entries(categories).map(([cat, ids]) => {
       const catBadges = ids.map(id => fullList.find(b => b.id === id)).filter(Boolean);
