@@ -663,75 +663,59 @@ window.app.enablePushNotifications = async function() {
         return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
       };
 
-window.app.saveNotificationSettings = async function () {
-  const settings = {
-    enabled: document.getElementById('master-notifications-toggle')?.checked || false,
-    reminders: {
-      morning: {
-        enabled: document.getElementById('reminder-morning')?.checked || false,
-        time: document.getElementById('time-morning')?.value || '08:00'
-      },
-      afternoon: {
-        enabled: document.getElementById('reminder-afternoon')?.checked || false,
-        time: document.getElementById('time-afternoon')?.value || '13:00'
-      },
-      evening: {
-        enabled: document.getElementById('reminder-evening')?.checked || false,
-        time: document.getElementById('time-evening')?.value || '18:00'
-      },
-      night: {
-        enabled: document.getElementById('reminder-night')?.checked || false,
-        time: document.getElementById('time-night')?.value || '21:00'
-      }
-    },
-    quotes: {
-      enabled: document.getElementById('quotes-enabled')?.checked || false
-    },
-    affirmations: {
-      enabled: document.getElementById('affirmations-enabled')?.checked || false
-    },
-    frequency: document.getElementById('inspirational-frequency')?.value || 'moderate',
-    wellness: {
-      enabled: document.getElementById('wellness-notifications')?.checked || false,
-      syncWithAutomations: true
-    }
-  };
+      window.app.saveNotificationSettings = function() {
+        const settings = {
+          enabled: document.getElementById('master-notifications-toggle')?.checked || false,
+          reminders: {
+            morning: {
+              enabled: document.getElementById('reminder-morning')?.checked || false,
+              time: document.getElementById('time-morning')?.value || '08:00'
+            },
+            afternoon: {
+              enabled: document.getElementById('reminder-afternoon')?.checked || false,
+              time: document.getElementById('time-afternoon')?.value || '13:00'
+            },
+            evening: {
+              enabled: document.getElementById('reminder-evening')?.checked || false,
+              time: document.getElementById('time-evening')?.value || '18:00'
+            },
+            night: {
+              enabled: document.getElementById('reminder-night')?.checked || false,
+              time: document.getElementById('time-night')?.value || '21:00'
+            }
+          },
+          quotes: {
+            enabled: document.getElementById('quotes-enabled')?.checked || false
+          },
+          affirmations: {
+            enabled: document.getElementById('affirmations-enabled')?.checked || false
+          },
+          frequency: document.getElementById('inspirational-frequency')?.value || 'moderate',
+          wellness: {
+            enabled: document.getElementById('wellness-notifications')?.checked || false,
+            syncWithAutomations: true
+          }
+        };
 
-  localStorage.setItem('notification_settings', JSON.stringify(settings));
-
-  // push to server so the cron can honour the toggles
-  const { error } = await supabase
-    .from('notification_prefs')
-    .upsert(
-      { user_id: this.state.currentUser.id, prefs: settings },
-      { onConflict: 'user_id' }
-    );
-
-  if (error) {
-    console.error('prefs save error', error);
-    this.showToast('⚠️ Saved locally, but cloud sync failed', 'error');
-  } else {
-    this.showToast('✅ Settings saved & scheduled', 'success');
-  }
-
-  // still schedule in-page while tab is open (instant feedback)
-  this.scheduleNotifications(settings);
-};
-
-window.app.sendTestNotification = async function () {
+        localStorage.setItem('notification_settings', JSON.stringify(settings));
+        this.scheduleNotifications(settings);
+        this.showToast('✅ Notification settings saved!', 'success');
+      };
+window.app.sendTestNotification = async function() {
   try {
     const res = await fetch('/api/subs');
     const subs = await res.json();
-
+    
     if (!subs.length) {
       this.showToast('❌ No subscriptions found', 'error');
       return;
     }
-    const latest = subs[subs.length - 1];
 
+    // Try latest subscription first
+    const latest = subs[subs.length - 1];
     const response = await fetch('/api/send', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         sub: latest,
         payload: {
@@ -750,7 +734,7 @@ window.app.sendTestNotification = async function () {
       throw new Error(result.error);
     }
   } catch (err) {
-    console.error('Test notification error', err);
+    console.error('Test notification error:', err);
     this.showToast('❌ Failed: ' + err.message, 'error');
   }
 };
