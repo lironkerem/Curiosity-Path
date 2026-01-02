@@ -7,61 +7,66 @@
   <meta name="permissions-policy" content="camera=(self)">
   <title>The Curiosity Path - by Aanandoham</title>
 
-  <!-- ===== CRITICAL: Inline CSS to prevent FOUC ===== -->
-  <style id="fouc-prevention">
-    /* Hide body until correct theme CSS loads */
-    html:not(.theme-loaded) body {
-      visibility: hidden;
-    }
-  </style>
+<!-- ===== CRITICAL: Inline CSS to prevent FOUC ===== -->
+<style id="fouc-prevention">
+  /* Hide body until correct theme CSS loads */
+  html:not(.theme-loaded) body {
+    visibility: hidden;
+  }
+</style>
 
-  <!-- ===== Synchronous Theme Detection & CSS Loading ===== -->
-  <script>
-  (function() {
-    const theme = localStorage.getItem('activeTheme') || 'default';
-    const darkMode = localStorage.getItem('darkMode') === 'enabled';
-    
-    // Apply classes to HTML element
-    const html = document.documentElement;
-    if (darkMode) html.classList.add('dark-mode');
-    if (theme !== 'default') html.classList.add(theme);
-    
-    // Synchronously inject theme CSS using document.write (blocks parser)
-    const themePath = theme === 'default' 
-      ? './Assets/CSS/neumorphic-theme.css'
-      : './Assets/CSS/' + theme + '.css';
-    
+<!-- ===== Synchronous Theme Detection & CSS Loading ===== -->
+<script>
+(function() {
+  const theme = localStorage.getItem('activeTheme') || 'default';
+  const darkMode = localStorage.getItem('darkMode') === 'enabled';
+  
+  // Apply classes to HTML element
+  const html = document.documentElement;
+  if (darkMode) html.classList.add('dark-mode');
+  if (theme !== 'default') html.classList.add(theme);
+  
+  // Synchronously inject theme CSS using document.write (blocks parser)
+  if (theme === 'default') {
+    // NEW: Load optimized split files for default theme
+    document.write('<link rel="stylesheet" href="./Assets/CSS/main-styles.css">');
+    document.write('<link rel="stylesheet" href="./Assets/CSS/mobile-styles.css" media="(max-width: 1024px)">');
+  } else {
+    // Load alternative theme CSS
+    const themePath = './Assets/CSS/' + theme + '.css';
     document.write('<link rel="stylesheet" href="' + themePath + '">');
-    
-    if (theme === 'default' && darkMode) {
-      document.write('<link rel="stylesheet" href="./Assets/CSS/dark-mode.css">');
-    }
-  })();
-  </script>
+  }
+  
+  // Apply dark mode overlay if enabled
+  if (theme === 'default' && darkMode) {
+    document.write('<link rel="stylesheet" href="./Assets/CSS/dark-mode.css">');
+  }
+})();
+</script>
 
-  <!-- ===== External Libraries - Load After Theme ===== -->
-  <link rel="stylesheet" href="./Assets/CSS/tailwind-output.css">
-  <script src=https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js></script>
+<!-- ===== External Libraries - Load After Theme ===== -->
+<link rel="stylesheet" href="./Assets/CSS/tailwind-output.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 
-  <!-- ===== PWA ===== -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#3F7652">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="The Curiosity Path">
-  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
-  <link rel="icon" href="Icons/favicon.svg" type="image/svg+xml">
-  <link rel="icon" href="Icons/favicon.ico">
+<!-- ===== PWA ===== -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3F7652">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="The Curiosity Path">
+<link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+<link rel="icon" href="Icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="Icons/favicon.ico">
 
-  <!-- ===== Remove FOUC Prevention After Load ===== -->
-  <script>
-  window.addEventListener('DOMContentLoaded', function() {
-    document.documentElement.classList.add('theme-loaded');
-    // Remove inline style to clean DOM
-    const style = document.getElementById('fouc-prevention');
-    if (style) style.remove();
-  });
-  </script>
+<!-- ===== Remove FOUC Prevention After Load ===== -->
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+  document.documentElement.classList.add('theme-loaded');
+  // Remove inline style to clean DOM
+  const style = document.getElementById('fouc-prevention');
+  if (style) style.remove();
+});
+</script>
 </head>
 
 <body>
