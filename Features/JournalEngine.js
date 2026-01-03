@@ -25,7 +25,7 @@ class JournalEngine {
 
     tab.innerHTML = `
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&display=swap');
       
       .journal-container {
         min-height: 100vh;
@@ -58,32 +58,19 @@ class JournalEngine {
         align-items: center;
         justify-content: center;
         border: 3px solid #2b1810;
-        border-left-width: 25px;
-        border-right-width: 8px;
       }
       
       .journal-closed::before {
         content: '';
         position: absolute;
-        top: 0;
-        left: -25px;
-        width: 25px;
-        height: 100%;
-        background: linear-gradient(90deg, #1a0f0a 0%, #2b1810 100%);
-        box-shadow: inset -3px 0 5px rgba(0,0,0,0.5);
-      }
-      
-      .journal-closed::after {
-        content: '';
-        position: absolute;
-        inset: 30px;
+        inset: 25px;
         border: 2px solid rgba(212, 175, 55, 0.4);
         border-radius: 2px;
         pointer-events: none;
       }
       
       .journal-closed:hover {
-        transform: translateY(-3px) rotateY(-2deg);
+        transform: translateY(-3px);
         box-shadow: 
           0 25px 70px rgba(0,0,0,0.7),
           inset 0 1px 0 rgba(139, 115, 85, 0.3),
@@ -91,8 +78,8 @@ class JournalEngine {
       }
       
       .journal-cover-title {
-        font-family: 'Crimson Text', serif;
-        font-size: 2.2rem;
+        font-family: 'Cinzel', serif;
+        font-size: 2rem;
         font-weight: 700;
         color: #d4af37;
         text-shadow: 
@@ -100,8 +87,7 @@ class JournalEngine {
           0 0 20px rgba(212, 175, 55, 0.3);
         margin-bottom: 1rem;
         text-align: center;
-        letter-spacing: 2px;
-        text-transform: uppercase;
+        letter-spacing: 3px;
       }
       
       .journal-cover-subtitle {
@@ -285,17 +271,20 @@ class JournalEngine {
       .journal-controls {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-end;
         margin-top: 1.5rem;
         padding: 0 1rem;
         flex-wrap: wrap;
         gap: 1rem;
+        min-height: 50px;
       }
       
       .journal-nav {
         display: flex;
-        gap: 1rem;
+        justify-content: space-between;
         align-items: center;
+        width: 100%;
+        gap: 1rem;
       }
       
       .nav-btn {
@@ -328,22 +317,31 @@ class JournalEngine {
         display: flex;
         gap: 0.5rem;
         margin-bottom: 1.5rem;
+        background: rgba(139, 115, 85, 0.15);
+        padding: 0.3rem;
+        border-radius: 8px;
       }
       
       .mode-btn {
-        padding: 0.5rem 1.2rem;
-        background: rgba(254, 250, 232, 0.5);
-        border: 2px solid transparent;
-        border-radius: 4px;
+        padding: 0.6rem 1.5rem;
+        background: transparent;
+        border: none;
+        border-radius: 6px;
         cursor: pointer;
         font-family: 'Crimson Text', serif;
+        font-size: 1rem;
         color: #2c1810;
         transition: all 0.2s;
       }
       
+      .mode-btn:hover {
+        background: rgba(254, 250, 232, 0.5);
+      }
+      
       .mode-btn.active {
         background: #fefae8;
-        border-color: #8b7355;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        font-weight: 600;
       }
       
       .save-btn {
@@ -364,18 +362,27 @@ class JournalEngine {
       }
       
       .close-book-btn {
-        padding: 0.5rem 1.2rem;
-        background: rgba(139, 69, 19, 0.3);
-        border: none;
-        border-radius: 4px;
-        color: #2c1810;
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.5rem 1rem;
+        background: rgba(139, 69, 19, 0.15);
+        border: 1px solid rgba(139, 115, 85, 0.3);
+        border-radius: 6px;
+        color: #8b7355;
         font-family: 'Crimson Text', serif;
+        font-size: 0.9rem;
         cursor: pointer;
         transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
       }
       
       .close-book-btn:hover {
-        background: rgba(139, 69, 19, 0.4);
+        background: rgba(139, 69, 19, 0.25);
+        border-color: rgba(139, 115, 85, 0.5);
+        transform: translateY(-1px);
       }
       
       .empty-journal {
@@ -504,12 +511,11 @@ class JournalEngine {
     } else {
       wrapper.innerHTML = `
         <div class="journal-book">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <div class="mode-toggle">
-              <button class="mode-btn active" data-mode="write">✍️ Write</button>
-              <button class="mode-btn" data-mode="read">📖 Read</button>
-            </div>
-            <button class="close-book-btn" id="close-journal">🔒 Close Journal</button>
+          <button class="close-book-btn" id="close-journal">🔒 Close Journal</button>
+          
+          <div class="mode-toggle">
+            <button class="mode-btn active" data-mode="write">✍️ Write</button>
+            <button class="mode-btn" data-mode="read">📖 Read</button>
           </div>
           
           <div class="journal-pages" id="journal-pages">
@@ -755,11 +761,14 @@ class JournalEngine {
     const prevBtn = document.getElementById('prev-page');
     const nextBtn = document.getElementById('next-page');
     const indicator = document.getElementById('page-indicator');
+    const controlsDiv = document.querySelector('.journal-controls');
+    const navDiv = document.querySelector('.journal-nav');
     
     if (this.viewMode === 'write') {
       if (prevBtn) prevBtn.style.display = 'none';
       if (nextBtn) nextBtn.style.display = 'none';
       if (indicator) indicator.textContent = '';
+      if (navDiv) navDiv.style.justifyContent = 'flex-end';
     } else {
       if (prevBtn) {
         prevBtn.style.display = 'block';
@@ -771,7 +780,11 @@ class JournalEngine {
       }
       if (indicator) {
         indicator.textContent = entries.length > 0 ? `Entry ${this.currentPage + 1} of ${entries.length}` : '';
+        indicator.style.position = 'absolute';
+        indicator.style.left = '50%';
+        indicator.style.transform = 'translateX(-50%)';
       }
+      if (navDiv) navDiv.style.justifyContent = 'space-between';
     }
   }
 
