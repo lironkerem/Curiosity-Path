@@ -2179,11 +2179,18 @@ body.sheet-open .lux-footer { z-index: 95; }
       transition: opacity 0.2s ease !important;
     }
     
-    .mobile-sheet {
-      transition: transform 0.2s ease !important;
-    }
+  .mobile-only,
+  .mobile-bottom-bar,
+  .mobile-sheet,
+  .sheet-scrim,
+  .swipe-arrows {
+    display: none !important;
   }
   
+  .desktop-nav {
+    display: block !important;
+  }
+ }
 }
 
 /* ===== END OF MOBILE STYLES ===== */

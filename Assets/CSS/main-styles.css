@@ -472,6 +472,10 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   padding: 8px;
   justify-items: center;
   align-items: center;
+  list-style: none;
+  margin-block-start: 0;
+  margin-block-end: 0;
+  padding-inline-start: 0;
 }
 
 .nav-item {
@@ -493,6 +497,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   white-space: normal;
   overflow: hidden;
   box-shadow: none;
+  list-style: none;
 }
 
 .nav-image { 
@@ -515,7 +520,9 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   box-shadow: var(--shadow-inset-sm), 0 0 15px rgba(107, 79, 53, 0.3);
 }
 
-.desktop-nav { display: block; }
+.desktop-nav { 
+  display: block; 
+}
 
 /* ===== USER MENU ===== */
 .user-menu { 
