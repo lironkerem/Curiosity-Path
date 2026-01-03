@@ -17,10 +17,18 @@ export default class GratitudeEngine {
     this.currentEntries = [];
   }
 
-  getAllEntries() {
-    const all = this.app.state.data.gratitudeEntries || [];
-    return all.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-  }
+getAllEntries() {
+  // 1. remove any day that has zero entries
+  const cleaned = (this.app.state.data.gratitudeEntries || [])
+    .filter(day => day.entries && day.entries.length > 0);
+
+  // 2. write the cleaned array back to storage
+  this.app.state.data.gratitudeEntries = cleaned;
+  this.app.state.saveAppData();
+
+  // 3. return newest-first
+  return cleaned.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+}
 
   getTodayTotal() {
     const today = this.app.state.getTodayEntries('gratitude');
@@ -64,7 +72,7 @@ tab.innerHTML = `
 
           <form onsubmit="window.featuresManager.engines.gratitude.addEntry(event)" style="margin-bottom: 2rem;">
             <div class="flex space-x-3">
-              <textarea id="gratitude-input" class="form-input flex-1" rows="5"
+              <textarea id="gratitude-input" class="form-input flex-1" rows="5" style="resize: none;"
                placeholder="Today, I am Grateful for..." required></textarea>
               <button type="submit" class="btn btn-primary">Add</button>
             </div>
