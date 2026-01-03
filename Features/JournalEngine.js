@@ -445,9 +445,11 @@ class JournalEngine {
     const wrapper = document.getElementById('journal-wrapper');
     
     if (!this.isOpen) {
+      const userName = this.app.state.currentUser?.name || 'My';
+      
       wrapper.innerHTML = `
         <div class="journal-closed" id="open-journal">
-          <div class="journal-cover-title">My Personal Journal</div>
+          <div class="journal-cover-title">${userName}'s Personal Journal</div>
           <div class="journal-cover-subtitle">Click to open and begin writing</div>
           <div class="journal-lock"></div>
         </div>
