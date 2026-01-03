@@ -1759,13 +1759,6 @@ flex-shrink: 0;
 }
 .lux-section-header[aria-expanded="true"] .lux-chevron {
 transform: rotate(90deg);
-
-
-
-
-
-
-
 }
 .lux-section-body {
 background: var(--neuro-bg);
@@ -1827,5 +1820,3 @@ transition: transform var(--transition-normal);
 .desktop-nav { display: block; }
 }
 /* ===== END OF DESKTOP/BASE STYLES ===== */
-
-
