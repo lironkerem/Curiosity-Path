@@ -905,23 +905,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   font-weight: 700;
   color: var(--neuro-warning);
 }
-
 .dashboard-quest-karma {
-  font-size:
-
-
-
-
-
-
-
-
-
-
-
-.dashboard-quest-karma {
-  font-size:</parameter>
-<parameter name="new_str">.dashboard-quest-karma {
   font-size: 0.875rem;
   font-weight: 700;
   color: #8b5cf6;
