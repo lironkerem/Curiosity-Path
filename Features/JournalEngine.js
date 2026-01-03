@@ -8,6 +8,7 @@ class JournalEngine {
     this.app = app;
     this.currentPage = 0;
     this.viewMode = 'write'; // 'write' or 'read'
+    this.isOpen = false; // Journal starts closed
   }
 
   render() {
@@ -31,14 +32,98 @@ class JournalEngine {
         padding: 1.5rem;
       }
       
-      .journal-book {
+      .journal-book-wrapper {
         max-width: 900px;
         margin: 2rem auto;
+        perspective: 2000px;
+      }
+      
+      .journal-closed {
+        background: linear-gradient(135deg, #8b4513 0%, #5d2e0f 100%);
+        padding: 3rem 2rem;
+        border-radius: 12px;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .journal-closed:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      }
+      
+      .journal-closed::before {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+        border: 3px solid rgba(139, 69, 19, 0.3);
+        border-radius: 8px;
+      }
+      
+      .journal-cover-title {
+        font-family: 'Crimson Text', serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #d4af37;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+      
+      .journal-cover-subtitle {
+        font-family: 'Crimson Text', serif;
+        font-size: 1.2rem;
+        color: #c9a961;
+        font-style: italic;
+        text-align: center;
+      }
+      
+      .journal-lock {
+        width: 60px;
+        height: 80px;
+        background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+        border-radius: 8px;
+        margin-top: 2rem;
+        position: relative;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      }
+      
+      .journal-lock::before {
+        content: '🔒';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2rem;
+      }
+      
+      .journal-book {
         background: linear-gradient(135deg, #8b7355 0%, #6b5444 100%);
         padding: 2rem;
         border-radius: 8px;
         box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         position: relative;
+        animation: bookOpen 0.6s ease-out;
+      }
+      
+      @keyframes bookOpen {
+        from {
+          opacity: 0;
+          transform: perspective(1000px) rotateY(-30deg) scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: perspective(1000px) rotateY(0) scale(1);
+        }
       }
       
       .journal-book::before {
@@ -63,7 +148,7 @@ class JournalEngine {
       }
       
       .journal-page {
-        padding: 2.5rem;
+        padding: 2.5rem 2.5rem 2.5rem 100px;
         background-image: 
           repeating-linear-gradient(
             transparent,
@@ -72,6 +157,7 @@ class JournalEngine {
             rgba(139, 115, 85, 0.1) 32px
           );
         min-height: 500px;
+        position: relative;
       }
       
       .journal-page::before {
@@ -94,8 +180,7 @@ class JournalEngine {
         line-height: 32px;
         resize: none;
         outline: none;
-        min-height: 400px;
-        padding-left: 20px;
+        min-height: 350px;
       }
       
       .write-mode .journal-textarea::placeholder {
@@ -109,7 +194,6 @@ class JournalEngine {
         color: #2c1810;
         line-height: 32px;
         white-space: pre-wrap;
-        padding-left: 20px;
       }
       
       .journal-date {
@@ -118,24 +202,23 @@ class JournalEngine {
         color: #8b7355;
         font-style: italic;
         margin-bottom: 1.5rem;
-        padding-left: 20px;
       }
       
       .journal-mood {
         display: flex;
-        gap: 0.5rem;
+        flex-wrap: wrap;
+        gap: 0.4rem;
         margin-bottom: 1.5rem;
-        padding-left: 20px;
       }
       
       .mood-btn {
-        width: 36px;
-        height: 36px;
+        width: 38px;
+        height: 38px;
         border-radius: 50%;
         border: 2px solid transparent;
         background: rgba(139, 115, 85, 0.1);
         cursor: pointer;
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -143,13 +226,15 @@ class JournalEngine {
       }
       
       .mood-btn:hover {
-        transform: scale(1.1);
+        transform: scale(1.15);
+        background: rgba(139, 115, 85, 0.15);
       }
       
       .mood-btn.active {
         border-color: #8b7355;
-        background: rgba(139, 115, 85, 0.2);
-        transform: scale(1.15);
+        background: rgba(139, 115, 85, 0.25);
+        transform: scale(1.2);
+        box-shadow: 0 2px 8px rgba(139, 115, 85, 0.3);
       }
       
       .journal-controls {
@@ -158,6 +243,8 @@ class JournalEngine {
         align-items: center;
         margin-top: 1.5rem;
         padding: 0 1rem;
+        flex-wrap: wrap;
+        gap: 1rem;
       }
       
       .journal-nav {
@@ -195,6 +282,7 @@ class JournalEngine {
       .mode-toggle {
         display: flex;
         gap: 0.5rem;
+        margin-bottom: 1.5rem;
       }
       
       .mode-btn {
@@ -228,6 +316,21 @@ class JournalEngine {
       .save-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+      
+      .close-book-btn {
+        padding: 0.5rem 1.2rem;
+        background: rgba(139, 69, 19, 0.3);
+        border: none;
+        border-radius: 4px;
+        color: #2c1810;
+        font-family: 'Crimson Text', serif;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      
+      .close-book-btn:hover {
+        background: rgba(139, 69, 19, 0.4);
       }
       
       .empty-journal {
@@ -282,16 +385,31 @@ class JournalEngine {
         background: rgba(139, 115, 85, 0.2);
       }
       
-      .page-flip-enter {
-        animation: pageFlipIn 0.4s ease-out;
+      .page-flip-left {
+        animation: pageFlipLeft 0.5s ease-out;
       }
       
-      @keyframes pageFlipIn {
-        from {
+      .page-flip-right {
+        animation: pageFlipRight 0.5s ease-out;
+      }
+      
+      @keyframes pageFlipLeft {
+        0% {
           opacity: 0;
-          transform: perspective(1000px) rotateY(-20deg);
+          transform: perspective(1000px) rotateY(30deg);
         }
-        to {
+        100% {
+          opacity: 1;
+          transform: perspective(1000px) rotateY(0);
+        }
+      }
+      
+      @keyframes pageFlipRight {
+        0% {
+          opacity: 0;
+          transform: perspective(1000px) rotateY(-30deg);
+        }
+        100% {
           opacity: 1;
           transform: perspective(1000px) rotateY(0);
         }
@@ -309,10 +427,42 @@ class JournalEngine {
           <span class="header-sub"></span>
         </header>
         
+        <div class="journal-book-wrapper" id="journal-wrapper">
+          <!-- Content will be rendered here -->
+        </div>
+      </div>
+    </div>
+    `;
+
+    this.attachEventListeners();
+    this.renderJournal();
+  }
+
+  renderJournal() {
+    const wrapper = document.getElementById('journal-wrapper');
+    
+    if (!this.isOpen) {
+      wrapper.innerHTML = `
+        <div class="journal-closed" id="open-journal">
+          <div class="journal-cover-title">My Personal Journal</div>
+          <div class="journal-cover-subtitle">Click to open and begin writing</div>
+          <div class="journal-lock"></div>
+        </div>
+      `;
+      
+      document.getElementById('open-journal').addEventListener('click', () => {
+        this.isOpen = true;
+        this.renderJournal();
+      });
+    } else {
+      wrapper.innerHTML = `
         <div class="journal-book">
-          <div class="mode-toggle">
-            <button class="mode-btn active" data-mode="write">✍️ Write</button>
-            <button class="mode-btn" data-mode="read">📖 Read</button>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div class="mode-toggle">
+              <button class="mode-btn active" data-mode="write">✍️ Write</button>
+              <button class="mode-btn" data-mode="read">📖 Read</button>
+            </div>
+            <button class="close-book-btn" id="close-journal">🔒 Close Journal</button>
           </div>
           
           <div class="journal-pages" id="journal-pages">
@@ -329,15 +479,27 @@ class JournalEngine {
             <button class="save-btn" id="save-entry" style="display:none;">Save Entry</button>
           </div>
         </div>
-      </div>
-    </div>
-    `;
-
-    this.attachEventListeners();
-    this.renderCurrentView();
+      `;
+      
+      this.attachOpenEventListeners();
+      this.renderCurrentView();
+    }
   }
 
   attachEventListeners() {
+    // Initial render handles closed book
+  }
+
+  attachOpenEventListeners() {
+    // Close journal button
+    const closeBtn = document.getElementById('close-journal');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        this.isOpen = false;
+        this.renderJournal();
+      });
+    }
+
     // Mode toggle
     document.querySelectorAll('.mode-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -380,10 +542,47 @@ class JournalEngine {
       "What are you grateful for right now?",
       "What's on your mind?",
       "How are you really feeling?",
-      "What would you like to remember about today?"
+      "What would you like to remember about today?",
+      "What challenged you today?",
+      "What did you learn about yourself?",
+      "What are you looking forward to?"
     ];
     
     const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+    
+    // Extended mood emojis
+    const moods = [
+      { id: 'happy', emoji: '😊', title: 'Happy' },
+      { id: 'joyful', emoji: '😄', title: 'Joyful' },
+      { id: 'excited', emoji: '🤩', title: 'Excited' },
+      { id: 'loved', emoji: '🥰', title: 'Loved' },
+      { id: 'grateful', emoji: '🙏', title: 'Grateful' },
+      { id: 'peaceful', emoji: '😌', title: 'Peaceful' },
+      { id: 'calm', emoji: '🧘', title: 'Calm' },
+      { id: 'relaxed', emoji: '😎', title: 'Relaxed' },
+      { id: 'proud', emoji: '😤', title: 'Proud' },
+      { id: 'confident', emoji: '💪', title: 'Confident' },
+      { id: 'hopeful', emoji: '🌟', title: 'Hopeful' },
+      { id: 'inspired', emoji: '✨', title: 'Inspired' },
+      { id: 'sad', emoji: '😢', title: 'Sad' },
+      { id: 'crying', emoji: '😭', title: 'Crying' },
+      { id: 'lonely', emoji: '😔', title: 'Lonely' },
+      { id: 'disappointed', emoji: '😞', title: 'Disappointed' },
+      { id: 'anxious', emoji: '😰', title: 'Anxious' },
+      { id: 'worried', emoji: '😟', title: 'Worried' },
+      { id: 'stressed', emoji: '😫', title: 'Stressed' },
+      { id: 'overwhelmed', emoji: '🤯', title: 'Overwhelmed' },
+      { id: 'angry', emoji: '😠', title: 'Angry' },
+      { id: 'frustrated', emoji: '😤', title: 'Frustrated' },
+      { id: 'annoyed', emoji: '😒', title: 'Annoyed' },
+      { id: 'tired', emoji: '😴', title: 'Tired' },
+      { id: 'sick', emoji: '🤒', title: 'Sick' },
+      { id: 'confused', emoji: '😕', title: 'Confused' },
+      { id: 'surprised', emoji: '😲', title: 'Surprised' },
+      { id: 'shocked', emoji: '😱', title: 'Shocked' },
+      { id: 'nervous', emoji: '😬', title: 'Nervous' },
+      { id: 'embarrassed', emoji: '😳', title: 'Embarrassed' }
+    ];
     
     pagesContainer.innerHTML = `
       <div class="journal-page write-mode">
@@ -397,12 +596,9 @@ class JournalEngine {
         })}</div>
         
         <div class="journal-mood">
-          <button class="mood-btn" data-mood="happy" title="Happy">😊</button>
-          <button class="mood-btn" data-mood="sad" title="Sad">😢</button>
-          <button class="mood-btn" data-mood="anxious" title="Anxious">😰</button>
-          <button class="mood-btn" data-mood="peaceful" title="Peaceful">😌</button>
-          <button class="mood-btn" data-mood="excited" title="Excited">🤩</button>
-          <button class="mood-btn" data-mood="angry" title="Angry">😠</button>
+          ${moods.map(mood => `
+            <button class="mood-btn" data-mood="${mood.id}" title="${mood.title}">${mood.emoji}</button>
+          `).join('')}
         </div>
         
         <textarea 
@@ -428,7 +624,7 @@ class JournalEngine {
     this.updateNavigation();
   }
 
-  renderReadMode() {
+  renderReadMode(direction = 'none') {
     const pagesContainer = document.getElementById('journal-pages');
     const saveBtn = document.getElementById('save-entry');
     
@@ -458,16 +654,19 @@ class JournalEngine {
     const originalIndex = entries.indexOf(entry);
     
     const moodEmojis = {
-      happy: '😊',
-      sad: '😢',
-      anxious: '😰',
-      peaceful: '😌',
-      excited: '🤩',
-      angry: '😠'
+      happy: '😊', joyful: '😄', excited: '🤩', loved: '🥰', grateful: '🙏',
+      peaceful: '😌', calm: '🧘', relaxed: '😎', proud: '😤', confident: '💪',
+      hopeful: '🌟', inspired: '✨', sad: '😢', crying: '😭', lonely: '😔',
+      disappointed: '😞', anxious: '😰', worried: '😟', stressed: '😫',
+      overwhelmed: '🤯', angry: '😠', frustrated: '😤', annoyed: '😒',
+      tired: '😴', sick: '🤒', confused: '😕', surprised: '😲', shocked: '😱',
+      nervous: '😬', embarrassed: '😳'
     };
     
+    const flipClass = direction === 'left' ? 'page-flip-left' : direction === 'right' ? 'page-flip-right' : '';
+    
     pagesContainer.innerHTML = `
-      <div class="journal-page read-mode page-flip-enter">
+      <div class="journal-page read-mode ${flipClass}">
         <div class="entry-actions">
           <button class="action-btn" onclick="window.featuresManager.engines.journal.editEntry(${originalIndex})">✏️ Edit</button>
           <button class="action-btn" onclick="window.featuresManager.engines.journal.deleteEntry(${originalIndex})">🗑️ Delete</button>
@@ -494,8 +693,14 @@ class JournalEngine {
     const entries = this.app.state.data.journalEntries || [];
     const maxPage = entries.length - 1;
     
-    this.currentPage = Math.max(0, Math.min(maxPage, this.currentPage + direction));
-    this.renderCurrentView();
+    const newPage = this.currentPage + direction;
+    if (newPage < 0 || newPage > maxPage) return;
+    
+    this.currentPage = newPage;
+    
+    // Add page flip animation based on direction
+    const flipDirection = direction > 0 ? 'right' : 'left';
+    this.renderReadMode(flipDirection);
   }
 
   updateNavigation() {
@@ -584,14 +789,18 @@ class JournalEngine {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
     
-    const moodEmojis = {
-      happy: '😊',
-      sad: '😢',
-      anxious: '😰',
-      peaceful: '😌',
-      excited: '🤩',
-      angry: '😠'
-    };
+    const moods = [
+      { id: 'happy', emoji: '😊' }, { id: 'joyful', emoji: '😄' }, { id: 'excited', emoji: '🤩' },
+      { id: 'loved', emoji: '🥰' }, { id: 'grateful', emoji: '🙏' }, { id: 'peaceful', emoji: '😌' },
+      { id: 'calm', emoji: '🧘' }, { id: 'relaxed', emoji: '😎' }, { id: 'proud', emoji: '😤' },
+      { id: 'confident', emoji: '💪' }, { id: 'hopeful', emoji: '🌟' }, { id: 'inspired', emoji: '✨' },
+      { id: 'sad', emoji: '😢' }, { id: 'crying', emoji: '😭' }, { id: 'lonely', emoji: '😔' },
+      { id: 'disappointed', emoji: '😞' }, { id: 'anxious', emoji: '😰' }, { id: 'worried', emoji: '😟' },
+      { id: 'stressed', emoji: '😫' }, { id: 'overwhelmed', emoji: '🤯' }, { id: 'angry', emoji: '😠' },
+      { id: 'frustrated', emoji: '😤' }, { id: 'annoyed', emoji: '😒' }, { id: 'tired', emoji: '😴' },
+      { id: 'sick', emoji: '🤒' }, { id: 'confused', emoji: '😕' }, { id: 'surprised', emoji: '😲' },
+      { id: 'shocked', emoji: '😱' }, { id: 'nervous', emoji: '😬' }, { id: 'embarrassed', emoji: '😳' }
+    ];
     
     overlay.innerHTML = `
       <div class="neuro-modal">
@@ -601,9 +810,9 @@ class JournalEngine {
         </div>
         <div class="modal-input-wrapper">
           <label class="form-label" style="color: var(--neuro-text); margin-bottom: 0.5rem; display: block;">How did you feel?</label>
-          <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-            ${Object.entries(moodEmojis).map(([mood, emoji]) => `
-              <button class="mood-btn ${entry.mood === mood ? 'active' : ''}" data-mood="${mood}">${emoji}</button>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+            ${moods.map(mood => `
+              <button class="mood-btn ${entry.mood === mood.id ? 'active' : ''}" data-mood="${mood.id}">${mood.emoji}</button>
             `).join('')}
           </div>
           
@@ -621,7 +830,6 @@ class JournalEngine {
 
     const entryInput = overlay.querySelector('#edit-entry');
     
-    // Mood selection in modal
     overlay.querySelectorAll('.mood-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         overlay.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
