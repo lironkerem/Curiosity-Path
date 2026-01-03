@@ -1,5 +1,5 @@
 // ============================================
-// HAPPINESS ENGINE - FULLY PATCHED
+// HAPPINESS ENGINE - UPDATED WITH SELF INQUIRY CARD
 // ============================================
 
 import affirmationsData from '../Features/Data/AffirmationsList.js';
@@ -20,10 +20,12 @@ class HappinessEngine {
     this.currentBooster = this.getRandomBooster();
     this.currentQuote   = null;
     this.currentAffirmation = null;
-    this.currentInquiry = null;
+    this.currentInquiry = null; // NEW
     this.affirmations   = window.affirmations || affirmationsData;
+    
+    // Initialize Inquiry Engine
     this.inquiryEngine = new InquiryEngine('beginner');
-    this._lastTracked = 0;          // throttle helper
+    
     this.loadBoosters();
   }
 
@@ -60,11 +62,13 @@ class HappinessEngine {
     const pick = this.app.randomFrom(pool);
     return typeof pick === 'string' ? pick : pick.text;
   }
+
+  // NEW: Get random inquiry question
   getRandomInquiry() {
     const domains = [
-      'Responsibility and Power', 'Emotional Honesty', 'Identity and Roles',
-      'Creativity and Expression', 'Shadow and Integration', 'Wisdom and Insight',
-      'Joy and Fulfillment', 'Physical Well-Being and Energy', 'Relationship',
+      'Responsibility and Power', 'Emotional Honesty', 'Identity and Roles', 
+      'Creativity and Expression', 'Shadow and Integration', 'Wisdom and Insight', 
+      'Joy and Fulfillment', 'Physical Well-Being and Energy', 'Relationship', 
       'Spiritual Growth', 'Fear and Resistance', 'Boundaries and Consent',
       'Purpose and Direction', 'Mind and Awareness'
     ];
@@ -73,10 +77,6 @@ class HappinessEngine {
   }
 
   trackView() {
-    const now = Date.now();
-    if (this._lastTracked && now - this._lastTracked < 1000) return this.getTodayViewCount();
-    this._lastTracked = now;
-
     const today = new Date().toDateString();
     let data = { date: today, count: 0 };
     try {
@@ -98,28 +98,30 @@ class HappinessEngine {
     } catch { return 0; }
   }
 
-  updateQuestDisplay() {
-    const viewCount = this.getTodayViewCount();
-    const badge = document.querySelector('#happiness-tab .badge');
-    if (badge) {
-      badge.textContent = `${viewCount} / 5 (Quest)`;
-      badge.className = `badge ${viewCount >= 5 ? 'badge-success' : 'badge-primary'}`;
-    }
-    let banner = document.querySelector('#happiness-quest-complete');
-    if (viewCount >= 5) {
-      if (!banner) {
-        banner = document.createElement('div');
-        banner.id = 'happiness-quest-complete';
-        banner.style.cssText = 'margin-bottom:2rem;padding:1rem;border-radius:0.5rem;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);';
-        banner.innerHTML = '<p class="text-center" style="color:#22c55e;">🎉 Daily quest complete! Keep exploring if you\'d like!</p>';
-        const header = document.querySelector('#happiness-tab .universal-content');
-        header?.insertBefore(banner, header.querySelector('main'));
-      }
-    } else {
-      banner?.remove();
+updateQuestDisplay() {
+  const viewCount = this.getTodayViewCount();
+  const badge = document.querySelector('.badge');
+  const questProgress = badge?.parentElement;
+  
+  if (badge) {
+    badge.textContent = `${viewCount} / 5 (Quest)`;
+    badge.className = `badge ${viewCount >= 5 ? 'badge-success' : 'badge-primary'}`;
+  }
+  
+  // Update completion message
+  const completionMsg = document.querySelector('[style*="rgba(34,197,94"]');
+  if (viewCount >= 5 && !completionMsg) {
+    const main = document.querySelector('main.space-y-6');
+    if (main) {
+      const msg = document.createElement('div');
+      msg.style.cssText = 'margin-bottom:2rem;padding:1rem;border-radius:0.5rem;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);';
+      msg.innerHTML = '<p class="text-center" style="color: #22c55e;">🎉 Daily quest complete! Keep exploring if you\'d like!</p>';
+      main.parentElement.insertBefore(msg, main);
     }
   }
+}
 
+  /* --------------- 360° flip helper --------------- */
   _flipCard(cardId, newHtml) {
     const card = document.getElementById(cardId);
     if (!card) return;
@@ -135,12 +137,13 @@ class HappinessEngine {
     inner.addEventListener('transitionend', onEnd);
   }
 
+  /* --------------- REFRESH ACTIONS --------------- */
   refreshBooster() {
     this.currentBooster = this.getRandomBooster();
     const viewCount = this.trackView();
     const html = `
       <div class="flex items-center" style="margin-bottom: 1rem;">
-        <span class="text-3xl" style="margin-right:0.25rem">${this.currentBooster.emoji}</span>
+        <span class="text-3xl mr-4">${this.currentBooster.emoji}</span>
         <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> A Quick Happiness Booster</h2>
       </div>
       <div class="text-center">
@@ -154,8 +157,8 @@ class HappinessEngine {
         <button onclick="window.featuresManager.engines.happiness.refreshBooster()" class="btn btn-secondary">🔄 Refresh Booster</button>
       </div>`;
     this._flipCard('booster-card', html);
-    this.updateQuestDisplay();
-    if (this.app.gamification) this.app.gamification.incrementHappinessViews();
+    this.updateQuestDisplay(); // ADD THIS LINE
+    if (window.app?.gamification) window.app.gamification.incrementHappinessViews();
     if (this.app.showToast) {
       if (viewCount >= 5) this.app.showToast('✨ Quest complete! You\'ve viewed 5 boosters today!', 'success');
       else this.app.showToast(`✨ New booster revealed! (${viewCount}/5)`, 'success');
@@ -163,13 +166,11 @@ class HappinessEngine {
   }
 
   refreshQuote() {
-    this.currentQuote = window.QuotesData
-      ? window.QuotesData.getRandomQuote()
-      : { text: 'Stay positive!', author: 'Unknown' };
+    this.currentQuote = window.QuotesData ? window.QuotesData.getRandomQuote() : { text: 'Stay positive!', author: 'Unknown' };
     const viewCount = this.trackView();
     const html = `
       <div class="flex items-center" style="margin-bottom: 1rem;">
-        <span class="text-3xl" style="margin-right:0.25rem">📜</span>
+        <span class="text-3xl mr-4">📜</span>
         <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> Inspirational Quote</h2>
       </div>
       <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
@@ -182,8 +183,8 @@ class HappinessEngine {
         <button onclick="window.featuresManager.engines.happiness.refreshQuote()" class="btn btn-secondary">🔄 Refresh Quote</button>
       </div>`;
     this._flipCard('quote-card', html);
-    this.updateQuestDisplay();
-    if (this.app.gamification) this.app.gamification.incrementHappinessViews();
+    this.updateQuestDisplay(); // ADD THIS LINE
+    if (window.app?.gamification) window.app.gamification.incrementHappinessViews();
     if (this.app.showToast) {
       if (viewCount >= 5) this.app.showToast('📜 Quest complete! You\'ve viewed 5 items today!', 'success');
       else this.app.showToast(`📜 New quote revealed! (${viewCount}/5)`, 'success');
@@ -195,7 +196,7 @@ class HappinessEngine {
     const viewCount = this.trackView();
     const html = `
       <div class="flex items-center" style="margin-bottom: 1rem;">
-        <span class="text-3xl" style="margin-right:0.25rem">✨</span>
+        <span class="text-3xl mr-4">✨</span>
         <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> Positive Affirmation</h2>
       </div>
       <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
@@ -205,21 +206,23 @@ class HappinessEngine {
         <button onclick="window.featuresManager.engines.happiness.refreshAffirmation()" class="btn btn-secondary">🔄 Refresh Affirmation</button>
       </div>`;
     this._flipCard('affirm-card', html);
-    this.updateQuestDisplay();
-    if (this.app.gamification) this.app.gamification.incrementHappinessViews();
+    this.updateQuestDisplay(); // ADD THIS LINE
+    if (window.app?.gamification) window.app.gamification.incrementHappinessViews();
     if (this.app.showToast) {
       if (viewCount >= 5) this.app.showToast('💫 Quest complete! You\'ve viewed 5 items today!', 'success');
       else this.app.showToast(`💫 New affirmation revealed! (${viewCount}/5)`, 'success');
     }
   }
 
+  // NEW: Refresh Inquiry
   refreshInquiry() {
     this.currentInquiry = this.getRandomInquiry();
     const viewCount = this.trackView();
     const intensityEmoji = { 1: '🌱', 2: '🌿', 3: '🌳', 4: '🔥' };
+    
     const html = `
       <div class="flex items-center" style="margin-bottom: 1rem;">
-        <span class="text-3xl" style="margin-right:0.25rem">${intensityEmoji[this.currentInquiry.intensity] || '💭'}</span>
+        <span class="text-3xl mr-4">${intensityEmoji[this.currentInquiry.intensity] || '💭'}</span>
         <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> Self Inquiry</h2>
       </div>
       <div class="text-center">
@@ -242,28 +245,35 @@ class HappinessEngine {
         <button onclick="window.featuresManager.engines.happiness.refreshInquiry()" class="btn btn-secondary">🔄 Refresh Inquiry</button>
       </div>`;
     this._flipCard('inquiry-card', html);
-    this.updateQuestDisplay();
-    if (this.app.gamification) this.app.gamification.incrementHappinessViews();
+    this.updateQuestDisplay(); // ADD THIS LINE
+    if (window.app?.gamification) window.app.gamification.incrementHappinessViews();
     if (this.app.showToast) {
       if (viewCount >= 5) this.app.showToast('💭 Quest complete! You\'ve viewed 5 items today!', 'success');
       else this.app.showToast(`💭 New inquiry revealed! (${viewCount}/5)`, 'success');
     }
   }
 
-  render() {
-    const tab = document.getElementById('happiness-tab');
-    if (!tab) return;
-    if (!this.currentBooster) this.currentBooster = this.getDailyBooster();
-    if (!this.currentQuote)   this.currentQuote   = window.QuotesData ? window.QuotesData.getQuoteOfTheDay() : { text: 'Stay positive!', author: 'Unknown' };
-    if (!this.currentAffirmation) this.currentAffirmation = this.getDailyAffirmation();
-    if (!this.currentInquiry) this.currentInquiry = this.getRandomInquiry();
+  /* --------------- RENDER --------------- */
+// Updated render() method section - replace lines ~195-345
 
-    const viewCount = this.getTodayViewCount();
-    const intensityEmoji = { 1: '🌱', 2: '🌿', 3: '🌳', 4: '🔥' };
+// Updated render() method section - replace lines ~195-345
 
-    tab.innerHTML = `
+render() {
+  const tab = document.getElementById('happiness-tab');
+  if (!tab) return;
+  if (!this.currentBooster) this.currentBooster = this.getDailyBooster();
+  if (!this.currentQuote)   this.currentQuote   = window.QuotesData ? window.QuotesData.getQuoteOfTheDay() : { text: 'Stay positive!', author: 'Unknown' };
+  if (!this.currentAffirmation) this.currentAffirmation = this.getDailyAffirmation();
+  if (!this.currentInquiry) this.currentInquiry = this.getRandomInquiry();
+  
+  const viewCount = this.getTodayViewCount();
+  const intensityEmoji = { 1: '🌱', 2: '🌿', 3: '🌳', 4: '🔥' };
+
+tab.innerHTML = `
   <div style="padding:1.5rem;min-height:100vh;">
     <div class="universal-content">
+
+<!--  MOBILE-ONLY IMAGE + SUBTITLE HEADER  -->
       <header class="main-header project-curiosity"
               style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavHappiness.png');
                      --header-title:'';
@@ -279,7 +289,7 @@ class HappinessEngine {
       </div>
 
       ${viewCount >= 5 ? `
-        <div id="happiness-quest-complete" style="margin-bottom: 2rem;padding:1rem;border-radius:0.5rem;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);">
+        <div style="margin-bottom: 2rem;padding:1rem;border-radius:0.5rem;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);">
           <p class="text-center" style="color: #22c55e;">🎉 Daily quest complete! Keep exploring if you'd like!</p>
         </div>
       ` : ''}
@@ -290,7 +300,7 @@ class HappinessEngine {
           <div class="flip-card-inner">
             <div class="flip-card-front">
               <div class="flex items-center" style="margin-bottom: 1rem;">
-                <span class="text-3xl" style="margin-right:0.25rem">${this.currentBooster.emoji}</span>
+                <span class="text-3xl mr-4">${this.currentBooster.emoji}</span>
                 <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">A Quick Happiness Booster</h2>
               </div>
               <div class="text-center">
@@ -313,7 +323,7 @@ class HappinessEngine {
           <div class="flip-card-inner">
             <div class="flip-card-front">
               <div class="flex items-center" style="margin-bottom: 1rem;">
-                <span class="text-3xl" style="margin-right:0.25rem">📜</span>
+                <span class="text-3xl mr-4">📜</span>
                 <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2>
               </div>
               <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
@@ -335,7 +345,7 @@ class HappinessEngine {
           <div class="flip-card-inner">
             <div class="flip-card-front">
               <div class="flex items-center" style="margin-bottom: 1rem;">
-                <span class="text-3xl" style="margin-right:0.25rem">✨</span>
+                <span class="text-3xl mr-4">✨</span>
                 <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Positive Affirmation</h2>
               </div>
               <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
@@ -354,7 +364,7 @@ class HappinessEngine {
           <div class="flip-card-inner">
             <div class="flip-card-front">
               <div class="flex items-center" style="margin-bottom: 1rem;">
-                <span class="text-3xl" style="margin-right:0.25rem">${intensityEmoji[this.currentInquiry.intensity] || '💭'}</span>
+                <span class="text-3xl mr-4">${intensityEmoji[this.currentInquiry.intensity] || '💭'}</span>
                 <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Self Inquiry</h2>
               </div>
               <div class="text-center">
@@ -381,9 +391,11 @@ class HappinessEngine {
           </div>
         </div>
       </main>
+
     </div>
-  </div>`;
-  }
+  </div>
+`;
+}
 }
 
 if (typeof window !== 'undefined') window.HappinessEngine = HappinessEngine;
