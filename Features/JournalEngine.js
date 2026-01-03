@@ -186,7 +186,7 @@ class JournalEngine {
       .journal-pages {
         background: #fefae8;
         border-radius: 4px;
-        min-height: 500px;
+        height: 500px;
         box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);
         position: relative;
         overflow: hidden;
@@ -201,8 +201,9 @@ class JournalEngine {
             rgba(139, 115, 85, 0.1) 31px,
             rgba(139, 115, 85, 0.1) 32px
           );
-        min-height: 500px;
+        height: 500px;
         position: relative;
+        overflow-y: auto;
       }
       
       .journal-page::before {
@@ -491,7 +492,7 @@ class JournalEngine {
       
       wrapper.innerHTML = `
         <div class="journal-closed" id="open-journal">
-          <div class="journal-cover-title">${userName}'s Personal Journal</div>
+          <div class="journal-cover-title">${userName}'s<br>Personal Journal</div>
           <div class="journal-cover-subtitle">Click to open and begin writing</div>
           <div class="journal-lock"></div>
         </div>
