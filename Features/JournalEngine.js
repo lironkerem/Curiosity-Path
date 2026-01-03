@@ -46,11 +46,14 @@ class JournalEngine {
         cursor: pointer;
         transition: all 0.3s;
         position: relative;
-        min-height: 400px;
+        min-height: 500px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        background-image: 
+          repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px),
+          repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
       }
       
       .journal-closed:hover {
