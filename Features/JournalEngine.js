@@ -39,65 +39,92 @@ class JournalEngine {
       }
       
       .journal-closed {
-        background: linear-gradient(135deg, #8b4513 0%, #5d2e0f 100%);
-        padding: 3rem 2rem;
-        border-radius: 12px;
-        box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+        background: 
+          radial-gradient(ellipse at 20% 30%, rgba(101, 67, 33, 0.3), transparent 50%),
+          radial-gradient(ellipse at 80% 70%, rgba(101, 67, 33, 0.3), transparent 50%),
+          linear-gradient(135deg, #5c3d2e 0%, #3d2817 50%, #2b1810 100%);
+        padding: 2rem;
+        border-radius: 4px;
+        box-shadow: 
+          0 20px 60px rgba(0,0,0,0.6),
+          inset 0 1px 0 rgba(139, 115, 85, 0.2),
+          inset 0 -1px 0 rgba(0, 0, 0, 0.5);
         cursor: pointer;
         transition: all 0.3s;
         position: relative;
-        min-height: 500px;
+        height: 500px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background-image: 
-          repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px),
-          repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
-      }
-      
-      .journal-closed:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        border: 3px solid #2b1810;
+        border-left-width: 25px;
+        border-right-width: 8px;
       }
       
       .journal-closed::before {
         content: '';
         position: absolute;
-        top: 15px;
-        left: 15px;
-        right: 15px;
-        bottom: 15px;
-        border: 3px solid rgba(139, 69, 19, 0.3);
-        border-radius: 8px;
+        top: 0;
+        left: -25px;
+        width: 25px;
+        height: 100%;
+        background: linear-gradient(90deg, #1a0f0a 0%, #2b1810 100%);
+        box-shadow: inset -3px 0 5px rgba(0,0,0,0.5);
+      }
+      
+      .journal-closed::after {
+        content: '';
+        position: absolute;
+        inset: 30px;
+        border: 2px solid rgba(212, 175, 55, 0.4);
+        border-radius: 2px;
+        pointer-events: none;
+      }
+      
+      .journal-closed:hover {
+        transform: translateY(-3px) rotateY(-2deg);
+        box-shadow: 
+          0 25px 70px rgba(0,0,0,0.7),
+          inset 0 1px 0 rgba(139, 115, 85, 0.3),
+          inset 0 -1px 0 rgba(0, 0, 0, 0.6);
       }
       
       .journal-cover-title {
         font-family: 'Crimson Text', serif;
-        font-size: 2.5rem;
+        font-size: 2.2rem;
         font-weight: 700;
         color: #d4af37;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        text-shadow: 
+          2px 2px 0 rgba(0,0,0,0.8),
+          0 0 20px rgba(212, 175, 55, 0.3);
         margin-bottom: 1rem;
         text-align: center;
+        letter-spacing: 2px;
+        text-transform: uppercase;
       }
       
       .journal-cover-subtitle {
         font-family: 'Crimson Text', serif;
-        font-size: 1.2rem;
+        font-size: 1rem;
         color: #c9a961;
         font-style: italic;
         text-align: center;
+        opacity: 0.8;
       }
       
       .journal-lock {
-        width: 60px;
-        height: 80px;
-        background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
-        border-radius: 8px;
-        margin-top: 2rem;
+        width: 50px;
+        height: 70px;
+        background: linear-gradient(135deg, #b8941f 0%, #d4af37 50%, #b8941f 100%);
+        border-radius: 6px;
+        margin-top: 2.5rem;
         position: relative;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        box-shadow: 
+          0 6px 20px rgba(0,0,0,0.5),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3),
+          inset 0 -2px 0 rgba(0, 0, 0, 0.3);
+        border: 2px solid #8b7355;
       }
       
       .journal-lock::before {
@@ -106,7 +133,22 @@ class JournalEngine {
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 2rem;
+        font-size: 1.8rem;
+        filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
+      }
+      
+      .journal-lock::after {
+        content: '';
+        position: absolute;
+        top: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 30px;
+        height: 16px;
+        border: 3px solid #b8941f;
+        border-bottom: none;
+        border-radius: 15px 15px 0 0;
+        background: transparent;
       }
       
       .journal-book {
