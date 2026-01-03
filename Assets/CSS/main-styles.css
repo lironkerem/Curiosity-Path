@@ -110,6 +110,25 @@ body {
   padding-bottom: 140px;
 }
 
+/* ===== APP HEADER (Top Image) ===== */
+.app-header {
+  margin: var(--spacing-xl) auto var(--spacing-lg);
+  max-width: 1200px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, #6b4f35 0%, #b89b72 100%);
+  box-shadow: 12px 12px 24px var(--neuro-shadow-dark),
+              -12px -12px 24px var(--neuro-shadow-light);
+  contain: layout style paint;
+  overflow: hidden;
+}
+
+.app-header .header-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
 /* ===== UNIVERSAL PROJECT-CURIOSITY HEADER ===== */
 .main-header.project-curiosity {
   position: relative;
