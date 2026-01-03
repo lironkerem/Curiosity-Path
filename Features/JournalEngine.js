@@ -186,10 +186,10 @@ class JournalEngine {
       .journal-pages {
         background: #fefae8;
         border-radius: 4px;
-        height: 500px;
+        min-height: 500px;
         box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);
         position: relative;
-        overflow: hidden;
+        overflow: visible;
       }
       
       .journal-page {
@@ -201,9 +201,8 @@ class JournalEngine {
             rgba(139, 115, 85, 0.1) 31px,
             rgba(139, 115, 85, 0.1) 32px
           );
-        height: 500px;
+        min-height: 500px;
         position: relative;
-        overflow-y: auto;
       }
       
       .journal-page::before {
