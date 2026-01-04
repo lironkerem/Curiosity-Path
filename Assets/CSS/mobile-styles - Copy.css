@@ -7,7 +7,7 @@
 /* ===== MOBILE BREAKPOINT: 767px AND BELOW ===== */
 @media (max-width: 767px) {
 
-/* ===== GLOBAL FONT SIZE SCALE ===== */
+/* ===== GLOBAL FONT SIZE SCALE (Reusable Clamps) ===== */
 .fs-xs { font-size: clamp(0.65rem, 2vw, 0.75rem) !important; }
 .fs-sm { font-size: clamp(0.75rem, 2.5vw, 0.875rem) !important; }
 .fs-base { font-size: clamp(0.875rem, 3vw, 1rem) !important; }
@@ -54,6 +54,7 @@
   margin-bottom: 1rem;
 }
 
+/* Dashboard special handling */
 #dashboard-tab .main-header.project-curiosity { 
   display: flex; 
   flex-direction: column; 
@@ -85,6 +86,7 @@
   order: 3; 
 }
 
+/* Other features: image + subtitle only */
 :not(#dashboard-tab) .main-header.project-curiosity h1 {
   display: none;
 }
@@ -98,7 +100,7 @@
   display: block !important; 
 }
 
-/* ===== SWIPE ARROWS ===== */
+/* ===== SWIPE ARROWS (Mobile Navigation Hints) ===== */
 .swipe-arrows {
   position: fixed;
   inset: 0;
@@ -124,6 +126,8 @@
   place-content: center;
   -webkit-tap-highlight-color: transparent;
   outline: none;
+  -webkit-focus-ring-color: transparent;
+  -webkit-appearance: none;
   user-select: none;
 }
 
@@ -194,10 +198,9 @@ textarea {
   min-height: 100px !important;
 }
 
-/* =========================================================
-   DASHBOARD COMPONENTS - MOBILE
-   ========================================================= */
+/* ===== DASHBOARD - MOBILE OPTIMIZATIONS ===== */
 
+/* Gamification widget */
 .dashboard-gamification {
   padding: 1rem;
 }
@@ -223,6 +226,7 @@ textarea {
   font-size: clamp(1rem, 4vw, 1.5rem);
 }
 
+/* Level info - split to 2 lines */
 .dashboard-level-info h3 {
   display: flex;
   flex-direction: column;
@@ -262,6 +266,7 @@ textarea {
   display: inline;
 }
 
+/* Countdown timer - smaller */
 .countdown-badge {
   font-size: 0.6rem;
   padding: 0.1rem 0.25rem;
@@ -459,7 +464,7 @@ textarea {
   padding: 0.75rem;
 }
 
-/* Achievements */
+/* Achievements - 2 per line */
 .dashboard-achievements {
   padding: 1.5rem;
 }
@@ -505,6 +510,7 @@ textarea {
   font-size: 1.75rem;
 }
 
+/* Quote section */
 #dashboard-quote-card .text-2xl {
   font-size: clamp(1.25rem, 4vw, 1.5rem) !important;
 }
@@ -513,10 +519,7 @@ textarea {
   font-size: clamp(0.95rem, 3vw, 1.125rem) !important;
 }
 
-/* =========================================================
-   ENERGY TRACKER - MOBILE
-   ========================================================= */
-
+/* ===== ENERGY TRACKER - MOBILE ===== */
 #energy-tab .text-2xl {
   font-size: clamp(1.25rem, 4.5vw, 1.5rem) !important;
 }
@@ -529,6 +532,7 @@ textarea {
   font-size: clamp(2rem, 6vw, 2.5rem) !important;
 }
 
+/* Stack energy slider vertically */
 #energy-tab .flex.items-center.gap-4 {
   flex-direction: column !important;
   gap: 0.75rem !important;
@@ -546,6 +550,7 @@ textarea {
   min-width: 100% !important;
 }
 
+/* Mood chips - 2 column grid */
 #energy-tab #mood-chips {
   display: grid !important;
   grid-template-columns: repeat(2, 1fr) !important;
@@ -560,6 +565,7 @@ textarea {
   justify-content: center !important;
 }
 
+/* Chakra sliders - vertical stack */
 #energy-tab .chakra-row {
   display: flex;
   flex-direction: column;
@@ -612,6 +618,7 @@ textarea {
   text-align: center;
 }
 
+/* Weekly chart - fit container */
 #energy-tab .card-flex {
   min-height: 450px;
   overflow: visible;
@@ -648,15 +655,13 @@ textarea {
   display: block;
 }
 
+/* Analytics - single column */
 #energy-tab .grid.grid-cols-1.md\:grid-cols-2 {
   grid-template-columns: 1fr !important;
   gap: 1rem !important;
 }
 
-/* =========================================================
-   HAPPINESS FEATURE - MOBILE
-   ========================================================= */
-
+/* ===== HAPPINESS FEATURE - MOBILE ===== */
 #happiness-tab .text-3xl {
   font-size: clamp(2rem, 6vw, 3rem) !important;
 }
@@ -684,10 +689,7 @@ textarea {
   margin-bottom: 1rem;
 }
 
-/* =========================================================
-   GRATITUDE PRACTICE - MOBILE
-   ========================================================= */
-
+/* ===== GRATITUDE PRACTICE - MOBILE ===== */
 #gratitude-tab .text-2xl {
   font-size: clamp(1.25rem, 4vw, 1.5rem) !important;
 }
@@ -701,6 +703,7 @@ textarea {
   padding: 0.375rem 0.75rem !important;
 }
 
+/* Stack input and button */
 #gratitude-tab form .flex.space-x-3 {
   flex-direction: column !important;
   gap: 0.75rem !important;
@@ -715,6 +718,7 @@ textarea {
   min-height: 3rem !important;
 }
 
+/* Inspiration - 3 column grid */
 #gratitude-tab .gratitude-inspiration-container {
   padding: 0.75rem !important;
   margin-bottom: 1.5rem !important;
@@ -733,10 +737,7 @@ textarea {
   min-height: 2.5rem !important;
 }
 
-/* =========================================================
-   PERSONAL JOURNAL - MOBILE
-   ========================================================= */
-
+/* ===== PERSONAL JOURNAL - MOBILE ===== */
 #journal-tab .text-2xl,
 #journal-tab h3[style*="font-size: 1.5rem"] {
   font-size: clamp(1.25rem, 4vw, 1.5rem) !important;
@@ -758,10 +759,7 @@ textarea {
   font-size: clamp(0.95rem, 3.5vw, 1.125rem) !important;
 }
 
-/* =========================================================
-   TAROT SPREADS - MOBILE
-   ========================================================= */
-
+/* ===== TAROT SPREADS - MOBILE ===== */
 #tarot-tab .text-xl {
   font-size: clamp(1rem, 3.5vw, 1.25rem) !important;
 }
@@ -774,11 +772,13 @@ textarea {
   font-size: clamp(0.75rem, 2.5vw, 0.875rem) !important;
 }
 
+/* Spread selection - single column */
 #tarot-tab .grid.md\:grid-cols-3:not(.place-items-center) {
   grid-template-columns: 1fr !important;
   gap: 1rem !important;
 }
 
+/* Card sizing - 3 per row */
 #tarot-tab .tarot-card-flip-container {
   width: clamp(85px, 26vw, 130px) !important;
   max-width: 130px;
@@ -808,6 +808,7 @@ textarea {
   font-size: 0.65rem;
 }
 
+/* 3-card spread - keep 3 columns */
 #tarot-tab .grid.md\:grid-cols-3 {
   grid-template-columns: repeat(3, 1fr) !important;
   gap: 0.5rem !important;
@@ -815,6 +816,7 @@ textarea {
   row-gap: 1rem !important;
 }
 
+/* 6-card spread - keep 3 columns, 2 rows */
 #tarot-tab .grid.grid-cols-2.md\:grid-cols-3 {
   grid-template-columns: repeat(3, 1fr) !important;
   gap: 0.5rem !important;
@@ -822,6 +824,7 @@ textarea {
   row-gap: 1rem !important;
 }
 
+/* Pyramid spread - mobile layout */
 #tarot-tab .pyramid-triangle {
   row-gap: 0.5rem !important;
   transform: scale(0.85);
@@ -848,6 +851,7 @@ textarea {
 #tarot-tab .pyr-lower { gap: 7rem !important; }
 #tarot-tab .pyr-base { gap: 1.5rem !important; }
 
+/* Cross spread - mobile layout */
 #tarot-tab .cross-shape {
   row-gap: 0.5rem !important;
   transform: scale(0.85);
@@ -858,10 +862,7 @@ textarea {
   gap: 2rem !important;
 }
 
-/* =========================================================
-   GUIDED MEDITATIONS - MOBILE
-   ========================================================= */
-
+/* ===== GUIDED MEDITATIONS - MOBILE ===== */
 #meditations-tab .dashboard-wellness-title {
   font-size: clamp(1.25rem, 4vw, 1.75rem);
 }
@@ -882,6 +883,7 @@ textarea {
   font-size: clamp(2rem, 5vw, 2.5rem) !important;
 }
 
+/* Meditation cards - single column */
 #meditations-tab .grid.md\:grid-cols-2.lg\:grid-cols-3 {
   grid-template-columns: 1fr !important;
   gap: 1.25rem !important;
@@ -892,6 +894,7 @@ textarea {
   margin-bottom: 1rem;
 }
 
+/* Floating player - full width */
 #meditations-tab .player-wrapper {
   position: fixed;
   bottom: 0;
@@ -971,10 +974,7 @@ textarea {
   display: none !important;
 }
 
-/* =========================================================
-   FLIP THE SCRIPT - MOBILE
-   ========================================================= */
-
+/* ===== FLIP THE SCRIPT - MOBILE ===== */
 #flip-script-tab .main-header.project-curiosity h1 {
   font-size: clamp(1.5rem, 5vw, 2.5rem);
 }
@@ -983,6 +983,7 @@ textarea {
   padding: 1rem !important;
 }
 
+/* Stack input layout vertically */
 #flip-script-tab .input-layout {
   display: flex !important;
   flex-direction: column !important;
@@ -998,6 +999,7 @@ textarea {
   padding: 1rem;
 }
 
+/* Suggestion buttons - 2 columns */
 #flip-script-tab .suggestion-buttons-grid {
   grid-template-columns: repeat(2, 1fr) !important;
   gap: 0.75rem !important;
@@ -1009,6 +1011,7 @@ textarea {
   min-height: 3rem;
 }
 
+/* Textarea */
 #flip-script-tab textarea#negative-input {
   font-size: clamp(0.95rem, 3.5vw, 1.125rem) !important;
   min-height: 150px !important;
@@ -1027,6 +1030,7 @@ textarea {
   font-size: clamp(0.75rem, 2.5vw, 0.875rem) !important;
 }
 
+/* Main flip button */
 #flip-script-tab .flip-main-btn {
   font-size: clamp(1.25rem, 4vw, 1.75rem) !important;
   min-height: 4rem !important;
@@ -1039,6 +1043,7 @@ textarea {
   padding: 0.875rem 1.5rem !important;
 }
 
+/* Output section */
 #flip-script-tab .output-card {
   padding: 2rem 1.5rem !important;
 }
@@ -1071,6 +1076,7 @@ textarea {
   padding: 1rem !important;
 }
 
+/* Saved flips section */
 #flip-script-tab .collapse-toggle {
   padding: 1rem 1.25rem !important;
   gap: 0.75rem;
@@ -1092,20 +1098,19 @@ textarea {
   gap: 0.75rem;
 }
 
-/* =========================================================
-   SELF-ANALYSIS PRO - MOBILE
-   ========================================================= */
+/* ===== SELF-ANALYSIS PRO - MOBILE ===== */
 
+/* HIDE Quick Summary on mobile */
 #calculator-tab .summary-card,
 #app-page .summary-card {
   display: none !important;
 }
 
+/* Top row - single column */
 #calculator-tab .top-row,
 #app-page .top-row {
   display: block !important;
   gap: 0 !important;
-  margin-bottom: 1.5rem !important;
 }
 
 #calculator-tab .form-card,
@@ -1121,6 +1126,7 @@ textarea {
   max-width: 100% !important;
 }
 
+/* Step indicator - horizontal scroll */
 #calculator-tab .step-indicator,
 .step-indicator {
   padding: 0.5rem 0.25rem !important;
@@ -1161,22 +1167,7 @@ textarea {
   height: 1.5px !important;
 }
 
-#calculator-tab .step-item.active .step-dot,
-.step-item.active .step-dot {
-  transform: scale(1.2) !important;
-}
-
-#calculator-tab .page,
-#app-page {
-  padding: 1rem !important;
-}
-
-#calculator-tab .card,
-#app-page .card {
-  padding: 1.5rem !important;
-  margin-bottom: 1.5rem !important;
-}
-
+/* Form inputs */
 #calculator-tab .form-input,
 #app-page .form-input {
   padding: 1rem !important;
@@ -1199,6 +1190,7 @@ textarea {
   font-weight: 700;
 }
 
+/* Expandable headers */
 #calculator-tab .expandable-header,
 #app-page .expandable-header {
   padding: 1rem 1.25rem !important;
@@ -1212,6 +1204,7 @@ textarea {
   padding: 1.25rem !important;
 }
 
+/* Location dropdown */
 #calculator-tab .location-dropdown,
 #app-page .location-dropdown {
   position: absolute;
@@ -1237,6 +1230,7 @@ textarea {
   font-size: clamp(0.875rem, 3vw, 1rem) !important;
 }
 
+/* Tooltips */
 #calculator-tab .tooltip,
 #app-page .tooltip {
   width: 24px;
@@ -1253,6 +1247,7 @@ textarea {
   bottom: 120%;
 }
 
+/* Progress bar */
 #calculator-tab .progress-bar,
 #app-page .progress-bar {
   height: 1.5rem !important;
@@ -1263,6 +1258,7 @@ textarea {
   font-size: clamp(0.75rem, 2.5vw, 0.875rem) !important;
 }
 
+/* Watermarks - scaled down */
 #calculator-tab .story-watermark::before,
 #calculator-tab .numerology-watermark::before,
 #calculator-tab .astrology-watermark::before,
@@ -1278,10 +1274,7 @@ textarea {
   right: 1rem !important;
 }
 
-/* =========================================================
-   SHADOW ALCHEMY LAB - MOBILE
-   ========================================================= */
-
+/* ===== SHADOW ALCHEMY LAB - MOBILE ===== */
 #shadow-alchemy-tab #shadow-alchemy-main-content {
   padding: 1rem !important;
 }
@@ -1291,6 +1284,7 @@ textarea {
   margin-bottom: 1.5rem !important;
 }
 
+/* Stats bar - 2x2 grid */
 #shadow-alchemy-tab .stats-bar {
   display: grid !important;
   grid-template-columns: repeat(2, 1fr) !important;
@@ -1311,12 +1305,14 @@ textarea {
   font-size: clamp(1rem, 3.5vw, 1.25rem) !important;
 }
 
+/* Dashboard - single column */
 #shadow-alchemy-tab .dashboard {
   display: flex !important;
   flex-direction: column !important;
   gap: 1.5rem !important;
 }
 
+/* Main action buttons - stack vertically */
 #shadow-alchemy-tab .card > div[style*="grid-template-columns"] {
   display: grid !important;
   grid-template-columns: 1fr !important;
@@ -1332,6 +1328,7 @@ textarea {
   font-size: clamp(0.95rem, 3.5vw, 1.1rem) !important;
 }
 
+/* Archetype grid - 2 columns */
 #shadow-alchemy-tab .archetype-grid {
   display: grid !important;
   grid-template-columns: repeat(2, 1fr) !important;
@@ -1344,6 +1341,7 @@ textarea {
   font-size: clamp(0.75rem, 2.5vw, 0.9rem) !important;
 }
 
+/* Journal entries - stack on mobile */
 #shadow-alchemy-tab .journal-entry {
   flex-direction: column !important;
   align-items: flex-start !important;
@@ -1370,14 +1368,12 @@ textarea {
   font-size: clamp(0.75rem, 2.5vw, 0.875rem) !important;
 }
 
-/* =========================================================
-   KARMA SHOP - MOBILE
-   ========================================================= */
-
+/* ===== KARMA SHOP - MOBILE ===== */
 #karma-shop-tab .karma-shop-container {
   padding: 1rem !important;
 }
 
+/* Balance card */
 #karma-shop-tab .karma-shop-balance {
   padding: 2rem 1.5rem !important;
   margin-bottom: 1.5rem !important;
@@ -1397,10 +1393,12 @@ textarea {
   font-size: clamp(0.75rem, 2.5vw, 0.875rem) !important;
 }
 
+/* Category title */
 #karma-shop-tab .karma-shop-category-title {
   font-size: clamp(1.5rem, 4.5vw, 2rem) !important;
 }
 
+/* Shop items - single column */
 #karma-shop-tab .grid.md\:grid-cols-3 {
   grid-template-columns: 1fr !important;
   gap: 1.25rem !important;
@@ -1430,6 +1428,7 @@ textarea {
   font-size: clamp(0.875rem, 3vw, 1rem) !important;
 }
 
+/* Boosts section */
 #karma-shop-tab .karma-shop-boosts {
   padding: 1.5rem !important;
   margin-bottom: 1.5rem !important;
@@ -1444,10 +1443,7 @@ textarea {
   gap: 0.5rem;
 }
 
-/* =========================================================
-   USER MENU - MOBILE
-   ========================================================= */
-
+/* ===== USER MENU - MOBILE ===== */
 .user-menu {
   position: fixed;
   top: 12px;
@@ -1541,10 +1537,7 @@ textarea {
   transform: translateX(24px);
 }
 
-/* =========================================================
-   TOAST NOTIFICATIONS - MOBILE
-   ========================================================= */
-
+/* ===== TOAST NOTIFICATIONS - MOBILE ===== */
 #toast-container {
   position: fixed;
   inset: auto 12px 84px 12px;
@@ -1570,15 +1563,13 @@ body.cta-open #toast-container {
   font-size: clamp(0.875rem, 3vw, 1rem) !important;
   font-weight: 500;
   text-align: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2), var(--shadow-raised-lg) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2), 
+              var(--shadow-raised-lg) !important;
   backdrop-filter: blur(10px);
   pointer-events: auto;
 }
 
-/* =========================================================
-   CTA FOOTER - MOBILE
-   ========================================================= */
-
+/* ===== CTA FOOTER - MOBILE ===== */
 .lux-footer {
   position: fixed;
   bottom: 64px;
@@ -1661,6 +1652,7 @@ body.sheet-open .lux-footer {
   padding: 1rem !important;
 }
 
+/* Social chips - 3 column grid */
 .lux-footer .lux-social-row {
   display: grid !important;
   grid-template-columns: repeat(3, 1fr) !important;
@@ -1684,16 +1676,14 @@ body.sheet-open .lux-footer {
   font-weight: 600;
 }
 
+/* Image grid - 2 columns */
 .lux-footer .lux-grid {
   display: grid !important;
   grid-template-columns: repeat(2, 1fr) !important;
   gap: 0.75rem !important;
 }
 
-/* =========================================================
-   BOTTOM TAB NAVIGATION - MOBILE ONLY
-   ========================================================= */
-
+/* ===== BOTTOM TAB NAVIGATION - MOBILE ONLY ===== */
 .mobile-bottom-bar {
   position: fixed;
   bottom: 0;
@@ -1827,6 +1817,7 @@ body.sheet-open .lux-footer {
   color: var(--neuro-text);
 }
 
+/* Sheet scrim */
 .sheet-scrim {
   position: fixed;
   inset: 0;
@@ -1843,29 +1834,21 @@ body.sheet-open .lux-footer {
   pointer-events: auto;
 }
 
-/* Accessibility */
-@media (prefers-contrast: high) {
-  #toast-container .toast {
-    border-width: 2px !important;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .swipe-arrow {
-    animation: none !important;
-  }
-  
-  #toast-container .toast {
-    animation: none !important;
-    transition: opacity 0.2s ease !important;
-  }
-}
+/* Z-index stack */
+.sheet-scrim { z-index: 99; }
+.mobile-sheet { z-index: 100; }
+.mobile-bottom-bar { z-index: 98; }
+.lux-footer { z-index: 97; }
+body.sheet-open .lux-footer { z-index: 95; }
 
 } /* End @media (max-width: 767px) */
 
 /* ===== DESKTOP: HIDE MOBILE ELEMENTS ===== */
 @media (min-width: 768px) {
-  .swipe-arrows,
+  .swipe-arrows { 
+    display: none !important; 
+  }
+  
   .mobile-bottom-bar,
   .mobile-sheet,
   .sheet-scrim {
@@ -1876,6 +1859,7 @@ body.sheet-open .lux-footer {
 /* ===== VERY SMALL SCREENS (Under 380px) ===== */
 @media (max-width: 380px) {
   
+  /* Tighter padding */
   .dashboard-container,
   .karma-shop-container {
     padding: 0.75rem;
@@ -1886,6 +1870,7 @@ body.sheet-open .lux-footer {
     padding: 1rem !important;
   }
   
+  /* Smaller buttons */
   .btn {
     min-height: 2.75rem !important;
     padding: 0.75rem 1.25rem !important;
@@ -1895,6 +1880,7 @@ body.sheet-open .lux-footer {
     min-height: 3.25rem !important;
   }
   
+  /* User menu */
   .user-menu-btn {
     padding: 6px 10px !important;
     min-height: 44px;
@@ -1911,6 +1897,7 @@ body.sheet-open .lux-footer {
     height: 24px !important;
   }
   
+  /* Wellness grid - single column on tiny screens */
   .wellness-buttons-grid {
     grid-template-columns: 1fr !important;
   }
@@ -1920,10 +1907,12 @@ body.sheet-open .lux-footer {
     padding: 1rem 0.75rem;
   }
   
+  /* Archetype grid - single column */
   #shadow-alchemy-tab .archetype-grid {
     grid-template-columns: 1fr !important;
   }
   
+  /* Tarot cards - even smaller */
   #tarot-tab .tarot-card-flip-container {
     width: clamp(80px, 26vw, 110px) !important;
   }
@@ -1940,10 +1929,12 @@ body.sheet-open .lux-footer {
     font-size: 0.6rem;
   }
   
+  /* Pyramid card wrappers */
   #tarot-tab .pyramid-triangle .flex.flex-col.items-center.mx-auto {
     min-height: 260px;
   }
   
+  /* Meditation player - compact */
   #meditations-tab .compact-player {
     padding: 0.75rem !important;
     gap: 0.75rem;
@@ -1969,6 +1960,7 @@ body.sheet-open .lux-footer {
     height: 36px;
   }
   
+  /* Flip Script - compact */
   #flip-script-tab > div[style*="padding:1.5rem"] {
     padding: 0.75rem !important;
   }
@@ -1996,6 +1988,7 @@ body.sheet-open .lux-footer {
     font-size: 1.5rem !important;
   }
   
+  /* Self-Analysis - compact */
   #calculator-tab .page,
   #app-page {
     padding: 0.75rem !important;
@@ -2017,6 +2010,7 @@ body.sheet-open .lux-footer {
     min-height: 3.5rem !important;
   }
   
+  /* Shadow Alchemy - compact */
   #shadow-alchemy-tab #shadow-alchemy-main-content {
     padding: 0.75rem !important;
   }
@@ -2033,6 +2027,7 @@ body.sheet-open .lux-footer {
     padding: 0.75rem !important;
   }
   
+  /* Karma Shop - compact */
   #karma-shop-tab .karma-shop-container {
     padding: 0.75rem !important;
   }
@@ -2058,6 +2053,7 @@ body.sheet-open .lux-footer {
     padding: 0.875rem 1.25rem !important;
   }
   
+  /* CTA Footer - compact */
   .lux-footer .lux-toggle,
   .lux-footer #cta-toggle {
     padding: 0.625rem 0.875rem !important;
@@ -2094,6 +2090,7 @@ body.sheet-open .lux-footer {
     padding: 1.25rem 0.875rem !important;
   }
   
+  /* Toast - compact */
   #toast-container {
     width: calc(100% - 16px);
     max-width: 100%;
@@ -2161,4 +2158,901 @@ body.sheet-open .lux-footer {
   
 }
 
+/* ===== ACCESSIBILITY - MOBILE ===== */
+@media (max-width: 767px) {
+  
+  /* High contrast mode */
+  @media (prefers-contrast: high) {
+    #toast-container .toast {
+      border-width: 2px !important;
+    }
+  }
+  
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .swipe-arrow {
+      animation: none !important;
+    }
+    
+    #toast-container .toast {
+      animation: none !important;
+      transition: opacity 0.2s ease !important;
+    }
+    
+  .mobile-only,
+  .mobile-bottom-bar,
+  .mobile-sheet,
+  .sheet-scrim,
+  .swipe-arrows {
+    display: none !important;
+  }
+  
+  .desktop-nav {
+    display: block !important;
+  }
+ }
+}
+/* =========================================================
+   MOBILE-STYLES.CSS PATCH FILE
+   Add this entire file to the END of your mobile-styles.css
+   (inside the @media (max-width: 767px) block, before it closes)
+   ========================================================= */
+
+/* =========================================================
+   FLIP THE SCRIPT MOBILE - UNDER 768px
+   NOTE: Add this INSIDE the existing @media (max-width: 767px) block
+   ========================================================= */
+
+/* ===== FLIP-THE-SCRIPT MOBILE ===== */
+
+#flip-script-tab .main-header.project-curiosity h1 {
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+}
+
+#flip-script-tab .main-header.project-curiosity h3 {
+  font-size: clamp(0.875rem, 3vw, 1.375rem);
+}
+
+#flip-script-tab > div[style*="padding:1.5rem"] {
+  padding: 1rem !important;
+}
+
+#flip-script-tab .input-layout {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1.25rem !important;
+}
+
+#flip-script-tab .input-main,
+#flip-script-tab .flip-suggestions {
+  width: 100%;
+}
+
+#flip-script-tab .flip-suggestions {
+  padding: 1rem;
+}
+
+#flip-script-tab .suggestion-buttons-grid {
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 0.75rem !important;
+}
+
+#flip-script-tab .suggestion-btn {
+  font-size: clamp(0.75rem, 2.5vw, 0.875rem) !important;
+  padding: 0.875rem 1rem !important;
+  min-height: 3rem;
+}
+
+#flip-script-tab textarea#negative-input {
+  font-size: clamp(0.95rem, 3.5vw, 1.125rem) !important;
+  min-height: 150px !important;
+  padding: 1rem 3.5rem 1rem 1rem !important;
+}
+
+#flip-script-tab .voice-input-btn {
+  width: 50px !important;
+  height: 50px !important;
+  top: 0.75rem !important;
+  right: 0.75rem !important;
+  font-size: 1.5rem !important;
+}
+
+#flip-script-tab .char-counter {
+  font-size: clamp(0.75rem, 2.5vw, 0.875rem) !important;
+}
+
+#flip-script-tab .flip-main-btn {
+  font-size: clamp(1.25rem, 4vw, 1.75rem) !important;
+  min-height: 4rem !important;
+  padding: 1.25rem 2rem !important;
+}
+
+#flip-script-tab .clear-small-btn {
+  font-size: clamp(0.875rem, 3vw, 1rem) !important;
+  min-height: 3rem !important;
+  padding: 0.875rem 1.5rem !important;
+}
+
+#flip-script-tab .output-card {
+  padding: 2rem 1.5rem !important;
+}
+
+#flip-script-tab .output-header h2 {
+  font-size: clamp(1.5rem, 4.5vw, 2rem) !important;
+}
+
+#flip-script-tab .flipped-text {
+  font-size: clamp(1.1rem, 3.5vw, 1.375rem) !important;
+  padding: 1rem;
+  margin: 1.5rem 0 !important;
+}
+
+#flip-script-tab .flip-another-inside {
+  font-size: clamp(1rem, 3.5vw, 1.25rem) !important;
+  min-height: 3.5rem !important;
+  padding: 1rem 1.5rem !important;
+}
+
+#flip-script-tab .action-icons {
+  gap: 1rem !important;
+  margin-top: 1rem;
+}
+
+#flip-script-tab .icon-btn {
+  min-width: 56px !important;
+  min-height: 56px !important;
+  font-size: 1.75rem !important;
+  padding: 1rem !important;
+}
+
+#flip-script-tab .collapse-toggle {
+  padding: 1rem 1.25rem !important;
+  gap: 0.75rem;
+}
+
+#flip-script-tab .collapse-toggle h2 {
+  font-size: clamp(1.25rem, 4vw, 1.5rem) !important;
+}
+
+#flip-script-tab .search-input {
+  padding: 1rem !important;
+  font-size: clamp(0.875rem, 3vw, 1rem) !important;
+}
+
+#flip-script-tab .saved-item {
+  padding: 1rem !important;
+  margin: 0.75rem 0 !important;
+  flex-direction: column !important;
+  gap: 0.75rem;
+}
+
+/* ===== SELF-ANALYSIS PRO MOBILE ===== */
+
+#calculator-tab .step-label,
+.step-label {
+  font-size: clamp(0.7rem, 2.5vw, 0.875rem) !important;
+}
+
+#calculator-tab h2,
+#app-page h2 {
+  font-size: clamp(1.25rem, 4vw, 1.5rem) !important;
+}
+
+#calculator-tab h3,
+#app-page h3 {
+  font-size: clamp(1.1rem, 3.5vw, 1.25rem) !important;
+}
+
+#calculator-tab .form-group label,
+#app-page .form-group label {
+  font-size: clamp(0.875rem, 3vw, 1rem) !important;
+}
+
+#calculator-tab .form-input,
+#app-page .form-input {
+  font-size: clamp(0.875rem, 3vw, 1rem) !important;
+}
+
+#calculator-tab .expandable-header,
+#app-page .expandable-header {
+  font-size: clamp(1rem, 3.5vw, 1.25rem) !important;
+}
+
+#calculator-tab .data-label,
+#calculator-tab .data-value,
+#app-page .data-label,
+#app-page .data-value {
+  font-size: clamp(0.875rem, 3vw, 1rem) !important;
+}
+
+#calculator-tab .explanation-text,
+#app-page .explanation-text {
+  font-size: clamp(0.875rem, 3vw, 1rem) !important;
+  line-height: 1.6;
+}
+
+#calculator-tab .placeholder-text,
+#app-page .placeholder-text {
+  font-size: clamp(0.875rem, 3vw, 1rem) !important;
+}
+
+#calculator-tab .cta-welcome-title,
+#app-page .cta-welcome-title {
+  font-size: clamp(1.25rem, 4vw, 1.5rem) !important;
+}
+
+#calculator-tab .cta-welcome-text,
+#app-page .cta-welcome-text {
+  font-size: clamp(0.875rem, 3vw, 1rem) !important;
+}
+
+#calculator-tab .cta-welcome-link,
+#app-page .cta-welcome-link {
+  font-size: clamp(0.95rem, 3.5vw, 1.125rem) !important;
+}
+
+#calculator-tab .summary-card,
+#app-page .summary-card {
+  display: none !important;
+}
+
+#calculator-tab .top-row,
+#app-page .top-row {
+  display: block !important;
+  gap: 0 !important;
+}
+
+#calculator-tab .form-card,
+#app-page .form-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: none !important;
+}
+
+#calculator-tab .details-card,
+#app-page .details-card {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+#calculator-tab .step-indicator,
+.step-indicator {
+  padding: 0.5rem 0.25rem !important;
+  margin-bottom: 1rem !important;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  justify-content: flex-start;
+}
+
+#calculator-tab .step-item,
+.step-item {
+  flex: 0 0 auto;
+  min-width: 65px !important;
+  max-width: 85px !important;
+  padding: 0 0.15rem !important;
+  gap: 0.25rem !important;
+}
+
+#calculator-tab .step-label,
+.step-label {
+  font-size: clamp(0.6rem, 2vw, 0.75rem) !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+#calculator-tab .step-dot,
+.step-dot {
+  width: 10px !important;
+  height: 10px !important;
+}
+
+#calculator-tab .step-connector,
+.step-connector {
+  top: 5px !important;
+  height: 1.5px !important;
+}
+
+#calculator-tab .step-item.active .step-dot,
+.step-item.active .step-dot {
+  transform: scale(1.2) !important;
+}
+
+#calculator-tab .form-group,
+#app-page .form-group {
+  margin-bottom: 1.25rem !important;
+}
+
+#calculator-tab .input-wrapper,
+#app-page .input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+#calculator-tab .form-input,
+#app-page .form-input {
+  padding: 1rem !important;
+  min-height: 3rem;
+}
+
+#calculator-tab .validation-icon,
+#app-page .validation-icon {
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+#calculator-tab .error-message,
+#app-page .error-message {
+  font-size: clamp(0.75rem, 2.5vw, 0.875rem) !important;
+  margin-top: 0.5rem;
+}
+
+#calculator-tab .form-group label:has(input[type="checkbox"]),
+#app-page .form-group label:has(input[type="checkbox"]) {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#calculator-tab .page,
+#app-page {
+  padding: 1rem !important;
+}
+
+#calculator-tab .card,
+#app-page .card {
+  padding: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+#calculator-tab .controls,
+#app-page .controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem !important;
+  margin-top: 1.5rem !important;
+}
+
+#calculator-tab .btn,
+#app-page .btn {
+  width: 100% !important;
+  min-height: 3.5rem !important;
+  padding: 1rem 1.5rem !important;
+  font-size: clamp(0.875rem, 3vw, 1rem) !important;
+}
+
+#calculator-tab #btn-analyze,
+#app-page #btn-analyze {
+  min-height: 4rem !important;
+  font-size: clamp(1rem, 3.5vw, 1.125rem) !important;
+  font-weight: 700;
+}
+
+#calculator-tab .expandable-card,
+#app-page .expandable-card {
+  margin-bottom: 1rem !important;
+  padding: 0 !important;
+}
+
+#calculator-tab .expandable-header,
+#app-page .expandable-header {
+  padding: 1rem 1.25rem !important;
+  gap: 0.75rem;
+  cursor: pointer;
+  min-height: 3.5rem;
+  display: flex;
+  align-items: center;
+}
+
+#calculator-tab .expandable-header:active,
+#app-page .expandable-header:active {
+  transform: scale(0.98);
+}
+
+#calculator-tab .chevron,
+#app-page .chevron {
+  font-size: clamp(1rem, 3vw, 1.25rem) !important;
+  flex-shrink: 0;
+}
+
+#calculator-tab .expandable-content,
+#app-page .expandable-content {
+  padding: 1.25rem !important;
+}
+
+#calculator-tab .location-dropdown,
+#app-page .location-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 200;
+  margin-top: 0.5rem;
+}
+
+#calculator-tab .location-item,
+#calculator-tab .location-option,
+#app-page .location-item,
+#app-page .location-option {
+  padding: 1rem !important;
+  font-size: clamp(0.875rem, 3vw, 1rem) !important;
+}
+
+#calculator-tab .location-dropdown.active,
+#app-page .location-dropdown.active {
+  display: block !important;
+}
+
+#calculator-tab .tooltip,
+#app-page .tooltip {
+  width: 24px;
+  height: 24px;
+  font-size: 0.875rem;
+}
+
+#calculator-tab .tooltip-text,
+#app-page .tooltip-text {
+  max-width: 90vw !important;
+  font-size: clamp(0.75rem, 2.5vw, 0.875rem) !important;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 120%;
+}
+
+#calculator-tab .tooltip.active .tooltip-text,
+#app-page .tooltip.active .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+#calculator-tab .progress-wrapper,
+#app-page .progress-wrapper {
+  margin-top: 1.5rem !important;
+}
+
+#calculator-tab .progress-bar,
+#app-page .progress-bar {
+  height: 1.5rem !important;
+}
+
+#calculator-tab .progress-inner,
+#app-page .progress-inner {
+  font-size: clamp(0.75rem, 2.5vw, 0.875rem) !important;
+}
+
+#calculator-tab .progress-text,
+#app-page .progress-text {
+  font-size: clamp(0.75rem, 2.5vw, 0.875rem) !important;
+  margin-top: 0.5rem;
+}
+
+#calculator-tab .story-watermark::before,
+#calculator-tab .numerology-watermark::before,
+#calculator-tab .astrology-watermark::before,
+#calculator-tab .tree-watermark::before,
+#calculator-tab .cta-logo-watermark::before,
+#app-page .story-watermark::before,
+#app-page .numerology-watermark::before,
+#app-page .astrology-watermark::before,
+#app-page .tree-watermark::before,
+#app-page .cta-logo-watermark::before {
+  width: clamp(40px, 10vw, 60px) !important;
+  height: clamp(40px, 10vw, 60px) !important;
+  right: 1rem !important;
+}
+
+#calculator-tab .expanded::before,
+#app-page .expanded::before {
+  width: clamp(80px, 18vw, 120px) !important;
+  height: clamp(80px, 18vw, 120px) !important;
+}
+
+#calculator-tab .natal-table,
+#app-page .natal-table {
+  font-size: clamp(0.75rem, 2.5vw, 0.875rem) !important;
+  overflow-x: auto;
+  display: block;
+}
+
+#calculator-tab .natal-table th,
+#calculator-tab .natal-table td,
+#app-page .natal-table th,
+#app-page .natal-table td {
+  padding: 0.75rem 0.5rem !important;
+}
+
+#calculator-tab .tarot-card,
+#calculator-tab .cta-image-card,
+#app-page .tarot-card,
+#app-page .cta-image-card {
+  max-width: 100%;
+}
+
+#calculator-tab .tarot-card-inner,
+#calculator-tab .cta-image-inner,
+#app-page .tarot-card-inner,
+#app-page .cta-image-inner {
+  padding: 0.75rem;
+}
+
+#calculator-tab .cta-welcome-text,
+#app-page .cta-welcome-text {
+  text-align: center;
+  line-height: 1.6;
+  padding: 0 0.5rem;
+}
+
+#calculator-tab .cta-welcome-link,
+#app-page .cta-welcome-link {
+  display: inline-block;
+  margin-top: 1rem;
+  word-break: break-word;
+}
+
+#calculator-tab .data-row,
+#app-page .data-row {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 0.25rem;
+}
+
+#calculator-tab .calculation-trace,
+#app-page .calculation-trace {
+  font-size: clamp(0.75rem, 2.5vw, 0.875rem) !important;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+#calculator-tab .top-row,
+#app-page .top-row {
+  margin-bottom: 1.5rem !important;
+  gap: 0 !important;
+}
+
+#calculator-tab #step-3-section,
+#app-page #step-3-section {
+  margin-top: 1.5rem !important;
+}
+
+#calculator-tab #step-4-section,
+#app-page #step-4-section {
+  margin-top: 1.5rem !important;
+}
+
+#calculator-tab .preserve-whitespace,
+#app-page .preserve-whitespace {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+#calculator-tab .explanation-heading,
+#app-page .explanation-heading {
+  margin-top: 1rem !important;
+  margin-bottom: 0.75rem !important;
+  font-size: clamp(0.95rem, 3vw, 1.125rem) !important;
+}
+
+#calculator-tab [style*="margin-bottom: 2rem"],
+#app-page [style*="margin-bottom: 2rem"] {
+  margin-bottom: 1.5rem !important;
+}
+
+#calculator-tab .card,
+#app-page .card {
+  border-radius: var(--radius-xl) !important;
+}
+
+#calculator-tab .form-input:focus,
+#app-page .form-input:focus {
+  outline: none;
+  box-shadow: var(--shadow-inset), 0 0 0 2px var(--neuro-accent) !important;
+}
+
+#calculator-tab .btn:active:not(:disabled),
+#app-page .btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+#calculator-tab .btn:disabled,
+#app-page .btn:disabled {
+  opacity: 0.5;
+}
+
+#calculator-tab .hidden,
+#app-page .hidden {
+  display: none !important;
+}
+
+/* ===== SHADOW ALCHEMY LAB MOBILE ===== */
+
+#shadow-alchemy-tab .stat-label {
+  font-size: clamp(0.7rem, 2.5vw, 0.85rem) !important;
+}
+
+#shadow-alchemy-tab .stat-value {
+  font-size: clamp(1rem, 3.5vw, 1.25rem) !important;
+}
+
+#shadow-alchemy-tab .card h3 {
+  font-size: clamp(1.25rem, 4vw, 1.5rem) !important;
+}
+
+#shadow-alchemy-tab .card p {
+  font-size: clamp(0.85rem, 3vw, 0.95rem) !important;
+  line-height: 1.5;
+}
+
+#shadow-alchemy-tab .btn span {
+  font-size: clamp(0.875rem, 3vw, 1rem) !important;
+}
+
+#shadow-alchemy-tab .btn span[style*="font-size:2rem"] {
+  font-size: clamp(1.5rem, 5vw, 2rem) !important;
+}
+
+#shadow-alchemy-tab .archetype-card {
+  font-size: clamp(0.75rem, 2.5vw, 0.9rem) !important;
+}
+
+#shadow-alchemy-tab .archetype-card div[style*="font-size:1.5rem"] {
+  font-size: clamp(1.25rem, 4vw, 1.5rem) !important;
+}
+
+#shadow-alchemy-tab .journal-entry strong {
+  font-size: clamp(0.875rem, 3vw, 1rem) !important;
+}
+
+#shadow-alchemy-tab .journal-entry .muted {
+  font-size: clamp(0.75rem, 2.5vw, 0.85rem) !important;
+}
+
+#shadow-alchemy-tab div[style*="font-size:1.5rem;margin-bottom"] {
+  font-size: clamp(1.25rem, 4vw, 1.5rem) !important;
+}
+
+#shadow-alchemy-tab div[style*="font-weight:600;font-size:0.9rem"] {
+  font-size: clamp(0.8rem, 2.5vw, 0.9rem) !important;
+}
+
+#shadow-alchemy-tab .stats-bar {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 0.75rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+#shadow-alchemy-tab .neuro-stat {
+  padding: 0.875rem !important;
+  text-align: center;
+}
+
+#shadow-alchemy-tab .dashboard {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1.5rem !important;
+}
+
+#shadow-alchemy-tab #shadow-alchemy-main-content {
+  padding: 1rem !important;
+}
+
+#shadow-alchemy-tab .card > div[style*="grid-template-columns"] {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 1rem !important;
+  margin-top: 1.25rem !important;
+}
+
+#shadow-alchemy-tab #startNewJourney,
+#shadow-alchemy-tab #openFreeJournal,
+#shadow-alchemy-tab #openTriggerLog {
+  min-height: 100px !important;
+  padding: 1.25rem !important;
+  font-size: clamp(0.95rem, 3.5vw, 1.1rem) !important;
+}
+
+#shadow-alchemy-tab .archetype-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 1rem !important;
+}
+
+#shadow-alchemy-tab .archetype-card {
+  padding: 1rem !important;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+#shadow-alchemy-tab .archetype-card:active {
+  transform: scale(0.98);
+}
+
+#shadow-alchemy-tab .card > div[style*="grid-template-columns:repeat(3,1fr)"] {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 0.75rem !important;
+  margin: 1rem 0 !important;
+}
+
+#shadow-alchemy-tab .card > div[style*="grid-template-columns:repeat(3,1fr)"] > div {
+  padding: 1rem !important;
+}
+
+#shadow-alchemy-tab #saved-work-header {
+  flex-direction: column !important;
+  gap: 1rem;
+}
+
+#shadow-alchemy-tab #toggle-saved-work {
+  width: 100%;
+  margin-left: 0 !important;
+}
+
+#shadow-alchemy-tab .journal-entry {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 0.75rem !important;
+  padding: 1rem !important;
+}
+
+#shadow-alchemy-tab .entry-content {
+  width: 100%;
+}
+
+#shadow-alchemy-tab .entry-actions {
+  width: 100%;
+  justify-content: flex-start !important;
+  gap: 0.5rem !important;
+}
+
+#shadow-alchemy-tab .entry-view-btn,
+#shadow-alchemy-tab .entry-edit-btn,
+#shadow-alchemy-tab .entry-delete-btn {
+  flex: 1;
+  min-height: 2.5rem;
+  padding: 0.625rem 1rem !important;
+  font-size: clamp(0.75rem, 2.5vw, 0.875rem) !important;
+}
+
+#shadow-alchemy-tab .card > div[style*="background:var(--neuro-bg)"][style*="padding:var(--spacing-md)"] {
+  padding: 1rem !important;
+  margin-bottom: 1rem !important;
+}
+
+#shadow-alchemy-tab #continue-last-session {
+  min-height: 3rem !important;
+  padding: 0.875rem 1.25rem !important;
+  margin-top: 0.75rem !important;
+}
+
+#shadow-alchemy-tab .btn {
+  min-height: 3rem !important;
+  padding: 0.875rem 1.5rem !important;
+  font-size: clamp(0.875rem, 3vw, 1rem) !important;
+}
+
+#shadow-alchemy-tab .btn-primary {
+  min-height: 3.5rem !important;
+  font-weight: 700;
+}
+
+#shadow-alchemy-tab .btn-small {
+  min-height: 2.5rem !important;
+  padding: 0.625rem 1rem !important;
+  font-size: clamp(0.75rem, 2.5vw, 0.875rem) !important;
+}
+
+#shadow-alchemy-tab #open-sub-shadows-lab {
+  min-height: 3.5rem !important;
+  padding: 1.25rem !important;
+  font-size: clamp(0.95rem, 3.5vw, 1.1rem) !important;
+}
+
+#shadow-alchemy-tab .card {
+  padding: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+  border-radius: var(--radius-xl) !important;
+}
+
+#shadow-alchemy-tab .card > div[style*="text-align:center"] {
+  margin-bottom: 1rem !important;
+}
+
+#shadow-alchemy-tab .card > div[style*="text-align:center"] > div[style*="font-size:3rem"] {
+  margin-bottom: 0.75rem !important;
+}
+
+#shadow-alchemy-tab .card > div[style*="text-align:center"] h3 {
+  margin: 0 0 0.5rem 0 !important;
+}
+
+#shadow-alchemy-tab .card > div[style*="text-align:center"] p {
+  max-width: 100% !important;
+  padding: 0 0.5rem;
+}
+
+#shadow-alchemy-tab .journal-entry div {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+#shadow-alchemy-tab .journal-entry > div > div:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#shadow-alchemy-tab .muted {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#shadow-alchemy-tab [style*="margin-top:var(--spacing-xl)"] {
+  margin-top: 1.25rem !important;
+}
+
+#shadow-alchemy-tab [style*="margin-bottom:var(--spacing-lg)"] {
+  margin-bottom: 1rem !important;
+}
+
+#shadow-alchemy-tab [style*="gap:var(--spacing-lg)"] {
+  gap: 1rem !important;
+}
+
+#shadow-alchemy-tab [style*="gap:var(--spacing-md)"] {
+  gap: 0.75rem !important;
+}
+
+#shadow-alchemy-tab .btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+#shadow-alchemy-tab .journal-entry:active {
+  transform: scale(0.99);
+}
+
+#shadow-alchemy-tab .archetype-card:hover {
+  transform: translateY(-2px);
+}
+
+#shadow-alchemy-tab .btn:focus-visible {
+  outline: 3px solid var(--neuro-accent);
+  outline-offset: 3px;
+}
+
+#shadow-alchemy-tab .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#shadow-alchemy-tab #saved-work-content {
+  margin-top: 1rem !important;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+#shadow-alchemy-tab #saved-work-arrow {
+  font-size: 1.25rem;
+}
+
+.modal-overlay {
+  z-index: 10000;
+}
+
+.modal-card {
+  width: 95%;
+  max-height: 95vh;
+  padding: 1.25rem;
+}
 /* ===== END OF MOBILE STYLES ===== */
