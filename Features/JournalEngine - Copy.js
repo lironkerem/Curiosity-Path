@@ -1,5 +1,5 @@
 // ============================================
-// JOURNAL ENGINE - REDESIGNED (PATCHED)
+// JOURNAL ENGINE - REDESIGNED
 // ============================================
 import { NeumorphicModal } from '../Core/Modal.js';
 
@@ -143,6 +143,30 @@ class JournalEngine {
         border-radius: 8px;
         box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         position: relative;
+        animation: bookOpen 0.6s ease-out;
+      }
+      
+      @keyframes bookOpen {
+        from {
+          opacity: 0;
+          transform: perspective(1000px) rotateY(-30deg) scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: perspective(1000px) rotateY(0) scale(1);
+        }
+      }
+      
+      .journal-book::before {
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        border: 2px solid rgba(139, 115, 85, 0.4);
+        border-radius: 4px;
+        pointer-events: none;
       }
       
       .journal-pages {
@@ -298,19 +322,98 @@ class JournalEngine {
         border-radius: 8px;
       }
       
-      .journal-btn{
-        padding:.55rem 1.4rem;
-        border:none;
-        border-radius:6px;
-        font-family:'Crimson Text',serif;
-        font-size:1rem;
-        cursor:pointer;
-        transition:all .2s;
-        background:#fefae8;
-        color:#2c1810;
-        box-shadow:0 2px 6px rgba(0,0,0,.08);
+      .mode-btn {
+        padding: 0.6rem 1.5rem;
+        background: transparent;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-family: 'Crimson Text', serif;
+        font-size: 1rem;
+        color: #2c1810;
+        transition: all 0.2s;
       }
-      .journal-btn:hover{ background:#f5f0dc; }
+      
+      .mode-btn:hover {
+        background: rgba(254, 250, 232, 0.5);
+      }
+      
+      .mode-btn.active {
+        background: #fefae8;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        font-weight: 600;
+      }
+      
+      .save-btn {
+        padding: 0.6rem 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 4px;
+        color: white;
+        font-family: 'Crimson Text', serif;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      
+      .save-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+      
+      .close-book-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.5rem 1rem;
+        background: rgba(139, 69, 19, 0.15);
+        border: 1px solid rgba(139, 115, 85, 0.3);
+        border-radius: 6px;
+        color: #8b7355;
+        font-family: 'Crimson Text', serif;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      
+      .close-book-btn:hover {
+        background: rgba(139, 69, 19, 0.25);
+        border-color: rgba(139, 115, 85, 0.5);
+        transform: translateY(-1px);
+      }
+      
+      .empty-journal {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 400px;
+        font-family: 'Crimson Text', serif;
+        color: #8b7355;
+      }
+      
+      .empty-journal-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+      }
+      
+      .quick-prompts {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(139, 115, 85, 0.05);
+        border-radius: 4px;
+        border-left: 3px solid #8b7355;
+      }
+      
+      .prompt-text {
+        font-family: 'Crimson Text', serif;
+        font-style: italic;
+        color: #8b7355;
+        font-size: 0.95rem;
+      }
       
       .entry-actions {
         position: absolute;
@@ -363,19 +466,6 @@ class JournalEngine {
           transform: perspective(1000px) rotateY(0);
         }
       }
-      
-      /* ---------- open / close book ---------- */
-      @keyframes bookOpenAnim{
-        0%  { transform:perspective(1200px) rotateY( 90deg) scale(.85); opacity:.3; }
-        100%{ transform:perspective(1200px) rotateY(  0deg) scale(1);   opacity:1; }
-      }
-      @keyframes bookCloseAnim{
-        0%  { transform:perspective(1200px) rotateY(  0deg) scale(1);   opacity:1; }
-        100%{ transform:perspective(1200px) rotateY(-90deg) scale(.85); opacity:0; }
-      }
-      
-      .book-opening{ animation:bookOpenAnim .55s ease-out forwards; }
-      .book-closing{ animation:bookCloseAnim .45s ease-in  forwards; }
     </style>
 
     <div class="journal-container">
@@ -421,11 +511,11 @@ class JournalEngine {
     } else {
       wrapper.innerHTML = `
         <div class="journal-book">
-          <button class="journal-btn close-book-btn" id="close-journal">🔒 Close Journal</button>
+          <button class="close-book-btn" id="close-journal">🔒 Close Journal</button>
           
           <div class="mode-toggle">
-            <button class="journal-btn mode-btn active" data-mode="write">✍️ Write</button>
-            <button class="journal-btn mode-btn" data-mode="read">📖 Read</button>
+            <button class="mode-btn active" data-mode="write">✍️ Write</button>
+            <button class="mode-btn" data-mode="read">📖 Read</button>
           </div>
           
           <div class="journal-pages" id="journal-pages">
@@ -439,15 +529,11 @@ class JournalEngine {
               <button class="nav-btn" id="next-page" disabled>Next →</button>
             </div>
             
-            <button class="journal-btn save-btn" id="save-entry" style="display:none;">Save Entry</button>
+            <button class="save-btn" id="save-entry" style="display:none;">Save Entry</button>
           </div>
         </div>
       `;
       
-      const bookEl = wrapper.querySelector('.journal-book');
-      bookEl.classList.add('book-opening');
-      bookEl.addEventListener('animationend',()=>bookEl.classList.remove('book-opening'),{once:true});
-
       this.attachOpenEventListeners();
       this.renderCurrentView();
     }
@@ -462,13 +548,8 @@ class JournalEngine {
     const closeBtn = document.getElementById('close-journal');
     if (closeBtn) {
       closeBtn.addEventListener('click', () => {
-        const bookEl = document.querySelector('.journal-book');
-        if (!bookEl) { this.isOpen=false; this.renderJournal(); return; }
-        bookEl.classList.add('book-closing');
-        bookEl.addEventListener('animationend',()=>{
-          this.isOpen=false;
-          this.renderJournal();
-        },{once:true});
+        this.isOpen = false;
+        this.renderJournal();
       });
     }
 
@@ -567,24 +648,20 @@ class JournalEngine {
           minute: '2-digit'
         })}</div>
         
+        <div class="journal-mood">
+          ${moods.map(mood => `
+            <button class="mood-btn" data-mood="${mood.id}" title="${mood.title}">${mood.emoji}</button>
+          `).join('')}
+        </div>
+        
         <textarea 
           class="journal-textarea" 
           id="journal-entry-text"
           placeholder="Dear Journal, ${randomPrompt}"
         ></textarea>
         
-        <div class="quick-prompts" style="margin-top:1.2rem">
+        <div class="quick-prompts">
           <div class="prompt-text">💭 Writing prompt: ${randomPrompt}</div>
-        </div>
-        
-        <!-- MOOD SECTION – now under the textarea -->
-        <div class="quick-prompts" style="margin-top:1.2rem">
-          <div class="prompt-text">Your Mood</div>
-          <div class="journal-mood" style="margin-top:.6rem">
-            ${moods.map(mood => `
-              <button class="mood-btn" data-mood="${mood.id}" title="${mood.title}">${mood.emoji}</button>
-            `).join('')}
-          </div>
         </div>
       </div>
     `;
