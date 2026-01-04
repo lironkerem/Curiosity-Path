@@ -169,9 +169,9 @@ body {
   right: 0.4rem;
   background: linear-gradient(135deg, #fcd34d, #f59e0b);
   color: #111;
-  font-size: 0.6rem;
+  font-size: clamp(0.5rem, 1.5vw, 0.6rem);
   font-weight: 600;
-  padding: 7px;
+  padding: clamp(5px, 1.5vw, 7px);
   border-radius: 9999px;
   letter-spacing: 0.5px;
   line-height: 1;
@@ -1411,6 +1411,468 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   box-shadow: var(--shadow-inset);
 }
 
+/* ===== ENERGY TRACKER - MOOD CHIPS ===== */
+#energy-tab #mood-chips {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+#energy-tab #mood-chips .chip {
+  font-size: 0.875rem;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--neuro-bg);
+  color: var(--neuro-text);
+  cursor: pointer;
+  box-shadow: 4px 4px 8px var(--neuro-shadow-dark), -4px -4px 8px var(--neuro-shadow-light);
+  transition: all 0.2s ease;
+  line-height: 1.4;
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+#energy-tab #mood-chips .chip:hover {
+  box-shadow: var(--shadow-inset-sm);
+}
+
+#energy-tab #mood-chips .chip:active,
+#energy-tab #mood-chips .chip.selected {
+  box-shadow: var(--shadow-inset);
+}
+
+/* =========================================================
+   PERSONAL JOURNAL
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&display=swap');
+
+.journal-container {
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+.journal-book-wrapper {
+  max-width: 900px;
+  margin: 2rem auto;
+  perspective: 2000px;
+}
+
+/* Closed Book Cover */
+.journal-closed {
+  background: radial-gradient(ellipse at 20% 30%, rgba(101,67,33,.3), transparent 50%),
+              radial-gradient(ellipse at 80% 70%, rgba(101,67,33,.3), transparent 50%),
+              linear-gradient(135deg, #5c3d2e 0%, #3d2817 50%, #2b1810 100%);
+  padding: 2rem;
+  border-radius: 4px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.6);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #2b1810;
+}
+
+.journal-closed::before {
+  content: '';
+  position: absolute;
+  inset: 25px;
+  border: 2px solid rgba(212,175,55,.4);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.journal-closed:hover {
+  transform: translateY(-3px);
+}
+
+.journal-cover-title {
+  font-family: 'Cinzel', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #d4af37;
+  text-shadow: 2px 2px 0 rgba(0,0,0,.8), 0 0 20px rgba(212,175,55,.3);
+  margin-bottom: 1rem;
+  text-align: center;
+  letter-spacing: 3px;
+}
+
+.journal-cover-subtitle {
+  font-family: 'Crimson Text', serif;
+  font-size: 1rem;
+  color: #c9a961;
+  font-style: italic;
+}
+
+.journal-lock {
+  width: 50px;
+  height: 70px;
+  background: linear-gradient(135deg, #b8941f 0%, #d4af37 50%, #b8941f 100%);
+  border-radius: 6px;
+  margin-top: 2.5rem;
+  position: relative;
+  box-shadow: 0 6px 20px rgba(0,0,0,.5);
+  border: 2px solid #8b7355;
+}
+
+.journal-lock::before {
+  content: '🔒';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.8rem;
+}
+
+.journal-lock::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 16px;
+  border: 3px solid #b8941f;
+  border-bottom: none;
+  border-radius: 15px 15px 0 0;
+}
+
+/* Opened Book */
+.journal-book {
+  background: linear-gradient(135deg, #8b7355 0%, #6b5444 100%);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.3);
+  position: relative;
+}
+
+.journal-pages {
+  background: #fefae8;
+  border-radius: 4px;
+  min-height: 500px;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,.1);
+  position: relative;
+  overflow: visible;
+}
+
+.journal-page {
+  padding: 2.5rem 2.5rem 2.5rem 100px;
+  background-image: repeating-linear-gradient(transparent, transparent 31px, rgba(139,115,85,.1) 31px, rgba(139,115,85,.1) 32px);
+  min-height: 500px;
+  position: relative;
+}
+
+.journal-page::before {
+  content: '';
+  position: absolute;
+  left: 80px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(220,53,69,.3);
+}
+
+/* Write Mode */
+.write-mode .journal-textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  font-family: 'Kalam', cursive;
+  font-size: 1.1rem;
+  color: #2c1810;
+  line-height: 32px;
+  resize: none;
+  outline: none;
+  min-height: 350px;
+}
+
+.write-mode .journal-textarea::placeholder {
+  color: rgba(44,24,16,.3);
+  font-style: italic;
+}
+
+/* Read Mode */
+.read-mode .entry-content {
+  font-family: 'Kalam', cursive;
+  font-size: 1.1rem;
+  color: #2c1810;
+  line-height: 32px;
+  white-space: pre-wrap;
+}
+
+.empty-journal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #8b7355;
+  font-family: 'Crimson Text', serif;
+}
+
+.empty-journal-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+/* Journal Date & Metadata */
+.journal-date {
+  font-family: 'Crimson Text', serif;
+  font-size: 0.95rem;
+  color: #8b7355;
+  font-style: italic;
+  margin-bottom: 1.5rem;
+}
+
+/* Mood Selection */
+.journal-mood {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+}
+
+.mood-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: rgba(139,115,85,.1);
+  cursor: pointer;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.mood-btn:hover {
+  transform: scale(1.15);
+  background: rgba(139,115,85,.15);
+}
+
+.mood-btn.active {
+  border-color: #8b7355;
+  background: rgba(139,115,85,.25);
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(139,115,85,.3);
+}
+
+/* Journal Controls */
+.journal-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 1.5rem;
+  padding: 0 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+  min-height: 50px;
+}
+
+.journal-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 1rem;
+  position: relative;
+}
+
+.nav-btn {
+  background: rgba(139,115,85,.2);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Crimson Text', serif;
+  color: #2c1810;
+  transition: all 0.2s ease;
+}
+
+.nav-btn:hover:not(:disabled) {
+  background: rgba(139,115,85,.3);
+}
+
+.nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.page-indicator {
+  font-family: 'Crimson Text', serif;
+  color: #8b7355;
+  font-size: 0.9rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Mode Toggle */
+.mode-toggle {
+  display: flex;
+  gap: 0.5rem;
+  background: rgba(139,115,85,.15);
+  padding: 0.3rem;
+  border-radius: 8px;
+}
+
+.mode-btn {
+  transition: all 0.2s ease;
+}
+
+.mode-btn.active {
+  background: #8b7355;
+  color: #fefae8;
+}
+
+/* Journal Buttons */
+.journal-btn {
+  padding: 0.55rem 1.4rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Crimson Text', serif;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: #fefae8;
+  color: #2c1810;
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+
+.journal-btn:hover {
+  background: #f5f0dc;
+}
+
+.save-btn {
+  background: linear-gradient(135deg, #8b7355, #6b5444);
+  color: #fefae8;
+}
+
+.save-btn:hover {
+  background: linear-gradient(135deg, #6b5444, #5c3d2e);
+}
+
+/* Entry Actions */
+.entry-actions {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  background: rgba(139,115,85,.1);
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: rgba(139,115,85,.2);
+}
+
+/* Book Animations */
+@keyframes bookOpenAnim {
+  0% {
+    transform: perspective(1200px) rotateY(90deg) scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: perspective(1200px) rotateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bookCloseAnim {
+  0% {
+    transform: perspective(1200px) rotateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: perspective(1200px) rotateY(-90deg) scale(0.9);
+    opacity: 0;
+  }
+}
+
+.book-opening {
+  animation: bookOpenAnim 0.6s ease-out forwards;
+}
+
+.book-closing {
+  animation: bookCloseAnim 0.5s ease-in forwards;
+}
+
+/* Page Flip Animations */
+@keyframes pageFlipLeft {
+  0% {
+    transform: rotateY(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: rotateY(-90deg);
+    opacity: 0.5;
+  }
+  100% {
+    transform: rotateY(-180deg);
+    opacity: 1;
+  }
+}
+
+@keyframes pageFlipRight {
+  0% {
+    transform: rotateY(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: rotateY(90deg);
+    opacity: 0.5;
+  }
+  100% {
+    transform: rotateY(180deg);
+    opacity: 1;
+  }
+}
+
+.page-flip-left {
+  animation: pageFlipLeft 0.6s ease-in-out;
+}
+
+.page-flip-right {
+  animation: pageFlipRight 0.6s ease-in-out;
+}
+
+/* Writing Prompt Box */
+.prompt-box {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(139,115,85,.05);
+  border-radius: 4px;
+  border-left: 3px solid #8b7355;
+}
+
+.prompt-text {
+  font-family: 'Crimson Text', serif;
+  font-style: italic;
+  color: #8b7355;
+  font-size: 0.95rem;
+}
+
 /* =========================================================
    KARMA SHOP
    ========================================================= */
@@ -1646,7 +2108,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   transition: all var(--transition-normal);
   box-shadow: var(--shadow-raised);
   min-height: 200px;
-  border: 2px solid rgba(102, 126, 234, 0.2);
 }
 
 .wellness-tool-btn:hover {
@@ -1657,10 +2118,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 .wellness-tool-btn:active {
   transform: translateY(-2px);
   box-shadow: var(--shadow-inset);
-}
-
-.wellness-tool-active {
-  border: 2px solid rgba(102, 126, 234, 0.2);
 }
 
 .wellness-tool-icon {

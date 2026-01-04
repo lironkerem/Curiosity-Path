@@ -1,5 +1,5 @@
 // ============================================
-// JOURNAL ENGINE – PATCHED 4-POINTS
+// JOURNAL ENGINE – OPTIMIZED (Styles moved to CSS)
 // ============================================
 import { NeumorphicModal } from '../Core/Modal.js';
 
@@ -23,138 +23,6 @@ class JournalEngine {
     }
 
     tab.innerHTML = `
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&display=swap');
-      
-      /* ----------  MOBILE-FIRST BASE  ---------- */
-      .journal-container{ min-height:100vh; padding:1rem; }
-      .journal-book-wrapper{ max-width:900px; margin:2rem auto; perspective:2000px; }
-      
-      /* closed cover */
-      .journal-closed{
-        background:radial-gradient(ellipse at 20% 30%,rgba(101,67,33,.3),transparent 50%),
-                   radial-gradient(ellipse at 80% 70%,rgba(101,67,33,.3),transparent 50%),
-                   linear-gradient(135deg,#5c3d2e 0%,#3d2817 50%,#2b1810 100%);
-        padding:2rem; border-radius:4px; box-shadow:0 20px 60px rgba(0,0,0,.6);
-        cursor:pointer; transition:all .3s; position:relative; height:500px;
-        display:flex; flex-direction:column; align-items:center; justify-content:center;
-        border:3px solid #2b1810;
-      }
-      .journal-closed::before{
-        content:''; position:absolute; inset:25px; border:2px solid rgba(212,175,55,.4);
-        border-radius:2px; pointer-events:none;
-      }
-      .journal-closed:hover{ transform:translateY(-3px); }
-      .journal-cover-title{
-        font-family:'Cinzel',serif; font-size:2rem; font-weight:700; color:#d4af37;
-        text-shadow:2px 2px 0 rgba(0,0,0,.8),0 0 20px rgba(212,175,55,.3);
-        margin-bottom:1rem; text-align:center; letter-spacing:3px;
-      }
-      .journal-cover-subtitle{
-        font-family:'Crimson Text',serif; font-size:1rem; color:#c9a961; font-style:italic;
-      }
-      .journal-lock{ width:50px; height:70px; background:linear-gradient(135deg,#b8941f 0%,#d4af37 50%,#b8941f 100%);
-        border-radius:6px; margin-top:2.5rem; position:relative; box-shadow:0 6px 20px rgba(0,0,0,.5);
-        border:2px solid #8b7355;
-      }
-      .journal-lock::before{ content:'🔒'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:1.8rem; }
-      .journal-lock::after{ content:''; position:absolute; top:-8px; left:50%; transform:translateX(-50%);
-        width:30px; height:16px; border:3px solid #b8941f; border-bottom:none; border-radius:15px 15px 0 0; }
-
-      /* opened book */
-      .journal-book{
-        background:linear-gradient(135deg,#8b7355 0%,#6b5444 100%); padding:2rem; border-radius:8px;
-        box-shadow:0 10px 40px rgba(0,0,0,.3); position:relative;
-      }
-      .journal-pages{
-        background:#fefae8; border-radius:4px; min-height:500px;
-        box-shadow:inset 0 2px 8px rgba(0,0,0,.1); position:relative; overflow:visible;
-      }
-      .journal-page{
-        padding:2.5rem 2.5rem 2.5rem 100px;
-        background-image:repeating-linear-gradient(transparent,transparent 31px,rgba(139,115,85,.1) 31px,rgba(139,115,85,.1) 32px);
-        min-height:500px; position:relative;
-      }
-      .journal-page::before{ content:''; position:absolute; left:80px; top:0; bottom:0; width:2px; background:rgba(220,53,69,.3); }
-      .write-mode .journal-textarea{
-        width:100%; background:transparent; border:none; font-family:'Kalam',cursive;
-        font-size:1.1rem; color:#2c1810; line-height:32px; resize:none; outline:none; min-height:350px;
-      }
-      .write-mode .journal-textarea::placeholder{ color:rgba(44,24,16,.3); font-style:italic; }
-      .read-mode .entry-content{
-        font-family:'Kalam',cursive; font-size:1.1rem; color:#2c1810; line-height:32px; white-space:pre-wrap;
-      }
-      .journal-date{
-        font-family:'Crimson Text',serif; font-size:.95rem; color:#8b7355; font-style:italic; margin-bottom:1.5rem;
-      }
-      .journal-mood{ display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1.5rem; }
-      .mood-btn{
-        width:38px; height:38px; border-radius:50%; border:2px solid transparent;
-        background:rgba(139,115,85,.1); cursor:pointer; font-size:1.3rem;
-        display:flex; align-items:center; justify-content:center; transition:all .2s;
-      }
-      .mood-btn:hover{ transform:scale(1.15); background:rgba(139,115,85,.15); }
-      .mood-btn.active{ border-color:#8b7355; background:rgba(139,115,85,.25); transform:scale(1.2); box-shadow:0 2px 8px rgba(139,115,85,.3); }
-      .journal-controls{ display:flex; justify-content:space-between; align-items:flex-end; margin-top:1.5rem; padding:0 1rem; flex-wrap:wrap; gap:1rem; min-height:50px; }
-      .journal-nav{ display:flex; justify-content:space-between; align-items:center; width:100%; gap:1rem; }
-      .nav-btn{
-        background:rgba(139,115,85,.2); border:none; padding:.5rem 1rem; border-radius:4px; cursor:pointer;
-        font-family:'Crimson Text',serif; color:#2c1810; transition:all .2s;
-      }
-      .nav-btn:hover:not(:disabled){ background:rgba(139,115,85,.3); }
-      .nav-btn:disabled{ opacity:.3; cursor:not-allowed; }
-      .page-indicator{
-        font-family:'Crimson Text',serif; color:#8b7355; font-size:.9rem;
-        position:absolute; left:50%; transform:translateX(-50%);
-      }
-      .mode-toggle{ display:flex; gap:.5rem; background:rgba(139,115,85,.15); padding:.3rem; border-radius:8px; }
-      .journal-btn{
-        padding:.55rem 1.4rem; border:none; border-radius:6px; cursor:pointer;
-        font-family:'Crimson Text',serif; font-size:1rem; transition:all .2s;
-        background:#fefae8; color:#2c1810; box-shadow:0 2px 6px rgba(0,0,0,.08);
-      }
-      .journal-btn:hover{ background:#f5f0dc; }
-      .entry-actions{ position:absolute; top:1rem; right:1rem; display:flex; gap:.5rem; }
-      .action-btn{
-        background:rgba(139,115,85,.1); border:none; padding:.4rem .8rem; border-radius:4px;
-        cursor:pointer; font-size:.9rem; transition:all .2s;
-      }
-      .action-btn:hover{ background:rgba(139,115,85,.2); }
-      
-      /* ----------  NEW SMOOTH BOOK ANIM  ---------- */
-      @keyframes bookOpenAnim{
-        0%  { transform:perspective(1200px) rotateY(90deg) scale(.9); opacity:0; }
-        100%{ transform:perspective(1200px) rotateY(0) scale(1); opacity:1; }
-      }
-      @keyframes bookCloseAnim{
-        0%  { transform:perspective(1200px) rotateY(0) scale(1); opacity:1; }
-        100%{ transform:perspective(1200px) rotateY(-90deg) scale(.9); opacity:0; }
-      }
-      .book-opening{ animation:bookOpenAnim .6s ease-out forwards; }
-      .book-closing{ animation:bookCloseAnim .5s ease-in forwards; }
-
-      /* ----------  WRITING-PROMPT / MOOD BOX  ---------- */
-      .prompt-box{
-        margin-top:1rem; padding:1rem; background:rgba(139,115,85,.05);
-        border-radius:4px; border-left:3px solid #8b7355;
-      }
-      .prompt-text{ font-family:'Crimson Text',serif; font-style:italic; color:#8b7355; font-size:.95rem; }
-
-      /* ----------  MOBILE OVERRIDES  ---------- */
-      @media (max-width:700px){
-        .journal-page{ padding:1.5rem 1rem 1.5rem 60px; }
-        .journal-page::before{ left:45px; }
-        .journal-controls{ flex-direction:column; align-items:center; }
-        .journal-nav{ width:100%; justify-content:space-between; }
-        .page-indicator{ position:static; transform:none; margin-top:.5rem; }
-        .mode-toggle{ margin-bottom:1rem; }
-        .journal-btn{ font-size:.9rem; padding:.5rem 1rem; }
-        .journal-book{ padding:1rem; }
-        .journal-cover-title{ font-size:1.5rem; }
-        .journal-lock{ width:40px; height:55px; }
-      }
-    </style>
-
     <div class="journal-container">
       <div class="universal-content">
         <header class="main-header project-curiosity"
@@ -200,7 +68,7 @@ class JournalEngine {
           <!-- top bar -->
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
             <div class="mode-toggle">
-              <button class="journal-btn mode-btn active" data-mode="write">✍️ Write</button>
+              <button class="journal-btn mode-btn active" data-mode="write">✏️ Write</button>
               <button class="journal-btn mode-btn" data-mode="read">📖 Read</button>
             </div>
             <button class="journal-btn close-book-btn" id="close-journal">🔒 Close</button>
@@ -535,8 +403,8 @@ class JournalEngine {
     const gm = this.app.gamification;
     if (!gm) return;
 
-    if (total === 1) gm.grantAchievement({ id: 'first_journal', name: 'First Reflection', xp: 50, icon: '📝', inspirational: 'You\'ve begun your journey of self-reflection!' });
-    if (total === 10) gm.grantAchievement({ id: 'journal_10', name: 'Reflective Writer', xp: 100, icon: '✍️', inspirational: '10 journal entries! Your self-awareness is growing!' });
+    if (total === 1) gm.grantAchievement({ id: 'first_journal', name: 'First Reflection', xp: 50, icon: '📔', inspirational: 'You\'ve begun your journey of self-reflection!' });
+    if (total === 10) gm.grantAchievement({ id: 'journal_10', name: 'Reflective Writer', xp: 100, icon: '✏️', inspirational: '10 journal entries! Your self-awareness is growing!' });
     if (total === 50) gm.grantAchievement({ id: 'journal_50', name: 'Master Journaler', xp: 250, icon: '📖', inspirational: '50 entries! You are a master of introspection!' });
     if (total === 100) gm.grantAchievement({ id: 'journal_100', name: 'Chronicle Keeper', xp: 500, icon: '📚', inspirational: '100 journal entries! Your wisdom is documented!' });
   }

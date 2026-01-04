@@ -1861,6 +1861,138 @@ body.sheet-open .lux-footer {
   }
 }
 
+/* =========================================================
+   PERSONAL JOURNAL - MOBILE
+   ========================================================= */
+
+#journal-tab .journal-container {
+  padding: 0.75rem;
+}
+
+#journal-tab .journal-book-wrapper {
+  margin: 1rem auto;
+}
+
+#journal-tab .journal-closed {
+  height: 400px;
+  padding: 1.5rem;
+}
+
+#journal-tab .journal-cover-title {
+  font-size: 1.5rem;
+  letter-spacing: 2px;
+}
+
+#journal-tab .journal-cover-subtitle {
+  font-size: 0.875rem;
+}
+
+#journal-tab .journal-lock {
+  width: 40px;
+  height: 55px;
+  margin-top: 2rem;
+}
+
+#journal-tab .journal-lock::before {
+  font-size: 1.5rem;
+}
+
+#journal-tab .journal-book {
+  padding: 1rem;
+}
+
+#journal-tab .journal-page {
+  padding: 1.5rem 1rem 1.5rem 60px;
+  min-height: 400px;
+}
+
+#journal-tab .journal-page::before {
+  left: 45px;
+}
+
+#journal-tab .write-mode .journal-textarea {
+  font-size: 1rem;
+  min-height: 280px;
+}
+
+#journal-tab .read-mode .entry-content {
+  font-size: 1rem;
+}
+
+#journal-tab .journal-date {
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+#journal-tab .mood-btn {
+  width: 34px;
+  height: 34px;
+  font-size: 1.1rem;
+}
+
+#journal-tab .journal-controls {
+  flex-direction: column;
+  align-items: center;
+  padding: 0 0.5rem;
+  gap: 0.75rem;
+}
+
+#journal-tab .journal-nav {
+  width: 100%;
+  justify-content: space-between;
+}
+
+#journal-tab .page-indicator {
+  position: static;
+  transform: none;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+}
+
+#journal-tab .mode-toggle {
+  margin-bottom: 1rem;
+  width: 100%;
+  justify-content: center;
+}
+
+#journal-tab .journal-btn {
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+}
+
+#journal-tab .nav-btn {
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+}
+
+#journal-tab .entry-actions {
+  top: 0.75rem;
+  right: 0.75rem;
+  gap: 0.375rem;
+}
+
+#journal-tab .action-btn {
+  padding: 0.375rem 0.625rem;
+  font-size: 0.8rem;
+}
+
+#journal-tab .prompt-box {
+  padding: 0.875rem;
+  margin-top: 0.875rem;
+}
+
+#journal-tab .prompt-text {
+  font-size: 0.875rem;
+}
+
+#journal-tab .empty-journal {
+  padding: 2rem 1rem;
+}
+
+#journal-tab .empty-journal-icon {
+  font-size: 3rem;
+}
+
 } /* End @media (max-width: 767px) */
 
 /* ===== DESKTOP: HIDE MOBILE ELEMENTS ===== */
