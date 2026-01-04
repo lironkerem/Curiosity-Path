@@ -1,6 +1,6 @@
 // =========================================================
-//  GamificationEngine.js – 56-Badge System + Inlined Level-Up Spectacle
-//  Achievements removed; Karma reward per rarity kept
+//  GamificationEngine.js - 56-BADGE SYSTEM ONLY
+//  Achievements removed; Karma reward per rarity added
 // =========================================================
 export class GamificationEngine {
   constructor(app) {
@@ -177,7 +177,6 @@ export class GamificationEngine {
       this.emit('levelUp', { level, title });
       this.addXP(50, `Level ${level}`);
       this.app?.showToast(`🎉 Level ${level} – ${title}  +50 XP`, 'success');
-      showLevelUpSpectacle({ level, title, xp: 50, karma: 0 }); // <-- spectacle
       this.checkAllBadges();
     }
   }
@@ -482,6 +481,25 @@ export class GamificationEngine {
   }
 
   /* ---------------------------------------------------------
+     STREAK
+  --------------------------------------------------------- */
+  updateStreak() {
+    const today = new Date().toDateString();
+    if (this.state.streak.lastCheckIn === today) return;
+    const last = this.state.streak.lastCheckIn ? new Date(this.state.streak.lastCheckIn) : null;
+    const diff = last ? (new Date(today) - last) / (1000 * 60 * 60 * 24) : null;
+    if (!last || diff > this.state.settings.streakResetDays) {
+      this.state.streak.current = 1;
+    } else {
+      this.state.streak.current += 1;
+    }
+    this.state.streak.lastCheckIn = today;
+    this.emit('streakUpdated', { current: this.state.streak.current });
+    this.checkAllBadges();
+    this.saveState();
+  }
+
+  /* ---------------------------------------------------------
      QUESTS
   --------------------------------------------------------- */
   progressEnergyCheckin(timeOfDay) {
@@ -647,130 +665,6 @@ export class GamificationEngine {
     this.state = this.defaultState();
     this.emit('reset', null);
   }
-}
-
-/* ----------  inlined level-up spectacle  ---------- */
-function showLevelUpSpectacle({ level, title, karma = 0, xp = 0 }) {
-  if (document.getElementById('lvl-spectacle')) return; // one at a time
-  const duration = 4_000;
-
-  // ----------  CSS  ----------
-  const st = document.createElement('style');
-  st.id = 'lvl-spectacle-styles';
-  st.textContent = `
-    #lvl-spectacle{
-      position:fixed;inset:0;z-index:9999;
-      pointer-events:none;
-      font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
-    }
-    .lvl-overlay{
-      position:absolute;inset:0;
-      background:radial-gradient(circle at center,rgba(10,5,40,.7) 0%,rgba(0,0,0,.9) 80%);
-      animation:fadeIn .6s ease-out forwards;
-    }
-    .lvl-ring{
-      position:absolute;left:50%;top:50%;
-      border-radius:50%;transform:translate(-50%,-50%);
-      box-shadow:0 0 40px 0 #fff,0 0 80px 0 #9f7aea,0 0 120px 0 #4f46e5;
-    }
-    .lvl-ring-a{
-      width:30vmin;height:30vmin;
-      border:2.5vmin solid transparent;
-      background:conic-gradient(from 0deg,#c084fc,#818cf8,#60a5fa,#c084fc) border-box;
-      mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);
-      -webkit-mask-composite:destination-out;mask-composite:exclude;
-      animation:spin 2.5s linear infinite;
-    }
-    .lvl-ring-b{
-      width:40vmin;height:40vmin;
-      border:1.5vmin solid rgba(255,255,255,.15);
-      animation:spin 4s linear infinite reverse;
-    }
-    .lvl-flare{
-      position:absolute;left:50%;top:50%;
-      width:120vmin;height:120vmin;
-      background:radial-gradient(circle at center,rgba(255,255,255,.15) 0%,transparent 60%);
-      transform:translate(-50%,-50%) scale(0);
-      animation:flare 1.2s .3s ease-out forwards;
-    }
-    .lvl-text{
-      position:absolute;left:50%;top:50%;
-      transform:translate(-50%,-50%);
-      text-align:center;color:#fff;
-      animation:textIn .8s .5s ease-out forwards;
-      opacity:0;
-    }
-    .lvl-title{
-      font-size:clamp(3rem,12vmin,8rem);
-      font-weight:900;
-      letter-spacing:.05em;
-      background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 50%,#fde68a 100%);
-      -webkit-background-clip:text;background-clip:text;
-      -webkit-text-fill-color:transparent;
-      text-shadow:0 0 30px rgba(251,191,36,.6);
-    }
-    .lvl-sub{
-      font-size:clamp(1.2rem,4vmin,2.5rem);
-      margin-top:.5em;
-      color:#e0e0ff;
-    }
-    .lvl-rewards{
-      font-size:clamp(.9rem,3vmin,1.3rem);
-      margin-top:1em;
-      color:#c4b5fd;
-    }
-    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-    @keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
-    @keyframes flare{to{transform:translate(-50%,-50%) scale(2);opacity:0}}
-    @keyframes textIn{from{transform:translate(-50%,-30%);opacity:0}to{transform:translate(-50%,-50%);opacity:1}}
-    @keyframes particle{
-      to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy)));opacity:0}
-    }
-  `;
-  document.head.appendChild(st);
-
-  // ----------  DOM  ----------
-  const wrap = document.createElement('div');
-  wrap.id = 'lvl-spectacle';
-  wrap.innerHTML = `
-    <div class="lvl-overlay"></div>
-    <div class="lvl-ring lvl-ring-a"></div>
-    <div class="lvl-ring lvl-ring-b"></div>
-    <div class="lvl-flare"></div>
-    <div class="lvl-text">
-      <div class="lvl-title">LEVEL ${level}</div>
-      <div class="lvl-sub">${title}</div>
-      <div class="lvl-rewards">+${xp} XP +${karma} Karma</div>
-    </div>
-  `;
-  document.body.appendChild(wrap);
-
-  // ----------  particles  ----------
-  const flare = wrap.querySelector('.lvl-flare');
-  for (let i = 0; i < 60; i++) {
-    const p = document.createElement('div');
-    const hue = 40 + Math.random() * 40;
-    p.style.cssText = `
-      position:absolute;left:50%;top:50%;
-      width:4px;height:4px;
-      background:hsl(${hue},100%,70%);
-      border-radius:50%;
-      box-shadow:0 0 6px hsl(${hue},100%,70%);
-      transform:translate(-50%,-50%);
-      animation:particle ${1.2 + Math.random() * .8}s ${Math.random() * .3}s ease-out forwards;
-    `;
-    const a = Math.random() * Math.PI * 2;
-    const d = 30 + Math.random() * 50;
-    p.style.setProperty('--dx', `${Math.cos(a) * d}vmin`);
-    p.style.setProperty('--dy', `${Math.sin(a) * d}vmin`);
-    flare.appendChild(p);
-  }
-
-  // ----------  cleanup  ----------
-  setTimeout(() => {
-    wrap.remove();
-    st.remove();
-  }, duration);
 }
 
 export default GamificationEngine;

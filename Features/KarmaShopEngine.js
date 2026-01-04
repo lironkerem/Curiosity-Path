@@ -97,19 +97,19 @@ export class KarmaShopEngine {
       {
         id: 'skip_all_daily',
         name: 'Skip All Daily Quests',
-        description: 'Instantly complete all daily quests (gaining 200 XP | 50 Karma)' + this._capText('dailySkips'),
-        cost: 70, icon: '⭐', category: 'Quest Helpers', consumable: true, rarity: 'uncommon'
+        description: 'Instantly complete all daily quests (gaining 120 XP | 12 Karma)' + this._capText('dailySkips'),
+        cost: 60, icon: '⭐', category: 'Quest Helpers', consumable: true, rarity: 'uncommon'
       },
       {
         id: 'skip_all_weekly',
         name: 'Skip All Weekly Quests',
-        description: 'Instantly complete all weekly quests (gaining 500 XP | 125 Karma)' + this._capText('weeklySkips'),
+        description: 'Instantly complete all weekly quests (gaining 1200 XP | 100 Karma)' + this._capText('weeklySkips'),
         cost: 200, icon: '📅', category: 'Quest Helpers', consumable: true, rarity: 'rare'
       },
       {
         id: 'skip_all_monthly',
         name: 'Skip All Monthly Quests',
-        description: 'Instantly complete all monthly quests (gaining 900 XP | 225 Karma)' + this._capText('monthlySkips'),
+        description: 'Instantly complete all monthly quests (gaining 1500 XP | 140 Karma)' + this._capText('monthlySkips'),
         cost: 300, icon: '🗓️', category: 'Quest Helpers', consumable: true, rarity: 'epic'
       },
 
