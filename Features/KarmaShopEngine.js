@@ -14,6 +14,61 @@ export class KarmaShopEngine {
       this.activeBoosts = [];
       this.items = [];
     }
+    this.initSkipCaps();          // <-- NEW
+  }
+
+  /* ----------  cap helpers  ---------- */
+  initSkipCaps() {
+    const now = Date.now();
+    const weekKey  = this._weekKey(now);
+    const monthKey = this._monthKey(now);
+    const yearKey  = this._yearKey(now);
+
+    ['dailySkips','weeklySkips','monthlySkips'].forEach(type => {
+      let raw = localStorage.getItem('karma_skip_caps_'+type);
+      let obj = raw ? JSON.parse(raw) : {};
+      const key = type==='dailySkips' ? weekKey :
+                  type==='weeklySkips'? monthKey : yearKey;
+      if (obj.key !== key) {   // new period → reset
+        obj = { key, used: 0 };
+      }
+      localStorage.setItem('karma_skip_caps_'+type, JSON.stringify(obj));
+    });
+  }
+
+  _weekKey(t) {   // "2026-W02"  (Sun-Sat week)
+    const d = new Date(t);
+    const y = d.getFullYear();
+    const w = Math.ceil((d - new Date(y,0,1)) / 604800000);
+    return `${y}-W${String(w).padStart(2,'0')}`;
+  }
+  _monthKey(t) {  // "2026-01"
+    return new Date(t).toISOString().slice(0,7);
+  }
+  _yearKey(t) {   // "2026"
+    return new Date(t).getFullYear().toString();
+  }
+
+  _useSkipCap(type) {
+    const obj = JSON.parse(localStorage.getItem('karma_skip_caps_'+type));
+    obj.used += 1;
+    localStorage.setItem('karma_skip_caps_'+type, JSON.stringify(obj));
+  }
+
+  _skipCapUsed(type) {
+    const obj = JSON.parse(localStorage.getItem('karma_skip_caps_'+type));
+    return obj.used;
+  }
+
+  _skipCapMax(type) {
+    return type==='dailySkips' ? 2 :
+           type==='weeklySkips'? 2 : 3;
+  }
+
+  _capText(type) {   // helper for description text
+    const max = this._skipCapMax(type);
+    const period = type === 'dailySkips' ? 'week' : type === 'weeklySkips' ? 'month' : 'year';
+    return `<br><small style="opacity:.75">Max ${max} purchases per ${period}.</small>`;
   }
 
   buildCatalog() {
@@ -42,19 +97,19 @@ export class KarmaShopEngine {
       {
         id: 'skip_all_daily',
         name: 'Skip All Daily Quests',
-        description: 'Instantly complete all daily quests (gaining 200 XP | 50 Karma)',
+        description: 'Instantly complete all daily quests (gaining 200 XP | 50 Karma)' + this._capText('dailySkips'),
         cost: 70, icon: '⭐', category: 'Quest Helpers', consumable: true, rarity: 'uncommon'
       },
       {
         id: 'skip_all_weekly',
         name: 'Skip All Weekly Quests',
-        description: 'Instantly complete all weekly quests (gaining 500 XP | 125 Karma)',
+        description: 'Instantly complete all weekly quests (gaining 500 XP | 125 Karma)' + this._capText('weeklySkips'),
         cost: 200, icon: '📅', category: 'Quest Helpers', consumable: true, rarity: 'rare'
       },
       {
         id: 'skip_all_monthly',
         name: 'Skip All Monthly Quests',
-        description: 'Instantly complete all monthly quests (gaining 900 XP | 225 Karma)',
+        description: 'Instantly complete all monthly quests (gaining 900 XP | 225 Karma)' + this._capText('monthlySkips'),
         cost: 300, icon: '🗓️', category: 'Quest Helpers', consumable: true, rarity: 'epic'
       },
 
@@ -201,6 +256,18 @@ export class KarmaShopEngine {
     if (karma < item.cost) return { can: false, reason: `Need ${item.cost - karma} more Karma` };
     if (item.consumable && this.isBoostActive(itemId)) return { can: false, reason: 'Already active' };
     if (!item.consumable && this.isItemOwned(itemId)) return { can: false, reason: 'Already owned' };
+
+    // ----------  cap check  ----------
+    const capMap = {
+      'skip_all_daily':  'dailySkips',
+      'skip_all_weekly': 'weeklySkips',
+      'skip_all_monthly':'monthlySkips'
+    };
+    if (capMap[itemId]) {
+      const used = this._skipCapUsed(capMap[itemId]);
+      const max  = this._skipCapMax(capMap[itemId]);
+      if (used >= max) return { can: false, reason: `Cap reached (${max}/${max})` };
+    }
     return { can: true };
   }
   isItemOwned(itemId) {
@@ -218,6 +285,11 @@ export class KarmaShopEngine {
     this.app.gamification.saveState();
     this.recordPurchase(itemId, item.cost);
     const history = this.getPurchaseHistory();
+
+    // burn a cap if quest skip
+    const capMap = { 'skip_all_daily':'dailySkips','skip_all_weekly':'weeklySkips','skip_all_monthly':'monthlySkips' };
+    if (capMap[itemId]) this._useSkipCap(capMap[itemId]);
+
     if (history.length === 1) {
       this.app.gamification.grantBadge({
         id: 'first_purchase',
@@ -357,7 +429,6 @@ export class KarmaShopEngine {
     const tab = document.getElementById('karma-shop-tab');
     if (!tab) return;
 
-    // kill any previous live ticker
     if (this._boostTicker) { clearInterval(this._boostTicker); this._boostTicker = null; }
 
     const karma = this.app.gamification.state.karma;
@@ -416,7 +487,6 @@ export class KarmaShopEngine {
       'skip_all_monthly': '🗓️ Skip Monthly Quests'
     };
 
-    // build shell once
     const html = `
       <div class="card karma-shop-boosts">
         <h3 class="karma-shop-boosts-title">📋 Active Boosts</h3>
@@ -424,10 +494,9 @@ export class KarmaShopEngine {
       </div>
     `;
 
-    // live update function
     const tick = () => {
       const box = document.getElementById('boosts-list-live');
-      if (!box) return; // tab closed
+      if (!box) return;
       box.innerHTML = this.activeBoosts.map(boost => {
         const isQuest = boost.id.startsWith('skip_all_');
         const msLeft  = isQuest
@@ -444,7 +513,6 @@ export class KarmaShopEngine {
       }).join('');
     };
 
-    // first paint + start 1-second ticker
     tick();
     this._boostTicker = setInterval(tick, 1000);
     return html;

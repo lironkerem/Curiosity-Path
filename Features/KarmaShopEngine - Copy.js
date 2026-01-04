@@ -1,5 +1,5 @@
 // ============================================
-// Features/KarmaShopEngine.js  (QUEST-SKIPS AS BOOSTS)
+// Features/KarmaShopEngine.js  (QUEST-SKIPS RESET MID-WEEK-MONTH + LIVE COUNTERS)
 // ============================================
 
 export class KarmaShopEngine {
@@ -38,24 +38,24 @@ export class KarmaShopEngine {
         cost: 60, icon: '🔥', category: 'Power-Ups', consumable: true, duration: 172800000, rarity: 'epic'
       },
 
-      // QUEST HELPERS  (now have durations)
+      // QUEST HELPERS  (NO duration – we use reset helpers)
       {
         id: 'skip_all_daily',
         name: 'Skip All Daily Quests',
-        description: 'Instantly complete all daily quests (gaining all XP and Karma)',
-        cost: 30, icon: '⭐', category: 'Quest Helpers', consumable: true, duration: 86400000, rarity: 'uncommon'
+        description: 'Instantly complete all daily quests (gaining 200 XP | 50 Karma)',
+        cost: 70, icon: '⭐', category: 'Quest Helpers', consumable: true, rarity: 'uncommon'
       },
       {
         id: 'skip_all_weekly',
         name: 'Skip All Weekly Quests',
-        description: 'Instantly complete all weekly quests (gaining all XP and Karma)',
-        cost: 200, icon: '📅', category: 'Quest Helpers', consumable: true, duration: 604800000, rarity: 'rare'
+        description: 'Instantly complete all weekly quests (gaining 500 XP | 125 Karma)',
+        cost: 200, icon: '📅', category: 'Quest Helpers', consumable: true, rarity: 'rare'
       },
       {
         id: 'skip_all_monthly',
         name: 'Skip All Monthly Quests',
-        description: 'Instantly complete all monthly quests (gaining all XP and Karma)',
-        cost: 300, icon: '🗓️', category: 'Quest Helpers', consumable: true, duration: 2592000000, rarity: 'epic'
+        description: 'Instantly complete all monthly quests (gaining 900 XP | 225 Karma)',
+        cost: 300, icon: '🗓️', category: 'Quest Helpers', consumable: true, rarity: 'epic'
       },
 
       // PREMIUM FEATURES
@@ -130,15 +130,62 @@ export class KarmaShopEngine {
   saveActiveBoosts() {
     localStorage.setItem('karma_active_boosts', JSON.stringify(this.activeBoosts));
   }
+
+  /* ---- reset-time helpers ---- */
+  _nextDailyReset() {
+    const t = new Date();
+    t.setHours(24, 0, 0, 0);
+    return t.getTime();
+  }
+  _nextWeeklyReset() {
+    const t = new Date();
+    const daysToSun = (7 - t.getDay()) % 7 || 7;
+    t.setDate(t.getDate() + daysToSun);
+    t.setHours(0, 0, 0, 0);
+    return t.getTime();
+  }
+  _nextMonthlyReset() {
+    const t = new Date();
+    t.setMonth(t.getMonth() + 1, 1);
+    t.setHours(0, 0, 0, 0);
+    return t.getTime();
+  }
+
+  /* ---- live counter formatter ---- */
+  _fmtDuration(ms) {
+    const secs = Math.max(0, Math.floor(ms / 1000));
+    const days = Math.floor(secs / 86400);
+    const hrs  = Math.floor((secs % 86400) / 3600);
+    const mins = Math.floor((secs % 3600) / 60);
+    const ss   = secs % 60;
+    const pad  = n => n.toString().padStart(2, '0');
+    if (days) return `${days}d ${pad(hrs)}:${pad(mins)}:${pad(ss)}`;
+    return `${pad(hrs)}:${pad(mins)}:${pad(ss)}`;
+  }
+
   checkExpiredBoosts() {
     const now = Date.now();
     const before = this.activeBoosts.length;
-    this.activeBoosts = this.activeBoosts.filter(b => b.expiresAt > now);
+    this.activeBoosts = this.activeBoosts.filter(b => {
+      if (b.id.startsWith('skip_all_')) {
+        const resetFn = b.id === 'skip_all_daily'  ? this._nextDailyReset
+                      : b.id === 'skip_all_weekly' ? this._nextWeeklyReset
+                      : this._nextMonthlyReset;
+        return now < resetFn.call(this);
+      }
+      return b.expiresAt > now;
+    });
     if (before !== this.activeBoosts.length) this.render();
     this.saveActiveBoosts();
   }
   isBoostActive(boostId) {
     this.checkExpiredBoosts();
+    if (boostId.startsWith('skip_all_')) {
+      const resetFn = boostId === 'skip_all_daily'  ? this._nextDailyReset
+                    : boostId === 'skip_all_weekly' ? this._nextWeeklyReset
+                    : this._nextMonthlyReset;
+      return Date.now() < resetFn.call(this);
+    }
     return this.activeBoosts.some(b => b.id === boostId);
   }
   activateBoost(boostId, duration) {
@@ -156,7 +203,6 @@ export class KarmaShopEngine {
     if (!item.consumable && this.isItemOwned(itemId)) return { can: false, reason: 'Already owned' };
     return { can: true };
   }
-  
   isItemOwned(itemId) {
     const inHistory = this.getPurchaseHistory().some(p => p.itemId === itemId);
     const isUnlocked = this.app.gamification?.state?.unlockedFeatures?.includes(itemId);
@@ -171,17 +217,17 @@ export class KarmaShopEngine {
     this.app.gamification.state.karma -= item.cost;
     this.app.gamification.saveState();
     this.recordPurchase(itemId, item.cost);
-const history = this.getPurchaseHistory();
-  if (history.length === 1) {          // first purchase ever
-    this.app.gamification.grantBadge({
-      id: 'first_purchase',
-      name: 'First Purchase',
-      icon: '🛒',
-      description: 'First purchase in the Karma Shop',
-      xp: 50,
-      rarity: 'epic'
-    });
-  }
+    const history = this.getPurchaseHistory();
+    if (history.length === 1) {
+      this.app.gamification.grantBadge({
+        id: 'first_purchase',
+        name: 'First Purchase',
+        icon: '🛒',
+        description: 'First purchase in the Karma Shop',
+        xp: 50,
+        rarity: 'epic'
+      });
+    }
     this.applyItemEffect(itemId, item);
     this.app.showToast(`✅ Purchased: ${item.name}!`, 'success');
     this.render();
@@ -214,22 +260,28 @@ const history = this.getPurchaseHistory();
           this.app.showToast('🔥 2× XP + 2× Karma active for 48 h!', 'success');
           break;
 
-        /*  QUEST HELPERS — now behave like boosts  */
+        /*  QUEST HELPERS – calendar reset  */
         case 'skip_all_daily':
           this.app.gamification._bulkMode = true;
-          this.app.gamification.state.quests.daily.filter(q => !q.completed).forEach(q => this.app.gamification.completeQuest('daily', q.id));
+          this.app.gamification.state.quests.daily.filter(q => !q.completed)
+                .forEach(q => this.app.gamification.completeQuest('daily', q.id));
           this.app.gamification._bulkMode = false;
-          this.activateBoost('skip_all_daily', item.duration);
+          this.activeBoosts.push({ id: 'skip_all_daily', expiresAt: 0 });
+          this.saveActiveBoosts();
           this.app.showToast('✅ All daily quests completed!', 'success');
           break;
         case 'skip_all_weekly':
-          this.app.gamification.state.quests.weekly.filter(q => !q.completed).forEach(q => this.app.gamification.completeQuest('weekly', q.id));
-          this.activateBoost('skip_all_weekly', item.duration);
+          this.app.gamification.state.quests.weekly.filter(q => !q.completed)
+                .forEach(q => this.app.gamification.completeQuest('weekly', q.id));
+          this.activeBoosts.push({ id: 'skip_all_weekly', expiresAt: 0 });
+          this.saveActiveBoosts();
           this.app.showToast('✅ All weekly quests completed!', 'success');
           break;
         case 'skip_all_monthly':
-          this.app.gamification.state.quests.monthly.filter(q => !q.completed).forEach(q => this.app.gamification.completeQuest('monthly', q.id));
-          this.activateBoost('skip_all_monthly', item.duration);
+          this.app.gamification.state.quests.monthly.filter(q => !q.completed)
+                .forEach(q => this.app.gamification.completeQuest('monthly', q.id));
+          this.activeBoosts.push({ id: 'skip_all_monthly', expiresAt: 0 });
+          this.saveActiveBoosts();
           this.app.showToast('✅ All monthly quests completed!', 'success');
           break;
 
@@ -304,6 +356,10 @@ const history = this.getPurchaseHistory();
   render() {
     const tab = document.getElementById('karma-shop-tab');
     if (!tab) return;
+
+    // kill any previous live ticker
+    if (this._boostTicker) { clearInterval(this._boostTicker); this._boostTicker = null; }
+
     const karma = this.app.gamification.state.karma;
     const purchaseHistory = this.getPurchaseHistory();
     const categories = ['Power-Ups', 'Quest Helpers', 'Premium Features', 'Premium Skins', 'Meet the Master'];
@@ -347,6 +403,53 @@ const history = this.getPurchaseHistory();
     `;
   }
 
+  renderActiveBoosts() {
+    this.checkExpiredBoosts();
+    if (this.activeBoosts.length === 0) return '';
+
+    const niceNames = {
+      'xp_multiplier': '⚡ 2× XP Boost',
+      'karma_multiplier': '💫 2× Karma Multiplier',
+      'double_boost': '🔥 Double Boost',
+      'skip_all_daily': '⭐ Skip Daily Quests',
+      'skip_all_weekly': '📅 Skip Weekly Quests',
+      'skip_all_monthly': '🗓️ Skip Monthly Quests'
+    };
+
+    // build shell once
+    const html = `
+      <div class="card karma-shop-boosts">
+        <h3 class="karma-shop-boosts-title">📋 Active Boosts</h3>
+        <div class="karma-shop-boosts-list" id="boosts-list-live"></div>
+      </div>
+    `;
+
+    // live update function
+    const tick = () => {
+      const box = document.getElementById('boosts-list-live');
+      if (!box) return; // tab closed
+      box.innerHTML = this.activeBoosts.map(boost => {
+        const isQuest = boost.id.startsWith('skip_all_');
+        const msLeft  = isQuest
+          ? (boost.id === 'skip_all_daily'  ? this._nextDailyReset()
+            : boost.id === 'skip_all_weekly' ? this._nextWeeklyReset()
+            : this._nextMonthlyReset()) - Date.now()
+          : boost.expiresAt - Date.now();
+        return `
+          <div class="karma-shop-boost-item">
+            <span class="karma-shop-boost-name">${niceNames[boost.id] || boost.id}</span>
+            <span class="karma-shop-boost-time">${this._fmtDuration(msLeft)}</span>
+          </div>
+        `;
+      }).join('');
+    };
+
+    // first paint + start 1-second ticker
+    tick();
+    this._boostTicker = setInterval(tick, 1000);
+    return html;
+  }
+
   renderShopItem(item) {
     const canBuy   = this.canPurchase(item.id);
     const isOwned  = !item.consumable && this.isItemOwned(item.id);
@@ -377,37 +480,6 @@ const history = this.getPurchaseHistory();
             ${!canBuy.can ? 'disabled' : ''}>
             ${isOwned ? '✓ Owned' : isActive ? '✓ Active' : canBuy.can ? '🛒 Purchase' : canBuy.reason}
           </button>
-        </div>
-      </div>
-    `;
-  }
-
-  renderActiveBoosts() {
-    this.checkExpiredBoosts();
-    if (this.activeBoosts.length === 0) return '';
-
-    const niceNames = {
-      'xp_multiplier': '⚡ 2× XP Boost',
-      'karma_multiplier': '💫 2× Karma Multiplier',
-      'double_boost': '🔥 Double Boost',
-      'skip_all_daily': '⭐ Skip Daily Quests',
-      'skip_all_weekly': '📅 Skip Weekly Quests',
-      'skip_all_monthly': '🗓️ Skip Monthly Quests'
-    };
-
-    return `
-      <div class="card karma-shop-boosts">
-        <h3 class="karma-shop-boosts-title">📋 Active Boosts</h3>
-        <div class="karma-shop-boosts-list">
-          ${this.activeBoosts.map(boost => {
-            const timeLeft = Math.ceil((boost.expiresAt - Date.now()) / 3600000);
-            return `
-              <div class="karma-shop-boost-item">
-                <span class="karma-shop-boost-name">${niceNames[boost.id] || boost.id}</span>
-                <span class="karma-shop-boost-time">${timeLeft}h remaining</span>
-              </div>
-            `;
-          }).join('')}
         </div>
       </div>
     `;
