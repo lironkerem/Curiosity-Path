@@ -1,4 +1,4 @@
-// AuthManager.js – Google + email login, optimised, no new files
+// AuthManager.js — Google + email login, optimised, no new files
 /* global window, document, location, localStorage, alert */
 
 import { supabase } from './Supabase.js';
@@ -167,12 +167,6 @@ export default class AuthManager {
     if (scr) { scr.style.display = 'none'; scr.innerHTML = ''; }
 
     if (isGoogle) this._ensureUserProgress(user.id);
-    
-    // CRITICAL FIX: Ensure theme is marked as loaded to show content
-    document.documentElement.classList.add('theme-loaded');
-    
-    // Trigger app initialization
-    await this.app.initializeApp();
   }
 
   _clearLocalUser() {
