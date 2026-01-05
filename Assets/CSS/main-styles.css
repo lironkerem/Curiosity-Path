@@ -3863,4 +3863,13 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   min-height: auto; 
 }
 
+.modal-card h3 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--neuro-text);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: var(--spacing-lg);
+}
+
 /* ===== END OF MAIN STYLES ===== */
