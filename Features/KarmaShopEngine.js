@@ -53,6 +53,7 @@ export class KarmaShopEngine {
     const obj = JSON.parse(localStorage.getItem('karma_skip_caps_'+type));
     obj.used += 1;
     localStorage.setItem('karma_skip_caps_'+type, JSON.stringify(obj));
+    this.render();   // refresh description counters
   }
 
   _skipCapUsed(type) {
@@ -65,12 +66,12 @@ export class KarmaShopEngine {
            type==='weeklySkips'? 2 : 3;
   }
 
-_capText(type){
-  const max=this._skipCapMax(type);
-  const period=type==='dailySkips'?'week':type==='weeklySkips'?'month':'year';
-  const left=Math.max(0,max-this._skipCapUsed(type));
-  return ` <span style="opacity:.7">Max ${max} per ${period} · ${left} left this ${period}.</span>`;
-}
+  _capText(type){
+    const max=this._skipCapMax(type);
+    const period=type==='dailySkips'?'week':type==='weeklySkips'?'month':'year';
+    const left=Math.max(0,max-this._skipCapUsed(type));
+    return ` <span style="opacity:.7">Max ${max} per ${period} · ${left} left this ${period}.</span>`;
+  }
 
   /* ---- remaining counter ---- */
   _capRemaining(itemId) {
@@ -115,19 +116,25 @@ _capText(type){
       {
         id: 'skip_all_daily',
         name: 'Skip All Daily Quests',
-        description: 'Instantly complete all daily quests (gaining 200 XP | 50 Karma)' + this._capText('dailySkips'),
+        description: `Instantly complete all daily quests
+(gaining 200 XP | 50 Karma)
+Max 2 per week · ${Math.max(0, this._skipCapMax('dailySkips') - this._skipCapUsed('dailySkips'))} left this week.`,
         cost: 70, icon: '⭐', category: 'Quest Helpers', consumable: true, rarity: 'uncommon'
       },
       {
         id: 'skip_all_weekly',
         name: 'Skip All Weekly Quests',
-        description: 'Instantly complete all weekly quests (gaining 500 XP | 125 Karma)' + this._capText('weeklySkips'),
+        description: `Instantly complete all weekly quests
+(gaining 500 XP | 125 Karma)
+Max 2 per month · ${Math.max(0, this._skipCapMax('weeklySkips') - this._skipCapUsed('weeklySkips'))} left this month.`,
         cost: 200, icon: '📅', category: 'Quest Helpers', consumable: true, rarity: 'rare'
       },
       {
         id: 'skip_all_monthly',
         name: 'Skip All Monthly Quests',
-        description: 'Instantly complete all monthly quests (gaining 900 XP | 225 Karma)' + this._capText('monthlySkips'),
+        description: `Instantly complete all monthly quests
+(gaining 900 XP | 225 Karma)
+Max 3 per year · ${Math.max(0, this._skipCapMax('monthlySkips') - this._skipCapUsed('monthlySkips'))} left this year.`,
         cost: 300, icon: '🗓️', category: 'Quest Helpers', consumable: true, rarity: 'epic'
       },
 
@@ -361,29 +368,54 @@ _capText(type){
           break;
 
         /*  QUEST HELPERS – calendar reset  */
-        case 'skip_all_daily':
-          this.app.gamification._bulkMode = true;
-          this.app.gamification.state.quests.daily.filter(q => !q.completed)
-                .forEach(q => this.app.gamification.completeQuest('daily', q.id));
-          this.app.gamification._bulkMode = false;
-          this.activeBoosts.push({ id: 'skip_all_daily', expiresAt: 0 });
-          this.saveActiveBoosts();
-          this.app.showToast('✅ All daily quests completed!', 'success');
+        case 'skip_all_daily': {
+          const todo = this.app.gamification.state.quests.daily.filter(q => !q.completed);
+          let xp = 0, karma = 0;
+          todo.forEach(q => {
+            xp   += q.xp   ?? 0;
+            karma += q.karma ?? 0;
+            this.app.gamification.completeQuest('daily', q.id);
+          });
+          xp   = Math.max(xp,   200);
+          karma = Math.max(karma, 50);
+          this.app.gamification.grantXP(xp);
+          this.app.gamification.grantKarma(karma);
+          this.activateBoost('skip_all_daily', this._nextDailyReset() - Date.now());
+          this.app.showToast(`✅ All daily quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
           break;
-        case 'skip_all_weekly':
-          this.app.gamification.state.quests.weekly.filter(q => !q.completed)
-                .forEach(q => this.app.gamification.completeQuest('weekly', q.id));
-          this.activeBoosts.push({ id: 'skip_all_weekly', expiresAt: 0 });
-          this.saveActiveBoosts();
-          this.app.showToast('✅ All weekly quests completed!', 'success');
+        }
+        case 'skip_all_weekly': {
+          const todo = this.app.gamification.state.quests.weekly.filter(q => !q.completed);
+          let xp = 0, karma = 0;
+          todo.forEach(q => {
+            xp   += q.xp   ?? 0;
+            karma += q.karma ?? 0;
+            this.app.gamification.completeQuest('weekly', q.id);
+          });
+          xp   = Math.max(xp,   500);
+          karma = Math.max(karma, 125);
+          this.app.gamification.grantXP(xp);
+          this.app.gamification.grantKarma(karma);
+          this.activateBoost('skip_all_weekly', this._nextWeeklyReset() - Date.now());
+          this.app.showToast(`✅ All weekly quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
           break;
-        case 'skip_all_monthly':
-          this.app.gamification.state.quests.monthly.filter(q => !q.completed)
-                .forEach(q => this.app.gamification.completeQuest('monthly', q.id));
-          this.activeBoosts.push({ id: 'skip_all_monthly', expiresAt: 0 });
-          this.saveActiveBoosts();
-          this.app.showToast('✅ All monthly quests completed!', 'success');
+        }
+        case 'skip_all_monthly': {
+          const todo = this.app.gamification.state.quests.monthly.filter(q => !q.completed);
+          let xp = 0, karma = 0;
+          todo.forEach(q => {
+            xp   += q.xp   ?? 0;
+            karma += q.karma ?? 0;
+            this.app.gamification.completeQuest('monthly', q.id);
+          });
+          xp   = Math.max(xp,   900);
+          karma = Math.max(karma, 225);
+          this.app.gamification.grantXP(xp);
+          this.app.gamification.grantKarma(karma);
+          this.activateBoost('skip_all_monthly', this._nextMonthlyReset() - Date.now());
+          this.app.showToast(`✅ All monthly quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
           break;
+        }
 
         /*  PREMIUM FEATURES  */
         case 'advanced_meditations':
@@ -550,14 +582,14 @@ _capText(type){
     const canBuy   = this.canPurchase(item.id);
     const isOwned  = !item.consumable && this.isItemOwned(item.id);
     const isActive = item.consumable && this.isBoostActive(item.id);
+    const badgeText = isOwned ? 'OWNED' : isActive ? 'ACTIVE' : '';
     const rarityColor = this.getRarityColor(item.rarity);
 
     return `
   <div class="card karma-shop-item"
        data-rarity="${item.rarity}"
        style="background:${rarityColor}">
-        ${isOwned ? '<div class="karma-shop-item-owned-badge">OWNED</div>' : ''}
-        ${isActive ? '<div class="karma-shop-item-owned-badge">ACTIVE</div>' : ''}
+        ${badgeText ? `<div class="karma-shop-item-owned-badge">${badgeText}</div>` : ''}
         <div class="karma-shop-item-content">
           <div class="karma-shop-item-icon">${item.icon}</div>
           <h4 class="karma-shop-item-name">${item.name}</h4>
