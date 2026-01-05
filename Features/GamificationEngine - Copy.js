@@ -511,53 +511,29 @@ export class GamificationEngine {
     this.saveState();
   }
 
-progressQuest(questType, questId, increment = 1) {
-  const quest = this.state.quests[questType]?.find(q => q.id === questId);
-  if (!quest || quest.completed) return;
-  quest.progress = Math.min(quest.target, quest.progress + increment);
-  if (quest.progress >= quest.target) {
-    quest.completed = true;
-    this.addXP(quest.xpReward || 50, `Quest: ${quest.name}`);
-    if (quest.karmaReward) this.state.karma += quest.karmaReward;
-    if (quest.badge) this.grantBadge(quest.badge);
-    if (quest.inspirational) this.emit('inspirationalMessage', quest.inspirational);
-    if (!this._bulkMode) this.emit('questCompleted', quest);
-    if (questType === 'daily' && this.state.quests.daily.every(q => q.completed)) {
-      this.addXP(50, 'Daily Quest Streak Bonus');
-      this.state.karma += 5;
-      if (!this._bulkMode) this.app?.showToast('🎉 Daily quests finished! +50 XP +5 Karma', 'success');
-      if (!this._bulkMode) this.emit('dailyQuestsComplete', null);
+  progressQuest(questType, questId, increment = 1) {
+    const quest = this.state.quests[questType]?.find(q => q.id === questId);
+    if (!quest || quest.completed) return;
+    quest.progress = Math.min(quest.target, quest.progress + increment);
+    if (quest.progress >= quest.target) {
+      quest.completed = true;
+      this.addXP(quest.xpReward || 50, `Quest: ${quest.name}`);
+      if (quest.karmaReward) this.state.karma += quest.karmaReward;
+      if (quest.badge) this.grantBadge(quest.badge);
+      if (quest.inspirational) this.emit('inspirationalMessage', quest.inspirational);
+      if (!this._bulkMode) this.emit('questCompleted', quest);
+      if (questType === 'daily' && this.state.quests.daily.every(q => q.completed)) {
+        this.addXP(50, 'Daily Quest Streak Bonus');
+        this.state.karma += 5;
+        if (!this._bulkMode) this.app?.showToast('🎉 Daily quests finished! +50 XP +5 Karma', 'success');
+        if (!this._bulkMode) this.emit('dailyQuestsComplete', null);
+      }
+      this.checkQuestBadges();
+    } else {
+      this.emit('questProgress', quest);
     }
-    this.checkQuestBadges();
-  } else {
-    this.emit('questProgress', quest);
+    this.saveState();
   }
-  this.saveState();
-}
-
-// ADD THIS NEW METHOD HERE:
-checkQuestBadges() {
-  const badges = this.getBadgeDefinitions();
-  
-  if (!this.state.totalQuestCompletions) {
-    this.state.totalQuestCompletions = 0;
-  }
-  
-  if (this.state.weeklyQuestCompletions >= 4) {
-    this.checkAndGrantBadge('weekly_warrior', badges);
-  }
-  if (this.state.monthlyQuestCompletions >= 1) {
-    this.checkAndGrantBadge('monthly_master', badges);
-  }
-  if (this.state.totalQuestCompletions >= 100) {
-    this.checkAndGrantBadge('quest_crusher', badges);
-  }
-  if (this.state.dailyQuestCompletions >= 30) {
-    this.checkAndGrantBadge('daily_champion', badges);
-  }
-  
-  this.saveState();
-}
 
   completeQuest(questType, questId) {
     const quest = this.state.quests[questType]?.find(q => q.id === questId);
