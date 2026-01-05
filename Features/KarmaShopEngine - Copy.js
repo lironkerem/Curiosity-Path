@@ -71,23 +71,6 @@ export class KarmaShopEngine {
     return `<br><small style="opacity:.75">Max ${max} purchases per ${period}.</small>`;
   }
 
-  /* ---- remaining counter ---- */
-  _capRemaining(itemId) {
-    const map = { 'skip_all_daily':'dailySkips','skip_all_weekly':'weeklySkips','skip_all_monthly':'monthlySkips' };
-    const type = map[itemId];
-    if (!type) return '';
-    const left = Math.max(0, this._skipCapMax(type) - this._skipCapUsed(type));
-    return `<small class="karma-shop-cap-left">${left} left this ${type==='dailySkips'?'week':type==='weeklySkips'?'month':'year'}</small>`;
-  }
-
-  /* ---- reset estimate ---- */
-  _whenResets(itemId){
-    const d = new Date();
-    if(itemId==='skip_all_daily')  { d.setDate(d.getDate()+(6-d.getDay())+1);  return 'Sunday'; }
-    if(itemId==='skip_all_weekly') { d.setMonth(d.getMonth()+1,1); return 'next month'; }
-    /*monthly*/                     { d.setMonth(0,1); d.setFullYear(d.getFullYear()+1); return 'next year'; }
-  }
-
   buildCatalog() {
     this.items = [
       // POWER-UPS
@@ -114,19 +97,19 @@ export class KarmaShopEngine {
       {
         id: 'skip_all_daily',
         name: 'Skip All Daily Quests',
-        description: 'Instantly complete all daily quests (gaining 200 XP | 50 Karma)' + this._capText('dailySkips'),
-        cost: 70, icon: '⭐', category: 'Quest Helpers', consumable: true, rarity: 'uncommon'
+        description: 'Instantly complete all daily quests (gaining 120 XP | 12 Karma)' + this._capText('dailySkips'),
+        cost: 60, icon: '⭐', category: 'Quest Helpers', consumable: true, rarity: 'uncommon'
       },
       {
         id: 'skip_all_weekly',
         name: 'Skip All Weekly Quests',
-        description: 'Instantly complete all weekly quests (gaining 500 XP | 125 Karma)' + this._capText('weeklySkips'),
+        description: 'Instantly complete all weekly quests (gaining 1200 XP | 100 Karma)' + this._capText('weeklySkips'),
         cost: 200, icon: '📅', category: 'Quest Helpers', consumable: true, rarity: 'rare'
       },
       {
         id: 'skip_all_monthly',
         name: 'Skip All Monthly Quests',
-        description: 'Instantly complete all monthly quests (gaining 900 XP | 225 Karma)' + this._capText('monthlySkips'),
+        description: 'Instantly complete all monthly quests (gaining 1500 XP | 140 Karma)' + this._capText('monthlySkips'),
         cost: 300, icon: '🗓️', category: 'Quest Helpers', consumable: true, rarity: 'epic'
       },
 
@@ -271,9 +254,7 @@ export class KarmaShopEngine {
     if (!item) return { can: false, reason: 'Item not found' };
     const karma = this.app.gamification.state.karma;
     if (karma < item.cost) return { can: false, reason: `Need ${item.cost - karma} more Karma` };
-    /* ----- FIX: skip quest-helpers from “already active” ----- */
-    if (item.consumable && this.isBoostActive(itemId) && !itemId.startsWith('skip_all_'))
-      return { can: false, reason: 'Already active' };
+    if (item.consumable && this.isBoostActive(itemId)) return { can: false, reason: 'Already active' };
     if (!item.consumable && this.isItemOwned(itemId)) return { can: false, reason: 'Already owned' };
 
     // ----------  cap check  ----------
@@ -299,15 +280,7 @@ export class KarmaShopEngine {
     const item = this.items.find(i => i.id === itemId);
     if (!item) { this.app.showToast('❌ Item not found', 'error'); return false; }
     const check = this.canPurchase(itemId);
-    if (!check.can) {
-      /* ----- friendly toast when quota exhausted ----- */
-      if (itemId.startsWith('skip_all_')) {
-        const map = { 'skip_all_daily':'dailySkips','skip_all_weekly':'weeklySkips','skip_all_monthly':'monthlySkips' };
-        this.app.showToast(`⏳  You’ve used all ${this._skipCapMax(map[itemId])} purchases for this ${map[itemId]==='dailySkips'?'week':map[itemId]==='weeklySkips'?'month':'year'}.  Resets ${this._whenResets(itemId)}.`, 'info');
-      }
-      this.app.showToast(`❌ ${check.reason}`, 'error');
-      return false;
-    }
+    if (!check.can) { this.app.showToast(`❌ ${check.reason}`, 'error'); return false; }
     this.app.gamification.state.karma -= item.cost;
     this.app.gamification.saveState();
     this.recordPurchase(itemId, item.cost);
@@ -568,7 +541,6 @@ export class KarmaShopEngine {
            <span class="karma-shop-item-rarity karma-shop-item-cost karma-shop-rarity-${item.rarity}">
             ${item.cost} 💎
            </span>
-           ${this._capRemaining(item.id)}
           </div>
           <button 
             onclick="window.featuresManager.engines['karma-shop'].purchase('${item.id}')" 
