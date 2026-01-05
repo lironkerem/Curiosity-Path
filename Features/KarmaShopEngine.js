@@ -65,12 +65,13 @@ export class KarmaShopEngine {
            type==='weeklySkips'? 2 : 3;
   }
 
-  _capText(type) {   // helper for description text
-    const max = this._skipCapMax(type);
-    const period = type === 'dailySkips' ? 'week' : type === 'weeklySkips' ? 'month' : 'year';
-    return`<br><small style="opacity:.75">Max ${max} purchases per ${period}.`
-    `<br><small class="karma-shop-cap-left">${max - this._skipCapUsed(type)} left this ${period}.</small>`;
-  }
+_capText(type){
+  const max=this._skipCapMax(type);
+  const period=type==='dailySkips'?'week':type==='weeklySkips'?'month':'year';
+  const left=Math.max(0,max-this._skipCapUsed(type));
+  return`<br><small style="opacity:.75">Max ${max} purchases per ${period}.`
+       +`<br><small class="karma-shop-cap-left">${left} left this ${period}.</small>`;
+}
 
   /* ---- remaining counter ---- */
   _capRemaining(itemId) {
