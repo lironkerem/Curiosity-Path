@@ -1351,7 +1351,14 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 .badge-title { font-weight: 700; font-size: .95rem; margin-bottom: .25rem; }
 .badge-sub { font-size: .7rem; opacity: .9; margin-bottom: .5rem; }
 .badge-rewards { display: flex; justify-content: space-around; font-size: .7rem; font-weight: 600; }
-
+.badge-category-title {
+  font-size: 1.35rem;          /* slightly bigger */
+  font-weight: 700;
+  margin: 2rem 0 .75rem;       /* space above / below */
+  color: var(--neuro-text);
+  text-align: center;
+  letter-spacing: .5px;
+}
 /* ===== GRATITUDE PRACTICE ===== */
 #gratitude-tab .gratitude-inspiration-container {
   padding: 1rem;
