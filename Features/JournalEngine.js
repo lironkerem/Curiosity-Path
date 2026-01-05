@@ -78,15 +78,15 @@ class JournalEngine {
           <!-- top bar -->
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
             <div class="mode-toggle">
-              <button class="journal-btn mode-btn active" data-mode="write">✏️ Write</button>
-              <button class="journal-btn mode-btn" data-mode="read">📖 Read</button>
+              <button class="journal-btn-neuro mode-btn active" data-mode="write">✏️ Write</button>
+              <button class="journal-btn-neuro mode-btn" data-mode="read">📖 Read</button>
             </div>
             <div style="display:flex;gap:.5rem;align-items:center;">
-              <button class="journal-btn lock-toggle-btn" id="lock-toggle" title="${hasPin ? (this.isLocked ? 'Locked' : 'Unlocked') : 'Set PIN to lock'}">
-                ${hasPin ? (this.isLocked ? '🔒' : '🔓') : '🔓'}
+              <button class="journal-btn-neuro lock-toggle-btn" id="lock-toggle">
+                ${hasPin ? (this.isLocked ? '🔒 Lock Journal' : '🔓 Lock Journal') : '🔓 Lock Journal'}
               </button>
-              ${hasPin ? '<button class="journal-btn" id="pin-settings" title="PIN Settings">⚙️</button>' : ''}
-              <button class="journal-btn close-book-btn" id="close-journal">📕 Close</button>
+              ${hasPin ? '<button class="journal-btn-neuro" id="pin-settings" title="PIN Settings">⚙️</button>' : ''}
+              <button class="journal-btn-neuro close-book-btn" id="close-journal">📕 Close</button>
             </div>
           </div>
 
@@ -95,17 +95,25 @@ class JournalEngine {
           <!-- controls -->
           <div class="journal-controls">
             <div class="journal-nav">
-              <button class="nav-btn" id="prev-page" disabled>← Previous</button>
+              <button class="journal-btn-neuro" id="prev-page" disabled>← Previous</button>
               <span class="page-indicator" id="page-indicator"></span>
-              <button class="nav-btn" id="next-page" disabled>Next →</button>
+              <button class="journal-btn-neuro" id="next-page" disabled>Next →</button>
             </div>
-            <button class="journal-btn save-btn" id="save-entry" style="display:none;">Save Entry</button>
+            <div style="display:flex;justify-content:center;margin-top:1rem;">
+              <button class="journal-btn-neuro save-btn" id="save-entry" style="display:none;">💾 Save Entry</button>
+            </div>
           </div>
         </div>`;
 
       const bookEl = wrapper.querySelector('.journal-book');
-      bookEl.classList.add('book-opening');
-      bookEl.addEventListener('animationend', () => bookEl.classList.remove('book-opening'), { once: true });
+      bookEl.style.opacity = '0';
+      bookEl.style.transform = 'scale(0.95)';
+      
+      requestAnimationFrame(() => {
+        bookEl.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
+        bookEl.style.opacity = '1';
+        bookEl.style.transform = 'scale(1)';
+      });
 
       this.attachOpenEventListeners();
       this.renderCurrentView();
@@ -550,8 +558,11 @@ class JournalEngine {
       return; 
     }
     
-    bookEl.classList.add('book-closing');
-    bookEl.addEventListener('animationend', () => {
+    bookEl.style.transition = 'opacity 0.4s ease-in, transform 0.4s ease-in';
+    bookEl.style.opacity = '0';
+    bookEl.style.transform = 'scale(0.95)';
+    
+    setTimeout(() => {
       this.isOpen = false;
       // Auto-lock on close if PIN exists
       if (this.app.state.data.journalPin) {
@@ -560,7 +571,7 @@ class JournalEngine {
         this.app.state.saveAppData();
       }
       this.renderJournal();
-    }, { once: true });
+    }, 400);
   }
 
   renderCurrentView() {

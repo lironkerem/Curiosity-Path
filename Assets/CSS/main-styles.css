@@ -1668,13 +1668,11 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 /* Journal Controls */
 .journal-controls {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+  flex-direction: column;
+  align-items: center;
   margin-top: 1.5rem;
   padding: 0 1rem;
-  flex-wrap: wrap;
   gap: 1rem;
-  min-height: 50px;
 }
 
 .journal-nav {
@@ -1684,26 +1682,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   width: 100%;
   gap: 1rem;
   position: relative;
-}
-
-.nav-btn {
-  background: rgba(139,115,85,.2);
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-family: 'Crimson Text', serif;
-  color: #2c1810;
-  transition: all 0.2s ease;
-}
-
-.nav-btn:hover:not(:disabled) {
-  background: rgba(139,115,85,.3);
-}
-
-.nav-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
 }
 
 .page-indicator {
@@ -1724,40 +1702,62 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   border-radius: 8px;
 }
 
-.mode-btn {
-  transition: all 0.2s ease;
-}
-
-.mode-btn.active {
-  background: #8b7355;
-  color: #fefae8;
-}
-
-/* Journal Buttons */
-.journal-btn {
-  padding: 0.55rem 1.4rem;
+/* Neomorphic Journal Buttons */
+.journal-btn-neuro {
+  padding: 0.6rem 1.2rem;
   border: none;
-  border-radius: 6px;
-  cursor: pointer;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 500;
   font-family: 'Crimson Text', serif;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-  background: #fefae8;
-  color: #2c1810;
-  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(145deg, #8b7355, #a0856b);
+  box-shadow: 
+    5px 5px 10px rgba(0, 0, 0, 0.2),
+    -5px -5px 10px rgba(255, 255, 255, 0.1);
+  color: #fefae8;
+  text-shadow: 1px 1px 2px rgba(0,0,0,.3);
 }
 
-.journal-btn:hover {
-  background: #f5f0dc;
+.journal-btn-neuro:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 
+    7px 7px 14px rgba(0, 0, 0, 0.25),
+    -7px -7px 14px rgba(255, 255, 255, 0.15);
+}
+
+.journal-btn-neuro:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 
+    inset 3px 3px 6px rgba(0, 0, 0, 0.3),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.1);
+}
+
+.journal-btn-neuro:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.journal-btn-neuro.active {
+  background: linear-gradient(145deg, #6b5a45, #7d6a52);
+  box-shadow: 
+    inset 3px 3px 6px rgba(0, 0, 0, 0.3),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.1);
 }
 
 .save-btn {
-  background: linear-gradient(135deg, #8b7355, #6b5444);
-  color: #fefae8;
+  padding: 0.8rem 2.5rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  background: linear-gradient(145deg, #8b7355, #a68968);
+  box-shadow: 
+    6px 6px 12px rgba(0, 0, 0, 0.25),
+    -6px -6px 12px rgba(255, 255, 255, 0.12);
 }
 
 .save-btn:hover {
-  background: linear-gradient(135deg, #6b5444, #5c3d2e);
+  background: linear-gradient(145deg, #9d8363, #b5987a);
 }
 
 /* Entry Actions */
@@ -1781,37 +1781,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 
 .action-btn:hover {
   background: rgba(139,115,85,.2);
-}
-
-/* Book Animations */
-@keyframes bookOpenAnim {
-  0% {
-    transform: perspective(1200px) rotateY(90deg) scale(0.9);
-    opacity: 0;
-  }
-  100% {
-    transform: perspective(1200px) rotateY(0) scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes bookCloseAnim {
-  0% {
-    transform: perspective(1200px) rotateY(0) scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: perspective(1200px) rotateY(-90deg) scale(0.9);
-    opacity: 0;
-  }
-}
-
-.book-opening {
-  animation: bookOpenAnim 0.6s ease-out forwards;
-}
-
-.book-closing {
-  animation: bookCloseAnim 0.5s ease-in forwards;
 }
 
 /* Page Flip Animations */

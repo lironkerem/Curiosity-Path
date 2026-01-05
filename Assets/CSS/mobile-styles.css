@@ -737,6 +737,7 @@ textarea {
    PERSONAL JOURNAL - MOBILE
    ========================================================= */
 
+/* Responsive Typography */
 #journal-tab .text-2xl,
 #journal-tab h3[style*="font-size: 1.5rem"] {
   font-size: clamp(1.25rem, 4vw, 1.5rem) !important;
@@ -756,6 +757,111 @@ textarea {
   min-height: 3.5rem !important;
   padding: 1rem 1.5rem !important;
   font-size: clamp(0.95rem, 3.5vw, 1.125rem) !important;
+}
+
+/* Mobile Journal Adjustments */
+@media (max-width: 768px) {
+  .journal-book-wrapper {
+    margin: 1rem auto;
+  }
+
+  .journal-closed {
+    height: 400px;
+    padding: 1.5rem;
+  }
+
+  .journal-cover-title {
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+  }
+
+  .journal-book {
+    padding: 1rem;
+  }
+
+  .journal-page {
+    padding: 1.5rem 1.5rem 1.5rem 60px;
+    min-height: 400px;
+  }
+
+  .journal-page::before {
+    left: 50px;
+  }
+
+  /* Neomorphic Buttons - Mobile */
+  .journal-btn-neuro {
+    padding: 0.5rem 0.9rem;
+    font-size: 0.85rem;
+    border-radius: 10px;
+  }
+
+  .save-btn {
+    padding: 0.7rem 2rem;
+    font-size: 0.95rem;
+  }
+
+  /* Header Controls - Stack on Mobile */
+  .journal-book > div:first-child {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+
+  .mode-toggle {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .journal-book > div:first-child > div:last-child {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Lock button text visibility */
+  .lock-toggle-btn {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+  }
+
+  /* Mood buttons smaller on mobile */
+  .mood-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 1.1rem;
+  }
+
+  /* Entry actions positioning */
+  .entry-actions {
+    position: static;
+    margin-bottom: 1rem;
+    justify-content: flex-end;
+  }
+
+  /* Textarea */
+  .write-mode .journal-textarea {
+    font-size: 1rem;
+    min-height: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .journal-closed {
+    height: 350px;
+  }
+
+  .journal-cover-title {
+    font-size: 1.3rem;
+  }
+
+  .journal-btn-neuro {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .lock-toggle-btn {
+    max-width: 110px;
+  }
 }
 
 /* =========================================================
