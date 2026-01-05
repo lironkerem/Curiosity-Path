@@ -70,69 +70,7 @@ window.addEventListener('DOMContentLoaded', function() {
 </head>
 
 <body>
-// Add this to the TOP of your index.html, right after <body>
-// This will catch and display all errors on screen
-<script>
-(function() {
-  const debugDiv = document.createElement('div');
-  debugDiv.id = 'mobile-debug';
-  debugDiv.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    max-height: 50vh;
-    background: rgba(255,0,0,0.95);
-    color: white;
-    padding: 10px;
-    font-family: monospace;
-    font-size: 11px;
-    overflow-y: auto;
-    z-index: 999999;
-    word-wrap: break-word;
-  `;
-  document.body.appendChild(debugDiv);
 
-  function log(msg, type = 'log') {
-    const time = new Date().toLocaleTimeString();
-    const color = type === 'error' ? '#ffcccc' : type === 'warn' ? '#ffffcc' : '#ccffcc';
-    debugDiv.innerHTML += `<div style="border-bottom:1px solid rgba(255,255,255,0.3);padding:5px;background:${color};color:#000;margin:2px 0">[${time}] ${type.toUpperCase()}: ${msg}</div>`;
-    debugDiv.scrollTop = debugDiv.scrollHeight;
-  }
-
-  // Capture console
-  const originalLog = console.log;
-  const originalError = console.error;
-  const originalWarn = console.warn;
-
-  console.log = function(...args) {
-    log(args.join(' '), 'log');
-    originalLog.apply(console, args);
-  };
-
-  console.error = function(...args) {
-    log(args.join(' '), 'error');
-    originalError.apply(console, args);
-  };
-
-  console.warn = function(...args) {
-    log(args.join(' '), 'warn');
-    originalWarn.apply(console, args);
-  };
-
-  // Capture uncaught errors
-  window.addEventListener('error', function(e) {
-    log(`ERROR: ${e.message} at ${e.filename}:${e.lineno}:${e.colno}`, 'error');
-  });
-
-  // Capture unhandled promise rejections
-  window.addEventListener('unhandledrejection', function(e) {
-    log(`UNHANDLED PROMISE: ${e.reason}`, 'error');
-  });
-
-  log('Debug overlay active', 'log');
-})();
-</script>
   <!-- ===== Auth Gate ===== -->
   <div id=auth-screen></div>
 
