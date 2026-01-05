@@ -1,5 +1,5 @@
 // ============================================
-// Features/KarmaShopEngine.js  (QUEST-SKIPS RESET MID-WEEK-MONTH + LIVE COUNTERS)
+// Features/KarmaShopEngine.js  (QUEST-SKIPS RESET MID-WEEK-MONTH + LIVE COUNTERS + ADMIN NO-CAP)
 // ============================================
 
 export class KarmaShopEngine {
@@ -14,7 +14,12 @@ export class KarmaShopEngine {
       this.activeBoosts = [];
       this.items = [];
     }
-    this.initSkipCaps();          // <-- NEW
+    this.initSkipCaps();
+  }
+
+  /* ----------  admin helper  ---------- */
+  _isAdmin() {
+    return Boolean(this.app.state.currentUser?.isAdmin);
   }
 
   /* ----------  cap helpers  ---------- */
@@ -36,58 +41,41 @@ export class KarmaShopEngine {
     });
   }
 
-  _weekKey(t) {   // "2026-W02"  (Sun-Sat week)
+  _weekKey(t) {
     const d = new Date(t);
     const y = d.getFullYear();
     const w = Math.ceil((d - new Date(y,0,1)) / 604800000);
     return `${y}-W${String(w).padStart(2,'0')}`;
   }
-  _monthKey(t) {  // "2026-01"
+  _monthKey(t) {
     return new Date(t).toISOString().slice(0,7);
   }
-  _yearKey(t) {   // "2026"
+  _yearKey(t) {
     return new Date(t).getFullYear().toString();
   }
 
   _useSkipCap(type) {
+    if (this._isAdmin()) return;          // admins don’t burn caps
     const obj = JSON.parse(localStorage.getItem('karma_skip_caps_'+type));
     obj.used += 1;
     localStorage.setItem('karma_skip_caps_'+type, JSON.stringify(obj));
-    this.render();   // refresh description counters
+    this.render();
   }
 
   _skipCapUsed(type) {
     const obj = JSON.parse(localStorage.getItem('karma_skip_caps_'+type));
-    return obj.used;
+    return obj ? obj.used : 0;
   }
 
   _skipCapMax(type) {
-    return type==='dailySkips' ? 2 :
-           type==='weeklySkips'? 2 : 3;
+    return type==='dailySkips' ? 2 : type==='weeklySkips' ? 2 : 3;
   }
 
-  _capText(type){
-    const max=this._skipCapMax(type);
-    const period=type==='dailySkips'?'week':type==='weeklySkips'?'month':'year';
-    const left=Math.max(0,max-this._skipCapUsed(type));
-    return ` <span style="opacity:.7">Max ${max} per ${period} · ${left} left this ${period}.</span>`;
-  }
-
-  /* ---- remaining counter ---- */
-  _capRemaining(itemId) {
-    const map = { 'skip_all_daily':'dailySkips','skip_all_weekly':'weeklySkips','skip_all_monthly':'monthlySkips' };
-    const type = map[itemId];
-    if (!type) return '';
-    const left = Math.max(0, this._skipCapMax(type) - this._skipCapUsed(type));
-    return `<small class="karma-shop-cap-left">${left} left this ${type==='dailySkips'?'week':type==='weeklySkips'?'month':'year'}</small>`;
-  }
-
-  /* ---- reset estimate ---- */
   _whenResets(itemId){
     const d = new Date();
     if(itemId==='skip_all_daily')  { d.setDate(d.getDate()+(6-d.getDay())+1);  return 'Sunday'; }
     if(itemId==='skip_all_weekly') { d.setMonth(d.getMonth()+1,1); return 'next month'; }
-    /*monthly*/                     { d.setMonth(0,1); d.setFullYear(d.getFullYear()+1); return 'next year'; }
+    { d.setMonth(0,1); d.setFullYear(d.getFullYear()+1); return 'next year'; }
   }
 
   buildCatalog() {
@@ -112,7 +100,7 @@ export class KarmaShopEngine {
         cost: 60, icon: '🔥', category: 'Power-Ups', consumable: true, duration: 172800000, rarity: 'epic'
       },
 
-      // QUEST HELPERS  (NO duration – we use reset helpers)
+      // QUEST HELPERS
       {
         id: 'skip_all_daily',
         name: 'Skip All Daily Quests',
@@ -279,21 +267,22 @@ Max 3 per year · ${Math.max(0, this._skipCapMax('monthlySkips') - this._skipCap
     if (!item) return { can: false, reason: 'Item not found' };
     const karma = this.app.gamification.state.karma;
     if (karma < item.cost) return { can: false, reason: `Need ${item.cost - karma} more Karma` };
-    /* ----- FIX: skip quest-helpers from “already active” ----- */
     if (item.consumable && this.isBoostActive(itemId) && !itemId.startsWith('skip_all_'))
       return { can: false, reason: 'Already active' };
     if (!item.consumable && this.isItemOwned(itemId)) return { can: false, reason: 'Already owned' };
 
     // ----------  cap check  ----------
-    const capMap = {
-      'skip_all_daily':  'dailySkips',
-      'skip_all_weekly': 'weeklySkips',
-      'skip_all_monthly':'monthlySkips'
-    };
-    if (capMap[itemId]) {
-      const used = this._skipCapUsed(capMap[itemId]);
-      const max  = this._skipCapMax(capMap[itemId]);
-      if (used >= max) return { can: false, reason: `Cap reached (${max}/${max})` };
+    if (!this._isAdmin()) {              // admins bypass caps
+      const capMap = {
+        'skip_all_daily':  'dailySkips',
+        'skip_all_weekly': 'weeklySkips',
+        'skip_all_monthly':'monthlySkips'
+      };
+      if (capMap[itemId]) {
+        const used = this._skipCapUsed(capMap[itemId]);
+        const max  = this._skipCapMax(capMap[itemId]);
+        if (used >= max) return { can: false, reason: `Cap reached (${max}/${max})` };
+      }
     }
     return { can: true };
   }
@@ -308,7 +297,6 @@ Max 3 per year · ${Math.max(0, this._skipCapMax('monthlySkips') - this._skipCap
     if (!item) { this.app.showToast('❌ Item not found', 'error'); return false; }
     const check = this.canPurchase(itemId);
     if (!check.can) {
-      /* ----- friendly toast when quota exhausted ----- */
       if (itemId.startsWith('skip_all_')) {
         const map = { 'skip_all_daily':'dailySkips','skip_all_weekly':'weeklySkips','skip_all_monthly':'monthlySkips' };
         this.app.showToast(`⏳  You’ve used all ${this._skipCapMax(map[itemId])} purchases for this ${map[itemId]==='dailySkips'?'week':map[itemId]==='weeklySkips'?'month':'year'}.  Resets ${this._whenResets(itemId)}.`, 'info');
@@ -321,7 +309,6 @@ Max 3 per year · ${Math.max(0, this._skipCapMax('monthlySkips') - this._skipCap
     this.recordPurchase(itemId, item.cost);
     const history = this.getPurchaseHistory();
 
-    // burn a cap if quest skip
     const capMap = { 'skip_all_daily':'dailySkips','skip_all_weekly':'weeklySkips','skip_all_monthly':'monthlySkips' };
     if (capMap[itemId]) this._useSkipCap(capMap[itemId]);
 
@@ -367,7 +354,7 @@ Max 3 per year · ${Math.max(0, this._skipCapMax('monthlySkips') - this._skipCap
           this.app.showToast('🔥 2× XP + 2× Karma active for 48 h!', 'success');
           break;
 
-        /*  QUEST HELPERS – calendar reset  */
+        /*  QUEST HELPERS – fixed XP/Karma, admin bypass  */
         case 'skip_all_daily': {
           const todo = this.app.gamification.state.quests.daily.filter(q => !q.completed);
           let xp = 0, karma = 0;
