@@ -58,23 +58,29 @@ class JournalEngine {
       const lockIcon = hasPin && this.isLocked ? '🔒' : '';
       
       wrapper.innerHTML = `
-        <div class="journal-closed" id="open-journal">
+        <div class="journal-closed" id="open-journal" style="opacity: 0; transform: scale(0.95);">
           <div class="journal-cover-title">${userName}'s<br>Personal Journal</div>
           <div class="journal-cover-subtitle">Tap to open and begin writing</div>
           <div class="journal-lock">${lockIcon}</div>
         </div>`;
       
+      const coverEl = wrapper.querySelector('.journal-closed');
+      requestAnimationFrame(() => {
+        coverEl.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+        coverEl.style.opacity = '1';
+        coverEl.style.transform = 'scale(1)';
+      });
+      
       wrapper.querySelector('#open-journal').addEventListener('click', () => {
         if (hasPin && this.isLocked) {
           this.promptUnlock();
         } else {
-          this.isOpen = true;
-          this.renderJournal();
+          this.openBook();
         }
       });
     } else {
       wrapper.innerHTML = `
-        <div class="journal-book">
+        <div class="journal-book" style="opacity: 0; transform: scale(0.95);">
           <!-- top bar -->
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
             <div class="mode-toggle">
@@ -106,11 +112,8 @@ class JournalEngine {
         </div>`;
 
       const bookEl = wrapper.querySelector('.journal-book');
-      bookEl.style.opacity = '0';
-      bookEl.style.transform = 'scale(0.95)';
-      
       requestAnimationFrame(() => {
-        bookEl.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
+        bookEl.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
         bookEl.style.opacity = '1';
         bookEl.style.transform = 'scale(1)';
       });
@@ -118,6 +121,25 @@ class JournalEngine {
       this.attachOpenEventListeners();
       this.renderCurrentView();
     }
+  }
+
+  openBook() {
+    const coverEl = document.querySelector('.journal-closed');
+    if (!coverEl) {
+      this.isOpen = true;
+      this.renderJournal();
+      return;
+    }
+
+    // Animate cover out
+    coverEl.style.transition = 'opacity 0.4s ease-in, transform 0.4s ease-in';
+    coverEl.style.opacity = '0';
+    coverEl.style.transform = 'scale(0.9)';
+
+    setTimeout(() => {
+      this.isOpen = true;
+      this.renderJournal();
+    }, 400);
   }
 
   renderWriteMode() {
@@ -323,8 +345,8 @@ class JournalEngine {
         this.isLocked = false;
         this.isOpen = true;
         this.app.showToast('✅ Journal unlocked!', 'success');
-        this.renderJournal();
         close();
+        this.openBook();
       } else {
         this.app.showToast('❌ Incorrect PIN', 'error');
         pinInput.value = '';
@@ -558,9 +580,10 @@ class JournalEngine {
       return; 
     }
     
+    // Animate book out
     bookEl.style.transition = 'opacity 0.4s ease-in, transform 0.4s ease-in';
     bookEl.style.opacity = '0';
-    bookEl.style.transform = 'scale(0.95)';
+    bookEl.style.transform = 'scale(0.9)';
     
     setTimeout(() => {
       this.isOpen = false;
