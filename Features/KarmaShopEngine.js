@@ -378,8 +378,8 @@ Max 3 per year · ${Math.max(0, this._skipCapMax('monthlySkips') - this._skipCap
           });
           xp   = Math.max(xp,   200);
           karma = Math.max(karma, 50);
-          this.app.gamification.grantXP(xp);
-          this.app.gamification.grantKarma(karma);
+          this.app.gamification.rewardXP(xp);
+          this.app.gamification.rewardKarma(karma);
           this.activateBoost('skip_all_daily', this._nextDailyReset() - Date.now());
           this.app.showToast(`✅ All daily quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
           break;
@@ -394,8 +394,8 @@ Max 3 per year · ${Math.max(0, this._skipCapMax('monthlySkips') - this._skipCap
           });
           xp   = Math.max(xp,   500);
           karma = Math.max(karma, 125);
-          this.app.gamification.grantXP(xp);
-          this.app.gamification.grantKarma(karma);
+          this.app.gamification.rewardXP(xp);
+          this.app.gamification.rewardKarma(karma);
           this.activateBoost('skip_all_weekly', this._nextWeeklyReset() - Date.now());
           this.app.showToast(`✅ All weekly quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
           break;
@@ -410,8 +410,8 @@ Max 3 per year · ${Math.max(0, this._skipCapMax('monthlySkips') - this._skipCap
           });
           xp   = Math.max(xp,   900);
           karma = Math.max(karma, 225);
-          this.app.gamification.grantXP(xp);
-          this.app.gamification.grantKarma(karma);
+          this.app.gamification.rewardXP(xp);
+          this.app.gamification.rewardKarma(karma);
           this.activateBoost('skip_all_monthly', this._nextMonthlyReset() - Date.now());
           this.app.showToast(`✅ All monthly quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
           break;
