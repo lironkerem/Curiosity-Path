@@ -3810,31 +3810,121 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
    MODAL/POP-UP STYLES FOR SHADOW ALCHEMY
    ========================================================= */
 
-.modal-content {
+/* ===== GLOBAL MODAL STYLES (Shadow Alchemy popups) ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(224, 229, 236, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000; /* FIX: Increased from 999 to match JS and ensure above all content */
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-card {
   background: var(--neuro-bg);
   padding: var(--spacing-xl);
   border-radius: var(--radius-2xl);
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
   box-shadow: var(--shadow-raised-lg);
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  animation: slideUpShadow 0.4s ease;
+  position: relative; /* FIX: Added for proper stacking */
+  z-index: 10001; /* Keep higher than overlay */
 }
 
-.modal-content h3 {
-  color: var(--neuro-text);
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: var(--spacing-md);
+@keyframes slideUpShadow {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
-.modal-content h4 {
-  color: var(--neuro-text-light);
-  font-size: 1rem;
-  font-weight: 600;
+.scrollable-content { 
+  overflow-y: auto; 
+  padding-right: var(--spacing-sm); 
+}
+
+.modal-actions { 
+  margin-top: var(--spacing-lg); 
+  display: flex; 
+  justify-content: flex-end; 
+  gap: var(--spacing-sm); 
+}
+
+.case-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-lg);
   margin-top: var(--spacing-lg);
-  margin-bottom: var(--spacing-sm);
 }
 
-.modal-content p {
-  color: var(--neuro-text-light);
+.case-selection-grid .btn {
+  flex-direction: column;
+  height: 100px;
+  text-align: center;
+  padding: var(--spacing-md);
+}
+
+.archetype-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.archetype-card {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  font-weight: 600;
+  box-shadow: var(--shadow-raised);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  background: var(--neuro-bg);
+  border: none;
+}
+
+.archetype-card:hover { 
+  transform: translateY(-2px); 
+  box-shadow: var(--shadow-raised-hover); 
+}
+
+.modal-close-btn { 
+  padding: 0.5rem 0.75rem; 
+  font-size: 1.2rem; 
+  min-height: auto; 
+}
+
+/* Keep Shadow-Alchemy badge in corner */
+.nav-item[data-tab="shadow-alchemy"] {
+  position: relative;
+}
+
+.nav-item[data-tab="shadow-alchemy"] .premium-badge {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+}
+
+/* FIX: Mobile-specific modal adjustments */
+@media (max-width: 767px) {
+  .modal-overlay {
+    z-index: 10000; /* Ensure it stays on top on mobile */
+  }
+  
+  .modal-card {
+    width: 95%;
+    max-height: 95vh;
+    padding: 1.25rem;
+  }
 }
 
 /* ===== END OF MAIN STYLES ===== */
