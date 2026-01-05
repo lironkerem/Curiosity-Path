@@ -184,62 +184,68 @@ export default class AuthManager {
   }
 }
 
-/* =====  PROFILE HELPERS  (attached to window.app)  ===== */
-window.app.saveQuickProfile = async function () {
-  const uid = this.state?.currentUser?.id;
-  if (!uid) return this.showToast('Not logged in', 'error');
+/* =====  PROFILE HELPERS  (late-attach so window.app exists)  ===== */
+function attachProfileHelpers() {
+  if (!window.app) { requestAnimationFrame(attachProfileHelpers); return; }
 
-  const payload = {
-    name:        document.getElementById('profile-name')?.value.trim()   || null,
-    email:       document.getElementById('profile-email')?.value.trim()  || null,
-    phone:       document.getElementById('profile-phone')?.value.trim()  || null,
-    birthday:    document.getElementById('profile-birthday')?.value      || null,
-    emoji:       document.getElementById('profile-emoji')?.value         || '👤',
-    avatarUrl:   document.getElementById('profile-avatar-img')?.src || ''
+  window.app.saveQuickProfile = async function () {
+    const uid = this.state?.currentUser?.id;
+    if (!uid) return this.showToast('Not logged in', 'error');
+
+    const payload = {
+      name:        document.getElementById('profile-name')?.value.trim()   || null,
+      email:       document.getElementById('profile-email')?.value.trim()  || null,
+      phone:       document.getElementById('profile-phone')?.value.trim()  || null,
+      birthday:    document.getElementById('profile-birthday')?.value      || null,
+      emoji:       document.getElementById('profile-emoji')?.value         || '👤',
+      avatarUrl:   document.getElementById('profile-avatar-img')?.src || ''
+    };
+
+    let savedOnServer = false;
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({ id: uid, ...payload }, { onConflict: 'id' });
+      if (!error) savedOnServer = true;
+    } catch (e) { console.warn('Profile server save failed', e); }
+
+    localStorage.setItem(`profile_${uid}`, JSON.stringify(payload));
+    Object.assign(this.state.currentUser, payload);
+    this.userTab?.syncAvatar();
+    this.showToast(
+      savedOnServer ? '✅ Profile saved & synced' : '⚠️ Saved locally (offline)',
+      savedOnServer ? 'success' : 'warning'
+    );
   };
 
-  let savedOnServer = false;
-  try {
-    const { error } = await supabase
-      .from('profiles')
-      .upsert({ id: uid, ...payload }, { onConflict: 'id' });
-    if (!error) savedOnServer = true;
-  } catch (e) { console.warn('Profile server save failed', e); }
+  window.app.hydrateUserProfile = async function () {
+    const uid = this.state?.currentUser?.id;
+    if (!uid) return;
 
-  localStorage.setItem(`profile_${uid}`, JSON.stringify(payload));
-  Object.assign(this.state.currentUser, payload);
-  this.userTab?.syncAvatar();
-  this.showToast(
-    savedOnServer ? '✅ Profile saved & synced' : '⚠️ Saved locally (offline)',
-    savedOnServer ? 'success' : 'warning'
-  );
-};
+    const localKey = `profile_${uid}`;
+    let data = null;
 
-window.app.hydrateUserProfile = async function () {
-  const uid = this.state?.currentUser?.id;
-  if (!uid) return;
+    try {
+      const { data: row, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', uid)
+        .single();
+      if (!error && row) data = row;
+    } catch (e) { console.warn('Profile fetch error', e); }
 
-  const localKey = `profile_${uid}`;
-  let data = null;
+    if (!data) {
+      try { data = JSON.parse(localStorage.getItem(localKey)); } catch (e) {}
+    }
 
-  try {
-    const { data: row, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', uid)
-      .single();
-    if (!error && row) data = row;
-  } catch (e) { console.warn('Profile fetch error', e); }
+    if (data) {
+      const target = this.state.currentUser;
+      ['name','email','phone','birthday','emoji','avatarUrl'].forEach(k => {
+        if (data[k] !== undefined) target[k] = data[k];
+      });
+      this.userTab?.syncAvatar();
+    }
+  };
+}
 
-  if (!data) {
-    try { data = JSON.parse(localStorage.getItem(localKey)); } catch (e) {}
-  }
-
-  if (data) {
-    const target = this.state.currentUser;
-    ['name','email','phone','birthday','emoji','avatarUrl'].forEach(k => {
-      if (data[k] !== undefined) target[k] = data[k];
-    });
-    this.userTab?.syncAvatar();
-  }
-};
+attachProfileHelpers();   // kick off once
