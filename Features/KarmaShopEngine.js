@@ -68,7 +68,8 @@ export class KarmaShopEngine {
   _capText(type) {   // helper for description text
     const max = this._skipCapMax(type);
     const period = type === 'dailySkips' ? 'week' : type === 'weeklySkips' ? 'month' : 'year';
-    return `<br><small style="opacity:.75">Max ${max} purchases per ${period}.</small>`;
+    return`<br><small style="opacity:.75">Max ${max} purchases per ${period}.`
+    `<br><small class="karma-shop-cap-left">${max - this._skipCapUsed(type)} left this ${period}.</small>`;
   }
 
   /* ---- remaining counter ---- */
@@ -568,7 +569,6 @@ export class KarmaShopEngine {
            <span class="karma-shop-item-rarity karma-shop-item-cost karma-shop-rarity-${item.rarity}">
             ${item.cost} 💎
            </span>
-           ${this._capRemaining(item.id)}
           </div>
           <button 
             onclick="window.featuresManager.engines['karma-shop'].purchase('${item.id}')" 

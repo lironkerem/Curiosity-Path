@@ -455,7 +455,6 @@ renderRecentAchievements(status) {
                   <span>+${b.xp} XP</span>
                   <span>+${b.karma} Karma</span>
                 </div>
-                ${!b.earned ? '<div class="badge-lock-overlay">Locked</div>' : ''}
               </div>`;
           }).join('')}
         </div>

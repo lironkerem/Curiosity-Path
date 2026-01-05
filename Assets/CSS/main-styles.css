@@ -1343,25 +1343,14 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 }
 
 .dashboard-badge-card.badge-locked {
-  filter: grayscale(1) brightness(0.6);
-  opacity: .85;
+  filter: grayscale(30%) brightness(0.75) saturate(65%);
+  opacity: .9;
 }
 
 .badge-icon { font-size: 2.5rem; margin-bottom: .5rem; }
 .badge-title { font-weight: 700; font-size: .95rem; margin-bottom: .25rem; }
 .badge-sub { font-size: .7rem; opacity: .9; margin-bottom: .5rem; }
 .badge-rewards { display: flex; justify-content: space-around; font-size: .7rem; font-weight: 600; }
-.badge-lock-overlay {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-content: center;
-  background: rgba(0,0,0,.45);
-  border-radius: inherit;
-  font-size: .75rem;
-  font-weight: 700;
-  letter-spacing: .5px;
-}
 
 /* ===== GRATITUDE PRACTICE ===== */
 #gratitude-tab .gratitude-inspiration-container {
