@@ -762,155 +762,140 @@ textarea {
 /* Mobile Journal Adjustments */
 @media (max-width: 768px) {
   .journal-book-wrapper {
-    margin: 1rem auto;
+    margin: 1rem auto !important;
   }
 
   .journal-closed {
-    height: 400px;
-    padding: 1.5rem;
+    height: 400px !important;
+    padding: 1.5rem !important;
   }
 
   .journal-cover-title {
-    font-size: 1.5rem;
-    letter-spacing: 2px;
+    font-size: 1.5rem !important;
+    letter-spacing: 2px !important;
   }
 
   .journal-book {
-    padding: 1rem;
+    padding: 1rem !important;
   }
 
   .journal-page {
-    padding: 2rem 1.5rem 2rem 50px;
-    min-height: 400px;
+    padding: 2rem 1.5rem 2rem 50px !important;
+    min-height: 400px !important;
   }
 
   .journal-page::before {
-    left: 40px;
+    left: 40px !important;
   }
 
-  /* Neomorphic Buttons - Mobile - Keep desktop style */
+  /* Neomorphic Buttons - Mobile */
   .journal-btn-neuro {
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
-    border-radius: 10px;
-    box-shadow: 
-      4px 4px 8px rgba(0, 0, 0, 0.2),
-      -4px -4px 8px rgba(255, 255, 255, 0.1);
-  }
-
-  .journal-btn-neuro:hover:not(:disabled) {
-    box-shadow: 
-      5px 5px 10px rgba(0, 0, 0, 0.25),
-      -5px -5px 10px rgba(255, 255, 255, 0.15);
-  }
-
-  .save-btn {
-    padding: 0.7rem 2rem;
-    font-size: 0.95rem;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.85rem !important;
+    border-radius: 10px !important;
+    background: linear-gradient(145deg, #8b7355, #a0856b) !important;
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2), -4px -4px 8px rgba(255, 255, 255, 0.1) !important;
   }
 
   /* Header Controls - 2x2 Grid on Mobile */
   .journal-book > div:first-child {
     display: grid !important;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr !important;
     gap: 0.75rem !important;
     align-items: start !important;
+    flex-direction: row !important;
   }
 
   .mode-toggle {
-    width: 100%;
-    padding: 0.2rem;
-    flex-direction: column;
-    gap: 0.4rem;
+    width: 100% !important;
+    padding: 0.2rem !important;
+    flex-direction: column !important;
+    gap: 0.4rem !important;
   }
 
   .mode-toggle .journal-btn-neuro {
-    width: 100%;
-    text-align: center;
+    width: 100% !important;
+    text-align: center !important;
   }
 
   .journal-book > div:first-child > div:last-child {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
   }
 
   .journal-book > div:first-child > div:last-child .journal-btn-neuro {
-    width: 100%;
+    width: 100% !important;
   }
 
-  /* Hide settings icon on mobile to save space */
+  /* Hide settings icon on mobile */
   #pin-settings {
-    display: none;
+    display: none !important;
   }
 
-  /* Lock button - full width, no ellipsis needed */
   .lock-toggle-btn {
-    white-space: normal;
+    white-space: normal !important;
   }
 
-  /* Mood buttons smaller on mobile */
   .mood-btn {
-    width: 34px;
-    height: 34px;
-    font-size: 1.1rem;
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 1.1rem !important;
   }
 
-  /* Entry actions positioning */
   .entry-actions {
-    position: static;
-    margin-bottom: 1rem;
-    justify-content: flex-end;
+    position: static !important;
+    margin-bottom: 1rem !important;
+    justify-content: flex-end !important;
   }
 
   /* Textarea - larger on mobile */
   .write-mode .journal-textarea {
-    font-size: 1.15rem;
-    min-height: 320px;
-    line-height: 34px;
+    font-size: 1.15rem !important;
+    min-height: 320px !important;
+    line-height: 34px !important;
   }
 
   .write-mode .journal-textarea::placeholder {
-    font-size: 1.05rem;
+    font-size: 1.05rem !important;
   }
 
-  /* Read mode text larger */
   .read-mode .entry-content {
-    font-size: 1.15rem;
-    line-height: 34px;
+    font-size: 1.15rem !important;
+    line-height: 34px !important;
   }
 }
 
 @media (max-width: 480px) {
   .journal-closed {
-    height: 350px;
+    height: 350px !important;
   }
 
   .journal-cover-title {
-    font-size: 1.3rem;
+    font-size: 1.3rem !important;
   }
 
   .journal-page {
-    padding: 1.8rem 1.2rem 1.8rem 45px;
+    padding: 1.8rem 1.2rem 1.8rem 45px !important;
   }
 
   .journal-page::before {
-    left: 35px;
+    left: 35px !important;
   }
 
   .journal-btn-neuro {
-    padding: 0.45rem 0.85rem;
-    font-size: 0.8rem;
+    padding: 0.45rem 0.85rem !important;
+    font-size: 0.8rem !important;
   }
 
   .write-mode .journal-textarea {
-    font-size: 1.1rem;
-    min-height: 300px;
+    font-size: 1.1rem !important;
+    min-height: 300px !important;
   }
 
   .read-mode .entry-content {
-    font-size: 1.1rem;
+    font-size: 1.1rem !important;
   }
 }
 
