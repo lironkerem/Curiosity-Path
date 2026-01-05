@@ -69,8 +69,7 @@ _capText(type){
   const max=this._skipCapMax(type);
   const period=type==='dailySkips'?'week':type==='weeklySkips'?'month':'year';
   const left=Math.max(0,max-this._skipCapUsed(type));
-  return`<br><small style="opacity:.75">Max ${max} purchases per ${period}.`
-       +`<br><small class="karma-shop-cap-left">${left} left this ${period}.</small>`;
+  return ` <span style="opacity:.7">Max ${max} per ${period} · ${left} left this ${period}.</span>`;
 }
 
   /* ---- remaining counter ---- */
