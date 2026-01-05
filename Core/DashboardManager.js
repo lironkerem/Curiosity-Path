@@ -170,22 +170,28 @@ export default class DashboardManager {
   /* ------------------------------------------------------------ */
   /*  Gamification Widget
   /* ------------------------------------------------------------ */
-  renderGamificationWidget(status, stats) {
-    if (!this.app.gamification) return '';
-    if (!this.app.state) return '<div class="card dashboard-gamification mb-6"><p style="text-align:center;padding:20px;">Loading your progress...</p></div>';
-    const levelInfo = this.app.gamification.calculateLevel();
-    const statItems = [
-      { value: status.karma, label: 'Karma', emoji: '💎' },
-      { value: stats.totalGratitudes || 0, label: 'Gratitudes', emoji: '❤️' },
-      { value: status.totalJournalEntries, label: 'Journaling', emoji: '📔' },
-      { value: status.totalHappinessViews, label: 'Boosters', emoji: '💡' },
-      { value: status.totalTarotSpreads, label: 'Tarot Spreads', emoji: '🔮' },
-      { value: stats.weeklyMeditations || 0, label: 'Meditations', emoji: '🧘' },
-      { value: status.totalWellnessRuns, label: 'Wellness Kit', emoji: '🌿' },
-      { value: status.badges.length, label: 'Badges', emoji: '🎖️' }
-    ];
+renderGamificationWidget(status, stats) {
+  if (!this.app.gamification) return '';
+  if (!this.app.state) return '<div class="card dashboard-gamification mb-6"><p style="text-align:center;padding:20px;">Loading your progress...</p></div>';
 
-    return `
+  /* -----  auto-correct level & trigger spectacle if needed  ----- */
+  const levelInfo = this.app.gamification.calculateLevel();
+  if (levelInfo.level > this.app.gamification.state.level) {
+    this.app.gamification.checkLevelUp();   // will show the animation once
+  }
+
+  const statItems = [
+    { value: status.karma, label: 'Karma', emoji: '💎' },
+    { value: stats.totalGratitudes || 0, label: 'Gratitudes', emoji: '❤️' },
+    { value: status.totalJournalEntries, label: 'Journaling', emoji: '📔' },
+    { value: status.totalHappinessViews, label: 'Boosters', emoji: '💡' },
+    { value: status.totalTarotSpreads, label: 'Tarot Spreads', emoji: '🔮' },
+    { value: stats.weeklyMeditations || 0, label: 'Meditations', emoji: '🧘' },
+    { value: status.totalWellnessRuns, label: 'Wellness Kit', emoji: '🌿' },
+    { value: status.badges.length, label: 'Badges', emoji: '🎖️' }
+  ];
+
+  return `
       <div class="card dashboard-gamification mb-6">
         <div class="dashboard-wellness-header">
           <h3 class="dashboard-wellness-title">🧬 Your Online Spiritual Progress</h3>
@@ -201,11 +207,11 @@ export default class DashboardManager {
           <span class="dashboard-xp-sep">•</span>
           <span class="dashboard-xp-next">${levelInfo.pointsToNext}</span> to next
         </p>
-        <div class="text-center mb-4">
-          <h3 style="font-size:1.8rem;font-weight:bold;">
-            You are ${levelInfo.title.match(/^[aeiou]/i) ? 'an' : 'a'} ${levelInfo.title} (Level ${levelInfo.level})
-          </h3>
-        </div>
+        <div class="text-center mb-6">
+  <h3 style="font-size:1.8rem;font-weight:bold;">
+    You are ${levelInfo.title.match(/^[aeiou]/i) ? 'an' : 'a'} ${levelInfo.title} (Level ${levelInfo.level})
+  </h3>
+</div>
         <div class="grid grid-cols-4 md:grid-cols-8 gap-2">
           ${statItems.map(item => `
             <div class="stat-card dashboard-stat-card" style="box-shadow:var(--shadow-inset);border-radius:12px;">
