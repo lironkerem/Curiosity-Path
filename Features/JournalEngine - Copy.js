@@ -1,5 +1,5 @@
 // ============================================
-// JOURNAL ENGINE – WITH LOCK SYSTEM
+// JOURNAL ENGINE – OPTIMIZED (Styles moved to CSS)
 // ============================================
 import { NeumorphicModal } from '../Core/Modal.js';
 
@@ -9,7 +9,6 @@ class JournalEngine {
     this.currentPage = 0;
     this.viewMode = 'write'; // 'write' | 'read'
     this.isOpen = false; // book starts closed
-    this.isLocked = false; // current lock state
   }
 
   render() {
@@ -51,26 +50,17 @@ class JournalEngine {
   -------------------------------------------------- */
   renderJournal() {
     const wrapper = document.getElementById('journal-wrapper');
-    const hasPin = !!this.app.state.data.journalPin;
-    
     if (!this.isOpen) {
       const userName = this.app.state.currentUser?.name || 'My';
-      const lockIcon = hasPin && this.isLocked ? '🔒' : '';
-      
       wrapper.innerHTML = `
         <div class="journal-closed" id="open-journal">
           <div class="journal-cover-title">${userName}'s<br>Personal Journal</div>
           <div class="journal-cover-subtitle">Tap to open and begin writing</div>
-          <div class="journal-lock">${lockIcon}</div>
+          <div class="journal-lock"></div>
         </div>`;
-      
       wrapper.querySelector('#open-journal').addEventListener('click', () => {
-        if (hasPin && this.isLocked) {
-          this.promptUnlock();
-        } else {
-          this.isOpen = true;
-          this.renderJournal();
-        }
+        this.isOpen = true;
+        this.renderJournal();
       });
     } else {
       wrapper.innerHTML = `
@@ -81,13 +71,7 @@ class JournalEngine {
               <button class="journal-btn mode-btn active" data-mode="write">✏️ Write</button>
               <button class="journal-btn mode-btn" data-mode="read">📖 Read</button>
             </div>
-            <div style="display:flex;gap:.5rem;align-items:center;">
-              <button class="journal-btn lock-toggle-btn" id="lock-toggle" title="${hasPin ? (this.isLocked ? 'Locked' : 'Unlocked') : 'Set PIN to lock'}">
-                ${hasPin ? (this.isLocked ? '🔒' : '🔓') : '🔓'}
-              </button>
-              ${hasPin ? '<button class="journal-btn" id="pin-settings" title="PIN Settings">⚙️</button>' : ''}
-              <button class="journal-btn close-book-btn" id="close-journal">📕 Close</button>
-            </div>
+            <button class="journal-btn close-book-btn" id="close-journal">🔒 Close</button>
           </div>
 
           <div class="journal-pages" id="journal-pages"></div>
@@ -210,318 +194,12 @@ class JournalEngine {
   }
 
   /* --------------------------------------------------
-     LOCK SYSTEM
-  -------------------------------------------------- */
-  promptSetPin() {
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay';
-    overlay.innerHTML = `
-      <div class="neuro-modal">
-        <div class="modal-header">
-          <div class="modal-icon icon-small">🔒</div>
-          <h3 class="modal-title">Set Journal PIN</h3>
-        </div>
-        <div class="modal-input-wrapper">
-          <label class="form-label">Enter 4-digit PIN</label>
-          <input type="password" id="pin-input" class="form-input" maxlength="4" pattern="[0-9]*" inputmode="numeric" placeholder="••••">
-          <label class="form-label" style="margin-top:1rem;">Confirm PIN</label>
-          <input type="password" id="pin-confirm" class="form-input" maxlength="4" pattern="[0-9]*" inputmode="numeric" placeholder="••••">
-          <p style="font-size:.85rem;color:var(--neuro-text-muted);margin-top:.5rem;">You can reset PIN using your account password</p>
-        </div>
-        <div class="modal-actions">
-          <button class="btn modal-cancel">Cancel</button>
-          <button class="btn btn-primary modal-confirm">Set PIN</button>
-        </div>
-      </div>`;
-
-    document.body.appendChild(overlay);
-    const pinInput = overlay.querySelector('#pin-input');
-    const confirmInput = overlay.querySelector('#pin-confirm');
-
-    const close = () => {
-      overlay.style.opacity = '0';
-      setTimeout(() => overlay.remove(), 200);
-    };
-
-    const save = () => {
-      const pin = pinInput.value;
-      const confirm = confirmInput.value;
-
-      if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
-        this.app.showToast('⚠️ PIN must be 4 digits', 'warning');
-        return;
-      }
-      if (pin !== confirm) {
-        this.app.showToast('⚠️ PINs do not match', 'warning');
-        return;
-      }
-
-      // Simple encryption (in production, use proper hashing)
-      this.app.state.data.journalPin = btoa(pin);
-      this.app.state.saveAppData();
-      this.isLocked = true;
-      this.app.showToast('✅ PIN set successfully!', 'success');
-      this.renderJournal();
-      close();
-    };
-
-    overlay.querySelector('.modal-cancel').onclick = close;
-    overlay.querySelector('.modal-confirm').onclick = save;
-    overlay.onclick = e => { if (e.target === overlay) close(); };
-
-    const escHandler = e => {
-      if (e.key === 'Escape') {
-        close();
-        document.removeEventListener('keydown', escHandler);
-      }
-    };
-    document.addEventListener('keydown', escHandler);
-    setTimeout(() => pinInput.focus(), 100);
-  }
-
-  promptUnlock() {
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay';
-    overlay.innerHTML = `
-      <div class="neuro-modal">
-        <div class="modal-header">
-          <div class="modal-icon icon-small">🔓</div>
-          <h3 class="modal-title">Unlock Journal</h3>
-        </div>
-        <div class="modal-input-wrapper">
-          <label class="form-label">Enter your PIN</label>
-          <input type="password" id="unlock-pin" class="form-input" maxlength="4" pattern="[0-9]*" inputmode="numeric" placeholder="••••">
-          <button class="btn" id="forgot-pin" style="margin-top:.5rem;font-size:.85rem;">Forgot PIN? Use account password</button>
-        </div>
-        <div class="modal-actions">
-          <button class="btn modal-cancel">Cancel</button>
-          <button class="btn btn-primary modal-confirm">Unlock</button>
-        </div>
-      </div>`;
-
-    document.body.appendChild(overlay);
-    const pinInput = overlay.querySelector('#unlock-pin');
-
-    const close = () => {
-      overlay.style.opacity = '0';
-      setTimeout(() => overlay.remove(), 200);
-    };
-
-    const unlock = () => {
-      const pin = pinInput.value;
-      const savedPin = atob(this.app.state.data.journalPin || '');
-
-      if (pin === savedPin) {
-        this.isLocked = false;
-        this.isOpen = true;
-        this.app.showToast('✅ Journal unlocked!', 'success');
-        this.renderJournal();
-        close();
-      } else {
-        this.app.showToast('❌ Incorrect PIN', 'error');
-        pinInput.value = '';
-        pinInput.focus();
-      }
-    };
-
-    overlay.querySelector('.modal-cancel').onclick = close;
-    overlay.querySelector('.modal-confirm').onclick = unlock;
-    overlay.querySelector('#forgot-pin').onclick = () => {
-      close();
-      this.resetPinWithAuth();
-    };
-    overlay.onclick = e => { if (e.target === overlay) close(); };
-
-    pinInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') unlock();
-    });
-
-    const escHandler = e => {
-      if (e.key === 'Escape') {
-        close();
-        document.removeEventListener('keydown', escHandler);
-      }
-    };
-    document.addEventListener('keydown', escHandler);
-    setTimeout(() => pinInput.focus(), 100);
-  }
-
-  async resetPinWithAuth() {
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay';
-    overlay.innerHTML = `
-      <div class="neuro-modal">
-        <div class="modal-header">
-          <div class="modal-icon icon-small">🔑</div>
-          <h3 class="modal-title">Reset PIN</h3>
-        </div>
-        <div class="modal-input-wrapper">
-          <p style="margin-bottom:1rem;">Enter your account password to reset your journal PIN</p>
-          <label class="form-label">Account Password</label>
-          <input type="password" id="auth-password" class="form-input" placeholder="Enter your password">
-        </div>
-        <div class="modal-actions">
-          <button class="btn modal-cancel">Cancel</button>
-          <button class="btn btn-primary modal-confirm">Verify & Reset</button>
-        </div>
-      </div>`;
-
-    document.body.appendChild(overlay);
-    const passwordInput = overlay.querySelector('#auth-password');
-
-    const close = () => {
-      overlay.style.opacity = '0';
-      setTimeout(() => overlay.remove(), 200);
-    };
-
-    const verify = async () => {
-      const password = passwordInput.value;
-      if (!password) {
-        this.app.showToast('⚠️ Please enter your password', 'warning');
-        return;
-      }
-
-      try {
-        // Re-authenticate with Supabase
-        const { error } = await this.app.supabase.auth.signInWithPassword({
-          email: this.app.state.currentUser.email,
-          password: password
-        });
-
-        if (error) {
-          this.app.showToast('❌ Incorrect password', 'error');
-          passwordInput.value = '';
-          passwordInput.focus();
-          return;
-        }
-
-        // Password correct - clear PIN and allow new one
-        delete this.app.state.data.journalPin;
-        this.app.state.saveAppData();
-        this.isLocked = false;
-        this.app.showToast('✅ PIN reset! Set a new one', 'success');
-        close();
-        this.promptSetPin();
-      } catch (err) {
-        this.app.showToast('❌ Authentication failed', 'error');
-      }
-    };
-
-    overlay.querySelector('.modal-cancel').onclick = close;
-    overlay.querySelector('.modal-confirm').onclick = verify;
-    overlay.onclick = e => { if (e.target === overlay) close(); };
-
-    passwordInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') verify();
-    });
-
-    const escHandler = e => {
-      if (e.key === 'Escape') {
-        close();
-        document.removeEventListener('keydown', escHandler);
-      }
-    };
-    document.addEventListener('keydown', escHandler);
-    setTimeout(() => passwordInput.focus(), 100);
-  }
-
-  showPinSettings() {
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay';
-    overlay.innerHTML = `
-      <div class="neuro-modal">
-        <div class="modal-header">
-          <div class="modal-icon icon-small">⚙️</div>
-          <h3 class="modal-title">PIN Settings</h3>
-        </div>
-        <div class="modal-input-wrapper">
-          <button class="btn btn-primary" id="change-pin" style="width:100%;margin-bottom:.5rem;">Change PIN</button>
-          <button class="btn" id="remove-pin" style="width:100%;">Remove PIN Lock</button>
-        </div>
-        <div class="modal-actions">
-          <button class="btn modal-cancel">Close</button>
-        </div>
-      </div>`;
-
-    document.body.appendChild(overlay);
-
-    const close = () => {
-      overlay.style.opacity = '0';
-      setTimeout(() => overlay.remove(), 200);
-    };
-
-    overlay.querySelector('.modal-cancel').onclick = close;
-    overlay.querySelector('#change-pin').onclick = () => {
-      close();
-      this.promptSetPin();
-    };
-    overlay.querySelector('#remove-pin').onclick = () => {
-      close();
-      NeumorphicModal.showConfirm(
-        'Remove PIN lock from your journal? Your journal will remain accessible without a PIN.',
-        () => {
-          delete this.app.state.data.journalPin;
-          this.app.state.saveAppData();
-          this.isLocked = false;
-          this.app.showToast('✅ PIN removed', 'success');
-          this.renderJournal();
-        },
-        { title: 'Remove PIN?', icon: '🔓', confirmText: 'Remove PIN' }
-      );
-    };
-    overlay.onclick = e => { if (e.target === overlay) close(); };
-
-    const escHandler = e => {
-      if (e.key === 'Escape') {
-        close();
-        document.removeEventListener('keydown', escHandler);
-      }
-    };
-    document.addEventListener('keydown', escHandler);
-  }
-
-  /* --------------------------------------------------
      SMALL HELPERS
   -------------------------------------------------- */
-  attachEventListeners() {
-    // Load lock state from storage
-    if (this.app.state.data.journalPin) {
-      this.isLocked = this.app.state.data.journalLocked !== false; // default to locked if PIN exists
-    }
-  }
-
+  attachEventListeners() {}
   attachOpenEventListeners() {
     const closeBtn = document.getElementById('close-journal');
     if (closeBtn) closeBtn.addEventListener('click', () => this.closeBook());
-
-    // Lock toggle
-    const lockToggle = document.getElementById('lock-toggle');
-    if (lockToggle) {
-      lockToggle.addEventListener('click', () => {
-        const hasPin = !!this.app.state.data.journalPin;
-        
-        if (!hasPin) {
-          // No PIN set - prompt to create one
-          this.promptSetPin();
-        } else if (this.isLocked) {
-          // Currently locked - require PIN to unlock
-          this.promptUnlock();
-        } else {
-          // Currently unlocked - lock it
-          this.isLocked = true;
-          this.app.state.data.journalLocked = true;
-          this.app.state.saveAppData();
-          this.app.showToast('🔒 Journal locked', 'info');
-          this.renderJournal();
-        }
-      });
-    }
-
-    // PIN settings
-    const pinSettings = document.getElementById('pin-settings');
-    if (pinSettings) {
-      pinSettings.addEventListener('click', () => this.showPinSettings());
-    }
 
     document.querySelectorAll('.mode-btn').forEach(btn => {
       btn.addEventListener('click', e => {
@@ -544,21 +222,10 @@ class JournalEngine {
 
   closeBook() {
     const bookEl = document.querySelector('.journal-book');
-    if (!bookEl) { 
-      this.isOpen = false; 
-      this.renderJournal(); 
-      return; 
-    }
-    
+    if (!bookEl) { this.isOpen = false; this.renderJournal(); return; }
     bookEl.classList.add('book-closing');
     bookEl.addEventListener('animationend', () => {
       this.isOpen = false;
-      // Auto-lock on close if PIN exists
-      if (this.app.state.data.journalPin) {
-        this.isLocked = true;
-        this.app.state.data.journalLocked = true;
-        this.app.state.saveAppData();
-      }
       this.renderJournal();
     }, { once: true });
   }
