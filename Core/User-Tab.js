@@ -1,4 +1,6 @@
 // User-Tab.js – 100 % complete with Notifications + Profile-Save (PATCHED 2026-01-06)
+import { supabase } from './Supabase.js';
+
 export default class UserTab {
   constructor(app) {
     this.app = app;
