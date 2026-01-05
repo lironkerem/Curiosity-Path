@@ -3806,9 +3806,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   top: 0.35rem;
   right: 0.35rem;
 }
-/* =========================================================
-   MODAL/POP-UP STYLES FOR SHADOW ALCHEMY
-   ========================================================= */
 
 /* ===== GLOBAL MODAL STYLES (Shadow Alchemy popups) ===== */
 .modal-overlay {
