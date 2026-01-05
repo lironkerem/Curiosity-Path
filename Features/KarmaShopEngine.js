@@ -355,54 +355,65 @@ Max 3 per year · ${Math.max(0, this._skipCapMax('monthlySkips') - this._skipCap
           break;
 
         /*  QUEST HELPERS – fixed XP/Karma, admin bypass  */
-        case 'skip_all_daily': {
-          const todo = this.app.gamification.state.quests.daily.filter(q => !q.completed);
-          let xp = 0, karma = 0;
-          todo.forEach(q => {
-            xp   += q.xp   ?? 0;
-            karma += q.karma ?? 0;
-            this.app.gamification.completeQuest('daily', q.id);
-          });
-          xp   = Math.max(xp,   200);
-          karma = Math.max(karma, 50);
-          this.app.gamification.rewardXP(xp);
-          this.app.gamification.rewardKarma(karma);
-          this.activateBoost('skip_all_daily', this._nextDailyReset() - Date.now());
-          this.app.showToast(`✅ All daily quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
-          break;
-        }
-        case 'skip_all_weekly': {
-          const todo = this.app.gamification.state.quests.weekly.filter(q => !q.completed);
-          let xp = 0, karma = 0;
-          todo.forEach(q => {
-            xp   += q.xp   ?? 0;
-            karma += q.karma ?? 0;
-            this.app.gamification.completeQuest('weekly', q.id);
-          });
-          xp   = Math.max(xp,   500);
-          karma = Math.max(karma, 125);
-          this.app.gamification.rewardXP(xp);
-          this.app.gamification.rewardKarma(karma);
-          this.activateBoost('skip_all_weekly', this._nextWeeklyReset() - Date.now());
-          this.app.showToast(`✅ All weekly quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
-          break;
-        }
-        case 'skip_all_monthly': {
-          const todo = this.app.gamification.state.quests.monthly.filter(q => !q.completed);
-          let xp = 0, karma = 0;
-          todo.forEach(q => {
-            xp   += q.xp   ?? 0;
-            karma += q.karma ?? 0;
-            this.app.gamification.completeQuest('monthly', q.id);
-          });
-          xp   = Math.max(xp,   900);
-          karma = Math.max(karma, 225);
-          this.app.gamification.rewardXP(xp);
-          this.app.gamification.rewardKarma(karma);
-          this.activateBoost('skip_all_monthly', this._nextMonthlyReset() - Date.now());
-          this.app.showToast(`✅ All monthly quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
-          break;
-        }
+case 'skip_all_daily': {
+  const todo = this.app.gamification.state.quests.daily.filter(q => !q.completed);
+  let xp = 0, karma = 0;
+  this.app.gamification._bulkMode = true;                // suppress badge checks
+  todo.forEach(q => {
+    xp   += q.xp   ?? 0;
+    karma += q.karma ?? 0;
+    q.completed = true;
+  });
+  this.app.gamification._bulkMode = false;
+  xp   = Math.max(xp,   200);
+  karma = Math.max(karma, 50);
+  this.app.gamification.state.xp      += xp;
+  this.app.gamification.state.karma   += karma;
+  this.app.gamification.saveState();
+  this.activateBoost('skip_all_daily', this._nextDailyReset() - Date.now());
+  this.app.showToast(`✅ All daily quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
+  break;
+}
+
+case 'skip_all_weekly': {
+  const todo = this.app.gamification.state.quests.weekly.filter(q => !q.completed);
+  let xp = 0, karma = 0;
+  this.app.gamification._bulkMode = true;
+  todo.forEach(q => {
+    xp   += q.xp   ?? 0;
+    karma += q.karma ?? 0;
+    q.completed = true;
+  });
+  this.app.gamification._bulkMode = false;
+  xp   = Math.max(xp,   500);
+  karma = Math.max(karma, 125);
+  this.app.gamification.state.xp      += xp;
+  this.app.gamification.state.karma   += karma;
+  this.app.gamification.saveState();
+  this.activateBoost('skip_all_weekly', this._nextWeeklyReset() - Date.now());
+  this.app.showToast(`✅ All weekly quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
+  break;
+}
+
+case 'skip_all_monthly': {
+  const todo = this.app.gamification.state.quests.monthly.filter(q => !q.completed);
+  let xp = 0, karma = 0;
+  this.app.gamification._bulkMode = true;
+  todo.forEach(q => {
+    xp   += q.xp   ?? 0;
+    karma += q.karma ?? 0;
+    q.completed = true;
+  });
+  this.app.gamification._bulkMode = false;
+  xp   = Math.max(xp,   900);
+  karma = Math.max(karma, 225);
+  this.app.gamification.state.xp      += xp;
+  this.app.gamification.state.karma   += karma;
+  this.app.gamification.saveState();
+  this.activateBoost('skip_all_monthly', this._nextMonthlyReset() - Date.now());
+  this.app.showToast(`✅ All monthly quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
+  break;
+}
 
         /*  PREMIUM FEATURES  */
         case 'advanced_meditations':
