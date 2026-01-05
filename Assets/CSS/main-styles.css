@@ -3819,7 +3819,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000; /* FIX: Increased from 999 to match JS and ensure above all content */
+  z-index: 10000;
   animation: fadeIn 0.3s ease;
 }
 
@@ -3839,8 +3839,8 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   flex-direction: column;
   box-shadow: var(--shadow-raised-lg);
   animation: slideUpShadow 0.4s ease;
-  position: relative; /* FIX: Added for proper stacking */
-  z-index: 10001; /* Keep higher than overlay */
+  position: relative;
+  z-index: 10001;
 }
 
 @keyframes slideUpShadow {
@@ -3860,71 +3860,10 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   gap: var(--spacing-sm); 
 }
 
-.case-selection-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--spacing-lg);
-  margin-top: var(--spacing-lg);
-}
-
-.case-selection-grid .btn {
-  flex-direction: column;
-  height: 100px;
-  text-align: center;
-  padding: var(--spacing-md);
-}
-
-.archetype-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: var(--spacing-md);
-}
-
-.archetype-card {
-  padding: var(--spacing-md);
-  border-radius: var(--radius-lg);
-  text-align: center;
-  font-weight: 600;
-  box-shadow: var(--shadow-raised);
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  background: var(--neuro-bg);
-  border: none;
-}
-
-.archetype-card:hover { 
-  transform: translateY(-2px); 
-  box-shadow: var(--shadow-raised-hover); 
-}
-
 .modal-close-btn { 
   padding: 0.5rem 0.75rem; 
   font-size: 1.2rem; 
   min-height: auto; 
-}
-
-/* Keep Shadow-Alchemy badge in corner */
-.nav-item[data-tab="shadow-alchemy"] {
-  position: relative;
-}
-
-.nav-item[data-tab="shadow-alchemy"] .premium-badge {
-  position: absolute;
-  top: 0.35rem;
-  right: 0.35rem;
-}
-
-/* FIX: Mobile-specific modal adjustments */
-@media (max-width: 767px) {
-  .modal-overlay {
-    z-index: 10000; /* Ensure it stays on top on mobile */
-  }
-  
-  .modal-card {
-    width: 95%;
-    max-height: 95vh;
-    padding: 1.25rem;
-  }
 }
 
 /* ===== END OF MAIN STYLES ===== */
