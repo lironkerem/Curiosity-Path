@@ -1,46 +1,154 @@
-const CACHE_NAME = 'dc-v1';
-const urlsToCache = [
+// Digital Curiosity PWA - Service Worker
+// Network-first strategy to fix white screen issue
+
+const CACHE_NAME = 'dc-v3';
+const RUNTIME_CACHE = 'dc-runtime';
+
+// Core assets to cache immediately
+const CORE_ASSETS = [
   './',
   './Icons/icon-192x192.png',
-  './Icons/icon-512x512.png'
+  './Icons/icon-512x512.png',
+  './Assets/CSS/main-styles.css',
+  './Assets/CSS/mobile-styles.css',
+  './Assets/CSS/tailwind-output.css'
 ];
 
+// Install event - cache core assets
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
-      .catch(err => console.error('Cache failed:', err))
+      .then(cache => cache.addAll(CORE_ASSETS))
+      .then(() => self.skipWaiting())
+      .catch(err => console.error('Cache install failed:', err))
   );
-  self.skipWaiting(); // Activate immediately
 });
 
+// Activate event - clean up old caches
 self.addEventListener('activate', e => {
-  e.waitUntil(clients.claim()); // Take control immediately
+  e.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    }).then(() => clients.claim())
+  );
 });
 
+// Fetch event - network-first strategy
 self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(res => res || fetch(e.request))
-  );
+  const { request } = e;
+  const url = new URL(request.url);
+
+  // Skip cross-origin requests
+  if (!url.origin.includes(self.location.origin)) {
+    return;
+  }
+
+  // Handle different types of requests
+  if (request.destination === 'image' || request.url.includes('Icons')) {
+    // Cache-first for images
+    e.respondWith(cacheFirst(request));
+  } else if (request.url.includes('CSS') || request.url.includes('css')) {
+    // Cache-first for CSS files
+    e.respondWith(cacheFirst(request));
+  } else if (request.destination === 'script' || request.url.includes('js')) {
+    // Network-first for JavaScript files
+    e.respondWith(networkFirst(request));
+  } else {
+    // Default: network-first for everything else
+    e.respondWith(networkFirst(request));
+  }
 });
 
-// PUSH NOTIFICATION LISTENER
+// Network-first strategy
+async function networkFirst(request) {
+  try {
+    const networkResponse = await fetch(request);
+    
+    // If successful, cache the response
+    if (networkResponse.ok) {
+      const responseClone = networkResponse.clone();
+      const cache = await caches.open(RUNTIME_CACHE);
+      cache.put(request, responseClone);
+    }
+    
+    return networkResponse;
+  } catch (error) {
+    // If network fails, try cache
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    
+    // If not in cache, try core cache
+    const coreResponse = await caches.match(request);
+    if (coreResponse) {
+      return coreResponse;
+    }
+    
+    // Return offline fallback
+    return new Response('Offline - content not available', {
+      status: 503,
+      statusText: 'Service Unavailable',
+      headers: new Headers({
+        'Content-Type': 'text/plain'
+      })
+    });
+  }
+}
+
+// Cache-first strategy
+async function cacheFirst(request) {
+  const cachedResponse = await caches.match(request);
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+  
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      const responseClone = networkResponse.clone();
+      const cache = await caches.open(RUNTIME_CACHE);
+      cache.put(request, responseClone);
+    }
+    return networkResponse;
+  } catch (error) {
+    return new Response('Offline - image not available', {
+      status: 503,
+      statusText: 'Service Unavailable'
+    });
+  }
+}
+
+// Push notification listener
 self.addEventListener('push', event => {
-  const { title, body, icon, tag, data } = event.data.json();
-  event.waitUntil(
-    self.registration.showNotification(title, {
-      body,
-      icon: icon || '/Icons/icon-192x192.png',
-      tag: tag || 'default',
-      data: data || {},
-      badge: '/Icons/icon-192x192.png',
-      vibrate: [200, 100, 200]
-    })
-  );
+  try {
+    const { title, body, icon, tag, data } = event.data.json();
+    event.waitUntil(
+      self.registration.showNotification(title, {
+        body,
+        icon: icon || '/Icons/icon-192x192.png',
+        tag: tag || 'default',
+        data: data || {},
+        badge: '/Icons/icon-192x192.png',
+        vibrate: [200, 100, 200]
+      })
+    );
+  } catch (error) {
+    console.error('Push notification error:', error);
+  }
 });
 
+// Notification click handler
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   const urlToOpen = event.notification.data?.url || '/';
-  event.waitUntil(clients.openWindow(urlToOpen));
+  event.waitUntil(
+    clients.openWindow(urlToOpen)
+  );
 });
