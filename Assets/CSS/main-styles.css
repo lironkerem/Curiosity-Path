@@ -3807,7 +3807,5 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   right: 0.35rem;
 }
 
-#shadow-alchemy-tab .modal-card {
-  border: 2px solid var(--neuro-shadow-dark);
-}
+.modal-card { border: 2px solid var(--neuro-shadow-dark); }
 /* ===== END OF MAIN STYLES ===== */
