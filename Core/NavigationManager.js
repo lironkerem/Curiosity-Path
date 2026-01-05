@@ -220,32 +220,19 @@ export default class NavigationManager {
 
   setupSwipeArrows() {
     if (window.innerWidth > 767) return;
-    const leftBtn  = document.getElementById('swipe-left');
+    const leftBtn = document.getElementById('swipe-left');
     const rightBtn = document.getElementById('swipe-right');
-    const arrows   = document.getElementById('swipe-arrows');
+    const arrows = document.getElementById('swipe-arrows');
     if (!leftBtn || !rightBtn) return;
 
-    leftBtn.tabIndex  = -1;
+    leftBtn.tabIndex = -1;
     rightBtn.tabIndex = -1;
 
-    /* ----------  professionally-correct arrows  ---------- */
-    const leftPath  = 'M85 10 L100 90 L85 170';
-    const rightPath = 'M115 10 L100 90 L115 170';
+    leftBtn.innerHTML = `<svg viewBox="0 0 200 180" style="transform:scale(0.5);"><path d="M115 10 L100 90 L115 170" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`;
+    rightBtn.innerHTML = `<svg viewBox="0 0 200 180" style="transform:scaleX(-1) scale(0.5);"><path d="M115 10 L100 90 L115 170" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`;
 
-    leftBtn.innerHTML = `
-      <svg viewBox="0 0 200 180" style="transform:scale(0.5);">
-        <path d="${leftPath}" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
-      </svg>`;
-
-    rightBtn.innerHTML = `
-      <svg viewBox="0 0 200 180" style="transform:scale(0.5);">
-        <path d="${rightPath}" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
-      </svg>`;
-    /* ----------------------------------------------------- */
-
-    const goto = dir => {
-      const order = ['dashboard','energy','tarot','gratitude','happiness','journal',
-                     'meditations','flip-script','calculator','shadow-alchemy','karma-shop'];
+    const goto = (dir) => {
+      const order = ['dashboard', 'energy', 'tarot', 'gratitude', 'happiness', 'journal', 'meditations', 'flip-script', 'calculator', 'shadow-alchemy', 'karma-shop'];
       const active = localStorage.getItem('pc_active_tab') || 'dashboard';
       let idx = order.indexOf(active);
       idx = (idx + dir + order.length) % order.length;
@@ -253,10 +240,10 @@ export default class NavigationManager {
       if (navItem) this.switchTab(order[idx], navItem.dataset.label);
     };
 
-    leftBtn.addEventListener('click',  e => { e.preventDefault(); goto(-1); e.currentTarget.blur(); });
-    rightBtn.addEventListener('click', e => { e.preventDefault(); goto(1);  e.currentTarget.blur(); });
-    leftBtn.addEventListener('touchend',  e => setTimeout(() => e.currentTarget.blur(), 10));
-    rightBtn.addEventListener('touchend', e => setTimeout(() => e.currentTarget.blur(), 10));
+    leftBtn.addEventListener('click', e => { e.preventDefault(); goto(-1); setTimeout(() => e.currentTarget.blur(), 0); });
+    rightBtn.addEventListener('click', e => { e.preventDefault(); goto(1); setTimeout(() => e.currentTarget.blur(), 0); });
+    leftBtn.addEventListener('touchend', e => { setTimeout(() => e.currentTarget.blur(), 10); });
+    rightBtn.addEventListener('touchend', e => { setTimeout(() => e.currentTarget.blur(), 10); });
 
     const observer = new MutationObserver(() => {
       arrows.style.display = this.sheetOpen ? 'none' : 'flex';
