@@ -424,19 +424,19 @@ export default class DashboardManager {
     // category buckets (same 3-column grid)
     const categories = {
       'First Wins': ['first_step', 'first_gratitude', 'first_journal', 'first_energy', 'first_tarot', 'first_meditation', 'first_purchase'],
-      'Gratitude': ['gratitude_warrior', 'gratitude_legend', 'gratitude_200', 'gratitude_500'],
-      'Journal': ['journal_keeper', 'journal_master', 'journal_150', 'journal_400'],
-      'Energy': ['energy_tracker', 'energy_sage', 'energy_300', 'energy_600'],
-      'Tarot': ['tarot_apprentice', 'tarot_mystic', 'tarot_oracle', 'tarot_150', 'tarot_400'],
-      'Meditation': ['meditation_devotee', 'meditation_master', 'meditation_100', 'meditation_200'],
-      'Happiness': ['happiness_seeker', 'joy_master', 'happiness_300', 'happiness_700'],
-      'Wellness': ['wellness_champion', 'wellness_guru', 'wellness_300', 'wellness_700'],
-      'Streak': ['perfect_week', 'dedication_streak', 'unstoppable', 'legendary_streak'],
-      'Quest Completion': ['weekly_warrior', 'monthly_master', 'quest_crusher', 'daily_champion'],
-      'Currency': ['karma_collector', 'karma_lord', 'xp_milestone', 'xp_titan'],
-      'Level': ['level_5_hero', 'level_7_hero', 'level_10_hero'],
-      'Chakra': ['chakra_balancer', 'chakra_master'],
-      'Cross-Feature': ['triple_threat', 'super_day', 'complete_explorer', 'renaissance_soul']
+      'Gratitude Badges': ['gratitude_warrior', 'gratitude_legend', 'gratitude_200', 'gratitude_500'],
+      'Journaling Badges': ['journal_keeper', 'journal_master', 'journal_150', 'journal_400'],
+      'Energy Tracking Badges': ['energy_tracker', 'energy_sage', 'energy_300', 'energy_600'],
+      'Tarot Spreads Badges': ['tarot_apprentice', 'tarot_mystic', 'tarot_oracle', 'tarot_150', 'tarot_400'],
+      'Meditations Badges': ['meditation_devotee', 'meditation_master', 'meditation_100', 'meditation_200'],
+      'Happiness and Motivation Badges': ['happiness_seeker', 'joy_master', 'happiness_300', 'happiness_700'],
+      'Wellness Exercises Badges': ['wellness_champion', 'wellness_guru', 'wellness_300', 'wellness_700'],
+      'Streaks Badges': ['perfect_week', 'dedication_streak', 'unstoppable', 'legendary_streak'],
+      'Quest Completion Badges': ['weekly_warrior', 'monthly_master', 'quest_crusher', 'daily_champion'],
+      'Karma Currency Badges': ['karma_collector', 'karma_lord', 'xp_milestone', 'xp_titan'],
+      'Level-Up Badges': ['level_5_hero', 'level_7_hero', 'level_10_hero'],
+      'Chakra Balance Badges': ['chakra_balancer', 'chakra_master'],
+      'Cross-Features Badges': ['triple_threat', 'super_day', 'complete_explorer', 'renaissance_soul']
     };
 
     const categoryHtml = Object.entries(categories).map(([cat, ids]) => {
