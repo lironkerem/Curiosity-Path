@@ -3801,29 +3801,40 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   position: relative;
 }
 
-.modal-content .archetype-card,
-.modal-content .case-selection-grid .btn {
-  color: var(--neuro-text);
-}
-
-.modal-content h3,
-.modal-content h4 {
-  color: var(--neuro-text);
-}
-
-.modal-content p {
-  color: var(--neuro-text-light);
-}
-
-.modal-content {
-  border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-raised-lg);
-}
-
 .nav-item[data-tab="shadow-alchemy"] .premium-badge {
   position: absolute;
   top: 0.35rem;
   right: 0.35rem;
+}
+/* =========================================================
+   MODAL/POP-UP STYLES FOR SHADOW ALCHEMY
+   ========================================================= */
+
+.modal-content {
+  background: var(--neuro-bg);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-raised-lg);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-content h3 {
+  color: var(--neuro-text);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-md);
+}
+
+.modal-content h4 {
+  color: var(--neuro-text-light);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
+}
+
+.modal-content p {
+  color: var(--neuro-text-light);
 }
 
 /* ===== END OF MAIN STYLES ===== */
