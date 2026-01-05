@@ -132,20 +132,14 @@ export default class AuthManager {
 
   async _setAuthenticated(u) {
     const isGoogle = u.app_metadata?.provider === 'google';
-    
-    // Fetch isAdmin from profiles
+
+    // fetch admin flag
     let isAdmin = false;
     try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('is_admin')
-        .eq('id', u.id)
-        .single();
+      const { data: profile } = await supabase.from('profiles').select('is_admin').eq('id', u.id).single();
       isAdmin = profile?.is_admin || false;
-    } catch (error) {
-      console.error('Failed to check admin status:', error);
-    }
-    
+    } catch (e) { console.warn('admin check failed', e); }
+
     const user = {
       id: u.id,
       name: u.user_metadata?.full_name || u.user_metadata?.name || u.email.split('@')[0],
@@ -157,7 +151,7 @@ export default class AuthManager {
       tier: 'Premium',
       joinDate: u.created_at,
       provider: isGoogle ? 'google' : 'email',
-      isAdmin: isAdmin
+      isAdmin
     };
     this.app.state.currentUser = user;
     this.app.state.isAuthenticated = true;
@@ -167,11 +161,10 @@ export default class AuthManager {
     if (scr) { scr.style.display = 'none'; scr.innerHTML = ''; }
 
     if (isGoogle) this._ensureUserProgress(user.id);
-    
-    // CRITICAL FIX: Ensure theme is marked as loaded to show content
+
+    // CRITICAL: mark theme as loaded so app shell becomes visible
     document.documentElement.classList.add('theme-loaded');
-    
-    // Trigger app initialization
+
     await this.app.initializeApp();
   }
 
@@ -190,3 +183,63 @@ export default class AuthManager {
     location.reload();
   }
 }
+
+/* =====  PROFILE HELPERS  (attached to window.app)  ===== */
+window.app.saveQuickProfile = async function () {
+  const uid = this.state?.currentUser?.id;
+  if (!uid) return this.showToast('Not logged in', 'error');
+
+  const payload = {
+    name:        document.getElementById('profile-name')?.value.trim()   || null,
+    email:       document.getElementById('profile-email')?.value.trim()  || null,
+    phone:       document.getElementById('profile-phone')?.value.trim()  || null,
+    birthday:    document.getElementById('profile-birthday')?.value      || null,
+    emoji:       document.getElementById('profile-emoji')?.value         || '👤',
+    avatarUrl:   document.getElementById('profile-avatar-img')?.src || ''
+  };
+
+  let savedOnServer = false;
+  try {
+    const { error } = await supabase
+      .from('profiles')
+      .upsert({ id: uid, ...payload }, { onConflict: 'id' });
+    if (!error) savedOnServer = true;
+  } catch (e) { console.warn('Profile server save failed', e); }
+
+  localStorage.setItem(`profile_${uid}`, JSON.stringify(payload));
+  Object.assign(this.state.currentUser, payload);
+  this.userTab?.syncAvatar();
+  this.showToast(
+    savedOnServer ? '✅ Profile saved & synced' : '⚠️ Saved locally (offline)',
+    savedOnServer ? 'success' : 'warning'
+  );
+};
+
+window.app.hydrateUserProfile = async function () {
+  const uid = this.state?.currentUser?.id;
+  if (!uid) return;
+
+  const localKey = `profile_${uid}`;
+  let data = null;
+
+  try {
+    const { data: row, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', uid)
+      .single();
+    if (!error && row) data = row;
+  } catch (e) { console.warn('Profile fetch error', e); }
+
+  if (!data) {
+    try { data = JSON.parse(localStorage.getItem(localKey)); } catch (e) {}
+  }
+
+  if (data) {
+    const target = this.state.currentUser;
+    ['name','email','phone','birthday','emoji','avatarUrl'].forEach(k => {
+      if (data[k] !== undefined) target[k] = data[k];
+    });
+    this.userTab?.syncAvatar();
+  }
+};
