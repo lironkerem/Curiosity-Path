@@ -3801,11 +3801,29 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   position: relative;
 }
 
+.modal-content .archetype-card,
+.modal-content .case-selection-grid .btn {
+  color: var(--neuro-text);
+}
+
+.modal-content h3,
+.modal-content h4 {
+  color: var(--neuro-text);
+}
+
+.modal-content p {
+  color: var(--neuro-text-light);
+}
+
+.modal-content {
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-raised-lg);
+}
+
 .nav-item[data-tab="shadow-alchemy"] .premium-badge {
   position: absolute;
   top: 0.35rem;
   right: 0.35rem;
 }
 
-.modal-card { border: 2px solid var(--neuro-shadow-dark); }
 /* ===== END OF MAIN STYLES ===== */
