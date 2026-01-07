@@ -1,44 +1,50 @@
-// InquiryEngine.js
-// Engine to manage daily inquiry selection, progression, and user adaptation
+// ============================================
+// INQUIRY ENGINE - OPTIMIZED
+// ============================================
 
 import { InquiryList } from './Data/InquiryList.js';
 
+const INTENSITY_MAP = {
+  beginner: [1, 2],
+  intermediate: [1, 2, 3],
+  advanced: [1, 2, 3, 4]
+};
+
 export class InquiryEngine {
   constructor(userLevel = 'beginner') {
-    this.userLevel = userLevel; // 'beginner', 'intermediate', 'advanced'
+    this.userLevel = userLevel;
     this.todaySelections = [];
   }
 
-  // Map user level to allowed intensity range
   getAllowedIntensities() {
-    switch(this.userLevel) {
-      case 'beginner':
-        return [1, 2];
-      case 'intermediate':
-        return [1, 2, 3];
-      case 'advanced':
-        return [1, 2, 3, 4];
-      default:
-        return [1, 2];
-    }
+    return INTENSITY_MAP[this.userLevel] || INTENSITY_MAP.beginner;
   }
 
-  // Get random question from a domain, respecting intensity and previously selected today
   getRandomQuestion(domain) {
     const allowedIntensities = this.getAllowedIntensities();
-    const candidates = InquiryList.filter(q => 
+    let candidates = InquiryList.filter(q => 
       q.domain === domain && 
       allowedIntensities.includes(q.intensity) && 
       !this.todaySelections.includes(q.id)
     );
 
-    if(candidates.length === 0) {
-      // If no candidates left, reset todaySelections for this domain
+    // Reset domain selections if exhausted
+    if (!candidates.length) {
       this.todaySelections = this.todaySelections.filter(id => {
-        const q = InquiryList.find(q => q.id === id);
-        return q.domain !== domain;
+        const q = InquiryList.find(item => item.id === id);
+        return q?.domain !== domain;
       });
-      return this.getRandomQuestion(domain);
+      
+      // Recalculate candidates
+      candidates = InquiryList.filter(q => 
+        q.domain === domain && 
+        allowedIntensities.includes(q.intensity)
+      );
+      
+      if (!candidates.length) {
+        console.warn(`No inquiries found for domain: ${domain}`);
+        return null;
+      }
     }
 
     const choice = candidates[Math.floor(Math.random() * candidates.length)];
@@ -46,23 +52,26 @@ export class InquiryEngine {
     return choice;
   }
 
-  // Generate daily inquiries for all domains (or selected domains)
   generateDailyInquiries(domains = null) {
-    const selectedDomains = domains || Object.values(InquiryList.reduce((acc, q) => {
-      acc[q.domain] = true;
-      return acc;
-    }, {}));
-
-    const dailyInquiries = selectedDomains.map(domain => this.getRandomQuestion(domain));
-    return dailyInquiries;
+    const selectedDomains = domains || this._getUniqueDomains();
+    return selectedDomains
+      .map(domain => this.getRandomQuestion(domain))
+      .filter(Boolean); // Remove nulls
   }
 
-  // Set user level dynamically
+  _getUniqueDomains() {
+    return [...new Set(InquiryList.map(q => q.domain))];
+  }
+
   setUserLevel(level) {
-    this.userLevel = level;
+    if (INTENSITY_MAP[level]) {
+      this.userLevel = level;
+    } else {
+      console.warn(`Invalid level: ${level}. Using 'beginner'.`);
+      this.userLevel = 'beginner';
+    }
   }
 
-  // Reset daily selections (to run after midnight)
   resetDailySelections() {
     this.todaySelections = [];
   }

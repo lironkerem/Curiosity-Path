@@ -1,5 +1,5 @@
 // ============================================
-// QUOTES ENGINE
+// QUOTES ENGINE - OPTIMIZED
 // ============================================
 class QuotesEngine {
   constructor(app) {
@@ -29,10 +29,10 @@ class QuotesEngine {
 
           <h3 class="text-2xl font-bold text-white" style="margin-bottom: 1.5rem;">All Quotes</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            ${this.quotes.map(quote => `
+            ${this.quotes.map(q => `
               <div class="card">
-                <p class="text-white text-lg italic" style="margin-bottom: 1rem;">"${quote.text}"</p>
-                <p class="text-purple-400">— ${quote.author}</p>
+                <p class="text-white text-lg italic" style="margin-bottom: 1rem;">"${q.text}"</p>
+                <p class="text-purple-400">— ${q.author}</p>
               </div>
             `).join('')}
           </div>
@@ -42,7 +42,8 @@ class QuotesEngine {
   }
 
   getDailyQuote() {
-    const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+    const now = new Date();
+    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
     return this.quotes[dayOfYear % this.quotes.length];
   }
 }

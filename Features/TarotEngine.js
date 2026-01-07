@@ -1,4 +1,4 @@
-// Features//TarotEngine.js
+// TarotEngine.js - Optimized
 
 class TarotEngine {
   constructor(app) {
@@ -14,16 +14,17 @@ class TarotEngine {
       pyramid: {
         name: 'The Pyramid Spread',
         cards: 9,
-        desc: 'Triangle of Past – Present – Future',
+        desc: 'Triangle of Past — Present — Future',
         positions: ['Where you came from', 'Where you came from', 'Where you came from', 'Where you are now', 'Where you are now', 'Where you are now', 'Where are you going', 'Where are you going', 'Where are you going']
       },
-      cross: { name: 'The Simple Cross Spread', cards: 5, desc: 'A Simple Cross Snapshot of Now', positions: ['Direction of the Situation', 'The Root of the Situation', 'Summary', 'Positive side of Situation', 'Obstacles-Challanges'] }
+      cross: { name: 'The Simple Cross Spread', cards: 5, desc: 'A Simple Cross Snapshot of Now', positions: ['Direction of the Situation', 'The Root of the Situation', 'Summary', 'Positive side of Situation', 'Obstacles-Challenges'] }
     };
 
     this.selectedSpread = 'single';
     this.shuffledDeck = [];
     this.flippedCards = new Set();
     this.currentReading = [];
+    this.cleanup = null;
     this.prepareReading();
   }
 
@@ -93,57 +94,89 @@ class TarotEngine {
     suits.forEach(suit => { for (let i = 1; i <= 14; i++) fullDeck.push({ type: i <= 10 ? 'minor' : 'court', number: i, suit }); });
     return fullDeck;
   }
-  shuffleDeck(deck) { const shuffled = [...deck]; for (let i = shuffled.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; } return shuffled; }
-  prepareReading() { const fullDeck = this.buildFullDeck(); this.shuffledDeck = this.shuffleDeck(fullDeck); this.flippedCards.clear(); this.currentReading = []; }
 
-/* ---------- Flip & reveal ---------- */
-flipCard(index) {
-  if (this.flippedCards.has(index) || !this.shuffledDeck.length) return;
-
-  /* --- mobile-pyramid jump fix --- */
-  const pyramid = document.querySelector('.pyramid-triangle');
-  if (pyramid) {
-    pyramid.style.setProperty('--pyramid-height', pyramid.offsetHeight + 'px');
-    pyramid.classList.add('flipping');
-    setTimeout(() => pyramid.classList.remove('flipping'), 900);
+  shuffleDeck(deck) {
+    const shuffled = [...deck];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
   }
 
-  this.flippedCards.add(index);
-  const cardData = this.shuffledDeck.pop();
-  const card = {
-    name: this.getTarotCardName(cardData.number, cardData.suit),
-    meaning: this.getTarotCardMeaning(cardData.number, cardData.suit),
-    imageUrl: this.getTarotCardImage(cardData.number, cardData.suit),
-    cardData
-  };
-  this.currentReading.push(card);
+  prepareReading() {
+    const fullDeck = this.buildFullDeck();
+    this.shuffledDeck = this.shuffleDeck(fullDeck);
+    this.flippedCards.clear();
+    this.currentReading = [];
+  }
 
-  const container = document.getElementById(`tarot-card-container-${index}`);
-  const front = container.querySelector('.tarot-card-front');
-  const details = document.getElementById(`tarot-card-details-${index}`);
-  front.innerHTML = `<img src="${card.imageUrl}" alt="${card.name}" class="tarot-card-image" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'tarot-card-error\\'>🃏</div>'">`;
-  details.innerHTML = `<h4 class="font-bold mt-4 mb-2" style="color: var(--neuro-text);">${card.name}</h4><p style="color: var(--neuro-text-light);" class="text-sm leading-relaxed">${card.meaning}</p>`;
-  details.style.opacity = '1';
-  details.style.transition = 'opacity 0.5s ease 0.5s';
-  container.classList.add('flipped');
-  this.checkSpreadCompletion();
-}
+  /* ---------- Flip & reveal ---------- */
+  flipCard(index) {
+    if (this.flippedCards.has(index) || !this.shuffledDeck.length) return;
+
+    const pyramid = document.querySelector('.pyramid-triangle');
+    if (pyramid) {
+      requestAnimationFrame(() => {
+        pyramid.style.minHeight = `${pyramid.offsetHeight}px`;
+        pyramid.classList.add('flipping');
+        setTimeout(() => {
+          pyramid.classList.remove('flipping');
+          pyramid.style.minHeight = '';
+        }, 900);
+      });
+    }
+
+    this.flippedCards.add(index);
+    const cardData = this.shuffledDeck.pop();
+    const card = {
+      name: this.getTarotCardName(cardData.number, cardData.suit),
+      meaning: this.getTarotCardMeaning(cardData.number, cardData.suit),
+      imageUrl: this.getTarotCardImage(cardData.number, cardData.suit),
+      cardData
+    };
+    this.currentReading.push(card);
+
+    const container = document.getElementById(`tarot-card-container-${index}`);
+    const front = container.querySelector('.tarot-card-front');
+    const details = document.getElementById(`tarot-card-details-${index}`);
+    front.innerHTML = `<img src="${card.imageUrl}" alt="${card.name}" class="tarot-card-image" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'tarot-card-error\\'>🃏</div>'">`;
+    details.innerHTML = `<h4 class="font-bold mt-4 mb-2" style="color: var(--neuro-text);">${card.name}</h4><p style="color: var(--neuro-text-light);" class="text-sm leading-relaxed">${card.meaning}</p>`;
+    details.style.opacity = '1';
+    details.style.transition = 'opacity 0.5s ease 0.5s';
+    container.classList.add('flipped');
+    this.checkSpreadCompletion();
+  }
 
   /* ---------- Quest & achievements ---------- */
-  checkSpreadCompletion() { if (this.flippedCards.size === this.spreads[this.selectedSpread].cards) this.completeTarotSpread(); }
+  checkSpreadCompletion() {
+    if (this.flippedCards.size === this.spreads[this.selectedSpread].cards) this.completeTarotSpread();
+  }
+
   completeTarotSpread() {
     const spreadType = this.spreads[this.selectedSpread].name;
     if (this.app.state) {
-      const reading = { spreadType, spreadKey: this.selectedSpread, cards: this.currentReading.map(c => ({ name: c.name, meaning: c.meaning })), timestamp: new Date().toISOString(), date: new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) };
+      const reading = {
+        spreadType,
+        spreadKey: this.selectedSpread,
+        cards: this.currentReading.map(c => ({ name: c.name, meaning: c.meaning })),
+        timestamp: new Date().toISOString(),
+        date: new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+      };
       this.app.state.addEntry('tarot', reading);
     }
-    if (this.app.gamification) this.app.gamification.progressQuest('daily', 'tarot_spread', 1);
+    if (this.app.gamification) {
+      this.app.gamification.progressQuest('daily', 'tarot_spread', 1);
+      this.app.gamification.incrementTarotSpreads();
+    }
     if (this.app.showToast) this.app.showToast(`✨ ${spreadType} complete! Reading saved.`, 'success');
-if (this.app.gamification) this.app.gamification.incrementTarotSpreads();
     this.checkAchievements();
   }
+
   checkAchievements() {
-    const total = this.app.state?.data?.tarotEntries?.length || 0; const gm = this.app.gamification; if (!gm) return;
+    const total = this.app.state?.data?.tarotEntries?.length || 0;
+    const gm = this.app.gamification;
+    if (!gm) return;
     if (total === 1) gm.grantAchievement({ id: 'first_tarot', name: 'First Reading', xp: 50, icon: '🃏', inspirational: 'You\'ve opened the door to divine guidance!' });
     if (total === 10) gm.grantAchievement({ id: 'tarot_10', name: 'Tarot Apprentice', xp: 100, icon: '🔮', inspirational: '10 readings! The cards speak to you clearly!' });
     if (total === 50) gm.grantAchievement({ id: 'tarot_50', name: 'Tarot Master', xp: 250, icon: '✨', inspirational: '50 readings! You are attuned to cosmic wisdom!' });
@@ -151,66 +184,69 @@ if (this.app.gamification) this.app.gamification.incrementTarotSpreads();
   }
 
   /* ---------- Layout helpers ---------- */
-cardMarkup(index, label) {
-  return `
-    <div class="flex flex-col items-center mx-auto" style="width: clamp(140px, 24vw, 250px);">
-      <h4 class="text-lg font-bold h-8" style="color: var(--neuro-accent); margin-bottom: 0rem;">${label}</h4>
-      <div class="tarot-card-flip-container" id="tarot-card-container-${index}" onclick="window.featuresManager.engines.tarot.flipCard(${index})">
-        <div class="tarot-card-flip-inner">
-          <div class="tarot-card-back"><img src="${this.CARD_BACK_URL}" alt="Card Back" class="tarot-card-image"></div>
-          <div class="tarot-card-front"></div>
+  cardMarkup(index, label) {
+    return `
+      <div class="flex flex-col items-center mx-auto" style="width: clamp(140px, 24vw, 250px);">
+        <h4 class="text-lg font-bold h-8" style="color: var(--neuro-accent); margin-bottom: 0rem;">${label}</h4>
+        <div class="tarot-card-flip-container" id="tarot-card-container-${index}" onclick="window.featuresManager.engines.tarot.flipCard(${index})">
+          <div class="tarot-card-flip-inner">
+            <div class="tarot-card-back"><img src="${this.CARD_BACK_URL}" alt="Card Back" class="tarot-card-image"></div>
+            <div class="tarot-card-front"></div>
+          </div>
         </div>
-      </div>
-      <div id="tarot-card-details-${index}" class="text-center" style="opacity: 0; height: clamp(60px, 12vw, 100px); overflow-y: auto; margin-top: 0rem;"></div>
-    </div>`;
-}
+        <div id="tarot-card-details-${index}" class="text-center" style="opacity: 0; height: clamp(60px, 12vw, 100px); overflow-y: auto; margin-top: 0rem;"></div>
+      </div>`;
+  }
 
   renderCustomSpread(spreadKey) {
     const positions = this.spreads[spreadKey].positions;
-if (spreadKey === 'options') {
-  return `
-    <div class="flex flex-col items-center">
-      <h3 class="text-2xl font-bold" style="margin-bottom: 1rem;margin-top: 2rem;">Option 1</h3>
-      <div class="grid grid-cols-3 place-items-center" style="margin-bottom: 1.5rem;">
-        ${positions.slice(0, 3).map((p, i) => this.cardMarkup(i, p)).join('')}
-      </div>
-      
-      <h3 class="text-2xl font-bold" style="margin-bottom: 1rem;">Option 2</h3>
-      <div class="grid grid-cols-3 place-items-center" style="margin-bottom: 1.5rem;">
-        ${positions.slice(3, 6).map((p, i) => this.cardMarkup(i + 3, p)).join('')}
-      </div>
-      
-      <h3 class="text-2xl font-bold" style="margin-bottom: 1rem;">Option 3</h3>
-      <div class="grid grid-cols-3 place-items-center">
-        ${positions.slice(6, 9).map((p, i) => this.cardMarkup(i + 6, p)).join('')}
-      </div>
-    </div>`;
-}
+    if (spreadKey === 'options') {
+      return `
+        <div class="flex flex-col items-center">
+          <h3 class="text-2xl font-bold" style="margin-bottom: 1rem;margin-top: 2rem;">Option 1</h3>
+          <div class="grid grid-cols-3 place-items-center" style="margin-bottom: 1.5rem;">
+            ${positions.slice(0, 3).map((p, i) => this.cardMarkup(i, p)).join('')}
+          </div>
+          <h3 class="text-2xl font-bold" style="margin-bottom: 1rem;">Option 2</h3>
+          <div class="grid grid-cols-3 place-items-center" style="margin-bottom: 1.5rem;">
+            ${positions.slice(3, 6).map((p, i) => this.cardMarkup(i + 3, p)).join('')}
+          </div>
+          <h3 class="text-2xl font-bold" style="margin-bottom: 1rem;">Option 3</h3>
+          <div class="grid grid-cols-3 place-items-center">
+            ${positions.slice(6, 9).map((p, i) => this.cardMarkup(i + 6, p)).join('')}
+          </div>
+        </div>`;
+    }
     if (spreadKey === 'pyramid') {
       return `
-      <div class="pyramid-triangle">
-        <div class="pyr-row pyr-apex">${this.cardMarkup(8, positions[8])}${this.cardMarkup(0, positions[0])}</div>
-        <div class="pyr-row pyr-upper">${this.cardMarkup(7, positions[7])}${this.cardMarkup(1, positions[1])}</div>
-        <div class="pyr-row pyr-lower">${this.cardMarkup(6, positions[6])}${this.cardMarkup(2, positions[2])}</div>
-        <div class="pyr-row pyr-base">${this.cardMarkup(5, positions[5])}${this.cardMarkup(4, positions[4])}${this.cardMarkup(3, positions[3])}</div>
-      </div>`;
+        <div class="pyramid-triangle">
+          <div class="pyr-row pyr-apex">${this.cardMarkup(8, positions[8])}${this.cardMarkup(0, positions[0])}</div>
+          <div class="pyr-row pyr-upper">${this.cardMarkup(7, positions[7])}${this.cardMarkup(1, positions[1])}</div>
+          <div class="pyr-row pyr-lower">${this.cardMarkup(6, positions[6])}${this.cardMarkup(2, positions[2])}</div>
+          <div class="pyr-row pyr-base">${this.cardMarkup(5, positions[5])}${this.cardMarkup(4, positions[4])}${this.cardMarkup(3, positions[3])}</div>
+        </div>`;
     }
     if (spreadKey === 'cross') {
       return `
-      <div class="cross-shape">
-        <div class="cross-top">${this.cardMarkup(3, positions[3])}</div>
-        <div class="cross-mid">${this.cardMarkup(0, positions[0])}${this.cardMarkup(2, positions[2])}${this.cardMarkup(1, positions[1])}</div>
-        <div class="cross-bot">${this.cardMarkup(4, positions[4])}</div>
-      </div>`;
+        <div class="cross-shape">
+          <div class="cross-top">${this.cardMarkup(3, positions[3])}</div>
+          <div class="cross-mid">${this.cardMarkup(0, positions[0])}${this.cardMarkup(2, positions[2])}${this.cardMarkup(1, positions[1])}</div>
+          <div class="cross-bot">${this.cardMarkup(4, positions[4])}</div>
+        </div>`;
     }
   }
 
   /* ---------- Main render ---------- */
   render() {
-    const tab = document.getElementById('tarot-tab'); if (!tab) return;
+    if (this.cleanup) this.cleanup();
+
+    const tab = document.getElementById('tarot-tab');
+    if (!tab) return;
+
     const spread = this.spreads[this.selectedSpread];
     const customKeys = ['options', 'pyramid', 'cross'];
     let cardArea = '';
+
     if (customKeys.includes(this.selectedSpread)) {
       cardArea = this.renderCustomSpread(this.selectedSpread);
     } else {
@@ -218,161 +254,142 @@ if (spreadKey === 'options') {
       let gridClass = 'md:grid-cols-1';
       if (num === 3) gridClass = 'md:grid-cols-3';
       else if (num === 6) gridClass = 'grid-cols-2 md:grid-cols-3';
-      /*  NO gap-6 or mb-8 utilities here  */
       cardArea = `<div class="grid ${gridClass} place-items-center">${Array.from({ length: num }).map((_, i) => this.cardMarkup(i, spread.positions[i])).join('')}</div>`;
     }
-tab.innerHTML = `
-  <div style="padding:1.5rem;min-height:100vh;">
-    <div class="universal-content">
 
-<!--  MOBILE-ONLY IMAGE + SUBTITLE HEADER  -->
-      <header class="main-header project-curiosity"
-              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavTarot.png');
-                     --header-title:'';
-                     --header-tag:'Self divination, through different Tarot spreads, to assist you in understanding yourself better'">
-        <h1>Tarot Cards Guidance</h1>
-        <h3>Self divination, through different Tarot spreads, to assist you in understanding yourself better</h3>
-        <span class="header-sub"></span>
-      </header>
+    tab.innerHTML = `
+      <div style="padding:1.5rem;min-height:100vh;">
+        <div class="universal-content">
 
-      <!-- Spread Selection Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6" style="margin-bottom: 3rem;">
-        ${Object.entries(this.spreads).map(([key, sp]) => {
-          const isPremium = ['options', 'pyramid', 'cross'].includes(key);
-          const isLocked = isPremium && !this.app.gamification?.state?.unlockedFeatures?.includes('advance_tarot_spreads');
-          return `
-          <div onclick="window.featuresManager.engines.tarot.selectSpread('${key}')"
-               class="card cursor-pointer relative ${this.selectedSpread === key ? 'border-4' : ''} ${isLocked ? 'opacity-75' : ''}"
-               style="${this.selectedSpread === key ? 'border-color: var(--neuro-accent);' : ''} padding: 1.5rem;"
-               title="${isLocked ? '🔒 Purchase Advanced Tarot Spreads in Karma Shop to unlock' : ''}">
-            ${isPremium ? '<span class="premium-badge-tr">PREMIUM</span>' : ''}
-            ${isLocked ? '<div style="position: absolute; top: 50%; right: 1rem; transform: translateY(-50%); font-size: 3rem; opacity: 0.3;">🔒</div>' : ''}
-            <h4 class="text-xl font-bold" style="color: var(--neuro-text);margin-bottom: 0.5rem;">${sp.name}</h4>
-            <p style="color: var(--neuro-text-light);" class="text-sm">${sp.desc}</p>
-          </div>`;
-        }).join('')}
-      </div>
+          <header class="main-header project-curiosity"
+                  style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavTarot.png');
+                         --header-title:'';
+                         --header-tag:'Self divination, through different Tarot spreads, to assist you in understanding yourself better'">
+            <h1>Tarot Cards Guidance</h1>
+            <h3>Self divination, through different Tarot spreads, to assist you in understanding yourself better</h3>
+            <span class="header-sub"></span>
+          </header>
 
-      <!-- Tarot Vision AI -->
-      <div class="flex justify-center" style="margin-bottom: 3rem;padding:0 1.5rem;">
-        ${(function(){
-          const has = window.app?.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
-          const locked = !has;
-          return `
-            <button id="tarot-vision-ai-btn"
-                    class="btn w-full inline-flex items-center justify-center gap-3 px-6 py-6 text-xl font-bold text-white rounded-xl shadow transition-transform ${locked?'opacity-50 cursor-not-allowed':'hover:scale-[1.02]'}">
-              🔮 Tarot Vision AI – Take a picture/upload a tarot card to analyse it
-              ${locked?'<span style="font-size: 3rem; opacity: .3; margin-left: .5rem;">🔒</span>':''}
-              <span class="premium-badge">PREMIUM</span>
-            </button>`;
-        })()}
-      </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6" style="margin-bottom: 3rem;">
+            ${Object.entries(this.spreads).map(([key, sp]) => {
+              const isPremium = ['options', 'pyramid', 'cross'].includes(key);
+              const isLocked = isPremium && !this.app.gamification?.state?.unlockedFeatures?.includes('advance_tarot_spreads');
+              return `
+              <div onclick="window.featuresManager.engines.tarot.selectSpread('${key}')"
+                   class="card cursor-pointer relative ${this.selectedSpread === key ? 'border-4' : ''} ${isLocked ? 'opacity-75' : ''}"
+                   style="${this.selectedSpread === key ? 'border-color: var(--neuro-accent);' : ''} padding: 1.5rem;"
+                   title="${isLocked ? '🔒 Purchase Advanced Tarot Spreads in Karma Shop to unlock' : ''}">
+                ${isPremium ? '<span class="premium-badge-tr">PREMIUM</span>' : ''}
+                ${isLocked ? '<div style="position: absolute; top: 50%; right: 1rem; transform: translateY(-50%); font-size: 3rem; opacity: 0.3;">🔒</div>' : ''}
+                <h4 class="text-xl font-bold" style="color: var(--neuro-text);margin-bottom: 0.5rem;">${sp.name}</h4>
+                <p style="color: var(--neuro-text-light);" class="text-sm">${sp.desc}</p>
+              </div>`;
+            }).join('')}
+          </div>
 
-      <div class="card" style="padding: 2rem;">
-        <div class="flex items-center justify-between" style="margin-bottom: 5rem;">
-          <h3 class="text-2xl font-bold" style="color: var(--neuro-text);">${this.spreads[this.selectedSpread].name}</h3>
-          <p style="color: var(--neuro-text-light);">Click the cards to reveal their meaning</p>
+          <div class="flex justify-center" style="margin-bottom: 3rem;padding:0 1.5rem;">
+            ${(() => {
+              const has = this.app?.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
+              const locked = !has;
+              return `
+                <button id="tarot-vision-ai-btn"
+                        class="btn w-full inline-flex items-center justify-center gap-3 px-6 py-6 text-xl font-bold text-white rounded-xl shadow transition-transform ${locked ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02]'}">
+                  🔮 Tarot Vision AI — Take a picture/upload a tarot card to analyse it
+                  ${locked ? '<span style="font-size: 3rem; opacity: .3; margin-left: .5rem;">🔒</span>' : ''}
+                  <span class="premium-badge">PREMIUM</span>
+                </button>`;
+            })()}
+          </div>
+
+          <div class="card" style="padding: 2rem;">
+            <div class="flex items-center justify-between" style="margin-bottom: 5rem;">
+              <h3 class="text-2xl font-bold" style="color: var(--neuro-text);">${spread.name}</h3>
+              <p style="color: var(--neuro-text-light);">Click the cards to reveal their meaning</p>
+            </div>
+            ${cardArea}
+          </div>
+
         </div>
-        ${(function(){
-          const spread = this.spreads[this.selectedSpread];
-          const customKeys = ['options', 'pyramid', 'cross'];
-          let cardArea = '';
-          if (customKeys.includes(this.selectedSpread)) {
-            cardArea = this.renderCustomSpread(this.selectedSpread);
-          } else {
-            const num = spread.cards;
-            let gridClass = 'md:grid-cols-1';
-            if (num === 3) gridClass = 'md:grid-cols-3';
-            else if (num === 6) gridClass = 'grid-cols-2 md:grid-cols-3';
-            cardArea = `<div class="grid ${gridClass} place-items-center">${Array.from({ length: num }).map((_, i) => this.cardMarkup(i, spread.positions[i])).join('')}</div>`;
-          }
-          return cardArea;
-        }).call(this)}
       </div>
 
-    </div>
-  </div>
+      <style>
+        .tarot-card-flip-container { width: clamp(140px, 24vw, 250px); aspect-ratio: 200 / 350; perspective: 1000px; cursor: pointer; }
+        .tarot-card-flip-inner { position: relative; width: 100%; height: 100%; transition: transform 0.8s; transform-style: preserve-3d; }
+        .tarot-card-flip-container.flipped .tarot-card-flip-inner { transform: rotateY(180deg); }
+        .tarot-card-back, .tarot-card-front { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; }
+        .tarot-card-front { transform: rotateY(180deg); }
+        .tarot-card-image { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .tarot-card-error { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 4rem; }
+        @media (min-width: 1600px) { .tarot-card-flip-container { width: clamp(160px, 18vw, 280px); } }
 
-  <style>
-    /* ----------  responsive identical card size  ---------- */
-    .tarot-card-flip-container { width: clamp(140px, 24vw, 250px); aspect-ratio: 200 / 350; perspective: 1000px; cursor: pointer; }
-    .tarot-card-flip-inner { position: relative; width: 100%; height: 100%; transition: transform 0.8s; transform-style: preserve-3d; }
-    .tarot-card-flip-container.flipped .tarot-card-flip-inner { transform: rotateY(180deg); }
-    .tarot-card-back, .tarot-card-front { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
-    .tarot-card-front { transform: rotateY(180deg); }
-    .tarot-card-image { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-    .tarot-card-error { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 4rem; }
-    @media (min-width: 1600px) { .tarot-card-flip-container { width: clamp(160px, 18vw, 280px); } }
+        #tarot-tab .grid,
+        #tarot-tab .md\:grid-cols-3,
+        #tarot-tab .grid-cols-3,
+        #tarot-tab .grid-cols-2 { gap: 0.5rem 2rem; }
+        
+        #tarot-tab .pyramid-triangle { gap: 0; }
+        #tarot-tab .cross-shape { margin: 0; }
 
-    /*  tighter vertical spacing for ALL multi-row grids  */
-    #tarot-tab .grid,
-    #tarot-tab .md\:grid-cols-3,
-    #tarot-tab .grid-cols-3,
-    #tarot-tab .grid-cols-2,
-    #tarot-tab .cross-shape,
-    #tarot-tab .pyramid-triangle {
-      row-gap: 0.5rem !important;
-      column-gap: 2rem !important;
-    }
-    /* Pyramid-specific tighter row spacing */
-    #tarot-tab .pyramid-triangle {
-      row-gap: 0rem !important;
-    }
-    #tarot-tab .cross-shape,
-    #tarot-tab .pyramid-triangle {
-      margin: 0.0rem 0 !important;
-    }
-    #tarot-tab .mb-8 {
-      margin-bottom: 0rem !important;
-    }
+        .pyramid-triangle { display: flex; flex-direction: column; align-items: center; }
+        .pyr-row { display: flex; justify-content: center; }
+        .pyr-apex { gap: 2rem; }
+        .pyr-upper { gap: 15rem; }
+        .pyr-lower { gap: 25rem; }
+        .pyr-base { gap: 12rem; }
 
-    /* ----------  Triangle column gaps (your values)  ---------- */
-    .pyramid-triangle { display: flex; flex-direction: column; align-items: center; }
-    .pyr-row { display: flex; justify-content: center; }
-    .pyr-apex { gap: 2rem; }
-    .pyr-upper { gap: 15rem; }
-    .pyr-lower { gap: 25rem; }
-    .pyr-base { gap: 12rem; }
+        .cross-shape { display: flex; flex-direction: column; align-items: center; }
+        .cross-top, .cross-bot { display: flex; justify-content: center; }
+        .cross-mid { display: flex; justify-content: center; gap: 15rem; }
 
-    /* ----------  Cross layout  ---------- */
-    .cross-shape { display: flex; flex-direction: column; align-items: center; }
-    .cross-top, .cross-bot { display: flex; justify-content: center; }
-    .cross-mid { display: flex; justify-content: center; gap: 15rem; }
+        .premium-badge {
+          position: static;
+          transform: none;
+          margin-left: 0.75rem;
+          background: linear-gradient(135deg, #fcd34d, #f59e0b);
+          color: #111;
+          font-size: .65rem;
+          font-weight: 700;
+          padding: 4px 8px;
+          border-radius: 9999px;
+          letter-spacing: .5px;
+        }
+      </style>
+    `;
 
-    /* ----------  premium badge  ---------- */
-    .premium-badge {
-      position: static;
-      transform: none;
-      margin-left: 0.75rem;
-      background: linear-gradient(135deg, #fcd34d, #f59e0b);
-      color: #111;
-      font-size: .65rem;
-      font-weight: 700;
-      padding: 4px 8px;
-      border-radius: 9999px;
-      letter-spacing: .5px;
-    }
-  </style>
-`;
+    setTimeout(() => {
+      const visionBtn = document.getElementById('tarot-vision-ai-btn');
+      if (visionBtn) {
+        const handler = () => {
+          const locked = !this.app.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
+          if (locked) {
+            this.app.showToast('🔒 Unlock Tarot Vision AI in the Karma Shop!', 'info');
+          } else {
+            this.app.showToast('📸 Tarot Vision AI opening...', 'info');
+            // Add your AI vision feature trigger here
+          }
+        };
+        visionBtn.onclick = handler;
+        this.cleanup = () => { visionBtn.onclick = null; };
+      }
+    }, 0);
   }
-// In selectSpread method:
-selectSpread(spreadKey) {
-  const premiumSpreads = ['options', 'pyramid', 'cross'];
-  if (premiumSpreads.includes(spreadKey) && 
-      !this.app.gamification?.state?.unlockedFeatures?.includes('advance_tarot_spreads')) {
-    this.app.showToast('🔒 Unlock Advanced Tarot Spreads in the Karma Shop!', 'info');
-    return;
+
+  selectSpread(spreadKey) {
+    const premiumSpreads = ['options', 'pyramid', 'cross'];
+    if (premiumSpreads.includes(spreadKey) && 
+        !this.app.gamification?.state?.unlockedFeatures?.includes('advance_tarot_spreads')) {
+      this.app.showToast('🔒 Unlock Advanced Tarot Spreads in the Karma Shop!', 'info');
+      return;
+    }
+    this.selectedSpread = spreadKey;
+    this.prepareReading();
+    this.render();
   }
-  this.selectedSpread = spreadKey; 
-  this.prepareReading(); 
-  this.render(); 
+
+  reset() {
+    this.selectSpread(this.selectedSpread);
+  }
 }
 
-reset() { 
-  this.selectSpread(this.selectedSpread); 
-}
-}
-
-// Export
 if (typeof window !== 'undefined') window.TarotEngine = TarotEngine;
 export default TarotEngine;

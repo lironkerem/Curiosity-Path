@@ -3,36 +3,45 @@
 import { NeumorphicModal } from '../Core/Modal.js';
 
 export default class GratitudeEngine {
+  static TYPE = 'gratitude';
+
   constructor(app) {
     this.app = app;
     this.currentEntries = [];
     this.maxEntries = 10;
-    this.loadToday();
+    this.cachedEntries = null;
   }
 
   /* ----------  data helpers  ---------- */
-  loadToday() {
-    const today = this.app.state.getTodayEntries('gratitude');
-    // Don't load today's entries - always start fresh
-    this.currentEntries = [];
+  getAllEntries() {
+    const original = this.app.state.data.gratitudeEntries || [];
+    const cleaned = original.filter(day => day.entries && day.entries.length > 0);
+
+    // Only save if we actually removed something
+    if (cleaned.length !== original.length) {
+      this.app.state.data.gratitudeEntries = cleaned;
+      this.app.state.saveAppData();
+    }
+
+    // Cache and return sorted
+    this.cachedEntries = cleaned.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    return this.cachedEntries;
   }
 
-getAllEntries() {
-  // 1. remove any day that has zero entries
-  const cleaned = (this.app.state.data.gratitudeEntries || [])
-    .filter(day => day.entries && day.entries.length > 0);
-
-  // 2. write the cleaned array back to storage
-  this.app.state.data.gratitudeEntries = cleaned;
-  this.app.state.saveAppData();
-
-  // 3. return newest-first
-  return cleaned.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-}
-
   getTodayTotal() {
-    const today = this.app.state.getTodayEntries('gratitude');
+    const today = this.app.state.getTodayEntries(GratitudeEngine.TYPE);
     return today.reduce((sum, entry) => sum + entry.entries.length, 0);
+  }
+
+  /* ----------  security  ---------- */
+  escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, m => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[m]));
   }
 
   /* ----------  render  ---------- */
@@ -41,11 +50,10 @@ getAllEntries() {
     const allEntries = this.getAllEntries();
     const todayTotal = this.getTodayTotal();
 
-tab.innerHTML = `
+    tab.innerHTML = `
   <div style="padding:1.5rem;min-height:100vh;">
     <div class="universal-content">
 
-<!--  MOBILE-ONLY IMAGE + SUBTITLE HEADER  -->
       <header class="main-header project-curiosity"
               style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavGratitude.png');
                      --header-title:'';
@@ -55,9 +63,7 @@ tab.innerHTML = `
         <span class="header-sub"></span>
       </header>
 
-      <!-- Single column layout -->
       <div class="space-y-6">
-        <!-- Today card -->
         <div class="card">
           <div class="flex items-center justify-between" style="margin-bottom: 2rem;">
             <h3 class="text-2xl font-bold" style="color: var(--neuro-text);">My Gratitudes for Today</h3>
@@ -70,7 +76,7 @@ tab.innerHTML = `
             </div>
           ` : ''}
 
-          <form onsubmit="window.featuresManager.engines.gratitude.addEntry(event)" style="margin-bottom: 2rem;">
+          <form id="gratitude-form" style="margin-bottom: 2rem;">
             <div class="flex space-x-3">
               <textarea id="gratitude-input" class="form-input flex-1" rows="5" style="resize: none;"
                placeholder="Today, I am Grateful for..." required></textarea>
@@ -78,39 +84,36 @@ tab.innerHTML = `
             </div>
           </form>
 
-<!-- Need Inspiration -->
-<div class="gratitude-inspiration-container">
-  <p class="suggestion-label">💭 Need Inspiration?</p>
-  <div class="gratitude-inspiration-grid">
-    ${'A person who made you smile,A comfortable place you enjoy,Something in nature,A skill or talent you have,A recent act of kindness,A small win you had today'
-      .split(',').map(prompt => `
-        <button class="suggestion-btn" data-text="${prompt}"
-                onclick="document.getElementById('gratitude-input').value='${prompt}'; document.getElementById('gratitude-input').focus();">
-          ${prompt}
-        </button>
-      `).join('')}
-  </div>
-</div>
+          <div class="gratitude-inspiration-container">
+            <p class="suggestion-label">💭 Need Inspiration?</p>
+            <div class="gratitude-inspiration-grid" id="inspiration-grid">
+              ${['A person who made you smile','A comfortable place you enjoy','Something in nature','A skill or talent you have','A recent act of kindness','A small win you had today']
+                .map(prompt => `
+                  <button class="suggestion-btn" data-text="${this.escapeHtml(prompt)}">
+                    ${this.escapeHtml(prompt)}
+                  </button>
+                `).join('')}
+            </div>
+          </div>
 
-          <div class="space-y-3">
+          <div class="space-y-3" id="current-entries">
             ${this.currentEntries.map((entry, index) => `
               <div class="flex items-start gap-3 p-4 rounded-lg" style="background: rgba(0,0,0,.05);">
                 <span class="text-green-400 text-xl flex-shrink-0">💚</span>
-                <p class="flex-1" data-index="${index}" style="color: var(--neuro-text);">${entry}</p>
+                <p class="flex-1" style="color: var(--neuro-text);">${this.escapeHtml(entry)}</p>
                 <div class="flex gap-2" style="color: var(--neuro-text-light);">
-                  <button onclick="window.featuresManager.engines.gratitude.editEntry(${index})" title="Edit" class="hover:text-white">✏️</button>
-                  <button onclick="window.featuresManager.engines.gratitude.removeEntry(${index})" title="Delete" class="hover:text-red-400">🗑️</button>
+                  <button data-action="edit" data-index="${index}" title="Edit" class="hover:text-white">✏️</button>
+                  <button data-action="delete" data-index="${index}" title="Delete" class="hover:text-red-400">🗑️</button>
                 </div>
               </div>
             `).join('')}
           </div>
 
           ${this.currentEntries.length > 0 ? `
-            <button onclick="window.featuresManager.engines.gratitude.save()" class="btn btn-primary w-full" style="margin-top: 1.5rem;">💾 Save Journal Entry</button>
+            <button id="save-journal-btn" class="btn btn-primary w-full" style="margin-top: 1.5rem;">💾 Save Journal Entry</button>
           ` : ''}
         </div>
 
-        <!-- History card -->
         <div class="card">
           <h3 class="text-2xl font-bold" style="color: var(--neuro-text);margin-bottom: 1.5rem;">📖 My Gratitude Lists</h3>
           ${allEntries.length === 0 ? `
@@ -119,7 +122,7 @@ tab.innerHTML = `
               <p>Your gratitude list will appear here</p>
             </div>
           ` : `
-            <div class="space-y-6">
+            <div class="space-y-6" id="history-entries">
               ${allEntries.slice(0, 30).map(entry => {
                 const date = new Date(entry.timestamp);
                 const dateStr = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -130,10 +133,10 @@ tab.innerHTML = `
                       ${entry.entries.map((item, idx) => `
                         <div class="flex items-start gap-2">
                           <span class="text-green-400" style="min-width: 20px;">${idx + 1}.</span>
-                          <p class="flex-1" style="color: var(--neuro-text);">${item}</p>
+                          <p class="flex-1" style="color: var(--neuro-text);">${this.escapeHtml(item)}</p>
                           <div class="flex gap-2" style="color: var(--neuro-text-light);">
-                            <button onclick="window.featuresManager.engines.gratitude.editHistoryEntry('${entry.timestamp}', ${idx})" title="Edit" class="hover:text-white">✏️</button>
-                            <button onclick="window.featuresManager.engines.gratitude.deleteHistoryEntry('${entry.timestamp}', ${idx})" title="Delete" class="hover:text-red-400">🗑️</button>
+                            <button data-action="edit-history" data-timestamp="${entry.timestamp}" data-index="${idx}" title="Edit" class="hover:text-white">✏️</button>
+                            <button data-action="delete-history" data-timestamp="${entry.timestamp}" data-index="${idx}" title="Delete" class="hover:text-red-400">🗑️</button>
                           </div>
                         </div>
                       `).join('')}
@@ -155,7 +158,6 @@ tab.innerHTML = `
   </div>
 
   <style>
-    /* 2x3 grid for inspiration prompts */
     .gratitude-inspiration-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -167,32 +169,86 @@ tab.innerHTML = `
     this.attachHandlers();
   }
 
-  /* ----------  handlers  ---------- */
+  /* ----------  handlers with event delegation  ---------- */
   attachHandlers() {
-    const form = document.querySelector('#gratitude-tab form');
-    form?.addEventListener('submit', e => this.addEntry(e));
+    const tab = document.getElementById('gratitude-tab');
+    
+    // Remove old listener if exists
+    if (this._boundHandler) {
+      tab.removeEventListener('click', this._boundHandler);
+    }
+    
+    // Event delegation for all clicks
+    this._boundHandler = (e) => {
+      const target = e.target.closest('[data-action]');
+      if (!target) return;
 
-    document.querySelector('#gratitude-input')?.addEventListener('keydown', e => {
+      const action = target.dataset.action;
+      const index = parseInt(target.dataset.index);
+      const timestamp = target.dataset.timestamp;
+
+      switch(action) {
+        case 'edit':
+          this.editEntry(index);
+          break;
+        case 'delete':
+          this.removeEntry(index);
+          break;
+        case 'edit-history':
+          this.editHistoryEntry(timestamp, index);
+          break;
+        case 'delete-history':
+          this.deleteHistoryEntry(timestamp, index);
+          break;
+      }
+    };
+    
+    tab.addEventListener('click', this._boundHandler);
+
+    // Form submission
+    const form = document.getElementById('gratitude-form');
+    form?.addEventListener('submit', (e) => this.addEntry(e));
+
+    // Enter key handling
+    const input = document.getElementById('gratitude-input');
+    input?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) { 
         e.preventDefault(); 
-        form.dispatchEvent(new Event('submit')); 
+        form.dispatchEvent(new Event('submit', { cancelable: true })); 
       }
     });
+
+    // Inspiration buttons
+    const grid = document.getElementById('inspiration-grid');
+    grid?.addEventListener('click', (e) => {
+      const btn = e.target.closest('.suggestion-btn');
+      if (btn) {
+        const text = btn.dataset.text;
+        input.value = text;
+        input.focus();
+      }
+    });
+
+    // Save button
+    const saveBtn = document.getElementById('save-journal-btn');
+    saveBtn?.addEventListener('click', () => this.save());
   }
 
   addEntry(event) {
     event.preventDefault();
-    const input = document.querySelector('#gratitude-input');
+    const input = document.getElementById('gratitude-input');
     const entry = input.value.trim();
     if (entry) {
       this.currentEntries.push(entry);
       input.value = '';
+      this.cachedEntries = null; // Invalidate cache
       this.render();
     }
   }
 
   removeEntry(index) {
     this.currentEntries.splice(index, 1);
+    this.cachedEntries = null;
     this.render();
   }
 
@@ -203,6 +259,7 @@ tab.innerHTML = `
       original,
       (updated) => {
         this.currentEntries[index] = updated;
+        this.cachedEntries = null;
         this.render();
       },
       {
@@ -223,6 +280,7 @@ tab.innerHTML = `
       (updated) => {
         day.entries[idx] = updated;
         this.app.state.saveAppData();
+        this.cachedEntries = null;
         this.render();
       },
       {
@@ -244,6 +302,7 @@ tab.innerHTML = `
           this.app.state.data.gratitudeEntries = this.app.state.data.gratitudeEntries.filter(e => e.timestamp !== ts);
         }
         this.app.state.saveAppData();
+        this.cachedEntries = null;
         this.render();
       },
       {
@@ -259,29 +318,35 @@ tab.innerHTML = `
   save() {
     if (this.currentEntries.length === 0) return;
     
-    // Save the entry
-    this.app.state.addEntry('gratitude', { entries: this.currentEntries });
+    this.app.state.addEntry(GratitudeEngine.TYPE, { entries: this.currentEntries });
     this.app.showToast('✅ Gratitude journal saved!', 'success');
 
-    // Quest integration
     if (this.app.gamification) {
       this.currentEntries.forEach(() => {
         this.app.gamification.progressQuest('daily', 'gratitude_entry', 1);
       });
     }
 
-    // Achievements
     const total = this.app.state.data.gratitudeEntries?.length || 0;
     const gm = this.app.gamification;
-    if (total === 1) gm.grantAchievement({ id: 'first_gratitude', name: 'Grateful Heart', xp: 50, icon: '💚', inspirational: 'You\'ve begun the journey of gratitude!' });
-    if (total === 10) gm.grantAchievement({ id: 'gratitude_10', name: 'Gratitude Apprentice', xp: 100, icon: '🙏', inspirational: '10 gratitude entries - abundance flows to you!' });
-    if (total === 50) gm.grantAchievement({ id: 'gratitude_50', name: 'Gratitude Master', xp: 250, icon: '🌟', inspirational: '50 entries! Your gratitude practice is transformative!' });
+    if (gm) {
+      if (total === 1) gm.grantAchievement({ id: 'first_gratitude', name: 'Grateful Heart', xp: 50, icon: '💚', inspirational: 'You\'ve begun the journey of gratitude!' });
+      if (total === 10) gm.grantAchievement({ id: 'gratitude_10', name: 'Gratitude Apprentice', xp: 100, icon: '🙏', inspirational: '10 gratitude entries - abundance flows to you!' });
+      if (total === 50) gm.grantAchievement({ id: 'gratitude_50', name: 'Gratitude Master', xp: 250, icon: '🌟', inspirational: '50 entries! Your gratitude practice is transformative!' });
+    }
 
-    // Clear current entries for fresh start
     this.currentEntries = [];
+    this.cachedEntries = null;
     this.render();
+  }
+
+  /* ----------  cleanup  ---------- */
+  destroy() {
+    const tab = document.getElementById('gratitude-tab');
+    if (this._boundHandler) {
+      tab?.removeEventListener('click', this._boundHandler);
+    }
   }
 }
 
-// Export for ES6 modules and expose globally
 if (typeof window !== 'undefined') window.GratitudeEngine = GratitudeEngine;

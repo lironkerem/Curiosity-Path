@@ -1,5 +1,5 @@
 // ============================================
-// HAPPINESS ENGINE - FULLY PATCHED
+// HAPPINESS ENGINE - OPTIMIZED
 // ============================================
 
 import affirmationsData from '../Features/Data/AffirmationsList.js';
@@ -18,12 +18,13 @@ class HappinessEngine {
     ];
     this.boostersLoaded = true;
     this.currentBooster = this.getRandomBooster();
-    this.currentQuote   = null;
+    this.currentQuote = null;
     this.currentAffirmation = null;
     this.currentInquiry = null;
-    this.affirmations   = window.affirmations || affirmationsData;
+    this.affirmations = window.affirmations || affirmationsData;
     this.inquiryEngine = new InquiryEngine('beginner');
-    this._lastTracked = 0;          // throttle helper
+    this._lastTracked = 0;
+    this._cachedElements = {};
     this.loadBoosters();
   }
 
@@ -34,32 +35,42 @@ class HappinessEngine {
       const data = await res.json();
       this.boosters = data.boosters;
       this.boostersLoaded = true;
-      const tab = document.getElementById('happiness-tab');
+      const tab = this._getElement('happiness-tab');
       if (tab && !tab.classList.contains('hidden')) this.render();
     } catch (e) { console.error('boosters load failed', e); }
+  }
+
+  _getElement(id) {
+    if (!this._cachedElements[id] || !document.getElementById(id)) {
+      this._cachedElements[id] = document.getElementById(id);
+    }
+    return this._cachedElements[id];
   }
 
   _getDayOfYear() {
     const now = new Date(), start = new Date(now.getFullYear(), 0, 0);
     return Math.floor((now - start) / 86400000);
   }
+
   getDailyBooster() { return this.boosters[this._getDayOfYear() % this.boosters.length]; }
   getRandomBooster() { return this.app.randomFrom(this.boosters); }
+  
   getDailyAffirmation() {
     const list = this.affirmations?.general_positive_affirmations;
     if (!list?.length) return 'You are doing great.';
     const item = list[this._getDayOfYear() % list.length];
     return typeof item === 'string' ? item : item.text;
   }
+  
   getRandomAffirmation() {
     const src = this.affirmations;
     if (!src) return 'You are capable of amazing things.';
-    const pool = [];
-    for (const cat in src) if (Array.isArray(src[cat])) pool.push(...src[cat]);
+    const pool = Object.values(src).flat().filter(Array.isArray);
     if (!pool.length) return 'You are capable of amazing things.';
     const pick = this.app.randomFrom(pool);
     return typeof pick === 'string' ? pick : pick.text;
   }
+  
   getRandomInquiry() {
     const domains = [
       'Responsibility and Power', 'Emotional Honesty', 'Identity and Roles',
@@ -68,8 +79,7 @@ class HappinessEngine {
       'Spiritual Growth', 'Fear and Resistance', 'Boundaries and Consent',
       'Purpose and Direction', 'Mind and Awareness'
     ];
-    const randomDomain = domains[Math.floor(Math.random() * domains.length)];
-    return this.inquiryEngine.getRandomQuestion(randomDomain);
+    return this.inquiryEngine.getRandomQuestion(domains[Math.floor(Math.random() * domains.length)]);
   }
 
   trackView() {
@@ -78,24 +88,29 @@ class HappinessEngine {
     this._lastTracked = now;
 
     const today = new Date().toDateString();
-    let data = { date: today, count: 0 };
-    try {
-      const s = localStorage.getItem('daily_booster_views');
-      if (s) { const p = JSON.parse(s); if (p.date === today) data = p; }
-    } catch {}
+    let data = this._getStorageData(today);
     data.count += 1;
     localStorage.setItem('daily_booster_views', JSON.stringify(data));
-    if (data.count <= 5 && this.app.gamification) this.app.gamification.progressQuest('daily', 'daily_booster', 1);
+    
+    if (data.count <= 5 && this.app.gamification) {
+      this.app.gamification.progressQuest('daily', 'daily_booster', 1);
+    }
     return data.count;
   }
+
   getTodayViewCount() {
-    const today = new Date().toDateString();
+    return this._getStorageData(new Date().toDateString()).count;
+  }
+
+  _getStorageData(today) {
     try {
       const s = localStorage.getItem('daily_booster_views');
-      if (!s) return 0;
-      const p = JSON.parse(s);
-      return p.date === today ? p.count || 0 : 0;
-    } catch { return 0; }
+      if (s) {
+        const p = JSON.parse(s);
+        if (p.date === today) return p;
+      }
+    } catch {}
+    return { date: today, count: 0 };
   }
 
   updateQuestDisplay() {
@@ -105,29 +120,34 @@ class HappinessEngine {
       badge.textContent = `${viewCount} / 5 (Quest)`;
       badge.className = `badge ${viewCount >= 5 ? 'badge-success' : 'badge-primary'}`;
     }
-    let banner = document.querySelector('#happiness-quest-complete');
-    if (viewCount >= 5) {
-      if (!banner) {
-        banner = document.createElement('div');
-        banner.id = 'happiness-quest-complete';
-        banner.style.cssText = 'margin-bottom:2rem;padding:1rem;border-radius:0.5rem;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);';
-        banner.innerHTML = '<p class="text-center" style="color:#22c55e;">🎉 Daily quest complete! Keep exploring if you\'d like!</p>';
-        const header = document.querySelector('#happiness-tab .universal-content');
-        header?.insertBefore(banner, header.querySelector('main'));
-      }
-    } else {
-      banner?.remove();
+    
+    const bannerId = 'happiness-quest-complete';
+    let banner = document.getElementById(bannerId);
+    
+    if (viewCount >= 5 && !banner) {
+      banner = document.createElement('div');
+      banner.id = bannerId;
+      banner.style.cssText = 'margin-bottom:2rem;padding:1rem;border-radius:0.5rem;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);';
+      banner.innerHTML = '<p class="text-center" style="color:#22c55e;">🎉 Daily quest complete! Keep exploring if you\'d like!</p>';
+      const header = document.querySelector('#happiness-tab .universal-content');
+      header?.insertBefore(banner, header.querySelector('main'));
+    } else if (viewCount < 5 && banner) {
+      banner.remove();
     }
   }
 
   _flipCard(cardId, newHtml) {
-    const card = document.getElementById(cardId);
+    const card = this._getElement(cardId);
     if (!card) return;
+    
     const inner = card.querySelector('.flip-card-inner');
-    const back  = card.querySelector('.flip-card-back');
+    const back = card.querySelector('.flip-card-back');
     back.innerHTML = newHtml;
-    const currentY = parseFloat(inner.style.transform.replace(/[^\d.-]/g, '')) || 0;
+    
+    const match = inner.style.transform.match(/-?\d+\.?\d*/);
+    const currentY = match ? parseFloat(match[0]) : 0;
     inner.style.transform = `rotateY(${currentY + 360}deg)`;
+    
     const onEnd = () => {
       inner.removeEventListener('transitionend', onEnd);
       card.querySelector('.flip-card-front').innerHTML = newHtml;
@@ -135,128 +155,108 @@ class HappinessEngine {
     inner.addEventListener('transitionend', onEnd);
   }
 
-  refreshBooster() {
-    this.currentBooster = this.getRandomBooster();
+  _handleRefresh(type, getter, cardId, emoji, title, formatter) {
+    this[type] = getter.call(this);
     const viewCount = this.trackView();
-    const html = `
+    const html = formatter(this[type], emoji, title);
+    this._flipCard(cardId, html);
+    this.updateQuestDisplay();
+    
+    if (this.app.gamification) this.app.gamification.incrementHappinessViews();
+    if (this.app.showToast) {
+      const msg = viewCount >= 5 
+        ? `✨ Quest complete! You've viewed 5 items today!`
+        : `✨ New ${title.toLowerCase()} revealed! (${viewCount}/5)`;
+      this.app.showToast(msg, viewCount >= 5 ? 'success' : 'success');
+    }
+  }
+
+  refreshBooster() {
+    this._handleRefresh('currentBooster', this.getRandomBooster, 'booster-card', '💪', 'Booster', (b, emoji) => `
       <div class="flex items-center" style="margin-bottom: 1rem;">
-        <span class="text-3xl" style="margin-right:0.25rem">${this.currentBooster.emoji}</span>
+        <span class="text-3xl" style="margin-right:0.25rem">${b.emoji}</span>
         <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> A Quick Happiness Booster</h2>
       </div>
       <div class="text-center">
-        <h3 class="text-2xl font-bold" style="color: var(--neuro-accent);">${this.currentBooster.title}</h3>
-        <p class="mt-2 text-lg">${this.currentBooster.description}</p>
+        <h3 class="text-2xl font-bold" style="color: var(--neuro-accent);">${b.title}</h3>
+        <p class="mt-2 text-lg">${b.description}</p>
         <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
-          <span>${this.currentBooster.duration}</span> • <span>${this.currentBooster.category}</span>
+          <span>${b.duration}</span> • <span>${b.category}</span>
         </div>
       </div>
       <div class="mt-6 flex justify-end">
         <button onclick="window.featuresManager.engines.happiness.refreshBooster()" class="btn btn-secondary">🔄 Refresh Booster</button>
-      </div>`;
-    this._flipCard('booster-card', html);
-    this.updateQuestDisplay();
-    if (this.app.gamification) this.app.gamification.incrementHappinessViews();
-    if (this.app.showToast) {
-      if (viewCount >= 5) this.app.showToast('✨ Quest complete! You\'ve viewed 5 boosters today!', 'success');
-      else this.app.showToast(`✨ New booster revealed! (${viewCount}/5)`, 'success');
-    }
+      </div>`);
   }
 
   refreshQuote() {
-    this.currentQuote = window.QuotesData
-      ? window.QuotesData.getRandomQuote()
-      : { text: 'Stay positive!', author: 'Unknown' };
-    const viewCount = this.trackView();
-    const html = `
+    const getQuote = () => window.QuotesData?.getRandomQuote() || { text: 'Stay positive!', author: 'Unknown' };
+    this._handleRefresh('currentQuote', getQuote, 'quote-card', '📜', 'Quote', (q) => `
       <div class="flex items-center" style="margin-bottom: 1rem;">
         <span class="text-3xl" style="margin-right:0.25rem">📜</span>
         <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> Inspirational Quote</h2>
       </div>
       <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
-        "${this.currentQuote.text}"
+        "${q.text}"
       </p>
       <p class="mt-3 text-center text-lg" style="color: var(--neuro-text);">
-        - ${this.currentQuote.author}
+        - ${q.author}
       </p>
       <div class="mt-6 flex justify-end">
         <button onclick="window.featuresManager.engines.happiness.refreshQuote()" class="btn btn-secondary">🔄 Refresh Quote</button>
-      </div>`;
-    this._flipCard('quote-card', html);
-    this.updateQuestDisplay();
-    if (this.app.gamification) this.app.gamification.incrementHappinessViews();
-    if (this.app.showToast) {
-      if (viewCount >= 5) this.app.showToast('📜 Quest complete! You\'ve viewed 5 items today!', 'success');
-      else this.app.showToast(`📜 New quote revealed! (${viewCount}/5)`, 'success');
-    }
+      </div>`);
   }
 
   refreshAffirmation() {
-    this.currentAffirmation = this.getRandomAffirmation();
-    const viewCount = this.trackView();
-    const html = `
+    this._handleRefresh('currentAffirmation', this.getRandomAffirmation, 'affirm-card', '✨', 'Affirmation', (a) => `
       <div class="flex items-center" style="margin-bottom: 1rem;">
         <span class="text-3xl" style="margin-right:0.25rem">✨</span>
         <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> Positive Affirmation</h2>
       </div>
       <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
-        "${this.currentAffirmation}"
+        "${a}"
       </p>
       <div class="mt-6 flex justify-end">
         <button onclick="window.featuresManager.engines.happiness.refreshAffirmation()" class="btn btn-secondary">🔄 Refresh Affirmation</button>
-      </div>`;
-    this._flipCard('affirm-card', html);
-    this.updateQuestDisplay();
-    if (this.app.gamification) this.app.gamification.incrementHappinessViews();
-    if (this.app.showToast) {
-      if (viewCount >= 5) this.app.showToast('💫 Quest complete! You\'ve viewed 5 items today!', 'success');
-      else this.app.showToast(`💫 New affirmation revealed! (${viewCount}/5)`, 'success');
-    }
+      </div>`);
   }
 
   refreshInquiry() {
-    this.currentInquiry = this.getRandomInquiry();
-    const viewCount = this.trackView();
     const intensityEmoji = { 1: '🌱', 2: '🌿', 3: '🌳', 4: '🔥' };
-    const html = `
+    this._handleRefresh('currentInquiry', this.getRandomInquiry, 'inquiry-card', '💭', 'Inquiry', (i) => `
       <div class="flex items-center" style="margin-bottom: 1rem;">
-        <span class="text-3xl" style="margin-right:0.25rem">${intensityEmoji[this.currentInquiry.intensity] || '💭'}</span>
+        <span class="text-3xl" style="margin-right:0.25rem">${intensityEmoji[i.intensity] || '💭'}</span>
         <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> Self Inquiry</h2>
       </div>
       <div class="text-center">
         <div style="margin-bottom: 1rem; padding: 0.5rem; background: var(--neuro-bg-secondary); border-radius: 8px; display: inline-block;">
           <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--neuro-accent);">
-            ${this.currentInquiry.domain}
+            ${i.domain}
           </span>
         </div>
         <p class="text-2xl font-semibold" style="color: var(--neuro-accent); line-height: 1.4; margin-bottom: 1rem;">
-          ${this.currentInquiry.question}
+          ${i.question}
         </p>
         <p class="mt-2 text-lg" style="font-style: italic; color: var(--neuro-text-secondary);">
-          ${this.currentInquiry.holding}
+          ${i.holding}
         </p>
         <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
-          <span>Level ${this.currentInquiry.intensity}</span> • <span>Self-Inquiry</span>
+          <span>Level ${i.intensity}</span> • <span>Self-Inquiry</span>
         </div>
       </div>
       <div class="mt-6 flex justify-end">
         <button onclick="window.featuresManager.engines.happiness.refreshInquiry()" class="btn btn-secondary">🔄 Refresh Inquiry</button>
-      </div>`;
-    this._flipCard('inquiry-card', html);
-    this.updateQuestDisplay();
-    if (this.app.gamification) this.app.gamification.incrementHappinessViews();
-    if (this.app.showToast) {
-      if (viewCount >= 5) this.app.showToast('💭 Quest complete! You\'ve viewed 5 items today!', 'success');
-      else this.app.showToast(`💭 New inquiry revealed! (${viewCount}/5)`, 'success');
-    }
+      </div>`);
   }
 
   render() {
-    const tab = document.getElementById('happiness-tab');
+    const tab = this._getElement('happiness-tab');
     if (!tab) return;
-    if (!this.currentBooster) this.currentBooster = this.getDailyBooster();
-    if (!this.currentQuote)   this.currentQuote   = window.QuotesData ? window.QuotesData.getQuoteOfTheDay() : { text: 'Stay positive!', author: 'Unknown' };
-    if (!this.currentAffirmation) this.currentAffirmation = this.getDailyAffirmation();
-    if (!this.currentInquiry) this.currentInquiry = this.getRandomInquiry();
+    
+    this.currentBooster = this.currentBooster || this.getDailyBooster();
+    this.currentQuote = this.currentQuote || (window.QuotesData?.getQuoteOfTheDay() || { text: 'Stay positive!', author: 'Unknown' });
+    this.currentAffirmation = this.currentAffirmation || this.getDailyAffirmation();
+    this.currentInquiry = this.currentInquiry || this.getRandomInquiry();
 
     const viewCount = this.getTodayViewCount();
     const intensityEmoji = { 1: '🌱', 2: '🌿', 3: '🌳', 4: '🔥' };
@@ -285,104 +285,69 @@ class HappinessEngine {
       ` : ''}
 
       <main class="space-y-6">
-        <!--  Booster Card  -->
-        <div class="neuro-card flip-card" id="booster-card">
-          <div class="flip-card-inner">
-            <div class="flip-card-front">
-              <div class="flex items-center" style="margin-bottom: 1rem;">
-                <span class="text-3xl" style="margin-right:0.25rem">${this.currentBooster.emoji}</span>
-                <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">A Quick Happiness Booster</h2>
-              </div>
-              <div class="text-center">
-                <h3 class="text-2xl font-bold" style="color: var(--neuro-accent);">${this.currentBooster.title}</h3>
-                <p class="mt-2 text-lg">${this.currentBooster.description}</p>
-                <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
-                  <span>${this.currentBooster.duration}</span> • <span>${this.currentBooster.category}</span>
-                </div>
-              </div>
-              <div class="mt-6 flex justify-end">
-                <button onclick="window.featuresManager.engines.happiness.refreshBooster()" class="btn btn-secondary">🔄 Refresh Booster</button>
-              </div>
-            </div>
-            <div class="flip-card-back"></div>
+        ${this._renderCard('booster-card', this.currentBooster.emoji, 'A Quick Happiness Booster', `
+          <h3 class="text-2xl font-bold" style="color: var(--neuro-accent);">${this.currentBooster.title}</h3>
+          <p class="mt-2 text-lg">${this.currentBooster.description}</p>
+          <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
+            <span>${this.currentBooster.duration}</span> • <span>${this.currentBooster.category}</span>
           </div>
-        </div>
+        `, 'refreshBooster')}
 
-        <!--  Quote Card  -->
-        <div class="neuro-card flip-card" id="quote-card">
-          <div class="flip-card-inner">
-            <div class="flip-card-front">
-              <div class="flex items-center" style="margin-bottom: 1rem;">
-                <span class="text-3xl" style="margin-right:0.25rem">📜</span>
-                <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2>
-              </div>
-              <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
-                "${this.currentQuote.text}"
-              </p>
-              <p class="mt-3 text-center text-lg" style="color: var(--neuro-text);">
-                - ${this.currentQuote.author}
-              </p>
-              <div class="mt-6 flex justify-end">
-                <button onclick="window.featuresManager.engines.happiness.refreshQuote()" class="btn btn-secondary">🔄 Refresh Quote</button>
-              </div>
-            </div>
-            <div class="flip-card-back"></div>
-          </div>
-        </div>
+        ${this._renderCard('quote-card', '📜', 'Inspirational Quote', `
+          <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
+            "${this.currentQuote.text}"
+          </p>
+          <p class="mt-3 text-center text-lg" style="color: var(--neuro-text);">
+            - ${this.currentQuote.author}
+          </p>
+        `, 'refreshQuote')}
 
-        <!--  Affirmation Card  -->
-        <div class="neuro-card flip-card" id="affirm-card">
-          <div class="flip-card-inner">
-            <div class="flip-card-front">
-              <div class="flex items-center" style="margin-bottom: 1rem;">
-                <span class="text-3xl" style="margin-right:0.25rem">✨</span>
-                <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Positive Affirmation</h2>
-              </div>
-              <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
-                "${this.currentAffirmation}"
-              </p>
-              <div class="mt-6 flex justify-end">
-                <button onclick="window.featuresManager.engines.happiness.refreshAffirmation()" class="btn btn-secondary">🔄 Refresh Affirmation</button>
-              </div>
-            </div>
-            <div class="flip-card-back"></div>
-          </div>
-        </div>
+        ${this._renderCard('affirm-card', '✨', 'Positive Affirmation', `
+          <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
+            "${this.currentAffirmation}"
+          </p>
+        `, 'refreshAffirmation')}
 
-        <!--  Self Inquiry Card  -->
-        <div class="neuro-card flip-card" id="inquiry-card">
-          <div class="flip-card-inner">
-            <div class="flip-card-front">
-              <div class="flex items-center" style="margin-bottom: 1rem;">
-                <span class="text-3xl" style="margin-right:0.25rem">${intensityEmoji[this.currentInquiry.intensity] || '💭'}</span>
-                <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Self Inquiry</h2>
-              </div>
-              <div class="text-center">
-                <div style="margin-bottom: 1rem; padding: 0.5rem; background: var(--neuro-bg-secondary); border-radius: 8px; display: inline-block;">
-                  <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--neuro-accent);">
-                    ${this.currentInquiry.domain}
-                  </span>
-                </div>
-                <p class="text-2xl font-semibold" style="color: var(--neuro-accent); line-height: 1.4; margin-bottom: 1rem;">
-                  ${this.currentInquiry.question}
-                </p>
-                <p class="mt-2 text-lg" style="font-style: italic; color: var(--neuro-text-secondary);">
-                  ${this.currentInquiry.holding}
-                </p>
-                <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
-                  <span>Level ${this.currentInquiry.intensity}</span> • <span>Self-Inquiry</span>
-                </div>
-              </div>
-              <div class="mt-6 flex justify-end">
-                <button onclick="window.featuresManager.engines.happiness.refreshInquiry()" class="btn btn-secondary">🔄 Refresh Inquiry</button>
-              </div>
-            </div>
-            <div class="flip-card-back"></div>
+        ${this._renderCard('inquiry-card', intensityEmoji[this.currentInquiry.intensity] || '💭', 'Self Inquiry', `
+          <div style="margin-bottom: 1rem; padding: 0.5rem; background: var(--neuro-bg-secondary); border-radius: 8px; display: inline-block;">
+            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--neuro-accent);">
+              ${this.currentInquiry.domain}
+            </span>
           </div>
-        </div>
+          <p class="text-2xl font-semibold" style="color: var(--neuro-accent); line-height: 1.4; margin-bottom: 1rem;">
+            ${this.currentInquiry.question}
+          </p>
+          <p class="mt-2 text-lg" style="font-style: italic; color: var(--neuro-text-secondary);">
+            ${this.currentInquiry.holding}
+          </p>
+          <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
+            <span>Level ${this.currentInquiry.intensity}</span> • <span>Self-Inquiry</span>
+          </div>
+        `, 'refreshInquiry')}
       </main>
     </div>
   </div>`;
+  }
+
+  _renderCard(id, emoji, title, content, refreshMethod) {
+    return `
+      <div class="neuro-card flip-card" id="${id}">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div class="flex items-center" style="margin-bottom: 1rem;">
+              <span class="text-3xl" style="margin-right:0.25rem">${emoji}</span>
+              <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">${title}</h2>
+            </div>
+            <div class="text-center">
+              ${content}
+            </div>
+            <div class="mt-6 flex justify-end">
+              <button onclick="window.featuresManager.engines.happiness.${refreshMethod}()" class="btn btn-secondary">🔄 Refresh</button>
+            </div>
+          </div>
+          <div class="flip-card-back"></div>
+        </div>
+      </div>`;
   }
 }
 

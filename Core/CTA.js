@@ -1,7 +1,8 @@
-/* CTA.js — neumorphic, skin-aware, images show when accordion opens */
+/* CTA.js â€" neumorphic, skin-aware, images show when accordion opens */
 export default class CTA {
   constructor() {
     this.isOpen = false;
+    this.scrollObserver = null;
   }
 
   render() {
@@ -23,7 +24,6 @@ export default class CTA {
       live.textContent = this.isOpen ? 'Footer panel opened' : 'Footer panel closed';
     });
 
-    /* ----  accordion handlers  ---- */
     document.querySelectorAll('.lux-section-header').forEach(btn => {
       btn.addEventListener('click', () => {
         const expanded = btn.getAttribute('aria-expanded') === 'true';
@@ -35,114 +35,93 @@ export default class CTA {
 
     this.populateGrids();
     this.setupCTASwipeClose();
-    this.preventBackgroundScroll();   // NEW
+    this.preventBackgroundScroll();
   }
 
-/* -------------------------------------------------- */
-/*  prevent background scroll when footer is open     */
-/* -------------------------------------------------- */
-preventBackgroundScroll() {
-  const toggle = document.getElementById('cta-toggle');
-  
-  // Lock body scroll when footer opens
-  const observer = new MutationObserver(() => {
-    const isOpen = toggle.classList.contains('open');
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
-    } else {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-    }
-  });
-  
-  observer.observe(toggle, { attributes: true, attributeFilter: ['class'] });
-}
-
-/* -------------------------------------------------- */
-/*  swipe-down-to-close for CTA panel                 */
-/* -------------------------------------------------- */
-setupCTASwipeClose() {
-  const panel = document.getElementById('cta-panel');
-  const toggle = document.getElementById('cta-toggle');
-  const SWIPE_Y_THRESHOLD = 60;   // px
-  const VELOCITY_THRESHOLD = 0.5; // px/ms
-
-  let startY = 0, startT = 0, canSwipeClose = false;
-
-  panel.addEventListener('touchstart', e => {
-    startY = e.touches[0].clientY;
-    startT = Date.now();
+  preventBackgroundScroll() {
+    const toggle = document.getElementById('cta-toggle');
     
-    // Allow swipe-close only if NOT touching a grid or section body
-    const target = e.target;
-    const touchingGrid = target.closest('.lux-grid, .lux-section-body');
-    canSwipeClose = !touchingGrid;
+    this.scrollObserver = new MutationObserver(() => {
+      const isOpen = toggle.classList.contains('open');
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+      document.body.style.position = isOpen ? 'fixed' : '';
+      document.body.style.width = isOpen ? '100%' : '';
+    });
     
-    // Disable transition during drag
-    if (canSwipeClose) {
-      panel.style.transition = 'none';
-      toggle.style.transition = 'none';
-    }
-  }, {passive: true});
+    this.scrollObserver.observe(toggle, { attributes: true, attributeFilter: ['class'] });
+  }
 
-  panel.addEventListener('touchmove', e => {
-    if (!canSwipeClose) return;
-    
-    const currentY = e.touches[0].clientY;
-    let deltaY = currentY - startY;
-    
-    if (deltaY > 0) {
-      // Calculate the current height of the open panel
-      const panelHeight = panel.offsetHeight;
-      // Limit movement to panel height (so footer doesn't go past closed position)
-      deltaY = Math.min(deltaY, panelHeight);
+  setupCTASwipeClose() {
+    const panel = document.getElementById('cta-panel');
+    const toggle = document.getElementById('cta-toggle');
+    const SWIPE_Y_THRESHOLD = 60;
+    const VELOCITY_THRESHOLD = 0.5;
+
+    let startY = 0, startT = 0, canSwipeClose = false;
+
+    panel.addEventListener('touchstart', e => {
+      startY = e.touches[0].clientY;
+      startT = Date.now();
       
-      panel.style.transform = `translateY(${deltaY}px)`;
-      toggle.style.transform = `translateY(${deltaY}px)`;
-    }
-  }, {passive: true});
-
-  panel.addEventListener('touchend', e => {
-    // Re-enable transitions
-    panel.style.transition = '';
-    toggle.style.transition = '';
-    
-    if (!canSwipeClose) {
-      panel.style.transform = '';
-      toggle.style.transform = '';
-      return;
-    }
-    
-    const endY = e.changedTouches[0].clientY;
-    const deltaY = endY - startY;
-    const deltaT = Date.now() - startT;
-    const velocity = deltaY / deltaT;
-
-    if (deltaY > SWIPE_Y_THRESHOLD && velocity > VELOCITY_THRESHOLD) {
-      if (navigator.vibrate) navigator.vibrate(8);
+      const target = e.target;
+      const touchingGrid = target.closest('.lux-grid, .lux-section-body');
+      canSwipeClose = !touchingGrid;
       
-      // Close the footer
-      this.isOpen = false;
-      toggle.classList.remove('open');
-      toggle.setAttribute('aria-expanded', 'false');
-      panel.classList.remove('open');
-      document.getElementById('cta-aria-live').textContent = 'Footer panel closed';
+      if (canSwipeClose) {
+        panel.style.transition = 'none';
+        toggle.style.transition = 'none';
+      }
+    }, {passive: true});
+
+    panel.addEventListener('touchmove', e => {
+      if (!canSwipeClose) return;
       
-      // Remove transform after transition completes
-      setTimeout(() => {
+      const currentY = e.touches[0].clientY;
+      let deltaY = currentY - startY;
+      
+      if (deltaY > 0) {
+        const panelHeight = panel.offsetHeight;
+        deltaY = Math.min(deltaY, panelHeight);
+        
+        panel.style.transform = `translateY(${deltaY}px)`;
+        toggle.style.transform = `translateY(${deltaY}px)`;
+      }
+    }, {passive: true});
+
+    panel.addEventListener('touchend', e => {
+      panel.style.transition = '';
+      toggle.style.transition = '';
+      
+      if (!canSwipeClose) {
         panel.style.transform = '';
         toggle.style.transform = '';
-      }, 300);
-    } else {
-      // Swipe didn't meet threshold, snap back smoothly
-      panel.style.transform = '';
-      toggle.style.transform = '';
-    }
-  }, {passive: true});
-}
+        return;
+      }
+      
+      const endY = e.changedTouches[0].clientY;
+      const deltaY = endY - startY;
+      const deltaT = Date.now() - startT;
+      const velocity = deltaY / deltaT;
+
+      if (deltaY > SWIPE_Y_THRESHOLD && velocity > VELOCITY_THRESHOLD) {
+        if (navigator.vibrate) navigator.vibrate(8);
+        
+        this.isOpen = false;
+        toggle.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+        panel.classList.remove('open');
+        document.getElementById('cta-aria-live').textContent = 'Footer panel closed';
+        
+        setTimeout(() => {
+          panel.style.transform = '';
+          toggle.style.transform = '';
+        }, 300);
+      } else {
+        panel.style.transform = '';
+        toggle.style.transform = '';
+      }
+    }, {passive: true});
+  }
 
   markup() {
     return `
@@ -152,7 +131,7 @@ setupCTASwipeClose() {
                alt="Aanandoham" class="lux-logo">
           <div class="lux-text-group">
             <span class="lux-line1">Deepen your life experience with me</span>
-            <span class="lux-line2">© 2026 Aanandoham (Liron Kerem)</span>
+            <span class="lux-line2">Â© 2026 Aanandoham (Liron Kerem)</span>
           </div>
           <span class="lux-chevron"></span>
         </button>
@@ -163,11 +142,10 @@ setupCTASwipeClose() {
               <header class="lux-header">
                 <h2 class="lux-title">Empower your <em>'Self'</em></h2>
                 <p class="lux-intro">
-                  Welcome to Project Curiosity — founded 2010.<br>
+                  Welcome to Project Curiosity â€" founded 2010.<br>
                   Explore my unique In-Person and Online offerings
                 </p>
 
-                <!--  10 % bigger + dead-centre alignment  -->
                 <div class="lux-social-row" style="
                       display:flex;
                       gap:.9rem;
@@ -176,7 +154,6 @@ setupCTASwipeClose() {
                       flex-wrap:wrap;
                     ">
                   
-                  <!--  1. Website  -->
                   <a href="https://lironkerem.wixsite.com/project-curiosity"
                      target="_blank" rel="noopener"
                      class="lux-social-chip"
@@ -198,7 +175,6 @@ setupCTASwipeClose() {
                     <span style="font-weight:600;font-size:1rem">Website</span>
                   </a>
 
-                  <!--  2. Facebook  -->
                   <a href="https://www.facebook.com/AanandohamsProjectCuriosity"
                      target="_blank" rel="noopener"
                      class="lux-social-chip"
@@ -220,7 +196,6 @@ setupCTASwipeClose() {
                     <span style="font-weight:600;font-size:1rem">Facebook</span>
                   </a>
 
-                  <!--  3. YouTube  -->
                   <a href="https://www.youtube.com/@Aanandoham-Project-Curiosity"
                      target="_blank" rel="noopener"
                      class="lux-social-chip"
@@ -273,17 +248,17 @@ setupCTASwipeClose() {
 
   populateGrids() {
     const base = 'https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/CTA/';
-const sessions = [
-  'https://lironkerem.wixsite.com/project-curiosity/tarot',
-  'https://lironkerem.wixsite.com/project-curiosity/reiki',
-  'https://lironkerem.wixsite.com/project-curiosity/meditation',
-  'https://lironkerem.wixsite.com/project-curiosity/tarot',
-  'https://lironkerem.wixsite.com/project-curiosity/osho',
-  'https://lironkerem.wixsite.com/project-curiosity/guided-visualizations',
-  'https://lironkerem.wixsite.com/project-curiosity/eft',
-  'https://lironkerem.wixsite.com/project-curiosity/yoga',
-  'https://lironkerem.wixsite.com/project-curiosity/tantra'
-];
+    const sessions = [
+      'https://lironkerem.wixsite.com/project-curiosity/tarot',
+      'https://lironkerem.wixsite.com/project-curiosity/reiki',
+      'https://lironkerem.wixsite.com/project-curiosity/meditation',
+      'https://lironkerem.wixsite.com/project-curiosity/tarot',
+      'https://lironkerem.wixsite.com/project-curiosity/osho',
+      'https://lironkerem.wixsite.com/project-curiosity/guided-visualizations',
+      'https://lironkerem.wixsite.com/project-curiosity/eft',
+      'https://lironkerem.wixsite.com/project-curiosity/yoga',
+      'https://lironkerem.wixsite.com/project-curiosity/tantra'
+    ];
     const workshops = [
       'https://lironkerem.wixsite.com/project-curiosity/tarot',
       'https://lironkerem.wixsite.com/project-curiosity/reiki',
@@ -307,5 +282,10 @@ const sessions = [
     a.className = 'lux-card';
     a.innerHTML = `<div class="lux-img-wrap"><img src="${src}" alt="${alt}" loading="lazy"></div>`;
     return a;
+  }
+
+  destroy() {
+    this.scrollObserver?.disconnect();
+    document.getElementById('cta-footer')?.remove();
   }
 }

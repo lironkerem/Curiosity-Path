@@ -1,5 +1,6 @@
 /* =========================================================
-   WELLNESS KIT - UNIFIED 4-IN-1 SYSTEM 
+   WELLNESS KIT - UNIFIED 4-IN-1 SYSTEM (OPTIMIZED)
+   Production-Grade v2.0
    ========================================================= */
 (function () {
   'use strict';
@@ -171,6 +172,7 @@
                 inset 0 0 60px rgba(255, 255, 255, 0.3);
     background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 215, 0, 0.3) 50%, transparent 70%);
     animation: wk-breathePulse 3s ease-in-out infinite;
+    will-change: transform;
   }
 
   @keyframes wk-breathePulse {
@@ -205,6 +207,7 @@
     transform: translate(-50%, -50%) scale(0.2);
     background: radial-gradient(circle, rgba(102, 126, 234, 0.18), transparent 60%);
     opacity: 0;
+    will-change: transform, opacity;
   }
 
   .wk-pulse.active {
@@ -315,6 +318,7 @@
 
   /* ==================== SHARED UTILITIES ==================== */
   const sharedAudioCtx = { ctx: null };
+  let globalToastEl = null;
 
   function playChime() {
     try {
@@ -356,6 +360,18 @@
     }
   }
 
+  function showToast(msg) {
+    if (!globalToastEl) {
+      globalToastEl = document.createElement('div');
+      globalToastEl.id = 'wk-toast';
+      globalToastEl.className = 'wk-toast';
+      document.body.appendChild(globalToastEl);
+    }
+    globalToastEl.textContent = msg;
+    globalToastEl.classList.add('show');
+    setTimeout(() => globalToastEl.classList.remove('show'), 2800);
+  }
+
   /* ==================== WELLNESS TOOL CLASS ==================== */
   class WellnessTool {
     constructor(config) {
@@ -366,7 +382,8 @@
         phaseTimeout: null,
         pulseInterval: null,
         currentIndex: 0,
-        isRunning: false
+        isRunning: false,
+        countdownInterval: null
       };
 
       this.createUI();
@@ -378,12 +395,12 @@
     createUI() {
       const wrapper = document.createElement('div');
       wrapper.innerHTML = `
-        <div class="wk-overlay" id="wk-${this.config.id}-overlay">
+        <div class="wk-overlay" id="wk-${this.config.id}-overlay" role="dialog" aria-labelledby="wk-${this.config.id}-title" aria-modal="true">
           <div class="wk-box" id="wk-${this.config.id}-box">
-            <h2>${this.config.title}</h2>
+            <h2 id="wk-${this.config.id}-title">${this.config.title}</h2>
             <div class="wk-ring-wrap">
               <div class="wk-anim" id="wk-${this.config.id}-anim"></div>
-              <svg class="wk-ring" viewBox="0 0 100 100">
+              <svg class="wk-ring" viewBox="0 0 100 100" aria-hidden="true">
                 <defs>
                   <linearGradient id="wk-${this.config.id}-grad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#667eea"/>
@@ -394,14 +411,14 @@
                 <circle id="wk-${this.config.id}-progress" cx="50" cy="50" r="40" stroke="url(#wk-${this.config.id}-grad)" stroke-width="8" stroke-linecap="round" fill="none" stroke-dasharray="251.2" stroke-dashoffset="0"/>
               </svg>
               <div class="wk-pulses" id="wk-${this.config.id}-pulses"></div>
-              <div class="wk-timer" id="wk-${this.config.id}-timer">${this.config.duration}</div>
+              <div class="wk-timer" id="wk-${this.config.id}-timer" aria-live="polite">${this.config.duration}</div>
             </div>
-            <div class="wk-text" id="wk-${this.config.id}-text"></div>
-            ${this.config.type === 'breathing' ? '<div class="wk-mini-count" id="wk-' + this.config.id + '-count"></div>' : ''}
+            <div class="wk-text" id="wk-${this.config.id}-text" aria-live="polite"></div>
+            ${this.config.type === 'breathing' ? '<div class="wk-mini-count" id="wk-' + this.config.id + '-count" aria-live="polite"></div>' : ''}
             <div class="wk-footer">
-              <button class="wk-btn" id="wk-${this.config.id}-start">Start</button>
-              <button class="wk-btn hidden" id="wk-${this.config.id}-finish">Finished</button>
-              <button class="wk-btn" id="wk-${this.config.id}-close">Close</button>
+              <button class="wk-btn" id="wk-${this.config.id}-start" aria-label="Start session">Start</button>
+              <button class="wk-btn hidden" id="wk-${this.config.id}-finish" aria-label="Mark as finished">Finished</button>
+              <button class="wk-btn" id="wk-${this.config.id}-close" aria-label="Close session">Close</button>
             </div>
           </div>
         </div>
@@ -422,7 +439,6 @@
         btnClose: document.getElementById(`wk-${this.config.id}-close`)
       };
 
-      // Apply gradient background
       this.elements.box.style.background = this.config.gradient;
 
       this.R = 40;
@@ -488,6 +504,10 @@
         clearInterval(this.state.pulseInterval);
         this.state.pulseInterval = null;
       }
+      if (this.state.countdownInterval) {
+        clearInterval(this.state.countdownInterval);
+        this.state.countdownInterval = null;
+      }
     }
 
     resetState() {
@@ -503,6 +523,7 @@
       this.elements.btnStart.textContent = 'Start';
       this.elements.anim.style.transform = 'scale(1.0)';
       this.elements.anim.style.opacity = '0.9';
+      this.elements.anim.style.transition = '';
 
       if (this.config.type === 'breathing') {
         this.elements.text.textContent = 'Inhale deeply';
@@ -544,6 +565,7 @@
       this.clearTimers();
       this.state.isRunning = false;
       this.elements.btnStart.textContent = 'Start';
+      this.elements.anim.style.transition = '';
     }
 
     startBreathingCycle() {
@@ -553,7 +575,10 @@
         this.elements.anim.style.transform = 'scale(1.14)';
         this.spawnPulse();
         this.state.pulseInterval = setInterval(() => this.spawnPulse(), 1000);
-        this.state.phaseTimeout = setTimeout(runHold, this.config.breathIn * 1000);
+        this.state.phaseTimeout = setTimeout(() => {
+          this.elements.anim.style.transition = '';
+          runHold();
+        }, this.config.breathIn * 1000);
       };
 
       const runHold = () => {
@@ -565,7 +590,10 @@
         }
         this.elements.anim.style.transition = `transform ${this.config.breathHold}s linear`;
         this.elements.anim.style.transform = 'scale(1.18)';
-        this.state.phaseTimeout = setTimeout(runExhale, this.config.breathHold * 1000);
+        this.state.phaseTimeout = setTimeout(() => {
+          this.elements.anim.style.transition = '';
+          runExhale();
+        }, this.config.breathHold * 1000);
       };
 
       const runExhale = () => {
@@ -575,7 +603,10 @@
         this.elements.anim.style.transform = 'scale(0.94)';
         this.spawnPulse();
         this.state.pulseInterval = setInterval(() => this.spawnPulse(), 900);
-        this.state.phaseTimeout = setTimeout(afterCycle, this.config.breathOut * 1000);
+        this.state.phaseTimeout = setTimeout(() => {
+          this.elements.anim.style.transition = '';
+          afterCycle();
+        }, this.config.breathOut * 1000);
       };
 
       const afterCycle = () => {
@@ -625,13 +656,19 @@
       }
 
       if (this.elements.count && seconds) {
+        if (this.state.countdownInterval) {
+          clearInterval(this.state.countdownInterval);
+        }
+        
         let remaining = seconds;
         this.elements.count.textContent = String(remaining);
-        const countInterval = setInterval(() => {
+        
+        this.state.countdownInterval = setInterval(() => {
           remaining -= 1;
           if (remaining <= 0) {
             this.elements.count.textContent = '0';
-            clearInterval(countInterval);
+            clearInterval(this.state.countdownInterval);
+            this.state.countdownInterval = null;
           } else {
             this.elements.count.textContent = String(remaining);
           }
@@ -640,18 +677,21 @@
     }
 
     startPhaseLoop() {
+      const items = this.config.zones || this.config.steps;
+      
       const advance = () => {
         if (this.state.remaining <= 0) return;
 
         this.elements.text.classList.add('changing');
         setTimeout(() => {
-          const items = this.config.zones || this.config.steps;
           this.elements.text.textContent = items[this.state.currentIndex];
           this.elements.text.classList.remove('changing');
           this.spawnPulse();
+          this.elements.anim.style.transition = 'transform 0.24s ease-out';
           this.elements.anim.style.transform = 'scale(1.08)';
           setTimeout(() => {
             this.elements.anim.style.transform = 'scale(1.0)';
+            setTimeout(() => this.elements.anim.style.transition = '', 240);
           }, 240);
         }, 100);
 
@@ -667,7 +707,6 @@
         }
       };
 
-      const items = this.config.zones || this.config.steps;
       this.elements.text.textContent = items[0];
       this.spawnPulse();
 
@@ -681,18 +720,18 @@
       }, duration);
     }
 
-    finalizeSession() {
+    completeSession() {
       playChime();
       this.addXP(SHARED_CONFIG.XP_PER_COMPLETION);
       this.addKarma(SHARED_CONFIG.KARMA_PER_COMPLETION);
-      this.showToast(`✅ Completed! +${SHARED_CONFIG.XP_PER_COMPLETION} XP, +${SHARED_CONFIG.KARMA_PER_COMPLETION} Karma`);
+      showToast(`✅ Completed! +${SHARED_CONFIG.XP_PER_COMPLETION} XP, +${SHARED_CONFIG.KARMA_PER_COMPLETION} Karma`);
+      if (window.app?.gamification) window.app.gamification.incrementWellnessRuns();
+    }
 
-   // count this successful run in the main engine
-   if (window.app?.gamification) window.app.gamification.incrementWellnessRuns();
-
+    finalizeSession() {
+      this.completeSession();
       this.elements.btnStart.classList.add('hidden');
       this.elements.btnFinish.classList.remove('hidden');
-
       setTimeout(() => this.close(), 1200);
     }
 
@@ -708,20 +747,6 @@
       this.resetState();
     }
 
-    showToast(msg) {
-      const toast = document.getElementById('wk-toast');
-      if (!toast) {
-        const t = document.createElement('div');
-        t.id = 'wk-toast';
-        t.className = 'wk-toast';
-        document.body.appendChild(t);
-      }
-      const toastEl = document.getElementById('wk-toast');
-      toastEl.textContent = msg;
-      toastEl.classList.add('show');
-      setTimeout(() => toastEl.classList.remove('show'), 2800);
-    }
-
     attachEvents() {
       this.elements.btnStart.addEventListener('click', () => {
         if (this.state.mainInterval) {
@@ -733,10 +758,7 @@
       });
 
       this.elements.btnFinish.addEventListener('click', () => {
-        playChime();
-        this.addXP(SHARED_CONFIG.XP_PER_COMPLETION);
-        this.addKarma(SHARED_CONFIG.KARMA_PER_COMPLETION);
-        this.showToast(`✅ Completed! +${SHARED_CONFIG.XP_PER_COMPLETION} XP, +${SHARED_CONFIG.KARMA_PER_COMPLETION} Karma`);
+        this.completeSession();
         this.close();
       });
 
@@ -744,12 +766,6 @@
 
       this.elements.overlay.addEventListener('click', (e) => {
         if (e.target === this.elements.overlay) this.close();
-      });
-
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && this.elements.overlay.style.display === 'flex') {
-          this.close();
-        }
       });
     }
 
@@ -760,7 +776,27 @@
         autoTriggerEnabled: SHARED_CONFIG.AUTO_TRIGGER
       };
     }
+
+    destroy() {
+      this.clearTimers();
+      if (this.elements.overlay && this.elements.overlay.parentNode) {
+        this.elements.overlay.parentNode.removeChild(this.elements.overlay);
+      }
+    }
   }
+
+  /* ==================== GLOBAL ESCAPE KEY HANDLER ==================== */
+  const activeTools = new Set();
+  
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      activeTools.forEach(tool => {
+        if (tool.elements.overlay.style.display === 'flex') {
+          tool.close();
+        }
+      });
+    }
+  });
 
   /* ==================== INITIALIZE ALL TOOLS ==================== */
   const tools = {
@@ -770,9 +806,15 @@
     tensionSweep: new WellnessTool(TOOLS.tensionSweep)
   };
 
+  // Track all tools for escape key handler
+  Object.values(tools).forEach(tool => activeTools.add(tool));
+
   /* ==================== CLEANUP ON PAGE UNLOAD ==================== */
   window.addEventListener('beforeunload', () => {
-    Object.values(tools).forEach(tool => tool.clearTimers());
+    Object.values(tools).forEach(tool => {
+      tool.clearTimers();
+      tool.destroy();
+    });
     if (sharedAudioCtx.ctx) {
       sharedAudioCtx.ctx.close();
       sharedAudioCtx.ctx = null;
@@ -805,7 +847,11 @@
       fullBodyScan: tools.fullBodyScan.getStats(),
       nervousSystem: tools.nervousSystem.getStats(),
       tensionSweep: tools.tensionSweep.getStats()
-    })
+    }),
+
+    // Utility methods
+    playChime,
+    showToast
   };
 
   // Backward compatibility - expose individual functions
