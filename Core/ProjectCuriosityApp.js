@@ -4,7 +4,7 @@
 import { showToast } from './Toast.js';
 import * as modal from './Modal.js';
 import { GamificationEngine } from '../Features/GamificationEngine.js';
-import WellnessAutomationManager from '../Features/WellnessAutomationManager.js';
+import { WellnessAutomationManager } from '../Features/WellnessAutomationManager.js';
 import { supabase } from './Supabase.js';
 import { DarkMode } from '/Core/Utils.js';
 import CTA from './CTA.js';
