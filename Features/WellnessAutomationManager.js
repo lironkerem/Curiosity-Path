@@ -411,11 +411,16 @@ if (typeof window !== 'undefined') {
   }
 }
 
-// Export for module systems
+// Export for ES6 modules (RECOMMENDED - Professional standard)
+export { WellnessAutomationManager };
+
+// Backward compatibility for CommonJS (Node.js)
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = WellnessAutomationManager;
+  module.exports = { WellnessAutomationManager };
+  module.exports.default = WellnessAutomationManager; // For mixed environments
 }
 
+// Backward compatibility for AMD (RequireJS)
 if (typeof define === 'function' && define.amd) {
   define([], function() { return WellnessAutomationManager; });
 }
