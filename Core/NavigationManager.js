@@ -411,10 +411,6 @@ export default class NavigationManager {
     // Query fresh each time since tabs are dynamically created
     const tabContents = document.querySelectorAll('.tab-content');
 
-    console.log('Switching to:', tabName);
-    console.log('Tab contents found:', tabContents.length);
-    console.log('Looking for element:', `${tabName}-tab`);
-
     navItems.forEach(t => {
       const isActive = t.dataset.tab === tabName;
       t.classList.toggle('active', isActive);
@@ -429,27 +425,12 @@ export default class NavigationManager {
     });
 
     const target = document.getElementById(`${tabName}-tab`);
-    console.log('Target element found:', !!target);
     
     if (target) {
-      console.log('Target before:', {
-        display: target.style.display,
-        visibility: getComputedStyle(target).visibility,
-        opacity: getComputedStyle(target).opacity,
-        classes: target.className
-      });
-      
       target.classList.add('active');
       target.classList.remove('hidden');
       target.style.display = 'block';
       target.setAttribute('aria-hidden', 'false');
-      
-      console.log('Target after:', {
-        display: target.style.display,
-        visibility: getComputedStyle(target).visibility,
-        opacity: getComputedStyle(target).opacity,
-        classes: target.className
-      });
     }
 
     this.app.initializeTab(tabName);
