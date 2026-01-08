@@ -423,6 +423,7 @@ export default class NavigationManager {
     });
 
     tabContents.forEach(c => {
+      c.classList.remove('active', 'hidden');
       c.style.display = 'none';
       c.setAttribute('aria-hidden', 'true');
     });
@@ -439,6 +440,7 @@ export default class NavigationManager {
       });
       
       target.classList.add('active');
+      target.classList.remove('hidden');
       target.style.display = 'block';
       target.setAttribute('aria-hidden', 'false');
       
