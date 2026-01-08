@@ -431,8 +431,23 @@ export default class NavigationManager {
     console.log('Target element found:', !!target);
     
     if (target) {
+      console.log('Target before:', {
+        display: target.style.display,
+        visibility: getComputedStyle(target).visibility,
+        opacity: getComputedStyle(target).opacity,
+        classes: target.className
+      });
+      
+      target.classList.add('active');
       target.style.display = 'block';
       target.setAttribute('aria-hidden', 'false');
+      
+      console.log('Target after:', {
+        display: target.style.display,
+        visibility: getComputedStyle(target).visibility,
+        opacity: getComputedStyle(target).opacity,
+        classes: target.className
+      });
     }
 
     this.app.initializeTab(tabName);
