@@ -367,7 +367,6 @@ export default class ProjectCuriosityApp {
     }
   }
 
-  /* ---------- TAB SWITCH ---------- */
 /* ---------- TAB SWITCH WITH CLEANUP ---------- */
 initializeTab(tab) {
   // Clean up dashboard when leaving it
