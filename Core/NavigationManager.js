@@ -291,7 +291,6 @@ export default class NavigationManager {
     if (window.innerWidth > 767) return;
     
     if (this.arrowListenersAttached) {
-      console.log('Arrow listeners already attached, skipping');
       return;
     }
 
@@ -300,10 +299,6 @@ export default class NavigationManager {
     const { swipeArrows } = this.cachedElements;
     
     if (!leftBtn || !rightBtn || !swipeArrows) return;
-
-    console.log('setupSwipeArrows - leftBtn:', leftBtn);
-    console.log('setupSwipeArrows - rightBtn:', rightBtn);
-    console.log('setupSwipeArrows - swipeArrows:', swipeArrows);
     
     leftBtn.tabIndex = -1;
     rightBtn.tabIndex = -1;
@@ -315,26 +310,19 @@ export default class NavigationManager {
     if (!rightBtn.querySelector('svg')) {
       rightBtn.innerHTML = `<svg viewBox="0 0 200 180" style="transform:scaleX(-1) scale(0.5); pointer-events:none;"><path d="M115 10 L100 90 L115 170" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`;
     }
-    
-    console.log('About to attach click listeners');
 
     const blurButton = (btn) => setTimeout(() => btn.blur(), 0);
 
     // Use touchstart instead of click for mobile
     leftBtn.addEventListener('touchstart', (e) => { 
-      console.log('LEFT ARROW TOUCHED');
       e.preventDefault(); 
       e.stopPropagation();
       
       const active = localStorage.getItem('pc_active_tab') || 'dashboard';
-      console.log('Active tab:', active);
       let idx = this.SWIPE_ORDER.indexOf(active);
-      console.log('Current index:', idx);
       idx = (idx - 1 + this.SWIPE_ORDER.length) % this.SWIPE_ORDER.length;
-      console.log('New index:', idx, 'New tab:', this.SWIPE_ORDER[idx]);
       
       const navItem = document.querySelector(`[data-tab="${this.SWIPE_ORDER[idx]}"]`);
-      console.log('Found navItem:', navItem);
       if (navItem) {
         this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
       }
@@ -343,19 +331,14 @@ export default class NavigationManager {
     });
     
     rightBtn.addEventListener('touchstart', (e) => { 
-      console.log('RIGHT ARROW TOUCHED');
       e.preventDefault(); 
       e.stopPropagation();
       
       const active = localStorage.getItem('pc_active_tab') || 'dashboard';
-      console.log('Active tab:', active);
       let idx = this.SWIPE_ORDER.indexOf(active);
-      console.log('Current index:', idx);
       idx = (idx + 1) % this.SWIPE_ORDER.length;
-      console.log('New index:', idx, 'New tab:', this.SWIPE_ORDER[idx]);
       
       const navItem = document.querySelector(`[data-tab="${this.SWIPE_ORDER[idx]}"]`);
-      console.log('Found navItem:', navItem);
       if (navItem) {
         this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
       }
@@ -387,16 +370,12 @@ export default class NavigationManager {
     this.arrowObserver.observe(document.body, { attributeFilter: ['class'] });
     
     this.arrowListenersAttached = true;
-    console.log('Arrow listeners attached successfully');
   }
 
   setupSwipeGestures() {
     if (globalSwipeListenersAttached) {
-      console.log('Global swipe listeners already attached, skipping');
       return;
     }
-    
-    console.log('setupSwipeGestures: Attaching NEW global listeners');
     
     const { SWIPE_THRESHOLD, SWIPE_TIME_MS } = this.CONSTANTS;
 
@@ -412,7 +391,6 @@ export default class NavigationManager {
     const handleTouchStart = (e) => {
       touchStartX = e.touches[0].clientX;
       touchStartTime = Date.now();
-      console.log('Touch start at X:', touchStartX);
     };
 
     const handleTouchEnd = (e) => {
@@ -420,10 +398,7 @@ export default class NavigationManager {
       const deltaX = touchStartX - endX;
       const deltaT = Date.now() - touchStartTime;
 
-      console.log('Touch end - deltaX:', deltaX, 'deltaT:', deltaT);
-
       if (Math.abs(deltaX) < SWIPE_THRESHOLD || deltaT > SWIPE_TIME_MS) {
-        console.log('Swipe rejected - too short or too slow');
         return;
       }
 
@@ -431,11 +406,7 @@ export default class NavigationManager {
       let idx = this.SWIPE_ORDER.indexOf(active);
       const direction = deltaX > 0 ? 1 : -1;
       
-      console.log('Before swipe - active:', active, 'index:', idx, 'direction:', direction);
-      
       idx = (idx + direction + this.SWIPE_ORDER.length) % this.SWIPE_ORDER.length;
-      
-      console.log('After calculation - new index:', idx, 'tab:', this.SWIPE_ORDER[idx]);
 
       const navItem = document.querySelector(`[data-tab="${this.SWIPE_ORDER[idx]}"]`);
       if (navItem) {
