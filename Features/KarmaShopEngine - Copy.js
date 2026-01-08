@@ -1,5 +1,5 @@
 // ============================================
-// Features/KarmaShopEngine.js  (QUEST-SKIPS RESET QUEST-SCHEDULE + LIVE COUNTERS + ADMIN NO-CAP)
+// Features/KarmaShopEngine.js  (QUEST-SKIPS RESET MID-WEEK-MONTH + LIVE COUNTERS + ADMIN NO-CAP)
 // ============================================
 
 export class KarmaShopEngine {
@@ -72,9 +72,10 @@ export class KarmaShopEngine {
   }
 
   _whenResets(itemId){
-    if(itemId==='skip_all_daily')  return 'tonight at midnight';
-    if(itemId==='skip_all_weekly') return 'next Sunday';
-    return 'the 1st of next month';
+    const d = new Date();
+    if(itemId==='skip_all_daily')  { d.setDate(d.getDate()+(6-d.getDay())+1);  return 'Sunday'; }
+    if(itemId==='skip_all_weekly') { d.setMonth(d.getMonth()+1,1); return 'next month'; }
+    { d.setMonth(0,1); d.setFullYear(d.getFullYear()+1); return 'next year'; }
   }
 
   buildCatalog() {
@@ -198,23 +199,22 @@ Max 3 per year · ${Math.max(0, this._skipCapMax('monthlySkips') - this._skipCap
     localStorage.setItem('karma_active_boosts', JSON.stringify(this.activeBoosts));
   }
 
-  /* ---- QUEST-SCHEDULE reset helpers (PATCHED) ---- */
-  _nextQuestDailyReset() {
+  /* ---- reset-time helpers ---- */
+  _nextDailyReset() {
     const t = new Date();
-    t.setHours(24, 0, 0, 0);          // today midnight
-    if (t <= Date.now()) t.setDate(t.getDate() + 1);
+    t.setHours(24, 0, 0, 0);
     return t.getTime();
   }
-  _nextQuestWeeklyReset() {
+  _nextWeeklyReset() {
     const t = new Date();
-    const daysToSun = (7 - t.getDay()) % 7 || 7; // days until next Sunday
+    const daysToSun = (7 - t.getDay()) % 7 || 7;
     t.setDate(t.getDate() + daysToSun);
     t.setHours(0, 0, 0, 0);
     return t.getTime();
   }
-  _nextQuestMonthlyReset() {
+  _nextMonthlyReset() {
     const t = new Date();
-    t.setMonth(t.getMonth() + 1, 1); // 1st of next month
+    t.setMonth(t.getMonth() + 1, 1);
     t.setHours(0, 0, 0, 0);
     return t.getTime();
   }
@@ -226,7 +226,7 @@ Max 3 per year · ${Math.max(0, this._skipCapMax('monthlySkips') - this._skipCap
     const hrs  = Math.floor((secs % 86400) / 3600);
     const mins = Math.floor((secs % 3600) / 60);
     const ss   = secs % 60;
-    const pad  = n => n.toString().padStart(2,'0');
+    const pad  = n => n.toString().padStart(2, '0');
     if (days) return `${days}d ${pad(hrs)}:${pad(mins)}:${pad(ss)}`;
     return `${pad(hrs)}:${pad(mins)}:${pad(ss)}`;
   }
@@ -236,9 +236,9 @@ Max 3 per year · ${Math.max(0, this._skipCapMax('monthlySkips') - this._skipCap
     const before = this.activeBoosts.length;
     this.activeBoosts = this.activeBoosts.filter(b => {
       if (b.id.startsWith('skip_all_')) {
-        const resetFn = b.id === 'skip_all_daily'  ? this._nextQuestDailyReset
-                      : b.id === 'skip_all_weekly' ? this._nextQuestWeeklyReset
-                      : this._nextQuestMonthlyReset;
+        const resetFn = b.id === 'skip_all_daily'  ? this._nextDailyReset
+                      : b.id === 'skip_all_weekly' ? this._nextWeeklyReset
+                      : this._nextMonthlyReset;
         return now < resetFn.call(this);
       }
       return b.expiresAt > now;
@@ -249,9 +249,9 @@ Max 3 per year · ${Math.max(0, this._skipCapMax('monthlySkips') - this._skipCap
   isBoostActive(boostId) {
     this.checkExpiredBoosts();
     if (boostId.startsWith('skip_all_')) {
-      const resetFn = boostId === 'skip_all_daily'  ? this._nextQuestDailyReset
-                    : boostId === 'skip_all_weekly' ? this._nextQuestWeeklyReset
-                    : this._nextQuestMonthlyReset;
+      const resetFn = boostId === 'skip_all_daily'  ? this._nextDailyReset
+                    : boostId === 'skip_all_weekly' ? this._nextWeeklyReset
+                    : this._nextMonthlyReset;
       return Date.now() < resetFn.call(this);
     }
     return this.activeBoosts.some(b => b.id === boostId);
@@ -370,7 +370,7 @@ case 'skip_all_daily': {
   this.app.gamification.state.xp      += xp;
   this.app.gamification.state.karma   += karma;
   this.app.gamification.saveState();
-  this.activateBoost('skip_all_daily', this._nextQuestDailyReset() - Date.now());
+  this.activateBoost('skip_all_daily', this._nextDailyReset() - Date.now());
   this.app.showToast(`✅ All daily quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
   break;
 }
@@ -390,7 +390,7 @@ case 'skip_all_weekly': {
   this.app.gamification.state.xp      += xp;
   this.app.gamification.state.karma   += karma;
   this.app.gamification.saveState();
-  this.activateBoost('skip_all_weekly', this._nextQuestWeeklyReset() - Date.now());
+  this.activateBoost('skip_all_weekly', this._nextWeeklyReset() - Date.now());
   this.app.showToast(`✅ All weekly quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
   break;
 }
@@ -410,7 +410,7 @@ case 'skip_all_monthly': {
   this.app.gamification.state.xp      += xp;
   this.app.gamification.state.karma   += karma;
   this.app.gamification.saveState();
-  this.activateBoost('skip_all_monthly', this._nextQuestMonthlyReset() - Date.now());
+  this.activateBoost('skip_all_monthly', this._nextMonthlyReset() - Date.now());
   this.app.showToast(`✅ All monthly quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
   break;
 }
@@ -558,9 +558,9 @@ case 'skip_all_monthly': {
       box.innerHTML = this.activeBoosts.map(boost => {
         const isQuest = boost.id.startsWith('skip_all_');
         const msLeft  = isQuest
-          ? (boost.id === 'skip_all_daily'  ? this._nextQuestDailyReset()
-            : boost.id === 'skip_all_weekly' ? this._nextQuestWeeklyReset()
-            : this._nextQuestMonthlyReset()) - Date.now()
+          ? (boost.id === 'skip_all_daily'  ? this._nextDailyReset()
+            : boost.id === 'skip_all_weekly' ? this._nextWeeklyReset()
+            : this._nextMonthlyReset()) - Date.now()
           : boost.expiresAt - Date.now();
         return `
           <div class="karma-shop-boost-item">
