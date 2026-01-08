@@ -329,11 +329,14 @@ export default class NavigationManager {
   setupSwipeGestures() {
     if (this.swipeListenersAttached) return;
     
+    console.log('setupSwipeGestures: Attaching listeners');
+    
     const { SWIPE_THRESHOLD, SWIPE_TIME_MS } = this.CONSTANTS;
 
     const handleTouchStart = (e) => {
       this.touchStartX = e.touches[0].clientX;
       this.touchStartTime = Date.now();
+      console.log('Touch start at X:', this.touchStartX);
     };
 
     const handleTouchEnd = (e) => {
@@ -341,12 +344,22 @@ export default class NavigationManager {
       const deltaX = this.touchStartX - endX;
       const deltaT = Date.now() - this.touchStartTime;
 
-      if (Math.abs(deltaX) < SWIPE_THRESHOLD || deltaT > SWIPE_TIME_MS) return;
+      console.log('Touch end - deltaX:', deltaX, 'deltaT:', deltaT);
+
+      if (Math.abs(deltaX) < SWIPE_THRESHOLD || deltaT > SWIPE_TIME_MS) {
+        console.log('Swipe rejected - too short or too slow');
+        return;
+      }
 
       const active = localStorage.getItem('pc_active_tab') || 'dashboard';
       let idx = this.SWIPE_ORDER.indexOf(active);
       const direction = deltaX > 0 ? 1 : -1;
+      
+      console.log('Before swipe - active:', active, 'index:', idx, 'direction:', direction);
+      
       idx = (idx + direction + this.SWIPE_ORDER.length) % this.SWIPE_ORDER.length;
+      
+      console.log('After calculation - new index:', idx, 'tab:', this.SWIPE_ORDER[idx]);
 
       const navItem = document.querySelector(`[data-tab="${this.SWIPE_ORDER[idx]}"]`);
       if (navItem) {
