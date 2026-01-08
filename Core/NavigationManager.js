@@ -301,7 +301,7 @@ export default class NavigationManager {
     leftBtn.innerHTML = `<svg viewBox="0 0 200 180" style="transform:scale(0.5);"><path d="M115 10 L100 90 L115 170" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`;
     rightBtn.innerHTML = `<svg viewBox="0 0 200 180" style="transform:scaleX(-1) scale(0.5);"><path d="M115 10 L100 90 L115 170" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`;
 
-    const blurButton = (e) => setTimeout(() => e.currentTarget.blur(), 0);
+    const blurButton = (btn) => setTimeout(() => btn.blur(), 0);
 
     // FIXED: Direct implementation instead of local function
     leftBtn.addEventListener('click', (e) => { 
@@ -324,7 +324,7 @@ export default class NavigationManager {
         this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
       }
       
-      blurButton(e); 
+      blurButton(leftBtn); 
     });
     
     rightBtn.addEventListener('click', (e) => { 
@@ -347,19 +347,19 @@ export default class NavigationManager {
         this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
       }
       
-      blurButton(e); 
+      blurButton(rightBtn); 
     });
     
     leftBtn.addEventListener('touchend', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      blurButton(e);
+      blurButton(leftBtn);
     });
     
     rightBtn.addEventListener('touchend', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      blurButton(e);
+      blurButton(rightBtn);
     });
 
     // Clean up old observer
