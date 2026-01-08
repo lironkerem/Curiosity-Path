@@ -295,11 +295,17 @@ export default class NavigationManager {
     
     if (!leftBtn || !rightBtn || !swipeArrows) return;
 
+    console.log('setupSwipeArrows - leftBtn:', leftBtn);
+    console.log('setupSwipeArrows - rightBtn:', rightBtn);
+    console.log('setupSwipeArrows - swipeArrows:', swipeArrows);
+    
     leftBtn.tabIndex = -1;
     rightBtn.tabIndex = -1;
 
     leftBtn.innerHTML = `<svg viewBox="0 0 200 180" style="transform:scale(0.5);"><path d="M115 10 L100 90 L115 170" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`;
     rightBtn.innerHTML = `<svg viewBox="0 0 200 180" style="transform:scaleX(-1) scale(0.5);"><path d="M115 10 L100 90 L115 170" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`;
+    
+    console.log('About to attach click listeners');
 
     const blurButton = (btn) => setTimeout(() => btn.blur(), 0);
 
