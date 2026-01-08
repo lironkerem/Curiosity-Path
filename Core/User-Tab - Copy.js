@@ -1,4 +1,4 @@
-// User-Tab.js – 100 % complete with Notifications + Profile-Save + avatar_url fix + Rules patch (2026-01-08)
+// User-Tab.js – 100 % complete with Notifications + Profile-Save (PATCHED 2026-01-06)
 import { supabase } from './Supabase.js';
 
 export default class UserTab {
@@ -108,12 +108,12 @@ export default class UserTab {
     if (!uid) return this.app.showToast('Not logged in', 'error');
 
     const payload = {
-      name:       document.getElementById('profile-name')?.value.trim()   || null,
-      email:      document.getElementById('profile-email')?.value.trim()  || null,
-      phone:      document.getElementById('profile-phone')?.value.trim()  || null,
-      birthday:   document.getElementById('profile-birthday')?.value      || null,
-      emoji:      document.getElementById('profile-emoji')?.value         || '👤',
-      avatar_url: document.getElementById('profile-avatar-img')?.src || ''  // ← DB column
+      name:        document.getElementById('profile-name')?.value.trim()   || null,
+      email:       document.getElementById('profile-email')?.value.trim()  || null,
+      phone:       document.getElementById('profile-phone')?.value.trim()  || null,
+      birthday:    document.getElementById('profile-birthday')?.value      || null,
+      emoji:       document.getElementById('profile-emoji')?.value         || '👤',
+      avatar_url:   document.getElementById('profile-avatar-img')?.src || ''
     };
 
     let savedOnServer = false;
@@ -155,7 +155,7 @@ export default class UserTab {
 
     if (data) {
       const target = this.app.state.currentUser;
-      ['name','email','phone','birthday','emoji','avatar_url'].forEach(k => {
+      ['name','email','phone','birthday','emoji','avatarUrl'].forEach(k => {
         if (data[k] !== undefined) target[k] = data[k];
       });
       this.syncAvatar();
@@ -173,8 +173,8 @@ export default class UserTab {
               <label class="avatar-upload-label" title="Click to change picture">
                 <input type="file" id="avatar-upload" accept="image/*">
                 <div class="profile-avatar-container" id="profile-avatar-preview">
-                  <img id="profile-avatar-img" src="${u.avatar_url || ''}" style="${u.avatar_url ? '' : 'display:none;'}">
-                  <span class="profile-avatar-emoji" style="${u.avatar_url ? 'display:none;' : ''}">${u.emoji || '👤'}</span>
+                  <img id="profile-avatar-img" src="${u.avatarUrl || ''}" style="${u.avatarUrl ? '' : 'display:none;'}">
+                  <span class="profile-avatar-emoji" style="${u.avatarUrl ? 'display:none;' : ''}">${u.emoji || '👤'}</span>
                 </div>
               </label>
               <select id="profile-emoji">${['👤','♈️','♉️','♊️','♋️','♌️','♍️','♎️','♏️','♐️','♑️','♒️','♓️','🧘‍♀️','🌙','☀️','🌟','🔮','🦋','🌿','🌸','🕉️','🍀'].map(e=>'<option '+(e===u.emoji?'selected':'')+' value="'+e+'">'+e+'</option>').join('')}</select>
@@ -188,92 +188,106 @@ export default class UserTab {
         `;
       };
 
-      /* ----------  RULES  ---------- */
-      window.app.renderRulesHTML = () => {
-        const categories = [
-          {title:'FIRST-WINS',badges:[{icon:'🌱',name:'First Step',desc:'do any single action',xp:10,karma:3,rarity:'common'},{icon:'💚',name:'First Gratitude',desc:'log 1 gratitude entry',xp:10,karma:3,rarity:'common'},{icon:'📝',name:'First Journal',desc:'save 1 journal entry',xp:10,karma:3,rarity:'common'},{icon:'⚡',name:'First Energy',desc:'log 1 energy check-in',xp:10,karma:3,rarity:'common'},{icon:'🃏',name:'First Reading',desc:'complete 1 tarot spread',xp:10,karma:3,rarity:'common'},{icon:'🧘',name:'First Meditation',desc:'finish 1 meditation session',xp:10,karma:3,rarity:'common'},{icon:'🛒',name:'First Purchase',desc:'buy anything in the Karma Shop',xp:50,karma:3,rarity:'common'}]},
-          {title:'GRATITUDE',badges:[{icon:'❤️',name:'Gratitude Warrior',desc:'30 entries',xp:50,karma:5,rarity:'uncommon'},{icon:'💝',name:'Gratitude Legend',desc:'100 entries',xp:100,karma:10,rarity:'rare'},{icon:'💖',name:'Gratitude Sage',desc:'200 entries',xp:200,karma:15,rarity:'epic'},{icon:'💘',name:'Gratitude Titan',desc:'500 entries',xp:500,karma:30,rarity:'legendary'}]},
-          {title:'JOURNAL',badges:[{icon:'📔',name:'Journal Keeper',desc:'20 entries',xp:50,karma:5,rarity:'uncommon'},{icon:'📚',name:'Journal Master',desc:'75 entries',xp:100,karma:10,rarity:'rare'},{icon:'📖',name:'Journal Sage',desc:'150 entries',xp:200,karma:15,rarity:'epic'},{icon:'📜',name:'Journal Titan',desc:'400 entries',xp:500,karma:30,rarity:'legendary'}]},
-          {title:'ENERGY CHECK-INS',badges:[{icon:'⚡',name:'Energy Tracker',desc:'30 logs',xp:50,karma:5,rarity:'uncommon'},{icon:'🔋',name:'Energy Sage',desc:'100 logs',xp:100,karma:10,rarity:'rare'},{icon:'🔌',name:'Energy Titan',desc:'300 logs',xp:300,karma:15,rarity:'epic'},{icon:'⚡️',name:'Energy Legend',desc:'600 logs',xp:600,karma:30,rarity:'legendary'}]},
-          {title:'TAROT SPREADS',badges:[{icon:'🔮',name:'Tarot Apprentice',desc:'10 spreads',xp:25,karma:3,rarity:'common'},{icon:'🃏',name:'Tarot Mystic',desc:'25 spreads',xp:50,karma:5,rarity:'uncommon'},{icon:'🌙',name:'Tarot Oracle',desc:'75 spreads',xp:100,karma:10,rarity:'rare'},{icon:'🧙',name:'Tarot Sage',desc:'150 spreads',xp:200,karma:15,rarity:'epic'},{icon:'🔮',name:'Tarot Titan',desc:'400 spreads',xp:500,karma:30,rarity:'legendary'}]},
-          {title:'MEDITATION SESSIONS',badges:[{icon:'🧘',name:'Meditation Devotee',desc:'20 sessions',xp:50,karma:5,rarity:'uncommon'},{icon:'🕉️',name:'Meditation Master',desc:'60 sessions',xp:100,karma:10,rarity:'rare'},{icon:'🧘‍♂️',name:'Meditation Sage',desc:'100 sessions',xp:300,karma:15,rarity:'epic'},{icon:'🧘‍♀️',name:'Meditation Titan',desc:'200 sessions',xp:700,karma:30,rarity:'legendary'}]},
-          {title:'HAPPINESS BOOSTERS',badges:[{icon:'😊',name:'Happiness Seeker',desc:'50 views',xp:50,karma:5,rarity:'uncommon'},{icon:'🎉',name:'Joy Master',desc:'150 views',xp:100,karma:10,rarity:'rare'},{icon:'😍',name:'Happiness Sage',desc:'300 views',xp:200,karma:15,rarity:'epic'},{icon:'🤩',name:'Happiness Titan',desc:'700 views',xp:500,karma:30,rarity:'legendary'}]},
-          {title:'WELLNESS EXERCISES',badges:[{icon:'🌿',name:'Wellness Champion',desc:'50 exercises',xp:50,karma:5,rarity:'uncommon'},{icon:'🌳',name:'Wellness Guru',desc:'150 exercises',xp:100,karma:10,rarity:'rare'},{icon:'🌲',name:'Wellness Titan',desc:'300 exercises',xp:300,karma:15,rarity:'epic'},{icon:'🌎',name:'Wellness Legend',desc:'700 exercises',xp:1000,karma:30,rarity:'legendary'}]},
-          {title:'STREAK BADGES',badges:[{icon:'⭐',name:'Perfect Week',desc:'complete every daily quest 7 days in a row',xp:75,karma:10,rarity:'rare'},{icon:'💎',name:'Dedication',desc:'30-day login streak',xp:100,karma:15,rarity:'epic'},{icon:'🔱',name:'Unstoppable',desc:'60-day login streak',xp:150,karma:15,rarity:'epic'},{icon:'👑',name:'Legendary Streak',desc:'100-day login streak',xp:200,karma:30,rarity:'legendary'}]},
-          {title:'QUEST-COMPLETION BADGES',badges:[{icon:'🔥',name:'Weekly Warrior',desc:'complete all weekly quests 4 separate weeks',xp:100,karma:15,rarity:'epic'},{icon:'🌟',name:'Monthly Master',desc:'complete all monthly quests at least once',xp:150,karma:15,rarity:'epic'},{icon:'🎯',name:'Quest Crusher',desc:'finish 100 total quests (any type)',xp:150,karma:15,rarity:'epic'},{icon:'⭐',name:'Daily Champion',desc:'complete all dailies on 30 separate days',xp:100,karma:10,rarity:'rare'}]},
-          {title:'CURRENCY BADGES',badges:[{icon:'💰',name:'Karma Collector',desc:'accumulate 500 Karma',xp:50,karma:10,rarity:'rare'},{icon:'💎',name:'Karma Lord',desc:'accumulate 2000 Karma',xp:200,karma:30,rarity:'legendary'},{icon:'⚡',name:'XP Legend',desc:'earn 10 000 XP',xp:100,karma:15,rarity:'epic'},{icon:'⚡',name:'XP Titan',desc:'earn 50 000 XP',xp:200,karma:30,rarity:'legendary'}]},
-          {title:'LEVEL MILESTONES',badges:[{icon:'🎯',name:'Rising Star',desc:'reach Level 5',xp:100,karma:15,rarity:'epic'},{icon:'🌟',name:'Enlightened Soul',desc:'reach Level 7',xp:150,karma:15,rarity:'epic'},{icon:'👑',name:'Enlightened Master',desc:'reach Level 10',xp:300,karma:30,rarity:'legendary'}]},
-          {title:'CHAKRA BADGES',badges:[{icon:'🌈',name:'Chakra Balancer',desc:'log all 7 chakras ≥ 8 in one session',xp:75,karma:15,rarity:'epic'},{icon:'🎨',name:'Chakra Master',desc:'log all 7 chakras ≥ 9 in one session',xp:150,karma:30,rarity:'legendary'}]},
-          {title:'CROSS-FEATURE BADGES',badges:[{icon:'🎪',name:'Triple Threat',desc:'use 3 different features in one day',xp:25,karma:5,rarity:'uncommon'},{icon:'💫',name:'Super Day',desc:'gratitude + journal + energy + meditation',xp:50,karma:10,rarity:'rare'},{icon:'🗺️',name:'Complete Explorer',desc:'use every main feature at least once',xp:100,karma:15,rarity:'epic'},{icon:'🎭',name:'Renaissance Soul',desc:'≥ 10 actions in 5+ different features',xp:150,karma:30,rarity:'epic'}]}
-        ];
-        const rarityColour = {common:'#9ca3af',uncommon:'#10b981',rare:'#3b82f6',epic:'#a855f7',legendary:'#f59e0b'};
+      window.app.renderNotificationsHTML = () => {
+        const settings = JSON.parse(localStorage.getItem('notification_settings')) || {
+          enabled: false,
+          reminders: {
+            morning: { enabled: false, time: '08:00' },
+            afternoon: { enabled: false, time: '13:00' },
+            evening: { enabled: false, time: '18:00' },
+            night: { enabled: false, time: '21:00' }
+          },
+          quotes: { enabled: false },
+          affirmations: { enabled: false },
+          frequency: 'moderate',
+          wellness: { enabled: false, syncWithAutomations: true }
+        };
+
         return `
-<div class="accordion-inner rules-panel">
-  <div class="rules-header">
-    <h3>Complete Badge Guide</h3>
-    <button class="btn-link" id="rules-toggle">Expand all</button>
-  </div>
-  ${categories.map(cat => `
-    <section class="rules-category">
-      <h4 class="rules-category-title">${cat.title}</h4>
-      <div class="rules-grid">
-        ${cat.badges.map(b => `
-          <div class="rules-card" data-rarity="${b.rarity}">
-            <div class="rules-card-icon">${b.icon}</div>
-            <div class="rules-card-body">
-              <div class="rules-card-name">${b.name}</div>
-              <div class="rules-card-desc">${b.desc}</div>
-              <div class="rules-card-rewards">
-                <span class="rules-xp">+${b.xp} XP</span>
-                <span class="rules-karma">+${b.karma} Karma</span>
+          <div class="accordion-inner">
+            <div style="background:rgba(102,126,234,.1);border-radius:12px;padding:12px;margin-bottom:16px;">
+              <div class="toggle-switch-container">
+                <span class="toggle-switch-label" style="font-weight:600;">🔔 Enable Notifications</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="master-notifications-toggle" ${settings.enabled ? 'checked' : ''}>
+                  <span class="toggle-slider"></span>
+                </label>
               </div>
+              <small style="opacity:.7;display:block;margin-top:8px;">
+                ${settings.enabled ? '✅ Notifications are enabled' : '⚠️ Enable to receive notifications'}
+              </small>
             </div>
-            <div class="rules-card-tag" style="color:${rarityColour[b.rarity]}">${b.rarity}</div>
-          </div>`).join('')}
-      </div>
-    </section>`).join('')}
-</div>
 
-<style>
-.rules-panel{max-height:70vh;overflow-y:auto;padding-right:6px}
-.rules-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.rules-header h3{margin:0;font-size:1.1rem;font-weight:600}
-.rules-header .btn-link{font-size:.8rem;padding:4px 8px}
-.rules-category{margin-bottom:20px}
-.rules-category-title{position:sticky;top:0;background:var(--neuro-bg);padding:8px 0;font-size:.95rem;font-weight:600;border-bottom:1px solid var(--neuro-shadow-dark);margin-bottom:10px;z-index:2}
-.rules-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
-.rules-card{display:flex;align-items:center;gap:10px;background:var(--neuro-bg);border:1px solid var(--neuro-shadow-dark);border-radius:12px;padding:10px;box-shadow:var(--shadow-raised-sm);transition:all .2s}
-.rules-card:hover{box-shadow:var(--shadow-raised);border-color:var(--neuro-accent)}
-.rules-card-icon{font-size:1.6rem;line-height:1}
-.rules-card-body{flex:1}
-.rules-card-name{font-weight:600;font-size:.85rem;margin-bottom:2px}
-.rules-card-desc{font-size:.75rem;opacity:.8;margin-bottom:4px}
-.rules-card-rewards{display:flex;gap:8px;font-size:.7rem}
-.rules-xp{background:rgba(16,185,129,.15);color:#10b981;padding:2px 6px;border-radius:4px}
-.rules-karma{background:rgba(245,158,11,.15);color:#f59e0b;padding:2px 6px;border-radius:4px}
-.rules-card-tag{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-</style>
+            <div id="notification-options" style="${settings.enabled ? '' : 'opacity:.4;pointer-events:none;'}">
+              <div class="notification-section">
+                <h4 style="font-size:.9rem;font-weight:600;margin-bottom:12px;">📅 Daily Check-ins</h4>
+                ${['morning','afternoon','evening','night'].map(p=>`
+                <div class="toggle-switch-container">
+                  <span class="toggle-switch-label">${p==='morning'?'🌅':p==='afternoon'?'☀️':p==='evening'?'🌆':'🌙'} ${p.charAt(0).toUpperCase()+p.slice(1)}</span>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="reminder-${p}" ${settings.reminders[p].enabled ? 'checked' : ''}>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <input type="time" id="time-${p}" value="${settings.reminders[p].time}" ${settings.reminders[p].enabled ? '' : 'disabled'}>`).join('')}
+              </div>
 
-<script>
-(function(){
-  const toggle = document.getElementById('rules-toggle');
-  if (!toggle) return;
-  let allOpen = false;
-  toggle.textContent = 'Expand all';
-  toggle.addEventListener('click', () => {
-    document.querySelectorAll('.rules-category').forEach(sec => {
-      sec.classList.toggle('open', !allOpen);
-    });
-    allOpen = !allOpen;
-    toggle.textContent = allOpen ? 'Collapse all' : 'Expand all';
-  });
-})();
-</script>
-  `;
+              <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:16px 0;">
+
+              <div class="notification-section">
+                <h4 style="font-size:.9rem;font-weight:600;margin-bottom:12px;">✨ Inspirational Content</h4>
+                <div class="toggle-switch-container">
+                  <span class="toggle-switch-label">💭 Quotes</span>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="quotes-enabled" ${settings.quotes.enabled ? 'checked' : ''}>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="toggle-switch-container">
+                  <span class="toggle-switch-label">🌟 Affirmations</span>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="affirmations-enabled" ${settings.affirmations.enabled ? 'checked' : ''}>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div style="margin-top:12px;${settings.quotes.enabled || settings.affirmations.enabled ? '' : 'opacity:.4;pointer-events:none;'}">
+                  <label style="font-size:.85rem;display:block;margin-bottom:8px;">Frequency:</label>
+                  <select id="inspirational-frequency" ${settings.quotes.enabled || settings.affirmations.enabled ? '' : 'disabled'}>
+                    <option value="light" ${settings.frequency === 'light' ? 'selected' : ''}>Light (2-3 per day)</option>
+                    <option value="moderate" ${settings.frequency === 'moderate' ? 'selected' : ''}>Moderate (4-6 per day)</option>
+                    <option value="intense" ${settings.frequency === 'intense' ? 'selected' : ''}>Intense (8-10 per day)</option>
+                  </select>
+                </div>
+              </div>
+
+              <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:16px 0;">
+
+              <div class="notification-section">
+                <h4 style="font-size:.9rem;font-weight:600;margin-bottom:12px;">🧘 Wellness Reminders</h4>
+                <div class="toggle-switch-container">
+                  <span class="toggle-switch-label">Connect to Wellness Kit</span>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="wellness-notifications" ${settings.wellness.enabled ? 'checked' : ''}>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <small style="opacity:.7;display:block;margin-top:8px;font-size:.75rem;">
+                  When enabled, you'll receive push notifications based on your Wellness Automation settings.
+                </small>
+              </div>
+
+              <button class="btn-link" id="save-notification-settings" style="margin-top:16px;">💾 Save Now</button>
+              <small style="opacity:.6;display:block;margin-top:8px;font-size:.7rem;text-align:center;">Settings auto-save after changes</small>
+              <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:16px 0;">
+              <button class="btn-link" id="test-notification" style="font-size:.8rem;">🧪 Send Test Notification</button>
+            </div>
+          </div>
+        `;
       };
 
-      /*  OTHER HELPERS  */
+      /*  OTHER RENDER HELPERS (unchanged)  */
       window.app.renderAboutHTML = () => `<div class="accordion-inner"><p><strong>The Curiosity Path</strong> by Aanandoham, 2026.</p><p>A digital way, for a digital practitioner, to continue practicing Spirituality in the 21st Century.</p><p>This App was built to share tools, practices and ancient wisdom - digitally, from your device.</p><p>It is a convenient, accessible way, to stay connected to your 'Self', by small daily practices.</p><p>My hope is that you will utilize it to enhance your life, one small function at a time.</p></div>`;
+      window.app.renderRulesHTML = () => `<div class="accordion-inner" style="white-space: pre-line; line-height: 1.45; max-height: 260px; overflow-y: auto; padding-right: 6px;">This App is designed to create a fun, safe space, to encourage you and motivate you on a daily basis. The more you will use its features and functions, the more you will "grow" and "get rich" in the app. But more importantly, you will grow and get rich in Real Life. And this is the purpose. So, play, use it, write, go deep, be truthful to yourself, practice and enjoy the process. --------------------------- 1. CORE CURRENCY RULES --------------------------- - XP is the only way to level up. - Karma is spent in the Karma-Shop for enhancements, premium features and private sessions. --------------------------- 2. LEVEL & XP RULES --------------------------- Level 1 - Seeker - 0 Level 2 - Practitioner - 300 Level 3 - Adept - 800 Level 4 - Healer - 1,600 Level 5 - Master - 3,200 Level 6 - Sage - 6,500 Level 7 - Enlightened - 20,000 Level 8 - Buddha - 50,000 Level 9 - Light - 150,000 Level 10 - Emptiness - 400,000 -------------------------------------------------------- COMPLETE BADGE GUIDE: -------------------------------------------------------- FIRST-WINS 🌱 First Step - do any single action +10 XP +3 Karma 💚 First Gratitude - log 1 gratitude entry +10 XP +3 Karma 📝 First Journal - save 1 journal entry +10 XP +3 Karma ⚡ First Energy - log 1 energy check-in +10 XP +3 Karma 🃏 First Reading - complete 1 tarot spread +10 XP +3 Karma 🧘 First Meditation - finish 1 meditation session +10 XP +3 Karma 🛒 First Purchase - buy anything in the Karma Shop +50 XP +3 Karma GRATITUDE ❤️ Gratitude Warrior - 30 entries +50 XP +5 Karma (uncommon) 💝 Gratitude Legend - 100 entries +100 XP +10 Karma (rare) 💖 Gratitude Sage - 200 entries +200 XP +15 Karma (epic) 💘 Gratitude Titan - 500 entries +500 XP +30 Karma (legendary) JOURNAL 📔 Journal Keeper - 20 entries +50 XP +5 Karma (uncommon) 📚 Journal Master - 75 entries +100 XP +10 Karma (rare) 📖 Journal Sage - 150 entries +200 XP +15 Karma (epic) 📜 Journal Titan - 400 entries +500 XP +30 Karma (legendary) ENERGY CHECK-INS ⚡ Energy Tracker - 30 logs + 50 XP +5 Karma (uncommon) 🔋 Energy Sage - 100 logs +100 XP +10 Karma (rare) 🔌 Energy Titan - 300 logs +300 XP +15 Karma (epic) ⚡️ Energy Legend - 600 logs +600 XP +30 Karma (legendary) TAROT SPREADS 🔮 Tarot Apprentice - 10 spreads +25 XP +3 Karma (common) 🃏 Tarot Mystic - 25 spreads +50 XP +5 Karma (uncommon) 🌙 Tarot Oracle - 75 spreads +100 XP +10 Karma (rare) 🧙 Tarot Sage - 150 spreads +200 XP +15 Karma (epic) 🔮 Tarot Titan - 400 spreads +500 XP +30 Karma (legendary) MEDITATION SESSIONS 🧘 Meditation Devotee - 20 sessions +50 XP +5 Karma (uncommon) 🕉️ Meditation Master - 60 sessions +100 XP +10 Karma (rare) 🧘‍♂️ Meditation Sage - 100 sessions +300 XP +15 Karma (epic) 🧘‍♀️ Meditation Titan - 200 sessions +700 XP +30 Karma (legendary) HAPPINESS BOOSTERS 😊 Happiness Seeker - 50 views +50 XP +5 Karma (uncommon) 🎉 Joy Master - 150 views +100 XP +10 Karma (rare) 😍 Happiness Sage - 300 views +200 XP +15 Karma (epic) 🤩 Happiness Titan - 700 views +500 XP +30 Karma (legendary) WELLNESS EXERCISES 🌿 Wellness Champion - 50 exercises +50 XP +5 Karma (uncommon) 🌳 Wellness Guru - 150 exercises +100 XP +10 Karma (rare) 🌲 Wellness Titan - 300 exercises +300 XP +15 Karma (epic) 🌎 Wellness Legend - 700 exercises +1000 XP +30 Karma (legendary) -------------------------------------------------------- STREAK BADGES -------------------------------------------------------- ⭐ Perfect Week - complete every daily quest 7 days in a row +75 XP +10 Karma (rare) 💎 Dedication - 30-day login streak +100 XP +15 Karma (epic) 🔱 Unstoppable - 60-day login streak +150 XP +15 Karma (epic) 👑 Legendary Streak - 100-day login streak +200 XP +30 Karma (legendary) -------------------------------------------------------- QUEST-COMPLETION BADGES -------------------------------------------------------- 🔥 Weekly Warrior - complete all weekly quests 4 separate weeks +100 XP +15 Karma (epic) 🌟 Monthly Master - complete all monthly quests at least once +150 XP +15 Karma (epic) 🎯 Quest Crusher - finish 100 total quests (any type) +150 XP +15 Karma (epic) ⭐ Daily Champion - complete all dailies on 30 separate days +100 XP +10 Karma (rare) -------------------------------------------------------- CURRENCY BADGES -------------------------------------------------------- 💰 Karma Collector - accumulate 500 Karma +50 XP +10 Karma (rare) 💎 Karma Lord - accumulate 2000 Karma +200 XP +30 Karma (legendary) ⚡ XP Legend - earn 10 000 XP +100 XP +15 Karma (epic) ⚡ XP Titan - earn 50 000 XP +200 XP +30 Karma (legendary) -------------------------------------------------------- LEVEL MILESTONES -------------------------------------------------------- 🎯 Rising Star - reach Level 5 +100 XP +15 Karma (epic) 🌟 Enlightened Soul - reach Level 7 +150 XP +15 Karma (epic) 👑 Enlightened Master - reach Level 10 +300 XP +30 Karma (legendary) -------------------------------------------------------- CHAKRA BADGES -------------------------------------------------------- 🌈 Chakra Balancer - log all 7 chakras ≥ 8 in one session +75 XP +15 Karma (epic) 🎨 Chakra Master - log all 7 chakras ≥ 9 in one session +150 XP +30 Karma (legendary) -------------------------------------------------------- CROSS-FEATURE BADGES -------------------------------------------------------- 🎪 Triple Threat - use 3 different features in one day +25 XP +5 Karma (uncommon) 💫 Super Day - gratitude + journal + energy + meditation +50 XP +10 Karma (rare) 🗺️ Complete Explorer - use every main feature at least once +100 XP +15 Karma (epic) 🎭 Renaissance Soul - ≥ 10 actions in 5+ different features +150 XP +30 Karma (epic) -------------------------------------------------------- Have fun, Aanandoham, 2026.</div>`;
       window.app.renderContactHTML = () => `<div class="accordion-inner"><p>Contact me for questions, private sessions, classes, retreats, guidance or any technical issues.</p><a href="https://lironkerem.wixsite.com/project-curiosity" target="_blank" style="font-weight:bold;text-decoration:underline;color:var(--neuro-accent);">Official website</a><br><a href="mailto:lironkerem@gmail.com" style="font-weight:bold;text-decoration:underline;color:var(--neuro-accent);">Email me</a><br><a href="https://www.facebook.com/AanandohamsProjectCuriosity" target="_blank" style="font-weight:bold;text-decoration:underline;color:var(--neuro-accent);">Facebook Page</a></div>`;
       window.app.renderExportHTML = () => `<div class="accordion-inner"><button class="btn-link" onclick="window.app.exportUserData()">Download JSON</button></div>`;
       window.app.renderBillingHTML = () => `<div class="accordion-inner"><p><strong>Free</strong> - basic tools, ads free forever.</p><p><strong>Practitioner</strong> - full Premium packs, monthly.</p><p><strong>Adept</strong> - Premium packs + Sessons discounts, monthly.</p><p><strong>Master</strong> - Premium packs + Discounts + 1-on-1 calls.</p><button class="btn-link">Choose plan</button></div>`;
@@ -359,7 +373,7 @@ export default class UserTab {
                 </label>
               </div>
               <div class="automation-controls ${automations[t.replace('-','')].enabled ? '' : 'disabled'}">
-                <label>Every <input type="number" id="interval-${t}" value="${automations[t.replace('-','')].interval}" min="15" max="480" step="15" ${automations[t.replace('-,'')].enabled ? '' : 'disabled'}> minutes</label>
+                <label>Every <input type="number" id="interval-${t}" value="${automations[t.replace('-','')].interval}" min="15" max="480" step="15" ${automations[t.replace('-','')].enabled ? '' : 'disabled'}> minutes</label>
               </div>
             </div>`).join('')}
             <button class="btn-link" id="save-automations-btn">Save Automation Settings</button>
@@ -397,7 +411,7 @@ export default class UserTab {
         const rawData = atob(base64);
         return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
       };
-      window.app.saveNotificationSettings = async function () { const settings = { enabled: document.getElementById('master-notifications-toggle')?.checked || false, reminders: { morning: { enabled: document.getElementById('reminder-morning')?.checked || false, time: document.getElementById('time-morning')?.value || '08:00' }, afternoon: { enabled: document.getElementById('reminder-afternoon')?.checked || false, time: document.getElementById('time-afternoon')?.value || '13:00' }, evening: { enabled: document.getElementById('reminder-evening')?.checked || false, time: document.getElementById('time-evening')?.value || '18:00' }, night: { enabled: document.getElementById('reminder-night')?.checked || false, time: document.getElementById('time-night')?.value || '21:00' } }, quotes: { enabled: document.getElementById('quotes-enabled')?.checked || false }, affirmations: { enabled: document.getElementById('affirmations-enabled')?.checked || false }, frequency: document.getElementById('inspirational-frequency')?.value || 'moderate', wellness: { enabled: document.getElementById('wellness-notifications')?.checked || false, syncWithAutomations: true } }; localStorage.setItem('notification_settings', JSON.stringify(settings)); const { error } = await supabase.from('notification_prefs').upsert({ user_id: this.state.currentUser.id, prefs: settings }, { onConflict: 'user_id' }); if (error) { console.error(error); this.showToast('⚠️ Saved locally, but cloud sync failed', 'error'); } else { this.showToast('✅ Settings saved & scheduled', 'success'); } this.scheduleNotifications(settings); };
+      window.app.saveNotificationSettings = async function () { /* unchanged */ const settings = { enabled: document.getElementById('master-notifications-toggle')?.checked || false, reminders: { morning: { enabled: document.getElementById('reminder-morning')?.checked || false, time: document.getElementById('time-morning')?.value || '08:00' }, afternoon: { enabled: document.getElementById('reminder-afternoon')?.checked || false, time: document.getElementById('time-afternoon')?.value || '13:00' }, evening: { enabled: document.getElementById('reminder-evening')?.checked || false, time: document.getElementById('time-evening')?.value || '18:00' }, night: { enabled: document.getElementById('reminder-night')?.checked || false, time: document.getElementById('time-night')?.value || '21:00' } }, quotes: { enabled: document.getElementById('quotes-enabled')?.checked || false }, affirmations: { enabled: document.getElementById('affirmations-enabled')?.checked || false }, frequency: document.getElementById('inspirational-frequency')?.value || 'moderate', wellness: { enabled: document.getElementById('wellness-notifications')?.checked || false, syncWithAutomations: true } }; localStorage.setItem('notification_settings', JSON.stringify(settings)); const { error } = await supabase.from('notification_prefs').upsert({ user_id: this.state.currentUser.id, prefs: settings }, { onConflict: 'user_id' }); if (error) { console.error(error); this.showToast('⚠️ Saved locally, but cloud sync failed', 'error'); } else { this.showToast('✅ Settings saved & scheduled', 'success'); } this.scheduleNotifications(settings); };
       window.app.sendTestNotification = async function () { try { const res = await fetch('/api/subs'); const subs = await res.json(); if (!subs.length) { this.showToast('❌ No subscriptions found', 'error'); return; } const response = await fetch('/api/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sub: subs[subs.length - 1], payload: { title: '✨ The Curiosity Path', body: 'Test notification from Aanandoham!', icon: '/Icons/icon-192x192.png', data: { url: '/' } } }) }); const result = await response.json(); if (response.ok) { this.showToast('📱 Test notification sent!', 'success'); } else throw new Error(result.error); } catch (err) { console.error(err); this.showToast('❌ Failed: ' + err.message, 'error'); } };
       window.app.scheduleNotifications = function (settings) { if (this._notificationTimers) this._notificationTimers.forEach(t => clearTimeout(t)); this._notificationTimers = []; if (!settings.enabled) return; Object.entries(settings.reminders).forEach(([p, c]) => { if (c.enabled) this.scheduleDailyNotification(p, c.time); }); if (settings.quotes.enabled || settings.affirmations.enabled) this.scheduleInspirationalNotifications(settings); if (settings.wellness.enabled) this.scheduleWellnessNotifications(settings); };
       window.app.scheduleDailyNotification = function (period, time) { const [h, m] = time.split(':').map(Number); const now = new Date(); const scheduled = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0); if (scheduled < now) scheduled.setDate(scheduled.getDate() + 1); const delay = scheduled - now; const timer = setTimeout(() => { this.sendScheduledNotification(period); this.scheduleDailyNotification(period, time); }, delay); this._notificationTimers.push(timer); };
@@ -471,7 +485,7 @@ export default class UserTab {
     this.syncAvatar();
     this.loadActiveTheme();
     this.restoreDarkMode();
-    this.hydrateUserProfile();
+    this.hydrateUserProfile();          // <-- load saved profile on boot
   }
 
   attachProfileHandlers() {
@@ -641,8 +655,8 @@ export default class UserTab {
     const avImg = this.btn.querySelector('.disc-avatar-img');
     const avEmoji = this.btn.querySelector('.disc-avatar-emoji');
 
-    if (u.avatar_url && u.avatar_url.trim() !== '') {
-      avImg.src = u.avatar_url;
+    if (u.avatarUrl && u.avatarUrl.trim() !== '') {
+      avImg.src = u.avatarUrl;
       avImg.classList.remove('hidden');
       avEmoji.classList.add('hidden');
       this.btn.classList.add('avatar-mode');
