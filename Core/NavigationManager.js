@@ -320,11 +320,9 @@ export default class NavigationManager {
 
     const blurButton = (btn) => setTimeout(() => btn.blur(), 0);
 
-    // FIXED: Direct implementation instead of local function
-    leftBtn.addEventListener('click', (e) => { 
-      console.log('LEFT ARROW CLICKED');
-      console.log('this:', this);
-      console.log('this.switchTab:', this.switchTab);
+    // Use touchstart instead of click for mobile
+    leftBtn.addEventListener('touchstart', (e) => { 
+      console.log('LEFT ARROW TOUCHED');
       e.preventDefault(); 
       e.stopPropagation();
       
@@ -344,10 +342,8 @@ export default class NavigationManager {
       blurButton(leftBtn); 
     });
     
-    rightBtn.addEventListener('click', (e) => { 
-      console.log('RIGHT ARROW CLICKED');
-      console.log('this:', this);
-      console.log('this.switchTab:', this.switchTab);
+    rightBtn.addEventListener('touchstart', (e) => { 
+      console.log('RIGHT ARROW TOUCHED');
       e.preventDefault(); 
       e.stopPropagation();
       
