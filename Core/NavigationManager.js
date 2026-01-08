@@ -16,12 +16,13 @@ export default class NavigationManager {
     this.touchStartY = 0;
     this.touchStartTime = 0;
     this.sheetOpen = false;
+    this.swipeListenersAttached = false;
     
     // Constants
     this.SWIPE_ORDER = [
       'dashboard', 'energy', 'tarot', 'gratitude', 'happiness',
       'journal', 'meditations', 'flip-script', 'calculator',
-      'shadow-alchemy', 'karma-shop'
+      'shadow-alchemy', 'karma-shop', 'chatbot'
     ];
     
     this.CONSTANTS = {
@@ -326,14 +327,16 @@ export default class NavigationManager {
   }
 
   setupSwipeGestures() {
+    if (this.swipeListenersAttached) return;
+    
     const { SWIPE_THRESHOLD, SWIPE_TIME_MS } = this.CONSTANTS;
 
-    window.addEventListener('touchstart', (e) => {
+    const handleTouchStart = (e) => {
       this.touchStartX = e.touches[0].clientX;
       this.touchStartTime = Date.now();
-    }, { passive: true });
+    };
 
-    window.addEventListener('touchend', (e) => {
+    const handleTouchEnd = (e) => {
       const endX = e.changedTouches[0].clientX;
       const deltaX = this.touchStartX - endX;
       const deltaT = Date.now() - this.touchStartTime;
@@ -349,7 +352,12 @@ export default class NavigationManager {
       if (navItem) {
         this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
       }
-    }, { passive: true });
+    };
+
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    
+    this.swipeListenersAttached = true;
   }
 
   setupSheetSwipeClose() {
@@ -449,6 +457,7 @@ export default class NavigationManager {
       this.arrowObserver = null;
     }
     this.listenersAttached = false;
+    this.swipeListenersAttached = false;
     this.cachedElements = {};
   }
 }
