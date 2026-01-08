@@ -280,7 +280,7 @@ export default class DailyCards {
     return `
       <div class="daily-card-full-container">
         <div class="card dashboard-daily-card">
-          <div class="daily-card-wrapper ${flippedClass}" data-card-type="${type}">
+          <div class="daily-card-wrapper ${flippedClass}" onclick="window.app.dailyCards.flipDailyCard('${type}')">
             <div class="daily-card-inner ${flippedClass}" id="${type}-flip">
               <div class="daily-card-back">
                 <p class="card-reveal-prompt">Click to reveal</p>
