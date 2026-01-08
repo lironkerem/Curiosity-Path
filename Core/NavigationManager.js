@@ -314,10 +314,31 @@ export default class NavigationManager {
 
     const blurButton = (e) => setTimeout(() => e.currentTarget.blur(), 0);
 
-    leftBtn.addEventListener('click', (e) => { e.preventDefault(); navigateTab(-1); blurButton(e); });
-    rightBtn.addEventListener('click', (e) => { e.preventDefault(); navigateTab(1); blurButton(e); });
-    leftBtn.addEventListener('touchend', blurButton);
-    rightBtn.addEventListener('touchend', blurButton);
+    leftBtn.addEventListener('click', (e) => { 
+      e.preventDefault(); 
+      e.stopPropagation();
+      navigateTab(-1); 
+      blurButton(e); 
+    });
+    
+    rightBtn.addEventListener('click', (e) => { 
+      e.preventDefault(); 
+      e.stopPropagation();
+      navigateTab(1); 
+      blurButton(e); 
+    });
+    
+    leftBtn.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      blurButton(e);
+    });
+    
+    rightBtn.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      blurButton(e);
+    });
 
     // Clean up old observer
     if (this.arrowObserver) {
