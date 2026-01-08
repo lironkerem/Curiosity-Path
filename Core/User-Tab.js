@@ -828,30 +828,29 @@ window.app.renderAutomationsHTML = () => {
     nervousSystem: { enabled: false, interval: 120 },
     tensionSweep: { enabled: false, interval: 120 }
   };
-  const map = {
-    'self-reset': 'selfReset',
-    'full-body-scan': 'fullBodyScan',
-    'nervous-system': 'nervousSystem',
-    'tension-sweep': 'tensionSweep'
-  };
-  const labels = ['🧘 Self Reset','🌊 Full Body Scan','⚡ Nervous System Reset','🌀 Tension Sweep'];
+
+  const items = [
+    { id: 'self-reset',      name: '🧘 Self Reset',           key: 'selfReset' },
+    { id: 'full-body-scan',  name: '🌊 Full Body Scan',       key: 'fullBodyScan' },
+    { id: 'nervous-system',  name: '⚡ Nervous System Reset', key: 'nervousSystem' },
+    { id: 'tension-sweep',   name: '🌀 Tension Sweep',        key: 'tensionSweep' }
+  ];
 
   return `
     <div class="accordion-inner">
       <p style="font-size:0.85rem;margin-bottom:12px;opacity:0.8;">Enable automatic reminders for your wellness practices</p>
-      ${['self-reset','full-body-scan','nervous-system','tension-sweep'].map((t,idx)=>{
-        const key = map[t];
-        const cfg = automations[key] || { enabled: false, interval: 120 };
+      ${items.map(it=>{
+        const cfg = automations[it.key] || { enabled: false, interval: 120 };
         return `
         <div class="automation-group">
           <div class="automation-header">
             <label class="automation-label">
-              <input type="checkbox" id="auto-${t}" ${cfg.enabled ? 'checked' : ''}>
-              <span>${labels[idx]}</span>
+              <input type="checkbox" id="auto-${it.id}" ${cfg.enabled ? 'checked' : ''}>
+              <span>${it.name}</span>
             </label>
           </div>
           <div class="automation-controls ${cfg.enabled ? '' : 'disabled'}">
-            <label>Every <input type="number" id="interval-${t}" value="${cfg.interval}" min="15" max="480" step="15" ${cfg.enabled ? '' : 'disabled'}> minutes</label>
+            <label>Every <input type="number" id="interval-${it.id}" value="${cfg.interval}" min="15" max="480" step="15" ${cfg.enabled ? '' : 'disabled'}> minutes</label>
           </div>
         </div>`;
       }).join('')}
