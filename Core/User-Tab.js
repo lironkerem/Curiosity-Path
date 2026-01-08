@@ -821,45 +821,45 @@ function attachUserTabHelpers() {
   };
 
   // 2. Automations ---------------------------------------------------------
-  window.app.renderAutomationsHTML = () => {
-    const automations = JSON.parse(localStorage.getItem('wellness_automations')) || {
-      selfReset: { enabled: false, interval: 60 },
-      fullBodyScan: { enabled: false, interval: 180 },
-      nervousSystem: { enabled: false, interval: 120 },
-      tensionSweep: { enabled: false, interval: 120 }
-    };
-    const map = {
-      'self-reset': 'selfReset',
-      'full-body-scan': 'fullBodyScan',
-      'nervous-system': 'nervousSystem',
-      'tension-sweep': 'tensionSweep'
-    };
-    const labels = ['🧘 Self Reset','🌊 Full Body Scan','⚡ Nervous System Reset','🌀 Tension Sweep'];
-
-    return `
-      <div class="accordion-inner">
-        <p style="font-size:0.85rem;margin-bottom:12px;opacity:0.8;">Enable automatic reminders for your wellness practices</p>
-        ${['self-reset','full-body-scan','nervous-system','tension-sweep'].map((t,idx)=>{
-          const key = map[t];
-          const cfg = automations[key] || { enabled: false, interval: 120 };
-          return `
-          <div class="automation-group">
-            <div class="automation-header">
-              <label class="automation-label">
-                <input type="checkbox" id="auto-${t}" ${cfg.enabled ? 'checked' : ''}>
-                <span>${labels[idx]}</span>
-              </label>
-            </div>
-            <div class="automation-controls ${cfg.enabled ? '' : 'disabled'}">
-              <label>Every <input type="number" id="interval-${t}" value="${cfg.interval}" min="15" max="480" step="15" ${cfg.enabled ? '' : 'disabled'}> minutes</label>
-            </div>
-          </div>`;
-        }).join('')}
-        <button class="btn-link" id="save-automations-btn">Save Automation Settings</button>
-        <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:12px 0;">
-        <small style="opacity:.7;font-size:0.75rem;">⚠️ Automations will trigger pop-up reminders at your chosen intervals while the app is open.</small>
-      </div>`;
+window.app.renderAutomationsHTML = () => {
+  const automations = JSON.parse(localStorage.getItem('wellness_automations')) || {
+    selfReset: { enabled: false, interval: 60 },
+    fullBodyScan: { enabled: false, interval: 180 },
+    nervousSystem: { enabled: false, interval: 120 },
+    tensionSweep: { enabled: false, interval: 120 }
   };
+  const map = {
+    'self-reset': 'selfReset',
+    'full-body-scan': 'fullBodyScan',
+    'nervous-system': 'nervousSystem',
+    'tension-sweep': 'tensionSweep'
+  };
+  const labels = ['🧘 Self Reset','🌊 Full Body Scan','⚡ Nervous System Reset','🌀 Tension Sweep'];
+
+  return `
+    <div class="accordion-inner">
+      <p style="font-size:0.85rem;margin-bottom:12px;opacity:0.8;">Enable automatic reminders for your wellness practices</p>
+      ${['self-reset','full-body-scan','nervous-system','tension-sweep'].map((t,idx)=>{
+        const key = map[t];
+        const cfg = automations[key] || { enabled: false, interval: 120 };
+        return `
+        <div class="automation-group">
+          <div class="automation-header">
+            <label class="automation-label">
+              <input type="checkbox" id="auto-${t}" ${cfg.enabled ? 'checked' : ''}>
+              <span>${labels[idx]}</span>
+            </label>
+          </div>
+          <div class="automation-controls ${cfg.enabled ? '' : 'disabled'}">
+            <label>Every <input type="number" id="interval-${t}" value="${cfg.interval}" min="15" max="480" step="15" ${cfg.enabled ? '' : 'disabled'}> minutes</label>
+          </div>
+        </div>`;
+      }).join('')}
+      <button class="btn-link" id="save-automations-btn">Save Automation Settings</button>
+      <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:12px 0;">
+      <small style="opacity:.7;font-size:0.75rem;">⚠️ Automations will trigger pop-up reminders at your chosen intervals while the app is open.</small>
+    </div>`;
+};
 }
 
 attachUserTabHelpers();   // run once after app exists
