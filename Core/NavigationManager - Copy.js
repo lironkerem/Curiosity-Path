@@ -1,38 +1,16 @@
-// NavigationManager.js - Optimized version
+// NavigationManager.js - Final version with ChatBot on Desktop + Mobile
 import UserTab from './User-Tab.js';
 
 export default class NavigationManager {
   constructor(app) {
     this.app = app;
     this.userTab = new UserTab(app);
-    
-    // Cache
-    this.cachedElements = {};
-    this.listenersAttached = false;
-    this.arrowObserver = null;
-    
-    // Swipe state
     this.touchStartX = 0;
-    this.touchStartY = 0;
-    this.touchStartTime = 0;
+    this.touchEndX = 0;
+    this.swipeDebounceTimer = null;
+    this.currentBubbleIndex = 0;
+    this.bubbleElements = [];
     this.sheetOpen = false;
-    
-    // Constants
-    this.SWIPE_ORDER = [
-      'dashboard', 'energy', 'tarot', 'gratitude', 'happiness',
-      'journal', 'meditations', 'flip-script', 'calculator',
-      'shadow-alchemy', 'karma-shop'
-    ];
-    
-    this.CONSTANTS = {
-      SWIPE_THRESHOLD: 120,
-      SWIPE_TIME_MS: 300,
-      OVERSCROLL_THRESHOLD: 150,
-      VELOCITY_THRESHOLD: 1.0,
-      MIN_DRAG_START: 20,
-      VIBRATION_MS: 10,
-      VIBRATION_SHEET_MS: 8
-    };
   }
 
   render() {
@@ -137,18 +115,15 @@ export default class NavigationManager {
     `;
 
     const appContainer = document.getElementById('app-container');
-    if (!appContainer) return;
-
-    if (!document.querySelector('.app-header')) {
-      appContainer.insertAdjacentHTML('afterbegin', navHTML);
+    if (appContainer) {
+      if (!document.querySelector('.app-header')) {
+        appContainer.insertAdjacentHTML('afterbegin', navHTML);
+      }
+      if (!document.getElementById('user-dropdown')) {
+        appContainer.insertAdjacentHTML('afterbegin', this.userTab.render());
+        this.userTab.init();
+      }
     }
-    
-    if (!document.getElementById('user-dropdown')) {
-      appContainer.insertAdjacentHTML('afterbegin', this.userTab.render());
-      this.userTab.init();
-    }
-
-    this.cacheElements();
     this.setupEventListeners();
     this.setupSwipeGestures();
     this.setupKeyboardNavigation();
@@ -157,22 +132,8 @@ export default class NavigationManager {
     this.setupSheetSwipeClose();
   }
 
-  cacheElements() {
-    this.cachedElements = {
-      navItems: document.querySelectorAll('.nav-item'),
-      tabContents: document.querySelectorAll('.tab-content'),
-      sheets: document.querySelectorAll('.mobile-sheet'),
-      sheetRows: document.querySelectorAll('.sheet-row'),
-      scrim: document.getElementById('sheet-scrim'),
-      mobileBar: document.getElementById('mobile-bottom-bar'),
-      swipeArrows: document.getElementById('swipe-arrows')
-    };
-  }
-
   setupEventListeners() {
-    if (this.listenersAttached) return;
-
-    this.cachedElements.navItems.forEach(tab => {
+    document.querySelectorAll('.nav-item').forEach(tab => {
       tab.addEventListener('click', () => this.switchTab(tab.dataset.tab, tab.dataset.label));
       tab.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -181,83 +142,74 @@ export default class NavigationManager {
         }
       });
     });
-
-    this.listenersAttached = true;
   }
 
   setupKeyboardNavigation() {
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.sheetOpen) {
-        this.closeSheets();
+      if (e.key === 'Escape') {
+        if (this.sheetOpen) this.closeSheets();
         return;
       }
-      
       if (!this.sheetOpen) return;
-
-      const rows = [...this.cachedElements.sheetRows];
+      const rows = [...document.querySelectorAll('.sheet-row')];
       const current = document.activeElement;
       const idx = rows.indexOf(current);
       if (idx < 0) return;
-
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        rows[(idx + 1) % rows.length].focus();
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        rows[(idx - 1 + rows.length) % rows.length].focus();
-      } else if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        current.click();
-      }
+      if (e.key === 'ArrowDown') { e.preventDefault(); rows[(idx + 1) % rows.length].focus(); }
+      if (e.key === 'ArrowUp') { e.preventDefault(); rows[(idx - 1 + rows.length) % rows.length].focus(); }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); current.click(); }
     });
   }
 
   setupMobileBottomBar() {
     if (window.innerWidth > 767) return;
-
-    const { mobileBar, sheets, scrim } = this.cachedElements;
-    if (!mobileBar) return;
-
-    const tabs = [...mobileBar.querySelectorAll('.mobile-tab')];
+    const bar = document.getElementById('mobile-bottom-bar');
+    const scrim = document.getElementById('sheet-scrim');
+    const tabs = [...bar.querySelectorAll('.mobile-tab')];
+    const sheets = [...document.querySelectorAll('.mobile-sheet')];
 
     const openSheet = (id) => {
       const sheet = document.getElementById(id);
       if (!sheet) return;
-      
       sheet.setAttribute('aria-hidden', 'false');
       scrim.classList.add('visible');
       this.sheetOpen = true;
       document.body.classList.add('sheet-open');
-      
-      const firstRow = sheet.querySelector('.sheet-row');
-      if (firstRow) firstRow.focus();
-      
-      this.vibrate(this.CONSTANTS.VIBRATION_MS);
+      sheet.querySelector('.sheet-row').focus();
+      if (navigator.vibrate) navigator.vibrate(10);
     };
 
-    mobileBar.querySelector('.mobile-tab.center')?.addEventListener('click', () => {
-      this.closeSheets();
+    const closeSheets = () => {
+      sheets.forEach(s => s.setAttribute('aria-hidden', 'true'));
+      scrim.classList.remove('visible');
+      tabs.forEach(t => t.setAttribute('aria-expanded', 'false'));
+      this.sheetOpen = false;
+      document.body.classList.remove('sheet-open');
+    };
+    this.closeSheets = closeSheets;
+
+    bar.querySelector('.mobile-tab.center').addEventListener('click', () => {
+      closeSheets();
       this.switchTab('dashboard', 'Main Dashboard');
     });
 
-    mobileBar.querySelector('.left')?.addEventListener('click', (e) => {
+    bar.querySelector('.left').addEventListener('click', (e) => {
       openSheet('sheet-miniapps');
       e.currentTarget.setAttribute('aria-expanded', 'true');
     });
 
-    mobileBar.querySelector('.right')?.addEventListener('click', (e) => {
+    bar.querySelector('.right').addEventListener('click', (e) => {
       openSheet('sheet-features');
       e.currentTarget.setAttribute('aria-expanded', 'true');
     });
 
-    scrim?.addEventListener('click', () => this.closeSheets());
+    scrim.addEventListener('click', closeSheets);
 
     sheets.forEach(sheet => {
       sheet.addEventListener('click', (e) => {
         const row = e.target.closest('.sheet-row');
         if (!row) return;
-        
-        this.closeSheets();
+        closeSheets();
         const tabName = row.dataset.tab;
         const navItem = document.querySelector(`[data-tab="${tabName}"]`);
         const label = navItem?.dataset.label || row.querySelector('span')?.textContent || tabName;
@@ -266,29 +218,12 @@ export default class NavigationManager {
     });
   }
 
-  closeSheets() {
-    const { sheets, scrim, mobileBar } = this.cachedElements;
-    
-    sheets.forEach(s => s.setAttribute('aria-hidden', 'true'));
-    scrim.classList.remove('visible');
-    
-    if (mobileBar) {
-      const tabs = mobileBar.querySelectorAll('.mobile-tab');
-      tabs.forEach(t => t.setAttribute('aria-expanded', 'false'));
-    }
-    
-    this.sheetOpen = false;
-    document.body.classList.remove('sheet-open');
-  }
-
   setupSwipeArrows() {
     if (window.innerWidth > 767) return;
-
     const leftBtn = document.getElementById('swipe-left');
     const rightBtn = document.getElementById('swipe-right');
-    const { swipeArrows } = this.cachedElements;
-    
-    if (!leftBtn || !rightBtn || !swipeArrows) return;
+    const arrows = document.getElementById('swipe-arrows');
+    if (!leftBtn || !rightBtn) return;
 
     leftBtn.tabIndex = -1;
     rightBtn.tabIndex = -1;
@@ -296,83 +231,68 @@ export default class NavigationManager {
     leftBtn.innerHTML = `<svg viewBox="0 0 200 180" style="transform:scale(0.5);"><path d="M115 10 L100 90 L115 170" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`;
     rightBtn.innerHTML = `<svg viewBox="0 0 200 180" style="transform:scaleX(-1) scale(0.5);"><path d="M115 10 L100 90 L115 170" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`;
 
-    const navigateTab = (direction) => {
+    const goto = (dir) => {
+      const order = ['dashboard', 'energy', 'tarot', 'gratitude', 'happiness', 'journal', 'meditations', 'flip-script', 'calculator', 'shadow-alchemy', 'karma-shop'];
       const active = localStorage.getItem('pc_active_tab') || 'dashboard';
-      let idx = this.SWIPE_ORDER.indexOf(active);
-      idx = (idx + direction + this.SWIPE_ORDER.length) % this.SWIPE_ORDER.length;
-      
-      const navItem = document.querySelector(`[data-tab="${this.SWIPE_ORDER[idx]}"]`);
-      if (navItem) {
-        this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
-      }
+      let idx = order.indexOf(active);
+      idx = (idx + dir + order.length) % order.length;
+      const navItem = document.querySelector(`[data-tab="${order[idx]}"]`);
+      if (navItem) this.switchTab(order[idx], navItem.dataset.label);
     };
 
-    const blurButton = (e) => setTimeout(() => e.currentTarget.blur(), 0);
+    leftBtn.addEventListener('click', e => { e.preventDefault(); goto(-1); setTimeout(() => e.currentTarget.blur(), 0); });
+    rightBtn.addEventListener('click', e => { e.preventDefault(); goto(1); setTimeout(() => e.currentTarget.blur(), 0); });
+    leftBtn.addEventListener('touchend', e => { setTimeout(() => e.currentTarget.blur(), 10); });
+    rightBtn.addEventListener('touchend', e => { setTimeout(() => e.currentTarget.blur(), 10); });
 
-    leftBtn.addEventListener('click', (e) => { e.preventDefault(); navigateTab(-1); blurButton(e); });
-    rightBtn.addEventListener('click', (e) => { e.preventDefault(); navigateTab(1); blurButton(e); });
-    leftBtn.addEventListener('touchend', blurButton);
-    rightBtn.addEventListener('touchend', blurButton);
-
-    // Clean up old observer
-    if (this.arrowObserver) {
-      this.arrowObserver.disconnect();
-    }
-
-    this.arrowObserver = new MutationObserver(() => {
-      swipeArrows.style.display = this.sheetOpen ? 'none' : 'flex';
+    const observer = new MutationObserver(() => {
+      arrows.style.display = this.sheetOpen ? 'none' : 'flex';
     });
-    
-    this.arrowObserver.observe(document.body, { attributeFilter: ['class'] });
+    observer.observe(document.body, { attributeFilter: ['class'] });
   }
 
   setupSwipeGestures() {
-    const { SWIPE_THRESHOLD, SWIPE_TIME_MS } = this.CONSTANTS;
+    const swipeOrder = ['dashboard', 'energy', 'tarot', 'gratitude', 'happiness', 'journal', 'meditations', 'flip-script', 'calculator', 'shadow-alchemy', 'karma-shop'];
+    let startX = 0, startT = 0;
+    const SWIPE_THRESHOLD = 120;
+    const SWIPE_TIME = 300;
 
-    window.addEventListener('touchstart', (e) => {
-      this.touchStartX = e.touches[0].clientX;
-      this.touchStartTime = Date.now();
-    }, { passive: true });
+    window.addEventListener('touchstart', e => { startX = e.touches[0].clientX; startT = Date.now(); }, { passive: true });
 
-    window.addEventListener('touchend', (e) => {
+    window.addEventListener('touchend', e => {
       const endX = e.changedTouches[0].clientX;
-      const deltaX = this.touchStartX - endX;
-      const deltaT = Date.now() - this.touchStartTime;
-
-      if (Math.abs(deltaX) < SWIPE_THRESHOLD || deltaT > SWIPE_TIME_MS) return;
-
+      const deltaX = startX - endX;
+      const deltaT = Date.now() - startT;
+      if (Math.abs(deltaX) < SWIPE_THRESHOLD || deltaT > SWIPE_TIME) return;
       const active = localStorage.getItem('pc_active_tab') || 'dashboard';
-      let idx = this.SWIPE_ORDER.indexOf(active);
-      const direction = deltaX > 0 ? 1 : -1;
-      idx = (idx + direction + this.SWIPE_ORDER.length) % this.SWIPE_ORDER.length;
-
-      const navItem = document.querySelector(`[data-tab="${this.SWIPE_ORDER[idx]}"]`);
-      if (navItem) {
-        this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
-      }
+      let idx = swipeOrder.indexOf(active);
+      idx = (idx + (deltaX > 0 ? 1 : -1) + swipeOrder.length) % swipeOrder.length;
+      const navItem = document.querySelector(`[data-tab="${swipeOrder[idx]}"]`);
+      if (navItem) this.switchTab(swipeOrder[idx], navItem.dataset.label);
     }, { passive: true });
   }
 
   setupSheetSwipeClose() {
-    const { sheets } = this.cachedElements;
-    const { OVERSCROLL_THRESHOLD, VELOCITY_THRESHOLD, MIN_DRAG_START, VIBRATION_SHEET_MS } = this.CONSTANTS;
+    const sheets = document.querySelectorAll('.mobile-sheet');
+    const OVERSCROLL_THRESHOLD = 150;
+    const VELOCITY_THRESHOLD = 1.0;
+    const MIN_DRAG_START = 20;
 
     sheets.forEach(sheet => {
       const scroller = sheet.querySelector('.sheet-scroller');
-      if (!scroller) return;
+      let startY = 0, startT = 0, startScrollTop = 0;
+      let isDragging = false;
 
-      let startY = 0, startT = 0, isDragging = false;
-
-      sheet.addEventListener('touchstart', (e) => {
+      sheet.addEventListener('touchstart', e => {
         startY = e.touches[0].clientY;
         startT = Date.now();
+        startScrollTop = scroller.scrollTop;
         isDragging = false;
       }, { passive: true });
 
-      sheet.addEventListener('touchmove', (e) => {
+      sheet.addEventListener('touchmove', e => {
         const currentY = e.touches[0].clientY;
         const deltaY = currentY - startY;
-
         if (scroller.scrollTop === 0 && deltaY > MIN_DRAG_START) {
           isDragging = true;
           const dragAmount = Math.min(deltaY * 0.5, 150);
@@ -381,9 +301,8 @@ export default class NavigationManager {
         }
       }, { passive: true });
 
-      sheet.addEventListener('touchend', (e) => {
+      sheet.addEventListener('touchend', e => {
         if (!isDragging) return;
-
         const endY = e.changedTouches[0].clientY;
         const deltaY = endY - startY;
         const deltaT = Date.now() - startT;
@@ -393,56 +312,35 @@ export default class NavigationManager {
         sheet.style.transform = '';
 
         if (deltaY > OVERSCROLL_THRESHOLD || velocity > VELOCITY_THRESHOLD) {
-          this.vibrate(VIBRATION_SHEET_MS);
+          if (navigator.vibrate) navigator.vibrate(8);
           this.closeSheets();
         }
-
         isDragging = false;
       }, { passive: true });
     });
   }
 
   switchTab(tabName, label) {
-    if (tabName === 'calculator' && !window.calculatorChunk) {
-      window.calculatorChunk = 'requested';
-    }
-
-    const { navItems, tabContents } = this.cachedElements;
-
-    navItems.forEach(t => {
-      const isActive = t.dataset.tab === tabName;
-      t.classList.toggle('active', isActive);
-      t.setAttribute('aria-selected', isActive);
-      t.tabIndex = isActive ? 0 : -1;
+    if (tabName === 'calculator' && !window.calculatorChunk) window.calculatorChunk = 'requested';
+    document.querySelectorAll('.nav-item').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === tabName);
+      t.setAttribute('aria-selected', t.dataset.tab === tabName);
+      t.setAttribute('tabindex', t.dataset.tab === tabName ? '0' : '-1');
     });
-
-    tabContents.forEach(c => {
+    document.querySelectorAll('.tab-content').forEach(c => {
+      c.classList.remove('active', 'hidden');
       c.style.display = 'none';
       c.setAttribute('aria-hidden', 'true');
     });
-
     const target = document.getElementById(`${tabName}-tab`);
     if (target) {
+      target.classList.add('active');
       target.style.display = 'block';
       target.setAttribute('aria-hidden', 'false');
     }
-
     this.app.initializeTab(tabName);
     localStorage.setItem('pc_active_tab', tabName);
     window.scrollTo(0, 0);
-    this.vibrate(this.CONSTANTS.VIBRATION_MS);
-  }
-
-  vibrate(duration) {
-    navigator.vibrate?.(duration);
-  }
-
-  destroy() {
-    if (this.arrowObserver) {
-      this.arrowObserver.disconnect();
-      this.arrowObserver = null;
-    }
-    this.listenersAttached = false;
-    this.cachedElements = {};
+    if (navigator.vibrate) navigator.vibrate(10);
   }
 }
