@@ -368,41 +368,52 @@ export default class ProjectCuriosityApp {
   }
 
   /* ---------- TAB SWITCH ---------- */
-  initializeTab(tab) {
-    switch (tab) {
-      case 'dashboard':
-        if (this.dashboard && this.state.data) {
-          this.dashboard.render();
-        }
-        break;
-
-      case 'calculator':
-        this._loadCalculatorTab();
-        break;
-
-      case 'admin':
-        if (this.state.currentUser.isAdmin) {
-          this._loadAdminTab();
-        }
-        break;
-
-      case 'flip-script':
-      case 'karma-shop':
-      case 'meditations':
-      case 'tarot':
-      case 'energy':
-      case 'happiness':
-      case 'gratitude':
-      case 'journal':
-      case 'shadow-alchemy':
-      case 'chatbot':
-        window.featuresManager?.init(tab);
-        break;
-
-      default:
-        console.warn(`Unknown tab: ${tab}`);
-    }
+/* ---------- TAB SWITCH WITH CLEANUP ---------- */
+initializeTab(tab) {
+  // Clean up dashboard when leaving it
+  if (this.currentTab === 'dashboard' && tab !== 'dashboard' && this.dashboard) {
+    this.dashboard.destroy();
   }
+  
+  // Store current tab
+  this.currentTab = tab;
+  
+  switch (tab) {
+    case 'dashboard':
+      // Recreate dashboard when returning to it
+      if (this.deps.DashboardManager) {
+        this.dashboard = new this.deps.DashboardManager(this);
+        this.dashboard.render();
+      }
+      break;
+
+    case 'calculator':
+      this._loadCalculatorTab();
+      break;
+
+    case 'admin':
+      if (this.state.currentUser.isAdmin) {
+        this._loadAdminTab();
+      }
+      break;
+
+    case 'flip-script':
+    case 'karma-shop':
+    case 'meditations':
+    case 'tarot':
+    case 'energy':
+    case 'happiness':
+    case 'gratitude':
+    case 'journal':
+    case 'shadow-alchemy':
+    case 'chatbot':
+      window.featuresManager?.init(tab);
+      break;
+
+    default:
+      console.warn(`Unknown tab: ${tab}`);
+  }
+}
 
   async _loadCalculatorTab() {
     if (window.calculatorChunk === 'loaded') return;
