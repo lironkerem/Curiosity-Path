@@ -809,6 +809,14 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   letter-spacing: 0.03125rem;
 }
 
+/* Daily Cards specific timer positioning */
+#daily-cards-timer.countdown-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  margin-left: 0;
+}
+
 /* ===== QUEST CARDS ===== */
 .dashboard-quest-card {
   padding: 1.5625rem;
