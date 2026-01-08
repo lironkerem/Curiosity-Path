@@ -340,33 +340,33 @@ export default class UserTab {
         </div>`;
       };
 
-      window.app.renderAutomationsHTML = () => {
-        const automations = JSON.parse(localStorage.getItem('wellness_automations')) || {
-          selfReset: { enabled: false, interval: 60 },
-          fullBodyScan: { enabled: false, interval: 180 },
-          nervousSystem: { enabled: false, interval: 120 },
-          tensionSweep: { enabled: false, interval: 120 }
-        };
-        return `
-          <div class="accordion-inner">
-            <p style="font-size:0.85rem;margin-bottom:12px;opacity:0.8;">Enable automatic reminders for your wellness practices</p>
-            ${['self-reset','full-body-scan','nervous-system','tension-sweep'].map((t,idx)=>`
-            <div class="automation-group">
-              <div class="automation-header">
-                <label class="automation-label">
-                  <input type="checkbox" id="auto-${t}" ${automations[t.replace('-','')].enabled ? 'checked' : ''}>
-                  <span>${['🧘 Self Reset','🌊 Full Body Scan','⚡ Nervous System Reset','🌀 Tension Sweep'][idx]}</span>
-                </label>
-              </div>
-              <div class="automation-controls ${automations[t.replace('-','')].enabled ? '' : 'disabled'}">
-                <label>Every <input type="number" id="interval-${t}" value="${automations[t.replace('-','')].interval}" min="15" max="480" step="15" ${automations[t.replace('-,'')].enabled ? '' : 'disabled'}> minutes</label>
-              </div>
-            </div>`).join('')}
-            <button class="btn-link" id="save-automations-btn">Save Automation Settings</button>
-            <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:12px 0;">
-            <small style="opacity:.7;font-size:0.75rem;">⚠️ Automations will trigger pop-up reminders at your chosen intervals while the app is open.</small>
-          </div>`;
-      };
+window.app.renderAutomationsHTML = () => {
+  const automations = JSON.parse(localStorage.getItem('wellness_automations')) || {
+    selfReset: { enabled: false, interval: 60 },
+    fullBodyScan: { enabled: false, interval: 180 },
+    nervousSystem: { enabled: false, interval: 120 },
+    tensionSweep: { enabled: false, interval: 120 }
+  };
+  return `
+    <div class="accordion-inner">
+      <p style="font-size:0.85rem;margin-bottom:12px;opacity:0.8;">Enable automatic reminders for your wellness practices</p>
+      ${['self-reset','full-body-scan','nervous-system','tension-sweep'].map((t,idx)=>`
+      <div class="automation-group">
+        <div class="automation-header">
+          <label class="automation-label">
+            <input type="checkbox" id="auto-${t}" ${automations[t.replace('-','')].enabled ? 'checked' : ''}>
+            <span>${['🧘 Self Reset','🌊 Full Body Scan','⚡ Nervous System Reset','🌀 Tension Sweep'][idx]}</span>
+          </label>
+        </div>
+        <div class="automation-controls ${automations[t.replace('-','')].enabled ? '' : 'disabled'}">
+          <label>Every <input type="number" id="interval-${t}" value="${automations[t.replace('-','')].interval}" min="15" max="480" step="15" ${automations[t.replace('-','')].enabled ? '' : 'disabled'}> minutes</label>
+        </div>
+      </div>`).join('')}
+      <button class="btn-link" id="save-automations-btn">Save Automation Settings</button>
+      <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:12px 0;">
+      <small style="opacity:.7;font-size:0.75rem;">⚠️ Automations will trigger pop-up reminders at your chosen intervals while the app is open.</small>
+    </div>`;
+};
 
       /*  NOTIFICATION HELPERS  */
       window.app.enablePushNotifications = async function () {
