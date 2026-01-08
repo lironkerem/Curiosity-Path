@@ -2,10 +2,7 @@
 import { supabase } from './Supabase.js';
 
 export default class UserTab {
-  constructor(app) {
-    this.app = app;
-    this.btn = null;
-  }
+  constructor(app) { this.app = app; this.btn = null; }
 
   render() {
     const html = `
@@ -39,7 +36,6 @@ export default class UserTab {
           <button class="dropdown-item" data-section="export">💾 Export Data</button>
           <div class="accordion-panel" id="panel-export"></div>
           <button class="dropdown-item" data-section="billing">⬆️ Pricings</button>
-          <div class="accordion-panel" id="panel-billing"></div>
           ${this.app.state.currentUser?.isAdmin ? `
             <button class="dropdown-item" data-section="admin">🔧 Admin Hacks</button>
             <div class="accordion-panel" id="panel-admin"></div>
@@ -113,7 +109,7 @@ export default class UserTab {
       phone:      document.getElementById('profile-phone')?.value.trim()  || null,
       birthday:   document.getElementById('profile-birthday')?.value      || null,
       emoji:      document.getElementById('profile-emoji')?.value         || '👤',
-      avatar_url: document.getElementById('profile-avatar-img')?.src || ''  // ← DB column
+      avatar_url: document.getElementById('profile-avatar-img')?.src || ''  // DB column
     };
 
     let savedOnServer = false;
@@ -207,12 +203,51 @@ export default class UserTab {
           {title:'CROSS-FEATURE BADGES',badges:[{icon:'🎪',name:'Triple Threat',desc:'use 3 different features in one day',xp:25,karma:5,rarity:'uncommon'},{icon:'💫',name:'Super Day',desc:'gratitude + journal + energy + meditation',xp:50,karma:10,rarity:'rare'},{icon:'🗺️',name:'Complete Explorer',desc:'use every main feature at least once',xp:100,karma:15,rarity:'epic'},{icon:'🎭',name:'Renaissance Soul',desc:'≥ 10 actions in 5+ different features',xp:150,karma:30,rarity:'epic'}]}
         ];
         const rarityColour = {common:'#9ca3af',uncommon:'#10b981',rare:'#3b82f6',epic:'#a855f7',legendary:'#f59e0b'};
+
         return `
 <div class="accordion-inner rules-panel">
-  <div class="rules-header">
-    <h3>Complete Badge Guide</h3>
-    <button class="btn-link" id="rules-toggle">Expand all</button>
+  <!--  Mission + Currency + Level tables  -->
+  <div class="rules-top-card">
+    <h4>The Curiosity Path <span style="opacity:.7">by Aanandoham, 2026</span></h4>
+    <p>A digital way, for a digital practitioner, to continue practicing Spirituality in the 21st Century.</p>
+    <p>This App was built to share tools, practices and ancient wisdom – digitally, from your device.</p>
+    <p>It is a convenient, accessible way, to stay connected to your 'Self', by small daily practices.</p>
+    <p>My hope is that you will utilize it to enhance your life, one small function at a time.</p>
+
+    <hr style="margin:12px 0;border:none;height:1px;background:rgba(0,0,0,.1)">
+
+    <div class="rules-legend">
+      <span class="rules-legend-xp">XP = experience points</span>
+      <span class="rules-legend-karma">Karma = in-app currency</span>
+    </div>
+
+    <div class="rules-currency">
+      <div class="rules-currency-block">
+        <div class="rules-currency-title">Core Currency Rules</div>
+        <ul>
+          <li>XP is the only way to level up.</li>
+          <li>Karma is spent in the Karma-Shop for enhancements, premium features and private sessions.</li>
+        </ul>
+      </div>
+      <div class="rules-currency-block">
+        <div class="rules-currency-title">Level & XP Rules</div>
+        <table class="rules-level-table">
+          <tr><td>Level 1 – Seeker</td><td>0</td></tr>
+          <tr><td>Level 2 – Practitioner</td><td>300</td></tr>
+          <tr><td>Level 3 – Adept</td><td>800</td></tr>
+          <tr><td>Level 4 – Healer</td><td>1 600</td></tr>
+          <tr><td>Level 5 – Master</td><td>3 200</td></tr>
+          <tr><td>Level 6 – Sage</td><td>6 500</td></tr>
+          <tr><td>Level 7 – Enlightened</td><td>20 000</td></tr>
+          <tr><td>Level 8 – Buddha</td><td>50 000</td></tr>
+          <tr><td>Level 9 – Light</td><td>150 000</td></tr>
+          <tr><td>Level 10 – Emptiness</td><td>400 000</td></tr>
+        </table>
+      </div>
+    </div>
   </div>
+
+  <!--  Collapsible badge categories  -->
   ${categories.map(cat => `
     <section class="rules-category">
       <h4 class="rules-category-title">${cat.title}</h4>
@@ -235,13 +270,30 @@ export default class UserTab {
 </div>
 
 <style>
-.rules-panel{max-height:70vh;overflow-y:auto;padding-right:6px}
-.rules-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.rules-header h3{margin:0;font-size:1.1rem;font-weight:600}
-.rules-header .btn-link{font-size:.8rem;padding:4px 8px}
+/* ----------  General panel  ---------- */
+.rules-panel{max-height:70vh;overflow-y:auto;padding-right:6px;font-size:.8rem;line-height:1.45}
+
+/* ----------  Top card  ---------- */
+.rules-top-card{background:rgba(102,126,234,.05);border-radius:12px;padding:12px;margin-bottom:16px}
+.rules-top-card h4{margin:0 0 8px;font-size:.9rem;font-weight:600}
+.rules-top-card p{margin:0 0 6px}
+.rules-legend{display:flex;gap:12px;margin:8px 0;font-size:.7rem}
+.rules-legend-xp{background:rgba(16,185,129,.15);color:#10b981;padding:2px 6px;border-radius:4px}
+.rules-legend-karma{background:rgba(245,158,11,.15);color:#f59e0b;padding:2px 6px;border-radius:4px}
+.rules-currency{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-top:10px}
+.rules-currency-title{font-weight:600;margin-bottom:4px}
+.rules-currency-block ul{margin:0;padding-left:16px}
+.rules-level-table{width:100%;border-collapse:collapse;font-size:.75rem}
+.rules-level-table td{padding:2px 0}
+.rules-level-table td:nth-child(2){text-align:right;opacity:.8}
+
+/* ----------  Categories  ---------- */
 .rules-category{margin-bottom:20px}
-.rules-category-title{position:sticky;top:0;background:var(--neuro-bg);padding:8px 0;font-size:.95rem;font-weight:600;border-bottom:1px solid var(--neuro-shadow-dark);margin-bottom:10px;z-index:2}
-.rules-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.rules-category-title{position:sticky;top:0;background:var(--neuro-bg);padding:8px 0;font-size:.95rem;font-weight:600;border-bottom:1px solid var(--neuro-shadow-dark);margin-bottom:10px;z-index:2;cursor:pointer;user-select:none}
+.rules-grid{display:none;gap:10px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.rules-category.open .rules-grid{display:grid}
+
+/* ----------  Badge cards  ---------- */
 .rules-card{display:flex;align-items:center;gap:10px;background:var(--neuro-bg);border:1px solid var(--neuro-shadow-dark);border-radius:12px;padding:10px;box-shadow:var(--shadow-raised-sm);transition:all .2s}
 .rules-card:hover{box-shadow:var(--shadow-raised);border-color:var(--neuro-accent)}
 .rules-card-icon{font-size:1.6rem;line-height:1}
@@ -252,24 +304,21 @@ export default class UserTab {
 .rules-xp{background:rgba(16,185,129,.15);color:#10b981;padding:2px 6px;border-radius:4px}
 .rules-karma{background:rgba(245,158,11,.15);color:#f59e0b;padding:2px 6px;border-radius:4px}
 .rules-card-tag{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+
+/* ----------  Mobile tweaks  ---------- */
+@media (max-width:360px){
+  .rules-grid{grid-template-columns:1fr}
+  .rules-card{font-size:.75rem}
+}
 </style>
 
 <script>
-(function(){
-  const toggle = document.getElementById('rules-toggle');
-  if (!toggle) return;
-  let allOpen = false;
-  toggle.textContent = 'Expand all';
-  toggle.addEventListener('click', () => {
-    document.querySelectorAll('.rules-category').forEach(sec => {
-      sec.classList.toggle('open', !allOpen);
-    });
-    allOpen = !allOpen;
-    toggle.textContent = allOpen ? 'Collapse all' : 'Expand all';
-  });
-})();
+/* click category title to open/close that group only */
+document.querySelectorAll('.rules-category-title').forEach(title => {
+  title.addEventListener('click', () => title.parentElement.classList.toggle('open'));
+});
 </script>
-  `;
+        `;
       };
 
       /*  OTHER HELPERS  */
@@ -340,33 +389,33 @@ export default class UserTab {
         </div>`;
       };
 
-window.app.renderAutomationsHTML = () => {
-  const automations = JSON.parse(localStorage.getItem('wellness_automations')) || {
-    selfReset: { enabled: false, interval: 60 },
-    fullBodyScan: { enabled: false, interval: 180 },
-    nervousSystem: { enabled: false, interval: 120 },
-    tensionSweep: { enabled: false, interval: 120 }
-  };
-  return `
-    <div class="accordion-inner">
-      <p style="font-size:0.85rem;margin-bottom:12px;opacity:0.8;">Enable automatic reminders for your wellness practices</p>
-      ${['self-reset','full-body-scan','nervous-system','tension-sweep'].map((t,idx)=>`
-      <div class="automation-group">
-        <div class="automation-header">
-          <label class="automation-label">
-            <input type="checkbox" id="auto-${t}" ${automations[t.replace('-','')].enabled ? 'checked' : ''}>
-            <span>${['🧘 Self Reset','🌊 Full Body Scan','⚡ Nervous System Reset','🌀 Tension Sweep'][idx]}</span>
-          </label>
-        </div>
-        <div class="automation-controls ${automations[t.replace('-','')].enabled ? '' : 'disabled'}">
-          <label>Every <input type="number" id="interval-${t}" value="${automations[t.replace('-','')].interval}" min="15" max="480" step="15" ${automations[t.replace('-','')].enabled ? '' : 'disabled'}> minutes</label>
-        </div>
-      </div>`).join('')}
-      <button class="btn-link" id="save-automations-btn">Save Automation Settings</button>
-      <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:12px 0;">
-      <small style="opacity:.7;font-size:0.75rem;">⚠️ Automations will trigger pop-up reminders at your chosen intervals while the app is open.</small>
-    </div>`;
-};
+      window.app.renderAutomationsHTML = () => {
+        const automations = JSON.parse(localStorage.getItem('wellness_automations')) || {
+          selfReset: { enabled: false, interval: 60 },
+          fullBodyScan: { enabled: false, interval: 180 },
+          nervousSystem: { enabled: false, interval: 120 },
+          tensionSweep: { enabled: false, interval: 120 }
+        };
+        return `
+          <div class="accordion-inner">
+            <p style="font-size:0.85rem;margin-bottom:12px;opacity:0.8;">Enable automatic reminders for your wellness practices</p>
+            ${['self-reset','full-body-scan','nervous-system','tension-sweep'].map((t,idx)=>`
+            <div class="automation-group">
+              <div class="automation-header">
+                <label class="automation-label">
+                  <input type="checkbox" id="auto-${t}" ${automations[t.replace('-','')].enabled ? 'checked' : ''}>
+                  <span>${['🧘 Self Reset','🌊 Full Body Scan','⚡ Nervous System Reset','🌀 Tension Sweep'][idx]}</span>
+                </label>
+              </div>
+              <div class="automation-controls ${automations[t.replace('-','')].enabled ? '' : 'disabled'}">
+                <label>Every <input type="number" id="interval-${t}" value="${automations[t.replace('-','')].interval}" min="15" max="480" step="15" ${automations[t.replace('-','')].enabled ? '' : 'disabled'}> minutes</label>
+              </div>
+            </div>`).join('')}
+            <button class="btn-link" id="save-automations-btn">Save Automation Settings</button>
+            <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:12px 0;">
+            <small style="opacity:.7;font-size:0.75rem;">⚠️ Automations will trigger pop-up reminders at your chosen intervals while the app is open.</small>
+          </div>`;
+      };
 
       /*  NOTIFICATION HELPERS  */
       window.app.enablePushNotifications = async function () {
@@ -672,3 +721,133 @@ window.app.renderAutomationsHTML = () => {
     modal.onclick = e => { if (e.target === modal) modal.remove(); };
   }
 }
+
+/* =====  LATE-ATTACHED HELPERS (run only after window.app exists)  ===== */
+function attachUserTabHelpers() {
+  if (!window.app) { requestAnimationFrame(attachUserTabHelpers); return; }
+
+  // 1. Notifications -------------------------------------------------------
+  window.app.renderNotificationsHTML = () => {
+    const settings = JSON.parse(localStorage.getItem('notification_settings')) || {
+      enabled: false,
+      reminders: {
+        morning: { enabled: false, time: '08:00' },
+        afternoon: { enabled: false, time: '13:00' },
+        evening: { enabled: false, time: '18:00' },
+        night: { enabled: false, time: '21:00' }
+      },
+      quotes: { enabled: false },
+      affirmations: { enabled: false },
+      frequency: 'moderate',
+      wellness: { enabled: false, syncWithAutomations: true }
+    };
+    return `
+      <div class="accordion-inner">
+        <div style="background:rgba(102,126,234,.1);border-radius:12px;padding:12px;margin-bottom:16px;">
+          <div class="toggle-switch-container">
+            <span class="toggle-switch-label" style="font-weight:600;">🔔 Enable Notifications</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="master-notifications-toggle" ${settings.enabled ? 'checked' : ''}>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <small style="opacity:.7;display:block;margin-top:8px;">
+            ${settings.enabled ? '✅ Notifications are enabled' : '⚠️ Enable to receive notifications'}
+          </small>
+        </div>
+
+        <div id="notification-options" style="${settings.enabled ? '' : 'opacity:.4;pointer-events:none;'}">
+          <div class="notification-section">
+            <h4 style="font-size:.9rem;font-weight:600;margin-bottom:12px;">📅 Daily Check-ins</h4>
+            ${['morning','afternoon','evening','night'].map(p=>`
+            <div class="toggle-switch-container">
+              <span class="toggle-switch-label">${p==='morning'?'🌅':p==='afternoon'?'☀️':p==='evening'?'🌆':'🌙'} ${p.charAt(0).toUpperCase()+p.slice(1)}</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="reminder-${p}" ${settings.reminders[p].enabled ? 'checked' : ''}>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <input type="time" id="time-${p}" value="${settings.reminders[p].time}" ${settings.reminders[p].enabled ? '' : 'disabled'}>`).join('')}
+          </div>
+
+          <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:16px 0;">
+
+          <div class="notification-section">
+            <h4 style="font-size:.9rem;font-weight:600;margin-bottom:12px;">✨ Inspirational Content</h4>
+            <div class="toggle-switch-container">
+              <span class="toggle-switch-label">💭 Quotes</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="quotes-enabled" ${settings.quotes.enabled ? 'checked' : ''}>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="toggle-switch-container">
+              <span class="toggle-switch-label">🌟 Affirmations</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="affirmations-enabled" ${settings.affirmations.enabled ? 'checked' : ''}>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div style="margin-top:12px;${settings.quotes.enabled || settings.affirmations.enabled ? '' : 'opacity:.4;pointer-events:none;'}">
+              <label style="font-size:.85rem;display:block;margin-bottom:8px;">Frequency:</label>
+              <select id="inspirational-frequency" ${settings.quotes.enabled || settings.affirmations.enabled ? '' : 'disabled'}>
+                <option value="light" ${settings.frequency === 'light' ? 'selected' : ''}>Light (2-3 per day)</option>
+                <option value="moderate" ${settings.frequency === 'moderate' ? 'selected' : ''}>Moderate (4-6 per day)</option>
+                <option value="intense" ${settings.frequency === 'intense' ? 'selected' : ''}>Intense (8-10 per day)</option>
+              </select>
+            </div>
+          </div>
+
+          <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:16px 0;">
+
+          <div class="notification-section">
+            <h4 style="font-size:.9rem;font-weight:600;margin-bottom:12px;">🧘 Wellness Reminders</h4>
+            <div class="toggle-switch-container">
+              <span class="toggle-switch-label">Connect to Wellness Kit</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="wellness-notifications" ${settings.wellness.enabled ? 'checked' : ''}>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <small style="opacity:.7;display:block;margin-top:8px;font-size:.75rem;">When enabled, you'll receive push notifications based on your Wellness Automation settings.</small>
+          </div>
+
+          <button class="btn-link" id="save-notification-settings" style="margin-top:16px;">💾 Save Now</button>
+          <small style="opacity:.6;display:block;margin-top:8px;font-size:.7rem;text-align:center;">Settings auto-save after changes</small>
+          <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:16px 0;">
+          <button class="btn-link" id="test-notification" style="font-size:.8rem;">🧪 Send Test Notification</button>
+        </div>
+      </div>`;
+  };
+
+  // 2. Automations ---------------------------------------------------------
+  window.app.renderAutomationsHTML = () => {
+    const automations = JSON.parse(localStorage.getItem('wellness_automations')) || {
+      selfReset: { enabled: false, interval: 60 },
+      fullBodyScan: { enabled: false, interval: 180 },
+      nervousSystem: { enabled: false, interval: 120 },
+      tensionSweep: { enabled: false, interval: 120 }
+    };
+    return `
+      <div class="accordion-inner">
+        <p style="font-size:0.85rem;margin-bottom:12px;opacity:0.8;">Enable automatic reminders for your wellness practices</p>
+        ${['self-reset','full-body-scan','nervous-system','tension-sweep'].map((t,idx)=>`
+        <div class="automation-group">
+          <div class="automation-header">
+            <label class="automation-label">
+              <input type="checkbox" id="auto-${t}" ${automations[t.replace('-','')].enabled ? 'checked' : ''}>
+              <span>${['🧘 Self Reset','🌊 Full Body Scan','⚡ Nervous System Reset','🌀 Tension Sweep'][idx]}</span>
+            </label>
+          </div>
+          <div class="automation-controls ${automations[t.replace('-','')].enabled ? '' : 'disabled'}">
+            <label>Every <input type="number" id="interval-${t}" value="${automations[t.replace('-','')].interval}" min="15" max="480" step="15" ${automations[t.replace('-','')].enabled ? '' : 'disabled'}> minutes</label>
+          </div>
+        </div>`).join('')}
+        <button class="btn-link" id="save-automations-btn">Save Automation Settings</button>
+        <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:12px 0;">
+        <small style="opacity:.7;font-size:0.75rem;">⚠️ Automations will trigger pop-up reminders at your chosen intervals while the app is open.</small>
+      </div>`;
+  };
+}
+
+attachUserTabHelpers();   // run once after app exists
