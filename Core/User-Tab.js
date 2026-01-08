@@ -834,6 +834,8 @@ function attachUserTabHelpers() {
       'nervous-system': 'nervousSystem',
       'tension-sweep': 'tensionSweep'
     };
+    const labels = ['🧘 Self Reset','🌊 Full Body Scan','⚡ Nervous System Reset','🌀 Tension Sweep'];
+
     return `
       <div class="accordion-inner">
         <p style="font-size:0.85rem;margin-bottom:12px;opacity:0.8;">Enable automatic reminders for your wellness practices</p>
@@ -845,7 +847,7 @@ function attachUserTabHelpers() {
             <div class="automation-header">
               <label class="automation-label">
                 <input type="checkbox" id="auto-${t}" ${cfg.enabled ? 'checked' : ''}>
-                <span>${['🧘 Self Reset','🌊 Full Body Scan','⚡ Nervous System Reset','🌀 Tension Sweep'][idx]}</span>
+                <span>${labels[idx]}</span>
               </label>
             </div>
             <div class="automation-controls ${cfg.enabled ? '' : 'disabled'}">
