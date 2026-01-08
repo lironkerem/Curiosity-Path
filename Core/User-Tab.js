@@ -113,7 +113,7 @@ export default class UserTab {
       phone:       document.getElementById('profile-phone')?.value.trim()  || null,
       birthday:    document.getElementById('profile-birthday')?.value      || null,
       emoji:       document.getElementById('profile-emoji')?.value         || '👤',
-      avatarUrl:   document.getElementById('profile-avatar-img')?.src || ''
+      avatar_url:   document.getElementById('profile-avatar-img')?.src || ''
     };
 
     let savedOnServer = false;
