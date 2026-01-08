@@ -27,7 +27,7 @@ export default class NavigationManager {
     this.SWIPE_ORDER = [
       'dashboard', 'energy', 'tarot', 'gratitude', 'happiness',
       'journal', 'meditations', 'flip-script', 'calculator',
-      'shadow-alchemy', 'karma-shop', 'chatbot'
+      'shadow-alchemy', 'karma-shop'
     ];
     
     this.CONSTANTS = {

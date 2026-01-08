@@ -1,4 +1,4 @@
-// User-Tab.js – 100 % complete with Notifications + Profile-Save + avatar_url fix + Rules patch (2026-01-08)
+// User-Tab.js – 100 % complete with Notifications + Profile-Save + avatar_url fix + Rules patch + Automation null-guard (2026-01-09)
 import { supabase } from './Supabase.js';
 
 export default class UserTab {
@@ -184,7 +184,7 @@ export default class UserTab {
         `;
       };
 
-      /* ----------  RULES  ---------- */
+      /*  NEW –– RULES SECTION (collapsible XP/Karma + collapsible Badges)  */
       window.app.renderRulesHTML = () => {
         const categories = [
           {title:'FIRST-WINS',badges:[{icon:'🌱',name:'First Step',desc:'do any single action',xp:10,karma:3,rarity:'common'},{icon:'💚',name:'First Gratitude',desc:'log 1 gratitude entry',xp:10,karma:3,rarity:'common'},{icon:'📝',name:'First Journal',desc:'save 1 journal entry',xp:10,karma:3,rarity:'common'},{icon:'⚡',name:'First Energy',desc:'log 1 energy check-in',xp:10,karma:3,rarity:'common'},{icon:'🃏',name:'First Reading',desc:'complete 1 tarot spread',xp:10,karma:3,rarity:'common'},{icon:'🧘',name:'First Meditation',desc:'finish 1 meditation session',xp:10,karma:3,rarity:'common'},{icon:'🛒',name:'First Purchase',desc:'buy anything in the Karma Shop',xp:50,karma:3,rarity:'common'}]},
@@ -206,21 +206,22 @@ export default class UserTab {
 
         return `
 <div class="accordion-inner rules-panel">
-  <!--  Mission + Currency + Level tables  -->
+  <!--  1.  Static intro text (always visible)  -->
   <div class="rules-top-card">
     <h4>The Curiosity Path <span style="opacity:.7">by Aanandoham, 2026</span></h4>
     <p>A digital way, for a digital practitioner, to continue practicing Spirituality in the 21st Century.</p>
     <p>This App was built to share tools, practices and ancient wisdom – digitally, from your device.</p>
     <p>It is a convenient, accessible way, to stay connected to your 'Self', by small daily practices.</p>
     <p>My hope is that you will utilize it to enhance your life, one small function at a time.</p>
+  </div>
 
-    <hr style="margin:12px 0;border:none;height:1px;background:rgba(0,0,0,.1)">
-
+  <!--  2.  XP & Karma  (collapsible, starts closed)  -->
+  <button class="rules-collapse-btn" data-target="currency-block">XP & Karma</button>
+  <div id="currency-block" class="rules-collapse-content">
     <div class="rules-legend">
       <span class="rules-legend-xp">XP = experience points</span>
       <span class="rules-legend-karma">Karma = in-app currency</span>
     </div>
-
     <div class="rules-currency">
       <div class="rules-currency-block">
         <div class="rules-currency-title">Core Currency Rules</div>
@@ -247,8 +248,10 @@ export default class UserTab {
     </div>
   </div>
 
-  <!--  Collapsible badge categories  -->
-  ${categories.map(cat => `
+  <!--  3.  Badges  (collapsible, starts closed)  -->
+  <button class="rules-collapse-btn" data-target="badges-block">Badges</button>
+  <div id="badges-block" class="rules-collapse-content">
+    ${categories.map(cat => `
     <section class="rules-category">
       <h4 class="rules-category-title">${cat.title}</h4>
       <div class="rules-grid">
@@ -267,6 +270,7 @@ export default class UserTab {
           </div>`).join('')}
       </div>
     </section>`).join('')}
+  </div>
 </div>
 
 <style>
@@ -287,9 +291,19 @@ export default class UserTab {
 .rules-level-table td{padding:2px 0}
 .rules-level-table td:nth-child(2){text-align:right;opacity:.8}
 
-/* ----------  Categories  ---------- */
+/* ----------  Collapsible buttons  ---------- */
+.rules-collapse-btn{display:block;width:100%;margin-bottom:8px;padding:10px;font-size:.9rem;font-weight:600;text-align:left;background:var(--neuro-bg);border:1px solid var(--neuro-shadow-dark);border-radius:12px;cursor:pointer;box-shadow:var(--shadow-raised-sm);transition:all .2s}
+.rules-collapse-btn:hover{background:rgba(102,126,234,.08);border-color:var(--neuro-accent)}
+.rules-collapse-btn::after{content:'▶';float:right;transition:transform .2s}
+.rules-collapse-btn.active::after{transform:rotate(90deg)}
+.rules-collapse-content{display:none;padding-bottom:12px}
+.rules-collapse-content.show{display:block}
+
+/* ----------  Categories inside badges  ---------- */
 .rules-category{margin-bottom:20px}
 .rules-category-title{position:sticky;top:0;background:var(--neuro-bg);padding:8px 0;font-size:.95rem;font-weight:600;border-bottom:1px solid var(--neuro-shadow-dark);margin-bottom:10px;z-index:2;cursor:pointer;user-select:none}
+.rules-category-title::after{content:'▶';float:right;transition:transform .2s}
+.rules-category.open .rules-category-title::after{transform:rotate(90deg)}
 .rules-grid{display:none;gap:10px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
 .rules-category.open .rules-grid{display:grid}
 
@@ -313,7 +327,17 @@ export default class UserTab {
 </style>
 
 <script>
-/* click category title to open/close that group only */
+/* 1.  main collapsible buttons (XP & Karma  /  Badges) */
+document.querySelectorAll('.rules-collapse-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = document.getElementById(btn.dataset.target);
+    const isOpen = btn.classList.contains('active');
+    btn.classList.toggle('active', !isOpen);
+    target.classList.toggle('show', !isOpen);
+  });
+});
+
+/* 2.  inner badge categories (accordion inside accordion) */
 document.querySelectorAll('.rules-category-title').forEach(title => {
   title.addEventListener('click', () => title.parentElement.classList.toggle('open'));
 });
@@ -389,28 +413,41 @@ document.querySelectorAll('.rules-category-title').forEach(title => {
         </div>`;
       };
 
+      /*  AUTOMATIONS –– patched null-guard  */
       window.app.renderAutomationsHTML = () => {
-        const automations = JSON.parse(localStorage.getItem('wellness_automations')) || {
-          selfReset: { enabled: false, interval: 60 },
-          fullBodyScan: { enabled: false, interval: 180 },
-          nervousSystem: { enabled: false, interval: 120 },
-          tensionSweep: { enabled: false, interval: 120 }
+        const defaults = {
+          selfReset:      { enabled: false, interval: 60 },
+          fullBodyScan:   { enabled: false, interval: 180 },
+          nervousSystem:  { enabled: false, interval: 120 },
+          tensionSweep:   { enabled: false, interval: 120 }
         };
+        const automations = { ...defaults, ...JSON.parse(localStorage.getItem('wellness_automations') || '{}') };
+
+        const items = [
+          { id: 'self-reset',      name: '🧘 Self Reset',           key: 'selfReset' },
+          { id: 'full-body-scan',  name: '🌊 Full Body Scan',       key: 'fullBodyScan' },
+          { id: 'nervous-system',  name: '⚡ Nervous System Reset', key: 'nervousSystem' },
+          { id: 'tension-sweep',   name: '🌀 Tension Sweep',        key: 'tensionSweep' }
+        ];
+
         return `
           <div class="accordion-inner">
             <p style="font-size:0.85rem;margin-bottom:12px;opacity:0.8;">Enable automatic reminders for your wellness practices</p>
-            ${['self-reset','full-body-scan','nervous-system','tension-sweep'].map((t,idx)=>`
-            <div class="automation-group">
-              <div class="automation-header">
-                <label class="automation-label">
-                  <input type="checkbox" id="auto-${t}" ${automations[t.replace('-','')].enabled ? 'checked' : ''}>
-                  <span>${['🧘 Self Reset','🌊 Full Body Scan','⚡ Nervous System Reset','🌀 Tension Sweep'][idx]}</span>
-                </label>
-              </div>
-              <div class="automation-controls ${automations[t.replace('-','')].enabled ? '' : 'disabled'}">
-                <label>Every <input type="number" id="interval-${t}" value="${automations[t.replace('-','')].interval}" min="15" max="480" step="15" ${automations[t.replace('-','')].enabled ? '' : 'disabled'}> minutes</label>
-              </div>
-            </div>`).join('')}
+            ${items.map(it=> {
+              const cfg = automations[it.key];
+              return `
+              <div class="automation-group">
+                <div class="automation-header">
+                  <label class="automation-label">
+                    <input type="checkbox" id="auto-${it.id}" ${cfg.enabled ? 'checked' : ''}>
+                    <span>${it.name}</span>
+                  </label>
+                </div>
+                <div class="automation-controls ${cfg.enabled ? '' : 'disabled'}">
+                  <label>Every <input type="number" id="interval-${it.id}" value="${cfg.interval}" min="15" max="480" step="15" ${cfg.enabled ? '' : 'disabled'}> minutes</label>
+                </div>
+              </div>`;
+            }).join('')}
             <button class="btn-link" id="save-automations-btn">Save Automation Settings</button>
             <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:12px 0;">
             <small style="opacity:.7;font-size:0.75rem;">⚠️ Automations will trigger pop-up reminders at your chosen intervals while the app is open.</small>
@@ -474,7 +511,7 @@ document.querySelectorAll('.rules-category-title').forEach(title => {
               case 'notifications': panel.innerHTML = window.app.renderNotificationsHTML(); break;
               case 'automations': panel.innerHTML = window.app.renderAutomationsHTML(); break;
               case 'about': panel.innerHTML = window.app.renderAboutHTML(); break;
-              case 'rules': panel.innerHTML = window.app.renderRulesHTML(); break;
+              case 'rules': panel.innerHTML = window.app.renderRulesHTML(); attachRulesToggle(panel); break;
               case 'contact': panel.innerHTML = window.app.renderContactHTML(); break;
               case 'export': panel.innerHTML = window.app.renderExportHTML(); break;
               case 'billing': panel.innerHTML = window.app.renderBillingHTML(); break;
@@ -822,12 +859,13 @@ function attachUserTabHelpers() {
 
   // 2. Automations ---------------------------------------------------------
 window.app.renderAutomationsHTML = () => {
-  const automations = JSON.parse(localStorage.getItem('wellness_automations')) || {
-    selfReset: { enabled: false, interval: 60 },
-    fullBodyScan: { enabled: false, interval: 180 },
-    nervousSystem: { enabled: false, interval: 120 },
-    tensionSweep: { enabled: false, interval: 120 }
+  const defaults = {
+    selfReset:      { enabled: false, interval: 60 },
+    fullBodyScan:   { enabled: false, interval: 180 },
+    nervousSystem:  { enabled: false, interval: 120 },
+    tensionSweep:   { enabled: false, interval: 120 }
   };
+  const automations = { ...defaults, ...JSON.parse(localStorage.getItem('wellness_automations') || '{}') };
 
   const items = [
     { id: 'self-reset',      name: '🧘 Self Reset',           key: 'selfReset' },
@@ -839,21 +877,29 @@ window.app.renderAutomationsHTML = () => {
   return `
     <div class="accordion-inner">
       <p style="font-size:0.85rem;margin-bottom:12px;opacity:0.8;">Enable automatic reminders for your wellness practices</p>
-      ${items.map(it=>{
-        const cfg = automations[it.key] || { enabled: false, interval: 120 };
-        return `
-        <div class="automation-group">
-          <div class="automation-header">
-            <label class="automation-label">
-              <input type="checkbox" id="auto-${it.id}" ${cfg.enabled ? 'checked' : ''}>
-              <span>${it.name}</span>
-            </label>
-          </div>
-          <div class="automation-controls ${cfg.enabled ? '' : 'disabled'}">
-            <label>Every <input type="number" id="interval-${it.id}" value="${cfg.interval}" min="15" max="480" step="15" ${cfg.enabled ? '' : 'disabled'}> minutes</label>
-          </div>
-        </div>`;
-      }).join('')}
+      ${items.map(it=> {
+          const cfg = automations[it.key];
+          return `
+          <div class="automation-group">
+            <div class="automation-header">
+              <label class="automation-label">
+                <input type="checkbox" id="auto-${it.id}" ${cfg.enabled ? 'checked' : ''}>
+                <span>${it.name}</span>
+              </label>
+            </div>
+            <div class="automation-controls ${cfg.enabled ? '' : 'disabled'}">
+              <label>
+                Every
+                <input type="number"
+                       id="interval-${it.id}"
+                       value="${cfg.interval}"
+                       min="15" max="480" step="15"
+                       ${cfg.enabled ? '' : 'disabled'}>
+                minutes
+              </label>
+            </div>
+          </div>`;
+        }).join('')}
       <button class="btn-link" id="save-automations-btn">Save Automation Settings</button>
       <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:12px 0;">
       <small style="opacity:.7;font-size:0.75rem;">⚠️ Automations will trigger pop-up reminders at your chosen intervals while the app is open.</small>
