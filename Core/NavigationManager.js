@@ -1,4 +1,4 @@
-// NavigationManager.js - Optimized version
+// NavigationManager.js - Fixed swipe arrows
 import UserTab from './User-Tab.js';
 
 // Global flag to prevent duplicate swipe listeners across instances
@@ -301,30 +301,38 @@ export default class NavigationManager {
     leftBtn.innerHTML = `<svg viewBox="0 0 200 180" style="transform:scale(0.5);"><path d="M115 10 L100 90 L115 170" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`;
     rightBtn.innerHTML = `<svg viewBox="0 0 200 180" style="transform:scaleX(-1) scale(0.5);"><path d="M115 10 L100 90 L115 170" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`;
 
-    const navigateTab = (direction) => {
+    const blurButton = (e) => setTimeout(() => e.currentTarget.blur(), 0);
+
+    // FIXED: Direct implementation instead of local function
+    leftBtn.addEventListener('click', (e) => { 
+      e.preventDefault(); 
+      e.stopPropagation();
+      
       const active = localStorage.getItem('pc_active_tab') || 'dashboard';
       let idx = this.SWIPE_ORDER.indexOf(active);
-      idx = (idx + direction + this.SWIPE_ORDER.length) % this.SWIPE_ORDER.length;
+      idx = (idx - 1 + this.SWIPE_ORDER.length) % this.SWIPE_ORDER.length;
       
       const navItem = document.querySelector(`[data-tab="${this.SWIPE_ORDER[idx]}"]`);
       if (navItem) {
         this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
       }
-    };
-
-    const blurButton = (e) => setTimeout(() => e.currentTarget.blur(), 0);
-
-    leftBtn.addEventListener('click', (e) => { 
-      e.preventDefault(); 
-      e.stopPropagation();
-      navigateTab(-1); 
+      
       blurButton(e); 
     });
     
     rightBtn.addEventListener('click', (e) => { 
       e.preventDefault(); 
       e.stopPropagation();
-      navigateTab(1); 
+      
+      const active = localStorage.getItem('pc_active_tab') || 'dashboard';
+      let idx = this.SWIPE_ORDER.indexOf(active);
+      idx = (idx + 1) % this.SWIPE_ORDER.length;
+      
+      const navItem = document.querySelector(`[data-tab="${this.SWIPE_ORDER[idx]}"]`);
+      if (navItem) {
+        this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
+      }
+      
       blurButton(e); 
     });
     
