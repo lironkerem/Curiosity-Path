@@ -1080,22 +1080,22 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   }
 }
 
-.card-reveal-prompt {
-  text-align: center;
-  color: var(--neuro-text);
-  font-weight: 600;
-  margin: 0;
+.card-back-reveal-text {
   position: absolute;
-  top: 50%;
+  top: 1.5rem;
   left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-  background: rgba(255, 255, 255, 0.8);
+  transform: translateX(-50%);
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  z-index: 100;
+  margin: 0;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.5);
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
-  border: 2px solid rgba(128, 0, 128, 0.8);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  white-space: nowrap;
 }
 
 .daily-card-front {
@@ -1155,7 +1155,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   font-size: 1rem;
   font-weight: 500;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.92);
+  color: rgba(255, 255, 255, .92);
   overflow-wrap: break-word;
   text-align: center;
 }
@@ -1174,35 +1174,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   font-size: 0.875rem;
   color: rgba(255, 255, 255, 0.7);
   margin-top: 0.5rem;
-}
-
-.tarot-card-name {
-  color: var(--neuro-text);
-  font-weight: 700;
-  margin: 0 0 0.5rem 0;
-  font-size: 1.1rem;
-}
-
-.tarot-card-meaning {
-  color: var(--neuro-text-light);
-  font-size: 0.9rem;
-  line-height: 1.5;
-  margin: 0;
-}
-
-.inquiry-domain-badge {
-  margin-bottom: 1rem;
-  padding: 0.5rem;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  display: inline-block;
-}
-
-.inquiry-domain-badge span {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  font-weight: 700;
-  color: white;
 }
 
 .daily-card-header-container {
@@ -1262,12 +1233,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   overflow-y: auto;
   margin-top: 0.5rem;
   padding: 0 0.5rem;
-}
-
-.countdown-badge {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
 }
 
 /* ===== QUOTE SECTION ===== */

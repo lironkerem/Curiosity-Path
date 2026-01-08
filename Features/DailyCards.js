@@ -1,122 +1,163 @@
-// DailyCards.js
+// DailyCards.js - Optimized
 // Handles all daily card functionality: Tarot, Affirmation, Booster, and Inquiry
 
+import TarotEngine from '../Features/TarotEngine.js';
 import { InquiryEngine } from '../Features/InquiryEngine.js';
 
 export default class DailyCards {
   constructor(app) {
     this.app = app;
     this.happinessBoosters = [];
-    this.currentBoosterIndex = null;
     this.boostersLoaded = false;
+    this.timerInterval = null;
+    
+    // Constants
     this.CARD_BACK_URL = 'https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Tarot%20Cards%20images/CardBacks.jpg';
+    this.STORAGE_KEYS = {
+      BOOSTER: 'daily_booster',
+      TAROT: 'daily_tarot_card',
+      INQUIRY: 'daily_inquiry',
+      FLIPPED_PREFIX: 'daily_card_flipped_'
+    };
+    this.CARD_TYPES = {
+      TAROT: 'tarot',
+      AFFIRMATION: 'affirmation',
+      BOOSTER: 'booster',
+      INQUIRY: 'inquiry'
+    };
     
-    // Initialize Inquiry Engine
+    // Initialize engines
     this.inquiryEngine = new InquiryEngine('beginner');
+    this.tarotEngine = new TarotEngine(app);
     
-    // Load boosters synchronously with fallback
+    // Cache today's date
+    this._todayCache = null;
+    this._todayCacheTime = 0;
+    
+    // Load boosters
     this.initializeBoosters();
   }
 
-  initializeBoosters() {
-    this.happinessBoosters = [
+  // ========== INITIALIZATION ==========
+  
+  async initializeBoosters() {
+    const fallback = [
       { id: 1, title: '5-Minute Dance Party', emoji: '💃', description: 'Put on your favorite song and move!', duration: '5 min', category: 'Movement' },
       { id: 2, title: 'Gratitude Snapshot', emoji: '📸', description: 'Notice 3 beautiful things around you', duration: '3 min', category: 'Gratitude' },
       { id: 3, title: 'Power Pose', emoji: '🦸', description: 'Stand like a superhero for 2 minutes', duration: '2 min', category: 'Confidence' }
     ];
-    this.boostersLoaded = true;
-    this.loadHappinessBoosters();
-  }
-
-  async loadHappinessBoosters() {
+    
     try {
       const res = await fetch('./Features/Data/HappinessBoostersList.json');
-      if (!res.ok) throw new Error(res.status);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      this.happinessBoosters = data.boosters;
-    } catch {
-      this.happinessBoosters = [
-        { id: 1, title: '5-Minute Dance Party', emoji: '💃', description: 'Put on your favorite song and move!', duration: '5 min', category: 'Movement' },
-        { id: 2, title: 'Gratitude Snapshot', emoji: '📸', description: 'Notice 3 beautiful things around you', duration: '3 min', category: 'Gratitude' },
-        { id: 3, title: 'Power Pose', emoji: '🦸', description: 'Stand like a superhero for 2 minutes', duration: '2 min', category: 'Confidence' }
-      ];
+      this.happinessBoosters = data.boosters || fallback;
+    } catch (err) {
+      console.warn('Failed to load boosters, using fallback:', err);
+      this.happinessBoosters = fallback;
     }
+    
     this.boostersLoaded = true;
   }
+
+  // ========== UTILITIES ==========
+  
+  _getToday() {
+    const now = Date.now();
+    if (now - this._todayCacheTime < 60000) return this._todayCache; // Cache for 1 min
+    this._todayCache = new Date().toDateString();
+    this._todayCacheTime = now;
+    return this._todayCache;
+  }
+
+  _getDayOfYear() {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    return Math.floor((now - start) / 86400000);
+  }
+
+  _getFromStorage(key) {
+    const today = this._getToday();
+    try {
+      const stored = localStorage.getItem(key);
+      if (!stored) return null;
+      const data = JSON.parse(stored);
+      return data.date === today ? data : null;
+    } catch (err) {
+      console.error(`Storage read error for ${key}:`, err);
+      return null;
+    }
+  }
+
+  _saveToStorage(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify({ 
+        ...value, 
+        date: this._getToday() 
+      }));
+    } catch (err) {
+      console.error(`Storage write error for ${key}:`, err);
+    }
+  }
+
+  _wasCardFlipped(type) {
+    return localStorage.getItem(`${this.STORAGE_KEYS.FLIPPED_PREFIX}${type}`) === this._getToday();
+  }
+
+  _markCardFlipped(type) {
+    localStorage.setItem(`${this.STORAGE_KEYS.FLIPPED_PREFIX}${type}`, this._getToday());
+  }
+
+  // ========== CARD DATA GETTERS ==========
 
   getRandomBooster() {
     if (!this.happinessBoosters?.length) {
       return { id: 0, title: 'Loading...', emoji: '⏳', description: 'Please wait', duration: '...', category: 'Loading' };
     }
-    const i = Math.floor(Math.random() * this.happinessBoosters.length);
-    this.currentBoosterIndex = i;
-    return this.happinessBoosters[i];
+    const idx = Math.floor(Math.random() * this.happinessBoosters.length);
+    return this.happinessBoosters[idx];
   }
 
   getDailyBooster() {
-    const today = new Date().toDateString();
-    const stored = localStorage.getItem('daily_booster');
-    
-    if (stored) {
-      try {
-        const data = JSON.parse(stored);
-        if (data.date === today) return data.booster;
-      } catch {}
-    }
+    const cached = this._getFromStorage(this.STORAGE_KEYS.BOOSTER);
+    if (cached) return cached.booster;
     
     const booster = this.getRandomBooster();
-    localStorage.setItem('daily_booster', JSON.stringify({ booster, date: today }));
+    this._saveToStorage(this.STORAGE_KEYS.BOOSTER, { booster });
     return booster;
   }
 
   getDailyTarotCard() {
-    const today = new Date().toDateString();
-    const stored = localStorage.getItem('daily_tarot_card');
+    const cached = this._getFromStorage(this.STORAGE_KEYS.TAROT);
+    if (cached) return cached.card;
     
-    if (stored) {
-      try {
-        const d = JSON.parse(stored);
-        if (d.date === today) return d.card;
-      } catch {}
-    }
+    const deck = this.tarotEngine.shuffleDeck(this.tarotEngine.buildFullDeck());
+    const dayOfYear = this._getDayOfYear();
+    const c = deck[dayOfYear % 78];
     
-    const eng = new TarotEngine(this.app);
-    const deck = eng.shuffleDeck(eng.buildFullDeck());
-    const day = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-    const c = deck[day % 78];
     const card = {
-      name: eng.getTarotCardName(c.number, c.suit),
-      meaning: eng.getTarotCardMeaning(c.number, c.suit),
-      image: eng.getTarotCardImage(c.number, c.suit),
-      date: today
+      name: this.tarotEngine.getTarotCardName(c.number, c.suit),
+      meaning: this.tarotEngine.getTarotCardMeaning(c.number, c.suit),
+      image: this.tarotEngine.getTarotCardImage(c.number, c.suit)
     };
     
-    localStorage.setItem('daily_tarot_card', JSON.stringify({ card, date: today }));
+    this._saveToStorage(this.STORAGE_KEYS.TAROT, { card });
     return card;
   }
 
   getDailyAffirmation() {
     if (window.affirmations?.general_positive_affirmations) {
       const list = window.affirmations.general_positive_affirmations;
-      const day = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-      const a = list[day % list.length];
-      return typeof a === 'string' ? a : a.text;
+      const dayOfYear = this._getDayOfYear();
+      const affirmation = list[dayOfYear % list.length];
+      return typeof affirmation === 'string' ? affirmation : affirmation.text;
     }
     return "I am worthy of love and belonging exactly as I am.";
   }
 
   getDailyInquiry() {
-    const today = new Date().toDateString();
-    const stored = localStorage.getItem('daily_inquiry');
-    
-    if (stored) {
-      try {
-        const data = JSON.parse(stored);
-        if (data.date === today) return data.inquiry;
-      } catch (e) {
-        console.error('Failed to parse stored inquiry:', e);
-      }
-    }
+    const cached = this._getFromStorage(this.STORAGE_KEYS.INQUIRY);
+    if (cached) return cached.inquiry;
     
     const domains = [
       'Responsibility and Power', 'Emotional Honesty', 'Identity and Roles',
@@ -127,19 +168,23 @@ export default class DailyCards {
     const randomDomain = domains[Math.floor(Math.random() * domains.length)];
     const inquiry = this.inquiryEngine.getRandomQuestion(randomDomain);
     
-    localStorage.setItem('daily_inquiry', JSON.stringify({ inquiry, date: today }));
+    this._saveToStorage(this.STORAGE_KEYS.INQUIRY, { inquiry });
     return inquiry;
   }
 
+  // ========== TIMER ==========
+
   initMidnightTimer() {
+    this.stopMidnightTimer(); // Clean up existing
+    
     const updateTimer = () => {
       const now = new Date();
       const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
       const msUntilMidnight = tomorrow - now;
       
-      const hours = Math.floor(msUntilMidnight / (1000 * 60 * 60));
-      const minutes = Math.floor((msUntilMidnight % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((msUntilMidnight % (1000 * 60)) / 1000);
+      const hours = Math.floor(msUntilMidnight / 3600000);
+      const minutes = Math.floor((msUntilMidnight % 3600000) / 60000);
+      const seconds = Math.floor((msUntilMidnight % 60000) / 1000);
       
       const timerEl = document.getElementById('daily-cards-timer');
       if (timerEl) {
@@ -152,8 +197,17 @@ export default class DailyCards {
     };
     
     updateTimer();
-    setInterval(updateTimer, 1000);
+    this.timerInterval = setInterval(updateTimer, 1000);
   }
+
+  stopMidnightTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+  }
+
+  // ========== CARD FLIPPING ==========
 
   flipDailyCard(type) {
     const cardEl = document.getElementById(`${type}-flip`);
@@ -164,205 +218,154 @@ export default class DailyCards {
     const isFlipped = cardEl.classList.contains('flipped');
     
     // Update dynamic content before flip
-    if (type === 'booster' && !isFlipped) {
-      const b = this.getRandomBooster();
-      const box = cardEl.querySelector('.dashboard-booster-content');
-      if (box) box.innerHTML = `
-        <div class="dashboard-booster-emoji">${b.emoji}</div>
-        <h4 class="dashboard-booster-title">${b.title}</h4>
-        <p class="dashboard-booster-description">${b.description}</p>
-        <p class="dashboard-booster-meta">${b.duration} • ${b.category}</p>`;
+    if (!isFlipped) {
+      if (type === this.CARD_TYPES.BOOSTER) {
+        this._updateBoosterContent(cardEl);
+      } else if (type === this.CARD_TYPES.INQUIRY) {
+        this._updateInquiryContent(cardEl);
+      }
     }
     
-    if (type === 'inquiry' && !isFlipped) {
-      const inquiry = this.getDailyInquiry();
-      const intensityEmoji = { 1: '🌱', 2: '🌿', 3: '🌳', 4: '🔥' };
-      const box = cardEl.querySelector('.dashboard-booster-content');
-      if (box) box.innerHTML = `
-        <div class="dashboard-booster-emoji">${intensityEmoji[inquiry.intensity] || '💭'}</div>
-        <div style="margin-bottom: 1rem; padding: 0.5rem; background: rgba(255,255,255,0.2); border-radius: 8px; display: inline-block;">
-          <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: white;">
-            ${inquiry.domain}
-          </span>
-        </div>
-        <p class="dashboard-booster-description">${inquiry.question}</p>`;
-    }
-    
-    // Flip card, header, and wrapper
+    // Toggle flip
     cardEl.classList.toggle('flipped');
     headerEl.classList.toggle('flipped');
     wrapperEl.classList.toggle('flipped');
     
+    // Save state and show toast
     if (cardEl.classList.contains('flipped')) {
-      localStorage.setItem(`daily_card_flipped_${type}`, new Date().toDateString());
-      const msg = {
-        tarot: '✨ Tarot card revealed!',
-        affirmation: '💫 Affirmation revealed!',
-        booster: '😊 Booster revealed!',
-        inquiry: '💭 Daily inquiry revealed!'
+      this._markCardFlipped(type);
+      const messages = {
+        [this.CARD_TYPES.TAROT]: '✨ Tarot card revealed!',
+        [this.CARD_TYPES.AFFIRMATION]: '💫 Affirmation revealed!',
+        [this.CARD_TYPES.BOOSTER]: '😊 Booster revealed!',
+        [this.CARD_TYPES.INQUIRY]: '💭 Daily inquiry revealed!'
       };
-      this.app.showToast(msg[type] || 'Card revealed!', 'success');
+      this.app.showToast(messages[type] || 'Card revealed!', 'success');
     }
   }
 
-  renderDailyCard(type, card, title, backImage) {
-    const today = new Date().toDateString();
-    const wasFlipped = localStorage.getItem(`daily_card_flipped_${type}`) === today;
+  _updateBoosterContent(cardEl) {
+    const booster = this.getRandomBooster();
+    const contentBox = cardEl.querySelector('.dashboard-booster-content');
+    if (contentBox) {
+      contentBox.innerHTML = `
+        <div class="dashboard-booster-emoji">${booster.emoji}</div>
+        <h4 class="dashboard-booster-title">${booster.title}</h4>
+        <p class="dashboard-booster-description">${booster.description}</p>
+        <p class="dashboard-booster-meta">${booster.duration} • ${booster.category}</p>`;
+    }
+  }
+
+  _updateInquiryContent(cardEl) {
+    const inquiry = this.getDailyInquiry();
+    const intensityEmoji = { 1: '🌱', 2: '🌿', 3: '🌳', 4: '🔥' };
+    const contentBox = cardEl.querySelector('.dashboard-booster-content');
+    if (contentBox) {
+      contentBox.innerHTML = `
+        <div class="dashboard-booster-emoji">${intensityEmoji[inquiry.intensity] || '💭'}</div>
+        <div class="inquiry-domain-badge">
+          <span>${inquiry.domain}</span>
+        </div>
+        <p class="dashboard-booster-description">${inquiry.question}</p>`;
+    }
+  }
+
+  // ========== RENDERING ==========
+
+  _renderCardTemplate(type, config) {
+    const { title, frontTitle, backContent, frontContent, gradient = '' } = config;
+    const wasFlipped = this._wasCardFlipped(type);
     const flippedClass = wasFlipped ? 'flipped' : '';
     
     return `
       <div class="daily-card-full-container">
-        <!-- Container 1: Flippable Card -->
         <div class="card dashboard-daily-card">
-          <div class="daily-card-wrapper ${flippedClass}" onclick="window.app.dailyCards.flipDailyCard('${type}')">
+          <div class="daily-card-wrapper ${flippedClass}" data-card-type="${type}">
             <div class="daily-card-inner ${flippedClass}" id="${type}-flip">
               <div class="daily-card-back">
-                <p style="text-align: center; color: var(--neuro-text); font-weight: 600; margin: 0; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; background: rgba(255, 255, 255, 0.8); padding: 0.5rem 1rem; border-radius: 0.5rem; border: 2px solid rgba(128, 0, 128, 0.8); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); white-space: nowrap;">Click to reveal</p>
-                <img src="${backImage}" alt="Card Back" class="dashboard-card-image">
+                <p class="card-reveal-prompt">Click to reveal</p>
+                <img src="${this.CARD_BACK_URL}" alt="Card Back" class="dashboard-card-image">
               </div>
-              <div class="daily-card-front" style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
-                <img src="${card.image}" alt="${card.name}" style="width: 100%; max-height: 70%; flex-shrink: 0; object-fit: contain;">
-                <div style="text-align: center; overflow-y: auto; padding: 0.75rem; flex: 1;">
-                  <h4 style="color: var(--neuro-text); font-weight: 700; margin: 0 0 0.5rem 0; font-size: 1.1rem;">${card.name}</h4>
-                  <p style="color: var(--neuro-text-light); font-size: 0.9rem; line-height: 1.5; margin: 0;">${card.meaning}</p>
-                </div>
+              <div class="daily-card-front ${gradient}">
+                ${frontContent}
               </div>
             </div>
           </div>
         </div>
         
-        <!-- Container 2: Header Info -->
         <div class="daily-card-header-container ${flippedClass}" id="${type}-header">
           <div class="daily-card-header-back">
             <h3 class="daily-card-header-title">${title}</h3>
           </div>
           <div class="daily-card-header-front">
-            <h3 class="daily-card-header-title">Daily Vibe</h3>
+            <h3 class="daily-card-header-title">${frontTitle}</h3>
           </div>
         </div>
       </div>`;
+  }
+
+  renderDailyCard(type, card) {
+    return this._renderCardTemplate(type, {
+      title: 'Daily Tarot Guidance',
+      frontTitle: 'Daily Vibe',
+      frontContent: `
+        <div style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
+          <img src="${card.image}" alt="${card.name}" style="width: 100%; max-height: 70%; flex-shrink: 0; object-fit: contain;">
+          <div style="text-align: center; overflow-y: auto; padding: 0.75rem; flex: 1;">
+            <h4 class="tarot-card-name">${card.name}</h4>
+            <p class="tarot-card-meaning">${card.meaning}</p>
+          </div>
+        </div>`
+    });
   }
 
   renderAffirmationCard(affirmation) {
-    const today = new Date().toDateString();
-    const wasFlipped = localStorage.getItem(`daily_card_flipped_affirmation`) === today;
-    const flippedClass = wasFlipped ? 'flipped' : '';
-    
-    return `
-      <div class="daily-card-full-container">
-        <!-- Container 1: Flippable Card -->
-        <div class="card dashboard-daily-card">
-          <div class="daily-card-wrapper ${flippedClass}" onclick="window.app.dailyCards.flipDailyCard('affirmation')">
-            <div class="daily-card-inner ${flippedClass}" id="affirmation-flip">
-              <div class="daily-card-back">
-                <p style="text-align: center; color: var(--neuro-text); font-weight: 600; margin: 0; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; background: rgba(255, 255, 255, 0.8); padding: 0.5rem 1rem; border-radius: 0.5rem; border: 2px solid rgba(128, 0, 128, 0.8); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); white-space: nowrap;">Click to reveal</p>
-                <img src="${this.CARD_BACK_URL}" alt="Card Back" class="dashboard-card-image">
-              </div>
-              <div class="daily-card-front daily-card-gradient-affirmation">
-                <div class="daily-card-content-wrapper">
-                  <p class="dashboard-affirmation-text">${affirmation}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Container 2: Header Info -->
-        <div class="daily-card-header-container ${flippedClass}" id="affirmation-header">
-          <div class="daily-card-header-back">
-            <h3 class="daily-card-header-title">Daily Affirmation</h3>
-          </div>
-          <div class="daily-card-header-front">
-            <h3 class="daily-card-header-title">Today's Mantra</h3>
-          </div>
-        </div>
-      </div>`;
+    return this._renderCardTemplate(this.CARD_TYPES.AFFIRMATION, {
+      title: 'Daily Affirmation',
+      frontTitle: 'Today\'s Mantra',
+      gradient: 'daily-card-gradient-affirmation',
+      frontContent: `
+        <div class="daily-card-content-wrapper">
+          <p class="dashboard-affirmation-text">${affirmation}</p>
+        </div>`
+    });
   }
 
   renderBoosterCard(booster) {
-    const today = new Date().toDateString();
-    const wasFlipped = localStorage.getItem(`daily_card_flipped_booster`) === today;
-    const flippedClass = wasFlipped ? 'flipped' : '';
-    
-    return `
-      <div class="daily-card-full-container">
-        <!-- Container 1: Flippable Card -->
-        <div class="card dashboard-daily-card">
-          <div class="daily-card-wrapper ${flippedClass}" onclick="window.app.dailyCards.flipDailyCard('booster')">
-            <div class="daily-card-inner ${flippedClass}" id="booster-flip">
-              <div class="daily-card-back">
-                <p style="text-align: center; color: var(--neuro-text); font-weight: 600; margin: 0; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; background: rgba(255, 255, 255, 0.8); padding: 0.5rem 1rem; border-radius: 0.5rem; border: 2px solid rgba(128, 0, 128, 0.8); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); white-space: nowrap;">Click to reveal</p>
-                <img src="${this.CARD_BACK_URL}" alt="Card Back" class="dashboard-card-image">
-              </div>
-              <div class="daily-card-front daily-card-gradient-booster">
-                <div class="daily-card-content-wrapper">
-                  <div class="dashboard-booster-content">
-                    <div class="dashboard-booster-emoji">${booster.emoji}</div>
-                    <h4 class="dashboard-booster-title">${booster.title}</h4>
-                    <p class="dashboard-booster-description">${booster.description}</p>
-                    <p class="dashboard-booster-meta">${booster.duration} • ${booster.category}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+    return this._renderCardTemplate(this.CARD_TYPES.BOOSTER, {
+      title: 'Happiness Booster',
+      frontTitle: 'Just Do It',
+      gradient: 'daily-card-gradient-booster',
+      frontContent: `
+        <div class="daily-card-content-wrapper">
+          <div class="dashboard-booster-content">
+            <div class="dashboard-booster-emoji">${booster.emoji}</div>
+            <h4 class="dashboard-booster-title">${booster.title}</h4>
+            <p class="dashboard-booster-description">${booster.description}</p>
+            <p class="dashboard-booster-meta">${booster.duration} • ${booster.category}</p>
           </div>
-        </div>
-        
-        <!-- Container 2: Header Info -->
-        <div class="daily-card-header-container ${flippedClass}" id="booster-header">
-          <div class="daily-card-header-back">
-            <h3 class="daily-card-header-title">Happiness Booster</h3>
-          </div>
-          <div class="daily-card-header-front">
-            <h3 class="daily-card-header-title">Just Do It</h3>
-          </div>
-        </div>
-      </div>`;
+        </div>`
+    });
   }
 
   renderInquiryCard(inquiry) {
-    const today = new Date().toDateString();
-    const wasFlipped = localStorage.getItem('daily_card_flipped_inquiry') === today;
-    const flippedClass = wasFlipped ? 'flipped' : '';
     const intensityEmoji = { 1: '🌱', 2: '🌿', 3: '🌳', 4: '🔥' };
     
-    return `
-      <div class="daily-card-full-container">
-        <!-- Container 1: Flippable Card -->
-        <div class="card dashboard-daily-card">
-          <div class="daily-card-wrapper ${flippedClass}" onclick="window.app.dailyCards.flipDailyCard('inquiry')">
-            <div class="daily-card-inner ${flippedClass}" id="inquiry-flip">
-              <div class="daily-card-back">
-                <p style="text-align: center; color: var(--neuro-text); font-weight: 600; margin: 0; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; background: rgba(255, 255, 255, 0.8); padding: 0.5rem 1rem; border-radius: 0.5rem; border: 2px solid rgba(128, 0, 128, 0.8); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); white-space: nowrap;">Click to reveal</p>
-                <img src="${this.CARD_BACK_URL}" alt="Card Back" class="dashboard-card-image">
-              </div>
-              <div class="daily-card-front daily-card-gradient-inquiry">
-                <div class="daily-card-content-wrapper">
-                  <div class="dashboard-booster-content">
-                    <div class="dashboard-booster-emoji">${intensityEmoji[inquiry.intensity] || '💭'}</div>
-                    <div style="margin-bottom: 1rem; padding: 0.5rem; background: rgba(255,255,255,0.2); border-radius: 8px; display: inline-block;">
-                      <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: white;">
-                        ${inquiry.domain}
-                      </span>
-                    </div>
-                    <p class="dashboard-booster-description">${inquiry.question}</p>
-                  </div>
-                </div>
-              </div>
+    return this._renderCardTemplate(this.CARD_TYPES.INQUIRY, {
+      title: 'Daily Self-Inquiry',
+      frontTitle: 'Be Honest',
+      gradient: 'daily-card-gradient-inquiry',
+      frontContent: `
+        <div class="daily-card-content-wrapper">
+          <div class="dashboard-booster-content">
+            <div class="dashboard-booster-emoji">${intensityEmoji[inquiry.intensity] || '💭'}</div>
+            <div class="inquiry-domain-badge">
+              <span>${inquiry.domain}</span>
             </div>
+            <p class="dashboard-booster-description">${inquiry.question}</p>
           </div>
-        </div>
-        
-        <!-- Container 2: Header Info -->
-        <div class="daily-card-header-container ${flippedClass}" id="inquiry-header">
-          <div class="daily-card-header-back">
-            <h3 class="daily-card-header-title">Daily Self-Inquiry</h3>
-          </div>
-          <div class="daily-card-header-front">
-            <h3 class="daily-card-header-title">Be Honest</h3>
-          </div>
-        </div>
-      </div>`;
+        </div>`
+    });
   }
 
   renderDailyCardsSection() {
@@ -375,16 +378,22 @@ export default class DailyCards {
     
     return `
       <div class="card dashboard-quest-hub mb-8" style="position: relative;">
-        <span id="daily-cards-timer" class="countdown-badge" style="position: absolute; top: 1rem; right: 1rem;"></span>
-        <div class="dashboard-quest-header" style="text-align:center; margin-top: 3rem; margin-bottom: 2rem;">
+        <span id="daily-cards-timer" class="countdown-badge"></span>
+        <div class="dashboard-quest-header">
           <h3 class="dashboard-quest-title">🎴 Your Daily Cards</h3>
         </div>
-        <div class="grid grid-cols-2 gap-6">
-          ${this.renderDailyCard('tarot', dailyCard, 'Daily Tarot Guidance', this.CARD_BACK_URL)}
+        <div class="grid grid-cols-2 gap-6" id="daily-cards-container">
+          ${this.renderDailyCard(this.CARD_TYPES.TAROT, dailyCard)}
           ${this.renderAffirmationCard(dailyAff)}
           ${this.renderBoosterCard(dailyBooster)}
           ${this.renderInquiryCard(dailyInquiry)}
         </div>
       </div>`;
+  }
+
+  // ========== CLEANUP ==========
+
+  destroy() {
+    this.stopMidnightTimer();
   }
 }
