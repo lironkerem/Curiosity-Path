@@ -22,6 +22,7 @@ export default class NavigationManager {
     this.sheetOpen = false;
     this.swipeListenersAttached = false;
     this.swipeHandlers = null;
+    this.arrowListenersAttached = false;
     
     // Constants
     this.SWIPE_ORDER = [
@@ -288,6 +289,11 @@ export default class NavigationManager {
 
   setupSwipeArrows() {
     if (window.innerWidth > 767) return;
+    
+    if (this.arrowListenersAttached) {
+      console.log('Arrow listeners already attached, skipping');
+      return;
+    }
 
     const leftBtn = document.getElementById('swipe-left');
     const rightBtn = document.getElementById('swipe-right');
@@ -383,6 +389,9 @@ export default class NavigationManager {
     });
     
     this.arrowObserver.observe(document.body, { attributeFilter: ['class'] });
+    
+    this.arrowListenersAttached = true;
+    console.log('Arrow listeners attached successfully');
   }
 
   setupSwipeGestures() {
