@@ -4,6 +4,20 @@ import { supabase } from './Supabase.js';
 export default class UserTab {
   constructor(app) { this.app = app; this.btn = null; }
 
+  /* ----------  helpers  ---------- */
+  attachRulesToggle(panel) {
+    panel.querySelectorAll('.rules-collapse-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = panel.querySelector('#' + btn.dataset.target);
+        const open = btn.classList.toggle('active');
+        target.classList.toggle('show', open);
+      });
+    });
+    panel.querySelectorAll('.rules-category-title').forEach(title => {
+      title.addEventListener('click', () => title.parentElement.classList.toggle('open'));
+    });
+  }
+
   render() {
     const html = `
       <div class="user-menu" id="user-menu">
@@ -511,7 +525,11 @@ document.querySelectorAll('.rules-category-title').forEach(title => {
               case 'notifications': panel.innerHTML = window.app.renderNotificationsHTML(); break;
               case 'automations': panel.innerHTML = window.app.renderAutomationsHTML(); break;
               case 'about': panel.innerHTML = window.app.renderAboutHTML(); break;
-              case 'rules': panel.innerHTML = window.app.renderRulesHTML(); attachRulesToggle(panel); break;
+              case 'rules':
+  panel.innerHTML = window.app.renderRulesHTML();
+  panel.dataset.filled = '1';
+  attachRulesToggle(panel);   // <-- add this helper call
+  break;
               case 'contact': panel.innerHTML = window.app.renderContactHTML(); break;
               case 'export': panel.innerHTML = window.app.renderExportHTML(); break;
               case 'billing': panel.innerHTML = window.app.renderBillingHTML(); break;
