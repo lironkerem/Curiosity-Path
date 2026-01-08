@@ -1,6 +1,10 @@
 // NavigationManager.js - Optimized version
 import UserTab from './User-Tab.js';
 
+// Global flag to prevent duplicate swipe listeners across instances
+let globalSwipeListenersAttached = false;
+let globalSwipeHandlers = null;
+
 export default class NavigationManager {
   constructor(app) {
     this.app = app;
@@ -328,31 +332,34 @@ export default class NavigationManager {
   }
 
   setupSwipeGestures() {
-    if (this.swipeListenersAttached) {
-      console.log('Swipe listeners already attached, skipping');
+    if (globalSwipeListenersAttached) {
+      console.log('Global swipe listeners already attached, skipping');
       return;
     }
     
-    console.log('setupSwipeGestures: Attaching NEW listeners');
+    console.log('setupSwipeGestures: Attaching NEW global listeners');
     
     const { SWIPE_THRESHOLD, SWIPE_TIME_MS } = this.CONSTANTS;
 
     // Remove old listeners if they exist
-    if (this.swipeHandlers) {
-      window.removeEventListener('touchstart', this.swipeHandlers.start);
-      window.removeEventListener('touchend', this.swipeHandlers.end);
+    if (globalSwipeHandlers) {
+      window.removeEventListener('touchstart', globalSwipeHandlers.start);
+      window.removeEventListener('touchend', globalSwipeHandlers.end);
     }
 
+    let touchStartX = 0;
+    let touchStartTime = 0;
+
     const handleTouchStart = (e) => {
-      this.touchStartX = e.touches[0].clientX;
-      this.touchStartTime = Date.now();
-      console.log('Touch start at X:', this.touchStartX);
+      touchStartX = e.touches[0].clientX;
+      touchStartTime = Date.now();
+      console.log('Touch start at X:', touchStartX);
     };
 
     const handleTouchEnd = (e) => {
       const endX = e.changedTouches[0].clientX;
-      const deltaX = this.touchStartX - endX;
-      const deltaT = Date.now() - this.touchStartTime;
+      const deltaX = touchStartX - endX;
+      const deltaT = Date.now() - touchStartTime;
 
       console.log('Touch end - deltaX:', deltaX, 'deltaT:', deltaT);
 
@@ -377,7 +384,7 @@ export default class NavigationManager {
       }
     };
 
-    this.swipeHandlers = {
+    globalSwipeHandlers = {
       start: handleTouchStart,
       end: handleTouchEnd
     };
@@ -385,7 +392,7 @@ export default class NavigationManager {
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
     window.addEventListener('touchend', handleTouchEnd, { passive: true });
     
-    this.swipeListenersAttached = true;
+    globalSwipeListenersAttached = true;
   }
 
   setupSheetSwipeClose() {
