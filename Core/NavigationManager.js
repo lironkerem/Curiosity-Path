@@ -17,6 +17,7 @@ export default class NavigationManager {
     this.touchStartTime = 0;
     this.sheetOpen = false;
     this.swipeListenersAttached = false;
+    this.swipeHandlers = null;
     
     // Constants
     this.SWIPE_ORDER = [
@@ -327,11 +328,20 @@ export default class NavigationManager {
   }
 
   setupSwipeGestures() {
-    if (this.swipeListenersAttached) return;
+    if (this.swipeListenersAttached) {
+      console.log('Swipe listeners already attached, skipping');
+      return;
+    }
     
-    console.log('setupSwipeGestures: Attaching listeners');
+    console.log('setupSwipeGestures: Attaching NEW listeners');
     
     const { SWIPE_THRESHOLD, SWIPE_TIME_MS } = this.CONSTANTS;
+
+    // Remove old listeners if they exist
+    if (this.swipeHandlers) {
+      window.removeEventListener('touchstart', this.swipeHandlers.start);
+      window.removeEventListener('touchend', this.swipeHandlers.end);
+    }
 
     const handleTouchStart = (e) => {
       this.touchStartX = e.touches[0].clientX;
@@ -365,6 +375,11 @@ export default class NavigationManager {
       if (navItem) {
         this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
       }
+    };
+
+    this.swipeHandlers = {
+      start: handleTouchStart,
+      end: handleTouchEnd
     };
 
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
