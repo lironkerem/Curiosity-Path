@@ -109,7 +109,6 @@
   padding: 0;
   z-index: 90;
 }
-
 .swipe-arrow {
   pointer-events: auto;
   position: fixed;
@@ -123,24 +122,38 @@
   display: grid;
   place-content: center;
   -webkit-tap-highlight-color: transparent;
+  -webkit-focus-ring-color: transparent;
+  -webkit-appearance: none;
   outline: none;
   user-select: none;
 }
-
+.swipe-arrow,
+.swipe-arrow svg,
+.swipe-arrow * {
+  outline: none !important;
+}
+.swipe-arrow:focus,
+.swipe-arrow:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+.swipe-arrow:focus svg,
+.swipe-arrow:focus-visible svg {
+  outline: none !important;
+  box-shadow: none !important;
+}
 .swipe-arrow:active { 
   transform: translateY(-50%) scale(1.9); 
 }
-
 .swipe-arrow.left { 
   left: -25px; 
   animation: slideRight 2s ease-in-out infinite; 
 }
-
 .swipe-arrow.right { 
   right: -25px; 
   animation: slideLeft 2s ease-in-out infinite; 
 }
-
 .swipe-arrow svg {
   width: 88px;
   height: 88px;
@@ -149,12 +162,10 @@
   stroke-linecap: round;
   fill: none;
 }
-
 @keyframes slideRight {
   0%, 100% { transform: translateY(-50%) scale(2) translateX(0); }
   50% { transform: translateY(-50%) scale(2) translateX(5px); }
 }
-
 @keyframes slideLeft {
   0%, 100% { transform: translateY(-50%) scale(2) translateX(0); }
   50% { transform: translateY(-50%) scale(2) translateX(-5px); }
