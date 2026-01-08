@@ -160,7 +160,6 @@ export default class NavigationManager {
   cacheElements() {
     this.cachedElements = {
       navItems: document.querySelectorAll('.nav-item'),
-      tabContents: document.querySelectorAll('.tab-content'),
       sheets: document.querySelectorAll('.mobile-sheet'),
       sheetRows: document.querySelectorAll('.sheet-row'),
       scrim: document.getElementById('sheet-scrim'),
@@ -407,7 +406,10 @@ export default class NavigationManager {
       window.calculatorChunk = 'requested';
     }
 
-    const { navItems, tabContents } = this.cachedElements;
+    const { navItems } = this.cachedElements;
+    
+    // Query fresh each time since tabs are dynamically created
+    const tabContents = document.querySelectorAll('.tab-content');
 
     navItems.forEach(t => {
       const isActive = t.dataset.tab === tabName;
