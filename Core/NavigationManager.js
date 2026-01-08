@@ -305,14 +305,21 @@ export default class NavigationManager {
 
     // FIXED: Direct implementation instead of local function
     leftBtn.addEventListener('click', (e) => { 
+      console.log('LEFT ARROW CLICKED');
+      console.log('this:', this);
+      console.log('this.switchTab:', this.switchTab);
       e.preventDefault(); 
       e.stopPropagation();
       
       const active = localStorage.getItem('pc_active_tab') || 'dashboard';
+      console.log('Active tab:', active);
       let idx = this.SWIPE_ORDER.indexOf(active);
+      console.log('Current index:', idx);
       idx = (idx - 1 + this.SWIPE_ORDER.length) % this.SWIPE_ORDER.length;
+      console.log('New index:', idx, 'New tab:', this.SWIPE_ORDER[idx]);
       
       const navItem = document.querySelector(`[data-tab="${this.SWIPE_ORDER[idx]}"]`);
+      console.log('Found navItem:', navItem);
       if (navItem) {
         this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
       }
@@ -321,14 +328,21 @@ export default class NavigationManager {
     });
     
     rightBtn.addEventListener('click', (e) => { 
+      console.log('RIGHT ARROW CLICKED');
+      console.log('this:', this);
+      console.log('this.switchTab:', this.switchTab);
       e.preventDefault(); 
       e.stopPropagation();
       
       const active = localStorage.getItem('pc_active_tab') || 'dashboard';
+      console.log('Active tab:', active);
       let idx = this.SWIPE_ORDER.indexOf(active);
+      console.log('Current index:', idx);
       idx = (idx + 1) % this.SWIPE_ORDER.length;
+      console.log('New index:', idx, 'New tab:', this.SWIPE_ORDER[idx]);
       
       const navItem = document.querySelector(`[data-tab="${this.SWIPE_ORDER[idx]}"]`);
+      console.log('Found navItem:', navItem);
       if (navItem) {
         this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
       }
