@@ -589,6 +589,7 @@ document.querySelectorAll('.rules-category-title').forEach(title => {
     document.getElementById('save-profile-btn')?.addEventListener('click', () => this.saveQuickProfile());
   }
 
+attachSettingsHandlers() {
 const darkModeToggle = document.getElementById('dark-mode-toggle');
 if (darkModeToggle) {
   darkModeToggle.addEventListener('change', e => {
