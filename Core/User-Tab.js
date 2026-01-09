@@ -322,6 +322,7 @@ export default class UserTab {
       window.app.renderAdminHTML    = () => this.renderAdminHTML();
       window.app.renderSettingsHTML = () => this.renderSettingsHTML();
       window.app.renderAutomationsHTML = () => renderAutomationsHTML();
+      window.app.renderNotificationsHTML = () => this.renderNotificationsHTML();
     }
     const dropdown = document.getElementById('user-dropdown');
     if (!dropdown) return;
@@ -342,8 +343,6 @@ export default class UserTab {
       // prefetch other panels while menu open
       requestIdleCallback(() => {
         if (!UDATA) getData();          // JSON
-        import('./renderRulesHTML.js'); // optional code-split
-        import('./renderNotificationsHTML.js');
       }, { timeout: 2000 });
     });
     document.addEventListener('click', e => {
