@@ -1,53 +1,186 @@
-// User-Tab.js  –  production build 2026-01-09
-// Changes: CSS moved to main-styles.css, data moved to user-tab-data.json, template cached,事件委托,debounced saves.
-import { supabase } from './Supabase.js';
-import UDATA from './user-tab-data.json' assert { type: 'json' };
+// User-Tab.js  –  production-ready, no build, no assert, no globals
+// 2026-01-09  –  CSS moved to main-styles.css, data in user-tab-data.json
 
+import { supabase } from './Supabase.js';
+
+/* ----------  private JSON cache  ---------- */
+let UDATA = null;
+async function getData() {
+  if (UDATA) return UDATA;                       // already cached
+  const res = await fetch('./user-tab-data.json');
+  UDATA = await res.json();
+  return UDATA;
+}
+
+/* ----------  helpers that need data  ---------- */
+async function renderRulesHTML() {
+  const data = await getData();
+  const rarityColour = data.rarityColour;
+  const categories = data.badgeCategories;
+  return `
+<div class="accordion-inner rules-panel">
+  <div class="rules-top-card">
+    <h4>The Curiosity Path <span style="opacity:.7">by Aanandoham, 2026</span></h4>
+    <p>A digital way, for a digital practitioner, to continue practicing Spirituality in the 21st Century.</p>
+    <p>This App was built to share tools, practices and ancient wisdom – digitally, from your device.</p>
+    <p>It is a convenient, accessible way, to stay connected to your 'Self', by small daily practices.</p>
+    <p>My hope is that you will utilize it to enhance your life, one small function at a time.</p>
+  </div>
+  <button class="rules-collapse-btn" data-target="currency-block">XP & Karma</button>
+  <div id="currency-block" class="rules-collapse-content">
+    <div class="rules-legend">
+      <span class="rules-legend-xp">XP = experience points</span>
+      <span class="rules-legend-karma">Karma = in-app currency</span>
+    </div>
+    <div class="rules-currency">
+      <div class="rules-currency-block">
+        <div class="rules-currency-title">Core Currency Rules</div>
+        <ul>
+          <li>XP is the only way to level up.</li>
+          <li>Karma is spent in the Karma-Shop for enhancements, premium features and private sessions.</li>
+        </ul>
+      </div>
+      <div class="rules-currency-block">
+        <div class="rules-currency-title">Level & XP Rules</div>
+        <table class="rules-level-table">
+          <tr><td>Level 1 – Seeker</td><td>0</td></tr>
+          <tr><td>Level 2 – Practitioner</td><td>300</td></tr>
+          <tr><td>Level 3 – Adept</td><td>800</td></tr>
+          <tr><td>Level 4 – Healer</td><td>1 600</td></tr>
+          <tr><td>Level 5 – Master</td><td>3 200</td></tr>
+          <tr><td>Level 6 – Sage</td><td>6 500</td></tr>
+          <tr><td>Level 7 – Enlightened</td><td>20 000</td></tr>
+          <tr><td>Level 8 – Buddha</td><td>50 000</td></tr>
+          <tr><td>Level 9 – Light</td><td>150 000</td></tr>
+          <tr><td>Level 10 – Emptiness</td><td>400 000</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <button class="rules-collapse-btn" data-target="badges-block">Badges</button>
+  <div id="badges-block" class="rules-collapse-content">
+    ${categories.map(cat => `
+    <section class="rules-category">
+      <h4 class="rules-category-title">${cat.title}</h4>
+      <div class="rules-grid">
+        ${cat.badges.map(b => `
+        <div class="rules-card" data-rarity="${b.rarity}">
+          <div class="rules-card-icon">${b.icon}</div>
+          <div class="rules-card-body">
+            <div class="rules-card-name">${b.name}</div>
+            <div class="rules-card-desc">${b.desc}</div>
+            <div class="rules-card-rewards">
+              <span class="rules-xp">+${b.xp} XP</span>
+              <span class="rules-karma">+${b.karma} Karma</span>
+            </div>
+          </div>
+          <div class="rules-card-tag" style="color:${rarityColour[b.rarity[0]]}">${b.rarity}</div>
+        </div>`).join('')}
+      </div>
+    </section>`).join('')}
+  </div>
+</div>`;
+}
+
+async function renderProfileHTML(u) {
+  const data = await getData();
+  const emojiOpts = data.emojis.map(e => `<option ${e===u.emoji?'selected':''} value="${e}">${e}</option>`).join('');
+  return `
+<div class="accordion-inner">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:10px;">
+    <label class="avatar-upload-label" title="Click to change picture">
+      <input type="file" id="avatar-upload" accept="image/*">
+      <div class="profile-avatar-container" id="profile-avatar-preview">
+        <img id="profile-avatar-img" src="${u.avatar_url || ''}" style="${u.avatar_url ? '' : 'display:none;'}">
+        <span class="profile-avatar-emoji" style="${u.avatar_url ? 'display:none;' : ''}">${u.emoji || '👤'}</span>
+      </div>
+    </label>
+    <select id="profile-emoji">${emojiOpts}</select>
+  </div>
+  <input id="profile-name" type="text" maxlength="30" placeholder="Display name" value="${u.name || ''}">
+  <input id="profile-email" type="email" placeholder="E-mail" value="${u.email || ''}">
+  <input id="profile-phone" type="tel" placeholder="Phone" value="${u.phone || ''}">
+  <input id="profile-birthday" type="date" value="${u.birthday || ''}">
+  <button class="btn-link" id="save-profile-btn">Save changes</button>
+</div>`;
+}
+
+async function renderAutomationsHTML() {
+  const data = await getData();
+  const cfg = { ...data.automationDefaults, ...JSON.parse(localStorage.getItem('wellness_automations') || '{}') };
+  const items = [
+    { id: 'self-reset',      name: '🧘 Self Reset',           key: 'selfReset' },
+    { id: 'full-body-scan',  name: '🌊 Full Body Scan',       key: 'fullBodyScan' },
+    { id: 'nervous-system',  name: '⚡ Nervous System Reset', key: 'nervousSystem' },
+    { id: 'tension-sweep',   name: '🌀 Tension Sweep',        key: 'tensionSweep' }
+  ];
+  return `
+<div class="accordion-inner">
+  <p style="font-size:0.85rem;margin-bottom:12px;opacity:0.8;">Enable automatic reminders for your wellness practices</p>
+  ${items.map(it => `
+  <div class="automation-group">
+    <div class="automation-header">
+      <label class="automation-label">
+        <input type="checkbox" id="auto-${it.id}" ${cfg[it.key].enabled ? 'checked' : ''}>
+        <span>${it.name}</span>
+      </label>
+    </div>
+    <div class="automation-controls ${cfg[it.key].enabled ? '' : 'disabled'}">
+      <label>Every <input type="number" id="interval-${it.id}" value="${cfg[it.key].min}" min="15" max="480" step="15" ${cfg[it.key].enabled ? '' : 'disabled'}> minutes</label>
+    </div>
+  </div>`).join('')}
+  <button class="btn-link" id="save-automations-btn">Save Automation Settings</button>
+  <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:12px 0;">
+  <small style="opacity:.7;font-size:0.75rem;">⚠️ Automations will trigger pop-up reminders at your chosen intervals while the app is open.</small>
+</div>`;
+}
+
+/* ----------  the class  ---------- */
 export default class UserTab {
-  static #tpl = null;               // DOM template cache
-  static #pool = document.createElement('div'); // DOM pool for innerHTML parsing
   constructor(app) { this.app = app; this.btn = null; }
 
-  /* ----------  Template  ---------- */
+  /* ----------  template cache  ---------- */
+  static #tpl = null;
+  static #pool = document.createElement('div');
   render() {
     if (UserTab.#tpl) return UserTab.#tpl.cloneNode(true);
     UserTab.#pool.innerHTML = `
-      <div class="user-menu" id="user-menu">
-        <button class="user-disc" id="user-menu-btn" aria-expanded="false" aria-controls="user-dropdown">
-          <svg class="disc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="${UDATA.avatarPath}"/></svg>
-          <span class="disc-avatar"><img class="disc-avatar-img hidden" alt="avatar"><span class="disc-avatar-emoji">👤</span></span>
-          <span class="disc-dot hidden"></span>
-        </button>
-        <div class="user-dropdown" id="user-dropdown" role="menu">
-          <button class="dropdown-item" data-section="profile">👤 Profile</button>
-          <div class="accordion-panel" id="panel-profile"></div>
-          <button class="dropdown-item" data-section="settings">🎭 Skins</button>
-          <div class="accordion-panel" id="panel-settings"></div>
-          <button class="dropdown-item" data-section="notifications">🔔 Notifications</button>
-          <div class="accordion-panel" id="panel-notifications"></div>
-          <button class="dropdown-item" data-section="automations">⚙️ Automations</button>
-          <div class="accordion-panel" id="panel-automations"></div>
-          <button class="dropdown-item" data-section="about">ℹ️ About the App</button>
-          <div class="accordion-panel" id="panel-about"></div>
-          <button class="dropdown-item" data-section="rules">📜 Rules</button>
-          <div class="accordion-panel" id="panel-rules"></div>
-          <button class="dropdown-item" data-section="contact">📧 Contact Me</button>
-          <div class="accordion-panel" id="panel-contact"></div>
-          <button class="dropdown-item" data-section="export">💾 Export Data</button>
-          <div class="accordion-panel" id="panel-export"></div>
-          <button class="dropdown-item" data-section="billing">⬆️ Pricings</button>
-          ${this.app.state.currentUser?.isAdmin?`
-          <button class="dropdown-item" data-section="admin">🔧 Admin Hacks</button>
-          <div class="accordion-panel" id="panel-admin"></div>`:''}
-          <div class="dropdown-divider"></div>
-          <button class="dropdown-item" data-action="logout">🚪 Logout</button>
-        </div>
-      </div>`;
+<div class="user-menu" id="user-menu">
+  <button class="user-disc" id="user-menu-btn" aria-expanded="false" aria-controls="user-dropdown">
+    <svg class="disc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.8-1.36-6.05-3.55C7.35 13.36 9.57 12 12 12s4.65 1.36 6.05 3.65C16.8 17.84 14.5 19.2 12 19.2z"/></svg>
+    <span class="disc-avatar"><img class="disc-avatar-img hidden" alt="avatar"><span class="disc-avatar-emoji">👤</span></span>
+    <span class="disc-dot hidden"></span>
+  </button>
+  <div class="user-dropdown" id="user-dropdown" role="menu">
+    <button class="dropdown-item" data-section="profile">👤 Profile</button>
+    <div class="accordion-panel" id="panel-profile"></div>
+    <button class="dropdown-item" data-section="settings">🎭 Skins</button>
+    <div class="accordion-panel" id="panel-settings"></div>
+    <button class="dropdown-item" data-section="notifications">🔔 Notifications</button>
+    <div class="accordion-panel" id="panel-notifications"></div>
+    <button class="dropdown-item" data-section="automations">⚙️ Automations</button>
+    <div class="accordion-panel" id="panel-automations"></div>
+    <button class="dropdown-item" data-section="about">ℹ️ About the App</button>
+    <div class="accordion-panel" id="panel-about"></div>
+    <button class="dropdown-item" data-section="rules">📜 Rules</button>
+    <div class="accordion-panel" id="panel-rules"></div>
+    <button class="dropdown-item" data-section="contact">📧 Contact Me</button>
+    <div class="accordion-panel" id="panel-contact"></div>
+    <button class="dropdown-item" data-section="export">💾 Export Data</button>
+    <div class="accordion-panel" id="panel-export"></div>
+    <button class="dropdown-item" data-section="billing">⬆️ Pricings</button>
+    ${this.app.state.currentUser?.isAdmin ? `
+    <button class="dropdown-item" data-section="admin">🔧 Admin Hacks</button>
+    <div class="accordion-panel" id="panel-admin"></div>` : ''}
+    <div class="dropdown-divider"></div>
+    <button class="dropdown-item" data-action="logout">🚪 Logout</button>
+  </div>
+</div>`;
     UserTab.#tpl = UserTab.#pool.firstElementChild;
     return UserTab.#tpl.cloneNode(true);
   }
 
-  /* ----------  Profile helpers  ---------- */
+  /* ----------  profile  ---------- */
   async saveQuickProfile() {
     clearTimeout(this._profileDebounce);
     this._profileDebounce = setTimeout(async () => {
@@ -89,100 +222,9 @@ export default class UserTab {
     }
   }
 
-  /* ----------  HTML factories (use JSON)  ---------- */
-  renderProfileHTML() {
-    const u = this.app.state.currentUser || {};
-    const emojiOpts = UDATA.emojis.map(e=>`<option ${e===u.emoji?'selected':''} value="${e}">${e}</option>`).join('');
-    return `
-      <div class="accordion-inner">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:10px;">
-          <label class="avatar-upload-label" title="Click to change picture">
-            <input type="file" id="avatar-upload" accept="image/*">
-            <div class="profile-avatar-container" id="profile-avatar-preview">
-              <img id="profile-avatar-img" src="${u.avatar_url || ''}" style="${u.avatar_url ? '' : 'display:none;'}">
-              <span class="profile-avatar-emoji" style="${u.avatar_url ? 'display:none;' : ''}">${u.emoji || '👤'}</span>
-            </div>
-          </label>
-          <select id="profile-emoji">${emojiOpts}</select>
-        </div>
-        <input id="profile-name" type="text" maxlength="30" placeholder="Display name" value="${u.name || ''}">
-        <input id="profile-email" type="email" placeholder="E-mail" value="${u.email || ''}">
-        <input id="profile-phone" type="tel" placeholder="Phone" value="${u.phone || ''}">
-        <input id="profile-birthday" type="date" value="${u.birthday || ''}">
-        <button class="btn-link" id="save-profile-btn">Save changes</button>
-      </div>`;
-  }
-  renderRulesHTML() {
-    const rarityColour = UDATA.rarityColour;
-    return `
-      <div class="accordion-inner rules-panel">
-        <div class="rules-top-card">
-          <h4>The Curiosity Path <span style="opacity:.7">by Aanandoham, 2026</span></h4>
-          <p>A digital way, for a digital practitioner, to continue practicing Spirituality in the 21st Century.</p>
-          <p>This App was built to share tools, practices and ancient wisdom – digitally, from your device.</p>
-          <p>It is a convenient, accessible way, to stay connected to your 'Self', by small daily practices.</p>
-          <p>My hope is that you will utilize it to enhance your life, one small function at a time.</p>
-        </div>
-        <button class="rules-collapse-btn" data-target="currency-block">XP & Karma</button>
-        <div id="currency-block" class="rules-collapse-content">
-          <div class="rules-legend">
-            <span class="rules-legend-xp">XP = experience points</span>
-            <span class="rules-legend-karma">Karma = in-app currency</span>
-          </div>
-          <div class="rules-currency">
-            <div class="rules-currency-block">
-              <div class="rules-currency-title">Core Currency Rules</div>
-              <ul>
-                <li>XP is the only way to level up.</li>
-                <li>Karma is spent in the Karma-Shop for enhancements, premium features and private sessions.</li>
-              </ul>
-            </div>
-            <div class="rules-currency-block">
-              <div class="rules-currency-title">Level & XP Rules</div>
-              <table class="rules-level-table">
-                <tr><td>Level 1 – Seeker</td><td>0</td></tr>
-                <tr><td>Level 2 – Practitioner</td><td>300</td></tr>
-                <tr><td>Level 3 – Adept</td><td>800</td></tr>
-                <tr><td>Level 4 – Healer</td><td>1 600</td></tr>
-                <tr><td>Level 5 – Master</td><td>3 200</td></tr>
-                <tr><td>Level 6 – Sage</td><td>6 500</td></tr>
-                <tr><td>Level 7 – Enlightened</td><td>20 000</td></tr>
-                <tr><td>Level 8 – Buddha</td><td>50 000</td></tr>
-                <tr><td>Level 9 – Light</td><td>150 000</td></tr>
-                <tr><td>Level 10 – Emptiness</td><td>400 000</td></tr>
-              </table>
-            </div>
-          </div>
-        </div>
-        <button class="rules-collapse-btn" data-target="badges-block">Badges</button>
-        <div id="badges-block" class="rules-collapse-content">
-          ${UDATA.badgeCategories.map(cat => `
-          <section class="rules-category">
-            <h4 class="rules-category-title">${cat.title}</h4>
-            <div class="rules-grid">
-              ${cat.badges.map(b => `
-              <div class="rules-card" data-rarity="${b.rarity}">
-                <div class="rules-card-icon">${b.icon}</div>
-                <div class="rules-card-body">
-                  <div class="rules-card-name">${b.name}</div>
-                  <div class="rules-card-desc">${b.desc}</div>
-                  <div class="rules-card-rewards">
-                    <span class="rules-xp">+${b.xp} XP</span>
-                    <span class="rules-karma">+${b.karma} Karma</span>
-                  </div>
-                </div>
-                <div class="rules-card-tag" style="color:${rarityColour[b.rarity[0]]}">${b.rarity}</div>
-              </div>`).join('')}
-            </div>
-          </section>`).join('')}
-        </div>
-      </div>`;
-  }
+  /* ----------  other static HTML helpers  ---------- */
   renderAboutHTML() {
-    return `<div class="accordion-inner"><p>${UDATA.aboutText}</p></div>`;
-  }
-  renderExportHTML() {
-    return `<div class="accordion-inner"><button class="btn-link" onclick="window.app.exportUserData()">Download JSON</button></div>`;
+    return getData().then(data => `<div class="accordion-inner"><p>${data.aboutText}</p></div>`);
   }
   renderContactHTML() {
     return `<div class="accordion-inner">
@@ -191,6 +233,9 @@ export default class UserTab {
       <a href="mailto:lironkerem@gmail.com" style="font-weight:bold;text-decoration:underline;color:var(--neuro-accent);">Email me</a><br>
       <a href="https://www.facebook.com/AanandohamsProjectCuriosity" target="_blank" style="font-weight:bold;text-decoration:underline;color:var(--neuro-accent);">Facebook Page</a>
     </div>`;
+  }
+  renderExportHTML() {
+    return `<div class="accordion-inner"><button class="btn-link" onclick="window.app.exportUserData()">Download JSON</button></div>`;
   }
   renderBillingHTML() {
     return `<div class="accordion-inner">
@@ -209,110 +254,82 @@ export default class UserTab {
     const isDarkMode = document.body.classList.contains('dark-mode');
     const has = f => this.app.gamification?.state?.unlockedFeatures?.includes(f) || false;
     return `
-      <div class="accordion-inner">
-        <div style="margin-bottom:16px;">
-          <div class="toggle-switch-container">
-            <span class="toggle-switch-label">🌙 Dark Mode</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="dark-mode-toggle" ${isDarkMode ? 'checked' : ''}>
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
-        <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:16px 0;">
-        <div style="margin-bottom:12px;font-weight:600;">Select Theme</div>
-        <div class="toggle-switch-container">
-          <span class="toggle-switch-label">Default (Neumorphic)</span>
-          <label class="toggle-switch">
-            <input type="checkbox" class="theme-toggle" data-theme="default" ${activeTheme === 'default' ? 'checked' : ''}>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <div class="toggle-switch-container">
-          <span class="toggle-switch-label">Escaping the Matrix</span>
-          <label class="toggle-switch">
-            <input type="checkbox" class="theme-toggle" data-theme="matrix-code" ${activeTheme === 'matrix-code' ? 'checked' : ''}>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:16px 0;">
-        <div style="margin-bottom:12px;font-weight:600;">Premium Themes</div>
-        <div class="toggle-switch-container ${has('luxury_champagne_gold_skin') ? '' : 'disabled'}" title="${has('luxury_champagne_gold_skin') ? '' : '🔒 Purchase in Karma Shop to unlock'}">
-          <span class="toggle-switch-label">Champagne Gold ${has('luxury_champagne_gold_skin') ? '' : '🔒'}</span>
-          <label class="toggle-switch">
-            <input type="checkbox" class="theme-toggle" data-theme="champagne-gold" ${activeTheme === 'champagne-gold' ? 'checked' : ''} ${has('luxury_champagne_gold_skin') ? '' : 'disabled'}>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <div class="toggle-switch-container ${has('royal_indigo_skin') ? '' : 'disabled'}" title="${has('royal_indigo_skin') ? '' : '🔒 Purchase in Karma Shop to unlock'}">
-          <span class="toggle-switch-label">Royal Indigo ${has('royal_indigo_skin') ? '' : '🔒'}</span>
-          <label class="toggle-switch">
-            <input type="checkbox" class="theme-toggle" data-theme="royal-indigo" ${activeTheme === 'royal-indigo' ? 'checked' : ''} ${has('royal_indigo_skin') ? '' : 'disabled'}>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <div class="toggle-switch-container ${has('earth_luxury_skin') ? '' : 'disabled'}" title="${has('earth_luxury_skin') ? '' : '🔒 Purchase in Karma Shop to unlock'}">
-          <span class="toggle-switch-label">Earth Luxury ${has('earth_luxury_skin') ? '' : '🔒'}</span>
-          <label class="toggle-switch">
-            <input type="checkbox" class="theme-toggle" data-theme="earth-luxury" ${activeTheme === 'earth-luxury' ? 'checked' : ''} ${has('earth_luxury_skin') ? '' : 'disabled'}>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:12px 0;">
-        <small style="opacity:.7">Changes apply immediately. Dark mode works with all themes!</small>
-      </div>`;
-  }
-  renderAutomationsHTML() {
-    const cfg = { ...UDATA.automationDefaults, ...JSON.parse(localStorage.getItem('wellness_automations') || '{}') };
-    const items = [
-      { id: 'self-reset',      name: '🧘 Self Reset',           key: 'selfReset' },
-      { id: 'full-body-scan',  name: '🌊 Full Body Scan',       key: 'fullBodyScan' },
-      { id: 'nervous-system',  name: '⚡ Nervous System Reset', key: 'nervousSystem' },
-      { id: 'tension-sweep',   name: '🌀 Tension Sweep',        key: 'tensionSweep' }
-    ];
-    return `
-      <div class="accordion-inner">
-        <p style="font-size:0.85rem;margin-bottom:12px;opacity:0.8;">Enable automatic reminders for your wellness practices</p>
-        ${items.map(it => `
-        <div class="automation-group">
-          <div class="automation-header">
-            <label class="automation-label">
-              <input type="checkbox" id="auto-${it.id}" ${cfg[it.key].enabled ? 'checked' : ''}>
-              <span>${it.name}</span>
-            </label>
-          </div>
-          <div class="automation-controls ${cfg[it.key].enabled ? '' : 'disabled'}">
-            <label>Every <input type="number" id="interval-${it.id}" value="${cfg[it.key].min}" min="15" max="480" step="15" ${cfg[it.key].enabled ? '' : 'disabled'}> minutes</label>
-          </div>
-        </div>`).join('')}
-        <button class="btn-link" id="save-automations-btn">Save Automation Settings</button>
-        <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:12px 0;">
-        <small style="opacity:.7;font-size:0.75rem;">⚠️ Automations will trigger pop-up reminders at your chosen intervals while the app is open.</small>
-      </div>`;
+<div class="accordion-inner">
+  <div style="margin-bottom:16px;">
+    <div class="toggle-switch-container">
+      <span class="toggle-switch-label">🌙 Dark Mode</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="dark-mode-toggle" ${isDarkMode ? 'checked' : ''}>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+  <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:16px 0;">
+  <div style="margin-bottom:12px;font-weight:600;">Select Theme</div>
+  <div class="toggle-switch-container">
+    <span class="toggle-switch-label">Default (Neumorphic)</span>
+    <label class="toggle-switch">
+      <input type="checkbox" class="theme-toggle" data-theme="default" ${activeTheme === 'default' ? 'checked' : ''}>
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  <div class="toggle-switch-container">
+    <span class="toggle-switch-label">Escaping the Matrix</span>
+    <label class="toggle-switch">
+      <input type="checkbox" class="theme-toggle" data-theme="matrix-code" ${activeTheme === 'matrix-code' ? 'checked' : ''}>
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:16px 0;">
+  <div style="margin-bottom:12px;font-weight:600;">Premium Themes</div>
+  <div class="toggle-switch-container ${has('luxury_champagne_gold_skin') ? '' : 'disabled'}" title="${has('luxury_champagne_gold_skin') ? '' : '🔒 Purchase in Karma Shop to unlock'}">
+    <span class="toggle-switch-label">Champagne Gold ${has('luxury_champagne_gold_skin') ? '' : '🔒'}</span>
+    <label class="toggle-switch">
+      <input type="checkbox" class="theme-toggle" data-theme="champagne-gold" ${activeTheme === 'champagne-gold' ? 'checked' : ''} ${has('luxury_champagne_gold_skin') ? '' : 'disabled'}>
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  <div class="toggle-switch-container ${has('royal_indigo_skin') ? '' : 'disabled'}" title="${has('royal_indigo_skin') ? '' : '🔒 Purchase in Karma Shop to unlock'}">
+    <span class="toggle-switch-label">Royal Indigo ${has('royal_indigo_skin') ? '' : '🔒'}</span>
+    <label class="toggle-switch">
+      <input type="checkbox" class="theme-toggle" data-theme="royal-indigo" ${activeTheme === 'royal-indigo' ? 'checked' : ''} ${has('royal_indigo_skin') ? '' : 'disabled'}>
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  <div class="toggle-switch-container ${has('earth_luxury_skin') ? '' : 'disabled'}" title="${has('earth_luxury_skin') ? '' : '🔒 Purchase in Karma Shop to unlock'}">
+    <span class="toggle-switch-label">Earth Luxury ${has('earth_luxury_skin') ? '' : '🔒'}</span>
+    <label class="toggle-switch">
+      <input type="checkbox" class="theme-toggle" data-theme="earth-luxury" ${activeTheme === 'earth-luxury' ? 'checked' : ''} ${has('earth_luxury_skin') ? '' : 'disabled'}>
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:12px 0;">
+  <small style="opacity:.7">Changes apply immediately. Dark mode works with all themes!</small>
+</div>`;
   }
 
-  /* ----------  Init / handlers  ---------- */
+  /* ----------  init  ---------- */
   init() {
-    if (!window.app.renderProfileHTML) {   // register helpers once
-      window.app.renderProfileHTML  = () => this.renderProfileHTML();
-      window.app.renderRulesHTML    = () => this.renderRulesHTML();
-      window.app.renderAboutHTML    = () => this.renderAboutHTML();
+    // register helpers once
+    if (!window.app.renderProfileHTML) {
+      window.app.renderProfileHTML  = (u) => renderProfileHTML(u);
+      window.app.renderRulesHTML    = () => renderRulesHTML();
+      window.app.renderAboutHTML    = () => getData().then(d => `<div class="accordion-inner"><p>${d.aboutText}</p></div>`);
       window.app.renderContactHTML  = () => this.renderContactHTML();
       window.app.renderExportHTML   = () => this.renderExportHTML();
       window.app.renderBillingHTML  = () => this.renderBillingHTML();
       window.app.renderAdminHTML    = () => this.renderAdminHTML();
       window.app.renderSettingsHTML = () => this.renderSettingsHTML();
-      window.app.renderAutomationsHTML=()=> this.renderAutomationsHTML();
+      window.app.renderAutomationsHTML = () => renderAutomationsHTML();
     }
     const dropdown = document.getElementById('user-dropdown');
     if (!dropdown) return;
-    // single delegate for sections
+    // single delegate
     dropdown.addEventListener('click', e => {
       const sec = e.target.closest('[data-section]');
       if (sec) this.openSection(sec.dataset.section);
       if (e.target.dataset.action === 'logout') this.showLogoutModal();
     });
-    document.querySelector('[data-action="logout"]')?.addEventListener('click', () => this.showLogoutModal());
     this.btn = document.getElementById('user-menu-btn');
     if (!this.btn) return;
     this.btn.addEventListener('click', e => {
@@ -321,10 +338,11 @@ export default class UserTab {
       this.btn.setAttribute('aria-expanded', !expanded);
       dropdown.classList.toggle('active');
       this.syncAvatar();
-      // first open: prefetch other panels
+      // prefetch other panels while menu open
       requestIdleCallback(() => {
-        if (!window.UDATA) import('./user-tab-data.json', { assert: { type: 'json' } }).then(m => window.UDATA = m.default);
-        import('./renderRulesHTML.js'); import('./renderNotificationsHTML.js');
+        if (!UDATA) getData();          // JSON
+        import('./renderRulesHTML.js'); // optional code-split
+        import('./renderNotificationsHTML.js');
       }, { timeout: 2000 });
     });
     document.addEventListener('click', e => {
@@ -344,22 +362,28 @@ export default class UserTab {
     this.restoreDarkMode();
     this.hydrateUserProfile();
   }
-  openSection(section) {
+
+  async openSection(section) {
     const panel = document.getElementById(`panel-${section}`);
     const isOpen = panel.classList.contains('active');
     document.querySelectorAll('.accordion-panel').forEach(p => p.classList.remove('active'));
     if (!isOpen) {
       panel.classList.add('active');
       if (!panel.dataset.filled) {
-        panel.innerHTML = window.app[`render${section.charAt(0).toUpperCase() + section.slice(1)}HTML`]();
+        // async helpers
+        if (section === 'profile')  panel.innerHTML = await window.app.renderProfileHTML(this.app.state.currentUser || {});
+        else if (section === 'rules')    panel.innerHTML = await window.app.renderRulesHTML();
+        else if (section === 'automations') panel.innerHTML = await window.app.renderAutomationsHTML();
+        else panel.innerHTML = await window.app[`render${section.charAt(0).toUpperCase() + section.slice(1)}HTML`]();
         panel.dataset.filled = '1';
-        if (section === 'profile') this.attachProfileHandlers();
-        if (section === 'settings') this.attachSettingsHandlers();
+        if (section === 'profile')       this.attachProfileHandlers();
+        if (section === 'settings')      this.attachSettingsHandlers();
         if (section === 'notifications') this.attachNotificationsHandlers();
-        if (section === 'automations') this.attachAutomationsHandlers();
+        if (section === 'automations')   this.attachAutomationsHandlers();
       }
     }
   }
+
   attachProfileHandlers() {
     document.getElementById('profile-emoji')?.addEventListener('change', e => {
       document.querySelector('.profile-avatar-emoji').textContent = e.target.value;
@@ -436,17 +460,19 @@ export default class UserTab {
     document.getElementById('save-automations-btn')?.addEventListener('click', () => this.saveAutomations());
   }
   saveAutomations() {
-    const cfg = {
-      selfReset:     { enabled: document.getElementById('auto-self-reset')?.checked     || false, min: parseInt(document.getElementById('interval-self-reset')?.value      || 60)  },
-      fullBodyScan:  { enabled: document.getElementById('auto-full-body-scan')?.checked  || false, min: parseInt(document.getElementById('interval-full-body-scan')?.value  || 180) },
-      nervousSystem: { enabled: document.getElementById('auto-nervous-system')?.checked || false, min: parseInt(document.getElementById('interval-nervous-system')?.value || 120) },
-      tensionSweep:  { enabled: document.getElementById('auto-tension-sweep')?.checked  || false, min: parseInt(document.getElementById('interval-tension-sweep')?.value  || 120) }
-    };
-    localStorage.setItem('wellness_automations', JSON.stringify(cfg));
-    if (window.app.restartAutomations) window.app.restartAutomations();
-    const notifSettings = JSON.parse(localStorage.getItem('notification_settings')) || {};
-    if (notifSettings.enabled && notifSettings.wellness?.enabled) window.app.scheduleNotifications(notifSettings);
-    this.app.showToast('✅ Automation settings saved!', 'success');
+    getData().then(data => {
+      const cfg = {
+        selfReset:      { enabled: document.getElementById('auto-self-reset')?.checked     || false, min: parseInt(document.getElementById('interval-self-reset')?.value      || data.automationDefaults.selfReset.min)  },
+        fullBodyScan:   { enabled: document.getElementById('auto-full-body-scan')?.checked  || false, min: parseInt(document.getElementById('interval-full-body-scan')?.value  || data.automationDefaults.fullBodyScan.min) },
+        nervousSystem:  { enabled: document.getElementById('auto-nervous-system')?.checked || false, min: parseInt(document.getElementById('interval-nervous-system')?.value || data.automationDefaults.nervousSystem.min) },
+        tensionSweep:   { enabled: document.getElementById('auto-tension-sweep')?.checked  || false, min: parseInt(document.getElementById('interval-tension-sweep')?.value  || data.automationDefaults.tensionSweep.min) }
+      };
+      localStorage.setItem('wellness_automations', JSON.stringify(cfg));
+      if (window.app.restartAutomations) window.app.restartAutomations();
+      const notifSettings = JSON.parse(localStorage.getItem('notification_settings')) || {};
+      if (notifSettings.enabled && notifSettings.wellness?.enabled) window.app.scheduleNotifications(notifSettings);
+      this.app.showToast('✅ Automation settings saved!', 'success');
+    });
   }
   liveAvatarPreview() {
     const file = document.getElementById('avatar-upload').files[0];
@@ -470,14 +496,18 @@ export default class UserTab {
     }
   }
   switchTheme(themeName) {
-    if (themeName !== 'default') document.getElementById('dark-mode-css') && (document.getElementById('dark-mode-css').disabled = true);
+    if (themeName !== 'default') {
+      const darkLink = document.getElementById('dark-mode-css');
+      if (darkLink) darkLink.disabled = true;
+    }
     document.body.classList.remove('champagne-gold', 'royal-indigo', 'earth-luxury', 'matrix-code');
     document.querySelectorAll('link[data-premium-theme]').forEach(l => l.remove());
     const rain = document.querySelector('.matrix-rain-container');
     if (rain) rain.remove();
     localStorage.setItem('activeTheme', themeName);
     if (themeName === 'default') {
-      document.getElementById('dark-mode-css') && (document.getElementById('dark-mode-css').disabled = false);
+      const darkLink = document.getElementById('dark-mode-css');
+      if (darkLink) darkLink.disabled = false;
       return;
     }
     document.body.classList.add(themeName);
@@ -523,23 +553,26 @@ export default class UserTab {
       emoji.classList.remove('hidden');
       this.btn.classList.remove('avatar-mode');
     }
-    // pulse-dot only when menu opened
     if (!dot.classList.contains('animate')) dot.classList.add('animate');
   }
+
+  /* ----------  logout modal  ---------- */
+  static #logoutTpl = null;
   showLogoutModal() {
-    if (UserTab.#logoutTpl) return document.body.appendChild(UserTab.#logoutTpl.cloneNode(true));
-    UserTab.#pool.innerHTML = `
-      <div class="modal-overlay">
-        <div class="neuro-modal modal-small">
-          <div class="modal-header"><div class="modal-icon">🚪</div><h3 class="modal-title">Logout?</h3></div>
-          <p class="modal-message">Are you sure you want to logout?</p>
-          <div class="modal-actions">
-            <button class="btn" id="cancel-logout">Cancel</button>
-            <button class="btn btn-primary" id="confirm-logout">Logout</button>
-          </div>
-        </div>
-      </div>`;
-    UserTab.#logoutTpl = UserTab.#pool.firstElementChild;
+    if (!UserTab.#logoutTpl) {
+      UserTab.#pool.innerHTML = `
+<div class="modal-overlay">
+  <div class="neuro-modal modal-small">
+    <div class="modal-header"><div class="modal-icon">🚪</div><h3 class="modal-title">Logout?</h3></div>
+    <p class="modal-message">Are you sure you want to logout?</p>
+    <div class="modal-actions">
+      <button class="btn" id="cancel-logout">Cancel</button>
+      <button class="btn btn-primary" id="confirm-logout">Logout</button>
+    </div>
+  </div>
+</div>`;
+      UserTab.#logoutTpl = UserTab.#pool.firstElementChild;
+    }
     document.body.appendChild(UserTab.#logoutTpl.cloneNode(true));
     const modal = document.querySelector('.modal-overlay:last-of-type');
     modal.querySelector('#cancel-logout').onclick = () => modal.remove();
