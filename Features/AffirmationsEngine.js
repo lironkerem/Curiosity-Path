@@ -20,15 +20,15 @@ class AffirmationsEngine {
     console.log('✅ Affirmations loaded:', Object.keys(this.affirmations).length, 'categories');
   }
 
-  _getAllAffirmations() {
-    if (this._allAffirmations) return this._allAffirmations;
-    
-    this._allAffirmations = Object.values(this.affirmations)
-      .filter(Array.isArray)
-      .flat();
-    
-    return this._allAffirmations;
-  }
+_getAllAffirmations() {
+  if (this._allAffirmations) return this._allAffirmations;
+
+  this._allAffirmations = Object.values(this.affirmations)
+                                .flat()          // flatten one level
+                                .filter(Boolean); // remove null/undefined
+
+  return this._allAffirmations;
+}
 
   _extractText(item) {
     return typeof item === 'string' ? item : item.text;
