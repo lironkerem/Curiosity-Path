@@ -266,18 +266,33 @@ export class MatrixRain {
  * Can be manually controlled via window.matrixRain
  */
 if (typeof window !== 'undefined') {
-  // Auto-start on page load if matrix-code class exists
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      if (document.body.classList.contains('matrix-code')) {
+  // expose constructor globally
+  window.MatrixRain = MatrixRain;
+
+  // initial start (page load)
+  const startIfNeeded = () => {
+    if (document.body.classList.contains('matrix-code')) {
+      if (!window.matrixRain || !window.matrixRain.isRunning) {
         window.matrixRain = new MatrixRain();
         window.matrixRain.init();
       }
-    });
-  } else {
-    if (document.body.classList.contains('matrix-code')) {
-      window.matrixRain = new MatrixRain();
-      window.matrixRain.init();
     }
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startIfNeeded);
+  } else {
+    startIfNeeded();
   }
+
+  // re-start whenever <body> receives the class (even long after load)
+  const matrixObserver = new MutationObserver(() => {
+    if (document.body.classList.contains('matrix-code')) {
+      startIfNeeded();
+    } else {
+      // auto-destroy when leaving skin
+      if (window.matrixRain) window.matrixRain.destroy();
+    }
+  });
+  matrixObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 }
