@@ -695,25 +695,33 @@ if (darkModeToggle) {
     }
   }
 
-  switchTheme(themeName) {
-    if (themeName !== 'default') document.getElementById('dark-mode-css')?.setAttribute('disabled', 'true');
-    document.body.classList.remove('champagne-gold', 'royal-indigo', 'earth-luxury', 'matrix-code');
-    document.querySelectorAll('link[data-premium-theme]').forEach(l => l.remove());
-    const rain = document.querySelector('.matrix-rain-container');
-    if (rain) rain.remove();
-    localStorage.setItem('activeTheme', themeName);
-    if (themeName === 'default') {
-      document.getElementById('dark-mode-css')?.removeAttribute('disabled');
-      return;
-    }
-    document.body.classList.add(themeName);
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = `./Assets/CSS/Skins/${themeName}.css`;
-    link.setAttribute('data-premium-theme', themeName);
-    document.head.appendChild(link);
-    if (themeName === 'matrix-code' && window.app?.initMatrixRain) setTimeout(() => window.app.initMatrixRain(), 100);
+switchTheme(themeName) {
+  if (themeName !== 'default') document.getElementById('dark-mode-css')?.setAttribute('disabled', 'true');
+
+  document.body.classList.remove('champagne-gold', 'royal-indigo', 'earth-luxury', 'matrix-code');
+  document.querySelectorAll('link[data-premium-theme]').forEach(l => l.remove());
+
+  const rain = document.querySelector('.matrix-rain-container');
+  if (rain) rain.remove();
+  if (window.matrixRain) window.matrixRain.destroy();   // full cleanup
+
+  localStorage.setItem('activeTheme', themeName);
+
+  if (themeName === 'default') {
+    document.getElementById('dark-mode-css')?.removeAttribute('disabled');
+    return;
   }
+
+  document.body.classList.add(themeName);
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = `./Assets/CSS/Skins/${themeName}.css`;
+  link.setAttribute('data-premium-theme', themeName);
+  document.head.appendChild(link);
+
+  if (themeName === 'matrix-code' && window.matrixRain) window.matrixRain.init();
+  if (themeName === 'matrix-code' && window.app?.initMatrixRain) setTimeout(() => window.app.initMatrixRain(), 100);
+}
 
 restoreDarkMode(){
   const dark = localStorage.getItem('darkMode')==='enabled';
