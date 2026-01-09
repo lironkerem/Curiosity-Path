@@ -709,7 +709,7 @@ document.querySelectorAll('.rules-category-title').forEach(title => {
     document.body.classList.add(themeName);
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = `./Assets/CSS/${themeName}.css`;
+    link.href = `./Assets/CSS/Skins/${themeName}.css`;
     link.setAttribute('data-premium-theme', themeName);
     document.head.appendChild(link);
     if (themeName === 'matrix-code' && window.app?.initMatrixRain) setTimeout(() => window.app.initMatrixRain(), 100);
