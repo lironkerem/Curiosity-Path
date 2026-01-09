@@ -17,6 +17,7 @@ async function renderRulesHTML() {
   const data = await getData();
   const rarityColour = data.rarityColour;
   const categories = data.badgeCategories;
+  const map = { common:'c', uncommon:'u', rare:'r', epic:'e', legendary:'l' };
   return `
 <div class="accordion-inner rules-panel">
   <div class="rules-top-card">
@@ -74,7 +75,7 @@ async function renderRulesHTML() {
               <span class="rules-karma">+${b.karma} Karma</span>
             </div>
           </div>
-          <div class="rules-card-tag" style="color:${rarityColour[b.rarity[0]]}">${b.rarity}</div>
+          <div class="rules-card-tag" style="color:${rarityColour[map[b.rarity] || b.rarity[0]]}">${b.rarity}</div>
         </div>`).join('')}
       </div>
     </section>`).join('')}
@@ -363,26 +364,37 @@ export default class UserTab {
     this.hydrateUserProfile();
   }
 
-  async openSection(section) {
-    const panel = document.getElementById(`panel-${section}`);
-    const isOpen = panel.classList.contains('active');
-    document.querySelectorAll('.accordion-panel').forEach(p => p.classList.remove('active'));
-    if (!isOpen) {
-      panel.classList.add('active');
-      if (!panel.dataset.filled) {
-        // async helpers
-        if (section === 'profile')  panel.innerHTML = await window.app.renderProfileHTML(this.app.state.currentUser || {});
-        else if (section === 'rules')    panel.innerHTML = await window.app.renderRulesHTML();
-        else if (section === 'automations') panel.innerHTML = await window.app.renderAutomationsHTML();
-        else panel.innerHTML = await window.app[`render${section.charAt(0).toUpperCase() + section.slice(1)}HTML`]();
-        panel.dataset.filled = '1';
-        if (section === 'profile')       this.attachProfileHandlers();
-        if (section === 'settings')      this.attachSettingsHandlers();
-        if (section === 'notifications') this.attachNotificationsHandlers();
-        if (section === 'automations')   this.attachAutomationsHandlers();
+async openSection(section) {
+  const panel = document.getElementById(`panel-${section}`);
+  if (!panel) return;
+  const isOpen = panel.classList.contains('active');
+  document.querySelectorAll('.accordion-panel').forEach(p => p.classList.remove('active'));
+  if (!isOpen) {
+    panel.classList.add('active');
+    if (!panel.dataset.filled) {
+      let html;
+      switch (section) {
+        case 'profile':      html = await renderProfileHTML(this.app.state.currentUser || {}); break;
+        case 'rules':        html = await renderRulesHTML();                                   break;
+        case 'automations':  html = await renderAutomationsHTML();                             break;
+        case 'about':        html = await window.app.renderAboutHTML();                        break;
+        case 'contact':      html = window.app.renderContactHTML();                            break;
+        case 'export':       html = window.app.renderExportHTML();                             break;
+        case 'billing':      html = window.app.renderBillingHTML();                            break;
+        case 'admin':        html = window.app.renderAdminHTML();                              break;
+        case 'settings':     html = window.app.renderSettingsHTML();                           break;
+        case 'notifications':html = window.app.renderNotificationsHTML();                      break;
+        default:             html = '<div class="accordion-inner">Panel not found</div>';
       }
+      panel.innerHTML = html;
+      panel.dataset.filled = '1';
+      if (section === 'profile')       this.attachProfileHandlers();
+      if (section === 'settings')      this.attachSettingsHandlers();
+      if (section === 'notifications') this.attachNotificationsHandlers();
+      if (section === 'automations')   this.attachAutomationsHandlers();
     }
   }
+}
 
   attachProfileHandlers() {
     document.getElementById('profile-emoji')?.addEventListener('change', e => {
