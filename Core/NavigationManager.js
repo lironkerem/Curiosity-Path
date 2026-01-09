@@ -318,6 +318,7 @@ export default class NavigationManager {
     leftBtn.addEventListener('touchstart', (e) => { 
       e.preventDefault(); 
       e.stopPropagation();
+      e.stopImmediatePropagation();
       
       arrowClickInProgress = true;
       
@@ -330,13 +331,14 @@ export default class NavigationManager {
         this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
       }
       
-      setTimeout(() => { arrowClickInProgress = false; }, 100);
+      setTimeout(() => { arrowClickInProgress = false; }, 300);
       blurButton(leftBtn); 
-    });
+    }, { capture: true });
     
     rightBtn.addEventListener('touchstart', (e) => { 
       e.preventDefault(); 
       e.stopPropagation();
+      e.stopImmediatePropagation();
       
       arrowClickInProgress = true;
       
@@ -349,9 +351,9 @@ export default class NavigationManager {
         this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
       }
       
-      setTimeout(() => { arrowClickInProgress = false; }, 100);
+      setTimeout(() => { arrowClickInProgress = false; }, 300);
       blurButton(rightBtn); 
-    });
+    }, { capture: true });
     
     leftBtn.addEventListener('touchend', (e) => {
       e.preventDefault();
