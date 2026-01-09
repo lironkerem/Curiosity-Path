@@ -23,24 +23,20 @@
   
   // Apply classes to HTML element
   const html = document.documentElement;
-  if (darkMode) html.classList.add('dark-mode');
-  if (theme !== 'default') html.classList.add(theme);
+  if(darkMode) html.classList.add('dark-mode');
+  if(theme !== 'default') html.classList.add(theme);
   
-  // Synchronously inject theme CSS using document.write (blocks parser)
-  if (theme === 'default') {
-    // NEW: Load optimized split files for default theme
+  // 1. Core theme CSS
+  if(theme === 'default') {
     document.write('<link rel="stylesheet" href="./Assets/CSS/main-styles.css">');
     document.write('<link rel="stylesheet" href="./Assets/CSS/mobile-styles.css" media="(max-width: 1024px)">');
   } else {
-    // Load alternative theme CSS
-    const themePath = './Assets/CSS/Skins/' + theme + '.css';
-    document.write('<link rel="stylesheet" href="' + themePath + '">');
+    document.write('<link rel="stylesheet" href="./Assets/CSS/Skins/' + theme + '.css">');
   }
   
-  // Apply dark mode overlay if enabled
-  if (theme === 'default' && darkMode) {
-    document.write('<link rel="stylesheet" href="./Assets/CSS/dark-mode.css">');
-  }
+  // 2. Dark-mode CSS (always inject, may be disabled later)
+  document.write('<link rel="stylesheet" id="dark-mode-css" href="./Assets/CSS/dark-mode.css"' +
+                 (theme === 'default' && darkMode ? '' : ' disabled') + '>');
 })();
 </script>
 
@@ -100,7 +96,7 @@ window.addEventListener('DOMContentLoaded', function() {
   <div id=toast-container></div>
 
   <!-- ===== Dark-mode ASAP ===== -->
-  <script>document.body.classList.toggle('dark-mode',localStorage.darkMode==='true')</script>
+  <script>document.body.classList.toggle('dark-mode',localStorage.darkMode==='enabled')</script>
 
   <!-- ===== Core & Features ===== -->
   <script type=module src=./Core/Utils.js></script>
@@ -111,7 +107,7 @@ window.addEventListener('DOMContentLoaded', function() {
   <script type=module src=./Features/EnergyTracker.js></script>
   <script type=module src=./Core/Features.js></script>
   <script src=./Features/WellnessKit.js></script>
-  <script type="module" src="./Assets/CSS/Skins//MatrixRain.js"></script>
+  <script type="module" src="./Assets/CSS/Skins/MatrixRain.js"></script>
 
   <!-- ===== Bootstrap ===== -->
   <script type=module>

@@ -606,6 +606,7 @@ export default class DashboardManager {
         return {
           ...b,
           ...def,
+          earned: true,
           karma: CONSTANTS.KARMA_BY_RARITY[def.rarity] || 3
         };
       });
