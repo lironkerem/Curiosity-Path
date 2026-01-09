@@ -4,6 +4,7 @@ import UserTab from './User-Tab.js';
 // Global flag to prevent duplicate swipe listeners across instances
 let globalSwipeListenersAttached = false;
 let globalSwipeHandlers = null;
+let arrowClickInProgress = false;
 
 export default class NavigationManager {
   constructor(app) {
@@ -318,6 +319,8 @@ export default class NavigationManager {
       e.preventDefault(); 
       e.stopPropagation();
       
+      arrowClickInProgress = true;
+      
       const active = localStorage.getItem('pc_active_tab') || 'dashboard';
       let idx = this.SWIPE_ORDER.indexOf(active);
       idx = (idx - 1 + this.SWIPE_ORDER.length) % this.SWIPE_ORDER.length;
@@ -327,12 +330,15 @@ export default class NavigationManager {
         this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
       }
       
+      setTimeout(() => { arrowClickInProgress = false; }, 100);
       blurButton(leftBtn); 
     });
     
     rightBtn.addEventListener('touchstart', (e) => { 
       e.preventDefault(); 
       e.stopPropagation();
+      
+      arrowClickInProgress = true;
       
       const active = localStorage.getItem('pc_active_tab') || 'dashboard';
       let idx = this.SWIPE_ORDER.indexOf(active);
@@ -343,6 +349,7 @@ export default class NavigationManager {
         this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
       }
       
+      setTimeout(() => { arrowClickInProgress = false; }, 100);
       blurButton(rightBtn); 
     });
     
@@ -390,6 +397,10 @@ export default class NavigationManager {
     let touchStartTarget = null;
 
     const handleTouchStart = (e) => {
+      // Ignore if arrow click in progress
+      if (arrowClickInProgress) {
+        return;
+      }
       touchStartTarget = e.target;
       // Ignore touches on arrow buttons
       if (touchStartTarget.closest('.swipe-arrow')) {
@@ -400,6 +411,10 @@ export default class NavigationManager {
     };
 
     const handleTouchEnd = (e) => {
+      // Ignore if arrow click in progress
+      if (arrowClickInProgress) {
+        return;
+      }
       // Ignore if started on arrow button
       if (touchStartTarget && touchStartTarget.closest('.swipe-arrow')) {
         return;
