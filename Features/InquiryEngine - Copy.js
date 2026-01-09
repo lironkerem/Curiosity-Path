@@ -20,41 +20,37 @@ export class InquiryEngine {
     return INTENSITY_MAP[this.userLevel] || INTENSITY_MAP.beginner;
   }
 
-getRandomQuestion(domain) {
-  const allowed = this.getAllowedIntensities();
-
-  // 1. try: unused + intensity + domain
-  let pool = InquiryList.filter(
-    q => q.domain === domain &&
-         allowed.includes(q.intensity) &&
-         !this.todaySelections.includes(q.id)
-  );
-
-  // 2. reset today's picks for this domain and try again
-  if (!pool.length) {
-    this.todaySelections = this.todaySelections.filter(id => {
-      const q = InquiryList.find(item => item.id === id);
-      return q?.domain !== domain;
-    });
-    pool = InquiryList.filter(
-      q => q.domain === domain && allowed.includes(q.intensity)
+  getRandomQuestion(domain) {
+    const allowedIntensities = this.getAllowedIntensities();
+    let candidates = InquiryList.filter(q => 
+      q.domain === domain && 
+      allowedIntensities.includes(q.intensity) && 
+      !this.todaySelections.includes(q.id)
     );
-  }
 
-  // 3. drop intensity filter
-  if (!pool.length) {
-    pool = InquiryList.filter(q => q.domain === domain);
-  }
+    // Reset domain selections if exhausted
+    if (!candidates.length) {
+      this.todaySelections = this.todaySelections.filter(id => {
+        const q = InquiryList.find(item => item.id === id);
+        return q?.domain !== domain;
+      });
+      
+      // Recalculate candidates
+      candidates = InquiryList.filter(q => 
+        q.domain === domain && 
+        allowedIntensities.includes(q.intensity)
+      );
+      
+      if (!candidates.length) {
+        console.warn(`No inquiries found for domain: ${domain}`);
+        return null;
+      }
+    }
 
-  // 4. final safety-net: entire library (should never hit in practice)
-  if (!pool.length) {
-    pool = InquiryList;
+    const choice = candidates[Math.floor(Math.random() * candidates.length)];
+    this.todaySelections.push(choice.id);
+    return choice;
   }
-
-  const pick = pool[Math.floor(Math.random() * pool.length)];
-  this.todaySelections.push(pick.id);
-  return pick; // guaranteed non-null
-}
 
   generateDailyInquiries(domains = null) {
     const selectedDomains = domains || this._getUniqueDomains();

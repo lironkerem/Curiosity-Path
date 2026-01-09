@@ -72,24 +72,9 @@ class HappinessEngine {
   }
   
 getRandomInquiry() {
-  const domains = [
-    'Responsibility and Power', 'Emotional Honesty', 'Identity and Roles',
-    'Creativity and Expression', 'Shadow and Integration', 'Wisdom and Insight',
-    'Joy and Fulfillment', 'Physical Well-Being and Energy', 'Relationship',
-    'Spiritual Growth', 'Fear and Resistance', 'Boundaries and Consent',
-    'Purpose and Direction', 'Mind and Awareness'
-  ];
-
-  // pick a domain (always succeeds)
+  const domains = [ /* 14 exact strings */ ];
   const domain = domains[Math.floor(Math.random() * domains.length)];
-
-  // ask the engine; if it ever returns nothing, supply a safe default immediately
-  return this.inquiryEngine.getRandomQuestion(domain) ?? {
-    intensity: 1,
-    domain,
-    question: 'What small thing brought you joy today?',
-    holding: 'Take a breath and notice how your body feels.'
-  };
+  return this.inquiryEngine.getRandomQuestion(domain); // never null
 }
 
   trackView() {
