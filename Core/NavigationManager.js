@@ -4,7 +4,6 @@ import UserTab from './User-Tab.js';
 // Global flag to prevent duplicate swipe listeners across instances
 let globalSwipeListenersAttached = false;
 let globalSwipeHandlers = null;
-let arrowClickInProgress = false;
 
 export default class NavigationManager {
   constructor(app) {
@@ -314,13 +313,11 @@ export default class NavigationManager {
 
     const blurButton = (btn) => setTimeout(() => btn.blur(), 0);
 
-    // Use touchstart instead of click for mobile
+    // Use touchstart with capture to prevent global swipe handler
     leftBtn.addEventListener('touchstart', (e) => { 
       e.preventDefault(); 
       e.stopPropagation();
       e.stopImmediatePropagation();
-      
-      arrowClickInProgress = true;
       
       const active = localStorage.getItem('pc_active_tab') || 'dashboard';
       let idx = this.SWIPE_ORDER.indexOf(active);
@@ -331,7 +328,6 @@ export default class NavigationManager {
         this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
       }
       
-      setTimeout(() => { arrowClickInProgress = false; }, 300);
       blurButton(leftBtn); 
     }, { capture: true });
     
@@ -339,8 +335,6 @@ export default class NavigationManager {
       e.preventDefault(); 
       e.stopPropagation();
       e.stopImmediatePropagation();
-      
-      arrowClickInProgress = true;
       
       const active = localStorage.getItem('pc_active_tab') || 'dashboard';
       let idx = this.SWIPE_ORDER.indexOf(active);
@@ -351,7 +345,6 @@ export default class NavigationManager {
         this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
       }
       
-      setTimeout(() => { arrowClickInProgress = false; }, 300);
       blurButton(rightBtn); 
     }, { capture: true });
     
@@ -396,32 +389,13 @@ export default class NavigationManager {
 
     let touchStartX = 0;
     let touchStartTime = 0;
-    let touchStartTarget = null;
 
     const handleTouchStart = (e) => {
-      // Ignore if arrow click in progress
-      if (arrowClickInProgress) {
-        return;
-      }
-      touchStartTarget = e.target;
-      // Ignore touches on arrow buttons
-      if (touchStartTarget.closest('.swipe-arrow')) {
-        return;
-      }
       touchStartX = e.touches[0].clientX;
       touchStartTime = Date.now();
     };
 
     const handleTouchEnd = (e) => {
-      // Ignore if arrow click in progress
-      if (arrowClickInProgress) {
-        return;
-      }
-      // Ignore if started on arrow button
-      if (touchStartTarget && touchStartTarget.closest('.swipe-arrow')) {
-        return;
-      }
-      
       const endX = e.changedTouches[0].clientX;
       const deltaX = touchStartX - endX;
       const deltaT = Date.now() - touchStartTime;
