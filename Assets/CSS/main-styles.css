@@ -997,19 +997,14 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 
 /* ===== DAILY CARDS ===== */
 
-/* Timer positioning fix - force top right */
-.card.dashboard-quest-hub {
-  position: relative !important;
-}
-
+/* Timer positioning - works with inline style from JS */
 #daily-cards-timer.countdown-badge {
-  position: absolute !important;
-  top: 1rem !important;
-  right: 1rem !important;
-  left: auto !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  z-index: 100 !important;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  left: auto;
+  margin: 0;
+  z-index: 100;
 }
 
 .daily-card-full-container {
@@ -1061,40 +1056,26 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   overflow: hidden;
 }
 
-/* Fix: Card back must be relative with proper stacking */
+/* CRITICAL: Card back must position children absolutely */
 .daily-card-back {
-  position: relative !important;
+  position: relative;
   transform: rotateY(0deg);
   z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  display: block;
   min-height: 350px;
 }
 
-/* Fix: Image should fill but not interfere with prompt */
-.daily-card-back img {
-  position: absolute !important;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 1;
-}
-
-/* Fix: Prompt must be absolutely positioned and centered */
-.card-reveal-prompt {
+/* CRITICAL: Both prompt and image must be absolutely positioned */
+.daily-card-back .card-reveal-prompt {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
   text-align: center;
   color: var(--neuro-text);
   font-weight: 600;
   margin: 0;
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  z-index: 10 !important;
   background: rgba(255, 255, 255, 0.95);
   padding: 0.75rem 1.25rem;
   border-radius: 0.75rem;
@@ -1102,6 +1083,16 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   white-space: nowrap;
   font-size: 0.9rem;
+}
+
+.daily-card-back .dashboard-card-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
 }
 
 .daily-card-front {
@@ -1115,14 +1106,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 
 .daily-card-inner.flipped .daily-card-front {
   z-index: 2;
-}
-
-.dashboard-card-image {
-  width: 100%;
-  height: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  display: block;
 }
 
 .daily-card-content-wrapper {
@@ -1265,27 +1248,27 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 
 /* ===== MOBILE RESPONSIVE (under 768px) ===== */
 @media (max-width: 767px) {
-  /* Smaller timer on mobile - force positioning */
+  /* Smaller timer on mobile */
   #daily-cards-timer.countdown-badge {
-    top: 0.5rem !important;
-    right: 0.5rem !important;
+    top: 0.5rem;
+    right: 0.5rem;
     font-size: 0.7rem;
     padding: 0.1rem 0.4rem;
     min-width: 4rem;
   }
   
   /* Smaller "Click to reveal" on mobile */
-  .card-reveal-prompt {
-    padding: 0.6rem 1rem !important;
-    font-size: 0.85rem !important;
-    border-width: 2px !important;
+  .daily-card-back .card-reveal-prompt {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    border-width: 2px;
     max-width: 80%;
     white-space: normal;
     line-height: 1.3;
   }
   
   /* Show all 4 cards on mobile in 2x2 grid */
-  .dashboard-content > div.grid.mb-8 {
+  #daily-cards-container {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 1rem !important;
@@ -1301,13 +1284,10 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   }
   
   .daily-card-back {
-    padding: 1rem;
     min-height: 500px;
   }
   
-  .daily-card-back img {
-    width: auto;
-    height: auto;
+  .daily-card-back .dashboard-card-image {
     object-fit: contain;
   }
   
@@ -1315,19 +1295,14 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
     height: 500px;
   }
   
-  .dashboard-card-image {
-    max-height: 450px;
-    margin: auto;
-  }
-  
-  .card-reveal-prompt {
-    padding: 1rem 1.5rem !important;
-    border-width: 3px !important;
-    font-size: 1rem !important;
+  .daily-card-back .card-reveal-prompt {
+    padding: 1rem 1.5rem;
+    border-width: 3px;
+    font-size: 1rem;
   }
   
   /* Show all 4 cards on desktop in 2x2 grid */
-  .dashboard-content > div.grid.mb-8 {
+  #daily-cards-container {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 1.5rem !important;
