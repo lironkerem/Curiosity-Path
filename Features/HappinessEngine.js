@@ -71,16 +71,26 @@ class HappinessEngine {
     return typeof pick === 'string' ? pick : pick.text;
   }
   
-  getRandomInquiry() {
-    const domains = [
-      'Responsibility and Power', 'Emotional Honesty', 'Identity and Roles',
-      'Creativity and Expression', 'Shadow and Integration', 'Wisdom and Insight',
-      'Joy and Fulfillment', 'Physical Well-Being and Energy', 'Relationship',
-      'Spiritual Growth', 'Fear and Resistance', 'Boundaries and Consent',
-      'Purpose and Direction', 'Mind and Awareness'
-    ];
-    return this.inquiryEngine.getRandomQuestion(domains[Math.floor(Math.random() * domains.length)]);
-  }
+getRandomInquiry() {
+  const domains = [
+    'Responsibility and Power', 'Emotional Honesty', 'Identity and Roles',
+    'Creativity and Expression', 'Shadow and Integration', 'Wisdom and Insight',
+    'Joy and Fulfillment', 'Physical Well-Being and Energy', 'Relationship',
+    'Spiritual Growth', 'Fear and Resistance', 'Boundaries and Consent',
+    'Purpose and Direction', 'Mind and Awareness'
+  ];
+
+  // pick a domain (always succeeds)
+  const domain = domains[Math.floor(Math.random() * domains.length)];
+
+  // ask the engine; if it ever returns nothing, supply a safe default immediately
+  return this.inquiryEngine.getRandomQuestion(domain) ?? {
+    intensity: 1,
+    domain,
+    question: 'What small thing brought you joy today?',
+    holding: 'Take a breath and notice how your body feels.'
+  };
+}
 
   trackView() {
     const now = Date.now();
