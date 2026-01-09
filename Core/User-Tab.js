@@ -7,7 +7,7 @@ import { supabase } from './Supabase.js';
 let UDATA = null;
 async function getData() {
   if (UDATA) return UDATA;                       // already cached
-  const res = await fetch('/user-tab-data.json');
+  const res = await fetch('/Core/user-tab-data.json');
   UDATA = await res.json();
   return UDATA;
 }
