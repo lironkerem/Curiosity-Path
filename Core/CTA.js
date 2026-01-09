@@ -131,7 +131,7 @@ export default class CTA {
                alt="Aanandoham" class="lux-logo">
           <div class="lux-text-group">
             <span class="lux-line1">Deepen your life experience with me</span>
-            <span class="lux-line2">Â© 2026 Aanandoham (Liron Kerem)</span>
+            <span class="lux-line2">© 2026 Aanandoham (Liron Kerem)</span>
           </div>
           <span class="lux-chevron"></span>
         </button>
