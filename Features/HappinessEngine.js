@@ -62,14 +62,20 @@ class HappinessEngine {
     return typeof item === 'string' ? item : item.text;
   }
   
-  getRandomAffirmation() {
-    const src = this.affirmations;
-    if (!src) return 'You are capable of amazing things.';
-    const pool = Object.values(src).flat().filter(Array.isArray);
-    if (!pool.length) return 'You are capable of amazing things.';
-    const pick = this.app.randomFrom(pool);
-    return typeof pick === 'string' ? pick : pick.text;
-  }
+getRandomAffirmation() {
+  const src = this.affirmations;
+  if (!src) return 'You are capable of amazing things.';
+
+  // flatten once, keep only real items
+  const pool = Object.values(src)
+                     .flat()
+                     .filter(Boolean);   // removes null/undefined
+
+  if (!pool.length) return 'You are capable of amazing things.';
+
+  const pick = this.app.randomFrom(pool);
+  return typeof pick === 'string' ? pick : pick.text;
+}
   
 getRandomInquiry() {
   const domains = [
