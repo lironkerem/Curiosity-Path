@@ -72,9 +72,24 @@ class HappinessEngine {
   }
   
 getRandomInquiry() {
-  const domains = [ /* 14 exact strings */ ];
+  const domains = [
+    'Responsibility and Power',
+    'Emotional Honesty',
+    'Identity and Roles',
+    'Creativity and Expression',
+    'Shadow and Integration',
+    'Wisdom and Insight',
+    'Joy and Fulfillment',
+    'Physical Well-Being and Energy',
+    'Relationship',
+    'Spiritual Growth',
+    'Fear and Resistance',
+    'Boundaries and Consent',
+    'Purpose and Direction',
+    'Mind and Awareness'
+  ];
   const domain = domains[Math.floor(Math.random() * domains.length)];
-  return this.inquiryEngine.getRandomQuestion(domain); // never null
+  return this.inquiryEngine.getRandomQuestion(domain); // now guaranteed non-null
 }
 
   trackView() {
