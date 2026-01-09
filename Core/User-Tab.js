@@ -590,15 +590,17 @@ document.querySelectorAll('.rules-category-title').forEach(title => {
   }
 
 const darkModeToggle = document.getElementById('dark-mode-toggle');
-if(darkModeToggle){
-  darkModeToggle.addEventListener('change', e=>{
+if (darkModeToggle) {
+  darkModeToggle.addEventListener('change', e => {
     const on = e.target.checked;
     const link = document.getElementById('dark-mode-css');
     document.body.classList.toggle('dark-mode', on);
-    if(link) link.disabled = !on;
+    if (link) link.disabled = !on;
     localStorage.setItem('darkMode', on ? 'enabled' : 'disabled');
     const activeTheme = localStorage.getItem('activeTheme') || 'default';
-    if(activeTheme==='matrix-code' && window.app?.initMatrixRain) setTimeout(()=>window.app.initMatrixRain(), 50);
+    if (activeTheme === 'matrix-code' && window.app?.initMatrixRain) {
+      setTimeout(() => window.app.initMatrixRain(), 50);
+    }
   });
 }
     document.querySelectorAll('.theme-toggle').forEach(toggle => {
