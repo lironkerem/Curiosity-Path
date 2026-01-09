@@ -313,8 +313,8 @@ export default class NavigationManager {
 
     const blurButton = (btn) => setTimeout(() => btn.blur(), 0);
 
-    // Use touchstart with capture to prevent global swipe handler
-    leftBtn.addEventListener('touchstart', (e) => { 
+    // Use touchend with capture to prevent global swipe handler
+    leftBtn.addEventListener('touchend', (e) => { 
       e.preventDefault(); 
       e.stopPropagation();
       e.stopImmediatePropagation();
@@ -331,7 +331,7 @@ export default class NavigationManager {
       blurButton(leftBtn); 
     }, { capture: true });
     
-    rightBtn.addEventListener('touchstart', (e) => { 
+    rightBtn.addEventListener('touchend', (e) => { 
       e.preventDefault(); 
       e.stopPropagation();
       e.stopImmediatePropagation();
@@ -348,17 +348,18 @@ export default class NavigationManager {
       blurButton(rightBtn); 
     }, { capture: true });
     
-    leftBtn.addEventListener('touchend', (e) => {
+    leftBtn.addEventListener('touchstart', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      blurButton(leftBtn);
-    });
+      e.stopImmediatePropagation();
+    }, { capture: true });
     
-    rightBtn.addEventListener('touchend', (e) => {
+    rightBtn.addEventListener('touchstart', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      blurButton(rightBtn);
-    });
+      e.stopImmediatePropagation();
+    }, { capture: true });
+
 
     // Clean up old observer
     if (this.arrowObserver) {
