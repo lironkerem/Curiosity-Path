@@ -2,27 +2,50 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <!-- ⑥ CLS insurance -->
+  <style>html{opacity:0;transition:opacity .2s}</style>
+  <script data-cfasync="false">
+    requestAnimationFrame(()=>document.documentElement.style.opacity=1);
+  </script>
+
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=yes">
   <meta name="description" content="The Curiosity Path - Step into your next level">
   <meta name="permissions-policy" content="camera=(self)">
   <title>The Curiosity Path - by Aanandoham</title>
 
-  <!-- 1️⃣  THEME – FIRST POSSIBLE MILLISECOND -->
+  <!-- ①  Theme injector (unchanged) -->
   <script data-cfasync="false">
-    /* 0 ms theme injector – keep this the first script after charset */
     const t = localStorage.getItem('activeTheme') || 'default';
     document.write(
       (t === 'default' ? '' :
-       '<link rel="stylesheet" href="/Assets/CSS/skins/' + t + '.css">') +
-      '<link rel="stylesheet" href="/Assets/CSS/main-styles.css">' +
-      '<link rel="stylesheet" href="/Assets/CSS/mobile-styles.css" media="(max-width:1024px)">'
+       '<link rel="preload" as="style" href="/Assets/CSS/skins/' + t + '.css" onload="this.rel=\'stylesheet\'">') +
+      '<link rel="preload" as="style" href="/Assets/CSS/main-styles.css" onload="this.rel=\'stylesheet\'">' +
+      '<link rel="preload" as="style" href="/Assets/CSS/mobile-styles.css" media="(max-width:1024px)" onload="this.rel=\'stylesheet\'">'
     );
   </script>
 
-  <!-- 2️⃣  DARK-MODE OVERRIDE (always present, may be disabled) -->
-  <link rel="stylesheet" id="dark-css" href="/Assets/CSS/dark-mode.css" disabled>
+  <!-- ④  Dark-mode only when wanted -->
+  <script data-cfasync="false">
+    if (localStorage.getItem('darkMode') === 'enabled') {
+      document.write('<link rel="stylesheet" href="/Assets/CSS/dark-mode.css">');
+    }
+  </script>
 
-  <!-- 3️⃣  REST OF HEAD UNTOUCHED -->
+  <!-- ②  Service-worker register (one-liner) -->
+  <script>
+    if ('serviceWorker' in navigator)
+      navigator.serviceWorker.register('./service-worker.js');
+  </script>
+
+  <!-- ⑤  Share helper (tiny) -->
+  <script>
+    window.shareTheme = name => {
+      localStorage.setItem('activeTheme', name);
+      location.href = '/' + name;
+    };
+  </script>
+
+  <!-- ===== rest of your head ===== -->
   <link rel="stylesheet" href="/Assets/CSS/tailwind-output.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
   <link rel="manifest" href="manifest.json">
@@ -80,36 +103,36 @@
 
   <!-- ===== Bootstrap ===== -->
   <script type="module">
-    async function init() {
+    async function init(){
       console.log('🚀 Digital Curiosity - Aanandoham\'s Spiritual Platform Online');
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./service-worker.js')
           .then(reg => console.log('✅ SW registered:', reg))
           .catch(err => console.error('❌ SW registration failed:', err));
       }
-      try {
-        const [aff, { QUOTES, getRandomQuote, getQuoteOfTheDay }] = await Promise.all([
+      try{
+        const [aff,{QUOTES,getRandomQuote,getQuoteOfTheDay}]=await Promise.all([
           import('./Features/Data/AffirmationsList.js'),
           import('./Features/Data/QuotesList.js')
         ]);
-        window.affirmations = aff.default;
-        window.QuotesData = { QUOTES, getRandomQuote, getQuoteOfTheDay };
+        window.affirmations=aff.default;
+        window.QuotesData={QUOTES,getRandomQuote,getQuoteOfTheDay};
 
-        const Core = await import('./Core/Index.js');
-        const { default: UserTab } = await import('./Core/User-Tab.js');
+        const Core=await import('./Core/Index.js');
+        const {default:UserTab}=await import('./Core/User-Tab.js');
 
-        window.app = new Core.ProjectCuriosityApp({
-          AppState: Core.AppState,
-          AuthManager: Core.AuthManager,
+        window.app=new Core.ProjectCuriosityApp({
+          AppState:          Core.AppState,
+          AuthManager:       Core.AuthManager,
           NavigationManager: Core.NavigationManager,
-          DashboardManager: Core.DashboardManager,
+          DashboardManager:  Core.DashboardManager,
           UserTab
         });
         window.app.init();
-      } catch (e) { console.error('Bootstrap failed:', e); }
+      }catch(e){console.error('Bootstrap failed:',e)}
     }
-    document.readyState === 'loading'
-      ? document.addEventListener('DOMContentLoaded', init)
+    document.readyState==='loading'
+      ? document.addEventListener('DOMContentLoaded',init)
       : init();
   </script>
 </body>
