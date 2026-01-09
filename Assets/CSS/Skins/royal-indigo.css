@@ -1,7 +1,7 @@
 /* =========================================================
    DIGITAL CURIOSITY — ROYAL INDIGO SKIN
+   Updated for new main-styles.css + mobile-styles.css
    Apply to <body class="royal-indigo">
-   COMPLETE: Light regal + gold accents + CTA footer + Dark mode
    ========================================================= */
 
 body.royal-indigo{
@@ -75,10 +75,8 @@ body.royal-indigo{
 body.royal-indigo.dark-mode img {
   filter: invert(1) brightness(1);
 }
-
-/* Exclude Sessions, Workshops, Tarot, and avatar images from inversion */
-body.royal-indigo.dark-mode img[src*="/CTA/Sessions/"],
-body.royal-indigo.dark-mode img[src*="/CTA/Workshops/"],
+/* exclude avatars / CTA / tarot images */
+body.royal-indigo.dark-mode img[src*="/CTA/"],
 body.royal-indigo.dark-mode img[src*="/Tarot%20Cards%20images/"],
 body.royal-indigo.dark-mode .disc-avatar-img {
   filter: none;
@@ -114,7 +112,7 @@ body.royal-indigo.dark-mode .disc-avatar-img {
 body.royal-indigo{
   background:var(--neuro-bg);
   color:var(--neuro-text);
-  transition:all var(--transition-slow) cubic-bezier(.4,0,.2,1);
+  transition:all .5s cubic-bezier(.4,0,.2,1);
   position:relative;
 }
 body.royal-indigo::before{
@@ -140,6 +138,7 @@ body.royal-indigo::after{
   animation:starTwinkle 8s ease-in-out infinite;
 }
 body.royal-indigo > *{position:relative;z-index:1}
+
 /* ------  ACTIVE TAB GRADIENT  ------ */
 body.royal-indigo .nav-item.active{
   background:linear-gradient(135deg,var(--neuro-royal-dark) 0%,var(--neuro-royal) 25%,var(--neuro-royal-light) 50%,var(--neuro-royal-gold) 75%,var(--neuro-royal) 100%);
@@ -149,6 +148,7 @@ body.royal-indigo .nav-item.active{
   box-shadow:var(--shadow-inset),0 0 15px rgba(125,107,196,.4);
   animation:purpleShimmer 3s linear infinite;
 }
+
 /* ------  PRIMARY BTN ACCENT  ------ */
 body.royal-indigo .btn-primary{
   background:linear-gradient(135deg,var(--neuro-royal-dark) 0%,var(--neuro-royal) 25%,var(--neuro-royal-light) 50%,var(--neuro-royal-gold) 75%,var(--neuro-royal) 100%);
@@ -168,10 +168,11 @@ body.royal-indigo .btn-primary::after{
 body.royal-indigo .btn-primary:hover::after{animation:cosmicSheen 1.5s ease-in-out}
 body.royal-indigo .btn-primary:hover{background-position:100% 50%;box-shadow:var(--shadow-raised-lg),var(--shadow-intense),var(--shadow-gold),inset 0 1px 0 rgba(157,143,219,.5);transform:translateY(-2px)}
 
-/* ------  HEADER BAR + CTA FOOTER (all tabs)  ------ */
+/* ------  HEADER BAR + CTA FOOTER (updated selectors)  ------ */
 body.royal-indigo .main-header.project-curiosity,
 body.royal-indigo .app-header,
-body.royal-indigo #cta-toggle{
+body.royal-indigo .lux-footer .lux-toggle,
+body.royal-indigo .lux-footer #cta-toggle{
   background:linear-gradient(135deg,var(--neuro-royal-dark) 0%,var(--neuro-royal) 25%,var(--neuro-royal-light) 50%,var(--neuro-royal-gold) 75%,var(--neuro-royal) 100%);
   background-size:200% 200%;
   box-shadow:var(--shadow-raised-lg),var(--shadow-intense),inset 0 2px 0 rgba(212,175,55,.3);
@@ -183,7 +184,7 @@ body.royal-indigo .main-header.project-curiosity h1,
 body.royal-indigo .main-header.project-curiosity h3,
 body.royal-indigo .app-header h1,
 body.royal-indigo .app-header p,
-body.royal-indigo #cta-toggle .cta-text-group{
+body.royal-indigo .lux-footer .lux-text-group{
   color:#fff;
   text-shadow:0 2px 4px rgba(0,0,0,.4),0 4px 8px rgba(125,107,196,.4),0 2px 12px rgba(212,175,55,.3);
   font-weight:800;
@@ -208,7 +209,6 @@ body.royal-indigo #bubble-popup h3{
 /* =========================================================
    DARK MODE VARIANT
    ========================================================= */
-
 body.royal-indigo.dark-mode {
   /* Dark royal-indigo palette */
   --neuro-bg: #1a1628;
@@ -278,7 +278,10 @@ body.royal-indigo.dark-mode .btn-primary{
 body.royal-indigo.dark-mode .btn-primary:hover{
   box-shadow: var(--shadow-raised-hover), var(--shadow-intense);
 }
-/* =====  CHAT-WINDOW TOKENS  (append to each skin file)  ===== */
+
+/* =========================================================
+   CHAT-WINDOW TOKENS
+   ========================================================= */
 body.royal-indigo{
   --chat-bg:var(--neuro-bg-lightest);
   --chat-header-bg:var(--neuro-bg-lighter);
@@ -293,11 +296,7 @@ body.royal-indigo{
   --chat-bg-disabled:var(--neuro-shadow-dark);
 }
 body.royal-indigo.dark-mode{--chat-border:1px solid rgba(125,107,196,.35);}
+
 /* =========================================================
-   END ROYAL-INDIGO COMPLETE (7 kB gzipped)
-   ✓ Light & elegant indigo palette
-   ✓ Royal gold accents throughout
-   ✓ CTA footer integration
-   ✓ Dark mode support
-   ✓ Majestic glow effects
+   END ROYAL-INDIGO COMPLETE (updated for new CSS)
    ========================================================= */

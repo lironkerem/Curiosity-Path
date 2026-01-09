@@ -1,7 +1,7 @@
 /* =========================================================
    DIGITAL CURIOSITY — EARTH LUXURY SKIN
+   Updated for new main-styles.css + mobile-styles.css
    Apply to <body class="earth-luxury">
-   COMPLETE: Bright greens + warm browns + CTA footer + Dark mode
    ========================================================= */
 
 body.earth-luxury{
@@ -75,10 +75,8 @@ body.earth-luxury{
 body.earth-luxury.dark-mode img {
   filter: invert(1) brightness(1);
 }
-
-/* Exclude Sessions, Workshops, Tarot, and avatar images from inversion */
-body.earth-luxury.dark-mode img[src*="/CTA/Sessions/"],
-body.earth-luxury.dark-mode img[src*="/CTA/Workshops/"],
+/* exclude avatars / CTA / tarot images */
+body.earth-luxury.dark-mode img[src*="/CTA/"],
 body.earth-luxury.dark-mode img[src*="/Tarot%20Cards%20images/"],
 body.earth-luxury.dark-mode .disc-avatar-img {
   filter: none;
@@ -110,7 +108,7 @@ body.earth-luxury.dark-mode .disc-avatar-img {
 body.earth-luxury{
   background:var(--neuro-bg);
   color:var(--neuro-text);
-  transition:all var(--transition-slow) cubic-bezier(.4,0,.2,1);
+  transition:all .5s cubic-bezier(.4,0,.2,1);
   position:relative;
 }
 body.earth-luxury::before{
@@ -136,6 +134,7 @@ body.earth-luxury::after{
   animation:breathe 8s ease-in-out infinite;
 }
 body.earth-luxury > *{position:relative;z-index:1}
+
 /* ------  ACTIVE TAB GRADIENT  ------ */
 body.earth-luxury .nav-item.active{
   background:linear-gradient(135deg,var(--neuro-forest-dark) 0%,var(--neuro-forest) 25%,var(--neuro-forest-light) 50%,var(--neuro-forest) 75%,var(--neuro-forest-dark) 100%);
@@ -145,6 +144,7 @@ body.earth-luxury .nav-item.active{
   box-shadow:var(--shadow-inset),0 0 15px rgba(107,155,55,.4);
   animation:leafShimmer 3s linear infinite;
 }
+
 /* ------  PRIMARY BTN ACCENT  ------ */
 body.earth-luxury .btn-primary{
   background:linear-gradient(135deg,var(--neuro-forest-dark) 0%,var(--neuro-forest) 25%,var(--neuro-forest-light) 50%,var(--neuro-forest) 75%,var(--neuro-forest-dark) 100%);
@@ -164,10 +164,11 @@ body.earth-luxury .btn-primary::after{
 body.earth-luxury .btn-primary:hover::after{animation:naturalSheen 1.5s ease-in-out}
 body.earth-luxury .btn-primary:hover{background-position:100% 50%;box-shadow:var(--shadow-raised-lg),var(--shadow-intense),inset 0 1px 0 rgba(139,195,74,.5);transform:translateY(-2px) scale(1.02)}
 
-/* ------  HEADER BAR + CTA FOOTER (all tabs)  ------ */
+/* ------  HEADER BAR + CTA FOOTER (updated selectors)  ------ */
 body.earth-luxury .main-header.project-curiosity,
 body.earth-luxury .app-header,
-body.earth-luxury #cta-toggle{
+body.earth-luxury .lux-footer .lux-toggle,
+body.earth-luxury .lux-footer #cta-toggle{
   background:linear-gradient(135deg,var(--neuro-forest-dark) 0%,var(--neuro-forest) 25%,var(--neuro-forest-light) 50%,var(--neuro-forest) 75%,var(--neuro-forest-dark) 100%);
   background-size:200% 200%;
   box-shadow:var(--shadow-raised-lg),var(--shadow-intense),inset 0 2px 0 rgba(139,195,74,.4);
@@ -179,7 +180,7 @@ body.earth-luxury .main-header.project-curiosity h1,
 body.earth-luxury .main-header.project-curiosity h3,
 body.earth-luxury .app-header h1,
 body.earth-luxury .app-header p,
-body.earth-luxury #cta-toggle .cta-text-group{
+body.earth-luxury .lux-footer .lux-text-group{
   color:#fff;
   text-shadow:0 2px 4px rgba(0,0,0,.5),0 4px 12px rgba(107,155,55,.5);
   font-weight:800;
@@ -199,7 +200,6 @@ body.earth-luxury .wood-accent{
 /* =========================================================
    DARK MODE VARIANT
    ========================================================= */
-
 body.earth-luxury.dark-mode {
   /* Dark earth-luxury palette */
   --neuro-bg: #2a251d;
@@ -270,7 +270,10 @@ body.earth-luxury.dark-mode .btn-primary{
 body.earth-luxury.dark-mode .btn-primary:hover{
   box-shadow: var(--shadow-raised-hover), var(--shadow-intense);
 }
-/* =====  CHAT-WINDOW TOKENS  (append to each skin file)  ===== */
+
+/* =========================================================
+   CHAT-WINDOW TOKENS
+   ========================================================= */
 body.earth-luxury{
   --chat-bg:var(--neuro-bg-lightest);
   --chat-header-bg:var(--neuro-bg-lighter);
@@ -285,11 +288,7 @@ body.earth-luxury{
   --chat-bg-disabled:var(--neuro-shadow-dark);
 }
 body.earth-luxury.dark-mode{--chat-border:1px solid rgba(107,155,55,.35);}
+
 /* =========================================================
-   END EARTH-LUXURY COMPLETE (7 kB gzipped)
-   ✓ Bright forest greens & warm wood tones
-   ✓ Light, natural, organic feel
-   ✓ CTA footer integration
-   ✓ Dark mode support
-   ✓ Enhanced nature-inspired glows
+   END EARTH-LUXURY COMPLETE (updated for new CSS)
    ========================================================= */

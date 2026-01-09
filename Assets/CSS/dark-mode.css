@@ -1,7 +1,7 @@
 /* =========================================================
    DIGITAL CURIOSITY — DARK MODE SKIN
+   Updated for new main-styles.css + mobile-styles.css
    Apply to <body class="dark-mode">
-   COMPLETE: Red borders + enhanced glows + CTA footer
    ========================================================= */
 
 body.dark-mode{
@@ -55,10 +55,8 @@ body.dark-mode{
 body.dark-mode img {
   filter: invert(1) brightness(1);
 }
-
-/* Exclude Sessions, Workshops, Tarot, and avatar images from inversion */
-body.dark-mode img[src*="/CTA/Sessions/"],
-body.dark-mode img[src*="/CTA/Workshops/"],
+/* exclude avatars / CTA / tarot images */
+body.dark-mode img[src*="/CTA/"],
 body.dark-mode img[src*="/Tarot%20Cards%20images/"],
 body.dark-mode .disc-avatar-img {
   filter: none;
@@ -75,10 +73,6 @@ body.dark-mode .disc-avatar-img {
     border-color:rgba(230,57,80,.8);
   }
 }
-@keyframes redShimmer{
-  0%{background-position:-1000px 0}
-  100%{background-position:1000px 0}
-}
 @keyframes redBorderGlow{
   0%,100%{border-color:rgba(196,30,58,.6)}
   50%{border-color:rgba(230,57,80,.9)}
@@ -88,7 +82,7 @@ body.dark-mode .disc-avatar-img {
 body.dark-mode{
   background:var(--neuro-bg);
   color:var(--neuro-text);
-  transition:background var(--transition-normal),color var(--transition-normal);
+  transition:background .3s ease,color .3s ease;
 }
 
 /* ------  RED BORDERS ON ALL CARDS/DIVS  ------ */
@@ -123,7 +117,6 @@ body.dark-mode .karma-shop-item,
 body.dark-mode .archetype-card{
   border:2px solid rgba(196,30,58,.7);
 }
-
 body.dark-mode .dashboard-quest-card:hover,
 body.dark-mode .wellness-tool-btn:hover,
 body.dark-mode .karma-shop-item:hover,
@@ -198,10 +191,11 @@ body.dark-mode #shadow-alchemy-tab .intensity-slider::-moz-range-thumb{
   border:2px solid rgba(196,30,58,.7);
 }
 
-/* ------  HEADER BAR + CTA FOOTER (all tabs)  ------ */
+/* ------  HEADER BAR + CTA FOOTER (updated selectors)  ------ */
 body.dark-mode .main-header.project-curiosity,
 body.dark-mode .app-header,
-body.dark-mode #cta-toggle{
+body.dark-mode .lux-footer .lux-toggle,
+body.dark-mode .lux-footer #cta-toggle{
   background:linear-gradient(135deg,var(--neuro-accent) 0%,var(--neuro-accent-light) 100%);
   box-shadow:var(--shadow-raised-lg),0 0 40px rgba(196,30,58,.5);
   border:2px solid rgba(196,30,58,.7);
@@ -212,7 +206,7 @@ body.dark-mode .main-header.project-curiosity h1,
 body.dark-mode .main-header.project-curiosity h3,
 body.dark-mode .app-header h1,
 body.dark-mode .app-header p,
-body.dark-mode #cta-toggle .cta-text-group{
+body.dark-mode .lux-footer .lux-text-group{
   color:#fff;
   text-shadow:0 2px 10px rgba(0,0,0,.4),0 4px 20px rgba(196,30,58,.6);
 }
@@ -220,10 +214,10 @@ body.dark-mode #cta-toggle .cta-text-group{
 /* ------  EXPANDABLE SECTIONS RED BORDERS  ------ */
 body.dark-mode .expandable-card,
 body.dark-mode .collapsible-card,
-body.dark-mode .cta-section{
+body.dark-mode .lux-section-header,
+body.dark-mode .lux-section-body{
   border:2px solid rgba(196,30,58,.6);
 }
-
 body.dark-mode .expandable-card.expanded,
 body.dark-mode .collapsible-card.expanded{
   border-color:rgba(230,57,80,.8);
@@ -237,15 +231,52 @@ body.dark-mode .neuro-modal{
   box-shadow:var(--shadow-raised-lg),var(--shadow-red-intense);
 }
 
+/* ------  MOBILE ONLY ELEMENTS  ------ */
+body.dark-mode .mobile-bottom-bar{
+  background:var(--neuro-bg) !important;
+  border-top:2px solid rgba(196,30,58,.7);
+  box-shadow:0 -4px 12px rgba(196,30,58,.4),0 -8px 24px rgba(196,30,58,.2);
+}
+body.dark-mode .mobile-tab{color:var(--neuro-text-light);}
+body.dark-mode .mobile-tab.active{
+  color:var(--neuro-accent) !important;
+  font-weight:700;
+  text-shadow:0 0 8px rgba(196,30,58,.8);
+}
+body.dark-mode .mobile-tab:active{background:rgba(196,30,58,.2);}
+
+body.dark-mode .mobile-sheet{
+  background:var(--neuro-bg) !important;
+  border-top:2px solid rgba(196,30,58,.7);
+  box-shadow:0 -8px 32px rgba(196,30,58,.4);
+}
+body.dark-mode .sheet-grip{background:rgba(196,30,58,.8) !important;}
+body.dark-mode .sheet-header{
+  color:var(--neuro-accent) !important;
+  font-weight:700;
+  text-shadow:0 0 8px rgba(196,30,58,.8);
+}
+body.dark-mode .sheet-row{
+  background:rgba(196,30,58,.15) !important;
+  border:1px solid rgba(196,30,58,.5);
+  box-shadow:0 0 10px rgba(196,30,58,.2);
+}
+body.dark-mode .sheet-row:active{
+  background:rgba(196,30,58,.3) !important;
+  box-shadow:inset 0 0 10px rgba(196,30,58,.3);
+}
+body.dark-mode .sheet-row span{color:var(--neuro-text) !important;font-weight:600;}
+
 /* ------  RESPONSIVE  ------ */
 @media (max-width:768px){
   body.dark-mode{--shadow-raised:8px 8px 16px var(--neuro-shadow-dark),-6px -6px 12px var(--neuro-shadow-light)}
   body.dark-mode .card,
-  body.dark-mode .neuro-card{
-    border-width:1.5px;
-  }
+  body.dark-mode .neuro-card{border-width:1.5px;}
 }
-/* =====  CHAT-WINDOW TOKENS  (append to each skin file)  ===== */
+
+/* =========================================================
+   CHAT-WINDOW TOKENS
+   ========================================================= */
 body.dark-mode{
   --chat-bg:#252936;
   --chat-header-bg:#1a1d28;
@@ -259,11 +290,7 @@ body.dark-mode{
   --chat-bg-light:#1a1d28;
   --chat-bg-disabled:#0f1118;
 }
+
 /* =========================================================
-   END DARK-MODE COMPLETE (5 kB gzipped)
-   ✓ Red borders on all divs/cards
-   ✓ Enhanced red glow effects
-   ✓ CTA footer integration
-   ✓ Animated red border pulsing
-   ✓ Works standalone OR with premium skins
+   END DARK-MODE COMPLETE (updated for new CSS)
    ========================================================= */

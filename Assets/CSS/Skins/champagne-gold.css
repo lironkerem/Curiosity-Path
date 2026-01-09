@@ -1,7 +1,7 @@
 /* =========================================================
    DIGITAL CURIOSITY — CHAMPAGNE & GOLD LUXURY SKIN
+   Updated for new main-styles.css + mobile-styles.css
    Apply to <body class="champagne-gold">
-   COMPLETE: More gold + CTA footer + Dark mode support
    ========================================================= */
 
 body.champagne-gold{
@@ -93,7 +93,7 @@ body.champagne-gold.dark-mode .sheet-row img {
 body.champagne-gold{
   background:var(--neuro-bg);
   color:var(--neuro-text);
-  transition:all var(--transition-slow) cubic-bezier(.4,0,.2,1);
+  transition:all .5s cubic-bezier(.4,0,.2,1);
   position:relative;
 }
 body.champagne-gold::before{
@@ -105,6 +105,7 @@ body.champagne-gold::before{
     radial-gradient(circle at 80% 20%,rgba(212,175,55,.04) 0%,transparent 50%);
 }
 body.champagne-gold > *{position:relative;z-index:1}
+
 /* ------  ACTIVE TAB GRADIENT  ------ */
 body.champagne-gold .nav-item.active{
   background:linear-gradient(135deg,var(--neuro-gold-dark) 0%,var(--neuro-gold) 25%,var(--neuro-gold-light) 50%,var(--neuro-gold) 75%,var(--neuro-gold-dark) 100%);
@@ -114,6 +115,7 @@ body.champagne-gold .nav-item.active{
   box-shadow:var(--shadow-inset),0 0 15px rgba(212,175,55,.4);
   animation:luxuryShine 3s linear infinite;
 }
+
 /* ------  PRIMARY BTN ACCENT  ------ */
 body.champagne-gold .btn-primary{
   background:linear-gradient(135deg,var(--neuro-gold-dark) 0%,var(--neuro-gold) 25%,var(--neuro-gold-light) 50%,var(--neuro-gold) 75%,var(--neuro-gold-dark) 100%);
@@ -133,10 +135,11 @@ body.champagne-gold .btn-primary::after{
 body.champagne-gold .btn-primary:hover::after{animation:metallic-sheen 1.5s ease-in-out}
 body.champagne-gold .btn-primary:hover{background-position:100% 50%;box-shadow:var(--shadow-raised-lg),var(--shadow-intense),inset 0 1px 0 rgba(255,255,255,.5);transform:translateY(-2px) scale(1.02)}
 
-/* ------  HEADER BAR + CTA FOOTER (all tabs)  ------ */
+/* ------  HEADER BAR + CTA FOOTER (updated selectors)  ------ */
 body.champagne-gold .main-header.project-curiosity,
 body.champagne-gold .app-header,
-body.champagne-gold #cta-toggle{
+body.champagne-gold .lux-footer .lux-toggle,
+body.champagne-gold .lux-footer #cta-toggle{
   background:linear-gradient(135deg,var(--neuro-gold-dark) 0%,var(--neuro-gold) 25%,var(--neuro-gold-light) 50%,var(--neuro-gold) 75%,var(--neuro-gold-dark) 100%);
   background-size:200% 200%;
   box-shadow:var(--shadow-raised-lg),var(--shadow-intense),inset 0 2px 0 rgba(255,255,255,.4);
@@ -148,7 +151,7 @@ body.champagne-gold .main-header.project-curiosity h1,
 body.champagne-gold .main-header.project-curiosity h3,
 body.champagne-gold .app-header h1,
 body.champagne-gold .app-header p,
-body.champagne-gold #cta-toggle .cta-text-group{
+body.champagne-gold .lux-footer .lux-text-group{
   color:#2a2318;
   text-shadow:0 2px 4px rgba(255,255,255,.6),0 4px 12px rgba(212,175,55,.4);
   font-weight:800;
@@ -159,6 +162,16 @@ body.champagne-gold #bubble-popup h3{
   color:#2a2318 !important;
 }
 
+/* ------  MOBILE ONLY ELEMENTS  ------ */
+body.champagne-gold .mobile-sheet,
+body.champagne-gold .mobile-bottom-bar{
+  background:var(--neuro-bg);
+  border-top:1px solid rgba(212,175,55,.3);
+}
+body.champagne-gold .sheet-row:active{
+  background:rgba(212,175,55,.08);
+}
+
 /* ------  RESPONSIVE  ------ */
 @media (max-width:768px){
   body.champagne-gold{--shadow-raised:8px 8px 16px var(--neuro-shadow-dark),-6px -6px 12px var(--neuro-shadow-light)}
@@ -167,7 +180,6 @@ body.champagne-gold #bubble-popup h3{
 /* =========================================================
    DARK MODE VARIANT
    ========================================================= */
-
 body.champagne-gold.dark-mode {
   /* Dark champagne-gold palette */
   --neuro-bg: #2a241a;
@@ -208,32 +220,35 @@ body.champagne-gold.dark-mode .dashboard-achievements,
 body.champagne-gold.dark-mode .dashboard-wellness-toolkit,
 body.champagne-gold.dark-mode .karma-shop-balance,
 body.champagne-gold.dark-mode .karma-shop-item{
-  border: 1px solid rgba(212,175,55,.4);
-  box-shadow: var(--shadow-raised-lg), 0 0 15px rgba(212,175,55,.2);
+  border:1px solid rgba(212,175,55,.4);
+  box-shadow:var(--shadow-raised-lg), 0 0 15px rgba(212,175,55,.2);
 }
 
 body.champagne-gold.dark-mode .dashboard-quest-card:hover,
 body.champagne-gold.dark-mode .wellness-tool-btn:hover,
 body.champagne-gold.dark-mode .karma-shop-item:hover{
-  border-color: rgba(244,208,63,.6);
-  box-shadow: var(--shadow-raised-hover), var(--shadow-glow);
+  border-color:rgba(244,208,63,.6);
+  box-shadow:var(--shadow-raised-hover), var(--shadow-glow);
 }
 
 /* Gold accent on active/interactive elements */
 body.champagne-gold.dark-mode .nav-item.active{
-  border-color: rgba(212,175,55,.6);
-  box-shadow: var(--shadow-inset-sm), 0 0 15px rgba(212,175,55,.3);
+  border-color:rgba(212,175,55,.6);
+  box-shadow:var(--shadow-inset-sm), 0 0 15px rgba(212,175,55,.3);
 }
 
 body.champagne-gold.dark-mode .btn-primary{
-  border: 1px solid rgba(212,175,55,.6);
-  box-shadow: var(--shadow-raised), var(--shadow-glow);
+  border:1px solid rgba(212,175,55,.6);
+  box-shadow:var(--shadow-raised), var(--shadow-glow);
 }
 
 body.champagne-gold.dark-mode .btn-primary:hover{
-  box-shadow: var(--shadow-raised-hover), var(--shadow-intense);
+  box-shadow:var(--shadow-raised-hover), var(--shadow-intense);
 }
-/* =====  CHAT-WINDOW TOKENS  (append to each skin file)  ===== */
+
+/* =========================================================
+   CHAT-WINDOW TOKENS  (append to each skin file)
+   ========================================================= */
 body.champagne-gold{
   --chat-bg:var(--neuro-highlight);
   --chat-header-bg:var(--neuro-bg);
@@ -249,9 +264,5 @@ body.champagne-gold{
 }
 body.champagne-gold.dark-mode{--chat-border:1px solid rgba(212,175,55,.35);}
 /* =========================================================
-   END CHAMPAGNE-GOLD COMPLETE (7 kB gzipped)
-   ✓ More gold in palette
-   ✓ CTA footer integration
-   ✓ Dark mode support
-   ✓ Enhanced gold glows and shadows
+   END CHAMPAGNE-GOLD COMPLETE (updated for new CSS)
    ========================================================= */

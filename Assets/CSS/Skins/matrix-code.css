@@ -1,8 +1,7 @@
 /* =========================================================
    DIGITAL CURIOSITY – MATRIX CODE SKIN
+   Updated for new main-styles.css + mobile-styles.css
    Apply to <body class="matrix-code">
-   COMPLETE: Digital rain + CRT glow + Hacker aesthetic + Dark mode
-   FIX: All backgrounds transparent to show Matrix rain throughout
    ========================================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
@@ -116,7 +115,6 @@ body.matrix-code{
   0%,100%{text-shadow:var(--shadow-text)}
   50%{text-shadow:0 0 10px rgba(0,255,65,1), 0 0 20px rgba(0,255,65,.8)}
 }
-
 @keyframes phosphorGlowRed{
   0%,100%{text-shadow:0 0 5px rgba(255,0,65,.8), 0 0 10px rgba(255,0,65,.6), 0 0 15px rgba(255,0,65,.4)}
   50%{text-shadow:0 0 10px rgba(255,0,65,1), 0 0 20px rgba(255,0,65,.8)}
@@ -126,12 +124,10 @@ body.matrix-code{
 body.matrix-code{
   background:var(--neuro-bg);
   color:var(--neuro-text);
-  transition:all var(--transition-slow) cubic-bezier(.4,0,.2,1);
+  transition:all .5s cubic-bezier(.4,0,.2,1);
   position:relative;
   overflow-x:hidden;
 }
-
-/* Cascading Matrix Code Animation - Background gradient effect only */
 body.matrix-code::before{
   content:"";
   position:fixed;
@@ -144,9 +140,6 @@ body.matrix-code::before{
     repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(0,255,65,.2) 20px, rgba(0,255,65,.2) 21px);
   animation:digitalRain 20s linear infinite;
 }
-
-/* NOTE: Matrix character cascade is handled by JS (initMatrixRain) at z-index: -1 */
-
 body.matrix-code > *:not(.matrix-bg){position:relative;z-index:2}
 
 /* CRT scanline overlay */
@@ -223,10 +216,11 @@ body.matrix-code .btn-primary:hover{
   animation:glitchShift .3s ease-in-out;
 }
 
-/* ------  HEADER BAR + CTA FOOTER (all tabs)  ------ */
+/* ------  HEADER BAR + CTA FOOTER (updated selectors)  ------ */
 body.matrix-code .main-header.project-curiosity,
 body.matrix-code .app-header,
-body.matrix-code #cta-toggle{
+body.matrix-code .lux-footer .lux-toggle,
+body.matrix-code .lux-footer #cta-toggle{
   background:rgba(0,255,65,.5);
   border:2px solid var(--neuro-matrix);
   box-shadow:var(--shadow-raised-lg),var(--shadow-glow);
@@ -236,7 +230,8 @@ body.matrix-code #cta-toggle{
 }
 body.matrix-code .main-header.project-curiosity::before,
 body.matrix-code .app-header::before,
-body.matrix-code #cta-toggle::before{
+body.matrix-code .lux-footer .lux-toggle::before,
+body.matrix-code .lux-footer #cta-toggle::before{
   content:"";
   position:absolute;
   inset:0;
@@ -254,7 +249,7 @@ body.matrix-code .main-header.project-curiosity h1,
 body.matrix-code .main-header.project-curiosity h3,
 body.matrix-code .app-header h1,
 body.matrix-code .app-header p,
-body.matrix-code #cta-toggle .cta-text-group{
+body.matrix-code .lux-footer .lux-text-group{
   color:var(--neuro-matrix);
   text-shadow:var(--shadow-text);
   font-weight:700;
@@ -262,16 +257,7 @@ body.matrix-code #cta-toggle .cta-text-group{
   animation:phosphorGlow 4s ease-in-out infinite;
 }
 
-/* Dark mode override - must come immediately after */
-body.matrix-code.dark-mode .main-header.project-curiosity h1,
-body.matrix-code.dark-mode .main-header.project-curiosity h3,
-body.matrix-code.dark-mode .app-header h1,
-body.matrix-code.dark-mode .app-header p,
-body.matrix-code.dark-mode #cta-toggle .cta-text-group{
-  animation:phosphorGlowRed 4s ease-in-out infinite !important;
-}
-
-/* ------  NAV TABS (semi-transparent green background)  ------ */
+/* ------  NAV TABS  ------ */
 body.matrix-code .nav-tabs{
   background:rgba(0,255,65,.5);
   border:1px solid var(--neuro-matrix);
@@ -282,7 +268,7 @@ body.matrix-code .nav-item{
   border:1px solid var(--neuro-matrix);
 }
 
-/* ------  BUBBLE POPUP (semi-transparent green background)  ------ */
+/* ------  BUBBLE POPUP  ------ */
 body.matrix-code #bubble-popup{
   background:rgba(0,255,65,.08);
   border:2px solid var(--neuro-matrix);
@@ -302,7 +288,7 @@ body.matrix-code .terminal-cursor::after{
   color:var(--neuro-matrix);
 }
 
-/* ------  CODE BLOCKS / CARDS - TRANSPARENT WITH GLOW BORDERS  ------ */
+/* ------  CODE BLOCKS / CARDS  ------ */
 body.matrix-code .card,
 body.matrix-code .neuro-card,
 body.matrix-code .dashboard-gamification,
@@ -311,10 +297,10 @@ body.matrix-code .dashboard-daily-card,
 body.matrix-code .dashboard-quote,
 body.matrix-code .dashboard-achievements,
 body.matrix-code .dashboard-wellness-toolkit{
-  background:rgba(13,2,8,.85) !important; /* Semi-transparent dark background */
+  background:rgba(13,2,8,.85) !important;
   border:1px solid rgba(0,255,65,.3);
   box-shadow:var(--shadow-raised),0 0 15px rgba(0,255,65,.2);
-  backdrop-filter:blur(10px); /* Blur the Matrix rain behind cards */
+  backdrop-filter:blur(10px);
 }
 body.matrix-code .card:hover,
 body.matrix-code .neuro-card:hover,
@@ -371,7 +357,6 @@ body.matrix-code ::-webkit-scrollbar-thumb:hover{
 /* =========================================================
    DARK MODE VARIANT - RED MATRIX THEME
    ========================================================= */
-
 body.matrix-code.dark-mode {
   --neuro-bg:#0d0208;
   --neuro-bg-lighter:#1a1410;
@@ -491,7 +476,8 @@ body.matrix-code.dark-mode .btn-primary:hover{
 
 body.matrix-code.dark-mode .main-header.project-curiosity,
 body.matrix-code.dark-mode .app-header,
-body.matrix-code.dark-mode #cta-toggle{
+body.matrix-code.dark-mode .lux-footer .lux-toggle,
+body.matrix-code.dark-mode .lux-footer #cta-toggle{
   background:rgba(255,0,65,.5);
 }
 
@@ -504,14 +490,76 @@ body.matrix-code.dark-mode ::-webkit-scrollbar-thumb{
   box-shadow:inset 0 0 10px rgba(255,0,65,.5);
 }
 
-/* Red Matrix cascade for dark mode - targets JS-generated columns */
-body.matrix-code.dark-mode .matrix-column{
-  color:#ff0041 !important;
-  text-shadow:
-    0 0 10px rgba(255,0,65,1),
-    0 0 20px rgba(255,0,65,.6) !important;
+/* ------  MOBILE ONLY ELEMENTS  ------ */
+body.matrix-code .mobile-bottom-bar{
+  background:rgba(0,255,65,.5) !important;
+  border-top:2px solid var(--neuro-matrix);
+  box-shadow:0 -4px 12px rgba(0,255,65,.5), 0 -8px 24px rgba(0,255,65,.3);
 }
-/* =====  CHAT-WINDOW TOKENS  (append to each skin file)  ===== */
+body.matrix-code .mobile-tab{color:rgba(0,0,0,.7);}
+body.matrix-code .mobile-tab.active{
+  color:#000 !important;
+  font-weight:700;
+  text-shadow:0 0 8px rgba(0,255,65,1);
+}
+body.matrix-code .mobile-tab:active{background:rgba(0,255,65,.3);}
+
+body.matrix-code .mobile-sheet{
+  background:rgba(0,255,65,.5) !important;
+  border-top:2px solid var(--neuro-matrix);
+  box-shadow:0 -8px 32px rgba(0,255,65,.4);
+}
+body.matrix-code .sheet-grip{background:rgba(0,200,50,.8) !important;}
+body.matrix-code .sheet-header{
+  color:#000 !important;
+  font-weight:700;
+  text-shadow:0 0 8px rgba(0,255,65,1);
+}
+body.matrix-code .sheet-row{
+  background:rgba(0,255,65,.3) !important;
+  border:1px solid rgba(0,255,65,.5);
+  box-shadow:0 0 10px rgba(0,255,65,.2);
+}
+body.matrix-code .sheet-row:active{
+  background:rgba(0,255,65,.5) !important;
+  box-shadow:inset 0 0 10px rgba(0,255,65,.3);
+}
+body.matrix-code .sheet-row span{color:#000 !important;font-weight:600;}
+
+/* red mobile theme for dark mode */
+body.matrix-code.dark-mode .mobile-bottom-bar{
+  background:rgba(255,0,65,.5) !important;
+  border-top:2px solid var(--neuro-matrix);
+  box-shadow:0 -4px 12px rgba(255,0,65,.5), 0 -8px 24px rgba(255,0,65,.3);
+}
+body.matrix-code.dark-mode .mobile-tab{color:rgba(0,0,0,.7);}
+body.matrix-code.dark-mode .mobile-tab.active{
+  color:#000 !important;
+  font-weight:700;
+  text-shadow:0 0 8px rgba(255,0,65,1);
+}
+body.matrix-code.dark-mode .mobile-tab:active{background:rgba(255,0,65,.3);}
+
+body.matrix-code.dark-mode .mobile-sheet{
+  background:rgba(255,0,65,.5) !important;
+  border-top:2px solid var(--neuro-matrix);
+  box-shadow:0 -8px 32px rgba(255,0,65,.4);
+}
+body.matrix-code.dark-mode .sheet-grip{background:rgba(200,0,50,.8) !important;}
+body.matrix-code.dark-mode .sheet-header{text-shadow:0 0 8px rgba(255,0,65,1);}
+body.matrix-code.dark-mode .sheet-row{
+  background:rgba(255,0,65,.3) !important;
+  border:1px solid rgba(255,0,65,.5);
+  box-shadow:0 0 10px rgba(255,0,65,.2);
+}
+body.matrix-code.dark-mode .sheet-row:active{
+  background:rgba(255,0,65,.5) !important;
+  box-shadow:inset 0 0 10px rgba(255,0,65,.3);
+}
+
+/* =========================================================
+   CHAT-WINDOW TOKENS
+   ========================================================= */
 body.matrix-code{
   --chat-bg:rgba(37,32,24,.9);
   --chat-header-bg:rgba(45,40,30,.95);
@@ -527,138 +575,7 @@ body.matrix-code{
   --chat-bg-disabled:rgba(45,40,30,.95);
 }
 body.matrix-code.dark-mode{--chat-border:1px solid rgba(255,0,65,.3);}
+
 /* =========================================================
-   BOTTOM NAVIGATION BAR - MATRIX GREEN THEME
-   ========================================================= */
-
-@media (max-width: 767px) {
-  body.matrix-code .mobile-bottom-bar {
-    background: rgba(0, 255, 65, 0.5) !important;
-    border-top: 2px solid var(--neuro-matrix);
-    box-shadow: 0 -4px 12px rgba(0, 255, 65, 0.5),
-                0 -8px 24px rgba(0, 255, 65, 0.3);
-  }
-
-  body.matrix-code .mobile-tab {
-    color: rgba(0, 0, 0, 0.7);
-  }
-
-  body.matrix-code .mobile-tab.active {
-    color: #000 !important;
-    font-weight: 700;
-    text-shadow: 0 0 8px rgba(0, 255, 65, 1);
-  }
-
-  body.matrix-code .mobile-tab:active {
-    background: rgba(0, 255, 65, 0.3);
-  }
-
-  /* Dark mode variant - RED */
-  body.matrix-code.dark-mode .mobile-bottom-bar {
-    background: rgba(255, 0, 65, 0.5) !important;
-    border-top: 2px solid var(--neuro-matrix);
-    box-shadow: 0 -4px 12px rgba(255, 0, 65, 0.5),
-                0 -8px 24px rgba(255, 0, 65, 0.3);
-  }
-
-  body.matrix-code.dark-mode .mobile-tab {
-    color: rgba(0, 0, 0, 0.7);
-  }
-
-  body.matrix-code.dark-mode .mobile-tab.active {
-    color: #000 !important;
-    font-weight: 700;
-    text-shadow: 0 0 8px rgba(255, 0, 65, 1);
-  }
-
-  body.matrix-code.dark-mode .mobile-tab:active {
-    background: rgba(255, 0, 65, 0.3);
-  }
-}
-/* =========================================================
-   BOTTOM TAB POPUP SHEETS - MATRIX GREEN THEME
-   ========================================================= */
-
-@media (max-width: 767px) {
-  /* Sheet scrim - green tinted overlay */
-  body.matrix-code .sheet-scrim {
-    background: rgba(0, 255, 65, 0.15) !important;
-  }
-
-  /* Main sheet - green background */
-  body.matrix-code .mobile-sheet {
-    background: rgba(0, 255, 65, 0.5) !important;
-    border-top: 2px solid var(--neuro-matrix);
-    box-shadow: 0 -8px 32px rgba(0, 255, 65, 0.4);
-  }
-
-  /* Grip bar - darker green */
-  body.matrix-code .sheet-grip {
-    background: rgba(0, 200, 50, 0.8) !important;
-  }
-
-  /* Sheet header */
-  body.matrix-code .sheet-header {
-    color: #000 !important;
-    font-weight: 700;
-    text-shadow: 0 0 8px rgba(0, 255, 65, 1);
-  }
-
-  /* Sheet rows - green with glow */
-  body.matrix-code .sheet-row {
-    background: rgba(0, 255, 65, 0.3) !important;
-    border: 1px solid rgba(0, 255, 65, 0.5);
-    box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
-  }
-
-  body.matrix-code .sheet-row:active {
-    background: rgba(0, 255, 65, 0.5) !important;
-    box-shadow: inset 0 0 10px rgba(0, 255, 65, 0.3);
-  }
-
-  body.matrix-code .sheet-row span {
-    color: #000 !important;
-    font-weight: 600;
-  }
-
-  /* Dark mode variant - RED */
-  body.matrix-code.dark-mode .sheet-scrim {
-    background: rgba(255, 0, 65, 0.15) !important;
-  }
-
-  body.matrix-code.dark-mode .mobile-sheet {
-    background: rgba(255, 0, 65, 0.5) !important;
-    border-top: 2px solid var(--neuro-matrix);
-    box-shadow: 0 -8px 32px rgba(255, 0, 65, 0.4);
-  }
-
-  body.matrix-code.dark-mode .sheet-grip {
-    background: rgba(200, 0, 50, 0.8) !important;
-  }
-
-  body.matrix-code.dark-mode .sheet-header {
-    text-shadow: 0 0 8px rgba(255, 0, 65, 1);
-  }
-
-  body.matrix-code.dark-mode .sheet-row {
-    background: rgba(255, 0, 65, 0.3) !important;
-    border: 1px solid rgba(255, 0, 65, 0.5);
-    box-shadow: 0 0 10px rgba(255, 0, 65, 0.2);
-  }
-
-  body.matrix-code.dark-mode .sheet-row:active {
-    background: rgba(255, 0, 65, 0.5) !important;
-    box-shadow: inset 0 0 10px rgba(255, 0, 65, 0.3);
-  }
-}
-/* =========================================================
-   END MATRIX-CODE COMPLETE
-   ✓ Digital rain cascade visible throughout (handled by JS at z-index: -1)
-   ✓ All content backgrounds semi-transparent with backdrop-filter blur
-   ✓ CRT monitor glow & scanlines
-   ✓ Monospace terminal font
-   ✓ Phosphor green on black (light mode)
-   ✓ Phosphor red on black (dark mode)
-   ✓ Glitch & flicker animations
-   ✓ Hacker/cyber aesthetic
+   END MATRIX-CODE COMPLETE (updated for new CSS)
    ========================================================= */
