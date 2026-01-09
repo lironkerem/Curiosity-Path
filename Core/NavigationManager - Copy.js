@@ -150,10 +150,10 @@ export default class NavigationManager {
       appContainer.insertAdjacentHTML('afterbegin', navHTML);
     }
     
-   if (!document.getElementById('user-dropdown')) {
-  appContainer.insertBefore(this.userTab.render(), appContainer.firstChild);
-  this.userTab.init();
-}
+    if (!document.getElementById('user-dropdown')) {
+      appContainer.insertAdjacentHTML('afterbegin', this.userTab.render());
+      this.userTab.init();
+    }
 
     this.cacheElements();
     this.setupEventListeners();
