@@ -589,21 +589,18 @@ document.querySelectorAll('.rules-category-title').forEach(title => {
     document.getElementById('save-profile-btn')?.addEventListener('click', () => this.saveQuickProfile());
   }
 
-  attachSettingsHandlers() {
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-    if (darkModeToggle) {
-      darkModeToggle.addEventListener('change', e => {
-        const activeTheme = localStorage.getItem('activeTheme') || 'default';
-        const isChecked = e.target.checked;
-        if (isChecked) document.body.classList.add('dark-mode'); else document.body.classList.remove('dark-mode');
-        localStorage.setItem('darkMode', isChecked ? 'enabled' : 'disabled');
-        if (activeTheme === 'default') {
-          if (isChecked) document.getElementById('dark-mode-css')?.removeAttribute('disabled');
-          else document.getElementById('dark-mode-css')?.setAttribute('disabled', 'true');
-        } else document.getElementById('dark-mode-css')?.setAttribute('disabled', 'true');
-        if (activeTheme === 'matrix-code' && window.app?.initMatrixRain) setTimeout(() => window.app.initMatrixRain(), 50);
-      });
-    }
+const darkModeToggle = document.getElementById('dark-mode-toggle');
+if(darkModeToggle){
+  darkModeToggle.addEventListener('change', e=>{
+    const on = e.target.checked;
+    const link = document.getElementById('dark-mode-css');
+    document.body.classList.toggle('dark-mode', on);
+    if(link) link.disabled = !on;
+    localStorage.setItem('darkMode', on ? 'enabled' : 'disabled');
+    const activeTheme = localStorage.getItem('activeTheme') || 'default';
+    if(activeTheme==='matrix-code' && window.app?.initMatrixRain) setTimeout(()=>window.app.initMatrixRain(), 50);
+  });
+}
     document.querySelectorAll('.theme-toggle').forEach(toggle => {
       toggle.addEventListener('change', e => {
         if (e.target.checked) {
@@ -715,18 +712,20 @@ document.querySelectorAll('.rules-category-title').forEach(title => {
     if (themeName === 'matrix-code' && window.app?.initMatrixRain) setTimeout(() => window.app.initMatrixRain(), 100);
   }
 
-  restoreDarkMode() {
-    const saved = localStorage.getItem('darkMode');
-    const isDark = saved === 'enabled';
-    if (isDark) {
-      document.body.classList.add('dark-mode');
-      const activeTheme = localStorage.getItem('activeTheme') || 'default';
-      if (activeTheme === 'default') document.getElementById('dark-mode-css')?.removeAttribute('disabled');
-      else document.getElementById('dark-mode-css')?.setAttribute('disabled', 'true');
-      const toggle = document.getElementById('dark-mode-toggle');
-      if (toggle) toggle.checked = true;
-    }
+restoreDarkMode(){
+  const dark = localStorage.getItem('darkMode')==='enabled';
+  const link = document.getElementById('dark-mode-css');
+  const toggle = document.getElementById('dark-mode-toggle');
+  if(dark){
+    document.body.classList.add('dark-mode');
+    if(link) link.disabled = false;
+    if(toggle) toggle.checked = true;
+  }else{
+    document.body.classList.remove('dark-mode');
+    if(link) link.disabled = true;
+    if(toggle) toggle.checked = false;
   }
+}
 
   loadAdminPanel() {
     const mount = document.getElementById('admin-tab-mount');
