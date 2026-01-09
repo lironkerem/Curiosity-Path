@@ -387,13 +387,24 @@ export default class NavigationManager {
 
     let touchStartX = 0;
     let touchStartTime = 0;
+    let touchStartTarget = null;
 
     const handleTouchStart = (e) => {
+      touchStartTarget = e.target;
+      // Ignore touches on arrow buttons
+      if (touchStartTarget.closest('.swipe-arrow')) {
+        return;
+      }
       touchStartX = e.touches[0].clientX;
       touchStartTime = Date.now();
     };
 
     const handleTouchEnd = (e) => {
+      // Ignore if started on arrow button
+      if (touchStartTarget && touchStartTarget.closest('.swipe-arrow')) {
+        return;
+      }
+      
       const endX = e.changedTouches[0].clientX;
       const deltaX = touchStartX - endX;
       const deltaT = Date.now() - touchStartTime;
