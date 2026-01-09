@@ -304,6 +304,9 @@ class MeditationsEngine {
             </div>
             <button onclick="window.featuresManager.engines.meditations.skipForward()" class="icon-btn">⏩</button>
           </div>
+          
+          <div id="resize-l" class="resize-corner resize-l" title="Resize"></div>
+          <div id="resize-r" class="resize-corner resize-r" title="Resize"></div>
         </div>
       </div>
     `;
@@ -521,6 +524,27 @@ class MeditationsEngine {
         .stop-btn:active {
           box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light);
         }
+        .resize-corner {
+          position: absolute;
+          top: 0;
+          width: 18px;
+          height: 18px;
+          cursor: nwse-resize;
+          background: linear-gradient(135deg, var(--neuro-accent) 40%, transparent 40%);
+          opacity: 0.5;
+          transition: opacity 0.2s;
+          z-index: 5;
+        }
+        .resize-corner:hover { opacity: 1; }
+        .resize-l {
+          left: 0;
+          border-radius: 0 0 var(--radius-xl) 0;
+        }
+        .resize-r {
+          right: 0;
+          border-radius: 0 0 0 var(--radius-xl);
+          transform: scaleX(-1);
+        }
       </style>
     `;
   }
@@ -661,12 +685,17 @@ class MeditationsEngine {
 
   _showVideoPane() {
     document.getElementById('video-pane').classList.remove('hidden');
+    document.getElementById('resize-l').classList.remove('hidden');
+    document.getElementById('resize-r').classList.remove('hidden');
     document.getElementById('meditation-audio-player').classList.add('video-mode');
     this.initDrag();
+    this.initResize();
   }
 
   _hideVideoPane() {
     document.getElementById('video-pane').classList.add('hidden');
+    document.getElementById('resize-l').classList.add('hidden');
+    document.getElementById('resize-r').classList.add('hidden');
     document.getElementById('meditation-audio-player').classList.remove('video-mode');
   }
 
@@ -713,6 +742,59 @@ class MeditationsEngine {
     this.eventCleanup.push(() => {
       header.removeEventListener('mousedown', start);
       header.removeEventListener('touchstart', start);
+    });
+  }
+
+  initResize() {
+    const player = document.getElementById('meditation-audio-player');
+    const corners = [
+      { el: document.getElementById('resize-l'), dir: -1 },
+      { el: document.getElementById('resize-r'), dir: 1 }
+    ];
+
+    corners.forEach(c => {
+      if (!c.el) return;
+      
+      let startX, startW, startY, startH;
+      
+      const start = (e) => {
+        startX = e.touches ? e.touches[0].clientX : e.clientX;
+        startY = e.touches ? e.touches[0].clientY : e.clientY;
+        startW = player.offsetWidth;
+        startH = player.offsetHeight;
+        
+        document.addEventListener('mousemove', move);
+        document.addEventListener('mouseup', end);
+        document.addEventListener('touchmove', move, { passive: false });
+        document.addEventListener('touchend', end);
+        e.preventDefault();
+      };
+
+      const move = (e) => {
+        const cx = (e.touches ? e.touches[0].clientX : e.clientX) - startX;
+        const cy = (e.touches ? e.touches[0].clientY : e.clientY) - startY;
+
+        const newW = Math.max(this.MIN_PLAYER_WIDTH, startW + c.dir * cx);
+        const newH = Math.max(startH, startH + cy);
+
+        player.style.width = newW + 'px';
+        player.style.height = newH + 'px';
+      };
+
+      const end = () => {
+        document.removeEventListener('mousemove', move);
+        document.removeEventListener('mouseup', end);
+        document.removeEventListener('touchmove', move);
+        document.removeEventListener('touchend', end);
+      };
+
+      c.el.addEventListener('mousedown', start);
+      c.el.addEventListener('touchstart', start, { passive: false });
+
+      this.eventCleanup.push(() => {
+        c.el.removeEventListener('mousedown', start);
+        c.el.removeEventListener('touchstart', start);
+      });
     });
   }
 
