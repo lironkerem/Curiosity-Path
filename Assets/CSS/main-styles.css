@@ -2052,6 +2052,52 @@ letter-spacing: .5px;
   cursor: not-allowed;
 }
 
+.karma-shop-history {
+  padding: 1.875rem;
+  background: var(--neuro-card);
+  margin-bottom: 2rem;
+}
+
+.karma-shop-history-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--neuro-text);
+}
+
+.karma-shop-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.karma-shop-history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(139, 0, 0, 0.05);
+  border-left: 3px solid #DAA520;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+}
+
+.karma-shop-history-item:hover {
+  background: rgba(139, 0, 0, 0.1);
+  transform: translateX(4px);
+}
+
+.karma-shop-history-item-name {
+  font-weight: 600;
+  color: var(--neuro-text);
+  font-size: 1rem;
+}
+
+.karma-shop-history-item-meta {
+  font-size: 0.875rem;
+  color: var(--neuro-text-light);
+  font-weight: 500;
+}
 /* =========================================================
    WELLNESS TOOLKIT
    ========================================================= */
