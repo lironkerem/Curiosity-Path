@@ -3,9 +3,7 @@
 
 /**
  * MatrixRain - Animated cascading characters effect
- * Only activates when body has 'matrix-code' class
- * Automatically detects dark mode for red vs green theme
- * Mobile-forced visible: z-index 0, min-width, higher opacity, bigger font
+ * Mobile-visible: explicit width/height, overflow visible, leading glyph
  */
 
 const MATRIX_CONFIG = {
@@ -79,7 +77,7 @@ export class MatrixRain {
       const col = document.createElement('div');
       col.className = 'matrix-column';
 
-      // MOBILE VISIBILITY FIXES
+      // MOBILE-VISIBILITY FIXES: width, height, overflow, bigger text, higher opacity
       col.style.cssText = `
         font-family:'Share Tech Mono',monospace;
         font-size:${isMobile ? '28px' : '24px'};
@@ -94,13 +92,19 @@ export class MatrixRain {
         will-change:transform;
         transform:translateZ(0);
         min-width:18px;
+        width:20px;
+        height:200vh;
+        overflow:visible;
         background:transparent;
       `;
 
       const chars = Array.from({ length: MATRIX_CONFIG.CHAR_COUNT }, () =>
         MATRIX_CONFIG.CHARS[Math.random() * MATRIX_CONFIG.CHARS.length | 0]
       ).join('\n');
-      col.textContent = chars;
+
+      // Force first glyph visible (some mobile engines skip empty nodes)
+      col.textContent = '█\n' + chars;
+
       this.container.appendChild(col);
 
       this.columns.push({
