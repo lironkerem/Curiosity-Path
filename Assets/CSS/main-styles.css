@@ -1003,7 +1003,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   top: 0.75rem;
   right: 1rem;
   left: auto;
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 2rem 0;
   z-index: 5;
 }
 
@@ -1250,7 +1250,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 @media (max-width: 767px) {
   /* Smaller timer on mobile */
   #daily-cards-timer.countdown-badge {
-    top: 0.25rem;
+    top: 0.5rem;
     right: 0.5rem;
     font-size: 0.7rem;
     padding: 0.1rem 0.4rem;
