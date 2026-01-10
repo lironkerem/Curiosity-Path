@@ -16,6 +16,12 @@ export class KarmaShopEngine {
       const rawBoosts = localStorage.getItem('karma_active_boosts');
       console.log('[KarmaShop] Raw localStorage data:', rawBoosts);
       
+      // Show debug info on screen
+      this._debugInfo = {
+        rawData: rawBoosts,
+        device: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop'
+      };
+      
       this.activeBoosts = this.loadActiveBoosts();
       console.log('[KarmaShop] Loaded activeBoosts:', this.activeBoosts);
       
@@ -489,6 +495,18 @@ export class KarmaShopEngine {
     const boostsHTML = this.renderActiveBoosts();
     console.log('[KarmaShop] Boosts HTML length:', boostsHTML.length);
 
+    // Debug card to show localStorage info
+    const debugCard = `
+      <div class="card" style="padding: 1rem; background: #1a1a1a; border: 2px solid #ff6b6b; margin-bottom: 1rem;">
+        <h4 style="color: #ff6b6b; margin-bottom: 0.5rem;">🔍 Debug Info</h4>
+        <div style="font-family: monospace; font-size: 0.875rem; color: #fff;">
+          <div><strong>Device:</strong> ${this._debugInfo.device}</div>
+          <div><strong>localStorage data:</strong> ${this._debugInfo.rawData || 'null (empty)'}</div>
+          <div><strong>Active boosts count:</strong> ${this.activeBoosts.length}</div>
+        </div>
+      </div>
+    `;
+
     tab.innerHTML = `
       <div class="karma-shop-container">
         <div class="karma-shop-content">
@@ -500,6 +518,8 @@ export class KarmaShopEngine {
             <h3>Exchange your Karma tokens for goodies and upgrades</h3>
             <span class="header-sub"></span>
           </header>
+
+          ${debugCard}
 
           <div class="card karma-shop-balance">
             <h3 class="karma-shop-balance-title">Your Karma Balance</h3>
