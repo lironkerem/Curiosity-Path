@@ -5,7 +5,7 @@
  * MatrixRain - Animated cascading characters effect
  * Only activates when body has 'matrix-code' class
  * Automatically detects dark mode for red vs green theme
- * Mobile-optimised: half columns/chars, hardware layer, visibility pause
+ * Mobile-forced visible: z-index 0, min-width, higher opacity, bigger font
  */
 
 const MATRIX_CONFIG = {
@@ -74,10 +74,28 @@ export class MatrixRain {
 
   _createColumns() {
     const colors = this._getColors();
+    const isMobile = this._isMobile();
     for (let i = 0; i < MATRIX_CONFIG.COLUMN_COUNT; i++) {
       const col = document.createElement('div');
       col.className = 'matrix-column';
-      col.style.cssText = `font-family:'Share Tech Mono',monospace;font-size:24px;line-height:28px;color:${colors.PRIMARY};opacity:.6;white-space:pre;text-shadow:0 0 10px ${colors.PRIMARY},0 0 20px ${colors.GLOW};position:absolute;left:${4 * i}%;top:0;will-change:transform;transform:translateZ(0)`;
+
+      // MOBILE VISIBILITY FIXES
+      col.style.cssText = `
+        font-family:'Share Tech Mono',monospace;
+        font-size:${isMobile ? '28px' : '24px'};
+        line-height:28px;
+        color:${colors.PRIMARY};
+        opacity:${isMobile ? '0.9' : '0.6'};
+        white-space:pre;
+        text-shadow:0 0 10px ${colors.PRIMARY},0 0 20px ${colors.GLOW};
+        position:absolute;
+        left:${4 * i}%;
+        top:0;
+        will-change:transform;
+        transform:translateZ(0);
+        min-width:18px;
+        background:transparent;
+      `;
 
       const chars = Array.from({ length: MATRIX_CONFIG.CHAR_COUNT }, () =>
         MATRIX_CONFIG.CHARS[Math.random() * MATRIX_CONFIG.CHARS.length | 0]
@@ -88,8 +106,8 @@ export class MatrixRain {
       this.columns.push({
         el: col,
         y: -Math.random() * 4000,
-        speed: (this._isMobile() ? MATRIX_CONFIG.BASE_SPEED_MOBILE : MATRIX_CONFIG.BASE_SPEED_DESKTOP) +
-               Math.random() * (this._isMobile() ? MATRIX_CONFIG.RANDOM_SPEED_MOBILE : MATRIX_CONFIG.RANDOM_SPEED_DESKTOP)
+        speed: (isMobile ? MATRIX_CONFIG.BASE_SPEED_MOBILE : MATRIX_CONFIG.BASE_SPEED_DESKTOP) +
+               Math.random() * (isMobile ? MATRIX_CONFIG.RANDOM_SPEED_MOBILE : MATRIX_CONFIG.RANDOM_SPEED_DESKTOP)
       });
     }
   }
