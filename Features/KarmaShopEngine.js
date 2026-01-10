@@ -510,6 +510,9 @@ export class KarmaShopEngine {
         </div>
       </div>
     `;
+
+    // Start ticker after DOM is ready
+    this.startBoostTicker();
   }
 
   renderActiveBoosts() {
@@ -538,36 +541,55 @@ export class KarmaShopEngine {
       `;
     }).join('');
 
-    const html = `
+    return `
       <div class="card karma-shop-boosts">
         <h3 class="karma-shop-boosts-title">🔋 Active Boosts</h3>
         <div class="karma-shop-boosts-list" id="boosts-list-live">${initialContent}</div>
       </div>
     `;
+  }
 
-    // Set up ticker for updates - use setTimeout to ensure DOM is ready
-    setTimeout(() => {
-      const tick = () => {
-        const box = document.getElementById('boosts-list-live');
-        if (!box) return;
-        
-        box.innerHTML = this.activeBoosts.map(boost => {
-          const isQuest = boost.id.startsWith('skip_all_');
-          const msLeft = isQuest ? this._getResetTime(boost.id) - Date.now() : boost.expiresAt - Date.now();
-          
-          return `
-            <div class="karma-shop-boost-item">
-              <span class="karma-shop-boost-name">${niceNames[boost.id] || boost.id}</span>
-              <span class="karma-shop-boost-time">${this._fmtDuration(msLeft)}</span>
-            </div>
-          `;
-        }).join('');
-      };
-
-      this._boostTicker = setInterval(tick, 5000);
-    }, 100);
+  startBoostTicker() {
+    if (this.activeBoosts.length === 0) return;
     
-    return html;
+    const niceNames = {
+      xp_multiplier: '⚡ 2× XP Boost',
+      karma_multiplier: '💫 2× Karma Multiplier',
+      double_boost: '🔥 Double Boost',
+      skip_all_daily: '⭐ Skip Daily Quests',
+      skip_all_weekly: '📅 Skip Weekly Quests',
+      skip_all_monthly: '🗓️ Skip Monthly Quests'
+    };
+
+    const tick = () => {
+      const box = document.getElementById('boosts-list-live');
+      if (!box) {
+        console.warn('[KarmaShop] boosts-list-live element not found');
+        return;
+      }
+      
+      box.innerHTML = this.activeBoosts.map(boost => {
+        const isQuest = boost.id.startsWith('skip_all_');
+        const msLeft = isQuest ? this._getResetTime(boost.id) - Date.now() : boost.expiresAt - Date.now();
+        
+        return `
+          <div class="karma-shop-boost-item">
+            <span class="karma-shop-boost-name">${niceNames[boost.id] || boost.id}</span>
+            <span class="karma-shop-boost-time">${this._fmtDuration(msLeft)}</span>
+          </div>
+        `;
+      }).join('');
+    };
+
+    // Wait for DOM to be ready
+    setTimeout(() => {
+      const box = document.getElementById('boosts-list-live');
+      if (box) {
+        this._boostTicker = setInterval(tick, 5000);
+      } else {
+        console.error('[KarmaShop] Could not start boost ticker - element not found');
+      }
+    }, 100);
   }
 
   renderShopItem(item) {
