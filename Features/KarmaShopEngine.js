@@ -1,6 +1,8 @@
 // ============================================
-// Features/KarmaShopEngine.js (OPTIMIZED)
+// Features/KarmaShopEngine.js (OPTIMIZED + SUPABASE SYNC)
 // ============================================
+
+import { supabase } from '../Core/Supabase.js';
 
 export class KarmaShopEngine {
   constructor(app) {
@@ -10,26 +12,10 @@ export class KarmaShopEngine {
     this.skipCaps = {}; // Memory cache
     this._boostTicker = null;
     this._renderQueued = false;
+    this._syncInProgress = false;
     
     try {
-      console.log('[KarmaShop] Loading from localStorage...');
-      const rawBoosts = localStorage.getItem('karma_active_boosts');
-      console.log('[KarmaShop] Raw localStorage data:', rawBoosts);
-      
-      // Show debug info on screen
-      this._debugInfo = {
-        rawData: rawBoosts,
-        device: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop'
-      };
-      
-      this.activeBoosts = this.loadActiveBoosts();
-      console.log('[KarmaShop] Loaded activeBoosts:', this.activeBoosts);
-      
-      this.initSkipCaps();
-      this.checkExpiredBoosts();
-      console.log('[KarmaShop] After checkExpiredBoosts:', this.activeBoosts);
-      
-      this.buildCatalog();
+      this.init();
     } catch (err) {
       console.error('[KarmaShop] init failed – using fallbacks', err);
       this.activeBoosts = [];
@@ -37,11 +23,119 @@ export class KarmaShopEngine {
     }
   }
 
+  async init() {
+    console.log('[KarmaShop] Initializing...');
+    
+    // Load from cloud first, fallback to localStorage
+    await this.loadFromCloud();
+    
+    this.initSkipCaps();
+    this.checkExpiredBoosts();
+    this.buildCatalog();
+    
+    console.log('[KarmaShop] Init complete with', this.activeBoosts.length, 'active boosts');
+  }
+
   // Cleanup method to prevent memory leaks
   destroy() {
     if (this._boostTicker) {
       clearInterval(this._boostTicker);
       this._boostTicker = null;
+    }
+  }
+
+  /* ---------- CLOUD SYNC ---------- */
+  async loadFromCloud() {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.log('[KarmaShop] No user, loading from localStorage');
+        this.activeBoosts = this.loadActiveBoosts();
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('user_progress')
+        .select('payload')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error || !data?.payload) {
+        console.log('[KarmaShop] No cloud data, loading from localStorage');
+        this.activeBoosts = this.loadActiveBoosts();
+        return;
+      }
+
+      const cloudData = data.payload.karmaShop || {};
+      this.activeBoosts = cloudData.activeBoosts || [];
+      
+      // Also load purchase history from cloud
+      if (cloudData.purchaseHistory) {
+        localStorage.setItem('karma_purchase_history', JSON.stringify(cloudData.purchaseHistory));
+      }
+      
+      // Cache in localStorage
+      localStorage.setItem('karma_active_boosts', JSON.stringify(this.activeBoosts));
+      
+      console.log('[KarmaShop] ☁️ Loaded from cloud:', this.activeBoosts.length, 'boosts');
+    } catch (err) {
+      console.error('[KarmaShop] Cloud load failed, using localStorage:', err);
+      this.activeBoosts = this.loadActiveBoosts();
+    }
+  }
+
+  async saveToCloud() {
+    if (this._syncInProgress) return;
+    this._syncInProgress = true;
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.log('[KarmaShop] No user, saving to localStorage only');
+        this.saveActiveBoosts();
+        return;
+      }
+
+      // Get current payload
+      const { data: current, error: fetchError } = await supabase
+        .from('user_progress')
+        .select('payload')
+        .eq('user_id', user.id)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        throw fetchError;
+      }
+
+      const payload = current?.payload || {};
+      
+      // Update karma shop data
+      payload.karmaShop = {
+        activeBoosts: this.activeBoosts,
+        purchaseHistory: this.getPurchaseHistory(),
+        lastSync: new Date().toISOString()
+      };
+
+      // Save to cloud
+      const { error: saveError } = await supabase
+        .from('user_progress')
+        .upsert(
+          { user_id: user.id, payload, updated_at: new Date().toISOString() },
+          { onConflict: 'user_id' }
+        );
+
+      if (saveError) throw saveError;
+
+      // Cache locally
+      this.saveActiveBoosts();
+      
+      console.log('[KarmaShop] ☁️ Synced to cloud');
+    } catch (err) {
+      console.error('[KarmaShop] Cloud save failed:', err);
+      // Still save locally as fallback
+      this.saveActiveBoosts();
+    } finally {
+      this._syncInProgress = false;
     }
   }
 
@@ -163,7 +257,9 @@ export class KarmaShopEngine {
   }
 
   saveActiveBoosts() {
-    this._setLocalStorage('karma_active_boosts', this.activeBoosts);
+    localStorage.setItem('karma_active_boosts', JSON.stringify(this.activeBoosts));
+    // Trigger cloud sync (debounced)
+    this.saveToCloud();
   }
 
   _getLocalStorage(key, fallback) {
@@ -346,7 +442,9 @@ export class KarmaShopEngine {
   recordPurchase(itemId, cost) {
     const history = this.getPurchaseHistory();
     history.push({ itemId, cost, timestamp: new Date().toISOString() });
-    this._setLocalStorage('karma_purchase_history', history);
+    localStorage.setItem('karma_purchase_history', JSON.stringify(history));
+    // Trigger cloud sync
+    this.saveToCloud();
   }
 
   getPurchaseHistory() {
@@ -495,18 +593,6 @@ export class KarmaShopEngine {
     const boostsHTML = this.renderActiveBoosts();
     console.log('[KarmaShop] Boosts HTML length:', boostsHTML.length);
 
-    // Debug card to show localStorage info
-    const debugCard = `
-      <div class="card" style="padding: 1rem; background: #1a1a1a; border: 2px solid #ff6b6b; margin-bottom: 1rem;">
-        <h4 style="color: #ff6b6b; margin-bottom: 0.5rem;">🔍 Debug Info</h4>
-        <div style="font-family: monospace; font-size: 0.875rem; color: #fff;">
-          <div><strong>Device:</strong> ${this._debugInfo.device}</div>
-          <div><strong>localStorage data:</strong> ${this._debugInfo.rawData || 'null (empty)'}</div>
-          <div><strong>Active boosts count:</strong> ${this.activeBoosts.length}</div>
-        </div>
-      </div>
-    `;
-
     tab.innerHTML = `
       <div class="karma-shop-container">
         <div class="karma-shop-content">
@@ -518,8 +604,6 @@ export class KarmaShopEngine {
             <h3>Exchange your Karma tokens for goodies and upgrades</h3>
             <span class="header-sub"></span>
           </header>
-
-          ${debugCard}
 
           <div class="card karma-shop-balance">
             <h3 class="karma-shop-balance-title">Your Karma Balance</h3>
