@@ -1000,11 +1000,11 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 /* Timer positioning - works with inline style from JS */
 #daily-cards-timer.countdown-badge {
   position: absolute;
-  top: 1rem;
+  top: 1.5rem;
   right: 1rem;
   left: auto;
   margin: 0;
-  z-index: 100;
+  z-index: 5;
 }
 
 .daily-card-full-container {
@@ -1250,7 +1250,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 @media (max-width: 767px) {
   /* Smaller timer on mobile */
   #daily-cards-timer.countdown-badge {
-    top: 0.5rem;
+    top: 1rem;
     right: 0.5rem;
     font-size: 0.7rem;
     padding: 0.1rem 0.4rem;
