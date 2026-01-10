@@ -12,9 +12,17 @@ export class KarmaShopEngine {
     this._renderQueued = false;
     
     try {
+      console.log('[KarmaShop] Loading from localStorage...');
+      const rawBoosts = localStorage.getItem('karma_active_boosts');
+      console.log('[KarmaShop] Raw localStorage data:', rawBoosts);
+      
       this.activeBoosts = this.loadActiveBoosts();
+      console.log('[KarmaShop] Loaded activeBoosts:', this.activeBoosts);
+      
       this.initSkipCaps();
       this.checkExpiredBoosts();
+      console.log('[KarmaShop] After checkExpiredBoosts:', this.activeBoosts);
+      
       this.buildCatalog();
     } catch (err) {
       console.error('[KarmaShop] init failed – using fallbacks', err);
