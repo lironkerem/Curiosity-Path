@@ -461,7 +461,10 @@ export class KarmaShopEngine {
 
   render() {
     const tab = document.getElementById('karma-shop-tab');
-    if (!tab) return;
+    if (!tab) {
+      console.error('[KarmaShop] karma-shop-tab element not found');
+      return;
+    }
 
     // Clear old ticker
     if (this._boostTicker) {
@@ -472,6 +475,11 @@ export class KarmaShopEngine {
     const karma = this.app.gamification.state.karma;
     const purchaseHistory = this.getPurchaseHistory();
     const categories = ['Power-Ups', 'Quest Helpers', 'Premium Features', 'Premium Skins', 'Meet the Master'];
+
+    console.log('[KarmaShop] Rendering with activeBoosts:', this.activeBoosts.length);
+
+    const boostsHTML = this.renderActiveBoosts();
+    console.log('[KarmaShop] Boosts HTML length:', boostsHTML.length);
 
     tab.innerHTML = `
       <div class="karma-shop-container">
@@ -491,7 +499,7 @@ export class KarmaShopEngine {
             <p class="karma-shop-balance-subtitle">Earn more by completing quests, using features and practices</p>
           </div>
 
-          ${this.renderActiveBoosts()}
+          ${boostsHTML}
 
           ${categories.map(category => {
             const catItems = this.items.filter(i => i.category === category);
@@ -511,13 +519,20 @@ export class KarmaShopEngine {
       </div>
     `;
 
+    console.log('[KarmaShop] DOM updated, starting ticker...');
     // Start ticker after DOM is ready
     this.startBoostTicker();
   }
 
   renderActiveBoosts() {
+    console.log('[KarmaShop] renderActiveBoosts called');
     this.checkExpiredBoosts();
-    if (this.activeBoosts.length === 0) return '';
+    console.log('[KarmaShop] activeBoosts after check:', this.activeBoosts);
+    
+    if (this.activeBoosts.length === 0) {
+      console.log('[KarmaShop] No active boosts, returning empty string');
+      return '';
+    }
 
     const niceNames = {
       xp_multiplier: '⚡ 2× XP Boost',
@@ -540,6 +555,8 @@ export class KarmaShopEngine {
         </div>
       `;
     }).join('');
+
+    console.log('[KarmaShop] Returning boosts HTML with', this.activeBoosts.length, 'boosts');
 
     return `
       <div class="card karma-shop-boosts">
