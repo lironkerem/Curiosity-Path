@@ -39,7 +39,7 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
   // ① Theme skins – cache-first (instant paint, no blink)
-  if (url.pathname.includes('/Assets/CSS/skins/')) {
+  if (url.pathname.includes('/Assets/CSS/Skins/')) {
     e.respondWith(cacheFirst(e.request));
     return;
   }
