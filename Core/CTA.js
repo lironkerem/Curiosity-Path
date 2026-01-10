@@ -1,4 +1,4 @@
-/* CTA.js â€" neumorphic, skin-aware, images show when accordion opens */
+/* CTA.js  neumorphic, skin-aware, images show when accordion opens */
 export default class CTA {
   constructor() {
     this.isOpen = false;
@@ -142,7 +142,7 @@ export default class CTA {
               <header class="lux-header">
                 <h2 class="lux-title">Empower your <em>'Self'</em></h2>
                 <p class="lux-intro">
-                  Welcome to Project Curiosity â€" founded 2010.<br>
+                  Welcome to Project Curiosity - founded 2010.<br>
                   Explore my unique In-Person and Online offerings
                 </p>
 
