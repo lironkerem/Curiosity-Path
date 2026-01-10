@@ -545,28 +545,25 @@ export class KarmaShopEngine {
       </div>
     `;
 
-    // Set up ticker for updates - use setTimeout to ensure DOM is ready
-    setTimeout(() => {
-      const tick = () => {
-        const box = document.getElementById('boosts-list-live');
-        if (!box) return;
+    // Set up ticker for updates
+    const tick = () => {
+      const box = document.getElementById('boosts-list-live');
+      if (!box) return;
+      
+      box.innerHTML = this.activeBoosts.map(boost => {
+        const isQuest = boost.id.startsWith('skip_all_');
+        const msLeft = isQuest ? this._getResetTime(boost.id) - Date.now() : boost.expiresAt - Date.now();
         
-        box.innerHTML = this.activeBoosts.map(boost => {
-          const isQuest = boost.id.startsWith('skip_all_');
-          const msLeft = isQuest ? this._getResetTime(boost.id) - Date.now() : boost.expiresAt - Date.now();
-          
-          return `
-            <div class="karma-shop-boost-item">
-              <span class="karma-shop-boost-name">${niceNames[boost.id] || boost.id}</span>
-              <span class="karma-shop-boost-time">${this._fmtDuration(msLeft)}</span>
-            </div>
-          `;
-        }).join('');
-      };
+        return `
+          <div class="karma-shop-boost-item">
+            <span class="karma-shop-boost-name">${niceNames[boost.id] || boost.id}</span>
+            <span class="karma-shop-boost-time">${this._fmtDuration(msLeft)}</span>
+          </div>
+        `;
+      }).join('');
+    };
 
-      this._boostTicker = setInterval(tick, 5000);
-    }, 100);
-    
+    this._boostTicker = setInterval(tick, 5000); // 5 seconds instead of 1
     return html;
   }
 
