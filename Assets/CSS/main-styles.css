@@ -1257,6 +1257,12 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
     min-width: 4rem;
   }
   
+  /* Card back container - ensure full height */
+  .daily-card-back {
+    height: 100%;
+    width: 100%;
+  }
+  
   /* Smaller "Click to reveal" on mobile */
   .daily-card-back .card-reveal-prompt {
     padding: 0.6rem 1rem;
