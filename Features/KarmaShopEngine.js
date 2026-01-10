@@ -13,14 +13,18 @@ export class KarmaShopEngine {
     this._boostTicker = null;
     this._renderQueued = false;
     this._syncInProgress = false;
+    this._initialized = false;
     
-    try {
-      this.init();
-    } catch (err) {
-      console.error('[KarmaShop] init failed – using fallbacks', err);
+    // Start async init but don't block
+    this.init().then(() => {
+      this._initialized = true;
+      console.log('[KarmaShop] Initialization complete');
+    }).catch(err => {
+      console.error('[KarmaShop] init failed:', err);
       this.activeBoosts = [];
       this.items = [];
-    }
+      this._initialized = true;
+    });
   }
 
   async init() {
@@ -575,6 +579,23 @@ export class KarmaShopEngine {
     const tab = document.getElementById('karma-shop-tab');
     if (!tab) {
       console.error('[KarmaShop] karma-shop-tab element not found');
+      return;
+    }
+
+    // Wait for initialization
+    if (!this._initialized) {
+      tab.innerHTML = `
+        <div class="karma-shop-container">
+          <div class="karma-shop-content">
+            <div class="card" style="text-align: center; padding: 3rem;">
+              <h3>Loading Karma Shop...</h3>
+              <p style="color: var(--neuro-text-light); margin-top: 1rem;">Syncing your data...</p>
+            </div>
+          </div>
+        </div>
+      `;
+      // Retry after init completes
+      setTimeout(() => this.render(), 100);
       return;
     }
 
