@@ -1,10 +1,10 @@
 // Digital Curiosity PWA - Service Worker
-// Network-first strategy to fix white screen issue
+// Network-first strategy + theme-cache for zero-blink skins
 
-const CACHE_NAME = 'dc-v3';
+const CACHE_NAME = 'dc-v4';
 const RUNTIME_CACHE = 'dc-runtime';
 
-// Core assets to cache immediately
+// Core assets (always cached)
 const CORE_ASSETS = [
   './',
   './Icons/icon-192x192.png',
@@ -14,141 +14,104 @@ const CORE_ASSETS = [
   './Assets/CSS/tailwind-output.css'
 ];
 
-// Install event - cache core assets
+// Install – cache core
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(CORE_ASSETS))
       .then(() => self.skipWaiting())
-      .catch(err => console.error('Cache install failed:', err))
   );
 });
 
-// Activate event - clean up old caches
+// Activate – clean old caches
 self.addEventListener('activate', e => {
   e.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => clients.claim())
+    caches.keys().then(names =>
+      Promise.all(
+        names.map(n => (n !== CACHE_NAME && n !== RUNTIME_CACHE) ? caches.delete(n) : null)
+      )
+    ).then(() => clients.claim())
   );
 });
 
-// Fetch event - network-first strategy
+// Fetch – network-first with fall-backs
 self.addEventListener('fetch', e => {
-  const { request } = e;
-  const url = new URL(request.url);
+  const url = new URL(e.request.url);
 
-  // Skip cross-origin requests
-  if (!url.origin.includes(self.location.origin)) {
+  // ① Theme skins – cache-first (instant paint, no blink)
+  if (url.pathname.includes('/Assets/CSS/skins/')) {
+    e.respondWith(cacheFirst(e.request));
     return;
   }
 
-  // Handle different types of requests
-  if (request.destination === 'image' || request.url.includes('Icons')) {
-    // Cache-first for images
-    e.respondWith(cacheFirst(request));
-  } else if (request.url.includes('CSS') || request.url.includes('css')) {
-    // Cache-first for CSS files
-    e.respondWith(cacheFirst(request));
-  } else if (request.destination === 'script' || request.url.includes('js')) {
-    // Network-first for JavaScript files
-    e.respondWith(networkFirst(request));
-  } else {
-    // Default: network-first for everything else
-    e.respondWith(networkFirst(request));
+  // ② CSS / JS – network-first (fresh code)
+  if (url.pathname.match(/\.(css|js)$/)) {
+    e.respondWith(networkFirst(e.request));
+    return;
   }
+
+  // ③ Images – cache-first (offline visuals)
+  if (e.request.destination === 'image' || url.pathname.includes('/Icons/')) {
+    e.respondWith(cacheFirst(e.request));
+    return;
+  }
+
+  // ④ Everything else – network-first
+  e.respondWith(networkFirst(e.request));
 });
 
-// Network-first strategy
-async function networkFirst(request) {
+// ---------- helpers ----------
+async function networkFirst(req) {
   try {
-    const networkResponse = await fetch(request);
-    
-    // If successful, cache the response
-    if (networkResponse.ok) {
-      const responseClone = networkResponse.clone();
-      const cache = await caches.open(RUNTIME_CACHE);
-      cache.put(request, responseClone);
+    const net = await fetch(req);
+    if (net.ok) {
+      const clone = net.clone();
+      caches.open(RUNTIME_CACHE).then(c => c.put(req, clone));
     }
-    
-    return networkResponse;
-  } catch (error) {
-    // If network fails, try cache
-    const cachedResponse = await caches.match(request);
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-    
-    // If not in cache, try core cache
-    const coreResponse = await caches.match(request);
-    if (coreResponse) {
-      return coreResponse;
-    }
-    
-    // Return offline fallback
-    return new Response('Offline - content not available', {
-      status: 503,
-      statusText: 'Service Unavailable',
-      headers: new Headers({
-        'Content-Type': 'text/plain'
-      })
-    });
+    return net;
+  } catch {
+    const cached = await caches.match(req);
+    return cached || caches.match('./');
   }
 }
 
-// Cache-first strategy
-async function cacheFirst(request) {
-  const cachedResponse = await caches.match(request);
-  if (cachedResponse) {
-    return cachedResponse;
-  }
-  
+async function cacheFirst(req) {
+  const cached = await caches.match(req);
+  if (cached) return cached;
+
   try {
-    const networkResponse = await fetch(request);
-    if (networkResponse.ok) {
-      const responseClone = networkResponse.clone();
-      const cache = await caches.open(RUNTIME_CACHE);
-      cache.put(request, responseClone);
+    const net = await fetch(req);
+    if (net.ok) {
+      const clone = net.clone();
+      caches.open(RUNTIME_CACHE).then(c => c.put(req, clone));
     }
-    return networkResponse;
-  } catch (error) {
-    return new Response('Offline - image not available', {
-      status: 503,
-      statusText: 'Service Unavailable'
-    });
+    return net;
+  } catch {
+    return new Response('Offline', { status: 503 });
   }
 }
 
-// Push notification listener
-self.addEventListener('push', event => {
+// ---------- push ----------
+self.addEventListener('push', e => {
   try {
-    const { title, body, icon, tag, data } = event.data.json();
-    event.waitUntil(
+    const {title, body, icon, tag, data} = e.data.json();
+    e.waitUntil(
       self.registration.showNotification(title, {
         body,
         icon: icon || '/Icons/icon-192x192.png',
-        tag: tag || 'default',
+        tag: tag || 'dc-note',
         data: data || {},
         badge: '/Icons/icon-192x192.png',
         vibrate: [200, 100, 200]
       })
     );
-  } catch (error) {
-    console.error('Push notification error:', error);
+  } catch (err) {
+    console.error('Push error:', err);
   }
 });
 
-// Notification click handler
-self.addEventListener('notificationclick', event => {
-  event.notification.close();
-  const urlToOpen = event.notification.data?.url || '/';
-  event.waitUntil(
-    clients.openWindow(urlToOpen)
-  );
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = e.notification.data?.url || '/';
+  e.waitUntil(clients.openWindow(url));
 });
