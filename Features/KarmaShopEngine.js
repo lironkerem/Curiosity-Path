@@ -525,13 +525,27 @@ export class KarmaShopEngine {
       skip_all_monthly: '🗓️ Skip Monthly Quests'
     };
 
+    // Pre-render initial content immediately
+    const initialContent = this.activeBoosts.map(boost => {
+      const isQuest = boost.id.startsWith('skip_all_');
+      const msLeft = isQuest ? this._getResetTime(boost.id) - Date.now() : boost.expiresAt - Date.now();
+      
+      return `
+        <div class="karma-shop-boost-item">
+          <span class="karma-shop-boost-name">${niceNames[boost.id] || boost.id}</span>
+          <span class="karma-shop-boost-time">${this._fmtDuration(msLeft)}</span>
+        </div>
+      `;
+    }).join('');
+
     const html = `
       <div class="card karma-shop-boosts">
         <h3 class="karma-shop-boosts-title">🔋 Active Boosts</h3>
-        <div class="karma-shop-boosts-list" id="boosts-list-live"></div>
+        <div class="karma-shop-boosts-list" id="boosts-list-live">${initialContent}</div>
       </div>
     `;
 
+    // Set up ticker for updates
     const tick = () => {
       const box = document.getElementById('boosts-list-live');
       if (!box) return;
@@ -549,7 +563,6 @@ export class KarmaShopEngine {
       }).join('');
     };
 
-    tick();
     this._boostTicker = setInterval(tick, 5000); // 5 seconds instead of 1
     return html;
   }
