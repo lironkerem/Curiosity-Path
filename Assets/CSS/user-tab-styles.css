@@ -70,11 +70,16 @@
   transition: opacity .3s;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  overflow-y: auto;
 }
 
 .pricing-overlay.show {
   opacity: 1;
   pointer-events: auto;
+}
+
+body.blur-behind {
+  overflow: hidden;
 }
 
 body.blur-behind > *:not(.pricing-overlay) {
@@ -132,14 +137,26 @@ body.blur-behind > *:not(.pricing-overlay) {
 
 /* Mobile carousel */
 @media (max-width: 768px) {
+  .pricing-overlay {
+    align-items: flex-start;
+    padding: 20px 0;
+  }
+  
+  .pricing-modal {
+    margin: auto 0;
+    max-height: none;
+  }
+  
   .pricing-cards {
     display: flex;
     overflow-x: auto;
+    overflow-y: visible;
     scroll-snap-type: x mandatory;
     gap: 0;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     padding: 0 20px;
+    margin: 10px -24px;
   }
   
   .pricing-cards::-webkit-scrollbar {
@@ -148,8 +165,10 @@ body.blur-behind > *:not(.pricing-overlay) {
   
   .pricing-card {
     min-width: 85%;
+    max-width: 85%;
     scroll-snap-align: center;
     margin: 0 10px;
+    height: auto;
   }
   
   .pricing-carousel-dots {
@@ -165,6 +184,7 @@ body.blur-behind > *:not(.pricing-overlay) {
     border-radius: 50%;
     background: var(--neuro-shadow-dark);
     transition: all .3s;
+    cursor: pointer;
   }
   
   .pricing-dot.active {

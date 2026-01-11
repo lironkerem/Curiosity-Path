@@ -463,16 +463,34 @@ export default class UserTab {
     });
   }
 
-  // ============== ADMIN =============
-  loadAdminPanel() {
-    const mount = document.getElementById('admin-tab-mount');
-    if (!mount) return;
-    mount.innerHTML = '<div style="text-align:center;padding:20px;">Loading...</div>';
-    import('./Admin-Tab.js')
-      .then(({ AdminTab }) => import('./Supabase.js').then(({ supabase }) => new AdminTab(supabase).render()))
-      .then(content => { mount.innerHTML = ''; mount.appendChild(content); })
-      .catch(err => { mount.innerHTML = `<div style="color:#ff4757;padding:10px;">Failed: ${err.message}</div>`; });
+// ============== ADMIN =============
+async loadAdminPanel() {
+  const mount = document.getElementById('admin-tab-mount');
+  if (!mount) return;
+  
+  mount.innerHTML = '<div style="text-align:center;padding:20px;">Loading...</div>';
+  
+  try {
+    const adminModule = await import('./Admin-Tab.js');
+    const { supabase } = await import('./Supabase.js');
+    
+    const AdminTab = adminModule.AdminTab || adminModule.default;
+    const adminTab = new AdminTab(supabase);
+    const content = await adminTab.render();
+    
+    mount.innerHTML = '';
+    if (typeof content === 'string') {
+      mount.innerHTML = content;
+    } else if (content instanceof HTMLElement) {
+      mount.appendChild(content);
+    } else {
+      mount.innerHTML = '<div style="color:#ff4757;padding:10px;">Invalid content returned</div>';
+    }
+  } catch (err) {
+    console.error('Admin panel error:', err);
+    mount.innerHTML = `<div style="color:#ff4757;padding:10px;">Failed to load: ${err.message}</div>`;
   }
+}
 
   // ============== PRICING MODAL =============
 showPricingModal() {
