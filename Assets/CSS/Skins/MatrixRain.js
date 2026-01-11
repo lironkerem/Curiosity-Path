@@ -15,7 +15,7 @@ const MATRIX_CONFIG = {
   BASE_SPEED_DESKTOP: 3,
   RANDOM_SPEED_MOBILE: 1.2,
   RANDOM_SPEED_DESKTOP: 4,
-  Z_INDEX: -1,
+  Z_INDEX: 1,
   COLORS: {
     DARK: { PRIMARY: '#ff0041', GLOW: 'rgba(255,0,65,.6)' },
     LIGHT: { PRIMARY: '#00ff41', GLOW: 'rgba(0,255,65,.6)' }
