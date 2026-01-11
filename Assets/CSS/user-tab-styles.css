@@ -59,8 +59,8 @@
 .pricing-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9999;
-  isolation: isolate;
+  z-index: 2147483647;        /* maximum possible – beats everything */
+  isolation: isolate;         /* new stacking context */
   display: grid;
   place-items: center;
   background: rgba(0,0,0,.45);
@@ -70,9 +70,14 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
+
 .pricing-overlay.show {
   opacity: 1;
   pointer-events: auto;
+}
+
+body.blur-behind {
+  pointer-events: none;        /* stop clicks on page below */
 }
 body.blur-behind > *:not(.pricing-overlay) {
   filter: blur(4px);
