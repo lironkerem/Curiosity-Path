@@ -596,30 +596,46 @@ export default class DashboardManager {
     const allDefs = this.app.gamification.getBadgeDefinitions();
     const earned = new Set(status.badges.map(b => b.id));
 
-    // Latest earned badges for preview (including admin badges)
+    // List of known admin badge IDs from Admin-Tab.js
+    const knownAdminBadgeIds = new Set([
+      'early_supporter',
+      'vip_member', 
+      'beta_tester',
+      'spiritual_guide',
+      'community_hero'
+    ]);
+
+    // Latest earned badges for preview (game badges + admin badges)
     const latestEarned = status.badges
       .slice()
       .reverse()
       .slice(0, CONSTANTS.BADGES_PREVIEW_COUNT)
       .map(b => {
-        // Try to get definition, fallback for admin badges
-        const def = allDefs[b.id] || {
+        // Check if it's a known admin badge
+        const isAdminBadge = knownAdminBadgeIds.has(b.id);
+        
+        // Get definition from game badges OR use stored admin badge data
+        const def = allDefs[b.id] || (isAdminBadge ? {
           name: b.name || 'Special Badge',
           icon: b.icon || '🏆',
           description: b.description || 'Admin awarded',
-          xp: b.xp || 0,
+          xp: b.xp || 50,
           rarity: b.rarity || 'epic'
-        };
+        } : null);
+        
+        // Skip if not a valid badge (not in game defs AND not a known admin badge)
+        if (!def) return null;
         
         return {
           ...b,
           ...def,
           earned: true,
-          karma: CONSTANTS.KARMA_BY_RARITY[def.rarity] || 3
+          karma: CONSTANTS.KARMA_BY_RARITY[def.rarity] || 15
         };
-      });
+      })
+      .filter(Boolean); // Remove nulls
 
-    // Full badge list (game badges + admin badges)
+    // Full badge list (game badges only for "Show All")
     const gameBadges = Object.entries(allDefs).map(([id, def]) => ({
       id,
       ...def,
@@ -627,26 +643,26 @@ export default class DashboardManager {
       karma: CONSTANTS.KARMA_BY_RARITY[def.rarity] || 3
     }));
 
-    // Add admin-only badges (not in game definitions)
-    const adminOnlyBadges = status.badges
-      .filter(b => !allDefs[b.id])
+    // Get only KNOWN admin badges that were actually awarded
+    const awardedAdminBadges = status.badges
+      .filter(b => knownAdminBadgeIds.has(b.id))
       .map(b => ({
         id: b.id,
         name: b.name || 'Special Badge',
         icon: b.icon || '🏆',
         description: b.description || 'Admin awarded',
-        xp: b.xp || 0,
+        xp: b.xp || 50,
         rarity: b.rarity || 'epic',
         earned: true,
         karma: CONSTANTS.KARMA_BY_RARITY[b.rarity || 'epic'] || 15
       }));
 
-    const fullList = [...gameBadges, ...adminOnlyBadges];
+    const fullList = [...gameBadges, ...awardedAdminBadges];
 
-    // Category-organized badges (add admin category if needed)
+    // Category-organized badges (add admin category ONLY if badges were awarded)
     const categories = { ...CONSTANTS.BADGE_CATEGORIES };
-    if (adminOnlyBadges.length > 0) {
-      categories['Admin Rewards'] = adminOnlyBadges.map(b => b.id);
+    if (awardedAdminBadges.length > 0) {
+      categories['Admin Rewards'] = awardedAdminBadges.map(b => b.id);
     }
 
     const categoryHtml = Object.entries(categories)
