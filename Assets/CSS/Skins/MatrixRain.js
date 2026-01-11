@@ -22,7 +22,7 @@ const MATRIX_CONFIG = {
   }
 };
 
-export class MatrixRain {
+class MatrixRain {
   constructor() {
     this.container = null;
     this.columns = [];
