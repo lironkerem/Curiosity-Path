@@ -274,7 +274,10 @@ export default class UserTab {
   }
 
   // ========== NOTIFICATIONS (FIXED) ==========
-  attachNotificationsHandlers() {
+  async attachNotificationsHandlers() {
+    // Load settings from Supabase first
+    await this.hydrateNotificationSettings();
+    
     const master = document.getElementById('master-notifications-toggle');
     const options = document.getElementById('notification-options');
     let saveTimeout;
@@ -641,5 +644,63 @@ export default class UserTab {
     modal.querySelector('#cancel-logout').onclick = () => modal.remove();
     modal.querySelector('#confirm-logout').onclick = () => { modal.remove(); window.app.logout(); };
     modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  }
+
+  // ========== SYNC HELPERS ==========
+  async hydrateNotificationSettings() {
+    const uid = this.app.state?.currentUser?.id;
+    if (!uid) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('notification_prefs')
+        .select('prefs')
+        .eq('user_id', uid)
+        .single();
+
+      if (data?.prefs) {
+        localStorage.setItem('notification_settings', JSON.stringify(data.prefs));
+        this.restoreNotificationUI(data.prefs);
+        console.log('✅ Notification settings synced from Supabase');
+      }
+    } catch (e) {
+      console.warn('Settings sync error:', e);
+    }
+  }
+
+  restoreNotificationUI(settings) {
+    if (!settings) return;
+
+    const master = document.getElementById('master-notifications-toggle');
+    if (master) {
+      master.checked = settings.enabled || false;
+      const options = document.getElementById('notification-options');
+      if (options) {
+        options.style.opacity = settings.enabled ? '1' : '.4';
+        options.style.pointerEvents = settings.enabled ? 'auto' : 'none';
+      }
+    }
+
+    ['morning', 'afternoon', 'evening', 'night'].forEach(period => {
+      const config = settings.reminders?.[period];
+      if (!config) return;
+      
+      const toggle = document.getElementById(`reminder-${period}`);
+      const time = document.getElementById(`time-${period}`);
+      if (toggle) toggle.checked = config.enabled || false;
+      if (time) time.value = config.time || '';
+      if (time) time.disabled = !config.enabled;
+    });
+
+    const quotes = document.getElementById('quotes-enabled');
+    const affirmations = document.getElementById('affirmations-enabled');
+    const freq = document.getElementById('inspirational-frequency');
+    
+    if (quotes) quotes.checked = settings.quotes?.enabled || false;
+    if (affirmations) affirmations.checked = settings.affirmations?.enabled || false;
+    if (freq) freq.value = settings.frequency || 'moderate';
+
+    const wellness = document.getElementById('wellness-notifications');
+    if (wellness) wellness.checked = settings.wellness?.enabled || false;
   }
 }
