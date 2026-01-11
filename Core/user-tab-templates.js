@@ -1,19 +1,22 @@
-// user-tab-templates.js — All HTML templates
+// user-tab-templates.js — All HTML templates (patched v2026-01-11)
 
 export const MENU_ITEMS = [
-  { id: 'profile', icon: '👤', label: 'Profile' },
-  { id: 'settings', icon: '🎭', label: 'Skins' },
-  { id: 'notifications', icon: '🔔', label: 'Notifications' },
-  { id: 'automations', icon: '⚙️', label: 'Automations' },
-  { id: 'about', icon: 'ℹ️', label: 'About the App' },
-  { id: 'rules', icon: '📜', label: 'Rules' },
-  { id: 'contact', icon: '📧', label: 'Contact Me' },
-  { id: 'export', icon: '💾', label: 'Export Data' },
-  { id: 'billing', icon: '⬆️', label: 'Pricings' },
-  { id: 'admin', icon: '🔧', label: 'Admin Hacks', admin: true }
+  { id: 'profile',        icon: '👤', label: 'Profile' },
+  { id: 'skins',          icon: '🎭', label: 'Skins' },          // <-- renamed
+  { id: 'notifications',  icon: '🔔', label: 'Notifications' },
+  { id: 'automations',    icon: '⚙️', label: 'Automations' },
+  { id: 'about',          icon: 'ℹ️', label: 'About the App' },
+  { id: 'rules',          icon: '📜', label: 'Rules' },
+  { id: 'contact',        icon: '📧', label: 'Contact Me' },
+  { id: 'export',         icon: '💾', label: 'Export Data' },
+  { id: 'billing',        icon: '⬆️', label: 'Pricings' },
+  { id: 'admin',          icon: '🔧', label: 'Admin Hacks', admin: true }
 ];
 
 const EMOJI_LIST = '👤♈️♉️♊️♋️♌️♍️♎️♏️♐️♑️♒️♓️🧘‍♀️🌙☀️🌟🔮🦋🌿🌸🕉️🍀';
+
+// cached emoji options (review fix)
+const EMOJI_OPTIONS = [...EMOJI_LIST].map(e => `<option value="${e}">${e}</option>`).join('');
 
 const toggle = (id, label, checked = false, disabled = false) => `
   <div class="toggle-switch-container">
@@ -34,7 +37,7 @@ export const profile = (u = {}) => `
           <span class="profile-avatar-emoji" style="${u.avatar_url ? 'display:none;' : ''}">${u.emoji || '👤'}</span>
         </div>
       </label>
-      <select id="profile-emoji">${[...EMOJI_LIST].map(e => `<option ${e === u.emoji ? 'selected' : ''} value="${e}">${e}</option>`).join('')}</select>
+      <select id="profile-emoji">${EMOJI_OPTIONS.replace(`value="${u.emoji}"`,`value="${u.emoji}" selected`)}</select>
     </div>
     <input id="profile-name" type="text" maxlength="30" placeholder="Display name" value="${u.name || ''}">
     <input id="profile-email" type="email" placeholder="E-mail" value="${u.email || ''}">
@@ -43,7 +46,7 @@ export const profile = (u = {}) => `
     <button class="btn-link" id="save-profile-btn">Save changes</button>
   </div>`;
 
-export const settings = (app) => {
+export const skins = (app) => {                // <-- renamed from settings
   const activeTheme = localStorage.getItem('activeTheme') || 'default';
   const isDark = document.body.classList.contains('dark-mode');
   const hasChampagne = app.gamification?.state?.unlockedFeatures?.includes('luxury_champagne_gold_skin');
@@ -236,6 +239,60 @@ export const contact = () => `<div class="accordion-inner"><p>Contact for questi
 
 export const exportData = () => `<div class="accordion-inner"><button class="btn-link" onclick="window.app.exportUserData()">Download JSON</button></div>`;
 
-export const billing = () => `<div class="accordion-inner"><p><strong>Free</strong> - basic tools, ads free.</p><p><strong>Practitioner</strong> - Premium packs, monthly.</p><p><strong>Adept</strong> - Premium + session discounts.</p><p><strong>Master</strong> - Premium + discounts + 1-on-1 calls.</p><button class="btn-link">Choose plan</button></div>`;
+export const billing = () => ``;   // empty – direct action, no accordion
 
-export const admin = () => `<div class="accordion-inner" id="admin-panel-container"><div id="admin-tab-mount"></div></div>`;
+// ------- new pricing modal template -------
+export const pricingModal = () => `
+  <div id="pricing-modal-overlay" class="pricing-overlay">
+    <div class="pricing-modal">
+      <button class="pricing-close" aria-label="Close">✕</button>
+
+      <h2 class="pricing-title">Choose Your Path</h2>
+      <p class="pricing-sub">Unlock deeper features and support the journey.</p>
+
+      <div class="pricing-cards">
+
+        <div class="pricing-card">
+          <div class="pricing-badge">Free</div>
+          <h3>Seeker</h3>
+          <div class="pricing-price">$0</div>
+          <ul>
+            <li>Core gratitude & journal</li>
+            <li>Daily energy check-ins</li>
+            <li>Tarot & meditation</li>
+            <li>Ad-free experience</li>
+          </ul>
+          <button class="pricing-btn" data-plan="free">Current Plan</button>
+        </div>
+
+        <div class="pricing-card featured">
+          <div class="pricing-badge popular">Most Popular</div>
+          <h3>Practitioner</h3>
+          <div class="pricing-price">$8<span>/month</span></div>
+          <ul>
+            <li>Everything in Seeker</li>
+            <li>Advanced automations</li>
+            <li>Premium skins & themes</li>
+            <li>Cloud backup & sync</li>
+          </ul>
+          <button class="pricing-btn primary" data-plan="practitioner">Upgrade</button>
+        </div>
+
+        <div class="pricing-card">
+          <div class="pricing-badge">Adept</div>
+          <h3>Master</h3>
+          <div class="pricing-price">$20<span>/month</span></div>
+          <ul>
+            <li>Everything in Practitioner</li>
+            <li>1-on-1 monthly call</li>
+            <li>Custom wellness plans</li>
+            <li>Priority support</li>
+          </ul>
+          <button class="pricing-btn" data-plan="master">Upgrade</button>
+        </div>
+
+      </div>
+
+      <p class="pricing-foot">Cancel or change anytime in <strong>Settings → Billing</strong></p>
+    </div>
+  </div>`;
