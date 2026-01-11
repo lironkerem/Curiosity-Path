@@ -1003,8 +1003,13 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   top: 0.75rem;
   right: 1rem;
   left: auto;
-  margin: 0 0 2rem 0;
+  margin: 0;
   z-index: 5;
+}
+
+/* Add space below timer by pushing header down */
+.dashboard-quest-hub .dashboard-quest-header {
+  margin-top: 3rem;
 }
 
 .daily-card-full-container {
