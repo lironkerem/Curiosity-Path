@@ -56,20 +56,23 @@
 .toggle-switch input:checked + .toggle-slider:before { transform: translateX(22px); }
 
 /* ---- pricing modal ---- */
-.pricing-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 2147483647;
-  transform: translateZ(0);     /* creates a new containing block on the viewport */
-  display: grid;
-  place-items: center;
-  background: rgba(0,0,0,.45);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .3s;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
+   .pricing-overlay {
+     position: fixed;
+     inset: 0;
+     z-index: 2147483647;
+     /* break out of ancestor containing block */
+     transform: translateZ(0);
+     contain: layout style paint;
+     /* centre content */
+     display: grid;
+     place-items: center;
+     background: rgba(0,0,0,.45);
+     opacity: 0;
+     pointer-events: none;
+     transition: opacity .3s;
+     backdrop-filter: blur(12px);
+     -webkit-backdrop-filter: blur(12px);
+   }
 
 .pricing-overlay.show {
   opacity: 1;
