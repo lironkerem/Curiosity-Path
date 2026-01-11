@@ -250,9 +250,9 @@ export const pricingModal = () => `
       <h2 class="pricing-title">Choose Your Path</h2>
       <p class="pricing-sub">Unlock deeper features and support the journey.</p>
 
-      <div class="pricing-cards">
+      <div class="pricing-cards" id="pricing-cards-container">
 
-        <div class="pricing-card">
+        <div class="pricing-card" data-plan="free">
           <div class="pricing-badge">Free</div>
           <h3>Seeker</h3>
           <div class="pricing-price">$0</div>
@@ -265,7 +265,7 @@ export const pricingModal = () => `
           <button class="pricing-btn" data-plan="free">Current Plan</button>
         </div>
 
-        <div class="pricing-card featured">
+        <div class="pricing-card featured" data-plan="practitioner">
           <div class="pricing-badge popular">Most Popular</div>
           <h3>Practitioner</h3>
           <div class="pricing-price">$8<span>/month</span></div>
@@ -278,7 +278,7 @@ export const pricingModal = () => `
           <button class="pricing-btn primary" data-plan="practitioner">Upgrade</button>
         </div>
 
-        <div class="pricing-card">
+        <div class="pricing-card" data-plan="master">
           <div class="pricing-badge">Adept</div>
           <h3>Master</h3>
           <div class="pricing-price">$20<span>/month</span></div>
@@ -291,6 +291,12 @@ export const pricingModal = () => `
           <button class="pricing-btn" data-plan="master">Upgrade</button>
         </div>
 
+      </div>
+      
+      <div class="pricing-carousel-dots" id="pricing-dots">
+        <span class="pricing-dot active"></span>
+        <span class="pricing-dot"></span>
+        <span class="pricing-dot"></span>
       </div>
 
       <p class="pricing-foot">Cancel or change anytime in <strong>Settings → Billing</strong></p>

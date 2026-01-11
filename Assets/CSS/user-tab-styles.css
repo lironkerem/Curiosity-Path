@@ -130,6 +130,56 @@ body.blur-behind > *:not(.pricing-overlay) {
   gap: 20px;
 }
 
+/* Mobile carousel */
+@media (max-width: 768px) {
+  .pricing-cards {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 0 20px;
+  }
+  
+  .pricing-cards::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .pricing-card {
+    min-width: 85%;
+    scroll-snap-align: center;
+    margin: 0 10px;
+  }
+  
+  .pricing-carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  
+  .pricing-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--neuro-shadow-dark);
+    transition: all .3s;
+  }
+  
+  .pricing-dot.active {
+    background: var(--neuro-accent);
+    width: 24px;
+    border-radius: 4px;
+  }
+}
+
+@media (min-width: 769px) {
+  .pricing-carousel-dots {
+    display: none;
+  }
+}
+
 .pricing-card {
   background: var(--neuro-bg);
   color: var(--neuro-text);

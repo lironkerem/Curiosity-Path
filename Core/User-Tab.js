@@ -475,13 +475,41 @@ export default class UserTab {
   }
 
   // ============== PRICING MODAL =============
-  showPricingModal() {
-    const overlay = document.getElementById('pricing-modal-overlay');
-    if (!overlay) return;
-    overlay.classList.add('show');
-    document.body.classList.add('blur-behind');
-    this.attachPricingButtons(overlay);
+showPricingModal() {
+  const overlay = document.getElementById('pricing-modal-overlay');
+  if (!overlay) return;
+  overlay.classList.add('show');
+  document.body.classList.add('blur-behind');
+  this.attachPricingButtons(overlay);
+  
+  // Mobile carousel functionality
+  if (window.innerWidth <= 768) {
+    const container = document.getElementById('pricing-cards-container');
+    const dots = document.querySelectorAll('.pricing-dot');
+    const cards = container.querySelectorAll('.pricing-card');
+    
+    // Scroll to FREE (first card) on mobile
+    container.scrollTo({ left: 0, behavior: 'smooth' });
+    
+    container.addEventListener('scroll', () => {
+      const scrollLeft = container.scrollLeft;
+      const cardWidth = cards[0].offsetWidth + 20; // card + margin
+      const activeIndex = Math.round(scrollLeft / cardWidth);
+      
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === activeIndex);
+      });
+    });
+    
+    // Optional: dot click navigation
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        const cardWidth = cards[0].offsetWidth + 20;
+        container.scrollTo({ left: cardWidth * i, behavior: 'smooth' });
+      });
+    });
   }
+}
 
   closePricingModal() {
     const overlay = document.getElementById('pricing-modal-overlay');
