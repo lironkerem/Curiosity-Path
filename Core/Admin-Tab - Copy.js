@@ -17,48 +17,13 @@ export class AdminTab {
       'earth_luxury_skin'
     ];
     
-    // Complete badges list with all properties
+    // Badges list
     this.availableBadges = [
-      { 
-        id: 'early_supporter', 
-        name: 'Early Supporter', 
-        icon: '🌟',
-        xp: 100,
-        rarity: 'epic',
-        description: 'Joined during early access'
-      },
-      { 
-        id: 'vip_member', 
-        name: 'VIP Member', 
-        icon: '👑',
-        xp: 150,
-        rarity: 'legendary',
-        description: 'VIP community member'
-      },
-      { 
-        id: 'beta_tester', 
-        name: 'Beta Tester', 
-        icon: '🧪',
-        xp: 100,
-        rarity: 'rare',
-        description: 'Helped test new features'
-      },
-      { 
-        id: 'spiritual_guide', 
-        name: 'Spiritual Guide', 
-        icon: '🕉️',
-        xp: 150,
-        rarity: 'epic',
-        description: 'Community mentor and guide'
-      },
-      { 
-        id: 'community_hero', 
-        name: 'Community Hero', 
-        icon: '🦸',
-        xp: 200,
-        rarity: 'legendary',
-        description: 'Outstanding community contribution'
-      }
+      { id: 'early_supporter', name: 'Early Supporter', icon: '🌟' },
+      { id: 'vip_member', name: 'VIP Member', icon: '👑' },
+      { id: 'beta_tester', name: 'Beta Tester', icon: '🧪' },
+      { id: 'spiritual_guide', name: 'Spiritual Guide', icon: '🕉️' },
+      { id: 'community_hero', name: 'Community Hero', icon: '🦸' }
     ];
   }
 
@@ -231,12 +196,6 @@ export class AdminTab {
           transform:translateY(0);
           box-shadow:var(--shadow-inset);
         }
-        .admin-btn-secondary {
-          background:#6c757d;
-        }
-        .admin-btn-secondary:hover {
-          background:#5a6268;
-        }
         .feature-checkbox-item {
           display:flex;
           align-items:center;
@@ -267,32 +226,6 @@ export class AdminTab {
           align-items:center;
           gap:8px;
         }
-        .custom-badge-form {
-          display:grid;
-          gap:12px;
-          background:rgba(102,126,234,0.05);
-          padding:16px;
-          border-radius:10px;
-          border:1px solid rgba(102,126,234,0.2);
-        }
-        .form-group {
-          display:flex;
-          flex-direction:column;
-          gap:6px;
-        }
-        .form-label {
-          font-weight:600;
-          font-size:0.85rem;
-          color:var(--neuro-text);
-        }
-        .emoji-preview {
-          font-size:3rem;
-          text-align:center;
-          padding:16px;
-          background:rgba(102,126,234,0.1);
-          border-radius:8px;
-          margin-bottom:8px;
-        }
       </style>
     `;
 
@@ -307,8 +240,7 @@ export class AdminTab {
 
     return container;
   }
-
-  async fetchUsers() {
+async fetchUsers() {
     try {
       const { data: profiles, error: profileError } = await this.supabase
         .from('profiles')
@@ -408,71 +340,20 @@ export class AdminTab {
       case 'badges':
         panel.innerHTML = `
           <div style="display:grid;gap:20px;">
-            <!-- Preset Badges -->
             <div>
-              <label style="display:block;margin-bottom:12px;font-weight:600;color:var(--neuro-text);">Choose a Preset Badge:</label>
+              <label style="display:block;margin-bottom:12px;font-weight:600;color:var(--neuro-text);">Choose a Badge:</label>
               <div style="display:grid;gap:10px;">
                 ${this.availableBadges.map(badge => `
                   <label class="feature-checkbox-item" style="cursor:pointer;padding:14px;">
                     <input type="radio" name="badge" class="badge-radio" value="${badge.id}">
                     <span style="font-size:1.8rem;margin-right:4px;">${badge.icon}</span>
-                    <div style="flex:1;">
-                      <div style="font-weight:600;font-size:1rem;">${badge.name}</div>
-                      <div style="font-size:0.75rem;color:var(--neuro-text-light);">
-                        +${badge.xp} XP • ${badge.rarity} • ${badge.description}
-                      </div>
-                    </div>
+                    <span style="flex:1;font-weight:600;font-size:1rem;">${badge.name}</span>
                   </label>
                 `).join('')}
               </div>
             </div>
-            
-            <!-- Custom Badge Creator -->
-            <div style="background:rgba(255,193,7,0.1);padding:16px;border-radius:10px;border:2px solid rgba(255,193,7,0.3);">
-              <h4 style="font-weight:700;margin-bottom:12px;color:var(--neuro-text);">✨ Create Custom Badge</h4>
-              <div class="custom-badge-form">
-                <div class="emoji-preview" id="customEmojiPreview">🏆</div>
-                
-                <div class="form-group">
-                  <label class="form-label">Emoji Icon</label>
-                  <input type="text" id="customBadgeEmoji" class="admin-input" placeholder="Enter emoji (e.g., 🌟)" maxlength="2" value="🏆">
-                  <small style="font-size:0.75rem;color:var(--neuro-text-light);">Tip: Copy emoji from emojipedia.org</small>
-                </div>
-                
-                <div class="form-group">
-                  <label class="form-label">Badge Name</label>
-                  <input type="text" id="customBadgeName" class="admin-input" placeholder="e.g., Super Star" maxlength="30">
-                </div>
-                
-                <div class="form-group">
-                  <label class="form-label">Description</label>
-                  <input type="text" id="customBadgeDesc" class="admin-input" placeholder="e.g., Outstanding achievement" maxlength="60">
-                </div>
-                
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                  <div class="form-group">
-                    <label class="form-label">XP Reward</label>
-                    <input type="number" id="customBadgeXP" class="admin-input" placeholder="100" min="0" value="100">
-                  </div>
-                  
-                  <div class="form-group">
-                    <label class="form-label">Rarity</label>
-                    <select id="customBadgeRarity" class="admin-input">
-                      <option value="common">Common (+3 Karma)</option>
-                      <option value="uncommon">Uncommon (+5 Karma)</option>
-                      <option value="rare">Rare (+10 Karma)</option>
-                      <option value="epic" selected>Epic (+15 Karma)</option>
-                      <option value="legendary">Legendary (+30 Karma)</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Award Buttons -->
-            <div style="background:rgba(102,126,234,0.05);padding:16px;border-radius:10px;border:1px solid rgba(102,126,234,0.2);display:grid;gap:12px;">
-              <button id="awardPresetBadge" class="admin-btn">🎖️ Award Preset Badge</button>
-              <button id="awardCustomBadge" class="admin-btn admin-btn-secondary">✨ Award Custom Badge</button>
+            <div style="background:rgba(102,126,234,0.05);padding:16px;border-radius:10px;border:1px solid rgba(102,126,234,0.2);">
+              <button id="awardBadge" class="admin-btn">🎖️ Award to Selected Users</button>
             </div>
           </div>
         `;
@@ -582,52 +463,12 @@ export class AdminTab {
   }
 
   attachBadgesHandlers(container) {
-    // Emoji preview update
-    const emojiInput = container.querySelector('#customBadgeEmoji');
-    const emojiPreview = container.querySelector('#customEmojiPreview');
-    
-    emojiInput?.addEventListener('input', (e) => {
-      const emoji = e.target.value.trim();
-      if (emojiPreview) {
-        emojiPreview.textContent = emoji || '🏆';
-      }
-    });
-
-    // Award preset badge
-    container.querySelector('#awardPresetBadge')?.addEventListener('click', async () => {
-      const badgeId = container.querySelector('.badge-radio:checked')?.value;
-      if (!badgeId) return alert('Please select a preset badge');
+    container.querySelector('#awardBadge')?.addEventListener('click', async () => {
+      const badge = container.querySelector('.badge-radio:checked')?.value;
+      if (!badge) return alert('Please select a badge');
       if (this.selectedUsers.length === 0) return alert('Please select at least one user');
       
-      const badge = this.availableBadges.find(b => b.id === badgeId);
       await this.batchAwardBadge(container, badge);
-    });
-
-    // Award custom badge
-    container.querySelector('#awardCustomBadge')?.addEventListener('click', async () => {
-      if (this.selectedUsers.length === 0) return alert('Please select at least one user');
-      
-      const emoji = container.querySelector('#customBadgeEmoji').value.trim();
-      const name = container.querySelector('#customBadgeName').value.trim();
-      const description = container.querySelector('#customBadgeDesc').value.trim();
-      const xp = parseInt(container.querySelector('#customBadgeXP').value) || 100;
-      const rarity = container.querySelector('#customBadgeRarity').value;
-      
-      if (!emoji || !name || !description) {
-        return alert('Please fill in all custom badge fields (emoji, name, and description)');
-      }
-      
-      // Create custom badge object
-      const customBadge = {
-        id: `custom_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        name,
-        icon: emoji,
-        description,
-        xp,
-        rarity
-      };
-      
-      await this.batchAwardBadge(container, customBadge);
     });
   }
 
@@ -642,8 +483,7 @@ export class AdminTab {
       await this.batchSendMessage(container, title, content);
     });
   }
-
-  async sendPushNotificationToUser(userId, title, body) {
+async sendPushNotificationToUser(userId, title, body) {
     try {
       const { data: subs, error } = await this.supabase
         .from('push_subscriptions')
@@ -677,45 +517,45 @@ export class AdminTab {
     }
   }
 
-  async batchUpdate(container, xp, karma) {
-    this.showMessage(container, 'Updating users...', 'info');
-    let success = 0;
-    let failed = 0;
+async batchUpdate(container, xp, karma) {
+  this.showMessage(container, 'Updating users...', 'info');
+  let success = 0;
+  let failed = 0;
 
-    for (const user of this.selectedUsers) {
-      try {
-        const { error } = await this.supabase.rpc('update_user_gamification', {
-          target_user_id: user.id,
-          xp_delta: xp,
-          karma_delta: karma
-        });
-        if (error) throw error;
+  for (const user of this.selectedUsers) {
+    try {
+      const { error } = await this.supabase.rpc('update_user_gamification', {
+        target_user_id: user.id,
+        xp_delta: xp,
+        karma_delta: karma
+      });
+      if (error) throw error;
 
-        // Send push notification
-        let notificationBody = '';
-        if (xp > 0 && karma > 0) {
-          notificationBody = `You received +${xp} XP and +${karma} Karma from Aanandoham!`;
-        } else if (xp > 0) {
-          notificationBody = `You received +${xp} XP from Aanandoham!`;
-        } else if (karma > 0) {
-          notificationBody = `You received +${karma} Karma from Aanandoham!`;
-        }
-        
-        if (notificationBody) {
-          await this.sendPushNotificationToUser(user.id, '🎁 Aanandoham\'s Gift!', notificationBody);
-        }
-
-        success++;
-      } catch (error) {
-        console.error(`Failed for user ${user.name}:`, error);
-        failed++;
+      // Send push notification
+      let notificationBody = '';
+      if (xp > 0 && karma > 0) {
+        notificationBody = `You received +${xp} XP and +${karma} Karma from Aanandoham!`;
+      } else if (xp > 0) {
+        notificationBody = `You received +${xp} XP from Aanandoham!`;
+      } else if (karma > 0) {
+        notificationBody = `You received +${karma} Karma from Aanandoham!`;
       }
-    }
+      
+      if (notificationBody) {
+        await this.sendPushNotificationToUser(user.id, '🎁 Aanandoham\'s Gift!', notificationBody);
+      }
 
-    this.showMessage(container, `✅ Updated ${success} users${failed > 0 ? `, ${failed} failed` : ''}`, 'success');
-    await this.fetchUsers();
-    this.renderUserCheckboxes(container);
+      success++;
+    } catch (error) {
+      console.error(`Failed for user ${user.name}:`, error);
+      failed++;
+    }
   }
+
+  this.showMessage(container, `✅ Updated ${success} users${failed > 0 ? `, ${failed} failed` : ''}`, 'success');
+  await this.fetchUsers();
+  this.renderUserCheckboxes(container);
+}
 
   async batchUnlockFeatures(container, features, duration) {
     this.showMessage(container, 'Unlocking features...', 'info');
@@ -754,8 +594,9 @@ export class AdminTab {
     this.showMessage(container, `✅ Unlocked features for ${success} users`, 'success');
   }
 
-  async batchAwardBadge(container, badge) {
+  async batchAwardBadge(container, badgeId) {
     this.showMessage(container, 'Awarding badges...', 'info');
+    const badge = this.availableBadges.find(b => b.id === badgeId);
     
     let success = 0;
     for (const user of this.selectedUsers) {
@@ -769,15 +610,11 @@ export class AdminTab {
         const currentPayload = progressData?.payload || {};
         const badges = currentPayload.badges || [];
         
-        if (!badges.find(b => b.id === badge.id)) {
-          // Store complete badge data
+        if (!badges.find(b => b.id === badgeId)) {
           badges.push({
-            id: badge.id,
+            id: badgeId,
             name: badge.name,
             icon: badge.icon,
-            description: badge.description,
-            xp: badge.xp,
-            rarity: badge.rarity,
             date: new Date().toISOString(),
             unlocked: true
           });
