@@ -1010,7 +1010,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 /* Add space below timer by pushing header down */
 .dashboard-quest-hub .dashboard-quest-header {
   margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .daily-card-full-container {
