@@ -59,9 +59,9 @@
 .pricing-overlay {
   position: fixed;
   inset: 0;
-  z-index: 2147483647;        /* highest possible */
-  isolation: isolate;         /* new stacking context */
-  contain: layout style paint; /* ignore ancestor transforms */
+  z-index: 2147483647;
+  isolation: isolate;
+  contain: layout style paint;
   display: grid;
   place-items: center;
   background: rgba(0,0,0,.45);
@@ -81,10 +81,12 @@ body.blur-behind > *:not(.pricing-overlay) {
   filter: blur(4px);
   transition: filter .3s;
 }
+
 .pricing-modal {
   width: 90%;
   max-width: 1000px;
   background: var(--neuro-bg);
+  color: var(--neuro-text);
   border-radius: 24px;
   padding: 32px 24px;
   box-shadow: var(--shadow-raised-lg);
@@ -93,6 +95,7 @@ body.blur-behind > *:not(.pricing-overlay) {
   flex-direction: column;
   gap: 20px;
 }
+
 .pricing-close {
   position: absolute;
   top: 16px;
@@ -104,16 +107,32 @@ body.blur-behind > *:not(.pricing-overlay) {
   cursor: pointer;
   transition: transform .2s;
 }
+
 .pricing-close:hover { transform: rotate(90deg); }
-.pricing-title { text-align: center; font-size: 1.6rem; margin: 0; }
-.pricing-sub  { text-align: center; opacity: .7; margin: -12px 0 8px; }
+
+.pricing-title { 
+  text-align: center; 
+  font-size: 1.6rem; 
+  margin: 0;
+  color: var(--neuro-text);
+}
+
+.pricing-sub { 
+  text-align: center; 
+  opacity: .7; 
+  margin: -12px 0 8px;
+  color: var(--neuro-text);
+}
+
 .pricing-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 20px;
 }
+
 .pricing-card {
   background: var(--neuro-bg);
+  color: var(--neuro-text);
   border: 1px solid var(--neuro-shadow-dark);
   border-radius: 16px;
   padding: 24px 20px;
@@ -124,14 +143,19 @@ body.blur-behind > *:not(.pricing-overlay) {
   transition: transform .2s, box-shadow .2s;
   position: relative;
 }
+
 .pricing-card:hover { transform: translateY(-4px); }
+
 .pricing-card.featured {
   border-color: var(--neuro-accent);
   box-shadow: 0 0 0 2px var(--neuro-accent), var(--shadow-raised);
 }
+
 .pricing-badge {
   position: absolute;
-  top: -10px; left: 50%; transform: translateX(-50%);
+  top: -10px; 
+  left: 50%; 
+  transform: translateX(-50%);
   background: var(--neuro-shadow-dark);
   color: var(--neuro-text);
   padding: 4px 12px;
@@ -139,12 +163,41 @@ body.blur-behind > *:not(.pricing-overlay) {
   font-size: .7rem;
   font-weight: 600;
 }
-.pricing-badge.popular { background: var(--neuro-accent); color: #fff; }
-.pricing-card h3 { margin: 0; font-size: 1.2rem; }
-.pricing-price { font-size: 2rem; font-weight: 700; }
-.pricing-price span { font-size: .9rem; opacity: .7; }
-.pricing-card ul { margin: 0 0 12px; padding-left: 18px; flex: 1; }
-.pricing-card li { margin-bottom: 6px; }
+
+.pricing-badge.popular { 
+  background: var(--neuro-accent); 
+  color: #fff; 
+}
+
+.pricing-card h3 { 
+  margin: 0; 
+  font-size: 1.2rem;
+  color: var(--neuro-text);
+}
+
+.pricing-price { 
+  font-size: 2rem; 
+  font-weight: 700;
+  color: var(--neuro-text);
+}
+
+.pricing-price span { 
+  font-size: .9rem; 
+  opacity: .7; 
+}
+
+.pricing-card ul { 
+  margin: 0 0 12px; 
+  padding-left: 18px; 
+  flex: 1;
+  color: var(--neuro-text);
+}
+
+.pricing-card li { 
+  margin-bottom: 6px;
+  color: var(--neuro-text-light);
+}
+
 .pricing-btn {
   width: 100%;
   padding: 10px;
@@ -156,12 +209,20 @@ body.blur-behind > *:not(.pricing-overlay) {
   cursor: pointer;
   transition: background .2s;
 }
+
 .pricing-btn.primary {
   background: var(--neuro-accent);
   color: #fff;
 }
+
 .pricing-btn:hover { opacity: .9; }
-.pricing-foot { text-align: center; font-size: .75rem; opacity: .6; }
+
+.pricing-foot { 
+  text-align: center; 
+  font-size: .75rem; 
+  opacity: .6;
+  color: var(--neuro-text);
+}
 
 /* rules panel */
 .rules-panel { max-height: 70vh; overflow-y: auto; padding-right: 6px; font-size: .8rem; line-height: 1.45; }
