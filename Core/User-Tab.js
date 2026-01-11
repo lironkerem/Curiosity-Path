@@ -87,7 +87,8 @@ export default class UserTab {
     this.restoreDarkMode();
     await this.hydrateUserProfile();
 
-    /* ----- pricing modal: inject as first child of <html> ----- */
+    /* ----- pricing modal: inject AFTER skins are ready ----- */
+    await new Promise(r => requestAnimationFrame(r)); // wait 1 frame so CSS is applied
     if (!document.getElementById('pricing-modal-overlay')) {
       document.documentElement.insertAdjacentHTML('afterbegin', Templates.pricingModal());
       const overlay  = document.getElementById('pricing-modal-overlay');
