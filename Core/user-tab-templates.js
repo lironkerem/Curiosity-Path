@@ -239,6 +239,15 @@ export const contact = () => `<div class="accordion-inner"><p>Contact for questi
 
 export const exportData = () => `<div class="accordion-inner"><button class="btn-link" onclick="window.app.exportUserData()">Download JSON</button></div>`;
 
+export const admin = () => `
+  <div class="accordion-inner">
+    <div id="admin-tab-mount" style="min-height: 100px;">
+      <div style="text-align:center;padding:20px;opacity:.7;">
+        Click to load admin panel...
+      </div>
+    </div>
+  </div>`;
+
 export const billing = () => ``;   // empty – direct action, no accordion
 
 // ------- new pricing modal template -------

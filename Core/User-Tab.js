@@ -120,23 +120,23 @@ export default class UserTab {
     }
   }
 
-  renderSection(section, panel) {
-    const u = this.app.state.currentUser;
-    const renderers = {
-      profile: () => { panel.innerHTML = Templates.profile(u); this.attachProfileHandlers(); },
-      skins: () => { panel.innerHTML = Templates.skins(this.app); this.attachSkinsHandlers(); },   // renamed
-      notifications: () => { panel.innerHTML = Templates.notifications(); this.attachNotificationsHandlers(); },
-      automations: () => { panel.innerHTML = Templates.automations(); this.attachAutomationsHandlers(); },
-      about: () => { panel.innerHTML = Templates.about(); },
-      rules: () => { panel.innerHTML = Templates.rules(); this.attachRulesHandlers(panel); },
-      contact: () => { panel.innerHTML = Templates.contact(); },
-      export: () => { panel.innerHTML = Templates.exportData(); },
-      billing: () => { /* nothing – handled directly */ },
-      admin: () => { panel.innerHTML = Templates.admin(); this.loadAdminPanel(); }
-    };
-    const renderer = renderers[section];
-    if (renderer) renderer();
-  }
+renderSection(section, panel) {
+  const u = this.app.state.currentUser;
+  const renderers = {
+    profile: () => { panel.innerHTML = Templates.profile(u); this.attachProfileHandlers(); },
+    skins: () => { panel.innerHTML = Templates.skins(this.app); this.attachSkinsHandlers(); },
+    notifications: () => { panel.innerHTML = Templates.notifications(); this.attachNotificationsHandlers(); },
+    automations: () => { panel.innerHTML = Templates.automations(); this.attachAutomationsHandlers(); },
+    about: () => { panel.innerHTML = Templates.about(); },
+    rules: () => { panel.innerHTML = Templates.rules(); this.attachRulesHandlers(panel); },
+    contact: () => { panel.innerHTML = Templates.contact(); },
+    export: () => { panel.innerHTML = Templates.exportData(); },
+    billing: () => { /* nothing – handled directly */ },
+    admin: () => { panel.innerHTML = Templates.admin(); this.loadAdminPanel(); }
+  };
+  const renderer = renderers[section];
+  if (renderer) renderer();
+}
 
   // ============== PROFILE ==============
   attachProfileHandlers() {
