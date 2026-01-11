@@ -312,12 +312,17 @@ export default class NavigationManager {
     }
 
     const blurButton = (btn) => setTimeout(() => btn.blur(), 0);
+    
+    let arrowDebounce = false;
 
     // Use touchend with capture to prevent global swipe handler
     leftBtn.addEventListener('touchend', (e) => { 
       e.preventDefault(); 
       e.stopPropagation();
       e.stopImmediatePropagation();
+      
+      if (arrowDebounce) return;
+      arrowDebounce = true;
       
       const active = localStorage.getItem('pc_active_tab') || 'dashboard';
       let idx = this.SWIPE_ORDER.indexOf(active);
@@ -328,6 +333,7 @@ export default class NavigationManager {
         this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
       }
       
+      setTimeout(() => { arrowDebounce = false; }, 400);
       blurButton(leftBtn); 
     }, { capture: true });
     
@@ -335,6 +341,9 @@ export default class NavigationManager {
       e.preventDefault(); 
       e.stopPropagation();
       e.stopImmediatePropagation();
+      
+      if (arrowDebounce) return;
+      arrowDebounce = true;
       
       const active = localStorage.getItem('pc_active_tab') || 'dashboard';
       let idx = this.SWIPE_ORDER.indexOf(active);
@@ -345,6 +354,7 @@ export default class NavigationManager {
         this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
       }
       
+      setTimeout(() => { arrowDebounce = false; }, 400);
       blurButton(rightBtn); 
     }, { capture: true });
     
