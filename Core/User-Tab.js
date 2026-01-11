@@ -87,9 +87,9 @@ export default class UserTab {
     this.restoreDarkMode();
     await this.hydrateUserProfile();
 
-    /* ----- pricing modal: insert & wire ----- */
+    /* ----- pricing modal: inject as first child of <html> ----- */
     if (!document.getElementById('pricing-modal-overlay')) {
-      document.body.insertAdjacentHTML('beforeend', Templates.pricingModal());
+      document.documentElement.insertAdjacentHTML('afterbegin', Templates.pricingModal());
       const overlay  = document.getElementById('pricing-modal-overlay');
       const closeBtn = overlay.querySelector('.pricing-close');
       closeBtn.addEventListener('click', () => this.closePricingModal());
