@@ -58,9 +58,9 @@
 /* ---- pricing modal ---- */
 .pricing-overlay {
   position: fixed;
-  inset: 0;
-  z-index: 2147483647;        /* maximum possible – beats everything */
-  isolation: isolate;         /* new stacking context */
+  inset: 0;                    /* top:0 left:0 right:0 bottom:0 */
+  z-index: 2147483647;
+  isolation: isolate;
   display: grid;
   place-items: center;
   background: rgba(0,0,0,.45);
@@ -71,14 +71,16 @@
   -webkit-backdrop-filter: blur(12px);
 }
 
+/* ----- NEW: keep viewport still while open ----- */
+body:has(.pricing-overlay.show) {
+  overflow: hidden;            /* stop scroll */
+}
+
 .pricing-overlay.show {
   opacity: 1;
   pointer-events: auto;
 }
 
-body.blur-behind {
-  pointer-events: none;        /* stop clicks on page below */
-}
 body.blur-behind > *:not(.pricing-overlay) {
   filter: blur(4px);
   transition: filter .3s;
