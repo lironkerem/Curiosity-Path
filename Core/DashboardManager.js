@@ -1,5 +1,5 @@
-// DashboardManager.js - Optimized & Fixed
-// Complete gamification dashboard with badges, quests, and wellness tracking
+// DashboardManager.js - Complete Patched Version with Admin Badge Support
+// Optimized gamification dashboard with badges, quests, and wellness tracking
 
 import { InquiryEngine } from '../Features/InquiryEngine.js';
 import DailyCards from '../Features/DailyCards.js';
@@ -367,7 +367,7 @@ export default class DashboardManager {
     const statItems = [
       { value: status.karma, label: 'Karma', emoji: '💎' },
       { value: stats.totalGratitudes || 0, label: 'Gratitudes', emoji: '❤️' },
-      { value: status.totalJournalEntries, label: 'Journaling', emoji: '📔' },
+      { value: status.totalJournalEntries, label: 'Journaling', emoji: '📓' },
       { value: status.totalHappinessViews, label: 'Boosters', emoji: '💡' },
       { value: status.totalTarotSpreads, label: 'Tarot Spreads', emoji: '🔮' },
       { value: stats.weeklyMeditations || 0, label: 'Meditations', emoji: '🧘' },
@@ -588,7 +588,7 @@ export default class DashboardManager {
       </div>`;
   }
 
-  /* ---------- Badge Gallery ---------- */
+  /* ---------- Badge Gallery (WITH ADMIN BADGE SUPPORT) ---------- */
   
   renderRecentAchievements(status) {
     if (!status.badges || status.badges.length === 0) return '';
@@ -596,13 +596,21 @@ export default class DashboardManager {
     const allDefs = this.app.gamification.getBadgeDefinitions();
     const earned = new Set(status.badges.map(b => b.id));
 
-    // Latest earned badges for preview
+    // Latest earned badges for preview (including admin badges)
     const latestEarned = status.badges
       .slice()
       .reverse()
       .slice(0, CONSTANTS.BADGES_PREVIEW_COUNT)
       .map(b => {
-        const def = allDefs[b.id];
+        // Try to get definition, fallback for admin badges
+        const def = allDefs[b.id] || {
+          name: b.name || 'Special Badge',
+          icon: b.icon || '🏆',
+          description: b.description || 'Admin awarded',
+          xp: b.xp || 0,
+          rarity: b.rarity || 'epic'
+        };
+        
         return {
           ...b,
           ...def,
@@ -611,16 +619,37 @@ export default class DashboardManager {
         };
       });
 
-    // Full badge list for expanded view
-    const fullList = Object.entries(allDefs).map(([id, def]) => ({
+    // Full badge list (game badges + admin badges)
+    const gameBadges = Object.entries(allDefs).map(([id, def]) => ({
       id,
       ...def,
       earned: earned.has(id),
       karma: CONSTANTS.KARMA_BY_RARITY[def.rarity] || 3
     }));
 
-    // Category-organized badges
-    const categoryHtml = Object.entries(CONSTANTS.BADGE_CATEGORIES)
+    // Add admin-only badges (not in game definitions)
+    const adminOnlyBadges = status.badges
+      .filter(b => !allDefs[b.id])
+      .map(b => ({
+        id: b.id,
+        name: b.name || 'Special Badge',
+        icon: b.icon || '🏆',
+        description: b.description || 'Admin awarded',
+        xp: b.xp || 0,
+        rarity: b.rarity || 'epic',
+        earned: true,
+        karma: CONSTANTS.KARMA_BY_RARITY[b.rarity || 'epic'] || 15
+      }));
+
+    const fullList = [...gameBadges, ...adminOnlyBadges];
+
+    // Category-organized badges (add admin category if needed)
+    const categories = { ...CONSTANTS.BADGE_CATEGORIES };
+    if (adminOnlyBadges.length > 0) {
+      categories['Admin Rewards'] = adminOnlyBadges.map(b => b.id);
+    }
+
+    const categoryHtml = Object.entries(categories)
       .map(([categoryName, badgeIds]) => {
         const categoryBadges = badgeIds
           .map(id => fullList.find(b => b.id === id))
@@ -689,18 +718,25 @@ export default class DashboardManager {
     container.style.display = isOpen ? 'none' : 'block';
     
     const allDefs = this.app.gamification.getBadgeDefinitions();
-    const totalCount = Object.keys(allDefs).length;
+    const status = this.app.gamification.getStatusSummary();
+    const adminOnlyBadges = status.badges.filter(b => !allDefs[b.id]);
+    const totalCount = Object.keys(allDefs).length + adminOnlyBadges.length;
     
     btn.textContent = isOpen 
       ? `Show All Badges (${totalCount})` 
       : 'Show Less';
   }
 
-  /* ---------- Main Render ---------- */
+  /* ---------- Main Render (WITH DATABASE RELOAD) ---------- */
   
-  _render() {
+  async _render() {
     const dashboard = document.getElementById('dashboard-tab');
     if (!dashboard) return;
+
+    // ✅ RELOAD GAMIFICATION STATE FROM DATABASE BEFORE RENDERING
+    if (this.app.gamification) {
+      await this.app.gamification.reloadFromDatabase();
+    }
 
     try {
       // Get quote
@@ -711,7 +747,7 @@ export default class DashboardManager {
             author: 'Buddha'
           };
 
-      // Get status
+      // Get status (will now include admin-awarded badges)
       const status = this.app.gamification 
         ? this.app.gamification.getStatusSummary()
         : {

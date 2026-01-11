@@ -68,39 +68,53 @@ export class GamificationEngine {
     }, 100);
   }
 
-  loadState() {
-    try {
-      // Try cloud first
-      if (this.app?.state?.data && this.app.state.data.xp !== undefined) {
-        const cloud = { ...this.app.state.data };
-        
-        // Clean up deprecated fields
-        const deprecated = ['streak.best', 'streak.lastCheckIn', 'energyLevel', 
-                           'alignmentScore', 'chakraProgress', 'totalPracticeMinutes'];
-        deprecated.forEach(field => {
-          const parts = field.split('.');
-          if (parts.length === 2) {
-            if (cloud[parts[0]]) delete cloud[parts[0]][parts[1]];
-          } else {
-            delete cloud[field];
-          }
-        });
-        
-        return { ...this.defaultState(), ...cloud };
-      }
+loadState() {
+  try {
+    // Try cloud first
+    if (this.app?.state?.data && this.app.state.data.xp !== undefined) {
+      const cloud = { ...this.app.state.data };
       
-      // Fallback to local storage
-      const local = localStorage.getItem('gamificationState');
-      if (local) {
-        return { ...this.defaultState(), ...JSON.parse(local) };
-      }
+      // Clean up deprecated fields
+      const deprecated = ['streak.best', 'streak.lastCheckIn', 'energyLevel', 
+                         'alignmentScore', 'chakraProgress', 'totalPracticeMinutes'];
+      deprecated.forEach(field => {
+        const parts = field.split('.');
+        if (parts.length === 2) {
+          if (cloud[parts[0]]) delete cloud[parts[0]][parts[1]];
+        } else {
+          delete cloud[field];
+        }
+      });
       
-      return null;
-    } catch (error) {
-      console.error('Failed to load gamification state:', error);
-      return null;
+      return { ...this.defaultState(), ...cloud };
     }
+    
+    // Fallback to local storage
+    const local = localStorage.getItem('gamificationState');
+    if (local) {
+      return { ...this.defaultState(), ...JSON.parse(local) };
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Failed to load gamification state:', error);
+    return null;
   }
+}
+
+async reloadFromDatabase() {
+  if (!this.app?.state) return;
+  
+  try {
+    await this.app.state.loadAppData();
+    this.state = this.loadState();
+    this.emit('stateReloaded', this.state);
+    this.checkAllBadges();
+    console.log('✅ Gamification state reloaded from database');
+  } catch (error) {
+    console.error('Failed to reload gamification state:', error);
+  }
+}
 
   /* ---------------------------------------------------------
      EVENT BUS (with cleanup)

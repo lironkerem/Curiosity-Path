@@ -78,7 +78,7 @@ export default class UserTab {
       if (e.key === 'Escape') {
         this.btn.setAttribute('aria-expanded', 'false');
         this.dropdown.classList.remove('active');
-        this.closePricingModal();            // close pricing on ESC too
+        this.closePricingModal();
       }
     });
 
@@ -87,14 +87,20 @@ export default class UserTab {
     this.restoreDarkMode();
     await this.hydrateUserProfile();
 
-    // inject pricing modal once
+    /* ----- pricing modal: insert & wire ----- */
     if (!document.getElementById('pricing-modal-overlay')) {
       document.body.insertAdjacentHTML('beforeend', Templates.pricingModal());
+      const overlay  = document.getElementById('pricing-modal-overlay');
+      const closeBtn = overlay.querySelector('.pricing-close');
+      closeBtn.addEventListener('click', () => this.closePricingModal());
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) this.closePricingModal();
+      });
     }
   }
 
   handleSectionClick(section) {
-    if (section === 'billing') {              // NEW – instant modal
+    if (section === 'billing') {          // instant modal
       this.showPricingModal();
       return;
     }
