@@ -1,4 +1,4 @@
-// User-Tab.js – Complete Fixed Version with Supabase Push Notifications
+// User-Tab.js — Optimized 3-file version (Main)
 import { supabase } from './Supabase.js';
 import * as Templates from './user-tab-templates.js';
 
@@ -7,6 +7,7 @@ export default class UserTab {
     this.app = app;
     this.btn = null;
     this.dropdown = null;
+    this._notificationTimers = [];
   }
 
   render() {
@@ -124,7 +125,7 @@ export default class UserTab {
     if (renderer) renderer();
   }
 
-  // ========== PROFILE ==========
+  // Profile
   attachProfileHandlers() {
     document.getElementById('profile-emoji')?.addEventListener('change', (e) => {
       const emojiSpan = document.querySelector('.profile-avatar-emoji');
@@ -197,7 +198,7 @@ export default class UserTab {
     }
   }
 
-  // ========== SETTINGS ==========
+  // Settings
   attachSettingsHandlers() {
     document.getElementById('dark-mode-toggle')?.addEventListener('change', (e) => {
       const on = e.target.checked;
@@ -273,7 +274,7 @@ export default class UserTab {
     if (toggle) toggle.checked = dark;
   }
 
-  // ========== NOTIFICATIONS (FIXED) ==========
+  // Notifications
   attachNotificationsHandlers() {
     const master = document.getElementById('master-notifications-toggle');
     const options = document.getElementById('notification-options');
@@ -287,10 +288,7 @@ export default class UserTab {
     master?.addEventListener('change', async (e) => {
       if (e.target.checked) {
         const granted = await this.enablePushNotifications();
-        if (!granted) { 
-          e.target.checked = false; 
-          return; 
-        }
+        if (!granted) { e.target.checked = false; return; }
         options.style.opacity = '1';
         options.style.pointerEvents = 'auto';
       } else {
@@ -304,10 +302,7 @@ export default class UserTab {
     ['morning', 'afternoon', 'evening', 'night'].forEach(p => {
       const toggle = document.getElementById(`reminder-${p}`);
       const time = document.getElementById(`time-${p}`);
-      toggle?.addEventListener('change', (e) => { 
-        time.disabled = !e.target.checked; 
-        autoSave(); 
-      });
+      toggle?.addEventListener('change', (e) => { time.disabled = !e.target.checked; autoSave(); });
       time?.addEventListener('change', autoSave);
     });
 
@@ -326,12 +321,10 @@ export default class UserTab {
     affirmations?.addEventListener('change', () => { updateFreq(); autoSave(); });
     freq?.addEventListener('change', autoSave);
     document.getElementById('wellness-notifications')?.addEventListener('change', autoSave);
-    
     document.getElementById('save-notification-settings')?.addEventListener('click', () => {
       clearTimeout(saveTimeout);
       this.saveNotificationSettings();
     });
-    
     document.getElementById('test-notification')?.addEventListener('click', () => this.sendTestNotification());
   }
 
@@ -358,18 +351,12 @@ export default class UserTab {
           applicationServerKey: this.urlBase64ToUint8Array(VAPID)
         });
         
-        const payload = {
-          ...sub.toJSON(),
-          user_id: this.app.state?.currentUser?.id || null
-        };
-        
+        const payload = this.app.state?.currentUser?.id ? { ...sub.toJSON(), user_id: this.app.state.currentUser.id } : sub;
         const res = await fetch('/api/save-sub', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...(this.app.auth?.session?.access_token && { 
-              Authorization: `Bearer ${this.app.auth.session.access_token}` 
-            })
+            ...(this.app.auth?.session?.access_token && { Authorization: `Bearer ${this.app.auth.session.access_token}` })
           },
           body: JSON.stringify(payload)
         });
@@ -381,7 +368,7 @@ export default class UserTab {
       return true;
     } catch (err) {
       console.error(err);
-      this.app.showToast('❌ Enable failed: ' + err.message, 'error');
+      this.app.showToast('❌ Enable failed', 'error');
       return false;
     }
   }
@@ -394,9 +381,7 @@ export default class UserTab {
         await sub.unsubscribe();
         this.app.showToast('🔕 Notifications disabled', 'success');
       }
-    } catch (e) { 
-      console.error(e); 
-    }
+    } catch (e) { console.error(e); }
   }
 
   urlBase64ToUint8Array(base64) {
@@ -410,133 +395,121 @@ export default class UserTab {
     const settings = {
       enabled: document.getElementById('master-notifications-toggle')?.checked || false,
       reminders: {
-        morning: { 
-          enabled: document.getElementById('reminder-morning')?.checked || false, 
-          time: document.getElementById('time-morning')?.value || '08:00' 
-        },
-        afternoon: { 
-          enabled: document.getElementById('reminder-afternoon')?.checked || false, 
-          time: document.getElementById('time-afternoon')?.value || '13:00' 
-        },
-        evening: { 
-          enabled: document.getElementById('reminder-evening')?.checked || false, 
-          time: document.getElementById('time-evening')?.value || '18:00' 
-        },
-        night: { 
-          enabled: document.getElementById('reminder-night')?.checked || false, 
-          time: document.getElementById('time-night')?.value || '21:00' 
-        }
+        morning: { enabled: document.getElementById('reminder-morning')?.checked || false, time: document.getElementById('time-morning')?.value || '08:00' },
+        afternoon: { enabled: document.getElementById('reminder-afternoon')?.checked || false, time: document.getElementById('time-afternoon')?.value || '13:00' },
+        evening: { enabled: document.getElementById('reminder-evening')?.checked || false, time: document.getElementById('time-evening')?.value || '18:00' },
+        night: { enabled: document.getElementById('reminder-night')?.checked || false, time: document.getElementById('time-night')?.value || '21:00' }
       },
-      quotes: { 
-        enabled: document.getElementById('quotes-enabled')?.checked || false 
-      },
-      affirmations: { 
-        enabled: document.getElementById('affirmations-enabled')?.checked || false 
-      },
+      quotes: { enabled: document.getElementById('quotes-enabled')?.checked || false },
+      affirmations: { enabled: document.getElementById('affirmations-enabled')?.checked || false },
       frequency: document.getElementById('inspirational-frequency')?.value || 'moderate',
-      wellness: {
-        enabled: document.getElementById('wellness-notifications')?.checked || false,
-        automations: this.getWellnessAutomations()
-      }
+      wellness: { enabled: document.getElementById('wellness-notifications')?.checked || false, syncWithAutomations: true }
     };
 
     localStorage.setItem('notification_settings', JSON.stringify(settings));
+    supabase.from('notification_prefs').upsert({ user_id: this.app.state.currentUser.id, prefs: settings }, { onConflict: 'user_id' })
+      .then(({ error }) => this.app.showToast(error ? '⚠️ Saved locally' : '✅ Settings saved', error ? 'error' : 'success'));
     
-    // Save to Supabase
-    supabase.from('notification_prefs')
-      .upsert({ 
-        user_id: this.app.state.currentUser.id, 
-        prefs: settings 
-      }, { onConflict: 'user_id' })
-      .then(({ error }) => {
-        if (error) {
-          console.error('Save error:', error);
-          this.app.showToast('⚠️ Saved locally only', 'warning');
-        } else {
-          this.app.showToast('✅ Settings saved to server', 'success');
-        }
-      });
-  }
-
-  getWellnessAutomations() {
-    const stored = localStorage.getItem('wellness_automations');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        return {
-          selfReset: { 
-            enabled: parsed.selfReset?.enabled || false, 
-            interval: parsed.selfReset?.interval || 60 
-          },
-          fullBodyScan: { 
-            enabled: parsed.fullBodyScan?.enabled || false, 
-            interval: parsed.fullBodyScan?.interval || 180 
-          },
-          nervousSystem: { 
-            enabled: parsed.nervousSystem?.enabled || false, 
-            interval: parsed.nervousSystem?.interval || 120 
-          },
-          tensionSweep: { 
-            enabled: parsed.tensionSweep?.enabled || false, 
-            interval: parsed.tensionSweep?.interval || 120 
-          }
-        };
-      } catch (e) {
-        console.error('Parse error:', e);
-      }
-    }
-    
-    return {
-      selfReset: { enabled: false, interval: 60 },
-      fullBodyScan: { enabled: false, interval: 180 },
-      nervousSystem: { enabled: false, interval: 120 },
-      tensionSweep: { enabled: false, interval: 120 }
-    };
+    this.scheduleNotifications(settings);
   }
 
   async sendTestNotification() {
     try {
-      const sw = await navigator.serviceWorker.ready;
-      const sub = await sw.pushManager.getSubscription();
+      const res = await fetch('/api/subs');
+      const subs = await res.json();
+      if (!subs.length) return this.app.showToast('❌ No subscriptions', 'error');
       
-      if (!sub) {
-        return this.app.showToast('❌ No subscription found. Enable notifications first.', 'error');
-      }
-      
-      // Get your Supabase project URL from env or hardcode temporarily
-      const SUPABASE_URL = 'https://qfbarhxfmzpgbgkaymuk.supabase.co';
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmYmFyaHhmbXpwZ2Jna2F5bXVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODg4MjEsImV4cCI6MjA4MDE2NDgyMX0.twBWw0dZnLRTWTHav0sJ77GXyvsGR3ZgPplRO2vVSFk';
-      
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/push-cron/test-push`, {
+      const response = await fetch('/api/send', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          sub: sub.toJSON(),
-          payload: { 
-            title: '✨ The Curiosity Path', 
-            body: 'Test notification working perfectly!', 
-            icon: '/Icons/icon-192x192.png',
-            data: { url: '/' }
-          }
+          sub: subs[subs.length - 1],
+          payload: { title: '✨ The Curiosity Path', body: 'Test notification!', icon: '/Icons/icon-192x192.png', data: { url: '/' } }
         })
       });
       
-      if (response.ok) {
-        this.app.showToast('📱 Test sent! Check your device', 'success');
-      } else {
-        const error = await response.json();
-        throw new Error(error.error || 'Send failed');
-      }
+      if (response.ok) this.app.showToast('📱 Test sent!', 'success');
+      else throw new Error((await response.json()).error);
     } catch (err) {
-      console.error(err);
-      this.app.showToast('❌ Test failed: ' + err.message, 'error');
+      this.app.showToast('❌ Failed: ' + err.message, 'error');
     }
   }
 
-  // ========== AUTOMATIONS (FIXED) ==========
+  scheduleNotifications(settings) {
+    if (this._notificationTimers) this._notificationTimers.forEach(t => clearTimeout(t));
+    this._notificationTimers = [];
+    if (!settings.enabled) return;
+
+    Object.entries(settings.reminders).forEach(([p, c]) => {
+      if (c.enabled) this.scheduleDailyNotification(p, c.time);
+    });
+
+    if (settings.quotes.enabled || settings.affirmations.enabled) this.scheduleInspirational(settings);
+    if (settings.wellness.enabled) this.scheduleWellness();
+  }
+
+  scheduleDailyNotification(period, time) {
+    const [h, m] = time.split(':').map(Number);
+    const now = new Date();
+    const scheduled = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
+    if (scheduled < now) scheduled.setDate(scheduled.getDate() + 1);
+    
+    const timer = setTimeout(() => {
+      this.sendScheduled(period);
+      this.scheduleDailyNotification(period, time);
+    }, scheduled - now);
+    
+    this._notificationTimers.push(timer);
+  }
+
+  async sendScheduled(period) {
+    const msgs = {
+      morning: { title: '🌅 Good Morning!', body: 'Start with intention' },
+      afternoon: { title: '☀️ Afternoon', body: 'Breathe and reflect' },
+      evening: { title: '🌆 Evening', body: 'Time to unwind' },
+      night: { title: '🌙 Goodnight', body: 'Rest well' }
+    };
+
+    try {
+      const subs = await (await fetch('/api/subs')).json();
+      if (!subs.length) return;
+      await fetch('/api/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sub: subs[0], payload: { ...msgs[period], icon: '/Icons/icon-192x192.png', data: { url: '/' } } })
+      });
+    } catch (e) { console.error(e); }
+  }
+
+  scheduleInspirational(settings) {
+    const intervals = { light: 4 * 3600000, moderate: 2 * 3600000, intense: 90 * 60000 };
+    const next = () => {
+      const timer = setTimeout(async () => {
+        // Send logic here (simplified)
+        next();
+      }, intervals[settings.frequency]);
+      this._notificationTimers.push(timer);
+    };
+    next();
+  }
+
+  scheduleWellness() {
+    const automations = JSON.parse(localStorage.getItem('wellness_automations')) || {};
+    Object.entries(automations).forEach(([k, c]) => {
+      if (c.enabled && c.interval) {
+        const next = () => {
+          const timer = setTimeout(() => {
+            // Send wellness notification
+            next();
+          }, c.interval * 60000);
+          this._notificationTimers.push(timer);
+        };
+        next();
+      }
+    });
+  }
+
+  // Automations
   attachAutomationsHandlers() {
     ['self-reset', 'full-body-scan', 'nervous-system', 'tension-sweep'].forEach(t => {
       const c = document.getElementById(`auto-${t}`);
@@ -550,34 +523,23 @@ export default class UserTab {
     
     document.getElementById('save-automations-btn')?.addEventListener('click', () => {
       const automations = {
-        selfReset: { 
-          enabled: document.getElementById('auto-self-reset')?.checked || false, 
-          interval: parseInt(document.getElementById('interval-self-reset')?.value || 60) 
-        },
-        fullBodyScan: { 
-          enabled: document.getElementById('auto-full-body-scan')?.checked || false, 
-          interval: parseInt(document.getElementById('interval-full-body-scan')?.value || 180) 
-        },
-        nervousSystem: { 
-          enabled: document.getElementById('auto-nervous-system')?.checked || false, 
-          interval: parseInt(document.getElementById('interval-nervous-system')?.value || 120) 
-        },
-        tensionSweep: { 
-          enabled: document.getElementById('auto-tension-sweep')?.checked || false, 
-          interval: parseInt(document.getElementById('interval-tension-sweep')?.value || 120) 
-        }
+        selfReset: { enabled: document.getElementById('auto-self-reset')?.checked || false, interval: parseInt(document.getElementById('interval-self-reset')?.value || 60) },
+        fullBodyScan: { enabled: document.getElementById('auto-full-body-scan')?.checked || false, interval: parseInt(document.getElementById('interval-full-body-scan')?.value || 180) },
+        nervousSystem: { enabled: document.getElementById('auto-nervous-system')?.checked || false, interval: parseInt(document.getElementById('interval-nervous-system')?.value || 120) },
+        tensionSweep: { enabled: document.getElementById('auto-tension-sweep')?.checked || false, interval: parseInt(document.getElementById('interval-tension-sweep')?.value || 120) }
       };
       
       localStorage.setItem('wellness_automations', JSON.stringify(automations));
+      if (window.app.restartAutomations) window.app.restartAutomations();
       
-      // Sync with notification settings immediately
-      this.saveNotificationSettings();
+      const notif = JSON.parse(localStorage.getItem('notification_settings')) || {};
+      if (notif.enabled && notif.wellness?.enabled) this.scheduleNotifications(notif);
       
-      this.app.showToast('✅ Automations saved & synced', 'success');
+      this.app.showToast('✅ Automations saved', 'success');
     });
   }
 
-  // ========== RULES ==========
+  // Rules
   attachRulesHandlers(panel) {
     panel.querySelectorAll('.rules-collapse-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -593,7 +555,7 @@ export default class UserTab {
     });
   }
 
-  // ========== ADMIN ==========
+  // Admin
   loadAdminPanel() {
     const mount = document.getElementById('admin-tab-mount');
     if (!mount) return;
@@ -604,7 +566,7 @@ export default class UserTab {
       .catch(err => { mount.innerHTML = `<div style="color:#ff4757;padding:10px;">Failed: ${err.message}</div>`; });
   }
 
-  // ========== AVATAR ==========
+  // Avatar
   syncAvatar() {
     const u = this.app.state.currentUser || {};
     const avImg = this.btn.querySelector('.disc-avatar-img');
@@ -623,7 +585,7 @@ export default class UserTab {
     }
   }
 
-  // ========== LOGOUT ==========
+  // Logout
   showLogoutModal() {
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
