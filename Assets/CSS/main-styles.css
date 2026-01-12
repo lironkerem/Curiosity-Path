@@ -404,20 +404,20 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
    Shows current position in swipe navigation (11 tabs)
    ========================================================= */
 
-/* Container - full width, only visible on mobile */
+/* Container - invisible background, full width */
 .mobile-tab-indicator {
   display: none;
   flex-direction: row;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 1.5rem;
+  gap: 0;
+  padding: 1rem 2rem;
   margin: 1rem 0;
   width: 100%;
-  background: var(--neuro-bg);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-raised);
-  min-height: 50px;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  min-height: 40px;
 }
 
 /* Individual dot - much more visible */
@@ -434,17 +434,17 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   opacity: 0.6;
 }
 
-/* Active dot - larger, brighter, and colored */
+/* Active dot - slightly larger, brighter, and colored */
 .tab-dot.active {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   background: linear-gradient(135deg, var(--neuro-accent), var(--neuro-accent-light));
   box-shadow: 
-    0 0 12px rgba(102, 126, 234, 0.6),
-    0 3px 8px rgba(102, 126, 234, 0.4),
-    6px 6px 12px var(--neuro-shadow-dark),
-    -6px -6px 12px var(--neuro-shadow-light);
-  transform: scale(1.2);
+    0 0 10px rgba(102, 126, 234, 0.5),
+    0 2px 6px rgba(102, 126, 234, 0.3),
+    4px 4px 8px var(--neuro-shadow-dark),
+    -4px -4px 8px var(--neuro-shadow-light);
+  transform: scale(1.1);
   opacity: 1;
 }
 
@@ -458,8 +458,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 /* Extra small screens - slightly smaller but still visible */
 @media (max-width: 380px) {
   .mobile-tab-indicator {
-    gap: 0.6rem;
-    padding: 0.875rem 1.25rem;
+    padding: 0.875rem 1.5rem;
   }
   
   .tab-dot {
@@ -468,8 +467,8 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   }
   
   .tab-dot.active {
-    width: 15px;
-    height: 15px;
+    width: 14px;
+    height: 14px;
   }
 }
 
