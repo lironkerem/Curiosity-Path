@@ -1,4 +1,4 @@
-// NavigationManager.js - Fixed swipe arrows + Mobile Tab Indicator
+// NavigationManager.js - Fixed swipe arrows
 import UserTab from './User-Tab.js';
 
 // Global flag to prevent duplicate swipe listeners across instances
@@ -143,34 +143,11 @@ export default class NavigationManager {
       </div>
     `;
 
-    const indicatorHTML = `
-      <!-- MOBILE TAB POSITION INDICATOR -->
-      <div class="mobile-tab-indicator mobile-only" id="mobile-tab-indicator">
-        <span class="tab-dot active" data-tab="dashboard" title="Dashboard"></span>
-        <span class="tab-dot" data-tab="energy" title="Energy"></span>
-        <span class="tab-dot" data-tab="tarot" title="Tarot"></span>
-        <span class="tab-dot" data-tab="gratitude" title="Gratitude"></span>
-        <span class="tab-dot" data-tab="happiness" title="Happiness"></span>
-        <span class="tab-dot" data-tab="journal" title="Journal"></span>
-        <span class="tab-dot" data-tab="meditations" title="Meditations"></span>
-        <span class="tab-dot" data-tab="flip-script" title="Flip Script"></span>
-        <span class="tab-dot" data-tab="calculator" title="Analysis"></span>
-        <span class="tab-dot" data-tab="shadow-alchemy" title="Shadow Alchemy"></span>
-        <span class="tab-dot" data-tab="karma-shop" title="Karma Shop"></span>
-      </div>
-    `;
-
     const appContainer = document.getElementById('app-container');
     if (!appContainer) return;
 
     if (!document.querySelector('.app-header')) {
       appContainer.insertAdjacentHTML('afterbegin', navHTML);
-      
-      // Insert mobile indicator after header
-      const headerEl = document.querySelector('.app-header');
-      if (headerEl && !document.getElementById('mobile-tab-indicator')) {
-        headerEl.insertAdjacentHTML('afterend', indicatorHTML);
-      }
     }
     
     if (!document.getElementById('user-dropdown')) {
@@ -510,19 +487,6 @@ export default class NavigationManager {
     });
   }
 
-  updateTabIndicator(tabName) {
-    if (window.innerWidth > 767) return; // Only on mobile
-    
-    const dots = document.querySelectorAll('.tab-dot');
-    dots.forEach(dot => {
-      if (dot.dataset.tab === tabName) {
-        dot.classList.add('active');
-      } else {
-        dot.classList.remove('active');
-      }
-    });
-  }
-
   switchTab(tabName, label) {
     if (tabName === 'calculator' && !window.calculatorChunk) {
       window.calculatorChunk = 'requested';
@@ -559,9 +523,6 @@ export default class NavigationManager {
     localStorage.setItem('pc_active_tab', tabName);
     window.scrollTo(0, 0);
     this.vibrate(this.CONSTANTS.VIBRATION_MS);
-    
-    // Update mobile indicator
-    this.updateTabIndicator(tabName);
   }
 
   vibrate(duration) {
