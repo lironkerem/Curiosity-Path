@@ -1,4 +1,4 @@
-// User-Tab.js – Updated with new notification system 2026-01-13
+// User-Tab.js – Complete patched 2026-01-11
 import { supabase } from './Supabase.js';
 import * as Templates from './user-tab-templates.js';
 
@@ -7,7 +7,7 @@ export default class UserTab {
     this.app = app;
     this.btn = null;
     this.dropdown = null;
-    this.saveProfileLock = false;
+    this.saveProfileLock = false;          // review fix – race guard
   }
 
   render() {
@@ -87,7 +87,8 @@ export default class UserTab {
     this.restoreDarkMode();
     await this.hydrateUserProfile();
 
-    await new Promise(r => requestAnimationFrame(r));
+    /* ----- pricing modal: inject AFTER skins are ready ----- */
+    await new Promise(r => requestAnimationFrame(r)); // wait 1 frame so CSS is applied
     if (!document.getElementById('pricing-modal-overlay')) {
       document.documentElement.insertAdjacentHTML('afterbegin', Templates.pricingModal());
       const overlay  = document.getElementById('pricing-modal-overlay');
@@ -100,7 +101,7 @@ export default class UserTab {
   }
 
   handleSectionClick(section) {
-    if (section === 'billing') {
+    if (section === 'billing') {          // instant modal
       this.showPricingModal();
       return;
     }
@@ -119,23 +120,23 @@ export default class UserTab {
     }
   }
 
-  renderSection(section, panel) {
-    const u = this.app.state.currentUser;
-    const renderers = {
-      profile: () => { panel.innerHTML = Templates.profile(u); this.attachProfileHandlers(); },
-      skins: () => { panel.innerHTML = Templates.skins(this.app); this.attachSkinsHandlers(); },
-      notifications: () => { panel.innerHTML = Templates.notifications(); this.attachNotificationsHandlers(); },
-      automations: () => { panel.innerHTML = Templates.automations(); this.attachAutomationsHandlers(); },
-      about: () => { panel.innerHTML = Templates.about(); },
-      rules: () => { panel.innerHTML = Templates.rules(); this.attachRulesHandlers(panel); },
-      contact: () => { panel.innerHTML = Templates.contact(); },
-      export: () => { panel.innerHTML = Templates.exportData(); },
-      billing: () => { /* nothing – handled directly */ },
-      admin: () => { panel.innerHTML = Templates.admin(); this.loadAdminPanel(); }
-    };
-    const renderer = renderers[section];
-    if (renderer) renderer();
-  }
+renderSection(section, panel) {
+  const u = this.app.state.currentUser;
+  const renderers = {
+    profile: () => { panel.innerHTML = Templates.profile(u); this.attachProfileHandlers(); },
+    skins: () => { panel.innerHTML = Templates.skins(this.app); this.attachSkinsHandlers(); },
+    notifications: () => { panel.innerHTML = Templates.notifications(); this.attachNotificationsHandlers(); },
+    automations: () => { panel.innerHTML = Templates.automations(); this.attachAutomationsHandlers(); },
+    about: () => { panel.innerHTML = Templates.about(); },
+    rules: () => { panel.innerHTML = Templates.rules(); this.attachRulesHandlers(panel); },
+    contact: () => { panel.innerHTML = Templates.contact(); },
+    export: () => { panel.innerHTML = Templates.exportData(); },
+    billing: () => { /* nothing – handled directly */ },
+    admin: () => { panel.innerHTML = Templates.admin(); this.loadAdminPanel(); }
+  };
+  const renderer = renderers[section];
+  if (renderer) renderer();
+}
 
   // ============== PROFILE ==============
   attachProfileHandlers() {
@@ -149,7 +150,7 @@ export default class UserTab {
     document.getElementById('avatar-upload')?.addEventListener('change', () => {
       const file = document.getElementById('avatar-upload').files[0];
       if (!file) return;
-      if (file.size > 5_242_880) {
+      if (file.size > 5_242_880) {               // review fix – size guard
         this.app.showToast('Image > 5 MB', 'error');
         return;
       }
@@ -215,7 +216,7 @@ export default class UserTab {
   }
 
   // ============== SKINS  =============
-  attachSkinsHandlers() {
+  attachSkinsHandlers() {                    
     document.getElementById('dark-mode-toggle')?.addEventListener('change', (e) => {
       const on = e.target.checked;
       document.body.classList.toggle('dark-mode', on);
@@ -279,14 +280,11 @@ export default class UserTab {
     if (toggle) toggle.checked = dark;
   }
 
-  // ============== NOTIFICATIONS (NEW SYSTEM) =============
+  // ============== NOTIFICATIONS =============
   async attachNotificationsHandlers() {
     await this.hydrateNotificationSettings();
     const master = document.getElementById('master-notifications-toggle');
     const options = document.getElementById('notification-options');
-    const startTime = document.getElementById('notification-start-time');
-    const endTime = document.getElementById('notification-end-time');
-    const frequency = document.getElementById('notification-frequency');
     let saveTimeout;
 
     const autoSave = () => {
@@ -294,110 +292,76 @@ export default class UserTab {
       saveTimeout = setTimeout(() => this.saveNotificationSettings(), 1500);
     };
 
-    const validateWindow = () => {
-      if (!startTime?.value || !endTime?.value) return true;
-      const start = startTime.value.split(':').map(Number);
-      const end = endTime.value.split(':').map(Number);
-      const startMin = start[0] * 60 + start[1];
-      const endMin = end[0] * 60 + end[1];
-      
-      if (startMin >= endMin) {
-        this.app.showToast('⚠️ Start time must be before end time', 'warning');
-        return false;
-      }
-      return true;
-    };
-
     master?.addEventListener('change', async (e) => {
       if (e.target.checked) {
         const granted = await this.enablePushNotifications();
-        if (!granted) { 
-          e.target.checked = false; 
-          return; 
-        }
-        options.style.opacity = '1';
-        options.style.pointerEvents = 'auto';
+        if (!granted) { e.target.checked = false; return; }
+        options.style.opacity = '1'; options.style.pointerEvents = 'auto';
       } else {
         await this.disablePushNotifications();
-        options.style.opacity = '.4';
-        options.style.pointerEvents = 'none';
+        options.style.opacity = '.4'; options.style.pointerEvents = 'none';
       }
       autoSave();
     });
 
-    startTime?.addEventListener('change', () => {
-      if (validateWindow()) autoSave();
+    ['morning', 'afternoon', 'evening', 'night'].forEach(p => {
+      const toggle = document.getElementById(`reminder-${p}`);
+      const time = document.getElementById(`time-${p}`);
+      toggle?.addEventListener('change', (e) => { time.disabled = !e.target.checked; autoSave(); });
+      time?.addEventListener('change', autoSave);
     });
 
-    endTime?.addEventListener('change', () => {
-      if (validateWindow()) autoSave();
-    });
-
-    frequency?.addEventListener('change', autoSave);
-
+    const quotes = document.getElementById('quotes-enabled');
+    const affirmations = document.getElementById('affirmations-enabled');
+    const freq = document.getElementById('inspirational-frequency');
+    const updateFreq = () => {
+      const any = quotes?.checked || affirmations?.checked;
+      freq.disabled = !any; freq.parentElement.style.opacity = any ? '1' : '.4';
+      freq.parentElement.style.pointerEvents = any ? 'auto' : 'none';
+    };
+    quotes?.addEventListener('change', () => { updateFreq(); autoSave(); });
+    affirmations?.addEventListener('change', () => { updateFreq(); autoSave(); });
+    freq?.addEventListener('change', autoSave);
+    document.getElementById('wellness-notifications')?.addEventListener('change', autoSave);
     document.getElementById('save-notification-settings')?.addEventListener('click', () => {
-      if (validateWindow()) {
-        clearTimeout(saveTimeout);
-        this.saveNotificationSettings();
-      }
+      clearTimeout(saveTimeout); this.saveNotificationSettings();
     });
+    document.getElementById('test-notification')?.addEventListener('click', () => this.sendTestNotification());
   }
 
   async enablePushNotifications() {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      this.app.showToast('❌ Push not supported', 'error');
-      return false;
+      this.app.showToast('❌ Push not supported', 'error'); return false;
     }
     try {
       const permission = await Notification.requestPermission();
-      if (permission !== 'granted') {
-        this.app.showToast('❌ Permission denied', 'error');
-        return false;
-      }
+      if (permission !== 'granted') { this.app.showToast('❌ Permission denied', 'error'); return false; }
       const sw = await navigator.serviceWorker.ready;
       let sub = await sw.pushManager.getSubscription();
       if (!sub) {
-        const VAPID = (typeof ENV_VAPID_KEY !== 'undefined' ? ENV_VAPID_KEY : 'BGC3GSs75wSk-IXvSHfsmr725CJnQxNuYJHExJZ113yITzwPgAZrVe6-IGyD1zC_t5mtH3-HG1P4GndS8PnSrOc');
-        sub = await sw.pushManager.subscribe({ 
-          userVisibleOnly: true, 
-          applicationServerKey: this.urlBase64ToUint8Array(VAPID) 
-        });
-        const payload = { 
-          ...sub.toJSON(), 
-          user_id: this.app.state?.currentUser?.id || null 
-        };
+        const VAPID = (typeof ENV_VAPID_KEY !== 'undefined' ? ENV_VAPID_KEY : 'BGC3GSs75wSk-IXvSHfsmr725CJnQxNuYJHExJZ113yITzwPgAZrVe6-IGyD1zC_t5mtH3-HG1P4GndS8PnSrOc'); // env or fallback
+        sub = await sw.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: this.urlBase64ToUint8Array(VAPID) });
+        const payload = { ...sub.toJSON(), user_id: this.app.state?.currentUser?.id || null };
         const res = await fetch('/api/save-sub', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...(this.app.auth?.session?.access_token && { 
-              Authorization: `Bearer ${this.app.auth.session.access_token}` 
-            })
+            ...(this.app.auth?.session?.access_token && { Authorization: `Bearer ${this.app.auth.session.access_token}` })
           },
           body: JSON.stringify(payload)
         });
         if (!res.ok) throw new Error('Save failed');
       }
-      this.app.showToast('✅ Notifications enabled', 'success');
-      return true;
-    } catch (err) {
-      console.error(err);
-      this.app.showToast('❌ Enable failed: ' + err.message, 'error');
-      return false;
-    }
+      this.app.showToast('✅ Notifications enabled', 'success'); return true;
+    } catch (err) { console.error(err); this.app.showToast('❌ Enable failed: ' + err.message, 'error'); return false; }
   }
 
   async disablePushNotifications() {
     try {
       const sw = await navigator.serviceWorker.ready;
       const sub = await sw.pushManager.getSubscription();
-      if (sub) {
-        await sub.unsubscribe();
-        this.app.showToast('🔕 Notifications disabled', 'success');
-      }
-    } catch (e) {
-      console.error(e);
-    }
+      if (sub) { await sub.unsubscribe(); this.app.showToast('🔕 Notifications disabled', 'success'); }
+    } catch (e) { console.error(e); }
   }
 
   urlBase64ToUint8Array(base64) {
@@ -410,84 +374,57 @@ export default class UserTab {
   saveNotificationSettings() {
     const settings = {
       enabled: document.getElementById('master-notifications-toggle')?.checked || false,
-      window: {
-        start: document.getElementById('notification-start-time')?.value || '07:00',
-        end: document.getElementById('notification-end-time')?.value || '22:00'
+      reminders: {
+        morning: { enabled: document.getElementById('reminder-morning')?.checked || false, time: document.getElementById('time-morning')?.value || '08:00' },
+        afternoon: { enabled: document.getElementById('reminder-afternoon')?.checked || false, time: document.getElementById('time-afternoon')?.value || '13:00' },
+        evening: { enabled: document.getElementById('reminder-evening')?.checked || false, time: document.getElementById('time-evening')?.value || '18:00' },
+        night: { enabled: document.getElementById('reminder-night')?.checked || false, time: document.getElementById('time-night')?.value || '21:00' }
       },
-      frequency: document.getElementById('notification-frequency')?.value || 'minimum'
+      quotes: { enabled: document.getElementById('quotes-enabled')?.checked || false },
+      affirmations: { enabled: document.getElementById('affirmations-enabled')?.checked || false },
+      frequency: document.getElementById('inspirational-frequency')?.value || 'moderate',
+      wellness: { enabled: document.getElementById('wellness-notifications')?.checked || false, automations: this.getWellnessAutomations() }
     };
-
     localStorage.setItem('notification_settings', JSON.stringify(settings));
-    
     supabase.from('notification_prefs')
-      .upsert({ 
-        user_id: this.app.state.currentUser.id, 
-        prefs: settings 
-      }, { onConflict: 'user_id' })
+      .upsert({ user_id: this.app.state.currentUser.id, prefs: settings }, { onConflict: 'user_id' })
       .then(({ error }) => {
-        if (error) {
-          console.error('Save error:', error);
-          this.app.showToast('⚠️ Saved locally only', 'warning');
-        } else {
-          this.app.showToast('✅ Settings saved', 'success');
-        }
+        if (error) { console.error('Save error:', error); this.app.showToast('⚠️ Saved locally only', 'warning'); }
+        else this.app.showToast('✅ Settings saved to server', 'success');
       });
   }
 
-  async hydrateNotificationSettings() {
-    const uid = this.app.state?.currentUser?.id;
-    if (!uid) return;
-    
+  getWellnessAutomations() {
     try {
-      const { data, error } = await supabase
-        .from('notification_prefs')
-        .select('prefs')
-        .eq('user_id', uid)
-        .single();
-      
-      if (data?.prefs) {
-        localStorage.setItem('notification_settings', JSON.stringify(data.prefs));
-        this.restoreNotificationUI(data.prefs);
-      } else {
-        // Load from localStorage if no server data
-        const local = localStorage.getItem('notification_settings');
-        if (local) {
-          this.restoreNotificationUI(JSON.parse(local));
-        }
+      const stored = localStorage.getItem('wellness_automations');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return {
+          selfReset: { enabled: parsed.selfReset?.enabled || false, interval: parsed.selfReset?.interval || 60 },
+          fullBodyScan: { enabled: parsed.fullBodyScan?.enabled || false, interval: parsed.fullBodyScan?.interval || 180 },
+          nervousSystem: { enabled: parsed.nervousSystem?.enabled || false, interval: parsed.nervousSystem?.interval || 120 },
+          tensionSweep: { enabled: parsed.tensionSweep?.enabled || false, interval: parsed.tensionSweep?.interval || 120 }
+        };
       }
-    } catch (e) {
-      console.warn('Settings sync error:', e);
-    }
+    } catch (e) { console.error('Parse error:', e); }
+    return { selfReset: { enabled: false, interval: 60 }, fullBodyScan: { enabled: false, interval: 180 }, nervousSystem: { enabled: false, interval: 120 }, tensionSweep: { enabled: false, interval: 120 } };
   }
 
-  restoreNotificationUI(settings) {
-    if (!settings) return;
-    
-    const master = document.getElementById('master-notifications-toggle');
-    const options = document.getElementById('notification-options');
-    const startTime = document.getElementById('notification-start-time');
-    const endTime = document.getElementById('notification-end-time');
-    const frequency = document.getElementById('notification-frequency');
-
-    if (master) {
-      master.checked = settings.enabled || false;
-      if (options) {
-        options.style.opacity = settings.enabled ? '1' : '.4';
-        options.style.pointerEvents = settings.enabled ? 'auto' : 'none';
-      }
-    }
-
-    if (startTime && settings.window?.start) {
-      startTime.value = settings.window.start;
-    }
-
-    if (endTime && settings.window?.end) {
-      endTime.value = settings.window.end;
-    }
-
-    if (frequency && settings.frequency) {
-      frequency.value = settings.frequency;
-    }
+  async sendTestNotification() {
+    try {
+      const sw = await navigator.serviceWorker.ready;
+      const sub = await sw.pushManager.getSubscription();
+      if (!sub) return this.app.showToast('❌ No subscription found. Enable notifications first.', 'error');
+      const SUPABASE_URL = 'https://qfbarhxfmzpgbgkaymuk.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmYmFyaHhmbXpwZ2Jna2F5bXVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODg4MjEsImV4cCI6MjA4MDE2NDgyMX0.twBWw0dZnLRTWTHav0sJ77GXyvsGR3ZgPplRO2vVSFk';
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/push-cron/test-push`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+        body: JSON.stringify({ sub: sub.toJSON(), payload: { title: '✨ The Curiosity Path', body: 'Test notification working perfectly!', icon: '/Icons/icon-192x192.png', data: { url: '/' } } })
+      });
+      if (response.ok) this.app.showToast('📱 Test sent! Check your device', 'success');
+      else { const err = await response.json(); throw new Error(err.error || 'Send failed'); }
+    } catch (err) { console.error(err); this.app.showToast('❌ Test failed: ' + err.message, 'error'); }
   }
 
   // ============== AUTOMATIONS =============
@@ -496,33 +433,18 @@ export default class UserTab {
       const c = document.getElementById(`auto-${t}`);
       const i = document.getElementById(`interval-${t}`);
       const p = c?.closest('.automation-group')?.querySelector('.automation-controls');
-      c?.addEventListener('change', (e) => {
-        if (i) i.disabled = !e.target.checked;
-        if (p) p.classList.toggle('disabled', !e.target.checked);
-      });
+      c?.addEventListener('change', (e) => { if (i) i.disabled = !e.target.checked; if (p) p.classList.toggle('disabled', !e.target.checked); });
     });
-    
     document.getElementById('save-automations-btn')?.addEventListener('click', () => {
       const automations = {
-        selfReset: {
-          enabled: document.getElementById('auto-self-reset')?.checked || false,
-          interval: parseInt(document.getElementById('interval-self-reset')?.value || 60)
-        },
-        fullBodyScan: {
-          enabled: document.getElementById('auto-full-body-scan')?.checked || false,
-          interval: parseInt(document.getElementById('interval-full-body-scan')?.value || 180)
-        },
-        nervousSystem: {
-          enabled: document.getElementById('auto-nervous-system')?.checked || false,
-          interval: parseInt(document.getElementById('interval-nervous-system')?.value || 120)
-        },
-        tensionSweep: {
-          enabled: document.getElementById('auto-tension-sweep')?.checked || false,
-          interval: parseInt(document.getElementById('interval-tension-sweep')?.value || 120)
-        }
+        selfReset: { enabled: document.getElementById('auto-self-reset')?.checked || false, interval: parseInt(document.getElementById('interval-self-reset')?.value || 60) },
+        fullBodyScan: { enabled: document.getElementById('auto-full-body-scan')?.checked || false, interval: parseInt(document.getElementById('interval-full-body-scan')?.value || 180) },
+        nervousSystem: { enabled: document.getElementById('auto-nervous-system')?.checked || false, interval: parseInt(document.getElementById('interval-nervous-system')?.value || 120) },
+        tensionSweep: { enabled: document.getElementById('auto-tension-sweep')?.checked || false, interval: parseInt(document.getElementById('interval-tension-sweep')?.value || 120) }
       };
       localStorage.setItem('wellness_automations', JSON.stringify(automations));
-      this.app.showToast('✅ Automations saved', 'success');
+      this.saveNotificationSettings();          // keep wellness in sync
+      this.app.showToast('✅ Automations saved & synced', 'success');
     });
   }
 
@@ -541,68 +463,71 @@ export default class UserTab {
     });
   }
 
-  // ============== ADMIN =============
-  async loadAdminPanel() {
-    const mount = document.getElementById('admin-tab-mount');
-    if (!mount) return;
+// ============== ADMIN =============
+async loadAdminPanel() {
+  const mount = document.getElementById('admin-tab-mount');
+  if (!mount) return;
+  
+  mount.innerHTML = '<div style="text-align:center;padding:20px;">Loading...</div>';
+  
+  try {
+    const adminModule = await import('./Admin-Tab.js');
+    const { supabase } = await import('./Supabase.js');
     
-    mount.innerHTML = '<div style="text-align:center;padding:20px;">Loading...</div>';
+    const AdminTab = adminModule.AdminTab || adminModule.default;
+    const adminTab = new AdminTab(supabase);
+    const content = await adminTab.render();
     
-    try {
-      const adminModule = await import('./Admin-Tab.js');
-      const { supabase } = await import('./Supabase.js');
-      
-      const AdminTab = adminModule.AdminTab || adminModule.default;
-      const adminTab = new AdminTab(supabase);
-      const content = await adminTab.render();
-      
-      mount.innerHTML = '';
-      if (typeof content === 'string') {
-        mount.innerHTML = content;
-      } else if (content instanceof HTMLElement) {
-        mount.appendChild(content);
-      } else {
-        mount.innerHTML = '<div style="color:#ff4757;padding:10px;">Invalid content returned</div>';
-      }
-    } catch (err) {
-      console.error('Admin panel error:', err);
-      mount.innerHTML = `<div style="color:#ff4757;padding:10px;">Failed to load: ${err.message}</div>`;
+    mount.innerHTML = '';
+    if (typeof content === 'string') {
+      mount.innerHTML = content;
+    } else if (content instanceof HTMLElement) {
+      mount.appendChild(content);
+    } else {
+      mount.innerHTML = '<div style="color:#ff4757;padding:10px;">Invalid content returned</div>';
     }
+  } catch (err) {
+    console.error('Admin panel error:', err);
+    mount.innerHTML = `<div style="color:#ff4757;padding:10px;">Failed to load: ${err.message}</div>`;
   }
+}
 
   // ============== PRICING MODAL =============
-  showPricingModal() {
-    const overlay = document.getElementById('pricing-modal-overlay');
-    if (!overlay) return;
-    overlay.classList.add('show');
-    document.body.classList.add('blur-behind');
-    this.attachPricingButtons(overlay);
+showPricingModal() {
+  const overlay = document.getElementById('pricing-modal-overlay');
+  if (!overlay) return;
+  overlay.classList.add('show');
+  document.body.classList.add('blur-behind');
+  this.attachPricingButtons(overlay);
+  
+  // Mobile carousel functionality
+  if (window.innerWidth <= 768) {
+    const container = document.getElementById('pricing-cards-container');
+    const dots = document.querySelectorAll('.pricing-dot');
+    const cards = container.querySelectorAll('.pricing-card');
     
-    if (window.innerWidth <= 768) {
-      const container = document.getElementById('pricing-cards-container');
-      const dots = document.querySelectorAll('.pricing-dot');
-      const cards = container.querySelectorAll('.pricing-card');
-      
-      container.scrollTo({ left: 0, behavior: 'smooth' });
-      
-      container.addEventListener('scroll', () => {
-        const scrollLeft = container.scrollLeft;
-        const cardWidth = cards[0].offsetWidth + 20;
-        const activeIndex = Math.round(scrollLeft / cardWidth);
-        
-        dots.forEach((dot, i) => {
-          dot.classList.toggle('active', i === activeIndex);
-        });
-      });
+    // Scroll to FREE (first card) on mobile
+    container.scrollTo({ left: 0, behavior: 'smooth' });
+    
+    container.addEventListener('scroll', () => {
+      const scrollLeft = container.scrollLeft;
+      const cardWidth = cards[0].offsetWidth + 20; // card + margin
+      const activeIndex = Math.round(scrollLeft / cardWidth);
       
       dots.forEach((dot, i) => {
-        dot.addEventListener('click', () => {
-          const cardWidth = cards[0].offsetWidth + 20;
-          container.scrollTo({ left: cardWidth * i, behavior: 'smooth' });
-        });
+        dot.classList.toggle('active', i === activeIndex);
       });
-    }
+    });
+    
+    // Optional: dot click navigation
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        const cardWidth = cards[0].offsetWidth + 20;
+        container.scrollTo({ left: cardWidth * i, behavior: 'smooth' });
+      });
+    });
   }
+}
 
   closePricingModal() {
     const overlay = document.getElementById('pricing-modal-overlay');
@@ -614,7 +539,7 @@ export default class UserTab {
     overlay.querySelectorAll('.pricing-btn').forEach(btn =>
       btn.addEventListener('click', (e) => {
         const plan = e.currentTarget.dataset.plan;
-        this.app.startCheckout(plan);
+        this.app.startCheckout(plan);   // your existing handler
         this.closePricingModal();
       }, { once: true })
     );
@@ -645,10 +570,7 @@ export default class UserTab {
     modal.className = 'modal-overlay';
     modal.innerHTML = `
       <div class="neuro-modal modal-small">
-        <div class="modal-header">
-          <div class="modal-icon">🚪</div>
-          <h3 class="modal-title">Logout?</h3>
-        </div>
+        <div class="modal-header"><div class="modal-icon">🚪</div><h3 class="modal-title">Logout?</h3></div>
         <p class="modal-message">Are you sure?</p>
         <div class="modal-actions">
           <button class="btn" id="cancel-logout">Cancel</button>
@@ -657,12 +579,38 @@ export default class UserTab {
       </div>`;
     document.body.appendChild(modal);
     modal.querySelector('#cancel-logout').onclick = () => modal.remove();
-    modal.querySelector('#confirm-logout').onclick = () => {
-      modal.remove();
-      window.app.logout();
-    };
-    modal.onclick = (e) => {
-      if (e.target === modal) modal.remove();
-    };
+    modal.querySelector('#confirm-logout').onclick = () => { modal.remove(); window.app.logout(); };
+    modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  }
+
+  // ============== SYNC HELPERS =============
+  async hydrateNotificationSettings() {
+    const uid = this.app.state?.currentUser?.id;
+    if (!uid) return;
+    try {
+      const { data, error } = await supabase.from('notification_prefs').select('prefs').eq('user_id', uid).single();
+      if (data?.prefs) {
+        localStorage.setItem('notification_settings', JSON.stringify(data.prefs));
+        this.restoreNotificationUI(data.prefs);
+      }
+    } catch (e) { console.warn('Settings sync error:', e); }
+  }
+
+  restoreNotificationUI(settings) {
+    if (!settings) return;
+    const master = document.getElementById('master-notifications-toggle');
+    if (master) {
+      master.checked = settings.enabled || false;
+      const options = document.getElementById('notification-options');
+      if (options) { options.style.opacity = settings.enabled ? '1' : '.4'; options.style.pointerEvents = settings.enabled ? 'auto' : 'none'; }
+    }
+    ['morning', 'afternoon', 'evening', 'night'].forEach(period => {
+      const config = settings.reminders?.[period]; if (!config) return;
+      const toggle = document.getElementById(`reminder-${period}`); const time = document.getElementById(`time-${period}`);
+      if (toggle) toggle.checked = config.enabled || false; if (time) { time.value = config.time || ''; time.disabled = !config.enabled; }
+    });
+    const quotes = document.getElementById('quotes-enabled'); const affirmations = document.getElementById('affirmations-enabled'); const freq = document.getElementById('inspirational-frequency');
+    if (quotes) quotes.checked = settings.quotes?.enabled || false; if (affirmations) affirmations.checked = settings.affirmations?.enabled || false; if (freq) freq.value = settings.frequency || 'moderate';
+    const wellness = document.getElementById('wellness-notifications'); if (wellness) wellness.checked = settings.wellness?.enabled || false;
   }
 }
