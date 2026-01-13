@@ -89,11 +89,26 @@ export const skins = (app) => {
 };
 
 export const notifications = () => {
-  const s = JSON.parse(localStorage.getItem('notification_settings')) || {
-    enabled: false,
-    window: { start: '07:00', end: '22:00' },
-    frequency: 'minimum'
+  // Safe parsing with migration from old format
+  let s;
+  try {
+    s = JSON.parse(localStorage.getItem('notification_settings'));
+  } catch (e) {
+    s = null;
+  }
+
+  // Migrate from old format or set defaults
+  const settings = {
+    enabled: s?.enabled || false,
+    window: {
+      start: s?.window?.start || '07:00',
+      end: s?.window?.end || '22:00'
+    },
+    frequency: s?.frequency || 'minimum'
   };
+
+  // Save migrated settings back
+  localStorage.setItem('notification_settings', JSON.stringify(settings));
 
   return `
     <div class="accordion-inner">
@@ -102,7 +117,7 @@ export const notifications = () => {
         <small style="opacity:.7;display:block;margin-top:8px;">${s.enabled ? '✅ Enabled' : '⚠️ Enable to receive notifications'}</small>
       </div>
 
-      <div id="notification-options" style="${s.enabled ? '' : 'opacity:.4;pointer-events:none;'}">
+      <div id="notification-options" style="${settings.enabled ? '' : 'opacity:.4;pointer-events:none;'}">
         
         <div class="notification-section">
           <h4 style="font-size:.9rem;font-weight:600;margin-bottom:12px;">⏰ Daily Availability Window</h4>
@@ -111,11 +126,11 @@ export const notifications = () => {
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
             <div>
               <label style="font-size:.85rem;display:block;margin-bottom:6px;">Start Time</label>
-              <input type="time" id="notification-start-time" value="${s.window.start}" style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,.1);">
+              <input type="time" id="notification-start-time" value="${settings.window.start}" style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,.1);">
             </div>
             <div>
               <label style="font-size:.85rem;display:block;margin-bottom:6px;">End Time</label>
-              <input type="time" id="notification-end-time" value="${s.window.end}" style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,.1);">
+              <input type="time" id="notification-end-time" value="${settings.window.end}" style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,.1);">
             </div>
           </div>
           
@@ -129,14 +144,14 @@ export const notifications = () => {
           <p style="font-size:.85rem;opacity:.8;margin-bottom:12px;">How many notifications per day?</p>
           
           <select id="notification-frequency" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(0,0,0,.1);font-size:.9rem;">
-            <option value="minimum" ${s.frequency === 'minimum' ? 'selected' : ''}>Minimum (2 per day)</option>
-            <option value="full" ${s.frequency === 'full' ? 'selected' : ''}>Full (4 per day)</option>
+            <option value="minimum" ${settings.frequency === 'minimum' ? 'selected' : ''}>Minimum (2 per day)</option>
+            <option value="full" ${settings.frequency === 'full' ? 'selected' : ''}>Full (4 per day)</option>
           </select>
           
           <div style="margin-top:12px;padding:10px;background:rgba(0,0,0,.05);border-radius:8px;font-size:.8rem;">
             <strong style="display:block;margin-bottom:6px;">What you'll receive:</strong>
             <div style="opacity:.85;line-height:1.6;">
-              ${s.frequency === 'minimum' ? `
+              ${settings.frequency === 'minimum' ? `
                 <div>🌅 <strong>Morning:</strong> Energy log + daily cards</div>
                 <div>🌙 <strong>Night:</strong> Energy log + journaling</div>
               ` : `
