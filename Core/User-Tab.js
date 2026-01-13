@@ -215,8 +215,8 @@ renderSection(section, panel) {
     }
   }
 
-  // ============== SKINS  (was settings) =============
-  attachSkinsHandlers() {                      // renamed handler
+  // ============== SKINS  =============
+  attachSkinsHandlers() {                    
     document.getElementById('dark-mode-toggle')?.addEventListener('change', (e) => {
       const on = e.target.checked;
       document.body.classList.toggle('dark-mode', on);

@@ -2,7 +2,7 @@
 
 export const MENU_ITEMS = [
   { id: 'profile',        icon: '👤', label: 'Profile' },
-  { id: 'skins',          icon: '🎭', label: 'Skins' },          // <-- renamed
+  { id: 'skins',          icon: '🎭', label: 'Skins' },
   { id: 'notifications',  icon: '🔔', label: 'Notifications' },
   { id: 'automations',    icon: '⚙️', label: 'Automations' },
   { id: 'about',          icon: 'ℹ️', label: 'About the App' },
