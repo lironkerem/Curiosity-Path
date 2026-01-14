@@ -4,6 +4,7 @@
 import { showToast } from './Toast.js';
 import * as modal from './Modal.js';
 import { GamificationEngine } from '../Features/GamificationEngine.js';
+import { WellnessAutomationManager } from '../Features/WellnessAutomationManager.js';
 import { supabase } from './Supabase.js';
 import { DarkMode } from '/Core/Utils.js';
 import CTA from './CTA.js';
@@ -44,6 +45,7 @@ export default class ProjectCuriosityApp {
     this.nav = null;
     this.dashboard = null;
     this.gamification = null;
+    this.wellnessAutomation = null;
     this.footerCTA = null;
 
     this.showToast = showToast;
@@ -304,6 +306,7 @@ export default class ProjectCuriosityApp {
       }
 
       this.gamification = new GamificationEngine(this);
+      this.wellnessAutomation = new WellnessAutomationManager(this);
       this.setupGamificationListeners();
 
       this._hideAuthScreen();
