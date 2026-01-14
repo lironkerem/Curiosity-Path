@@ -53,7 +53,7 @@ export default class UserTab {
       const sectionBtn = e.target.closest('.dropdown-item[data-section]');
       const actionBtn = e.target.closest('.dropdown-item[data-action]');
       if (sectionBtn) this.handleSectionClick(sectionBtn.dataset.section);
-      else if (actionBtn?.dataset.action === 'logout') this.handleLogout();
+      else if (actionBtn?.dataset.action === 'logout') this.showLogoutModal();
     });
 
     this.btn = document.getElementById('user-menu-btn');
@@ -125,6 +125,7 @@ export default class UserTab {
       profile: () => { panel.innerHTML = Templates.profile(u); this.attachProfileHandlers(); },
       skins: () => { panel.innerHTML = Templates.skins(this.app); this.attachSkinsHandlers(); },
       notifications: () => { panel.innerHTML = Templates.notifications(); this.attachNotificationsHandlers(); },
+      automations: () => { panel.innerHTML = Templates.automations(); this.attachAutomationsHandlers(); },
       about: () => { panel.innerHTML = Templates.about(); },
       rules: () => { panel.innerHTML = Templates.rules(); this.attachRulesHandlers(panel); },
       contact: () => { panel.innerHTML = Templates.contact(); },
@@ -448,6 +449,7 @@ export default class UserTab {
         localStorage.setItem('notification_settings', JSON.stringify(data.prefs));
         this.restoreNotificationUI(data.prefs);
       } else {
+        // Load from localStorage if no server data
         const local = localStorage.getItem('notification_settings');
         if (local) {
           this.restoreNotificationUI(JSON.parse(local));
@@ -486,6 +488,42 @@ export default class UserTab {
     if (frequency && settings.frequency) {
       frequency.value = settings.frequency;
     }
+  }
+
+  // ============== AUTOMATIONS =============
+  attachAutomationsHandlers() {
+    ['self-reset', 'full-body-scan', 'nervous-system', 'tension-sweep'].forEach(t => {
+      const c = document.getElementById(`auto-${t}`);
+      const i = document.getElementById(`interval-${t}`);
+      const p = c?.closest('.automation-group')?.querySelector('.automation-controls');
+      c?.addEventListener('change', (e) => {
+        if (i) i.disabled = !e.target.checked;
+        if (p) p.classList.toggle('disabled', !e.target.checked);
+      });
+    });
+    
+    document.getElementById('save-automations-btn')?.addEventListener('click', () => {
+      const automations = {
+        selfReset: {
+          enabled: document.getElementById('auto-self-reset')?.checked || false,
+          interval: parseInt(document.getElementById('interval-self-reset')?.value || 60)
+        },
+        fullBodyScan: {
+          enabled: document.getElementById('auto-full-body-scan')?.checked || false,
+          interval: parseInt(document.getElementById('interval-full-body-scan')?.value || 180)
+        },
+        nervousSystem: {
+          enabled: document.getElementById('auto-nervous-system')?.checked || false,
+          interval: parseInt(document.getElementById('interval-nervous-system')?.value || 120)
+        },
+        tensionSweep: {
+          enabled: document.getElementById('auto-tension-sweep')?.checked || false,
+          interval: parseInt(document.getElementById('interval-tension-sweep')?.value || 120)
+        }
+      };
+      localStorage.setItem('wellness_automations', JSON.stringify(automations));
+      this.app.showToast('✅ Automations saved', 'success');
+    });
   }
 
   // ============== RULES =============
@@ -602,22 +640,29 @@ export default class UserTab {
   }
 
   // ============== LOGOUT =============
-  async handleLogout() {
-    try {
-      // Close dropdown
-      if (this.btn) this.btn.setAttribute('aria-expanded', 'false');
-      if (this.dropdown) this.dropdown.classList.remove('active');
-
-      // Call app's logout method
-      if (this.app && typeof this.app.logout === 'function') {
-        await this.app.logout();
-      } else {
-        console.error('app.logout() not available');
-        this.app.showToast('❌ Logout failed', 'error');
-      }
-    } catch (err) {
-      console.error('Logout error:', err);
-      this.app.showToast('❌ Logout error', 'error');
-    }
+  showLogoutModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+      <div class="neuro-modal modal-small">
+        <div class="modal-header">
+          <div class="modal-icon">🚪</div>
+          <h3 class="modal-title">Logout?</h3>
+        </div>
+        <p class="modal-message">Are you sure?</p>
+        <div class="modal-actions">
+          <button class="btn" id="cancel-logout">Cancel</button>
+          <button class="btn btn-primary" id="confirm-logout">Logout</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.querySelector('#cancel-logout').onclick = () => modal.remove();
+    modal.querySelector('#confirm-logout').onclick = () => {
+      modal.remove();
+      window.app.logout();
+    };
+    modal.onclick = (e) => {
+      if (e.target === modal) modal.remove();
+    };
   }
 }
