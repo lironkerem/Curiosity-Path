@@ -4,7 +4,6 @@ export const MENU_ITEMS = [
   { id: 'profile',        icon: '👤', label: 'Profile' },
   { id: 'skins',          icon: '🎭', label: 'Skins' },
   { id: 'notifications',  icon: '🔔', label: 'Notifications' },
-  { id: 'automations',    icon: '⚙️', label: 'Automations' },
   { id: 'about',          icon: 'ℹ️', label: 'About the App' },
   { id: 'rules',          icon: '📜', label: 'Rules' },
   { id: 'contact',        icon: '📧', label: 'Contact Me' },
@@ -189,43 +188,11 @@ export const notifications = () => {
     </div>`;
 };
 
-export const automations = () => {
-  const defaults = { selfReset: { enabled: false, interval: 60 }, fullBodyScan: { enabled: false, interval: 180 }, nervousSystem: { enabled: false, interval: 120 }, tensionSweep: { enabled: false, interval: 120 } };
-  const a = { ...defaults, ...JSON.parse(localStorage.getItem('wellness_automations') || '{}') };
-  const items = [
-    { id: 'self-reset', name: '🧘 Self Reset', key: 'selfReset' },
-    { id: 'full-body-scan', name: '🌊 Full Body Scan', key: 'fullBodyScan' },
-    { id: 'nervous-system', name: '⚡ Nervous System Reset', key: 'nervousSystem' },
-    { id: 'tension-sweep', name: '🌀 Tension Sweep', key: 'tensionSweep' }
-  ];
-
-  return `
-    <div class="accordion-inner">
-      <p style="font-size:.85rem;margin-bottom:12px;opacity:.8;">Enable automatic reminders for wellness practices</p>
-      ${items.map(it => {
-        const cfg = a[it.key];
-        return `
-        <div class="automation-group">
-          <label class="automation-label">
-            <input type="checkbox" id="auto-${it.id}" ${cfg.enabled ? 'checked' : ''}>
-            <span>${it.name}</span>
-          </label>
-          <div class="automation-controls ${cfg.enabled ? '' : 'disabled'}">
-            <label>Every <input type="number" id="interval-${it.id}" value="${cfg.interval}" min="15" max="480" step="15" ${cfg.enabled ? '' : 'disabled'}> minutes</label>
-          </div>
-        </div>`;
-      }).join('')}
-      <button class="btn-link" id="save-automations-btn">Save Settings</button>
-      <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:12px 0;">
-      <small style="opacity:.7;font-size:.75rem;">⚠️ Pop-up reminders while app is open</small>
-    </div>`;
-};
-
 export const rules = () => {
   const categories = [
-    { title: 'FIRST-WINS', badges: [{ icon: '🌱', name: 'First Step', desc: 'do any single action', xp: 10, karma: 3, rarity: 'common' }, { icon: '💚', name: 'First Gratitude', desc: 'log 1 gratitude entry', xp: 10, karma: 3, rarity: 'common' }, { icon: '📝', name: 'First Journal', desc: 'save 1 journal entry', xp: 10, karma: 3, rarity: 'common' }, { icon: '⚡', name: 'First Energy', desc: 'log 1 energy check-in', xp: 10, karma: 3, rarity: 'common' }, { icon: '🃏', name: 'First Reading', desc: 'complete 1 tarot spread', xp: 10, karma: 3, rarity: 'common' }, { icon: '🧘', name: 'First Meditation', desc: 'finish 1 meditation session', xp: 10, karma: 3, rarity: 'common' }, { icon: '🛒', name: 'First Purchase', desc: 'buy anything in Karma Shop', xp: 50, karma: 3, rarity: 'common' }] },
+    { title: 'FIRST-WINS', badges: [{ icon: '🌱', name: 'First Step', desc: 'do any single action', xp: 10, karma: 3, rarity: 'common' }, { icon: '💚', name: 'First Gratitude', desc: 'log 1 gratitude entry', xp: 10, karma: 3, rarity: 'common' }, { icon: '📔', name: 'First Journal', desc: 'save 1 journal entry', xp: 10, karma: 3, rarity: 'common' }, { icon: '⚡', name: 'First Energy', desc: 'log 1 energy check-in', xp: 10, karma: 3, rarity: 'common' }, { icon: '🃏', name: 'First Reading', desc: 'complete 1 tarot spread', xp: 10, karma: 3, rarity: 'common' }, { icon: '🧘', name: 'First Meditation', desc: 'finish 1 meditation session', xp: 10, karma: 3, rarity: 'common' }, { icon: '🛒', name: 'First Purchase', desc: 'buy anything in Karma Shop', xp: 50, karma: 3, rarity: 'common' }] },
     { title: 'GRATITUDE', badges: [{ icon: '❤️', name: 'Gratitude Warrior', desc: '30 entries', xp: 50, karma: 5, rarity: 'uncommon' }, { icon: '💕', name: 'Gratitude Legend', desc: '100 entries', xp: 100, karma: 10, rarity: 'rare' }, { icon: '💖', name: 'Gratitude Sage', desc: '200 entries', xp: 200, karma: 15, rarity: 'epic' }, { icon: '💘', name: 'Gratitude Titan', desc: '500 entries', xp: 500, karma: 30, rarity: 'legendary' }] },
-    { title: 'JOURNAL', badges: [{ icon: '📔', name: 'Journal Keeper', desc: '20 entries', xp: 50, karma: 5, rarity: 'uncommon' }, { icon: '📚', name: 'Journal Master', desc: '75 entries', xp: 100, karma: 10, rarity: 'rare' }, { icon: '📖', name: 'Journal Sage', desc: '150 entries', xp: 200, karma: 15, rarity: 'epic' }, { icon: '📜', name: 'Journal Titan', desc: '400 entries', xp: 500, karma: 30, rarity: 'legendary' }] },
+    { title: 'JOURNAL', badges: [{ icon: '📓', name: 'Journal Keeper', desc: '20 entries', xp: 50, karma: 5, rarity: 'uncommon' }, { icon: '📚', name: 'Journal Master', desc: '75 entries', xp: 100, karma: 10, rarity: 'rare' }, { icon: '📖', name: 'Journal Sage', desc: '150 entries', xp: 200, karma: 15, rarity: 'epic' }, { icon: '📜', name: 'Journal Titan', desc: '400 entries', xp: 500, karma: 30, rarity: 'legendary' }] },
     { title: 'ENERGY', badges: [{ icon: '⚡', name: 'Energy Tracker', desc: '30 logs', xp: 50, karma: 5, rarity: 'uncommon' }, { icon: '🔋', name: 'Energy Sage', desc: '100 logs', xp: 100, karma: 10, rarity: 'rare' }, { icon: '🔌', name: 'Energy Titan', desc: '300 logs', xp: 300, karma: 15, rarity: 'epic' }, { icon: '⚡️', name: 'Energy Legend', desc: '600 logs', xp: 600, karma: 30, rarity: 'legendary' }] },
     { title: 'TAROT', badges: [{ icon: '🔮', name: 'Tarot Apprentice', desc: '10 spreads', xp: 25, karma: 3, rarity: 'common' }, { icon: '🃏', name: 'Tarot Mystic', desc: '25 spreads', xp: 50, karma: 5, rarity: 'uncommon' }, { icon: '🌙', name: 'Tarot Oracle', desc: '75 spreads', xp: 100, karma: 10, rarity: 'rare' }, { icon: '🧙', name: 'Tarot Sage', desc: '150 spreads', xp: 200, karma: 15, rarity: 'epic' }, { icon: '🔮', name: 'Tarot Titan', desc: '400 spreads', xp: 500, karma: 30, rarity: 'legendary' }] },
     { title: 'MEDITATION', badges: [{ icon: '🧘', name: 'Meditation Devotee', desc: '20 sessions', xp: 50, karma: 5, rarity: 'uncommon' }, { icon: '🕉️', name: 'Meditation Master', desc: '60 sessions', xp: 100, karma: 10, rarity: 'rare' }, { icon: '🧘‍♂️', name: 'Meditation Sage', desc: '100 sessions', xp: 300, karma: 15, rarity: 'epic' }, { icon: '🧘‍♀️', name: 'Meditation Titan', desc: '200 sessions', xp: 700, karma: 30, rarity: 'legendary' }] },
