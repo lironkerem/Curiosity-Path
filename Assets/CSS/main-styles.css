@@ -403,22 +403,21 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
    MOBILE TAB POSITION INDICATOR
    Shows current position in swipe navigation (11 tabs)
    ========================================================= */
-
 /* Container - invisible background, full width */
 .mobile-tab-indicator {
   display: none !important;
   flex-direction: row !important;
-  justify-content: space-between !important;
+  justify-content: space-evenly !important;
   align-items: center !important;
-  padding: 1rem 2rem !important;
+  padding: 1rem 1rem !important;
   margin: 1rem 0 !important;
   width: 100% !important;
   background: transparent !important;
   border-radius: 0 !important;
   box-shadow: none !important;
   min-height: 40px !important;
+  gap: 0 !important;
 }
-
 /* Individual dot */
 .tab-dot {
   width: 12px !important;
@@ -429,10 +428,10 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   box-shadow: var(--shadow-inset-sm) !important;
   cursor: pointer !important;
   flex-shrink: 0 !important;
+  flex-grow: 0 !important;
   display: block !important;
   opacity: 0.6 !important;
 }
-
 /* Active dot - slightly larger, brighter, and colored */
 .tab-dot.active {
   width: 16px !important;
@@ -446,18 +445,16 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   transform: scale(1.1) !important;
   opacity: 1 !important;
 }
-
 /* Show only on mobile (767px and below) */
 @media (max-width: 767px) {
   .mobile-tab-indicator {
     display: flex !important;
   }
 }
-
 /* Extra small screens - slightly smaller but still visible */
 @media (max-width: 380px) {
   .mobile-tab-indicator {
-    padding: 0.875rem 1.5rem !important;
+    padding: 0.875rem 0.75rem !important;
   }
   
   .tab-dot {
