@@ -145,18 +145,18 @@ export default class NavigationManager {
 
 const indicatorHTML = `
   <!-- MOBILE TAB POSITION INDICATOR -->
-  <div class="mobile-tab-indicator" id="mobile-tab-indicator" style="display: flex !important; justify-content: space-between !important; align-items: center; padding: 0.5rem 1.5rem; width: 100%; box-sizing: border-box; background: transparent; min-height: 40px;">
-    <span class="tab-dot active" data-tab="dashboard" title="Dashboard" style="display: inline-block !important; flex-shrink: 0;">&nbsp;</span>
-    <span class="tab-dot" data-tab="energy" title="Energy" style="display: inline-block !important; flex-shrink: 0;">&nbsp;</span>
-    <span class="tab-dot" data-tab="tarot" title="Tarot" style="display: inline-block !important; flex-shrink: 0;">&nbsp;</span>
-    <span class="tab-dot" data-tab="gratitude" title="Gratitude" style="display: inline-block !important; flex-shrink: 0;">&nbsp;</span>
-    <span class="tab-dot" data-tab="happiness" title="Happiness" style="display: inline-block !important; flex-shrink: 0;">&nbsp;</span>
-    <span class="tab-dot" data-tab="journal" title="Journal" style="display: inline-block !important; flex-shrink: 0;">&nbsp;</span>
-    <span class="tab-dot" data-tab="meditations" title="Meditations" style="display: inline-block !important; flex-shrink: 0;">&nbsp;</span>
-    <span class="tab-dot" data-tab="flip-script" title="Flip Script" style="display: inline-block !important; flex-shrink: 0;">&nbsp;</span>
-    <span class="tab-dot" data-tab="calculator" title="Analysis" style="display: inline-block !important; flex-shrink: 0;">&nbsp;</span>
-    <span class="tab-dot" data-tab="shadow-alchemy" title="Shadow Alchemy" style="display: inline-block !important; flex-shrink: 0;">&nbsp;</span>
-    <span class="tab-dot" data-tab="karma-shop" title="Karma Shop" style="display: inline-block !important; flex-shrink: 0;">&nbsp;</span>
+  <div id="mobile-tab-indicator" style="display: flex !important; justify-content: space-between !important; align-items: center; padding: 0.5rem 1.5rem; width: 100%; box-sizing: border-box; background: transparent; min-height: 40px;">
+    <span class="tab-dot active" data-tab="dashboard" title="Dashboard" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
+    <span class="tab-dot" data-tab="energy" title="Energy" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
+    <span class="tab-dot" data-tab="tarot" title="Tarot" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
+    <span class="tab-dot" data-tab="gratitude" title="Gratitude" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
+    <span class="tab-dot" data-tab="happiness" title="Happiness" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
+    <span class="tab-dot" data-tab="journal" title="Journal" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
+    <span class="tab-dot" data-tab="meditations" title="Meditations" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
+    <span class="tab-dot" data-tab="flip-script" title="Flip Script" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
+    <span class="tab-dot" data-tab="calculator" title="Analysis" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
+    <span class="tab-dot" data-tab="shadow-alchemy" title="Shadow Alchemy" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
+    <span class="tab-dot" data-tab="karma-shop" title="Karma Shop" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
   </div>
 `;
 
@@ -513,18 +513,36 @@ if (!document.getElementById('mobile-tab-indicator')) {
     });
   }
 
-  updateTabIndicator(tabName) {
-    if (window.innerWidth > 767) return; // Only on mobile
-    
-    const dots = document.querySelectorAll('.tab-dot');
-    dots.forEach(dot => {
-      if (dot.dataset.tab === tabName) {
-        dot.classList.add('active');
-      } else {
-        dot.classList.remove('active');
-      }
-    });
-  }
+updateTabIndicator(tabName) {
+  if (window.innerWidth > 767) return; // Only on mobile
+  
+  const dots = document.querySelectorAll('.tab-dot');
+  dots.forEach(dot => {
+    if (dot.dataset.tab === tabName) {
+      dot.classList.add('active');
+      // Apply active inline styles
+      dot.style.width = '16px';
+      dot.style.height = '16px';
+      dot.style.minWidth = '16px';
+      dot.style.minHeight = '16px';
+      dot.style.background = 'linear-gradient(135deg, var(--neuro-accent), var(--neuro-accent-light))';
+      dot.style.boxShadow = '0 0 10px rgba(102, 126, 234, 0.5), 0 2px 6px rgba(102, 126, 234, 0.3), 4px 4px 8px var(--neuro-shadow-dark), -4px -4px 8px var(--neuro-shadow-light)';
+      dot.style.transform = 'scale(1.1)';
+      dot.style.opacity = '1';
+    } else {
+      dot.classList.remove('active');
+      // Reset to inactive inline styles
+      dot.style.width = '12px';
+      dot.style.height = '12px';
+      dot.style.minWidth = '12px';
+      dot.style.minHeight = '12px';
+      dot.style.background = 'var(--neuro-shadow-dark)';
+      dot.style.boxShadow = 'inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light)';
+      dot.style.transform = 'scale(1)';
+      dot.style.opacity = '0.6';
+    }
+  });
+}
 
   switchTab(tabName, label) {
     if (tabName === 'calculator' && !window.calculatorChunk) {
