@@ -405,9 +405,8 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
    ========================================================= */
 .mobile-tab-indicator {
   display: none;
-  width: 100vw;
-  max-width: 100vw;
-  padding: 1rem 2rem;
+  width: 100%;
+  padding: 1rem 1rem;
   margin: 1rem 0;
   background: transparent;
   min-height: 40px;
@@ -416,10 +415,8 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 
 /* Individual dot */
 .tab-dot {
-  display: inline-block;
   width: 12px;
   height: 12px;
-  margin: 0;
   border-radius: 50%;
   background: var(--neuro-shadow-dark);
   transition: all var(--transition-normal);
@@ -445,17 +442,18 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 /* Show only on mobile (767px and below) */
 @media (max-width: 767px) {
   .mobile-tab-indicator {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(11, 1fr);
+    gap: 0;
     align-items: center;
+    justify-items: center;
   }
 }
 
 /* Extra small screens */
 @media (max-width: 380px) {
   .mobile-tab-indicator {
-    padding: 0.875rem 1.5rem;
+    padding: 0.875rem 0.5rem;
   }
   
   .tab-dot {
