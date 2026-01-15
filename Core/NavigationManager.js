@@ -145,18 +145,18 @@ export default class NavigationManager {
 
 const indicatorHTML = `
   <!-- MOBILE TAB POSITION INDICATOR -->
-  <div class="mobile-tab-indicator" id="mobile-tab-indicator" style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 1.5rem; width: 100%;">
-    <span class="tab-dot active" data-tab="dashboard" title="Dashboard" style="display: block; width: 12px; height: 12px; border-radius: 50%; background: #b8bec5; box-shadow: inset 2px 2px 4px #b8bec5, inset -2px -2px 4px #ffffff;"></span>
-    <span class="tab-dot" data-tab="energy" title="Energy" style="display: block; width: 12px; height: 12px; border-radius: 50%; background: #b8bec5; box-shadow: inset 2px 2px 4px #b8bec5, inset -2px -2px 4px #ffffff;"></span>
-    <span class="tab-dot" data-tab="tarot" title="Tarot" style="display: block; width: 12px; height: 12px; border-radius: 50%; background: #b8bec5; box-shadow: inset 2px 2px 4px #b8bec5, inset -2px -2px 4px #ffffff;"></span>
-    <span class="tab-dot" data-tab="gratitude" title="Gratitude" style="display: block; width: 12px; height: 12px; border-radius: 50%; background: #b8bec5; box-shadow: inset 2px 2px 4px #b8bec5, inset -2px -2px 4px #ffffff;"></span>
-    <span class="tab-dot" data-tab="happiness" title="Happiness" style="display: block; width: 12px; height: 12px; border-radius: 50%; background: #b8bec5; box-shadow: inset 2px 2px 4px #b8bec5, inset -2px -2px 4px #ffffff;"></span>
-    <span class="tab-dot" data-tab="journal" title="Journal" style="display: block; width: 12px; height: 12px; border-radius: 50%; background: #b8bec5; box-shadow: inset 2px 2px 4px #b8bec5, inset -2px -2px 4px #ffffff;"></span>
-    <span class="tab-dot" data-tab="meditations" title="Meditations" style="display: block; width: 12px; height: 12px; border-radius: 50%; background: #b8bec5; box-shadow: inset 2px 2px 4px #b8bec5, inset -2px -2px 4px #ffffff;"></span>
-    <span class="tab-dot" data-tab="flip-script" title="Flip Script" style="display: block; width: 12px; height: 12px; border-radius: 50%; background: #b8bec5; box-shadow: inset 2px 2px 4px #b8bec5, inset -2px -2px 4px #ffffff;"></span>
-    <span class="tab-dot" data-tab="calculator" title="Analysis" style="display: block; width: 12px; height: 12px; border-radius: 50%; background: #b8bec5; box-shadow: inset 2px 2px 4px #b8bec5, inset -2px -2px 4px #ffffff;"></span>
-    <span class="tab-dot" data-tab="shadow-alchemy" title="Shadow Alchemy" style="display: block; width: 12px; height: 12px; border-radius: 50%; background: #b8bec5; box-shadow: inset 2px 2px 4px #b8bec5, inset -2px -2px 4px #ffffff;"></span>
-    <span class="tab-dot" data-tab="karma-shop" title="Karma Shop" style="display: block; width: 12px; height: 12px; border-radius: 50%; background: #b8bec5; box-shadow: inset 2px 2px 4px #b8bec5, inset -2px -2px 4px #ffffff;"></span>
+  <div class="mobile-tab-indicator" id="mobile-tab-indicator" style="display: flex !important; justify-content: space-between; align-items: center; padding: 0.5rem 1.5rem; width: 100%; background: red;">
+    <span class="tab-dot active" data-tab="dashboard" title="Dashboard" style="display: block !important; width: 12px; height: 12px; border-radius: 50%; background: blue;"></span>
+    <span class="tab-dot" data-tab="energy" title="Energy" style="display: block !important; width: 12px; height: 12px; border-radius: 50%; background: blue;"></span>
+    <span class="tab-dot" data-tab="tarot" title="Tarot" style="display: block !important; width: 12px; height: 12px; border-radius: 50%; background: blue;"></span>
+    <span class="tab-dot" data-tab="gratitude" title="Gratitude" style="display: block !important; width: 12px; height: 12px; border-radius: 50%; background: blue;"></span>
+    <span class="tab-dot" data-tab="happiness" title="Happiness" style="display: block !important; width: 12px; height: 12px; border-radius: 50%; background: blue;"></span>
+    <span class="tab-dot" data-tab="journal" title="Journal" style="display: block !important; width: 12px; height: 12px; border-radius: 50%; background: blue;"></span>
+    <span class="tab-dot" data-tab="meditations" title="Meditations" style="display: block !important; width: 12px; height: 12px; border-radius: 50%; background: blue;"></span>
+    <span class="tab-dot" data-tab="flip-script" title="Flip Script" style="display: block !important; width: 12px; height: 12px; border-radius: 50%; background: blue;"></span>
+    <span class="tab-dot" data-tab="calculator" title="Analysis" style="display: block !important; width: 12px; height: 12px; border-radius: 50%; background: blue;"></span>
+    <span class="tab-dot" data-tab="shadow-alchemy" title="Shadow Alchemy" style="display: block !important; width: 12px; height: 12px; border-radius: 50%; background: blue;"></span>
+    <span class="tab-dot" data-tab="karma-shop" title="Karma Shop" style="display: block !important; width: 12px; height: 12px; border-radius: 50%; background: blue;"></span>
   </div>
 `;
 
