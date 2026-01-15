@@ -143,22 +143,22 @@ export default class NavigationManager {
       </div>
     `;
 
-    const indicatorHTML = `
-      <!-- MOBILE TAB POSITION INDICATOR -->
-      <div class="mobile-tab-indicator mobile-only" id="mobile-tab-indicator">
-        <span class="tab-dot active" data-tab="dashboard" title="Dashboard"></span>
-        <span class="tab-dot" data-tab="energy" title="Energy"></span>
-        <span class="tab-dot" data-tab="tarot" title="Tarot"></span>
-        <span class="tab-dot" data-tab="gratitude" title="Gratitude"></span>
-        <span class="tab-dot" data-tab="happiness" title="Happiness"></span>
-        <span class="tab-dot" data-tab="journal" title="Journal"></span>
-        <span class="tab-dot" data-tab="meditations" title="Meditations"></span>
-        <span class="tab-dot" data-tab="flip-script" title="Flip Script"></span>
-        <span class="tab-dot" data-tab="calculator" title="Analysis"></span>
-        <span class="tab-dot" data-tab="shadow-alchemy" title="Shadow Alchemy"></span>
-        <span class="tab-dot" data-tab="karma-shop" title="Karma Shop"></span>
-      </div>
-    `;
+const indicatorHTML = `
+  <!-- MOBILE TAB POSITION INDICATOR -->
+  <div class="mobile-tab-indicator" id="mobile-tab-indicator">
+    <span class="tab-dot active" data-tab="dashboard" title="Dashboard"></span>
+    <span class="tab-dot" data-tab="energy" title="Energy"></span>
+    <span class="tab-dot" data-tab="tarot" title="Tarot"></span>
+    <span class="tab-dot" data-tab="gratitude" title="Gratitude"></span>
+    <span class="tab-dot" data-tab="happiness" title="Happiness"></span>
+    <span class="tab-dot" data-tab="journal" title="Journal"></span>
+    <span class="tab-dot" data-tab="meditations" title="Meditations"></span>
+    <span class="tab-dot" data-tab="flip-script" title="Flip Script"></span>
+    <span class="tab-dot" data-tab="calculator" title="Analysis"></span>
+    <span class="tab-dot" data-tab="shadow-alchemy" title="Shadow Alchemy"></span>
+    <span class="tab-dot" data-tab="karma-shop" title="Karma Shop"></span>
+  </div>
+`;
 
     const appContainer = document.getElementById('app-container');
     if (!appContainer) return;
