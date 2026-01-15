@@ -145,18 +145,18 @@ export default class NavigationManager {
 
 const indicatorHTML = `
   <!-- MOBILE TAB POSITION INDICATOR -->
-  <div class="mobile-tab-indicator" id="mobile-tab-indicator" style="display: grid; grid-template-columns: repeat(11, 1fr); align-items: center; justify-items: center; padding: 0 1rem;">
-    <span class="tab-dot active" data-tab="dashboard" title="Dashboard"></span>
-    <span class="tab-dot" data-tab="energy" title="Energy"></span>
-    <span class="tab-dot" data-tab="tarot" title="Tarot"></span>
-    <span class="tab-dot" data-tab="gratitude" title="Gratitude"></span>
-    <span class="tab-dot" data-tab="happiness" title="Happiness"></span>
-    <span class="tab-dot" data-tab="journal" title="Journal"></span>
-    <span class="tab-dot" data-tab="meditations" title="Meditations"></span>
-    <span class="tab-dot" data-tab="flip-script" title="Flip Script"></span>
-    <span class="tab-dot" data-tab="calculator" title="Analysis"></span>
-    <span class="tab-dot" data-tab="shadow-alchemy" title="Shadow Alchemy"></span>
-    <span class="tab-dot" data-tab="karma-shop" title="Karma Shop"></span>
+  <div class="mobile-tab-indicator" id="mobile-tab-indicator" style="display: grid; grid-template-columns: repeat(11, minmax(12px, 1fr)); align-items: center; justify-items: center; padding: 0.5rem 1rem; gap: 0.5rem; width: 100%;">
+    <span class="tab-dot active" data-tab="dashboard" title="Dashboard" style="width: 12px; height: 12px; flex-shrink: 0;"></span>
+    <span class="tab-dot" data-tab="energy" title="Energy" style="width: 12px; height: 12px; flex-shrink: 0;"></span>
+    <span class="tab-dot" data-tab="tarot" title="Tarot" style="width: 12px; height: 12px; flex-shrink: 0;"></span>
+    <span class="tab-dot" data-tab="gratitude" title="Gratitude" style="width: 12px; height: 12px; flex-shrink: 0;"></span>
+    <span class="tab-dot" data-tab="happiness" title="Happiness" style="width: 12px; height: 12px; flex-shrink: 0;"></span>
+    <span class="tab-dot" data-tab="journal" title="Journal" style="width: 12px; height: 12px; flex-shrink: 0;"></span>
+    <span class="tab-dot" data-tab="meditations" title="Meditations" style="width: 12px; height: 12px; flex-shrink: 0;"></span>
+    <span class="tab-dot" data-tab="flip-script" title="Flip Script" style="width: 12px; height: 12px; flex-shrink: 0;"></span>
+    <span class="tab-dot" data-tab="calculator" title="Analysis" style="width: 12px; height: 12px; flex-shrink: 0;"></span>
+    <span class="tab-dot" data-tab="shadow-alchemy" title="Shadow Alchemy" style="width: 12px; height: 12px; flex-shrink: 0;"></span>
+    <span class="tab-dot" data-tab="karma-shop" title="Karma Shop" style="width: 12px; height: 12px; flex-shrink: 0;"></span>
   </div>
 `;
 
