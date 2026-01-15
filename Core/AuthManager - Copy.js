@@ -44,7 +44,7 @@ export default class AuthManager {
 <div class="min-h-screen flex items-center justify-center p-4 mobile-optimized" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)">
   <div class="auth-card-enhanced">
     <div class="text-center mb-8 fade-in">
-      <div class="logo-icon" style="width:144px;height:144px;display:flex;align-items:center;justify-content:center;margin:0 auto">
+      <div class="logo-icon mx-auto mb-4" style="width:144px;height:144px;display:flex;align-items:center;justify-content:center">
         <img src=https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Watermarks/Logo.svg alt=Aanandoham style="width:120px;height:120px;object-fit:contain" loading="eager">
       </div>
       <h1 class="text-3xl font-bold mb-2">The Curiosity Path</h1>
@@ -56,8 +56,8 @@ export default class AuthManager {
 
     <!-- GOOGLE -->
     <button onclick="window.app.auth.handleGoogleLogin()" class="btn-google w-full mb-4 touch-target" style="margin-top:2.5rem" ${isLocked ? 'disabled' : ''}>
-      <svg width="20" height="20" viewBox="0 0 48 48" style="margin-right:12px"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.03h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.66z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
-      <span style="font-weight:500;color:#3c4043">Continue with Google</span>
+      <svg width="18" height="18" viewBox="0 0 48 48" class="mr-2" loading="lazy"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#34A853" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.03h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.66z"/><path fill="#4285F4" d="M8.08 27.31A14.5 14.5 0 0 1 8.08 20.7V13.5H.18a24.04 24.04 0 0 0 0 21.96l7.9-6.15z"/><path fill="#FBBC05" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Continue with Google
     </button>
 
     <div class=divider><span>or</span></div>
@@ -88,8 +88,8 @@ export default class AuthManager {
           </span>
         </label>
         <div style="position:relative">
-          <input type=password class="form-input-enhanced" placeholder="••••••••" autocomplete="current-password" required onkeyup="window.app.auth.checkCapsLock(event)" ${isLocked ? 'disabled' : ''}>
-          <button type=button class="password-toggle-icon" onclick="window.app.auth.togglePassword(this)" ${isLocked ? 'disabled' : ''}>
+          <input type=password class="form-input-enhanced" placeholder="••••••••" autocomplete="current-password" required style="padding-right:40px" onkeyup="window.app.auth.checkCapsLock(event)" ${isLocked ? 'disabled' : ''}>
+          <button type=button class="password-toggle touch-target" onclick="window.app.auth.togglePassword(this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6c757d" ${isLocked ? 'disabled' : ''}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
               <circle cx="12" cy="12" r="3"></circle>
@@ -133,9 +133,9 @@ export default class AuthManager {
       </div>
       <p class="mb-2">Your account is securely stored in Supabase Cloud</p>
       <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
-        <a href="#" onclick="window.app.auth.showTerms(); return false;" style="color:#6c757d;text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='#6366f1'" onmouseout="this.style.color='#6c757d'">Terms of Service</a>
+        <a href="#" style="color:#6c757d;text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='#6366f1'" onmouseout="this.style.color='#6c757d'">Terms of Service</a>
         <span>•</span>
-        <a href="#" onclick="window.app.auth.showPrivacy(); return false;" style="color:#6c757d;text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='#6366f1'" onmouseout="this.style.color='#6c757d'">Privacy Policy</a>
+        <a href="#" style="color:#6c757d;text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='#6366f1'" onmouseout="this.style.color='#6c757d'">Privacy Policy</a>
       </div>
     </div>
   </div>
@@ -144,7 +144,6 @@ export default class AuthManager {
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
 .fade-in { animation: fadeIn 0.5s ease-out; }
 
@@ -178,28 +177,22 @@ export default class AuthManager {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 14px 24px;
+  padding: 12px 24px;
   background: white;
-  border: 1px solid #dadce0;
-  border-radius: 4px;
-  font-weight: 500;
-  font-size: 14px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: all 0.15s cubic-bezier(0.4,0,0.2,1);
-  color: #3c4043;
-  font-family: 'Google Sans', Roboto, Arial, sans-serif;
-  box-shadow: 0 1px 2px 0 rgba(60,64,67,.30), 0 1px 3px 1px rgba(60,64,67,.15);
+  transition: all 0.2s;
+  color: #374151;
 }
 
 .btn-google:hover:not(:disabled) {
-  background: #f8f9fa;
-  border-color: #d2e3fc;
-  box-shadow: 0 1px 3px 0 rgba(60,64,67,.30), 0 4px 8px 3px rgba(60,64,67,.15);
-}
-
-.btn-google:active:not(:disabled) {
-  background: #f1f3f4;
-  box-shadow: 0 1px 2px 0 rgba(60,64,67,.30), 0 1px 3px 1px rgba(60,64,67,.15);
+  background: #f9fafb;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .btn-google:disabled {
@@ -274,31 +267,6 @@ export default class AuthManager {
 }
 
 .password-toggle:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.password-toggle-icon {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #6c757d;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.2s;
-}
-
-.password-toggle-icon:hover:not(:disabled) {
-  color: #6366f1;
-}
-
-.password-toggle-icon:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -397,7 +365,7 @@ export default class AuthManager {
 <div class="min-h-screen flex items-center justify-center p-4 mobile-optimized" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)">
   <div class="auth-card-enhanced">
     <div class="text-center mb-8 fade-in">
-      <div class="logo-icon" style="width:144px;height:144px;display:flex;align-items:center;justify-content:center;margin:0 auto">
+      <div class="logo-icon mx-auto mb-4" style="width:144px;height:144px;display:flex;align-items:center;justify-content:center">
         <img src=https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Watermarks/Logo.svg alt=Aanandoham style="width:120px;height:120px;object-fit:contain" loading="eager">
       </div>
       <h1 class="text-3xl font-bold mb-2">Create Account</h1>
@@ -435,8 +403,8 @@ export default class AuthManager {
           </span>
         </label>
         <div style="position:relative">
-          <input type=password class="form-input-enhanced" placeholder="••••••••" minlength=6 autocomplete="new-password" required oninput="window.app.auth.debouncedPasswordCheck(this)" onkeyup="window.app.auth.checkCapsLock(event)">
-          <button type=button class="password-toggle-icon" onclick="window.app.auth.togglePassword(this)">
+          <input type=password class="form-input-enhanced" placeholder="••••••••" minlength=6 autocomplete="new-password" required style="padding-right:40px" oninput="window.app.auth.debouncedPasswordCheck(this)" onkeyup="window.app.auth.checkCapsLock(event)">
+          <button type=button class="password-toggle touch-target" onclick="window.app.auth.togglePassword(this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6c757d">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
               <circle cx="12" cy="12" r="3"></circle>
@@ -475,9 +443,9 @@ export default class AuthManager {
       </div>
       <p class="mb-2">Your account is securely stored in Supabase Cloud</p>
       <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
-        <a href="#" onclick="window.app.auth.showTerms(); return false;" style="color:#6c757d;text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='#6366f1'" onmouseout="this.style.color='#6c757d'">Terms of Service</a>
+        <a href="#" style="color:#6c757d;text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='#6366f1'" onmouseout="this.style.color='#6c757d'">Terms of Service</a>
         <span>•</span>
-        <a href="#" onclick="window.app.auth.showPrivacy(); return false;" style="color:#6c757d;text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='#6366f1'" onmouseout="this.style.color='#6c757d'">Privacy Policy</a>
+        <a href="#" style="color:#6c757d;text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='#6366f1'" onmouseout="this.style.color='#6c757d'">Privacy Policy</a>
       </div>
     </div>
   </div>
@@ -490,7 +458,7 @@ export default class AuthManager {
 <div class="min-h-screen flex items-center justify-center p-4 mobile-optimized" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)">
   <div class="auth-card-enhanced">
     <div class="text-center mb-8 fade-in">
-      <div class="logo-icon" style="width:144px;height:144px;display:flex;align-items:center;justify-content:center;margin:0 auto">
+      <div class="logo-icon mx-auto mb-4" style="width:144px;height:144px;display:flex;align-items:center;justify-content:center">
         <img src=https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Watermarks/Logo.svg alt=Aanandoham style="width:120px;height:120px;object-fit:contain" loading="eager">
       </div>
       <h1 class="text-3xl font-bold mb-2">Reset Password</h1>
@@ -555,84 +523,6 @@ export default class AuthManager {
   hidePasswordHint(svg) {
     const tooltip = svg.parentElement.querySelector('.tooltip');
     if (tooltip) tooltip.style.display = 'none';
-  }
-
-  showTerms() {
-    this._showModal('Terms of Service', `
-      <h3 style="font-weight:600;margin-bottom:16px">1. Acceptance of Terms</h3>
-      <p style="margin-bottom:16px">By accessing and using The Curiosity Path, you accept and agree to be bound by the terms and provision of this agreement.</p>
-      
-      <h3 style="font-weight:600;margin-bottom:16px">2. Use License</h3>
-      <p style="margin-bottom:16px">Permission is granted to temporarily access the materials on The Curiosity Path for personal, non-commercial transitory viewing only.</p>
-      
-      <h3 style="font-weight:600;margin-bottom:16px">3. User Account</h3>
-      <p style="margin-bottom:16px">You are responsible for maintaining the confidentiality of your account and password. You agree to accept responsibility for all activities that occur under your account.</p>
-      
-      <h3 style="font-weight:600;margin-bottom:16px">4. Prohibited Uses</h3>
-      <p style="margin-bottom:16px">You may not use our service for any illegal or unauthorized purpose, nor may you violate any laws in your jurisdiction.</p>
-      
-      <h3 style="font-weight:600;margin-bottom:16px">5. Modifications</h3>
-      <p style="margin-bottom:16px">We reserve the right to modify or replace these Terms at any time. Continued use of the service after changes constitutes acceptance.</p>
-      
-      <h3 style="font-weight:600;margin-bottom:16px">6. Contact</h3>
-      <p>For questions about these Terms, please contact us through our support channels.</p>
-    `);
-  }
-
-  showPrivacy() {
-    this._showModal('Privacy Policy', `
-      <h3 style="font-weight:600;margin-bottom:16px">1. Information We Collect</h3>
-      <p style="margin-bottom:16px">We collect information you provide directly to us, including your name, email address, and any other information you choose to provide.</p>
-      
-      <h3 style="font-weight:600;margin-bottom:16px">2. How We Use Your Information</h3>
-      <p style="margin-bottom:16px">We use the information we collect to provide, maintain, and improve our services, to process your transactions, and to communicate with you.</p>
-      
-      <h3 style="font-weight:600;margin-bottom:16px">3. Information Sharing</h3>
-      <p style="margin-bottom:16px">We do not share your personal information with third parties except as described in this policy or with your consent.</p>
-      
-      <h3 style="font-weight:600;margin-bottom:16px">4. Data Security</h3>
-      <p style="margin-bottom:16px">Your data is securely stored in Supabase Cloud with industry-standard encryption. We implement appropriate technical and organizational measures to protect your information.</p>
-      
-      <h3 style="font-weight:600;margin-bottom:16px">5. Your Rights</h3>
-      <p style="margin-bottom:16px">You have the right to access, update, or delete your personal information at any time through your account settings.</p>
-      
-      <h3 style="font-weight:600;margin-bottom:16px">6. Cookies and Tracking</h3>
-      <p style="margin-bottom:16px">We use local storage to maintain your session and improve your experience. No third-party tracking cookies are used.</p>
-      
-      <h3 style="font-weight:600;margin-bottom:16px">7. Changes to Privacy Policy</h3>
-      <p style="margin-bottom:16px">We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new policy on this page.</p>
-      
-      <h3 style="font-weight:600;margin-bottom:16px">8. Contact Us</h3>
-      <p>If you have questions about this Privacy Policy, please contact us through our support channels.</p>
-    `);
-  }
-
-  _showModal(title, content) {
-    const modal = document.createElement('div');
-    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px;animation:fadeIn 0.2s ease-out';
-    
-    modal.innerHTML = `
-      <div style="background:white;border-radius:16px;max-width:600px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:slideUp 0.3s ease-out">
-        <div style="padding:24px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:white;z-index:1">
-          <h2 style="font-size:1.5rem;font-weight:700;color:#1f2937">${title}</h2>
-          <button onclick="this.closest('div[style*=fixed]').remove()" style="background:none;border:none;cursor:pointer;padding:8px;color:#6c757d;transition:color 0.2s" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#6c757d'">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-        </div>
-        <div style="padding:24px;color:#374151;line-height:1.6">
-          ${content}
-        </div>
-      </div>
-    `;
-    
-    modal.onclick = (e) => {
-      if (e.target === modal) modal.remove();
-    };
-    
-    document.body.appendChild(modal);
   }
 
   debouncedPasswordCheck(input) {
