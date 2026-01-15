@@ -167,12 +167,19 @@ if (!document.querySelector('.app-header')) {
   appContainer.insertAdjacentHTML('afterbegin', navHTML);
 }
 
-// Insert mobile indicator directly in body (outside app-container)
+// Insert mobile indicator directly after header
 if (!document.getElementById('mobile-tab-indicator')) {
-  // Find the header to position it after
   const headerEl = document.querySelector('.app-header');
   if (headerEl) {
     headerEl.insertAdjacentHTML('afterend', indicatorHTML);
+    
+    // Force display on mobile immediately
+    if (window.innerWidth <= 767) {
+      const indicator = document.getElementById('mobile-tab-indicator');
+      if (indicator) {
+        indicator.style.display = 'grid';
+      }
+    }
   }
 }
     
