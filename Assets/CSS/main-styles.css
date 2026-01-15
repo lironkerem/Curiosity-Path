@@ -405,8 +405,11 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
    ========================================================= */
 .mobile-tab-indicator {
   display: none;
+  position: relative;
+  left: 0;
+  right: 0;
   width: 100%;
-  padding: 1rem 0;
+  padding: 1rem 5vw;
   margin: 1rem 0;
   background: transparent;
   min-height: 40px;
@@ -415,7 +418,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 
 /* Individual dot */
 .tab-dot {
-  display: block;
+  display: inline-block;
   width: 12px;
   height: 12px;
   margin: 0;
@@ -425,7 +428,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   box-shadow: var(--shadow-inset-sm);
   cursor: pointer;
   opacity: 0.6;
-  flex: 0 0 auto;
 }
 
 /* Active dot - slightly larger, brighter, and colored */
@@ -449,14 +451,13 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 1.5rem;
   }
 }
 
 /* Extra small screens */
 @media (max-width: 380px) {
   .mobile-tab-indicator {
-    padding: 0.875rem 1rem;
+    padding: 0.875rem 3vw;
   }
   
   .tab-dot {
