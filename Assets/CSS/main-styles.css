@@ -448,9 +448,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 }
 
 .mobile-tab-indicator > * {
-  flex: 1 1 0;
-  text-align: center;
-  max-width: calc(100% / 11);
+  flex: 0 0 auto;  /* Don't grow or shrink, just natural size */
 }
 
 /* Active dot - slightly larger, brighter, and colored */
