@@ -406,11 +406,14 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 .mobile-tab-indicator {
   display: none;
   position: relative;
-  left: 0;
-  right: 0;
-  width: 100%;
-  padding: 1rem 5vw;
-  margin: 1rem 0;
+  width: 100vw;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  padding: 1rem 2rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   background: transparent;
   min-height: 40px;
   box-sizing: border-box;
@@ -457,7 +460,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 /* Extra small screens */
 @media (max-width: 380px) {
   .mobile-tab-indicator {
-    padding: 0.875rem 3vw;
+    padding: 0.875rem 1.5rem;
   }
   
   .tab-dot {
