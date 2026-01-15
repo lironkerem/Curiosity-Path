@@ -145,7 +145,7 @@ export default class NavigationManager {
 
 const indicatorHTML = `
   <!-- MOBILE TAB POSITION INDICATOR -->
-  <div class="mobile-tab-indicator" id="mobile-tab-indicator" style="display: flex !important; justify-content: space-between; align-items: center; padding: 0.5rem 1.5rem; width: 100%; background: red; min-height: 40px;">
+  <div id="mobile-tab-indicator" style="display: flex !important; justify-content: space-between !important; align-items: center; padding: 0.5rem 1.5rem; width: 100%; box-sizing: border-box; background: red; min-height: 40px;">
     <span class="tab-dot active" data-tab="dashboard" title="Dashboard" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: blue; flex-shrink: 0;">&nbsp;</span>
     <span class="tab-dot" data-tab="energy" title="Energy" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: blue; flex-shrink: 0;">&nbsp;</span>
     <span class="tab-dot" data-tab="tarot" title="Tarot" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: blue; flex-shrink: 0;">&nbsp;</span>
