@@ -145,7 +145,7 @@ export default class NavigationManager {
 
 const indicatorHTML = `
   <!-- MOBILE TAB POSITION INDICATOR -->
-  <div class="mobile-tab-indicator" id="mobile-tab-indicator">
+  <div class="mobile-tab-indicator" id="mobile-tab-indicator" style="display: grid; grid-template-columns: repeat(11, 1fr); align-items: center; justify-items: center; padding: 0 1rem;">
     <span class="tab-dot active" data-tab="dashboard" title="Dashboard"></span>
     <span class="tab-dot" data-tab="energy" title="Energy"></span>
     <span class="tab-dot" data-tab="tarot" title="Tarot"></span>
@@ -167,19 +167,12 @@ if (!document.querySelector('.app-header')) {
   appContainer.insertAdjacentHTML('afterbegin', navHTML);
 }
 
-// Insert mobile indicator directly after header
+// Insert mobile indicator directly in body (outside app-container)
 if (!document.getElementById('mobile-tab-indicator')) {
+  // Find the header to position it after
   const headerEl = document.querySelector('.app-header');
   if (headerEl) {
     headerEl.insertAdjacentHTML('afterend', indicatorHTML);
-    
-    // Force display on mobile immediately
-    if (window.innerWidth <= 767) {
-      const indicator = document.getElementById('mobile-tab-indicator');
-      if (indicator) {
-        indicator.style.display = 'grid';
-      }
-    }
   }
 }
     
