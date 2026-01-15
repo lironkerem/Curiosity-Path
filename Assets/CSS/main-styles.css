@@ -405,66 +405,93 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
    ========================================================= */
 /* Container - invisible background, full width */
 .mobile-tab-indicator {
-  display: none !important;
-  flex-direction: row !important;
-  justify-content: space-evenly !important;
-  align-items: center !important;
-  padding: 1rem 1rem !important;
-  margin: 1rem 0 !important;
-  width: 100% !important;
-  background: transparent !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  min-height: 40px !important;
-  gap: 0 !important;
+  display: none;
+  position: relative;
+  width: 100%;
+  padding: 1rem 1rem;
+  margin: 1rem 0;
+  background: transparent;
+  min-height: 40px;
+  box-sizing: border-box;
 }
+
+.mobile-tab-indicator::before {
+  content: '';
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
 /* Individual dot */
 .tab-dot {
-  width: 12px !important;
-  height: 12px !important;
-  border-radius: 50% !important;
-  background: var(--neuro-shadow-dark) !important;
-  transition: all var(--transition-normal) !important;
-  box-shadow: var(--shadow-inset-sm) !important;
-  cursor: pointer !important;
-  flex-shrink: 0 !important;
-  flex-grow: 0 !important;
-  display: block !important;
-  opacity: 0.6 !important;
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin: 0;
+  border-radius: 50%;
+  background: var(--neuro-shadow-dark);
+  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-inset-sm);
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0.6;
+  vertical-align: middle;
 }
+
+/* Create equal spacing using flexbox */
+.mobile-tab-indicator {
+  display: none;
+  flex-wrap: nowrap;
+}
+
+.mobile-tab-indicator > * {
+  flex: 1 1 0;
+  text-align: center;
+  max-width: calc(100% / 11);
+}
+
 /* Active dot - slightly larger, brighter, and colored */
 .tab-dot.active {
-  width: 16px !important;
-  height: 16px !important;
-  background: linear-gradient(135deg, var(--neuro-accent), var(--neuro-accent-light)) !important;
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(135deg, var(--neuro-accent), var(--neuro-accent-light));
   box-shadow: 
     0 0 10px rgba(102, 126, 234, 0.5),
     0 2px 6px rgba(102, 126, 234, 0.3),
     4px 4px 8px var(--neuro-shadow-dark),
-    -4px -4px 8px var(--neuro-shadow-light) !important;
-  transform: scale(1.1) !important;
-  opacity: 1 !important;
+    -4px -4px 8px var(--neuro-shadow-light);
+  transform: scale(1.1);
+  opacity: 1;
 }
+
 /* Show only on mobile (767px and below) */
 @media (max-width: 767px) {
   .mobile-tab-indicator {
-    display: flex !important;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    gap: 0;
   }
 }
+
 /* Extra small screens - slightly smaller but still visible */
 @media (max-width: 380px) {
   .mobile-tab-indicator {
-    padding: 0.875rem 0.75rem !important;
+    padding: 0.875rem 0.5rem;
   }
   
   .tab-dot {
-    width: 10px !important;
-    height: 10px !important;
+    width: 10px;
+    height: 10px;
   }
   
   .tab-dot.active {
-    width: 14px !important;
-    height: 14px !important;
+    width: 14px;
+    height: 14px;
   }
 }
 
