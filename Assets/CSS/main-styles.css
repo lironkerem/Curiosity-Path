@@ -406,7 +406,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 .mobile-tab-indicator {
   display: none;
   width: 100%;
-  padding: 1rem 1rem;
+  padding: 0rem 1rem;
   margin: 0 0;
   background: transparent;
   min-height: 40px;
