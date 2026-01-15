@@ -163,18 +163,15 @@ export default class NavigationManager {
     const appContainer = document.getElementById('app-container');
     if (!appContainer) return;
 
-if (!document.querySelector('.app-header')) {
-  appContainer.insertAdjacentHTML('afterbegin', navHTML);
-}
-
-// Insert mobile indicator directly in body (outside app-container)
-if (!document.getElementById('mobile-tab-indicator')) {
-  // Find the header to position it after
-  const headerEl = document.querySelector('.app-header');
-  if (headerEl) {
-    headerEl.insertAdjacentHTML('afterend', indicatorHTML);
-  }
-}
+    if (!document.querySelector('.app-header')) {
+      appContainer.insertAdjacentHTML('afterbegin', navHTML);
+      
+      // Insert mobile indicator after header
+      const headerEl = document.querySelector('.app-header');
+      if (headerEl && !document.getElementById('mobile-tab-indicator')) {
+        headerEl.insertAdjacentHTML('afterend', indicatorHTML);
+      }
+    }
     
     if (!document.getElementById('user-dropdown')) {
       appContainer.insertAdjacentHTML('afterbegin', this.userTab.render());
