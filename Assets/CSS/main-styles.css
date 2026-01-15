@@ -407,17 +407,22 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 .mobile-tab-indicator {
   display: none;
   position: relative;
-  width: 100%;
-  padding: 0;
+  width: 100vw;
+  max-width: 100%;
+  padding: 1rem 0;
   margin: 1rem 0;
   background: transparent;
   min-height: 40px;
   box-sizing: border-box;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
 }
 
 /* Individual dot */
 .tab-dot {
-  display: inline-block;
+  display: block;
   width: 12px;
   height: 12px;
   margin: 0;
@@ -426,13 +431,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   transition: all var(--transition-normal);
   box-shadow: var(--shadow-inset-sm);
   cursor: pointer;
-  flex-shrink: 0;
   opacity: 0.6;
-  vertical-align: middle;
-}
-
-.mobile-tab-indicator > * {
-  flex: 0 0 auto;
 }
 
 /* Active dot - slightly larger, brighter, and colored */
@@ -456,17 +455,13 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    gap: 0;
-    padding: 1rem 0;
+    padding-left: 5vw;
+    padding-right: 5vw;
   }
 }
 
 /* Extra small screens - slightly smaller but still visible */
 @media (max-width: 380px) {
-  .mobile-tab-indicator {
-    padding: 0.875rem 0;
-  }
-  
   .tab-dot {
     width: 10px;
     height: 10px;
