@@ -405,15 +405,10 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
    ========================================================= */
 .mobile-tab-indicator {
   display: none;
-  position: relative;
-  width: 100vw;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
+  width: 100%;
+  max-width: none !important;  /* Override any parent max-width */
   padding: 1rem 2rem;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin: 1rem 0;
   background: transparent;
   min-height: 40px;
   box-sizing: border-box;
