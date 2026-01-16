@@ -1,4 +1,4 @@
-// User-Tab.js — Updated with timezone detection 2026-01-15
+// User-Tab.js – Updated with new notification system 2026-01-13
 import { supabase } from './Supabase.js';
 import * as Templates from './user-tab-templates.js';
 
@@ -129,7 +129,7 @@ export default class UserTab {
       rules: () => { panel.innerHTML = Templates.rules(); this.attachRulesHandlers(panel); },
       contact: () => { panel.innerHTML = Templates.contact(); },
       export: () => { panel.innerHTML = Templates.exportData(); },
-      billing: () => { /* nothing — handled directly */ },
+      billing: () => { /* nothing – handled directly */ },
       admin: () => { panel.innerHTML = Templates.admin(); this.loadAdminPanel(); }
     };
     const renderer = renderers[section];
@@ -278,7 +278,7 @@ export default class UserTab {
     if (toggle) toggle.checked = dark;
   }
 
-  // ============== NOTIFICATIONS (WITH TIMEZONE) =============
+  // ============== NOTIFICATIONS (NEW SYSTEM) =============
   async attachNotificationsHandlers() {
     await this.hydrateNotificationSettings();
     const master = document.getElementById('master-notifications-toggle');
@@ -287,14 +287,7 @@ export default class UserTab {
     const endTime = document.getElementById('notification-end-time');
     const frequency = document.getElementById('notification-frequency');
     const warning = document.getElementById('frequency-warning');
-    const timezoneDisplay = document.getElementById('timezone-display');
     let saveTimeout;
-
-    // Display detected timezone
-    if (timezoneDisplay) {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      timezoneDisplay.textContent = tz;
-    }
 
     const checkWindowSize = () => {
       if (!startTime?.value || !endTime?.value || !warning) return;
@@ -441,17 +434,13 @@ export default class UserTab {
   }
 
   saveNotificationSettings() {
-    // Auto-detect timezone
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    
     const settings = {
       enabled: document.getElementById('master-notifications-toggle')?.checked || false,
       window: {
         start: document.getElementById('notification-start-time')?.value || '07:00',
         end: document.getElementById('notification-end-time')?.value || '22:00'
       },
-      frequency: document.getElementById('notification-frequency')?.value || 'minimum',
-      timezone: timezone  // ← Auto-captured timezone
+      frequency: document.getElementById('notification-frequency')?.value || 'minimum'
     };
 
     localStorage.setItem('notification_settings', JSON.stringify(settings));
@@ -504,7 +493,6 @@ export default class UserTab {
     const startTime = document.getElementById('notification-start-time');
     const endTime = document.getElementById('notification-end-time');
     const frequency = document.getElementById('notification-frequency');
-    const timezoneDisplay = document.getElementById('timezone-display');
 
     if (master) {
       master.checked = settings.enabled || false;
@@ -524,10 +512,6 @@ export default class UserTab {
 
     if (frequency && settings.frequency) {
       frequency.value = settings.frequency;
-    }
-
-    if (timezoneDisplay) {
-      timezoneDisplay.textContent = settings.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
     }
   }
 

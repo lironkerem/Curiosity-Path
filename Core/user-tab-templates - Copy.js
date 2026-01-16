@@ -1,4 +1,4 @@
-// user-tab-templates.js — Updated with timezone display 2026-01-15
+// user-tab-templates.js – Updated with new notification system 2026-01-13
 
 export const MENU_ITEMS = [
   { id: 'profile',        icon: '👤', label: 'Profile' },
@@ -103,8 +103,7 @@ export const notifications = () => {
       start: s?.window?.start || '07:00',
       end: s?.window?.end || '22:00'
     },
-    frequency: s?.frequency || 'minimum',
-    timezone: s?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+    frequency: s?.frequency || 'minimum'
   };
 
   // Save migrated settings back
@@ -119,19 +118,6 @@ export const notifications = () => {
 
       <div id="notification-options" style="${settings.enabled ? '' : 'opacity:.4;pointer-events:none;'}">
         
-        <div class="notification-section">
-          <h4 style="font-size:.9rem;font-weight:600;margin-bottom:8px;">🌍 Your Timezone</h4>
-          <div style="padding:10px;background:rgba(0,0,0,.05);border-radius:8px;margin-bottom:16px;">
-            <div style="display:flex;align-items:center;gap:8px;">
-              <span style="font-size:.85rem;opacity:.7;">Detected:</span>
-              <strong id="timezone-display" style="font-size:.9rem;">${settings.timezone}</strong>
-            </div>
-            <small style="opacity:.6;display:block;margin-top:6px;font-size:.75rem;">
-              Times below are in your local timezone
-            </small>
-          </div>
-        </div>
-
         <div class="notification-section">
           <h4 style="font-size:.9rem;font-weight:600;margin-bottom:12px;">⏰ Daily Availability Window</h4>
           <p style="font-size:.85rem;opacity:.8;margin-bottom:12px;">Set when you want to receive notifications each day</p>
@@ -196,7 +182,6 @@ export const notifications = () => {
             <li>Each slot sends randomized, fresh messages</li>
             <li>Frequency controls how many slots are active</li>
             <li>Messages never repeat in the same way</li>
-            <li>All times are automatically adjusted to your timezone</li>
           </ul>
         </div>
       </div>
@@ -207,7 +192,7 @@ export const rules = () => {
   const categories = [
     { title: 'FIRST-WINS', badges: [{ icon: '🌱', name: 'First Step', desc: 'do any single action', xp: 10, karma: 3, rarity: 'common' }, { icon: '💚', name: 'First Gratitude', desc: 'log 1 gratitude entry', xp: 10, karma: 3, rarity: 'common' }, { icon: '📔', name: 'First Journal', desc: 'save 1 journal entry', xp: 10, karma: 3, rarity: 'common' }, { icon: '⚡', name: 'First Energy', desc: 'log 1 energy check-in', xp: 10, karma: 3, rarity: 'common' }, { icon: '🃏', name: 'First Reading', desc: 'complete 1 tarot spread', xp: 10, karma: 3, rarity: 'common' }, { icon: '🧘', name: 'First Meditation', desc: 'finish 1 meditation session', xp: 10, karma: 3, rarity: 'common' }, { icon: '🛒', name: 'First Purchase', desc: 'buy anything in Karma Shop', xp: 50, karma: 3, rarity: 'common' }] },
     { title: 'GRATITUDE', badges: [{ icon: '❤️', name: 'Gratitude Warrior', desc: '30 entries', xp: 50, karma: 5, rarity: 'uncommon' }, { icon: '💕', name: 'Gratitude Legend', desc: '100 entries', xp: 100, karma: 10, rarity: 'rare' }, { icon: '💖', name: 'Gratitude Sage', desc: '200 entries', xp: 200, karma: 15, rarity: 'epic' }, { icon: '💘', name: 'Gratitude Titan', desc: '500 entries', xp: 500, karma: 30, rarity: 'legendary' }] },
-    { title: 'JOURNAL', badges: [{ icon: '📔', name: 'Journal Keeper', desc: '20 entries', xp: 50, karma: 5, rarity: 'uncommon' }, { icon: '📚', name: 'Journal Master', desc: '75 entries', xp: 100, karma: 10, rarity: 'rare' }, { icon: '📖', name: 'Journal Sage', desc: '150 entries', xp: 200, karma: 15, rarity: 'epic' }, { icon: '📜', name: 'Journal Titan', desc: '400 entries', xp: 500, karma: 30, rarity: 'legendary' }] },
+    { title: 'JOURNAL', badges: [{ icon: '📓', name: 'Journal Keeper', desc: '20 entries', xp: 50, karma: 5, rarity: 'uncommon' }, { icon: '📚', name: 'Journal Master', desc: '75 entries', xp: 100, karma: 10, rarity: 'rare' }, { icon: '📖', name: 'Journal Sage', desc: '150 entries', xp: 200, karma: 15, rarity: 'epic' }, { icon: '📜', name: 'Journal Titan', desc: '400 entries', xp: 500, karma: 30, rarity: 'legendary' }] },
     { title: 'ENERGY', badges: [{ icon: '⚡', name: 'Energy Tracker', desc: '30 logs', xp: 50, karma: 5, rarity: 'uncommon' }, { icon: '🔋', name: 'Energy Sage', desc: '100 logs', xp: 100, karma: 10, rarity: 'rare' }, { icon: '🔌', name: 'Energy Titan', desc: '300 logs', xp: 300, karma: 15, rarity: 'epic' }, { icon: '⚡️', name: 'Energy Legend', desc: '600 logs', xp: 600, karma: 30, rarity: 'legendary' }] },
     { title: 'TAROT', badges: [{ icon: '🔮', name: 'Tarot Apprentice', desc: '10 spreads', xp: 25, karma: 3, rarity: 'common' }, { icon: '🃏', name: 'Tarot Mystic', desc: '25 spreads', xp: 50, karma: 5, rarity: 'uncommon' }, { icon: '🌙', name: 'Tarot Oracle', desc: '75 spreads', xp: 100, karma: 10, rarity: 'rare' }, { icon: '🧙', name: 'Tarot Sage', desc: '150 spreads', xp: 200, karma: 15, rarity: 'epic' }, { icon: '🔮', name: 'Tarot Titan', desc: '400 spreads', xp: 500, karma: 30, rarity: 'legendary' }] },
     { title: 'MEDITATION', badges: [{ icon: '🧘', name: 'Meditation Devotee', desc: '20 sessions', xp: 50, karma: 5, rarity: 'uncommon' }, { icon: '🕉️', name: 'Meditation Master', desc: '60 sessions', xp: 100, karma: 10, rarity: 'rare' }, { icon: '🧘‍♂️', name: 'Meditation Sage', desc: '100 sessions', xp: 300, karma: 15, rarity: 'epic' }, { icon: '🧘‍♀️', name: 'Meditation Titan', desc: '200 sessions', xp: 700, karma: 30, rarity: 'legendary' }] },
@@ -235,7 +220,7 @@ export const rules = () => {
       <div class="rules-currency-block">
         <div class="rules-currency-title">Levels</div>
         <table class="rules-level-table">
-          ${[['Seeker', 0], ['Practitioner', 300], ['Adept', 800], ['Healer', 1600], ['Master', 3200], ['Sage', 6500], ['Enlightened', 20000], ['Buddha', 50000], ['Light', 150000], ['Emptiness', 400000]].map((l, i) => `<tr><td>L${i + 1} — ${l[0]}</td><td>${l[1].toLocaleString()}</td></tr>`).join('')}
+          ${[['Seeker', 0], ['Practitioner', 300], ['Adept', 800], ['Healer', 1600], ['Master', 3200], ['Sage', 6500], ['Enlightened', 20000], ['Buddha', 50000], ['Light', 150000], ['Emptiness', 400000]].map((l, i) => `<tr><td>L${i + 1} – ${l[0]}</td><td>${l[1].toLocaleString()}</td></tr>`).join('')}
         </table>
       </div>
     </div>
