@@ -5,20 +5,20 @@
 
 /* ===== ROOT DESIGN TOKENS ===== */
 :root {
-  --neuro-bg: #c4ad91;              /* was #e0e5ec */
-  --neuro-bg-lighter: #d4c0a8;      /* was #e8edf4 */
-  --neuro-bg-lightest: #e0d4bf;     /* was #f0f4f8 */
-  --neuro-shadow-dark: #a08968;     /* was #b8bec5 */
-  --neuro-shadow-light: #e0d4bf;    /* was #ffffff */
-  --neuro-text: #3d2f1f;            /* was #2c3e50 */
-  --neuro-text-light: #6d5a42;      /* was #6c757d */
-  --neuro-text-lighter: #8b7355;    /* was #8e9aaf */
-  --neuro-accent: #6b9b37;          /* was #667eea */
-  --neuro-accent-light: #8bc34a;    /* was #764ba2 */
-  --neuro-success: #6b9b37;         /* was #22c55e */
-  --neuro-warning: #d4a574;         /* was #f59e0b */
-  --neuro-error: #c76b5b;           /* was #ef4444 */
-  --neuro-info: #6ba3b3;            /* was #3b82f6 */
+  --neuro-bg: #e0e5ec;
+  --neuro-bg-lighter: #e8edf4;
+  --neuro-bg-lightest: #f0f4f8;
+  --neuro-shadow-dark: #b8bec5;
+  --neuro-shadow-light: #ffffff;
+  --neuro-text: #2c3e50;
+  --neuro-text-light: #6c757d;
+  --neuro-text-lighter: #8e9aaf;
+  --neuro-accent: #667eea;
+  --neuro-accent-light: #764ba2;
+  --neuro-success: #22c55e;
+  --neuro-warning: #f59e0b;
+  --neuro-error: #ef4444;
+  --neuro-info: #3b82f6;
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;

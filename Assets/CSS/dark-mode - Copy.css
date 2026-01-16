@@ -5,30 +5,24 @@
    ========================================================= */
 
 body.dark-mode{
-  /* dark palette - earth luxury variant */
-  --neuro-bg:#2d2416;
-  --neuro-shadow-dark:#1a1410;
-  --neuro-shadow-light:#4a3f2f;
-  --neuro-text:#e8e2d4;
-  --neuro-text-light:#c9b89a;
-  --neuro-text-lighter:#a89279;
-  --neuro-accent:#8bc34a;
-  --neuro-accent-light:#a8d563;
+  /* dark palette */
+  --neuro-bg:#1a1d28;
+  --neuro-shadow-dark:#0f1118;
+  --neuro-shadow-light:#252936;
+  --neuro-text:#e8eaf0;
+  --neuro-text-light:#b8bec9;
+  --neuro-text-lighter:#8a92a8;
+  --neuro-accent:#c41e3a;
+  --neuro-accent-light:#d4a574;
   
-  /* Earth green gradient colors */
-  --neuro-forest:  #6b9b37;
-  --neuro-forest-dark: #558030;
-  --neuro-forest-light: #8bc34a;
-  
-  /* Wood brown accents */
-  --neuro-wood:  #8b7355;
-  --neuro-wood-dark: #6d5a42;
-  --neuro-wood-light: #a89279;
-  
-  --neuro-success: #8bc34a;
-  --neuro-warning: #d4a574;
-  --neuro-error: #c76b5b;
-  --neuro-info: #6ba3b3;
+  /* Red gradient colors */
+  --neuro-red: #c41e3a;
+  --neuro-red-dark: #a01828;
+  --neuro-red-bright: #e63950;
+  --neuro-success:#34d67a;
+  --neuro-warning:#fbbf24;
+  --neuro-error:#f87171;
+  --neuro-info:#60a5fa;
 
   /* deeper shadows with red glow */
   --shadow-raised:
