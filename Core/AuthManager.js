@@ -287,11 +287,16 @@ export default class AuthManager {
   border: none;
   cursor: pointer;
   color: #9ca3af;
-  padding: 0;
-  display: flex;
+  padding: 4px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: color 0.2s;
+  outline: none;
+}
+
+.password-toggle-icon svg {
+  display: block;
   width: 20px;
   height: 20px;
 }
