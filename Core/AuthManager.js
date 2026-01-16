@@ -283,22 +283,25 @@ export default class AuthManager {
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  background: transparent;
+  background: none;
   border: none;
   cursor: pointer;
   color: #9ca3af;
-  padding: 4px;
+  padding: 0;
+  margin: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: color 0.2s;
   outline: none;
+  line-height: 0;
 }
 
 .password-toggle-icon svg {
   display: block;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
 }
 
 .password-toggle-icon:hover:not(:disabled) {
@@ -308,6 +311,10 @@ export default class AuthManager {
 .password-toggle-icon:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.password-toggle-icon:focus {
+  outline: none;
 }
 
 .caps-warning {
