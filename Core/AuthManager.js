@@ -429,7 +429,7 @@ export default class AuthManager {
 showSignupForm() {
   const html = `
 <div class="min-h-screen flex items-center justify-center p-4 mobile-optimized" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)">
-  <div class="auth-card-enhanced">
+  <div class="auth-card-enhanced" style="background:white;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.15);padding:48px 40px;max-width:440px;width:100%;border:1px solid rgba(0,0,0,0.08)">
     <div class="text-center mb-8 fade-in">
       <div class="logo-icon" style="width:144px;height:144px;display:flex;align-items:center;justify-content:center;margin:0 auto">
         <img src=https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Watermarks/Logo.svg alt=Aanandoham style="width:120px;height:120px;object-fit:contain" loading="eager">
@@ -440,23 +440,23 @@ showSignupForm() {
     </div>
 
     <!-- GOOGLE -->
-    <button onclick="window.app.auth.handleGoogleSignup()" class="btn-google w-full mb-4 touch-target" style="margin-top:2.5rem">
+    <button onclick="window.app.auth.handleGoogleSignup()" class="btn-google w-full mb-4 touch-target" style="margin-top:2.5rem;display:flex;align-items:center;justify-content:center;padding:14px 24px;background:white;border:1px solid #dadce0;border-radius:4px;font-weight:500;font-size:14px;cursor:pointer;transition:all 0.15s cubic-bezier(0.4,0,0.2,1);color:#3c4043;font-family:'Google Sans',Roboto,Arial,sans-serif;box-shadow:0 1px 2px 0 rgba(60,64,67,.30),0 1px 3px 1px rgba(60,64,67,.15)">
       <svg width="20" height="20" viewBox="0 0 48 48" style="margin-right:12px"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.03h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.66z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
       <span style="font-weight:500;color:#3c4043">Sign up with Google</span>
     </button>
 
-    <div class=divider><span>or</span></div>
+    <div class=divider style="display:flex;align-items:center;text-align:center;margin:24px 0;color:#9ca3af;font-size:0.875rem"><span style="padding:0 12px">or</span></div>
 
     <form id=signup-form onsubmit="window.app.auth.handleSignup(event)" class="space-y-4" style="margin-top:2.5rem">
       <div class=form-group style="margin-bottom:20px">
         <label class=form-label style="margin-bottom:8px;display:block">Name</label>
-        <input type=text class="form-input-enhanced" placeholder="Your spiritual name" autocomplete="name" required>
-        <span class="error-message" style="display:none"></span>
+        <input type=text class="form-input-enhanced" placeholder="Your spiritual name" autocomplete="name" required style="width:100%;padding:12px 16px;border:2px solid #e5e7eb;border-radius:8px;font-size:16px;transition:all 0.2s;outline:none">
+        <span class="error-message" style="display:none;color:#ef4444;font-size:0.8rem;margin-top:4px"></span>
       </div>
       <div class=form-group style="margin-bottom:20px">
         <label class=form-label style="margin-bottom:8px;display:block">Email</label>
-        <input type=email class="form-input-enhanced" placeholder="your@email.com" autocomplete="email" inputmode="email" required>
-        <span class="error-message" style="display:none"></span>
+        <input type=email class="form-input-enhanced" placeholder="your@email.com" autocomplete="email" inputmode="email" required style="width:100%;padding:12px 16px;border:2px solid #e5e7eb;border-radius:8px;font-size:16px;transition:all 0.2s;outline:none">
+        <span class="error-message" style="display:none;color:#ef4444;font-size:0.8rem;margin-top:4px"></span>
       </div>
       <div class=form-group style="margin-bottom:20px">
         <label class=form-label style="margin-bottom:8px;display:block">
@@ -467,7 +467,7 @@ showSignupForm() {
               <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
               <line x1="12" y1="17" x2="12.01" y2="17"></line>
             </svg>
-            <div class="tooltip" style="display:none">
+            <div class="tooltip" style="display:none;position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:#1f2937;color:white;padding:12px;border-radius:8px;font-size:0.8rem;white-space:nowrap;z-index:1000;box-shadow:0 4px 12px rgba(0,0,0,0.2)">
               <strong>Password must have:</strong>
               <ul style="margin:8px 0 0 0;padding-left:20px;text-align:left">
                 <li>At least 6 characters</li>
@@ -478,22 +478,25 @@ showSignupForm() {
           </span>
         </label>
         <div style="position:relative">
-          <input type=password class="form-input-enhanced" placeholder="••••••••" minlength=6 autocomplete="new-password" required oninput="window.app.auth.debouncedPasswordCheck(this)" onkeyup="window.app.auth.checkCapsLock(event)">
-          <button type=button class="password-toggle-icon" onclick="window.app.auth.togglePassword(this)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <input type=password class="form-input-enhanced" placeholder="••••••••" minlength=6 autocomplete="new-password" required oninput="window.app.auth.debouncedPasswordCheck(this)" onkeyup="window.app.auth.checkCapsLock(event)" style="width:100%;padding:12px 16px;border:2px solid #e5e7eb;border-radius:8px;font-size:16px;transition:all 0.2s;outline:none">
+          <button type=button class="password-toggle-icon" onclick="window.app.auth.togglePassword(this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none!important;border:none!important;box-shadow:none!important;border-radius:0!important;cursor:pointer;color:#9ca3af;padding:0!important;margin:0!important;display:inline-flex;align-items:center;justify-content:center;transition:color 0.2s;outline:none!important;line-height:0;-webkit-appearance:none;-moz-appearance:none;appearance:none">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:block;width:18px;height:18px;pointer-events:none">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
               <circle cx="12" cy="12" r="3"></circle>
             </svg>
           </button>
         </div>
-        <div class="password-strength" style="margin-top:8px">
-          <span></span><span></span><span></span><span></span>
+        <div class="password-strength" style="display:flex;gap:4px;margin-top:8px">
+          <span style="flex:1;height:4px;background:#e5e7eb;border-radius:2px;transition:background 0.3s"></span>
+          <span style="flex:1;height:4px;background:#e5e7eb;border-radius:2px;transition:background 0.3s"></span>
+          <span style="flex:1;height:4px;background:#e5e7eb;border-radius:2px;transition:background 0.3s"></span>
+          <span style="flex:1;height:4px;background:#e5e7eb;border-radius:2px;transition:background 0.3s"></span>
         </div>
         <span class="caps-warning" style="display:none;color:#f59e0b;font-size:0.8rem;margin-top:4px">⚠️ Caps Lock is ON</span>
-        <span class="error-message" style="display:none"></span>
+        <span class="error-message" style="display:none;color:#ef4444;font-size:0.8rem;margin-top:4px"></span>
       </div>
       
-      <button type=submit class="btn-primary-enhanced w-full touch-target" style="margin-top:24px">
+      <button type=submit class="btn-primary-enhanced w-full touch-target" style="margin-top:24px;display:flex;align-items:center;justify-content:center;padding:12px 24px;background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%);border:none;border-radius:8px;color:white;font-weight:600;font-size:0.95rem;cursor:pointer;transition:all 0.2s">
         <span class="btn-text">Sign Up</span>
         <span class="btn-spinner" style="display:none">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite">
@@ -524,7 +527,14 @@ showSignupForm() {
       </div>
     </div>
   </div>
-</div>`;
+</div>
+<style>
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e5e7eb;
+}
+</style>`;
   document.getElementById('auth-screen').innerHTML = html;
 }
 
