@@ -89,7 +89,7 @@ export default class UserTab {
 
     await new Promise(r => requestAnimationFrame(r));
     if (!document.getElementById('pricing-modal-overlay')) {
-      document.body.insertAdjacentHTML('beforeend', Templates.pricingModal());
+      document.documentElement.insertAdjacentHTML('afterbegin', Templates.pricingModal());
       const overlay  = document.getElementById('pricing-modal-overlay');
       const closeBtn = overlay.querySelector('.pricing-close');
       closeBtn.addEventListener('click', () => this.closePricingModal());
