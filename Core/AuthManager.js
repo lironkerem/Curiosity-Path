@@ -426,7 +426,7 @@ export default class AuthManager {
     document.getElementById('auth-screen').innerHTML = html;
   }
 
-  showSignupForm() {
+showSignupForm() {
     const html = `
 <div class="min-h-screen flex items-center justify-center p-4 mobile-optimized" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)">
   <div class="auth-card-enhanced">
@@ -447,7 +447,7 @@ export default class AuthManager {
 
     <div class=divider><span>or</span></div>
 
-    <form id=signup-form onsubmit="window.app.auth.handleSignup(event)" class="space-y-4"
+    <form id=signup-form onsubmit="window.app.auth.handleSignup(event)" class="space-y-4" style="margin-top:2.5rem">
       <div class=form-group style="margin-bottom:20px">
         <label class=form-label style="margin-bottom:8px;display:block">Name</label>
         <input type=text class="form-input-enhanced" placeholder="Your spiritual name" autocomplete="name" required>
