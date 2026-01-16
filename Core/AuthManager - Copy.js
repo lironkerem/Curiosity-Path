@@ -62,14 +62,14 @@ export default class AuthManager {
 
     <div class=divider><span>or</span></div>
 
-    <form id=login-form onsubmit="window.app.auth.handleLogin(event)" class="space-y-4">
-      <div class=form-group>
-        <label class=form-label>Email</label>
+    <form id=login-form onsubmit="window.app.auth.handleLogin(event)" class="space-y-4" style="margin-top:2.5rem">
+      <div class=form-group style="margin-bottom:20px">
+        <label class=form-label style="margin-bottom:8px;display:block">Email</label>
         <input type=email class="form-input-enhanced" placeholder="your@email.com" autocomplete="email" inputmode="email" required ${isLocked ? 'disabled' : ''}>
         <span class="error-message" style="display:none"></span>
       </div>
-      <div class=form-group>
-        <label class=form-label>
+      <div class=form-group style="margin-bottom:20px">
+        <label class=form-label style="margin-bottom:8px;display:block">
           Password
           <span class="password-hint" style="position:relative;display:inline-block;margin-left:4px">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="cursor:help" onmouseenter="window.app.auth.showPasswordHint(this)" onmouseleave="window.app.auth.hidePasswordHint(this)">
@@ -100,7 +100,7 @@ export default class AuthManager {
         <span class="error-message" style="display:none"></span>
       </div>
       
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;margin-bottom:24px">
         <label style="display:flex;align-items:center;font-size:0.875rem;color:#6c757d;cursor:pointer">
           <input type=checkbox id="remember-me" style="margin-right:6px" ${isLocked ? 'disabled' : ''}>
           Remember me
@@ -108,7 +108,7 @@ export default class AuthManager {
         <a href="#" onclick="window.app.auth.showForgotPassword(); return false;" style="color:#6366f1;text-decoration:none;font-size:0.875rem;font-weight:500">Forgot password?</a>
       </div>
 
-      <button type=submit class="btn-primary-enhanced w-full touch-target" ${isLocked ? 'disabled' : ''}>
+      <button type=submit class="btn-primary-enhanced w-full touch-target" ${isLocked ? 'disabled' : ''} style="margin-top:24px">
         <span class="btn-text">Sign In</span>
         <span class="btn-spinner" style="display:none">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite">
@@ -119,11 +119,11 @@ export default class AuthManager {
       </button>
     </form>
 
-    <p class="text-center mt-4 text-sm">
+    <p class="text-center mt-4 text-sm" style="margin-top:24px">
       <a href="#" onclick="window.app.auth.showSignupForm(); return false;" style="color:#6366f1;text-decoration:none;font-weight:500">Create an account</a>
     </p>
 
-    <div class="text-center mt-6 text-sm" style="color:#6c757d">
+    <div class="text-center mt-6 text-sm" style="color:#6c757d;margin-top:32px">
       <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -283,24 +283,58 @@ export default class AuthManager {
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  background: none;
-  border: none;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
   cursor: pointer;
-  color: #6c757d;
-  padding: 4px;
-  display: flex;
+  color: #9ca3af;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: color 0.2s;
+  outline: none !important;
+  line-height: 0;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.password-toggle-icon svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
 }
 
 .password-toggle-icon:hover:not(:disabled) {
   color: #6366f1;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.password-toggle-icon:active:not(:disabled) {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.password-toggle-icon:focus {
+  outline: none !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .password-toggle-icon:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .caps-warning {
@@ -402,21 +436,30 @@ export default class AuthManager {
       </div>
       <h1 class="text-3xl font-bold mb-2">Create Account</h1>
       <p style="color:#6c757d;font-weight:bold;font-size:1.1rem">Join The Curiosity Path</p>
+      <p style="color:#9ca3af;font-size:0.9rem;margin-top:8px">Join 10,000+ seekers on their journey</p>
     </div>
 
-    <form id=signup-form onsubmit="window.app.auth.handleSignup(event)" class="space-y-4" style="margin-top:2.5rem">
-      <div class=form-group>
-        <label class=form-label>Name</label>
+    <!-- GOOGLE -->
+    <button onclick="window.app.auth.handleGoogleSignup()" class="btn-google w-full mb-4 touch-target" style="margin-top:2.5rem">
+      <svg width="20" height="20" viewBox="0 0 48 48" style="margin-right:12px"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.03h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.66z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+      <span style="font-weight:500;color:#3c4043">Sign up with Google</span>
+    </button>
+
+    <div class=divider><span>or</span></div>
+
+    <form id=signup-form onsubmit="window.app.auth.handleSignup(event)" class="space-y-4"
+      <div class=form-group style="margin-bottom:20px">
+        <label class=form-label style="margin-bottom:8px;display:block">Name</label>
         <input type=text class="form-input-enhanced" placeholder="Your spiritual name" autocomplete="name" required>
         <span class="error-message" style="display:none"></span>
       </div>
-      <div class=form-group>
-        <label class=form-label>Email</label>
+      <div class=form-group style="margin-bottom:20px">
+        <label class=form-label style="margin-bottom:8px;display:block">Email</label>
         <input type=email class="form-input-enhanced" placeholder="your@email.com" autocomplete="email" inputmode="email" required>
         <span class="error-message" style="display:none"></span>
       </div>
-      <div class=form-group>
-        <label class=form-label>
+      <div class=form-group style="margin-bottom:20px">
+        <label class=form-label style="margin-bottom:8px;display:block">
           Password
           <span class="password-hint" style="position:relative;display:inline-block;margin-left:4px">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="cursor:help" onmouseenter="window.app.auth.showPasswordHint(this)" onmouseleave="window.app.auth.hidePasswordHint(this)">
@@ -443,14 +486,14 @@ export default class AuthManager {
             </svg>
           </button>
         </div>
-        <div class="password-strength">
+        <div class="password-strength" style="margin-top:8px">
           <span></span><span></span><span></span><span></span>
         </div>
         <span class="caps-warning" style="display:none;color:#f59e0b;font-size:0.8rem;margin-top:4px">⚠️ Caps Lock is ON</span>
         <span class="error-message" style="display:none"></span>
       </div>
       
-      <button type=submit class="btn-primary-enhanced w-full touch-target">
+      <button type=submit class="btn-primary-enhanced w-full touch-target" style="margin-top:24px">
         <span class="btn-text">Sign Up</span>
         <span class="btn-spinner" style="display:none">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite">
@@ -461,11 +504,11 @@ export default class AuthManager {
       </button>
     </form>
 
-    <p class="text-center mt-4 text-sm">
+    <p class="text-center mt-4 text-sm" style="margin-top:24px">
       <a href="#" onclick="window.app.auth.renderAuthScreen(); return false;" style="color:#6366f1;text-decoration:none;font-weight:500">Already have an account? Sign in</a>
     </p>
 
-    <div class="text-center mt-6 text-sm" style="color:#6c757d">
+    <div class="text-center mt-6 text-sm" style="color:#6c757d;margin-top:32px">
       <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -488,9 +531,9 @@ export default class AuthManager {
   showForgotPassword() {
     const html = `
 <div class="min-h-screen flex items-center justify-center p-4 mobile-optimized" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)">
-  <div class="auth-card-enhanced">
+  <div class="auth-card-enhanced" style="background:white;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.15);padding:48px 40px;max-width:440px;width:100%;border:1px solid rgba(0,0,0,0.08)">
     <div class="text-center mb-8 fade-in">
-      <div class="logo-icon" style="width:144px;height:144px;display:flex;align-items:center;justify-content:center;margin:0 auto">
+      <div class="logo-icon" style="width:144px;height:144px;display:flex;align-items:center;justify-content:center;margin:0 auto;margin-bottom:16px">
         <img src=https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Watermarks/Logo.svg alt=Aanandoham style="width:120px;height:120px;object-fit:contain" loading="eager">
       </div>
       <h1 class="text-3xl font-bold mb-2">Reset Password</h1>
@@ -498,13 +541,13 @@ export default class AuthManager {
     </div>
 
     <form id=forgot-form onsubmit="window.app.auth.handleForgotPassword(event)" class="space-y-4" style="margin-top:2.5rem">
-      <div class=form-group>
-        <label class=form-label>Email</label>
+      <div class=form-group style="margin-bottom:20px">
+        <label class=form-label style="margin-bottom:8px;display:block">Email</label>
         <input type=email class="form-input-enhanced" placeholder="your@email.com" autocomplete="email" inputmode="email" required>
         <span class="error-message" style="display:none"></span>
       </div>
       
-      <button type=submit class="btn-primary-enhanced w-full touch-target">
+      <button type=submit class="btn-primary-enhanced w-full touch-target" style="margin-top:24px">
         <span class="btn-text">Send Reset Link</span>
         <span class="btn-spinner" style="display:none">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite">
@@ -515,9 +558,19 @@ export default class AuthManager {
       </button>
     </form>
 
-    <p class="text-center mt-4 text-sm">
+    <p class="text-center mt-4 text-sm" style="margin-top:24px">
       <a href="#" onclick="window.app.auth.renderAuthScreen(); return false;" style="color:#6366f1;text-decoration:none;font-weight:500">Back to sign in</a>
     </p>
+
+    <div class="text-center mt-6 text-sm" style="color:#6c757d;margin-top:32px">
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        <span style="font-size:0.85rem">Secure & encrypted • We never share your data</span>
+      </div>
+    </div>
   </div>
 </div>`;
     document.getElementById('auth-screen').innerHTML = html;
@@ -745,6 +798,17 @@ export default class AuthManager {
     if (error) { 
       console.error('Google login error:', error); 
       this.showError(document.querySelector('.btn-google'), 'Failed to sign in with Google'); 
+    }
+  }
+
+  async handleGoogleSignup() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin, queryParams: { access_type: 'offline', prompt: 'consent' } }
+    });
+    if (error) { 
+      console.error('Google signup error:', error); 
+      alert('Failed to sign up with Google: ' + error.message);
     }
   }
 
