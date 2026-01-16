@@ -427,9 +427,9 @@ export default class AuthManager {
   }
 
 showSignupForm() {
-    const html = `
+  const html = `
 <div class="min-h-screen flex items-center justify-center p-4 mobile-optimized" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)">
-  <div class="auth-card-enhanced">
+  <div class="auth-card-enhanced" style="background:white;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.15);padding:48px 40px;max-width:440px;width:100%;border:1px solid rgba(0,0,0,0.08)">
     <div class="text-center mb-8 fade-in">
       <div class="logo-icon" style="width:144px;height:144px;display:flex;align-items:center;justify-content:center;margin:0 auto">
         <img src=https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Watermarks/Logo.svg alt=Aanandoham style="width:120px;height:120px;object-fit:contain" loading="eager">
@@ -525,8 +525,8 @@ showSignupForm() {
     </div>
   </div>
 </div>`;
-    document.getElementById('auth-screen').innerHTML = html;
-  }
+  document.getElementById('auth-screen').innerHTML = html;
+}
 
   showForgotPassword() {
     const html = `
