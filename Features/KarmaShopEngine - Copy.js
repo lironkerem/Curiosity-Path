@@ -1,5 +1,5 @@
 // ============================================
-// Features/KarmaShopEngine.js (OPTIMIZED + SUPABASE SYNC + BUGFIX)
+// Features/KarmaShopEngine.js (OPTIMIZED + SUPABASE SYNC)
 // ============================================
 
 import { supabase } from '../Core/Supabase.js';
@@ -14,7 +14,7 @@ export class KarmaShopEngine {
     this._renderQueued = false;
     this._syncInProgress = false;
     this._initialized = false;
-
+    
     // Start async init but don't block
     this.init().then(() => {
       this._initialized = true;
@@ -29,10 +29,14 @@ export class KarmaShopEngine {
 
   async init() {
     console.log('[KarmaShop] Initializing...');
+    
+    // Load from cloud first, fallback to localStorage
     await this.loadFromCloud();
+    
     this.initSkipCaps();
     this.checkExpiredBoosts();
     this.buildCatalog();
+    
     console.log('[KarmaShop] Init complete with', this.activeBoosts.length, 'active boosts');
   }
 
@@ -68,14 +72,15 @@ export class KarmaShopEngine {
 
       const cloudData = data.payload.karmaShop || {};
       this.activeBoosts = cloudData.activeBoosts || [];
-
+      
       // Also load purchase history from cloud
       if (cloudData.purchaseHistory) {
         localStorage.setItem('karma_purchase_history', JSON.stringify(cloudData.purchaseHistory));
       }
-
+      
       // Cache in localStorage
       localStorage.setItem('karma_active_boosts', JSON.stringify(this.activeBoosts));
+      
       console.log('[KarmaShop] ☁️ Loaded from cloud:', this.activeBoosts.length, 'boosts');
     } catch (err) {
       console.error('[KarmaShop] Cloud load failed, using localStorage:', err);
@@ -102,9 +107,12 @@ export class KarmaShopEngine {
         .eq('user_id', user.id)
         .single();
 
-      if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        throw fetchError;
+      }
 
       const payload = current?.payload || {};
+      
       // Update karma shop data
       payload.karmaShop = {
         activeBoosts: this.activeBoosts,
@@ -124,10 +132,12 @@ export class KarmaShopEngine {
 
       // Cache locally
       this.saveActiveBoosts();
+      
       console.log('[KarmaShop] ☁️ Synced to cloud');
     } catch (err) {
       console.error('[KarmaShop] Cloud save failed:', err);
-      this.saveActiveBoosts(); // fallback
+      // Still save locally as fallback
+      this.saveActiveBoosts();
     } finally {
       this._syncInProgress = false;
     }
@@ -150,7 +160,11 @@ export class KarmaShopEngine {
     Object.entries(periods).forEach(([type, { key }]) => {
       const storageKey = `karma_skip_caps_${type}`;
       let obj = this._getLocalStorage(storageKey, {});
-      if (obj.key !== key) obj = { key, used: 0 };
+      
+      if (obj.key !== key) {
+        obj = { key, used: 0 };
+      }
+      
       this.skipCaps[type] = obj; // Cache in memory
       localStorage.setItem(storageKey, JSON.stringify(obj));
     });
@@ -173,6 +187,7 @@ export class KarmaShopEngine {
 
   _useSkipCap(type) {
     if (this._isAdmin()) return;
+    
     this.skipCaps[type].used += 1;
     localStorage.setItem(`karma_skip_caps_${type}`, JSON.stringify(this.skipCaps[type]));
     this.queueRender();
@@ -234,26 +249,71 @@ export class KarmaShopEngine {
 
   /* ---------- Helpers ---------- */
   safeUnlockFeature(flag) {
-    try { this.app.gamification.unlockFeature(flag); } catch (e) { console.warn('[KarmaShop] unlockFeature error:', e); }
+    try {
+      this.app.gamification.unlockFeature(flag);
+    } catch (e) {
+      console.warn('[KarmaShop] unlockFeature error:', e);
+    }
   }
 
-  loadActiveBoosts() { return this._getLocalStorage('karma_active_boosts', []); }
+  loadActiveBoosts() {
+    return this._getLocalStorage('karma_active_boosts', []);
+  }
+
   saveActiveBoosts() {
     localStorage.setItem('karma_active_boosts', JSON.stringify(this.activeBoosts));
+    // Trigger cloud sync (debounced)
     this.saveToCloud();
   }
 
   _getLocalStorage(key, fallback) {
-    try { const d = localStorage.getItem(key); return d ? JSON.parse(d) : fallback; } catch { return fallback; }
+    try {
+      const data = localStorage.getItem(key);
+      return data ? JSON.parse(data) : fallback;
+    } catch {
+      return fallback;
+    }
   }
+
   _setLocalStorage(key, value) {
-    try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { console.error(`[KarmaShop] localStorage write failed for ${key}:`, e); }
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {
+      console.error(`[KarmaShop] localStorage write failed for ${key}:`, e);
+    }
   }
 
   /* ---------- Quest Reset Helpers ---------- */
-  _nextQuestDailyReset() { const t = new Date(); t.setHours(24, 0, 0, 0); if (t <= Date.now()) t.setDate(t.getDate() + 1); return t.getTime(); }
-  _nextQuestWeeklyReset() { const t = new Date(); const daysToSun = (7 - t.getDay()) % 7 || 7; t.setDate(t.getDate() + daysToSun); t.setHours(0, 0, 0, 0); return t.getTime(); }
-  _nextQuestMonthlyReset() { const t = new Date(); t.setMonth(t.getMonth() + 1, 1); t.setHours(0, 0, 0, 0); return t.getTime(); }
+  _nextQuestDailyReset() {
+    const t = new Date();
+    t.setHours(24, 0, 0, 0);
+    if (t <= Date.now()) t.setDate(t.getDate() + 1);
+    return t.getTime();
+  }
+
+  _nextQuestWeeklyReset() {
+    const t = new Date();
+    const daysToSun = (7 - t.getDay()) % 7 || 7;
+    t.setDate(t.getDate() + daysToSun);
+    t.setHours(0, 0, 0, 0);
+    return t.getTime();
+  }
+
+  _nextQuestMonthlyReset() {
+    const t = new Date();
+    t.setMonth(t.getMonth() + 1, 1);
+    t.setHours(0, 0, 0, 0);
+    return t.getTime();
+  }
+
+  _getResetTime(boostId) {
+    const resetMap = {
+      skip_all_daily: this._nextQuestDailyReset,
+      skip_all_weekly: this._nextQuestWeeklyReset,
+      skip_all_monthly: this._nextQuestMonthlyReset
+    };
+    return resetMap[boostId]?.call(this) || 0;
+  }
 
   /* ---------- Duration Formatter ---------- */
   _fmtDuration(ms) {
@@ -263,6 +323,7 @@ export class KarmaShopEngine {
     const mins = Math.floor((secs % 3600) / 60);
     const ss = secs % 60;
     const pad = n => n.toString().padStart(2, '0');
+    
     return days ? `${days}d ${pad(hrs)}:${pad(mins)}:${pad(ss)}` : `${pad(hrs)}:${pad(mins)}:${pad(ss)}`;
   }
 
@@ -270,17 +331,23 @@ export class KarmaShopEngine {
   checkExpiredBoosts() {
     const now = Date.now();
     const before = this.activeBoosts.length;
+    
     this.activeBoosts = this.activeBoosts.filter(b => {
-      if (b.id.startsWith('skip_all_')) return now < (b.resetAt || 0); // BUGFIX: use stored resetAt
+      if (b.id.startsWith('skip_all_')) {
+        return now < this._getResetTime(b.id);
+      }
       return b.expiresAt > now;
     });
-    if (before !== this.activeBoosts.length) { this.saveActiveBoosts(); this.queueRender(); }
+    
+    if (before !== this.activeBoosts.length) {
+      this.saveActiveBoosts();
+      this.queueRender();
+    }
   }
 
   isBoostActive(boostId) {
     if (boostId.startsWith('skip_all_')) {
-      const boost = this.activeBoosts.find(b => b.id === boostId);
-      return boost ? Date.now() < (boost.resetAt || 0) : false; // BUGFIX: use stored resetAt
+      return Date.now() < this._getResetTime(boostId);
     }
     return this.activeBoosts.some(b => b.id === boostId);
   }
@@ -294,19 +361,29 @@ export class KarmaShopEngine {
   canPurchase(itemId) {
     const item = this.items.find(i => i.id === itemId);
     if (!item) return { can: false, reason: 'Item not found' };
+
     const karma = this.app.gamification.state.karma;
     if (karma < item.cost) return { can: false, reason: `Need ${item.cost - karma} more Karma` };
-    if (item.consumable && this.isBoostActive(itemId) && !itemId.startsWith('skip_all_')) return { can: false, reason: 'Already active' };
-    if (!item.consumable && this.isItemOwned(itemId)) return { can: false, reason: 'Already owned' };
+
+    if (item.consumable && this.isBoostActive(itemId) && !itemId.startsWith('skip_all_')) {
+      return { can: false, reason: 'Already active' };
+    }
+
+    if (!item.consumable && this.isItemOwned(itemId)) {
+      return { can: false, reason: 'Already owned' };
+    }
+
     // Cap check (admin bypass)
     if (!this._isAdmin()) {
       const capMap = { skip_all_daily: 'dailySkips', skip_all_weekly: 'weeklySkips', skip_all_monthly: 'monthlySkips' };
       if (capMap[itemId]) {
-        const used = this._skipCapUsed(capMap[itemId]);
-        const max = this._skipCapMax(capMap[itemId]);
+        const type = capMap[itemId];
+        const used = this._skipCapUsed(type);
+        const max = this._skipCapMax(type);
         if (used >= max) return { can: false, reason: `Cap reached (${max}/${max})` };
       }
     }
+
     return { can: true };
   }
 
@@ -318,7 +395,11 @@ export class KarmaShopEngine {
 
   purchase(itemId) {
     const item = this.items.find(i => i.id === itemId);
-    if (!item) { this.app.showToast('❌ Item not found', 'error'); return false; }
+    if (!item) {
+      this.app.showToast('❌ Item not found', 'error');
+      return false;
+    }
+
     const check = this.canPurchase(itemId);
     if (!check.can) {
       if (itemId.startsWith('skip_all_')) {
@@ -330,17 +411,31 @@ export class KarmaShopEngine {
       this.app.showToast(`❌ ${check.reason}`, 'error');
       return false;
     }
+
     // Deduct karma
     this.app.gamification.state.karma -= item.cost;
     this.app.gamification.saveState();
+
     // Record purchase
     this.recordPurchase(itemId, item.cost);
+
     // Update skip cap if applicable
     const capMap = { skip_all_daily: 'dailySkips', skip_all_weekly: 'weeklySkips', skip_all_monthly: 'monthlySkips' };
     if (capMap[itemId]) this._useSkipCap(capMap[itemId]);
+
     // First purchase badge
     const history = this.getPurchaseHistory();
-    if (history.length === 1) this.app.gamification.grantBadge({ id: 'first_purchase', name: 'First Purchase', icon: '🛒', description: 'First purchase in the Karma Shop', xp: 50, rarity: 'epic' });
+    if (history.length === 1) {
+      this.app.gamification.grantBadge({
+        id: 'first_purchase',
+        name: 'First Purchase',
+        icon: '🛒',
+        description: 'First purchase in the Karma Shop',
+        xp: 50,
+        rarity: 'epic'
+      });
+    }
+
     // Apply effect
     this.applyItemEffect(itemId, item);
     this.app.showToast(`✅ Purchased: ${item.name}!`, 'success');
@@ -352,49 +447,95 @@ export class KarmaShopEngine {
     const history = this.getPurchaseHistory();
     history.push({ itemId, cost, timestamp: new Date().toISOString() });
     localStorage.setItem('karma_purchase_history', JSON.stringify(history));
+    // Trigger cloud sync
     this.saveToCloud();
   }
 
-  getPurchaseHistory() { return this._getLocalStorage('karma_purchase_history', []); }
+  getPurchaseHistory() {
+    return this._getLocalStorage('karma_purchase_history', []);
+  }
 
   /* ---------- Item Effects (Unified Quest Skip Logic) ---------- */
   applyItemEffect(itemId, item) {
     try {
       // POWER-UPS
-      if (itemId === 'xp_multiplier') { this.activateBoost('xp_multiplier', item.duration); this.app.showToast('⚡ 2× XP active for 24 h!', 'success'); } else if (itemId === 'karma_multiplier') { this.activateBoost('karma_multiplier', item.duration); this.app.showToast('💫 2× Karma active for 24 h!', 'success'); } else if (itemId === 'double_boost') { this.activateBoost('double_boost', item.duration); this.app.showToast('🔥 2× XP + 2× Karma active for 48 h!', 'success'); }
-      // QUEST HELPERS (Unified) - BUGFIX: store concrete resetAt once
-      else if (itemId.startsWith('skip_all_')) this._applyQuestSkip(itemId);
+      if (itemId === 'xp_multiplier') {
+        this.activateBoost('xp_multiplier', item.duration);
+        this.app.showToast('⚡ 2× XP active for 24 h!', 'success');
+      } else if (itemId === 'karma_multiplier') {
+        this.activateBoost('karma_multiplier', item.duration);
+        this.app.showToast('💫 2× Karma active for 24 h!', 'success');
+      } else if (itemId === 'double_boost') {
+        this.activateBoost('double_boost', item.duration);
+        this.app.showToast('🔥 2× XP + 2× Karma active for 48 h!', 'success');
+      }
+      // QUEST HELPERS (Unified)
+      else if (itemId.startsWith('skip_all_')) {
+        this._applyQuestSkip(itemId);
+      }
       // PREMIUM FEATURES
-      else if (itemId === 'advanced_meditations') { this.safeUnlockFeature('advanced_meditations'); this.app.showToast('🧘‍♀️ Advanced meditations unlocked!', 'success'); } else if (itemId === 'shadow_alchemy_lab') { this.safeUnlockFeature('shadow_alchemy_lab'); this.app.showToast('🌑 Shadow Alchemy Lab unlocked!', 'success'); } else if (itemId === 'advance_tarot_spreads') { this.safeUnlockFeature('advance_tarot_spreads'); this.safeUnlockFeature('tarot_vision_ai'); this.app.showToast('🃏 Advanced Tarot Spreads & 🔮 Tarot Vision AI unlocked!', 'success'); }
+      else if (itemId === 'advanced_meditations') {
+        this.safeUnlockFeature('advanced_meditations');
+        this.app.showToast('🧘‍♀️ Advanced meditations unlocked!', 'success');
+      } else if (itemId === 'shadow_alchemy_lab') {
+        this.safeUnlockFeature('shadow_alchemy_lab');
+        this.app.showToast('🌑 Shadow Alchemy Lab unlocked!', 'success');
+      } else if (itemId === 'advance_tarot_spreads') {
+        this.safeUnlockFeature('advance_tarot_spreads');
+        this.safeUnlockFeature('tarot_vision_ai');
+        this.app.showToast('🃏 Advanced Tarot Spreads & 🔮 Tarot Vision AI unlocked!', 'success');
+      }
       // PREMIUM SKINS
-      else if (itemId === 'luxury_champagne_gold_skin') { this.safeUnlockFeature('luxury_champagne_gold_skin'); this.app.showToast('🥂 Luxury Champagne-Gold Skin unlocked!', 'success'); } else if (itemId === 'royal_indigo_skin') { this.safeUnlockFeature('royal_indigo_skin'); this.app.showToast('🟣 Royal Indigo Skin unlocked!', 'success'); } else if (itemId === 'earth_luxury_skin') { this.safeUnlockFeature('earth_luxury_skin'); this.app.showToast('🌍 Earth Luxury Skin unlocked!', 'success'); }
+      else if (itemId === 'luxury_champagne_gold_skin') {
+        this.safeUnlockFeature('luxury_champagne_gold_skin');
+        this.app.showToast('🥂 Luxury Champagne-Gold Skin unlocked!', 'success');
+      } else if (itemId === 'royal_indigo_skin') {
+        this.safeUnlockFeature('royal_indigo_skin');
+        this.app.showToast('🟣 Royal Indigo Skin unlocked!', 'success');
+      } else if (itemId === 'earth_luxury_skin') {
+        this.safeUnlockFeature('earth_luxury_skin');
+        this.app.showToast('🌍 Earth Luxury Skin unlocked!', 'success');
+      }
       // MEET THE MASTER
-      else if (['private_consultation', 'private_tarot_reading', 'reiki_healing'].includes(itemId)) this.showMasterPurchasePopup(item);
-    } catch (err) { console.error('[KarmaShop] applyItemEffect error:', err); this.app.showToast('❌ Could not apply item – please reload', 'error'); }
+      else if (['private_consultation', 'private_tarot_reading', 'reiki_healing'].includes(itemId)) {
+        this.showMasterPurchasePopup(item);
+      }
+    } catch (err) {
+      console.error('[KarmaShop] applyItemEffect error:', err);
+      this.app.showToast('❌ Could not apply item – please reload', 'error');
+    }
   }
 
-  // Unified quest skip logic - BUGFIX: store resetAt once
+  // Unified quest skip logic
   _applyQuestSkip(skipType) {
     const config = {
       skip_all_daily: { period: 'daily', minXP: 200, minKarma: 50, resetFn: this._nextQuestDailyReset, label: 'daily' },
       skip_all_weekly: { period: 'weekly', minXP: 500, minKarma: 125, resetFn: this._nextQuestWeeklyReset, label: 'weekly' },
       skip_all_monthly: { period: 'monthly', minXP: 900, minKarma: 225, resetFn: this._nextQuestMonthlyReset, label: 'monthly' }
     };
+
     const cfg = config[skipType];
     if (!cfg) return;
+
     const todo = this.app.gamification.state.quests[cfg.period].filter(q => !q.completed);
     let xp = 0, karma = 0;
+
     this.app.gamification._bulkMode = true;
-    todo.forEach(q => { xp += q.xp ?? 0; karma += q.karma ?? 0; q.completed = true; });
+    todo.forEach(q => {
+      xp += q.xp ?? 0;
+      karma += q.karma ?? 0;
+      q.completed = true;
+    });
     this.app.gamification._bulkMode = false;
+
     xp = Math.max(xp, cfg.minXP);
     karma = Math.max(karma, cfg.minKarma);
+
     this.app.gamification.state.xp += xp;
     this.app.gamification.state.karma += karma;
     this.app.gamification.saveState();
-    const resetAt = cfg.resetFn.call(this); // compute once
-    this.activeBoosts.push({ id: skipType, resetAt }); // BUGFIX: store resetAt
-    this.saveActiveBoosts();
+
+    this.activateBoost(skipType, cfg.resetFn.call(this) - Date.now());
     this.app.showToast(`✅ All ${cfg.label} quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
   }
 
@@ -402,6 +543,7 @@ export class KarmaShopEngine {
     const userName = this.app.state.currentUser?.name || 'Friend';
     const karma = item.cost;
     const msg = `${item.name} bought using ${karma} ✨ for ${userName}.`;
+    
     const overlay = document.createElement('div');
     overlay.className = 'karma-shop-master-overlay';
     overlay.innerHTML = `
@@ -409,9 +551,15 @@ export class KarmaShopEngine {
         <div class="karma-shop-master-icon">🧘</div>
         <h3 class="karma-shop-master-title">Meet the Master</h3>
         <p class="karma-shop-master-message">${msg}</p>
-        <p class="karma-shop-master-instructions">Screenshot or save this message, then contact Aanandoham via WhatsApp to schedule your session:</p>
-        <a href="https://wa.me/+972524588767?text=${encodeURIComponent(msg)}" target="_blank" class="btn btn-primary karma-shop-master-btn-wa">Open WhatsApp</a>
-        <button onclick="this.closest('.karma-shop-master-overlay').remove()" class="btn btn-secondary karma-shop-master-btn-close">Close</button>
+        <p class="karma-shop-master-instructions">
+          Screenshot or save this message, then contact Aanandoham via WhatsApp to schedule your session:
+        </p>
+        <a href="https://wa.me/+972524588767?text=${encodeURIComponent(msg)}" target="_blank" class="btn btn-primary karma-shop-master-btn-wa">
+          Open WhatsApp
+        </a>
+        <button onclick="this.closest('.karma-shop-master-overlay').remove()" class="btn btn-secondary karma-shop-master-btn-close">
+          Close
+        </button>
       </div>
     `;
     document.body.appendChild(overlay);
@@ -421,12 +569,20 @@ export class KarmaShopEngine {
   queueRender() {
     if (this._renderQueued) return;
     this._renderQueued = true;
-    requestAnimationFrame(() => { this.render(); this._renderQueued = false; });
+    requestAnimationFrame(() => {
+      this.render();
+      this._renderQueued = false;
+    });
   }
 
   render() {
     const tab = document.getElementById('karma-shop-tab');
-    if (!tab) { console.error('[KarmaShop] karma-shop-tab element not found'); return; }
+    if (!tab) {
+      console.error('[KarmaShop] karma-shop-tab element not found');
+      return;
+    }
+
+    // Wait for initialization
     if (!this._initialized) {
       tab.innerHTML = `
         <div class="karma-shop-container">
@@ -438,13 +594,26 @@ export class KarmaShopEngine {
           </div>
         </div>
       `;
-      setTimeout(() => this.render(), 100); return;
+      // Retry after init completes
+      setTimeout(() => this.render(), 100);
+      return;
     }
-    if (this._boostTicker) { clearInterval(this._boostTicker); this._boostTicker = null; }
+
+    // Clear old ticker
+    if (this._boostTicker) {
+      clearInterval(this._boostTicker);
+      this._boostTicker = null;
+    }
+
     const karma = this.app.gamification.state.karma;
     const purchaseHistory = this.getPurchaseHistory();
     const categories = ['Power-Ups', 'Quest Helpers', 'Premium Features', 'Premium Skins', 'Meet the Master'];
+
+    console.log('[KarmaShop] Rendering with activeBoosts:', this.activeBoosts.length);
+
     const boostsHTML = this.renderActiveBoosts();
+    console.log('[KarmaShop] Boosts HTML length:', boostsHTML.length);
+
     tab.innerHTML = `
       <div class="karma-shop-container">
         <div class="karma-shop-content">
@@ -456,12 +625,15 @@ export class KarmaShopEngine {
             <h3>Exchange your Karma tokens for goodies and upgrades</h3>
             <span class="header-sub"></span>
           </header>
+
           <div class="card karma-shop-balance">
             <h3 class="karma-shop-balance-title">Your Karma Balance</h3>
             <p class="karma-shop-balance-amount">${karma}</p>
             <p class="karma-shop-balance-subtitle">Earn more by completing quests, using features and practices</p>
           </div>
+
           ${boostsHTML}
+
           ${categories.map(category => {
             const catItems = this.items.filter(i => i.category === category);
             if (catItems.length === 0) return '';
@@ -474,20 +646,41 @@ export class KarmaShopEngine {
               </div>
             `;
           }).join('')}
+
           ${purchaseHistory.length > 0 ? this.renderPurchaseHistory(purchaseHistory) : ''}
         </div>
       </div>
     `;
+
+    console.log('[KarmaShop] DOM updated, starting ticker...');
+    // Start ticker after DOM is ready
     this.startBoostTicker();
   }
 
   renderActiveBoosts() {
+    console.log('[KarmaShop] renderActiveBoosts called');
     this.checkExpiredBoosts();
-    if (this.activeBoosts.length === 0) return '';
-    const niceNames = { xp_multiplier: '⚡ 2× XP Boost', karma_multiplier: '💫 2× Karma Multiplier', double_boost: '🔥 Double Boost', skip_all_daily: '⭐ Skip Daily Quests', skip_all_weekly: '📅 Skip Weekly Quests', skip_all_monthly: '🗓️ Skip Monthly Quests' };
+    console.log('[KarmaShop] activeBoosts after check:', this.activeBoosts);
+    
+    if (this.activeBoosts.length === 0) {
+      console.log('[KarmaShop] No active boosts, returning empty string');
+      return '';
+    }
+
+    const niceNames = {
+      xp_multiplier: '⚡ 2× XP Boost',
+      karma_multiplier: '💫 2× Karma Multiplier',
+      double_boost: '🔥 Double Boost',
+      skip_all_daily: '⭐ Skip Daily Quests',
+      skip_all_weekly: '📅 Skip Weekly Quests',
+      skip_all_monthly: '🗓️ Skip Monthly Quests'
+    };
+
+    // Pre-render initial content immediately
     const initialContent = this.activeBoosts.map(boost => {
       const isQuest = boost.id.startsWith('skip_all_');
-      const msLeft = isQuest ? (boost.resetAt || 0) - Date.now() : boost.expiresAt - Date.now();
+      const msLeft = isQuest ? this._getResetTime(boost.id) - Date.now() : boost.expiresAt - Date.now();
+      
       return `
         <div class="karma-shop-boost-item">
           <span class="karma-shop-boost-name">${niceNames[boost.id] || boost.id}</span>
@@ -495,6 +688,9 @@ export class KarmaShopEngine {
         </div>
       `;
     }).join('');
+
+    console.log('[KarmaShop] Returning boosts HTML with', this.activeBoosts.length, 'boosts');
+
     return `
       <div class="card karma-shop-boosts">
         <h3 class="karma-shop-boosts-title">🔋 Active Boosts</h3>
@@ -505,13 +701,27 @@ export class KarmaShopEngine {
 
   startBoostTicker() {
     if (this.activeBoosts.length === 0) return;
-    const niceNames = { xp_multiplier: '⚡ 2× XP Boost', karma_multiplier: '💫 2× Karma Multiplier', double_boost: '🔥 Double Boost', skip_all_daily: '⭐ Skip Daily Quests', skip_all_weekly: '📅 Skip Weekly Quests', skip_all_monthly: '🗓️ Skip Monthly Quests' };
+    
+    const niceNames = {
+      xp_multiplier: '⚡ 2× XP Boost',
+      karma_multiplier: '💫 2× Karma Multiplier',
+      double_boost: '🔥 Double Boost',
+      skip_all_daily: '⭐ Skip Daily Quests',
+      skip_all_weekly: '📅 Skip Weekly Quests',
+      skip_all_monthly: '🗓️ Skip Monthly Quests'
+    };
+
     const tick = () => {
       const box = document.getElementById('boosts-list-live');
-      if (!box) { console.warn('[KarmaShop] boosts-list-live element not found'); return; }
+      if (!box) {
+        console.warn('[KarmaShop] boosts-list-live element not found');
+        return;
+      }
+      
       box.innerHTML = this.activeBoosts.map(boost => {
         const isQuest = boost.id.startsWith('skip_all_');
-        const msLeft = isQuest ? (boost.resetAt || 0) - Date.now() : boost.expiresAt - Date.now();
+        const msLeft = isQuest ? this._getResetTime(boost.id) - Date.now() : boost.expiresAt - Date.now();
+        
         return `
           <div class="karma-shop-boost-item">
             <span class="karma-shop-boost-name">${niceNames[boost.id] || boost.id}</span>
@@ -520,7 +730,16 @@ export class KarmaShopEngine {
         `;
       }).join('');
     };
-    setTimeout(() => { const box = document.getElementById('boosts-list-live'); if (box) this._boostTicker = setInterval(tick, 5000); else console.error('[KarmaShop] Could not start boost ticker - element not found'); }, 100);
+
+    // Wait for DOM to be ready
+    setTimeout(() => {
+      const box = document.getElementById('boosts-list-live');
+      if (box) {
+        this._boostTicker = setInterval(tick, 5000);
+      } else {
+        console.error('[KarmaShop] Could not start boost ticker - element not found');
+      }
+    }, 100);
   }
 
   renderShopItem(item) {
@@ -529,8 +748,11 @@ export class KarmaShopEngine {
     const isActive = item.consumable && this.isBoostActive(item.id);
     const badgeText = isOwned ? 'OWNED' : isActive ? 'ACTIVE' : '';
     const rarityColor = this.getRarityColor(item.rarity);
+
     return `
-      <div class="card karma-shop-item" data-rarity="${item.rarity}" style="background:${rarityColor}">
+      <div class="card karma-shop-item"
+           data-rarity="${item.rarity}"
+           style="background:${rarityColor}">
         ${badgeText ? `<div class="karma-shop-item-owned-badge">${badgeText}</div>` : ''}
         <div class="karma-shop-item-content">
           <div class="karma-shop-item-icon">${item.icon}</div>
@@ -540,9 +762,14 @@ export class KarmaShopEngine {
         <div class="karma-shop-item-footer">
           <div class="karma-shop-item-meta">
             <span class="karma-shop-item-rarity karma-shop-rarity-${item.rarity}">${item.rarity}</span>
-            <span class="karma-shop-item-rarity karma-shop-item-cost karma-shop-rarity-${item.rarity}">${item.cost} 💎</span>
+            <span class="karma-shop-item-rarity karma-shop-item-cost karma-shop-rarity-${item.rarity}">
+              ${item.cost} 💎
+            </span>
           </div>
-          <button onclick="window.featuresManager.engines['karma-shop'].purchase('${item.id}')" class="btn ${canBuy.can ? 'btn-primary' : 'btn-secondary'} karma-shop-item-btn" ${!canBuy.can ? 'disabled' : ''}>
+          <button 
+            onclick="window.featuresManager.engines['karma-shop'].purchase('${item.id}')" 
+            class="btn ${canBuy.can ? 'btn-primary' : 'btn-secondary'} karma-shop-item-btn" 
+            ${!canBuy.can ? 'disabled' : ''}>
             ${isOwned ? '✓ Owned' : isActive ? '✓ Active' : canBuy.can ? '🛒 Purchase' : canBuy.reason}
           </button>
         </div>
