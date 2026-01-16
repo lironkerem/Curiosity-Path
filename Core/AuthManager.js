@@ -88,14 +88,8 @@ export default class AuthManager {
           </span>
         </label>
         <div style="position:relative">
-          <input type=password class="form-input-enhanced" placeholder="••••••••" autocomplete="current-password" required onkeyup="window.app.auth.checkCapsLock(event)" ${isLocked ? 'disabled' : ''}>
-          <button type=button class="password-toggle-icon" onclick="window.app.auth.togglePassword(this)" ${isLocked ? 'disabled' : ''}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-          </button>
-        </div>
+        <input type=password class="form-input-enhanced" placeholder="••••••••" autocomplete="current-password" required onkeyup="window.app.auth.checkCapsLock(event)" ${isLocked ? 'disabled' : ''}>
+          </div>
         <span class="caps-warning" style="display:none;color:#f59e0b;font-size:0.8rem;margin-top:4px">⚠️ Caps Lock is ON</span>
         <span class="error-message" style="display:none"></span>
       </div>
@@ -478,14 +472,8 @@ showSignupForm() {
           </span>
         </label>
         <div style="position:relative">
-          <input type=password class="form-input-enhanced" placeholder="••••••••" minlength=6 autocomplete="new-password" required oninput="window.app.auth.debouncedPasswordCheck(this)" onkeyup="window.app.auth.checkCapsLock(event)" style="width:100%;padding:12px 16px;border:2px solid #e5e7eb;border-radius:8px;font-size:16px;transition:all 0.2s;outline:none">
-          <button type=button class="password-toggle-icon" onclick="window.app.auth.togglePassword(this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none!important;border:none!important;box-shadow:none!important;border-radius:0!important;cursor:pointer;color:#9ca3af;padding:0!important;margin:0!important;display:inline-flex;align-items:center;justify-content:center;transition:color 0.2s;outline:none!important;line-height:0;-webkit-appearance:none;-moz-appearance:none;appearance:none">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:block;width:18px;height:18px;pointer-events:none">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-          </button>
-        </div>
+         <input type=password class="form-input-enhanced" placeholder="••••••••" autocomplete="current-password" required onkeyup="window.app.auth.checkCapsLock(event)" ${isLocked ? 'disabled' : ''}>
+          </div>
         <div class="password-strength" style="display:flex;gap:4px;margin-top:8px">
           <span style="flex:1;height:4px;background:#e5e7eb;border-radius:2px;transition:background 0.3s"></span>
           <span style="flex:1;height:4px;background:#e5e7eb;border-radius:2px;transition:background 0.3s"></span>
