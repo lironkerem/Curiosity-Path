@@ -145,7 +145,7 @@ export default class NavigationManager {
 
 const indicatorHTML = `
   <!-- MOBILE TAB POSITION INDICATOR -->
-  <div id="mobile-tab-indicator" style="justify-content: space-between !important; align-items: center; padding: 0.5rem 1.5rem; width: 100%; box-sizing: border-box; background: transparent; min-height: 40px;">
+  <div id="mobile-tab-indicator" style="display: flex !important; justify-content: space-between !important; align-items: center; padding: 0.5rem 1.5rem; width: 100%; box-sizing: border-box; background: transparent; min-height: 40px;">
     <span class="tab-dot active" data-tab="dashboard" title="Dashboard" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
     <span class="tab-dot" data-tab="energy" title="Energy" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
     <span class="tab-dot" data-tab="tarot" title="Tarot" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
@@ -167,22 +167,12 @@ if (!document.querySelector('.app-header')) {
   appContainer.insertAdjacentHTML('afterbegin', navHTML);
 }
 
-// Add this to the render() method after inserting the indicator
+// Insert mobile indicator directly in body (outside app-container)
 if (!document.getElementById('mobile-tab-indicator')) {
+  // Find the header to position it after
   const headerEl = document.querySelector('.app-header');
   if (headerEl) {
     headerEl.insertAdjacentHTML('afterend', indicatorHTML);
-    
-    // Hide on desktop, show on mobile
-    const updateIndicatorVisibility = () => {
-      const indicator = document.getElementById('mobile-tab-indicator');
-      if (indicator) {
-        indicator.style.display = window.innerWidth <= 767 ? 'flex' : 'none';
-      }
-    };
-    
-    updateIndicatorVisibility();
-    window.addEventListener('resize', updateIndicatorVisibility);
   }
 }
     
