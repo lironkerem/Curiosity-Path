@@ -467,6 +467,12 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   }
 }
 
+/* Hide on desktop */
+@media (min-width: 768px) {
+  #mobile-tab-indicator {
+    display: none !important;
+  }
+}
 /* ===== DASHBOARD XP PROGRESS ===== */
 .dashboard-progress-track {
   position: relative;
