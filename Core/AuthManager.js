@@ -283,18 +283,23 @@ export default class AuthManager {
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  background: none;
-  border: none;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
   cursor: pointer;
   color: #9ca3af;
-  padding: 0;
-  margin: 0;
+  padding: 0 !important;
+  margin: 0 !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: color 0.2s;
-  outline: none;
+  outline: none !important;
   line-height: 0;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 
 .password-toggle-icon svg {
@@ -306,15 +311,30 @@ export default class AuthManager {
 
 .password-toggle-icon:hover:not(:disabled) {
   color: #6366f1;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.password-toggle-icon:active:not(:disabled) {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.password-toggle-icon:focus {
+  outline: none !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .password-toggle-icon:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.password-toggle-icon:focus {
-  outline: none;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .caps-warning {
