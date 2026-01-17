@@ -157,7 +157,7 @@ class MeditationsEngine {
             <button onclick="window.featuresManager.engines.meditations.openPDFGuide()" 
                     class="btn btn-primary" 
                     style="padding: 12px 32px; display: inline-flex; align-items: center; gap: 8px;">
-              📖 A simple Meditation-Guide for you (PDF file)
+              📖 Demo from the 'Art of Meditation' Workbook - For you (PDF file)
             </button>
           </div>
 
