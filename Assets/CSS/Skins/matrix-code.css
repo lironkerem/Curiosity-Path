@@ -79,24 +79,6 @@ body.matrix-code{
   font-family: 'Share Tech Mono', 'Courier New', monospace;
 }
 
-/* ===== MATRIX RAIN Z-INDEX MANAGEMENT ===== */
-body.matrix-code .matrix-rain-container {
-  z-index: 1 !important;
-}
-
-/* Ensure all content is above the rain */
-body.matrix-code #main-app,
-body.matrix-code #app-container,
-body.matrix-code .tab-content,
-body.matrix-code .nav-tabs,
-body.matrix-code .user-menu,
-body.matrix-code .lux-footer,
-body.matrix-code .mobile-bottom-bar,
-body.matrix-code .mobile-sheet {
-  position: relative;
-  z-index: 2;
-}
-
 /* ------  ANIMATIONS  ------ */
 @keyframes digitalRain{
   0%{background-position:0 0}
