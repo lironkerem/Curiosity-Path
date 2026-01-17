@@ -1,4 +1,4 @@
-// NavigationManager.js - Fixed swipe arrows + Mobile Tab Indicator
+// NavigationManager.js - SECTION 1: Constructor and HTML Templates
 import UserTab from './User-Tab.js';
 
 // Global flag to prevent duplicate swipe listeners across instances
@@ -117,7 +117,6 @@ export default class NavigationManager {
           <div class="sheet-row" data-tab="flip-script" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavFlip.png" alt=""><span>Flip Your Thoughts</span></div>
           <div class="sheet-row" data-tab="calculator" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavAnalysis.png" alt=""><span>Analyze your 'Self'</span></div>
           <div class="sheet-row" data-tab="shadow-alchemy" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavShadow.png" alt=""><span>Shadow Work</span></div>
-          <div class="sheet-row" data-tab="karma-shop" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavShop.png" alt=""><span>Spend Your Karma</span></div>
           <div class="sheet-row" data-tab="chatbot" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/Chat.png" alt=""><span>Aanandoham's AI Assistant</span></div>
         </div>
       </div>
@@ -125,12 +124,13 @@ export default class NavigationManager {
       <div id="sheet-features" class="mobile-sheet" role="dialog" aria-modal="true" aria-hidden="true">
         <div class="sheet-grip"></div><div class="sheet-header">Features</div>
         <div class="sheet-scroller">
-          <div class="sheet-row" data-tab="energy" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavEnergy.png" alt=""><span>Track Your Energies</span></div>
           <div class="sheet-row" data-tab="happiness" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavHappiness.png" alt=""><span>Happiness and Motivation</span></div>
           <div class="sheet-row" data-tab="gratitude" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavGratitude.png" alt=""><span>Gratitude Enhancer</span></div>
           <div class="sheet-row" data-tab="journal" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavJournal.png" alt=""><span>Write To Yourself</span></div>
+          <div class="sheet-row" data-tab="energy" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavEnergy.png" alt=""><span>Track Your Energies</span></div>
           <div class="sheet-row" data-tab="tarot" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavTarot.png" alt=""><span>Tarot Cards Divinations</span></div>
           <div class="sheet-row" data-tab="meditations" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavMeditations.png" alt=""><span>Aanandoham's Meditations</span></div>
+          <div class="sheet-row" data-tab="karma-shop" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavShop.png" alt=""><span>Spend Your Karma</span></div>
         </div>
       </div>
 
@@ -143,48 +143,46 @@ export default class NavigationManager {
       </div>
     `;
 
-const indicatorHTML = `
-  <!-- MOBILE TAB POSITION INDICATOR -->
-  <div id="mobile-tab-indicator" style="justify-content: space-between !important; align-items: center; padding: 0.5rem 1.5rem; width: 100%; box-sizing: border-box; background: transparent; min-height: 40px;">
-    <span class="tab-dot active" data-tab="dashboard" title="Dashboard" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
-    <span class="tab-dot" data-tab="energy" title="Energy" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
-    <span class="tab-dot" data-tab="tarot" title="Tarot" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
-    <span class="tab-dot" data-tab="gratitude" title="Gratitude" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
-    <span class="tab-dot" data-tab="happiness" title="Happiness" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
-    <span class="tab-dot" data-tab="journal" title="Journal" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
-    <span class="tab-dot" data-tab="meditations" title="Meditations" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
-    <span class="tab-dot" data-tab="flip-script" title="Flip Script" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
-    <span class="tab-dot" data-tab="calculator" title="Analysis" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
-    <span class="tab-dot" data-tab="shadow-alchemy" title="Shadow Alchemy" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
-    <span class="tab-dot" data-tab="karma-shop" title="Karma Shop" style="display: inline-block !important; width: 12px; height: 12px; min-width: 12px; min-height: 12px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer;">&nbsp;</span>
-  </div>
-`;
+    const indicatorHTML = `
+      <!-- MOBILE TAB POSITION INDICATOR -->
+      <div id="mobile-tab-indicator" style="display: flex; justify-content: space-between !important; align-items: center; padding: 0.5rem 0.5rem; width: 100%; box-sizing: border-box; background: transparent; min-height: 50px; gap: 2px;">
+        <span class="tab-dot active" data-tab="dashboard" title="Dashboard" style="display: inline-flex !important; align-items: center; justify-content: center; width: 24px; height: 24px; min-width: 24px; min-height: 24px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer; overflow: hidden; padding: 3px;"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavDashboard.png" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none;"></span>
+        <span class="tab-dot" data-tab="energy" title="Energy" style="display: inline-flex !important; align-items: center; justify-content: center; width: 24px; height: 24px; min-width: 24px; min-height: 24px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer; overflow: hidden; padding: 3px;"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavEnergy.png" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none;"></span>
+        <span class="tab-dot" data-tab="tarot" title="Tarot" style="display: inline-flex !important; align-items: center; justify-content: center; width: 24px; height: 24px; min-width: 24px; min-height: 24px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer; overflow: hidden; padding: 3px;"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavTarot.png" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none;"></span>
+        <span class="tab-dot" data-tab="gratitude" title="Gratitude" style="display: inline-flex !important; align-items: center; justify-content: center; width: 24px; height: 24px; min-width: 24px; min-height: 24px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer; overflow: hidden; padding: 3px;"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavGratitude.png" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none;"></span>
+        <span class="tab-dot" data-tab="happiness" title="Happiness" style="display: inline-flex !important; align-items: center; justify-content: center; width: 24px; height: 24px; min-width: 24px; min-height: 24px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer; overflow: hidden; padding: 3px;"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavHappiness.png" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none;"></span>
+        <span class="tab-dot" data-tab="journal" title="Journal" style="display: inline-flex !important; align-items: center; justify-content: center; width: 24px; height: 24px; min-width: 24px; min-height: 24px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer; overflow: hidden; padding: 3px;"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavJournal.png" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none;"></span>
+        <span class="tab-dot" data-tab="meditations" title="Meditations" style="display: inline-flex !important; align-items: center; justify-content: center; width: 24px; height: 24px; min-width: 24px; min-height: 24px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer; overflow: hidden; padding: 3px;"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavMeditations.png" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none;"></span>
+        <span class="tab-dot" data-tab="flip-script" title="Flip Script" style="display: inline-flex !important; align-items: center; justify-content: center; width: 24px; height: 24px; min-width: 24px; min-height: 24px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer; overflow: hidden; padding: 3px;"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavFlip.png" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none;"></span>
+        <span class="tab-dot" data-tab="calculator" title="Analysis" style="display: inline-flex !important; align-items: center; justify-content: center; width: 24px; height: 24px; min-width: 24px; min-height: 24px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer; overflow: hidden; padding: 3px;"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavAnalysis.png" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none;"></span>
+        <span class="tab-dot" data-tab="shadow-alchemy" title="Shadow Alchemy" style="display: inline-flex !important; align-items: center; justify-content: center; width: 24px; height: 24px; min-width: 24px; min-height: 24px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer; overflow: hidden; padding: 3px;"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavShadow.png" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none;"></span>
+        <span class="tab-dot" data-tab="karma-shop" title="Karma Shop" style="display: inline-flex !important; align-items: center; justify-content: center; width: 24px; height: 24px; min-width: 24px; min-height: 24px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer; overflow: hidden; padding: 3px;"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavShop.png" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none;"></span>
+      </div>
+    `;
 
     const appContainer = document.getElementById('app-container');
     if (!appContainer) return;
 
-if (!document.querySelector('.app-header')) {
-  appContainer.insertAdjacentHTML('afterbegin', navHTML);
-}
+    if (!document.querySelector('.app-header')) {
+      appContainer.insertAdjacentHTML('afterbegin', navHTML);
+    }
 
-// Add this to the render() method after inserting the indicator
-if (!document.getElementById('mobile-tab-indicator')) {
-  const headerEl = document.querySelector('.app-header');
-  if (headerEl) {
-    headerEl.insertAdjacentHTML('afterend', indicatorHTML);
-    
-    // Hide on desktop, show on mobile
-    const updateIndicatorVisibility = () => {
-      const indicator = document.getElementById('mobile-tab-indicator');
-      if (indicator) {
-        indicator.style.display = window.innerWidth <= 767 ? 'flex' : 'none';
+    if (!document.getElementById('mobile-tab-indicator')) {
+      const headerEl = document.querySelector('.app-header');
+      if (headerEl) {
+        headerEl.insertAdjacentHTML('afterend', indicatorHTML);
+        
+        const updateIndicatorVisibility = () => {
+          const indicator = document.getElementById('mobile-tab-indicator');
+          if (indicator) {
+            indicator.style.display = window.innerWidth <= 767 ? 'flex' : 'none';
+          }
+        };
+        
+        updateIndicatorVisibility();
+        window.addEventListener('resize', updateIndicatorVisibility);
       }
-    };
-    
-    updateIndicatorVisibility();
-    window.addEventListener('resize', updateIndicatorVisibility);
-  }
-}
+    }
     
     if (!document.getElementById('user-dropdown')) {
       appContainer.insertAdjacentHTML('afterbegin', this.userTab.render());
@@ -260,8 +258,6 @@ if (!document.getElementById('mobile-tab-indicator')) {
     const { mobileBar, sheets, scrim } = this.cachedElements;
     if (!mobileBar) return;
 
-    const tabs = [...mobileBar.querySelectorAll('.mobile-tab')];
-
     const openSheet = (id) => {
       const sheet = document.getElementById(id);
       if (!sheet) return;
@@ -323,104 +319,6 @@ if (!document.getElementById('mobile-tab-indicator')) {
     document.body.classList.remove('sheet-open');
   }
 
-  setupSwipeArrows() {
-    if (window.innerWidth > 767) return;
-    
-    if (this.arrowListenersAttached) {
-      return;
-    }
-
-    const leftBtn = document.getElementById('swipe-left');
-    const rightBtn = document.getElementById('swipe-right');
-    const { swipeArrows } = this.cachedElements;
-    
-    if (!leftBtn || !rightBtn || !swipeArrows) return;
-    
-    leftBtn.tabIndex = -1;
-    rightBtn.tabIndex = -1;
-
-    // Only set innerHTML if not already set (to preserve event listeners)
-    if (!leftBtn.querySelector('svg')) {
-      leftBtn.innerHTML = `<svg viewBox="0 0 200 180" style="transform:scale(0.5); pointer-events:none;"><path d="M115 10 L100 90 L115 170" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`;
-    }
-    if (!rightBtn.querySelector('svg')) {
-      rightBtn.innerHTML = `<svg viewBox="0 0 200 180" style="transform:scaleX(-1) scale(0.5); pointer-events:none;"><path d="M115 10 L100 90 L115 170" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`;
-    }
-
-    const blurButton = (btn) => setTimeout(() => btn.blur(), 0);
-    
-    let arrowDebounce = false;
-
-    // Use touchend with capture to prevent global swipe handler
-    leftBtn.addEventListener('touchend', (e) => { 
-      e.preventDefault(); 
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-      
-      if (arrowDebounce) return;
-      arrowDebounce = true;
-      
-      const active = localStorage.getItem('pc_active_tab') || 'dashboard';
-      let idx = this.SWIPE_ORDER.indexOf(active);
-      idx = (idx - 1 + this.SWIPE_ORDER.length) % this.SWIPE_ORDER.length;
-      
-      const navItem = document.querySelector(`[data-tab="${this.SWIPE_ORDER[idx]}"]`);
-      if (navItem) {
-        this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
-      }
-      
-      setTimeout(() => { arrowDebounce = false; }, 400);
-      blurButton(leftBtn); 
-    }, { capture: true });
-    
-    rightBtn.addEventListener('touchend', (e) => { 
-      e.preventDefault(); 
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-      
-      if (arrowDebounce) return;
-      arrowDebounce = true;
-      
-      const active = localStorage.getItem('pc_active_tab') || 'dashboard';
-      let idx = this.SWIPE_ORDER.indexOf(active);
-      idx = (idx + 1) % this.SWIPE_ORDER.length;
-      
-      const navItem = document.querySelector(`[data-tab="${this.SWIPE_ORDER[idx]}"]`);
-      if (navItem) {
-        this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
-      }
-      
-      setTimeout(() => { arrowDebounce = false; }, 400);
-      blurButton(rightBtn); 
-    }, { capture: true });
-    
-    leftBtn.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-    }, { capture: true });
-    
-    rightBtn.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-    }, { capture: true });
-
-
-    // Clean up old observer
-    if (this.arrowObserver) {
-      this.arrowObserver.disconnect();
-    }
-
-    this.arrowObserver = new MutationObserver(() => {
-      swipeArrows.style.display = this.sheetOpen ? 'none' : 'flex';
-    });
-    
-    this.arrowObserver.observe(document.body, { attributeFilter: ['class'] });
-    
-    this.arrowListenersAttached = true;
-  }
-
   setupSwipeGestures() {
     if (globalSwipeListenersAttached) {
       return;
@@ -428,7 +326,6 @@ if (!document.getElementById('mobile-tab-indicator')) {
     
     const { SWIPE_THRESHOLD, SWIPE_TIME_MS } = this.CONSTANTS;
 
-    // Remove old listeners if they exist
     if (globalSwipeHandlers) {
       window.removeEventListener('touchstart', globalSwipeHandlers.start);
       window.removeEventListener('touchend', globalSwipeHandlers.end);
@@ -523,36 +420,137 @@ if (!document.getElementById('mobile-tab-indicator')) {
     });
   }
 
-updateTabIndicator(tabName) {
-  if (window.innerWidth > 767) return; // Only on mobile
-  
-  const dots = document.querySelectorAll('.tab-dot');
-  dots.forEach(dot => {
-    if (dot.dataset.tab === tabName) {
-      dot.classList.add('active');
-      // Apply active inline styles
-      dot.style.width = '16px';
-      dot.style.height = '16px';
-      dot.style.minWidth = '16px';
-      dot.style.minHeight = '16px';
-      dot.style.background = 'linear-gradient(135deg, var(--neuro-accent), var(--neuro-accent-light))';
-      dot.style.boxShadow = '0 0 10px rgba(102, 126, 234, 0.5), 0 2px 6px rgba(102, 126, 234, 0.3), 4px 4px 8px var(--neuro-shadow-dark), -4px -4px 8px var(--neuro-shadow-light)';
-      dot.style.transform = 'scale(1.1)';
-      dot.style.opacity = '1';
-    } else {
-      dot.classList.remove('active');
-      // Reset to inactive inline styles
-      dot.style.width = '12px';
-      dot.style.height = '12px';
-      dot.style.minWidth = '12px';
-      dot.style.minHeight = '12px';
-      dot.style.background = 'var(--neuro-shadow-dark)';
-      dot.style.boxShadow = 'inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light)';
-      dot.style.transform = 'scale(1)';
-      dot.style.opacity = '0.6';
+  setupSwipeArrows() {
+    if (window.innerWidth > 767) return;
+    
+    if (this.arrowListenersAttached) return;
+
+    const leftBtn = document.getElementById('swipe-left');
+    const rightBtn = document.getElementById('swipe-right');
+    const { swipeArrows } = this.cachedElements;
+    
+    if (!leftBtn || !rightBtn || !swipeArrows) return;
+    
+    leftBtn.tabIndex = -1;
+    rightBtn.tabIndex = -1;
+
+    if (!leftBtn.querySelector('svg')) {
+      leftBtn.innerHTML = `<svg viewBox="0 0 200 180" style="transform:scale(0.5); pointer-events:none;"><path d="M115 10 L100 90 L115 170" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"/></svg>`;
     }
-  });
-}
+    if (!rightBtn.querySelector('svg')) {
+      rightBtn.innerHTML = `<svg viewBox="0 0 200 180" style="transform:scaleX(-1) scale(0.5); pointer-events:none;"><path d="M115 10 L100 90 L115 170" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"/></svg>`;
+    }
+
+    const blurButton = (btn) => setTimeout(() => btn.blur(), 0);
+    
+    let arrowDebounce = false;
+    let touchStartTime = 0;
+    const MIN_TOUCH_DURATION = 120;
+
+    leftBtn.style.padding = '8px';
+    rightBtn.style.padding = '8px';
+
+    leftBtn.addEventListener('touchend', (e) => { 
+      e.preventDefault(); 
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      
+      const touchDuration = Date.now() - touchStartTime;
+      if (arrowDebounce || touchDuration < MIN_TOUCH_DURATION) return;
+      
+      arrowDebounce = true;
+      
+      const active = localStorage.getItem('pc_active_tab') || 'dashboard';
+      let idx = this.SWIPE_ORDER.indexOf(active);
+      idx = (idx - 1 + this.SWIPE_ORDER.length) % this.SWIPE_ORDER.length;
+      
+      const navItem = document.querySelector(`[data-tab="${this.SWIPE_ORDER[idx]}"]`);
+      if (navItem) {
+        this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
+      }
+      
+      setTimeout(() => { arrowDebounce = false; }, 400);
+      blurButton(leftBtn); 
+    }, { capture: true });
+    
+    rightBtn.addEventListener('touchend', (e) => { 
+      e.preventDefault(); 
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      
+      const touchDuration = Date.now() - touchStartTime;
+      if (arrowDebounce || touchDuration < MIN_TOUCH_DURATION) return;
+      
+      arrowDebounce = true;
+      
+      const active = localStorage.getItem('pc_active_tab') || 'dashboard';
+      let idx = this.SWIPE_ORDER.indexOf(active);
+      idx = (idx + 1) % this.SWIPE_ORDER.length;
+      
+      const navItem = document.querySelector(`[data-tab="${this.SWIPE_ORDER[idx]}"]`);
+      if (navItem) {
+        this.switchTab(this.SWIPE_ORDER[idx], navItem.dataset.label);
+      }
+      
+      setTimeout(() => { arrowDebounce = false; }, 400);
+      blurButton(rightBtn); 
+    }, { capture: true });
+    
+    leftBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      touchStartTime = Date.now();
+    }, { capture: true });
+    
+    rightBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      touchStartTime = Date.now();
+    }, { capture: true });
+
+    if (this.arrowObserver) {
+      this.arrowObserver.disconnect();
+    }
+
+    this.arrowObserver = new MutationObserver(() => {
+      swipeArrows.style.display = this.sheetOpen ? 'none' : 'flex';
+    });
+    
+    this.arrowObserver.observe(document.body, { attributeFilter: ['class'] });
+    
+    this.arrowListenersAttached = true;
+  }
+
+  updateTabIndicator(tabName) {
+    if (window.innerWidth > 767) return;
+    
+    const dots = document.querySelectorAll('.tab-dot');
+    dots.forEach(dot => {
+      if (dot.dataset.tab === tabName) {
+        dot.classList.add('active');
+        dot.style.width = '28px';
+        dot.style.height = '28px';
+        dot.style.minWidth = '28px';
+        dot.style.minHeight = '28px';
+        dot.style.background = 'linear-gradient(135deg, var(--neuro-accent), var(--neuro-accent-light))';
+        dot.style.boxShadow = '0 0 10px rgba(102, 126, 234, 0.5), 0 2px 6px rgba(102, 126, 234, 0.3), 4px 4px 8px var(--neuro-shadow-dark), -4px -4px 8px var(--neuro-shadow-light)';
+        dot.style.transform = 'scale(1.15)';
+        dot.style.opacity = '1';
+      } else {
+        dot.classList.remove('active');
+        dot.style.width = '24px';
+        dot.style.height = '24px';
+        dot.style.minWidth = '24px';
+        dot.style.minHeight = '24px';
+        dot.style.background = 'var(--neuro-shadow-dark)';
+        dot.style.boxShadow = 'inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light)';
+        dot.style.transform = 'scale(1)';
+        dot.style.opacity = '0.6';
+      }
+    });
+  }
 
   switchTab(tabName, label) {
     if (tabName === 'calculator' && !window.calculatorChunk) {
@@ -561,7 +559,6 @@ updateTabIndicator(tabName) {
 
     const { navItems } = this.cachedElements;
     
-    // Query fresh each time since tabs are dynamically created
     const tabContents = document.querySelectorAll('.tab-content');
 
     navItems.forEach(t => {
@@ -591,7 +588,6 @@ updateTabIndicator(tabName) {
     window.scrollTo(0, 0);
     this.vibrate(this.CONSTANTS.VIBRATION_MS);
     
-    // Update mobile indicator
     this.updateTabIndicator(tabName);
   }
 
@@ -609,3 +605,5 @@ updateTabIndicator(tabName) {
     this.cachedElements = {};
   }
 }
+
+// END OF FILE
