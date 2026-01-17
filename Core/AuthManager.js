@@ -472,8 +472,8 @@ showSignupForm() {
           </span>
         </label>
         <div style="position:relative">
-         <input type=password class="form-input-enhanced" placeholder="••••••••" autocomplete="current-password" required onkeyup="window.app.auth.checkCapsLock(event)" ${isLocked ? 'disabled' : ''}>
-          </div>
+          <input type=password class="form-input-enhanced" placeholder="••••••••" minlength=6 autocomplete="new-password" required oninput="window.app.auth.debouncedPasswordCheck(this)" onkeyup="window.app.auth.checkCapsLock(event)" style="width:100%;padding:12px 16px;border:2px solid #e5e7eb;border-radius:8px;font-size:16px;transition:all 0.2s;outline:none">
+        </div>
         <div class="password-strength" style="display:flex;gap:4px;margin-top:8px">
           <span style="flex:1;height:4px;background:#e5e7eb;border-radius:2px;transition:background 0.3s"></span>
           <span style="flex:1;height:4px;background:#e5e7eb;border-radius:2px;transition:background 0.3s"></span>
@@ -517,6 +517,7 @@ showSignupForm() {
   </div>
 </div>
 <style>
+@keyframes spin { to { transform: rotate(360deg); } }
 .divider::before, .divider::after {
   content: '';
   flex: 1;
