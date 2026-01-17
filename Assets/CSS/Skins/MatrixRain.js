@@ -23,7 +23,7 @@ const MATRIX_CONFIG = {
   LINE_HEIGHT_DESKTOP: 28,
   OPACITY_MOBILE: 0.5,
   OPACITY_DESKTOP: 0.6,
-  Z_INDEX: -1,
+  Z_INDEX: 1,
   COLORS: {
     DARK: {
       PRIMARY: '#ff0041',
@@ -63,7 +63,8 @@ export class MatrixRain {
     this._watchThemeChanges();
     
     const mode = this._isDarkMode() ? 'RED' : 'GREEN';
-    console.log(`✅ Matrix rain initialized (${mode}) with ${MATRIX_CONFIG.COLUMN_COUNT} columns at z-index ${MATRIX_CONFIG.Z_INDEX}`);
+    const isMobile = window.innerWidth <= MATRIX_CONFIG.MOBILE_BREAKPOINT;
+    console.log(`✅ Matrix rain initialized (${mode}) with ${isMobile ? MATRIX_CONFIG.COLUMN_COUNT_MOBILE : MATRIX_CONFIG.COLUMN_COUNT_DESKTOP} columns at z-index ${MATRIX_CONFIG.Z_INDEX}`);
   }
 
   /**
