@@ -576,55 +576,38 @@ export default class UserTab {
   }
 
   // ============== PRICING MODAL =============
-showPricingModal() {
-  const overlay = document.getElementById('pricing-modal-overlay');
-  if (!overlay) return;
-  
-  // Copy body's theme class to overlay for proper CSS var inheritance
-  const themeClass = ['champagne-gold', 'royal-indigo', 'earth-luxury', 'matrix-code']
-    .find(cls => document.body.classList.contains(cls));
-  
-  if (themeClass) {
-    overlay.classList.add(themeClass);
-  }
-  
-  // Copy dark mode class if active
-  if (document.body.classList.contains('dark-mode')) {
-    overlay.classList.add('dark-mode');
-  }
-  
-  overlay.classList.add('show');
-  document.body.classList.add('blur-behind');
-  this.attachPricingButtons(overlay);
-  
-  // Mobile carousel functionality
-  if (window.innerWidth <= 768) {
-    const container = document.getElementById('pricing-cards-container');
-    const dots = document.querySelectorAll('.pricing-dot');
-    const cards = container.querySelectorAll('.pricing-card');
+  showPricingModal() {
+    const overlay = document.getElementById('pricing-modal-overlay');
+    if (!overlay) return;
+    overlay.classList.add('show');
+    document.body.classList.add('blur-behind');
+    this.attachPricingButtons(overlay);
     
-    // Scroll to FREE (first card) on mobile
-    container.scrollTo({ left: 0, behavior: 'smooth' });
-    
-    container.addEventListener('scroll', () => {
-      const scrollLeft = container.scrollLeft;
-      const cardWidth = cards[0].offsetWidth + 20; // card + margin
-      const activeIndex = Math.round(scrollLeft / cardWidth);
+    if (window.innerWidth <= 768) {
+      const container = document.getElementById('pricing-cards-container');
+      const dots = document.querySelectorAll('.pricing-dot');
+      const cards = container.querySelectorAll('.pricing-card');
+      
+      container.scrollTo({ left: 0, behavior: 'smooth' });
+      
+      container.addEventListener('scroll', () => {
+        const scrollLeft = container.scrollLeft;
+        const cardWidth = cards[0].offsetWidth + 20;
+        const activeIndex = Math.round(scrollLeft / cardWidth);
+        
+        dots.forEach((dot, i) => {
+          dot.classList.toggle('active', i === activeIndex);
+        });
+      });
       
       dots.forEach((dot, i) => {
-        dot.classList.toggle('active', i === activeIndex);
+        dot.addEventListener('click', () => {
+          const cardWidth = cards[0].offsetWidth + 20;
+          container.scrollTo({ left: cardWidth * i, behavior: 'smooth' });
+        });
       });
-    });
-    
-    // Optional: dot click navigation
-    dots.forEach((dot, i) => {
-      dot.addEventListener('click', () => {
-        const cardWidth = cards[0].offsetWidth + 20;
-        container.scrollTo({ left: cardWidth * i, behavior: 'smooth' });
-      });
-    });
+    }
   }
-}
 
   closePricingModal() {
     const overlay = document.getElementById('pricing-modal-overlay');
