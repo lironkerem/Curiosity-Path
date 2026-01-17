@@ -1,4 +1,4 @@
-// NavigationManager.js - SECTION 1: Constructor and HTML Templates
+// NavigationManager.js
 import UserTab from './User-Tab.js';
 
 // Global flag to prevent duplicate swipe listeners across instances
