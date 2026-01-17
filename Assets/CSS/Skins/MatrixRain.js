@@ -10,12 +10,19 @@
 const MATRIX_CONFIG = {
   CHARS: 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789',
   MOBILE_BREAKPOINT: 768,
-  COLUMN_COUNT: 25,
+  COLUMN_COUNT_DESKTOP: 25,
+  COLUMN_COUNT_MOBILE: 12,
   CHAR_COUNT: 100,
-  BASE_SPEED_MOBILE: 0.8,
+  BASE_SPEED_MOBILE: 1.5,
   BASE_SPEED_DESKTOP: 3,
-  RANDOM_SPEED_MOBILE: 1.2,
+  RANDOM_SPEED_MOBILE: 2,
   RANDOM_SPEED_DESKTOP: 4,
+  FONT_SIZE_MOBILE: 16,
+  FONT_SIZE_DESKTOP: 24,
+  LINE_HEIGHT_MOBILE: 20,
+  LINE_HEIGHT_DESKTOP: 28,
+  OPACITY_MOBILE: 0.5,
+  OPACITY_DESKTOP: 0.6,
   Z_INDEX: -1,
   COLORS: {
     DARK: {
@@ -156,12 +163,18 @@ export class MatrixRain {
    */
   _createColumns() {
     const isMobile = window.innerWidth <= MATRIX_CONFIG.MOBILE_BREAKPOINT;
+    const columnCount = isMobile ? MATRIX_CONFIG.COLUMN_COUNT_MOBILE : MATRIX_CONFIG.COLUMN_COUNT_DESKTOP;
     const baseSpeed = isMobile ? MATRIX_CONFIG.BASE_SPEED_MOBILE : MATRIX_CONFIG.BASE_SPEED_DESKTOP;
     const randomSpeed = isMobile ? MATRIX_CONFIG.RANDOM_SPEED_MOBILE : MATRIX_CONFIG.RANDOM_SPEED_DESKTOP;
+    const fontSize = isMobile ? MATRIX_CONFIG.FONT_SIZE_MOBILE : MATRIX_CONFIG.FONT_SIZE_DESKTOP;
+    const lineHeight = isMobile ? MATRIX_CONFIG.LINE_HEIGHT_MOBILE : MATRIX_CONFIG.LINE_HEIGHT_DESKTOP;
+    const opacity = isMobile ? MATRIX_CONFIG.OPACITY_MOBILE : MATRIX_CONFIG.OPACITY_DESKTOP;
     const colors = this._getColors();
 
-    for (let i = 0; i < MATRIX_CONFIG.COLUMN_COUNT; i++) {
-      const col = this._createColumn(i, colors);
+    console.log(`Creating ${columnCount} columns for ${isMobile ? 'MOBILE' : 'DESKTOP'}`);
+
+    for (let i = 0; i < columnCount; i++) {
+      const col = this._createColumn(i, colors, fontSize, lineHeight, opacity, columnCount);
       this.container.appendChild(col);
       
       this.columns.push({
@@ -176,10 +189,15 @@ export class MatrixRain {
    * Create a single column element
    * @private
    */
-  _createColumn(index, colors) {
+  _createColumn(index, colors, fontSize, lineHeight, opacity, columnCount) {
     const col = document.createElement('div');
     col.className = 'matrix-column';
-    col.style.cssText = `font-family:'Share Tech Mono',monospace;font-size:24px;line-height:28px;color:${colors.PRIMARY};opacity:.6;white-space:pre;text-shadow:0 0 10px ${colors.PRIMARY},0 0 20px ${colors.GLOW};position:absolute;left:${4 * index}%;top:0;will-change:transform`;
+    
+    // Calculate column spacing based on total columns
+    const spacing = 100 / columnCount;
+    const leftPosition = (index * spacing) + (spacing / 2);
+    
+    col.style.cssText = `font-family:'Share Tech Mono',monospace;font-size:${fontSize}px;line-height:${lineHeight}px;color:${colors.PRIMARY};opacity:${opacity};white-space:pre;text-shadow:0 0 10px ${colors.PRIMARY},0 0 20px ${colors.GLOW};position:absolute;left:${leftPosition}%;top:0;will-change:transform;transform:translateX(-50%)`;
     
     const chars = Array.from(
       { length: MATRIX_CONFIG.CHAR_COUNT },
