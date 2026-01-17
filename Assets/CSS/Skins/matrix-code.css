@@ -3,33 +3,48 @@
    Updated for new main-styles.css + mobile-styles.css
    Apply to <body class="matrix-code">
    ========================================================= */
-/* ===== FORCE MATRIX RAIN CONTAINER ON ALL DEVICES ===== */
-body.matrix-code .matrix-rain-container {
+/* =========================================================
+   CRITICAL: MATRIX RAIN VISIBILITY FIX
+   Must be at the TOP to override everything
+   ========================================================= */
+
+body.matrix-code .matrix-rain-container,
+body.matrix-code.dark-mode .matrix-rain-container {
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
   z-index: 1 !important;
   pointer-events: none !important;
   overflow: hidden !important;
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
+  background: transparent !important;
 }
 
-/* Mobile-specific optimizations */
-@media (max-width: 767px) {
-  body.matrix-code .matrix-rain-container {
-    -webkit-transform: translate3d(0, 0, 0) !important;
-    transform: translate3d(0, 0, 0) !important;
-    -webkit-backface-visibility: hidden !important;
-    backface-visibility: hidden !important;
-  }
-  
-  body.matrix-code .matrix-column {
-    will-change: transform !important;
-  }
+body.matrix-code .matrix-column,
+body.matrix-code.dark-mode .matrix-column {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 0.5 !important;
+  pointer-events: none !important;
+}
+
+/* Force above background, below content */
+body.matrix-code #app-container,
+body.matrix-code #main-app,
+body.matrix-code #main-content,
+body.matrix-code .tab-content,
+body.matrix-code .mobile-bottom-bar,
+body.matrix-code .mobile-sheet,
+body.matrix-code .user-menu,
+body.matrix-code .lux-footer {
+  position: relative !important;
+  z-index: 2 !important;
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');

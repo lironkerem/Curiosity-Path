@@ -154,8 +154,27 @@ export class MatrixRain {
   _createContainer() {
     this.container = document.createElement('div');
     this.container.className = 'matrix-rain-container';
-    this.container.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;z-index:${MATRIX_CONFIG.Z_INDEX};pointer-events:none;overflow:hidden`;
+    this.container.setAttribute('data-matrix-rain', 'true');
+    this.container.style.cssText = `
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      z-index: 1 !important;
+      pointer-events: none !important;
+      overflow: hidden !important;
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      -webkit-transform: translate3d(0,0,0) !important;
+      transform: translate3d(0,0,0) !important;
+      -webkit-backface-visibility: hidden !important;
+      backface-visibility: hidden !important;
+    `.replace(/\s+/g, ' ').trim();
+    
     document.body.insertBefore(this.container, document.body.firstChild);
+    console.log('✅ Matrix container created:', this.container);
   }
 
   /**
@@ -193,12 +212,29 @@ export class MatrixRain {
   _createColumn(index, colors, fontSize, lineHeight, opacity, columnCount) {
     const col = document.createElement('div');
     col.className = 'matrix-column';
+    col.setAttribute('data-column-index', index);
     
     // Calculate column spacing based on total columns
     const spacing = 100 / columnCount;
     const leftPosition = (index * spacing) + (spacing / 2);
     
-    col.style.cssText = `font-family:'Share Tech Mono',monospace;font-size:${fontSize}px;line-height:${lineHeight}px;color:${colors.PRIMARY};opacity:${opacity};white-space:pre;text-shadow:0 0 10px ${colors.PRIMARY},0 0 20px ${colors.GLOW};position:absolute;left:${leftPosition}%;top:0;will-change:transform;transform:translateX(-50%)`;
+    col.style.cssText = `
+      font-family: 'Share Tech Mono', monospace !important;
+      font-size: ${fontSize}px !important;
+      line-height: ${lineHeight}px !important;
+      color: ${colors.PRIMARY} !important;
+      opacity: ${opacity} !important;
+      white-space: pre !important;
+      text-shadow: 0 0 10px ${colors.PRIMARY}, 0 0 20px ${colors.GLOW} !important;
+      position: absolute !important;
+      left: ${leftPosition}% !important;
+      top: 0 !important;
+      will-change: transform !important;
+      transform: translateX(-50%) !important;
+      display: block !important;
+      visibility: visible !important;
+      pointer-events: none !important;
+    `.replace(/\s+/g, ' ').trim();
     
     const chars = Array.from(
       { length: MATRIX_CONFIG.CHAR_COUNT },
