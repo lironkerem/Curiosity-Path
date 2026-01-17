@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matrix Rain Mobile Debug</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      background: #0d0208;
+      color: #00ff41;
+      font-family: 'Courier New', monospace;
+      overflow-x: hidden;
+    }
+    
+    /* Debug Panel */
+    #debug-panel {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.95);
+      border: 2px solid #00ff41;
+      border-radius: 8px;
+      padding: 15px;
+      z-index: 99999;
+      font-size: 12px;
+      max-height: 40vh;
+      overflow-y: auto;
+      box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+    }
+    
+    #debug-panel h2 {
+      color: #00ff41;
+      font-size: 16px;
+      margin-bottom: 10px;
+      text-align: center;
+      text-shadow: 0 0 10px #00ff41;
+    }
+    
+    .debug-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+    }
+    
+    .debug-label {
+      color: #00cc33;
+      font-weight: bold;
+    }
+    
+    .debug-value {
+      color: #00ff41;
+      text-align: right;
+      max-width: 60%;
+      word-break: break-word;
+    }
+    
+    .debug-value.true { color: #00ff00; }
+    .debug-value.false { color: #ff0041; }
+    
+    #close-btn {
+      margin-top: 15px;
+      width: 100%;
+      padding: 10px;
+      background: #00ff41;
+      color: #000;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    
+    #test-area {
+      margin-top: 50vh;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .test-box {
+      background: rgba(0, 255, 65, 0.1);
+      border: 2px solid #00ff41;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 10px;
+    }
+    
+    /* Matrix Rain Container */
+    .matrix-rain-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    
+    .matrix-column {
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+      line-height: 20px;
+      color: #00ff41;
+      opacity: 0.5;
+      white-space: pre;
+      text-shadow: 0 0 10px #00ff41, 0 0 20px rgba(0, 255, 65, 0.6);
+      position: absolute;
+      top: 0;
+      will-change: transform;
+      transform: translateX(-50%);
+    }
+  </style>
+</head>
+<body class="matrix-code">
+  
+  <!-- Debug Panel -->
+  <div id="debug-panel">
+    <h2>🔍 MATRIX RAIN MOBILE DEBUG</h2>
+    <div id="debug-content"></div>
+    <button id="close-btn" onclick="document.getElementById('debug-panel').style.display='none'">CLOSE DEBUG</button>
+  </div>
+  
+  <!-- Test Content -->
+  <div id="test-area" style="position: relative; z-index: 2;">
+    <div class="test-box">
+      <h1 style="font-size: 24px; margin-bottom: 10px;">MATRIX RAIN TEST</h1>
+      <p>If you see green cascading characters behind this box, the Matrix Rain is working!</p>
+    </div>
+    
+    <div class="test-box">
+      <h2>SCROLL TEST ↓</h2>
+      <p>Scroll down to see if animation continues</p>
+    </div>
+    
+    <div class="test-box" style="margin-top: 100vh;">
+      <h2>YOU SCROLLED!</h2>
+      <p>Animation should still be visible</p>
+    </div>
+  </div>
+
+  <script>
+    // Matrix Rain Implementation
+    const MATRIX_CONFIG = {
+      CHARS: 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789',
+      COLUMN_COUNT_MOBILE: 12,
+      CHAR_COUNT: 100,
+      BASE_SPEED: 1.5,
+      RANDOM_SPEED: 2,
+      FONT_SIZE: 16,
+      LINE_HEIGHT: 20,
+      OPACITY: 0.5,
+      COLOR: '#00ff41',
+      GLOW: 'rgba(0,255,65,.6)'
+    };
+
+    class MatrixRainTest {
+      constructor() {
+        this.container = null;
+        this.columns = [];
+        this.animationId = null;
+      }
+
+      init() {
+        this.createContainer();
+        this.createColumns();
+        this.animate();
+        console.log('✅ Matrix Rain Test initialized');
+      }
+
+      createContainer() {
+        this.container = document.createElement('div');
+        this.container.className = 'matrix-rain-container';
+        document.body.insertBefore(this.container, document.body.firstChild);
+      }
+
+      createColumns() {
+        const columnCount = MATRIX_CONFIG.COLUMN_COUNT_MOBILE;
+        const spacing = 100 / columnCount;
+
+        for (let i = 0; i < columnCount; i++) {
+          const col = document.createElement('div');
+          col.className = 'matrix-column';
+          const leftPosition = (i * spacing) + (spacing / 2);
+          col.style.left = `${leftPosition}%`;
+
+          const chars = Array.from(
+            { length: MATRIX_CONFIG.CHAR_COUNT },
+            () => MATRIX_CONFIG.CHARS[Math.random() * MATRIX_CONFIG.CHARS.length | 0]
+          ).join('\n');
+
+          col.textContent = chars;
+          this.container.appendChild(col);
+
+          this.columns.push({
+            el: col,
+            y: -Math.random() * 4000,
+            speed: MATRIX_CONFIG.BASE_SPEED + Math.random() * MATRIX_CONFIG.RANDOM_SPEED
+          });
+        }
+      }
+
+      animate() {
+        this.updateColumns();
+        this.animationId = requestAnimationFrame(() => this.animate());
+      }
+
+      updateColumns() {
+        const windowHeight = window.innerHeight;
+
+        this.columns.forEach(col => {
+          col.y += col.speed;
+
+          if (col.y > windowHeight + 2000) {
+            col.y = -2000;
+          }
+
+          col.el.style.transform = `translateY(${col.y}px)`;
+        });
+      }
+    }
+
+    // Debug Info
+    function updateDebug() {
+      const container = document.querySelector('.matrix-rain-container');
+      const columns = document.querySelectorAll('.matrix-column');
+      
+      const debugData = {
+        'Screen Width': `${window.innerWidth}px`,
+        'Screen Height': `${window.innerHeight}px`,
+        'Device Pixel Ratio': window.devicePixelRatio,
+        'Body Class': document.body.className || 'none',
+        'Container Exists': !!container,
+        'Container Z-Index': container ? getComputedStyle(container).zIndex : 'N/A',
+        'Columns Created': columns.length,
+        'Animation Running': window.matrixTest?.animationId ? 'YES ✓' : 'NO ✗',
+        'First Column Y': columns[0] ? getComputedStyle(columns[0]).transform : 'N/A'
+      };
+
+      const html = Object.entries(debugData).map(([key, value]) => {
+        const valueClass = value === true ? 'true' : value === false ? 'false' : '';
+        return `
+          <div class="debug-item">
+            <span class="debug-label">${key}:</span>
+            <span class="debug-value ${valueClass}">${value}</span>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('debug-content').innerHTML = html;
+    }
+
+    // Initialize
+    window.matrixTest = new MatrixRainTest();
+    window.matrixTest.init();
+    
+    // Update debug panel
+    updateDebug();
+    setInterval(updateDebug, 1000);
+
+    // Log to console
+    console.log('🎬 Matrix Rain Test Page Loaded');
+    console.log('Width:', window.innerWidth);
+    console.log('Height:', window.innerHeight);
+    console.log('Columns:', document.querySelectorAll('.matrix-column').length);
+  </script>
+</body>
+</html>
