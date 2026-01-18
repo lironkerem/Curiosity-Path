@@ -1,94 +1,18 @@
-/* user-tab-styles.css – updated disc sizes 2026-01-19 */
+/* user-tab-styles.css — patched 2026-01-11 */
 
 .user-menu { position: fixed; top: 12px; right: 12px; z-index: 100; }
-
-/* Desktop: 2x size (72px disc, 56px avatar) */
-.user-disc { 
-  width: 72px; 
-  height: 72px; 
-  border-radius: 50%; 
-  border: none; 
-  background: var(--neuro-bg); 
-  box-shadow: var(--shadow-raised); 
-  cursor: pointer; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  transition: box-shadow .2s, transform .2s; 
-}
-
+.user-disc { width: 36px; height: 36px; border-radius: 50%; border: none; background: var(--neuro-bg); box-shadow: var(--shadow-raised); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: box-shadow .2s, transform .2s; }
 .user-disc:active { box-shadow: var(--shadow-inset); transform: scale(.95); }
-
-.disc-icon { 
-  width: 40px; 
-  height: 40px; 
-  fill: #fff; 
-  transition: opacity .2s; 
-}
-
-.disc-avatar { 
-  width: 56px; 
-  height: 56px; 
-  border-radius: 50%; 
-  background: var(--neuro-bg); 
-  box-shadow: var(--shadow-inset-sm); 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  overflow: hidden; 
-  transition: opacity .2s; 
-}
-
+.disc-icon { width: 20px; height: 20px; fill: #fff; transition: opacity .2s; }
+.disc-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--neuro-bg); box-shadow: var(--shadow-inset-sm); display: flex; align-items: center; justify-content: center; overflow: hidden; transition: opacity .2s; }
 .disc-avatar-img { width: 100%; height: 100%; object-fit: cover; }
-.disc-avatar-emoji { font-size: 2.2rem; }
-
+.disc-avatar-emoji { font-size: 1.1rem; }
 .user-disc .disc-icon { opacity: 1; }
 .user-disc .disc-avatar { opacity: 0; position: absolute; }
 .user-disc.avatar-mode .disc-icon { opacity: 0; }
 .user-disc.avatar-mode .disc-avatar { opacity: 1; }
-
-.disc-dot { 
-  position: absolute; 
-  top: 4px; 
-  right: 4px; 
-  width: 12px; 
-  height: 12px; 
-  border-radius: 50%; 
-  background: var(--neuro-accent); 
-  box-shadow: 0 0 4px var(--neuro-accent); 
-  animation: pulseDot 1.5s infinite; 
-}
-
+.disc-dot { position: absolute; top: 2px; right: 2px; width: 8px; height: 8px; border-radius: 50%; background: var(--neuro-accent); box-shadow: 0 0 4px var(--neuro-accent); animation: pulseDot 1.5s infinite; }
 @keyframes pulseDot { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: .8; } }
-
-/* Mobile: +10px (46px disc, 38px avatar) */
-@media (max-width: 768px) {
-  .user-disc { 
-    width: 46px; 
-    height: 46px; 
-  }
-  
-  .disc-icon { 
-    width: 26px; 
-    height: 26px; 
-  }
-  
-  .disc-avatar { 
-    width: 38px; 
-    height: 38px; 
-  }
-  
-  .disc-avatar-emoji { 
-    font-size: 1.5rem; 
-  }
-  
-  .disc-dot { 
-    top: 3px; 
-    right: 3px; 
-    width: 10px; 
-    height: 10px; 
-  }
-}
 
 .user-dropdown { position: absolute; right: 0; top: calc(100% + 6px); width: 230px; background: var(--neuro-bg); border-radius: 24px; box-shadow: var(--shadow-raised-lg); padding: 12px 0; opacity: 0; transform: scale(.95); pointer-events: none; transition: opacity .2s, transform .2s; z-index: 50; max-height: 80vh; overflow-y: auto; }
 .user-dropdown.active { opacity: 1; transform: scale(1); pointer-events: auto; }

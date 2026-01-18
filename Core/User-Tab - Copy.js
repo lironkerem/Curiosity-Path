@@ -1,4 +1,4 @@
-// User-Tab.js – Updated with collapsed sections & validation fix 2026-01-19
+// User-Tab.js — Updated with timezone detection 2026-01-15
 import { supabase } from './Supabase.js';
 import * as Templates from './user-tab-templates.js';
 
@@ -64,12 +64,6 @@ export default class UserTab {
       const expanded = this.btn.getAttribute('aria-expanded') === 'true';
       this.btn.setAttribute('aria-expanded', !expanded);
       this.dropdown.classList.toggle('active');
-      
-      // COLLAPSE ALL SECTIONS when opening dropdown
-      if (!expanded) {
-        this.collapseAllSections();
-      }
-      
       this.syncAvatar();
     });
 
@@ -105,14 +99,6 @@ export default class UserTab {
     }
   }
 
-  // NEW: Collapse all sections
-  collapseAllSections() {
-    document.querySelectorAll('.accordion-panel').forEach(panel => {
-      panel.classList.remove('active');
-      panel.dataset.filled = ''; // Clear filled state
-    });
-  }
-
   handleSectionClick(section) {
     if (section === 'billing') {
       this.showPricingModal();
@@ -143,7 +129,7 @@ export default class UserTab {
       rules: () => { panel.innerHTML = Templates.rules(); this.attachRulesHandlers(panel); },
       contact: () => { panel.innerHTML = Templates.contact(); },
       export: () => { panel.innerHTML = Templates.exportData(); },
-      billing: () => { /* nothing – handled directly */ },
+      billing: () => { /* nothing — handled directly */ },
       admin: () => { panel.innerHTML = Templates.admin(); this.loadAdminPanel(); }
     };
     const renderer = renderers[section];
@@ -292,7 +278,7 @@ export default class UserTab {
     if (toggle) toggle.checked = dark;
   }
 
-  // ============== NOTIFICATIONS (WITH VALIDATION FIX) =============
+  // ============== NOTIFICATIONS (WITH TIMEZONE) =============
   async attachNotificationsHandlers() {
     await this.hydrateNotificationSettings();
     const master = document.getElementById('master-notifications-toggle');
@@ -301,7 +287,6 @@ export default class UserTab {
     const endTime = document.getElementById('notification-end-time');
     const frequency = document.getElementById('notification-frequency');
     const warning = document.getElementById('frequency-warning');
-    const validationWarning = document.getElementById('time-validation-warning');
     const timezoneDisplay = document.getElementById('timezone-display');
     let saveTimeout;
 
@@ -339,15 +324,8 @@ export default class UserTab {
       const endMin = end[0] * 60 + end[1];
       
       if (startMin >= endMin) {
-        if (validationWarning) {
-          validationWarning.style.display = 'block';
-        }
         this.app.showToast('⚠️ Start time must be before end time', 'warning');
         return false;
-      }
-      
-      if (validationWarning) {
-        validationWarning.style.display = 'none';
       }
       return true;
     };
@@ -473,7 +451,7 @@ export default class UserTab {
         end: document.getElementById('notification-end-time')?.value || '22:00'
       },
       frequency: document.getElementById('notification-frequency')?.value || 'minimum',
-      timezone: timezone
+      timezone: timezone  // ← Auto-captured timezone
     };
 
     localStorage.setItem('notification_settings', JSON.stringify(settings));
@@ -602,6 +580,7 @@ showPricingModal() {
   const overlay = document.getElementById('pricing-modal-overlay');
   if (!overlay) return;
   
+  // Copy body's theme class to overlay for proper CSS var inheritance
   const themeClass = ['champagne-gold', 'royal-indigo', 'earth-luxury', 'matrix-code']
     .find(cls => document.body.classList.contains(cls));
   
@@ -609,6 +588,7 @@ showPricingModal() {
     overlay.classList.add(themeClass);
   }
   
+  // Copy dark mode class if active
   if (document.body.classList.contains('dark-mode')) {
     overlay.classList.add('dark-mode');
   }
@@ -617,16 +597,18 @@ showPricingModal() {
   document.body.classList.add('blur-behind');
   this.attachPricingButtons(overlay);
   
+  // Mobile carousel functionality
   if (window.innerWidth <= 768) {
     const container = document.getElementById('pricing-cards-container');
     const dots = document.querySelectorAll('.pricing-dot');
     const cards = container.querySelectorAll('.pricing-card');
     
+    // Scroll to FREE (first card) on mobile
     container.scrollTo({ left: 0, behavior: 'smooth' });
     
     container.addEventListener('scroll', () => {
       const scrollLeft = container.scrollLeft;
-      const cardWidth = cards[0].offsetWidth + 20;
+      const cardWidth = cards[0].offsetWidth + 20; // card + margin
       const activeIndex = Math.round(scrollLeft / cardWidth);
       
       dots.forEach((dot, i) => {
@@ -634,6 +616,7 @@ showPricingModal() {
       });
     });
     
+    // Optional: dot click navigation
     dots.forEach((dot, i) => {
       dot.addEventListener('click', () => {
         const cardWidth = cards[0].offsetWidth + 20;

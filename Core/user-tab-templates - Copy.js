@@ -1,4 +1,4 @@
-// user-tab-templates.js – Updated notifications section 2026-01-19
+// user-tab-templates.js — Updated with timezone display 2026-01-15
 
 export const MENU_ITEMS = [
   { id: 'profile',        icon: '👤', label: 'Profile' },
@@ -112,7 +112,7 @@ export const notifications = () => {
 
   return `
     <div class="accordion-inner">
-      <div style="margin-bottom:16px;">
+      <div style="background:rgba(102,126,234,.1);border-radius:12px;padding:12px;margin-bottom:16px;">
         ${toggle('master-notifications-toggle', '🔔 Enable Notifications', settings.enabled)}
         <small style="opacity:.7;display:block;margin-top:8px;">${settings.enabled ? '✅ Enabled' : '⚠️ Enable to receive notifications'}</small>
       </div>
@@ -147,7 +147,7 @@ export const notifications = () => {
             </div>
           </div>
           
-          <small id="time-validation-warning" style="opacity:.7;display:none;font-size:.75rem;color:#ff9800;">⚠️ Start time must be before end time</small>
+          <small style="opacity:.7;display:block;font-size:.75rem;">⚠️ Start time must be before end time</small>
         </div>
 
         <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:16px 0;">
@@ -186,15 +186,28 @@ export const notifications = () => {
 
         <button class="btn-link" id="save-notification-settings" style="margin-top:12px;">💾 Save Settings</button>
         <small style="opacity:.6;display:block;margin-top:8px;font-size:.7rem;text-align:center;">Auto-saves after changes</small>
+        
+        <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:16px 0;">
+        
+        <div style="padding:12px;background:rgba(102,126,234,.08);border-radius:8px;font-size:.8rem;">
+          <strong style="display:block;margin-bottom:8px;">ℹ️ How it works:</strong>
+          <ul style="margin:0;padding-left:20px;opacity:.85;line-height:1.6;">
+            <li>Your available hours are divided into 4 unique time slots</li>
+            <li>Each Notification sends a quick reminder to Check-in within</li>
+            <li>Frequency controls how many notifications are active</li>
+            <li>Messages never repeat in the same way</li>
+            <li>All times are automatically adjusted to your timezone</li>
+          </ul>
+        </div>
       </div>
     </div>`;
 };
 
 export const rules = () => {
   const categories = [
-    { title: 'FIRST-WINS', badges: [{ icon: '🌱', name: 'First Step', desc: 'do any single action', xp: 10, karma: 3, rarity: 'common' }, { icon: '💚', name: 'First Gratitude', desc: 'log 1 gratitude entry', xp: 10, karma: 3, rarity: 'common' }, { icon: '📓', name: 'First Journal', desc: 'save 1 journal entry', xp: 10, karma: 3, rarity: 'common' }, { icon: '⚡', name: 'First Energy', desc: 'log 1 energy check-in', xp: 10, karma: 3, rarity: 'common' }, { icon: '🃏', name: 'First Reading', desc: 'complete 1 tarot spread', xp: 10, karma: 3, rarity: 'common' }, { icon: '🧘', name: 'First Meditation', desc: 'finish 1 meditation session', xp: 10, karma: 3, rarity: 'common' }, { icon: '🛒', name: 'First Purchase', desc: 'buy anything in Karma Shop', xp: 50, karma: 3, rarity: 'common' }] },
+    { title: 'FIRST-WINS', badges: [{ icon: '🌱', name: 'First Step', desc: 'do any single action', xp: 10, karma: 3, rarity: 'common' }, { icon: '💚', name: 'First Gratitude', desc: 'log 1 gratitude entry', xp: 10, karma: 3, rarity: 'common' }, { icon: '📔', name: 'First Journal', desc: 'save 1 journal entry', xp: 10, karma: 3, rarity: 'common' }, { icon: '⚡', name: 'First Energy', desc: 'log 1 energy check-in', xp: 10, karma: 3, rarity: 'common' }, { icon: '🃏', name: 'First Reading', desc: 'complete 1 tarot spread', xp: 10, karma: 3, rarity: 'common' }, { icon: '🧘', name: 'First Meditation', desc: 'finish 1 meditation session', xp: 10, karma: 3, rarity: 'common' }, { icon: '🛒', name: 'First Purchase', desc: 'buy anything in Karma Shop', xp: 50, karma: 3, rarity: 'common' }] },
     { title: 'GRATITUDE', badges: [{ icon: '❤️', name: 'Gratitude Warrior', desc: '30 entries', xp: 50, karma: 5, rarity: 'uncommon' }, { icon: '💕', name: 'Gratitude Legend', desc: '100 entries', xp: 100, karma: 10, rarity: 'rare' }, { icon: '💖', name: 'Gratitude Sage', desc: '200 entries', xp: 200, karma: 15, rarity: 'epic' }, { icon: '💘', name: 'Gratitude Titan', desc: '500 entries', xp: 500, karma: 30, rarity: 'legendary' }] },
-    { title: 'JOURNAL', badges: [{ icon: '📓', name: 'Journal Keeper', desc: '20 entries', xp: 50, karma: 5, rarity: 'uncommon' }, { icon: '📚', name: 'Journal Master', desc: '75 entries', xp: 100, karma: 10, rarity: 'rare' }, { icon: '📖', name: 'Journal Sage', desc: '150 entries', xp: 200, karma: 15, rarity: 'epic' }, { icon: '📜', name: 'Journal Titan', desc: '400 entries', xp: 500, karma: 30, rarity: 'legendary' }] },
+    { title: 'JOURNAL', badges: [{ icon: '📔', name: 'Journal Keeper', desc: '20 entries', xp: 50, karma: 5, rarity: 'uncommon' }, { icon: '📚', name: 'Journal Master', desc: '75 entries', xp: 100, karma: 10, rarity: 'rare' }, { icon: '📖', name: 'Journal Sage', desc: '150 entries', xp: 200, karma: 15, rarity: 'epic' }, { icon: '📜', name: 'Journal Titan', desc: '400 entries', xp: 500, karma: 30, rarity: 'legendary' }] },
     { title: 'ENERGY', badges: [{ icon: '⚡', name: 'Energy Tracker', desc: '30 logs', xp: 50, karma: 5, rarity: 'uncommon' }, { icon: '🔋', name: 'Energy Sage', desc: '100 logs', xp: 100, karma: 10, rarity: 'rare' }, { icon: '🔌', name: 'Energy Titan', desc: '300 logs', xp: 300, karma: 15, rarity: 'epic' }, { icon: '⚡️', name: 'Energy Legend', desc: '600 logs', xp: 600, karma: 30, rarity: 'legendary' }] },
     { title: 'TAROT', badges: [{ icon: '🔮', name: 'Tarot Apprentice', desc: '10 spreads', xp: 25, karma: 3, rarity: 'common' }, { icon: '🃏', name: 'Tarot Mystic', desc: '25 spreads', xp: 50, karma: 5, rarity: 'uncommon' }, { icon: '🌙', name: 'Tarot Oracle', desc: '75 spreads', xp: 100, karma: 10, rarity: 'rare' }, { icon: '🧙', name: 'Tarot Sage', desc: '150 spreads', xp: 200, karma: 15, rarity: 'epic' }, { icon: '🔮', name: 'Tarot Titan', desc: '400 spreads', xp: 500, karma: 30, rarity: 'legendary' }] },
     { title: 'MEDITATION', badges: [{ icon: '🧘', name: 'Meditation Devotee', desc: '20 sessions', xp: 50, karma: 5, rarity: 'uncommon' }, { icon: '🕉️', name: 'Meditation Master', desc: '60 sessions', xp: 100, karma: 10, rarity: 'rare' }, { icon: '🧘‍♂️', name: 'Meditation Sage', desc: '100 sessions', xp: 300, karma: 15, rarity: 'epic' }, { icon: '🧘‍♀️', name: 'Meditation Titan', desc: '200 sessions', xp: 700, karma: 30, rarity: 'legendary' }] },
@@ -222,7 +235,7 @@ export const rules = () => {
       <div class="rules-currency-block">
         <div class="rules-currency-title">Levels</div>
         <table class="rules-level-table">
-          ${[['Seeker', 0], ['Practitioner', 300], ['Adept', 800], ['Healer', 1600], ['Master', 3200], ['Sage', 6500], ['Enlightened', 20000], ['Buddha', 50000], ['Light', 150000], ['Emptiness', 400000]].map((l, i) => `<tr><td>L${i + 1} – ${l[0]}</td><td>${l[1].toLocaleString()}</td></tr>`).join('')}
+          ${[['Seeker', 0], ['Practitioner', 300], ['Adept', 800], ['Healer', 1600], ['Master', 3200], ['Sage', 6500], ['Enlightened', 20000], ['Buddha', 50000], ['Light', 150000], ['Emptiness', 400000]].map((l, i) => `<tr><td>L${i + 1} — ${l[0]}</td><td>${l[1].toLocaleString()}</td></tr>`).join('')}
         </table>
       </div>
     </div>
