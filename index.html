@@ -96,7 +96,32 @@
   <script type="module" src="./Features/EnergyTracker.js"></script>
   <script type="module" src="./Core/Features.js"></script>
   <script src="./Features/WellnessKit.js"></script>
-<script src="/Assets/CSS/Skins/MatrixRain.js"></script>
+<script src="/Assets/CSS/Skins/MatrixRain.js?v=1.0.0"></script>
+
+<!-- Force init on mobile -->
+<script>
+(function checkAndInit() {
+  let attempts = 0;
+  const maxAttempts = 10;
+  
+  function tryInit() {
+    attempts++;
+    
+    if (typeof MatrixRain !== 'undefined' && window.matrixRain) {
+      console.log('✅ MatrixRain loaded successfully');
+      return true;
+    }
+    
+    if (attempts < maxAttempts) {
+      setTimeout(tryInit, 200);
+    } else {
+      console.error('❌ MatrixRain failed to load after', attempts, 'attempts');
+    }
+  }
+  
+  tryInit();
+})();
+</script>
 <script>
 // TEMPORARY DEBUG - Add this to your HTML after MatrixRain.js loads
 // Remove after fixing
