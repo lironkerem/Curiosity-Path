@@ -134,7 +134,7 @@ export const notifications = () => {
 
         <div class="notification-section">
           <h4 style="font-size:.9rem;font-weight:600;margin-bottom:12px;">⏰ Daily Availability Window</h4>
-          <p style="font-size:.85rem;opacity:.8;margin-bottom:12px;">Set when you want to receive notifications each day</p>
+          <p style="font-size:.85rem;opacity:.8;margin-bottom:12px;">Set your Daily Window for Notifications</p>
           
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
             <div>
@@ -154,7 +154,7 @@ export const notifications = () => {
 
         <div class="notification-section">
           <h4 style="font-size:.9rem;font-weight:600;margin-bottom:12px;">📊 Notification Frequency</h4>
-          <p style="font-size:.85rem;opacity:.8;margin-bottom:12px;">How many notifications per day?</p>
+          <p style="font-size:.85rem;opacity:.8;margin-bottom:12px;">How involved would you like to be?</p>
           
           <select id="notification-frequency" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(0,0,0,.1);font-size:.9rem;">
             <option value="minimum" ${settings.frequency === 'minimum' ? 'selected' : ''}>Minimum (2 per day)</option>
@@ -163,20 +163,20 @@ export const notifications = () => {
           
           <div id="frequency-warning" style="display:none;margin-top:10px;padding:10px;background:rgba(255,152,0,.1);border-left:3px solid #ff9800;border-radius:6px;font-size:.8rem;">
             <strong style="color:#ff9800;">⚠️ Short window detected</strong>
-            <p style="margin:4px 0 0 0;opacity:.9;">Your window is less than 6 hours. FULL frequency may feel too frequent (4 notifications in a short time). Consider using MINIMUM or extending your window.</p>
+            <p style="margin:4px 0 0 0;opacity:.9;">Your window is less than 6 hours. FULL frequency may feel too frequent (4 notifications in a short time). Consider using MINIMUM or extending your availability.</p>
           </div>
           
           <div style="margin-top:12px;padding:10px;background:rgba(0,0,0,.05);border-radius:8px;font-size:.8rem;">
             <strong style="display:block;margin-bottom:6px;">What you'll receive:</strong>
             <div style="opacity:.85;line-height:1.6;">
               ${settings.frequency === 'minimum' ? `
-                <div>🌅 <strong>Morning:</strong> Energy log + daily cards</div>
-                <div>🌙 <strong>Night:</strong> Energy log + journaling</div>
+                <div>🌅 <strong>Awakening:</strong> Checking-in and Focusing</div>
+                <div>🌙 <strong>Integration:</strong> Integrating the Day</div>
               ` : `
-                <div>🌅 <strong>Morning:</strong> Energy log + daily cards</div>
-                <div>☀️ <strong>Afternoon:</strong> Quick reset + practices</div>
-                <div>🌆 <strong>Evening:</strong> Gratitude + inspiration</div>
-                <div>🌙 <strong>Night:</strong> Energy log + journaling</div>
+                <div>🌅 <strong>Awakening:</strong> Checking-in and Focusing</div>
+                <div>☀️ <strong>Recharge:</strong> Quick reset and Mindfulness</div>
+                <div>🌆 <strong>Reflect:</strong> Gratitude and Inspiration</div>
+                <div>🌙 <strong>Integration:</strong> Integrating the Day</div>
               `}
             </div>
           </div>
@@ -192,9 +192,9 @@ export const notifications = () => {
         <div style="padding:12px;background:rgba(102,126,234,.08);border-radius:8px;font-size:.8rem;">
           <strong style="display:block;margin-bottom:8px;">ℹ️ How it works:</strong>
           <ul style="margin:0;padding-left:20px;opacity:.85;line-height:1.6;">
-            <li>Your daily window is divided into 4 time slots</li>
-            <li>Each slot sends randomized, fresh messages</li>
-            <li>Frequency controls how many slots are active</li>
+            <li>Your available hours are divided into 4 unique time slots</li>
+            <li>Each Notification sends a quick reminder to Check-in within</li>
+            <li>Frequency controls how many notifications are active</li>
             <li>Messages never repeat in the same way</li>
             <li>All times are automatically adjusted to your timezone</li>
           </ul>
