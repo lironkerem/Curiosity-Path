@@ -309,16 +309,19 @@ export default class ProjectCuriosityApp {
     return this.state && this.state.data;
   }
 
-  async initializeApp() {
-    try {
-      console.log('\u{2705} User authenticated, loading data...');
-      
+async initializeApp() {
+  if (this._initialized) return;      // ← NEW
+  this._initialized = true;           // ← NEW
+
+  try {
+    console.log('\u{2705} User authenticated, loading data...');
+
+    if (!this._validateState()) {
+      await this.state.ready;
       if (!this._validateState()) {
-        await this.state.ready;
-        if (!this._validateState()) {
-          this.state.data = this.state.emptyModel();
-        }
+        this.state.data = this.state.emptyModel();
       }
+    }
 
       this.gamification = new GamificationEngine(this);
       this.setupGamificationListeners();
