@@ -1,11 +1,11 @@
-// js/customDatePicker.js - Production-grade mobile-friendly date picker
+// js/customDatePicker.js - Mobile-friendly date picker with dropdowns
+// NO AUTO-INITIALIZATION - loader.js handles it
 
 export class CustomDatePicker {
-  constructor(inputId, options = {}) {
+  constructor(inputId) {
     this.input = document.getElementById(inputId);
     this.container = null;
     this.dropdowns = { year: null, month: null, day: null };
-    this.onChange = options.onChange || null; // Callback for value changes
     this.init();
   }
 
@@ -15,18 +15,10 @@ export class CustomDatePicker {
     // Create custom picker container
     this.createPickerUI();
 
-    // Hide native picker - use text input instead
+    // ALWAYS hide native date input and use custom picker
     this.input.type = 'text';
+    this.input.readOnly = true;
     this.input.placeholder = 'Select date...';
-    
-    // Remove readOnly - not needed with proper event handling
-    // Just prevent manual typing with input validation
-    this.input.addEventListener('keydown', (e) => {
-      // Allow tab, delete, backspace for accessibility
-      if (['Tab', 'Delete', 'Backspace'].includes(e.key)) return;
-      e.preventDefault();
-      this.show();
-    });
 
     // Show custom picker on click
     this.input.addEventListener('click', (e) => {
@@ -36,6 +28,7 @@ export class CustomDatePicker {
 
     this.input.addEventListener('focus', (e) => {
       e.preventDefault();
+      this.input.blur();
       this.show();
     });
   }
@@ -285,41 +278,15 @@ export class CustomDatePicker {
     // Format as YYYY-MM-DD
     const dateString = `${year}-${month}-${day}`;
     
-    // Update input value
+    // Update input
     this.input.value = dateString;
     
-    // Call callback if provided (production approach)
-    if (typeof this.onChange === 'function') {
-      this.onChange(dateString, this.input);
-    }
-    
-    // Also trigger native events for compatibility with existing validation
-    const changeEvent = new Event('change', { bubbles: true });
-    const inputEvent = new Event('input', { bubbles: true });
-    this.input.dispatchEvent(changeEvent);
-    this.input.dispatchEvent(inputEvent);
+    // Trigger change event
+    this.input.dispatchEvent(new Event('change', { bubbles: true }));
+    this.input.dispatchEvent(new Event('input', { bubbles: true }));
 
     this.hide();
   }
-
-  // Public API: programmatically set value
-  setValue(dateString) {
-    this.input.value = dateString;
-    if (typeof this.onChange === 'function') {
-      this.onChange(dateString, this.input);
-    }
-  }
-
-  // Public API: get current value
-  getValue() {
-    return this.input.value;
-  }
-
-  // Public API: clear value
-  clear() {
-    this.input.value = '';
-    if (typeof this.onChange === 'function') {
-      this.onChange('', this.input);
-    }
-  }
 }
+
+// NO AUTO-INITIALIZATION - loader.js handles it

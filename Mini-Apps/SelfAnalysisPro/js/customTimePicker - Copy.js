@@ -1,11 +1,11 @@
-// js/customTimePicker.js - Production-grade mobile-friendly time picker
+// js/customTimePicker.js - Mobile-friendly time picker for birth time
+// NO AUTO-INITIALIZATION - loader.js handles it
 
 export class CustomTimePicker {
-  constructor(inputId, options = {}) {
+  constructor(inputId) {
     this.input = document.getElementById(inputId);
     this.container = null;
     this.dropdowns = { hour: null, minute: null, period: null };
-    this.onChange = options.onChange || null; // Callback for value changes
     this.init();
   }
 
@@ -15,18 +15,10 @@ export class CustomTimePicker {
     // Create custom picker container
     this.createPickerUI();
 
-    // Hide native picker - use text input instead
+    // ALWAYS hide native time input and use custom picker
     this.input.type = 'text';
+    this.input.readOnly = true;
     this.input.placeholder = 'Select time...';
-    
-    // Remove readOnly - not needed with proper event handling
-    // Just prevent manual typing with input validation
-    this.input.addEventListener('keydown', (e) => {
-      // Allow tab, delete, backspace for accessibility
-      if (['Tab', 'Delete', 'Backspace'].includes(e.key)) return;
-      e.preventDefault();
-      this.show();
-    });
 
     // Show custom picker on click
     this.input.addEventListener('click', (e) => {
@@ -36,6 +28,7 @@ export class CustomTimePicker {
 
     this.input.addEventListener('focus', (e) => {
       e.preventDefault();
+      this.input.blur();
       this.show();
     });
   }
@@ -268,7 +261,7 @@ export class CustomTimePicker {
     // Event listeners
     picker.querySelector('.close-time-picker').addEventListener('click', () => this.hide());
     picker.querySelector('.time-picker-skip').addEventListener('click', () => {
-      this.clear();
+      this.input.value = '';
       this.hide();
     });
     picker.querySelector('.time-picker-confirm').addEventListener('click', () => this.confirm());
@@ -371,41 +364,15 @@ export class CustomTimePicker {
     // Format as HH:MM
     const timeString = `${hour24.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
     
-    // Update input value
+    // Update input
     this.input.value = timeString;
     
-    // Call callback if provided (production approach)
-    if (typeof this.onChange === 'function') {
-      this.onChange(timeString, this.input);
-    }
-    
-    // Also trigger native events for compatibility with existing validation
-    const changeEvent = new Event('change', { bubbles: true });
-    const inputEvent = new Event('input', { bubbles: true });
-    this.input.dispatchEvent(changeEvent);
-    this.input.dispatchEvent(inputEvent);
+    // Trigger change event
+    this.input.dispatchEvent(new Event('change', { bubbles: true }));
+    this.input.dispatchEvent(new Event('input', { bubbles: true }));
 
     this.hide();
   }
-
-  // Public API: programmatically set value
-  setValue(timeString) {
-    this.input.value = timeString;
-    if (typeof this.onChange === 'function') {
-      this.onChange(timeString, this.input);
-    }
-  }
-
-  // Public API: get current value
-  getValue() {
-    return this.input.value;
-  }
-
-  // Public API: clear value
-  clear() {
-    this.input.value = '';
-    if (typeof this.onChange === 'function') {
-      this.onChange('', this.input);
-    }
-  }
 }
+
+// NO AUTO-INITIALIZATION - loader.js handles it
