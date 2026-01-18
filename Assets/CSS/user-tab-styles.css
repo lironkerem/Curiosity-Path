@@ -252,23 +252,33 @@ body.blur-behind > *:not(.pricing-overlay) {
 
 /* Mobile carousel - FULLY FIXED */
 @media (max-width: 768px) {
+  .pricing-overlay {
+    padding: 20px 10px;
+    align-items: center;
+    justify-content: center;
+  }
+  
   .pricing-modal {
-    width: 100%;
-    max-width: 100vw;
-    max-height: 90vh;
-    padding: 24px 12px;
-    margin: 0;
-    border-radius: 24px 24px 0 0;
+    width: 92%;
+    max-width: 92vw;
+    max-height: 82vh;
+    padding: 20px 12px 24px 12px;
+    margin: auto;
+    border-radius: 20px;
     box-sizing: border-box;
+    overflow-y: auto;
   }
   
   .pricing-title {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
     padding: 0 4px;
+    margin-bottom: 4px;
   }
   
   .pricing-sub {
     padding: 0 4px;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
   }
   
   .pricing-cards {
@@ -281,10 +291,9 @@ body.blur-behind > *:not(.pricing-overlay) {
     scrollbar-width: none;
     padding: 10px 0;
     margin: 0 -12px;
-    padding-left: 12px;
-    padding-right: 12px;
-    width: 100vw;
-    max-width: 100vw;
+    padding-left: calc(50vw - 40vw);
+    padding-right: calc(50vw - 40vw);
+    width: calc(100% + 24px);
     box-sizing: border-box;
     
     /* CRITICAL MOBILE FIXES */
@@ -299,12 +308,13 @@ body.blur-behind > *:not(.pricing-overlay) {
   }
   
   .pricing-card {
-    min-width: calc(100vw - 80px);
-    max-width: calc(100vw - 80px);
+    min-width: 80vw;
+    max-width: 80vw;
     flex-shrink: 0;
     scroll-snap-align: center;
     margin: 0 8px;
     box-sizing: border-box;
+    padding: 20px 16px;
     
     /* PREVENT HOVER ZOOM ON MOBILE */
     transform: none !important;
@@ -314,8 +324,8 @@ body.blur-behind > *:not(.pricing-overlay) {
     display: flex;
     justify-content: center;
     gap: 8px;
-    margin-top: 12px;
-    padding: 8px 0;
+    margin-top: 8px;
+    padding: 8px 0 4px 0;
     
     /* PREVENT TAP ZOOM */
     touch-action: manipulation;
@@ -338,6 +348,12 @@ body.blur-behind > *:not(.pricing-overlay) {
     background: var(--neuro-accent);
     width: 24px;
     border-radius: 4px;
+  }
+  
+  .pricing-foot {
+    font-size: 0.7rem;
+    padding: 0 8px;
+    margin-top: 8px;
   }
 }
 
