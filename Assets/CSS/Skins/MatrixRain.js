@@ -320,12 +320,12 @@ export class MatrixRain {
  * Auto-initialize when matrix-code class is detected
  * Can be manually controlled via window.matrixRain
  */
+// Expose globally
 if (typeof window !== 'undefined') {
-  // Expose constructor globally
   window.MatrixRain = MatrixRain;
-
-  // Initialize function
-  const startIfNeeded = () => {
+  
+  // Simple initialization
+  function initMatrix() {
     if (document.body.classList.contains('matrix-code')) {
       if (!window.matrixRain || !window.matrixRain.isRunning) {
         window.matrixRain = new MatrixRain();
@@ -333,35 +333,28 @@ if (typeof window !== 'undefined') {
         console.log('🎬 Matrix Rain started');
       }
     }
-  };
-
-  // Try multiple initialization points
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', startIfNeeded);
-  } else if (document.readyState === 'interactive' || document.readyState === 'complete') {
-    // DOM already loaded, start immediately
-    setTimeout(startIfNeeded, 100);
   }
-
-  // Also try on window load as fallback
-  window.addEventListener('load', () => {
-    setTimeout(startIfNeeded, 100);
-  });
-
-  // Watch for class changes
+  
+  // Try multiple times to ensure it runs
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMatrix);
+  }
+  
+  window.addEventListener('load', initMatrix);
+  setTimeout(initMatrix, 100);
+  setTimeout(initMatrix, 500);
+  setTimeout(initMatrix, 1000);
+  
+  // Watch for theme changes
   if (window.MutationObserver) {
-    const matrixObserver = new MutationObserver(() => {
+    const observer = new MutationObserver(() => {
       if (document.body.classList.contains('matrix-code')) {
-        startIfNeeded();
-      } else {
-        // Auto-destroy when leaving skin
-        if (window.matrixRain) {
-          window.matrixRain.destroy();
-        }
+        initMatrix();
+      } else if (window.matrixRain) {
+        window.matrixRain.destroy();
       }
     });
-    
-    matrixObserver.observe(document.body, { 
+    observer.observe(document.body, { 
       attributes: true, 
       attributeFilter: ['class'] 
     });
