@@ -310,8 +310,6 @@ export default class ProjectCuriosityApp {
   }
 
   async initializeApp() {
-if (this._initialized) return;
-this._initialized = true;
     try {
       console.log('\u{2705} User authenticated, loading data...');
       
