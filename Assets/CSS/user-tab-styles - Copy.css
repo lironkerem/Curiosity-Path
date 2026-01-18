@@ -55,7 +55,7 @@
 .toggle-switch input:checked + .toggle-slider { background: var(--neuro-accent); }
 .toggle-switch input:checked + .toggle-slider:before { transform: translateX(22px); }
 
-/* ---- pricing modal ---- MOBILE FIXED VERSION */
+/* ---- pricing modal ---- */
 .pricing-overlay {
   position: fixed;
   inset: 0;
@@ -70,11 +70,6 @@
   transition: opacity .3s;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  
-  /* MOBILE FIXES */
-  touch-action: none;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
 }
 
 .pricing-overlay.show {
@@ -87,9 +82,6 @@ body.blur-behind {
   position: fixed;
   width: 100%;
   height: 100%;
-  
-  /* PREVENT ZOOM SHAKE */
-  touch-action: none;
 }
 
 body.blur-behind > *:not(.pricing-overlay) {
@@ -111,11 +103,6 @@ body.blur-behind > *:not(.pricing-overlay) {
   flex-direction: column;
   gap: 20px;
   overflow-y: auto;
-  
-  /* MOBILE FIXES */
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  will-change: transform;
 }
 
 .pricing-close {
@@ -231,9 +218,6 @@ body.blur-behind > *:not(.pricing-overlay) {
   font-weight: 600;
   cursor: pointer;
   transition: background .2s;
-  
-  /* PREVENT ZOOM ON TAP */
-  touch-action: manipulation;
 }
 
 .pricing-btn.primary {
@@ -250,7 +234,7 @@ body.blur-behind > *:not(.pricing-overlay) {
   color: var(--neuro-text);
 }
 
-/* Mobile carousel - FULLY FIXED */
+/* Mobile carousel */
 @media (max-width: 768px) {
   .pricing-modal {
     width: 95%;
@@ -273,12 +257,6 @@ body.blur-behind > *:not(.pricing-overlay) {
     margin: 0 -16px;
     padding-left: 16px;
     padding-right: 16px;
-    
-    /* CRITICAL MOBILE FIXES */
-    touch-action: pan-x;
-    overscroll-behavior-x: contain;
-    -webkit-tap-highlight-color: transparent;
-    will-change: scroll-position;
   }
   
   .pricing-cards::-webkit-scrollbar {
@@ -291,9 +269,6 @@ body.blur-behind > *:not(.pricing-overlay) {
     flex-shrink: 0;
     scroll-snap-align: center;
     margin: 0 8px;
-    
-    /* PREVENT HOVER ZOOM ON MOBILE */
-    transform: none !important;
   }
   
   .pricing-carousel-dots {
@@ -302,9 +277,6 @@ body.blur-behind > *:not(.pricing-overlay) {
     gap: 8px;
     margin-top: 12px;
     padding: 8px 0;
-    
-    /* PREVENT TAP ZOOM */
-    touch-action: manipulation;
   }
   
   .pricing-dot {
@@ -315,9 +287,6 @@ body.blur-behind > *:not(.pricing-overlay) {
     transition: all .3s;
     cursor: pointer;
     flex-shrink: 0;
-    
-    /* PREVENT TAP ZOOM */
-    touch-action: manipulation;
   }
   
   .pricing-dot.active {
