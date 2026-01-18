@@ -28,6 +28,12 @@
     }
   </script>
 
+  <!-- ③ Service-worker register (one-liner) -->
+  <script>
+    if ('serviceWorker' in navigator)
+      navigator.serviceWorker.register('./service-worker.js');
+  </script>
+
   <!-- ④ Share helper (tiny) -->
   <script>
     window.shareTheme = name => {

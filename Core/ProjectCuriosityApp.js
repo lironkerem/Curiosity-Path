@@ -45,6 +45,7 @@ export default class ProjectCuriosityApp {
     this.dashboard = null;
     this.gamification = null;
     this.footerCTA = null;
+    this._initialized = false;
 
     this._gamificationListenersReady = false;   // ① guard
     this.toastThrottle      = new Map();        // ② optional dedupe
@@ -309,6 +310,8 @@ export default class ProjectCuriosityApp {
   }
 
   async initializeApp() {
+if (this._initialized) return;
+this._initialized = true;
     try {
       console.log('\u{2705} User authenticated, loading data...');
       

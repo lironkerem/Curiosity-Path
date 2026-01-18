@@ -982,6 +982,9 @@ showSignupForm() {
   }
 
   async _setAuthenticated(u) {
+  if (this.app._initialized) return;   // ← add this line
+  this.app._initialized = true;        // ← and this line
+
     const isGoogle = u.app_metadata?.provider === 'google';
 
     // fetch admin flag
