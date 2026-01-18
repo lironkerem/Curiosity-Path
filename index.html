@@ -252,33 +252,6 @@
   }, 2000);
 })();
 </script>
-<script>
-  // Test 1: Can we load ANY script from that folder?
-  const testScript = document.createElement('script');
-  testScript.onerror = function() {
-    alert('ERROR: Cannot load scripts from Assets/CSS/Skins/');
-  };
-  testScript.onload = function() {
-    alert('SUCCESS: Scripts CAN load from Assets/CSS/Skins/');
-  };
-  testScript.src = '/Assets/CSS/Skins/MatrixRain.js';
-  document.head.appendChild(testScript);
-</script>
-
-<script>
-  // Test 2: Check if file exists
-  fetch('/Assets/CSS/Skins/MatrixRain.js')
-    .then(response => {
-      if (response.ok) {
-        alert('File EXISTS at /Assets/CSS/Skins/MatrixRain.js');
-      } else {
-        alert('File NOT FOUND - Status: ' + response.status);
-      }
-    })
-    .catch(err => {
-      alert('ERROR loading file: ' + err.message);
-    });
-</script>
   <!-- ===== Bootstrap ===== -->
   <script type="module">
     async function init(){
