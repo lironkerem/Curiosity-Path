@@ -838,8 +838,7 @@
     }),
 
     // Utility methods
-    playChime,
-    showToast
+    playChime
   };
 
   // Backward compatibility - expose individual functions
