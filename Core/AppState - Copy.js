@@ -54,15 +54,7 @@ export default class AppState {
       favorites: [],
       achievements: [],
       streaks: { current: 0, longest: 0, lastActive: null },
-      stats: { totalSessions: 0, totalMeditations: 0, totalReadings: 0 },
-     gamification: {
-      xp: 0,
-     level: 1,
-     achievements: [],
-     badges: [],
-     quests: {},
-     streaks: { current: 0, longest: 0, lastActive: null }
-   }
+      stats: { totalSessions: 0, totalMeditations: 0, totalReadings: 0 }
     };
   }
 
