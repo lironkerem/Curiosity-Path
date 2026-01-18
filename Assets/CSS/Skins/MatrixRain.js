@@ -96,6 +96,18 @@
     }
   }
 
+updateColors() {
+  const isDark = document.body.classList.contains('dark-mode');
+  const color = isDark ? '#ff0041' : '#00ff41';
+  
+  this.columns.forEach(col => {
+    col.el.style.color = color;
+    col.el.style.textShadow = `0 0 10px ${color}`;
+  });
+  
+  console.log(`🎨 Matrix colors updated: ${isDark ? 'RED' : 'GREEN'}`);
+}
+
   // Initialize
   window.MatrixRain = MatrixRain;
   window.matrixRain = new MatrixRain();
@@ -105,6 +117,20 @@
       window.matrixRain.init();
     }
   }
+
+// Watch for dark mode changes
+if (window.MutationObserver) {
+  const observer = new MutationObserver(() => {
+    if (window.matrixRain && window.matrixRain.isRunning) {
+      window.matrixRain.updateColors();
+    }
+  });
+  
+  observer.observe(document.body, {
+    attributes: true,
+    attributeFilter: ['class']
+  });
+}
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', start);
