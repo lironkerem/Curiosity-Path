@@ -185,6 +185,7 @@ export const notifications = () => {
         <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:16px 0;">
 
         <button class="btn-link" id="save-notification-settings" style="margin-top:12px;">💾 Save Settings</button>
+<button class="btn-link" id="test-notification-btn" style="margin-top:8px;background:rgba(102,126,234,.2);">🧪 Test Notification</button>
         <small style="opacity:.6;display:block;margin-top:8px;font-size:.7rem;text-align:center;">Auto-saves after changes</small>
         
         <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:16px 0;">

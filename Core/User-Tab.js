@@ -373,6 +373,22 @@ export default class UserTab {
       }
     });
 
+  // ⭐ ADD THIS HERE - Test notification button
+  document.getElementById('test-notification-btn')?.addEventListener('click', () => {
+    navigator.serviceWorker.ready.then(reg => {
+      reg.showNotification('🧘 Test Notification', {
+        body: 'Testing badge on your device',
+        icon: '/Icons/icon-512-maskable.png',
+        badge: '/Icons/badge-96x96.png',
+        data: { url: '/' }
+      });
+      this.app.showToast('✅ Test sent', 'success');
+    }).catch(err => {
+      console.error('Test notification failed:', err);
+      this.app.showToast('❌ Test failed', 'error');
+    });
+  });
+
     checkWindowSize();
   }
 
