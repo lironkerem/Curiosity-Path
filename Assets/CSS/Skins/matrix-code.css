@@ -619,6 +619,25 @@ body.matrix-code{
 }
 body.matrix-code.dark-mode{--chat-border:1px solid rgba(255,0,65,.3);}
 
+/* ===== USER MENU - FORCE TOP RIGHT ===== */
+body.matrix-code .user-menu {
+  position: fixed !important;
+  top: 20px !important;
+  right: 20px !important;
+  left: auto !important;
+  z-index: 1001 !important;
+}
+
+body.matrix-code .user-menu-btn {
+  background: rgba(0, 255, 65, 0.1) !important;
+  border: 1px solid var(--neuro-matrix) !important;
+  box-shadow: var(--shadow-glow) !important;
+}
+
+body.matrix-code .user-menu-btn:hover {
+  background: rgba(0, 255, 65, 0.2) !important;
+  box-shadow: var(--shadow-intense) !important;
+}
 /* =========================================================
    END MATRIX-CODE COMPLETE (updated for new CSS)
    ========================================================= */
