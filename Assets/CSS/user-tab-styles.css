@@ -290,11 +290,12 @@ body.blur-behind > *:not(.pricing-overlay) {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     padding: 10px 0;
-    margin: 0 -12px;
-    padding-left: calc(50vw - 40vw);
-    padding-right: calc(50vw - 40vw);
-    width: calc(100% + 24px);
+    margin: 0;
+    width: 100%;
     box-sizing: border-box;
+    
+    /* Center the carousel properly */
+    justify-content: flex-start;
     
     /* CRITICAL MOBILE FIXES */
     touch-action: pan-x;
@@ -305,6 +306,15 @@ body.blur-behind > *:not(.pricing-overlay) {
   
   .pricing-cards::-webkit-scrollbar {
     display: none;
+  }
+  
+  /* Add padding to first and last card for centering */
+  .pricing-card:first-child {
+    margin-left: calc((100vw - 80vw) / 2 - 12px);
+  }
+  
+  .pricing-card:last-child {
+    margin-right: calc((100vw - 80vw) / 2 - 12px);
   }
   
   .pricing-card {
