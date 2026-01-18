@@ -122,15 +122,15 @@
       this.isRunning = false;
     }
 
-    init() {
-      if (!document.body.classList.contains('matrix-code')) return;
-      
-      this.createContainer();
-      this.createColumns();
-      this.animate();
-      this.isRunning = true;
-      console.log('✅ Matrix Rain initialized (INLINE)');
-    }
+init() {
+  if (!document.body.classList.contains('matrix-code')) return;
+  
+  this.createContainer();
+  this.createColumns();
+  this.isRunning = true;  // MOVE THIS BEFORE animate()
+  this.animate();
+  console.log('✅ Matrix Rain initialized (INLINE)');
+}
 
     createContainer() {
       this.container = document.createElement('div');
