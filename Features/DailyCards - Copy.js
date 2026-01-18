@@ -248,13 +248,11 @@ export default class DailyCards {
     const booster = this.getRandomBooster();
     const contentBox = cardEl.querySelector('.dashboard-booster-content');
     if (contentBox) {
-contentBox.innerHTML = `
-  <div class="dashboard-booster-emoji">${booster.emoji}</div>
-  <div class="inquiry-domain-badge">
-    <span>${booster.title}</span>
-  </div>
-  <p class="dashboard-booster-description">${booster.description}</p>
-  <p class="dashboard-booster-meta">${booster.duration} • ${booster.category}</p>`;
+      contentBox.innerHTML = `
+        <div class="dashboard-booster-emoji">${booster.emoji}</div>
+        <h4 class="dashboard-booster-title">${booster.title}</h4>
+        <p class="dashboard-booster-description">${booster.description}</p>
+        <p class="dashboard-booster-meta">${booster.duration} • ${booster.category}</p>`;
     }
   }
 
@@ -341,12 +339,10 @@ contentBox.innerHTML = `
       frontContent: `
         <div class="daily-card-content-wrapper">
           <div class="dashboard-booster-content">
-<div class="dashboard-booster-emoji">${booster.emoji}</div>
-<div class="inquiry-domain-badge">
-  <span>${booster.title}</span>
-</div>
-<p class="dashboard-booster-description">${booster.description}</p>
-<p class="dashboard-booster-meta">${booster.duration} • ${booster.category}</p>
+            <div class="dashboard-booster-emoji">${booster.emoji}</div>
+            <h4 class="dashboard-booster-title">${booster.title}</h4>
+            <p class="dashboard-booster-description">${booster.description}</p>
+            <p class="dashboard-booster-meta">${booster.duration} • ${booster.category}</p>
           </div>
         </div>`
     });
