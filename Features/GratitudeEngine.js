@@ -322,9 +322,7 @@ export default class GratitudeEngine {
     this.app.showToast('✅ Gratitude journal saved!', 'success');
 
     if (this.app.gamification) {
-      this.currentEntries.forEach(() => {
-        this.app.gamification.progressQuest('daily', 'gratitude_entry', 1);
-      });
+    this.app.gamification.progressQuest('daily', 'gratitude_entry', this.currentEntries.length);
     }
 
     const total = this.app.state.data.gratitudeEntries?.length || 0;

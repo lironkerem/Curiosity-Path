@@ -10,7 +10,7 @@ class MeditationsEngine {
     this.sessionStartTime = null;
     this.progressInterval = null;
     this.eventCleanup = [];
-    this.pdfGuideUrl = 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Assets/PDFs/Meditation_Demo.pdf';
+    this.pdfGuideUrl = 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Assets/Source_PDF/Meditation_Demo.pdf';
 
     // Constants
     this.SKIP_SECONDS = 15;

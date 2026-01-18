@@ -376,21 +376,18 @@ class EnergyEngineEnhanced {
     const notes = this.getElement('energy-notes');
     if (notes) notes.addEventListener('input', e => this.currentCheckin.notes = e.target.value);
 
-    // single bound handler – remove old ones first
-    this._boundMoodHandler = this._boundMoodHandler || ((e) => {
-      const mood = e.currentTarget.dataset.mood;
-      const idx = this.currentCheckin.moodTags.indexOf(mood);
-      if (idx >= 0) {
-        this.currentCheckin.moodTags.splice(idx, 1);
-        e.currentTarget.classList.remove('active');
-      } else {
-        this.currentCheckin.moodTags.push(mood);
-        e.currentTarget.classList.add('active');
-      }
-    });
     document.querySelectorAll('[data-mood]').forEach(chip => {
-      chip.removeEventListener('click', this._boundMoodHandler);
-      chip.addEventListener('click', this._boundMoodHandler);
+      chip.addEventListener('click', e => {
+        const mood = e.currentTarget.dataset.mood;
+        const idx = this.currentCheckin.moodTags.indexOf(mood);
+        if (idx >= 0) {
+          this.currentCheckin.moodTags.splice(idx, 1);
+          e.currentTarget.classList.remove('active');
+        } else {
+          this.currentCheckin.moodTags.push(mood);
+          e.currentTarget.classList.add('active');
+        }
+      });
     });
 
     document.querySelectorAll('.chakra-slider').forEach(sl => {

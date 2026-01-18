@@ -109,7 +109,9 @@ getRandomInquiry() {
     localStorage.setItem('daily_booster_views', JSON.stringify(data));
     
     if (data.count <= 5 && this.app.gamification) {
-      this.app.gamification.progressQuest('daily', 'daily_booster', 1);
+      if (data.count === 5) {               // only once, when the 5th view is reached
+        this.app.gamification.progressQuest('daily', 'daily_booster', 5);
+      }
     }
     return data.count;
   }

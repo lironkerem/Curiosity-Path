@@ -46,21 +46,8 @@ export default class ProjectCuriosityApp {
     this.gamification = null;
     this.footerCTA = null;
 
-    this._gamificationListenersReady = false;   // ① guard
-    this.toastThrottle      = new Map();        // ② optional dedupe
-
     this.showToast = showToast;
     window.app = this;
-  }
-
-  /* throttled wrapper – same message/type can’t fire twice within 1.2 s */
-  showToastOnce(msg, type = 'info', key = null, cooldown = 1200) {
-    const k = key || `${msg}:${type}`;
-    const now = Date.now();
-    const last = this.toastThrottle.get(k) || 0;
-    if (now - last < cooldown) return;
-    this.toastThrottle.set(k, now);
-    showToast(msg, type, key);          // our singleton queue
   }
 
   /* ---------- PROFILE ---------- */
@@ -166,10 +153,7 @@ export default class ProjectCuriosityApp {
 
   /* ---------- GAMIFICATION ---------- */
   setupGamificationListeners() {
-  if (this._gamificationListenersReady) return;   // prevent duplicate registrations
-  this._gamificationListenersReady = true;
-
-  const g = this.gamification;
+    const g = this.gamification;
     
     g.on('levelUp', ({ level, title }) => {
       showToast(`${EMOJI.LEVEL_UP.slice(0, 2)} Level Up! You are now a ${title} (Level ${level})!`, 'success');
