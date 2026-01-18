@@ -743,16 +743,11 @@ export default class DashboardManager {
       : 'Show Less';
   }
 
-  /* ---------- Main Render (WITH DATABASE RELOAD) ---------- */
+  /* ---------- Main Render ---------- */
   
   async _render() {
     const dashboard = document.getElementById('dashboard-tab');
     if (!dashboard) return;
-
-    // ✅ RELOAD GAMIFICATION STATE FROM DATABASE BEFORE RENDERING
-    if (this.app.gamification) {
-      await this.app.gamification.reloadFromDatabase();
-    }
 
     try {
       // Get quote
