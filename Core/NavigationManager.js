@@ -592,7 +592,7 @@ export default class NavigationManager {
   }
 
   vibrate(duration) {
-    if (document.hasFocus()) navigator.vibrate?.(duration);
+    navigator.vibrate?.(duration);
   }
 
   destroy() {
