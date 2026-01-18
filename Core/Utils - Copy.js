@@ -1,4 +1,4 @@
-// Utils.js – COMPLETE PATCHED (dark-mode persistence fixed)
+// Utils.js - COMPLETE PATCHED (dark-mode persistence fixed)
 /* global window, document, localStorage, matchMedia */
 
 /* =========================================================
@@ -71,7 +71,34 @@ class AppState {
 }
 
 /* =========================================================
-   4.  PROGRESS BAR MANAGER
+   4.  TOAST MANAGER
+   ========================================================= */
+class ToastManager {
+  constructor() {
+    this.container = document.getElementById('toast-container') || this._ensureContainer();
+  }
+  _ensureContainer() {
+    const c = document.createElement('div');
+    c.id = 'toast-container';
+    c.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999';
+    document.body.appendChild(c);
+    return c;
+  }
+  show(msg, type = 'success') {
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    const bg = type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#3b82f6';
+    t.style.cssText = `padding:12px 18px;margin-top:8px;border-radius:8px;color:#fff;transition:.3s;opacity:0;transform:translateY(10px);background:${bg}`;
+    this.container.appendChild(t);
+    setTimeout(() => { t.style.opacity = '1'; t.style.transform = 'translateY(0)'; }, 10);
+    setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(10px)'; }, 2800);
+    setTimeout(() => t.remove(), 3200);
+  }
+}
+
+/* =========================================================
+   5.  PROGRESS BAR MANAGER
    ========================================================= */
 class ProgressManager {
   constructor() {
@@ -108,7 +135,7 @@ class ProgressManager {
 }
 
 /* =========================================================
-   5.  DARK-MODE TOGGLE HELPER  (PERSISTENCE FIXED)
+   6.  DARK-MODE TOGGLE HELPER  (PERSISTENCE FIXED)
    ========================================================= */
 const darkCSS = document.getElementById('dark-mode-css');
 const STORAGE_KEY = 'pc_darkMode';
@@ -127,8 +154,8 @@ export const DarkMode = {
 };
 
 /* =========================================================
-   6.  GLOBAL EXPORTS
+   7.  GLOBAL EXPORTS
    ========================================================= */
-Object.assign(window, { Utils, Validation, AppState, ProgressManager, DarkMode });
+Object.assign(window, { Utils, Validation, AppState, ToastManager, ProgressManager, DarkMode });
 export default Utils;
-export { Validation, AppState, ProgressManager };
+export { Validation, AppState, ToastManager, ProgressManager };

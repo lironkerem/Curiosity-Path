@@ -360,6 +360,18 @@
     }
   }
 
+  function showToast(msg) {
+    if (!globalToastEl) {
+      globalToastEl = document.createElement('div');
+      globalToastEl.id = 'wk-toast';
+      globalToastEl.className = 'wk-toast';
+      document.body.appendChild(globalToastEl);
+    }
+    globalToastEl.textContent = msg;
+    globalToastEl.classList.add('show');
+    setTimeout(() => globalToastEl.classList.remove('show'), 2800);
+  }
+
   /* ==================== WELLNESS TOOL CLASS ==================== */
   class WellnessTool {
     constructor(config) {
@@ -712,7 +724,7 @@
       playChime();
       this.addXP(SHARED_CONFIG.XP_PER_COMPLETION);
       this.addKarma(SHARED_CONFIG.KARMA_PER_COMPLETION);
-      window.app.showToast(`✅ Completed! +${SHARED_CONFIG.XP_PER_COMPLETION} XP, +${SHARED_CONFIG.KARMA_PER_COMPLETION} Karma`, 'success');
+      showToast(`✅ Completed! +${SHARED_CONFIG.XP_PER_COMPLETION} XP, +${SHARED_CONFIG.KARMA_PER_COMPLETION} Karma`);
       if (window.app?.gamification) window.app.gamification.incrementWellnessRuns();
     }
 

@@ -173,7 +173,7 @@ async function toggleCamera() {
     reader.readAsDataURL(file);
   }
   async function analyzeImage() {
-    if (!imageBase64) return alert('No image to analyse.');
+   if (!imageBase64) { window.app.showToast('No image to analyse.', 'warning'); return; }
     loader.classList.remove('hidden');
     analyze.disabled = true;
     result.innerHTML = '<p class="placeholder-text">Interpreting the cards…</p>';

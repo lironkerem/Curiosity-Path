@@ -1,4 +1,4 @@
-// Toast.js – Queue System to prevent stacking toasts
+// Toast.js - Queue System to prevent stacking toasts
 /* global window, document */
 
 class ToastQueue {
@@ -8,11 +8,8 @@ class ToastQueue {
     this.currentToast = null;
   }
 
-  async show(msg, type = 'info', key = null) {
-    // dedupe by key (optional but safe)
-    if (key && this.queue.some(t => t.key === key)) return;
-
-    this.queue.push({ msg, type, key });
+  async show(msg, type = 'info') {
+    this.queue.push({ msg, type });
     if (!this.isShowing) await this.processQueue();
   }
 
@@ -52,11 +49,7 @@ class ToastQueue {
   }
 }
 
-/* ---------- singleton guard ---------- */
-if (!window.__toastQueue) {
-  window.__toastQueue = new ToastQueue();
-}
-const toastQueue = window.__toastQueue;
+const toastQueue = new ToastQueue();
 
-export const showToast = (msg, type = 'info', key = null) => toastQueue.show(msg, type, key);
+export const showToast = (msg, type = 'info') => toastQueue.show(msg, type);
 export const clearToasts = () => toastQueue.clear();
