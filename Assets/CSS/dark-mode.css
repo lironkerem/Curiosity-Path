@@ -57,6 +57,40 @@ body.dark-mode{
     0 0 60px rgba(196,30,58,.5);
 }
 
+.pricing-overlay.dark-mode,
+.pricing-overlay.dark-mode .pricing-modal,
+.pricing-overlay.dark-mode .pricing-card {
+  --neuro-bg: #2d2416;
+  --neuro-shadow-dark: #1a1410;
+  --neuro-shadow-light: #4a3f2f;
+  --neuro-text: #e8e2d4;
+  --neuro-text-light: #c9b89a;
+  --neuro-text-lighter: #a89279;
+  --neuro-accent: #8bc34a;
+  --neuro-accent-light: #a8d563;
+  --shadow-raised-sm: inset 3px 3px 6px #1a1410, inset -2px -2px 5px #4a3f2f;
+  --shadow-raised: 10px 10px 20px #1a1410, -6px -6px 16px #4a3f2f;
+  --shadow-raised-lg: 25px 25px 50px #1a1410, -15px -15px 40px #4a3f2f;
+}
+
+/* Red borders for dark mode pricing */
+.pricing-overlay.dark-mode .pricing-modal,
+.pricing-overlay.dark-mode .pricing-card {
+  border: 2px solid rgba(196,30,58,.6);
+  box-shadow: var(--shadow-raised-lg), 0 0 20px rgba(196,30,58,.3);
+  animation: redBorderGlow 4s ease-in-out infinite;
+}
+
+.pricing-overlay.dark-mode .pricing-card:hover {
+  border-color: rgba(230,57,80,.9);
+  box-shadow: var(--shadow-raised-hover), 0 0 30px rgba(196,30,58,.5);
+}
+
+.pricing-overlay.dark-mode .pricing-btn.primary {
+  box-shadow: var(--shadow-raised), 0 0 30px rgba(196,30,58,.4);
+  border: 2px solid rgba(196,30,58,.7);
+}
+
 /* ------  IMAGE INVERSION  ------ */
 body.dark-mode img {
   filter: invert(1) brightness(1);

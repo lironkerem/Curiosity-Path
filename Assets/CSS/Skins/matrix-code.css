@@ -1,11 +1,5 @@
 /* =========================================================
    DIGITAL CURIOSITY – MATRIX CODE SKIN
-   Updated for new main-styles.css + mobile-styles.css
-   Apply to <body class="matrix-code">
-   ========================================================= */
-/* =========================================================
-   CRITICAL: MATRIX RAIN VISIBILITY FIX
-   Must be at the TOP to override everything
    ========================================================= */
 
 body.matrix-code .matrix-rain-container,
@@ -120,6 +114,34 @@ body.matrix-code{
 
   /* Monospace font */
   font-family: 'Share Tech Mono', 'Courier New', monospace;
+}
+
+.pricing-overlay.matrix-code,
+.pricing-overlay.matrix-code .pricing-modal,
+.pricing-overlay.matrix-code .pricing-card {
+  --neuro-bg: #0d0208;
+  --neuro-bg-lighter: #1a1410;
+  --neuro-shadow-dark: #000000;
+  --neuro-shadow-light: #1a1410;
+  --neuro-text: #00ff41;
+  --neuro-text-light: #00cc33;
+  --neuro-accent: #00ff41;
+  --neuro-accent-light: #33ff66;
+  --shadow-raised-sm: 0 0 5px rgba(0,255,65,.2), inset 0 0 5px rgba(0,255,65,.1);
+  --shadow-raised: 0 0 10px rgba(0,255,65,.3), 0 0 20px rgba(0,255,65,.2), inset 0 0 5px rgba(0,255,65,.1);
+  --shadow-raised-lg: 0 0 15px rgba(0,255,65,.4), 0 0 30px rgba(0,255,65,.3), 0 0 45px rgba(0,255,65,.2), inset 0 0 10px rgba(0,255,65,.15);
+}
+
+.pricing-overlay.matrix-code.dark-mode,
+.pricing-overlay.matrix-code.dark-mode .pricing-modal,
+.pricing-overlay.matrix-code.dark-mode .pricing-card {
+  --neuro-text: #ff0041;
+  --neuro-text-light: #cc0033;
+  --neuro-accent: #ff0041;
+  --neuro-accent-light: #ff3366;
+  --shadow-raised-sm: 0 0 5px rgba(255,0,65,.2), inset 0 0 5px rgba(255,0,65,.1);
+  --shadow-raised: 0 0 10px rgba(255,0,65,.3), 0 0 20px rgba(255,0,65,.2), inset 0 0 5px rgba(255,0,65,.1);
+  --shadow-raised-lg: 0 0 15px rgba(255,0,65,.4), 0 0 30px rgba(255,0,65,.3), 0 0 45px rgba(255,0,65,.2), inset 0 0 10px rgba(255,0,65,.15);
 }
 
 /* ------  ANIMATIONS  ------ */

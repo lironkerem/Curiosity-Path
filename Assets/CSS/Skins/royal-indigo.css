@@ -71,6 +71,37 @@ body.royal-indigo{
     0 0 40px rgba(212,175,55,.2);
 }
 
+.pricing-overlay.royal-indigo,
+.pricing-overlay.royal-indigo .pricing-modal,
+.pricing-overlay.royal-indigo .pricing-card {
+  --neuro-bg: #e8e5f5;
+  --neuro-bg-lighter: #f0eef8;
+  --neuro-bg-lightest: #f7f6fb;
+  --neuro-shadow-dark: #c4bee8;
+  --neuro-shadow-light: #ffffff;
+  --neuro-text: #2a2550;
+  --neuro-text-light: #4a4270;
+  --neuro-text-lighter: #6a5e90;
+  --neuro-accent: #7d6bc4;
+  --neuro-accent-light: #9d8fdb;
+  --shadow-raised-sm: 4px 4px 8px #c4bee8, -4px -4px 8px #ffffff;
+  --shadow-raised: 10px 10px 20px #c4bee8, -6px -6px 12px #ffffff, inset 1px 1px 2px #fdfcff;
+  --shadow-raised-lg: 18px 18px 36px #b0a8d9, -12px -12px 24px #ffffff, inset 2px 2px 4px #fdfcff, 0 8px 32px rgba(125,107,196,.25);
+}
+
+.pricing-overlay.royal-indigo.dark-mode,
+.pricing-overlay.royal-indigo.dark-mode .pricing-modal,
+.pricing-overlay.royal-indigo.dark-mode .pricing-card {
+  --neuro-bg: #1a1628;
+  --neuro-bg-lighter: #221d30;
+  --neuro-shadow-dark: #0f0a18;
+  --neuro-shadow-light: #2a2438;
+  --neuro-text: #e8deff;
+  --neuro-text-light: #c4b3e8;
+  --neuro-accent: #7d6bc4;
+  --neuro-accent-light: #9d8fdb;
+}
+
 /* ------  IMAGE INVERSION (Dark Mode Only)  ------ */
 body.royal-indigo.dark-mode img {
   filter: invert(1) brightness(1);

@@ -64,6 +64,35 @@ body.champagne-gold{
     0 4px 20px rgba(184,152,95,.5);
 }
 
+.pricing-overlay.champagne-gold,
+.pricing-overlay.champagne-gold .pricing-modal,
+.pricing-overlay.champagne-gold .pricing-card {
+  --neuro-bg: #f9f6ed;
+  --neuro-bg-darker: #f0e8d5;
+  --neuro-shadow-dark: #c9b991;
+  --neuro-shadow-light: #ffffff;
+  --neuro-text: #2a2318;
+  --neuro-text-light: #695d4f;
+  --neuro-accent: #d4af37;
+  --neuro-accent-light: #f4d03f;
+  --shadow-raised-sm: 4px 4px 8px #c9b991, -4px -4px 8px #ffffff;
+  --shadow-raised: 12px 12px 24px #c9b991, -10px -10px 20px #ffffff, inset 1px 1px 2px #fffdf5;
+  --shadow-raised-lg: 20px 20px 40px #b8a577, -16px -16px 32px #ffffff, inset 2px 2px 4px #fffdf5, 0 8px 32px rgba(212,175,55,.25);
+}
+
+.pricing-overlay.champagne-gold.dark-mode,
+.pricing-overlay.champagne-gold.dark-mode .pricing-modal,
+.pricing-overlay.champagne-gold.dark-mode .pricing-card {
+  --neuro-bg: #2a241a;
+  --neuro-bg-darker: #1f1a12;
+  --neuro-shadow-dark: #151208;
+  --neuro-shadow-light: #3a3020;
+  --neuro-text: #f4e8d5;
+  --neuro-text-light: #d4c8b5;
+  --neuro-accent: #d4af37;
+  --neuro-accent-light: #f4d03f;
+}
+
 /* ------  IMAGE INVERSION (Navigation only - Dark Mode)  ------ */
 body.champagne-gold.dark-mode .nav-item .nav-image,
 body.champagne-gold.dark-mode .mobile-tab img,

@@ -106,7 +106,7 @@ destroy() {
       
       console.log(`🎨 Matrix colors updated: ${isDark ? 'RED' : 'GREEN'}`);
     }
-  }  // ← ADD THIS CLOSING BRACE for the class
+  } 
 
   // Initialize
   window.MatrixRain = MatrixRain;
