@@ -89,24 +89,24 @@
       this.animationId = requestAnimationFrame(() => this.animate());
     }
 
-    destroy() {
+destroy() {
       this.isRunning = false;
       if (this.animationId) cancelAnimationFrame(this.animationId);
       if (this.container) this.container.remove();
     }
-  }
 
-updateColors() {
-  const isDark = document.body.classList.contains('dark-mode');
-  const color = isDark ? '#ff0041' : '#00ff41';
-  
-  this.columns.forEach(col => {
-    col.el.style.color = color;
-    col.el.style.textShadow = `0 0 10px ${color}`;
-  });
-  
-  console.log(`🎨 Matrix colors updated: ${isDark ? 'RED' : 'GREEN'}`);
-}
+    updateColors() {
+      const isDark = document.body.classList.contains('dark-mode');
+      const color = isDark ? '#ff0041' : '#00ff41';
+      
+      this.columns.forEach(col => {
+        col.el.style.color = color;
+        col.el.style.textShadow = `0 0 10px ${color}`;
+      });
+      
+      console.log(`🎨 Matrix colors updated: ${isDark ? 'RED' : 'GREEN'}`);
+    }
+  }  // ← ADD THIS CLOSING BRACE for the class
 
   // Initialize
   window.MatrixRain = MatrixRain;
@@ -118,19 +118,19 @@ updateColors() {
     }
   }
 
-// Watch for dark mode changes
-if (window.MutationObserver) {
-  const observer = new MutationObserver(() => {
-    if (window.matrixRain && window.matrixRain.isRunning) {
-      window.matrixRain.updateColors();
-    }
-  });
-  
-  observer.observe(document.body, {
-    attributes: true,
-    attributeFilter: ['class']
-  });
-}
+  // Watch for dark mode changes
+  if (window.MutationObserver) {
+    const observer = new MutationObserver(() => {
+      if (window.matrixRain && window.matrixRain.isRunning) {
+        window.matrixRain.updateColors();
+      }
+    });
+    
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+  }
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', start);
