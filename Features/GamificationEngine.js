@@ -223,6 +223,38 @@ export class GamificationEngine {
     this.queueBadgeCheck('currency');
     this.saveState();
   }
+addBoth(xp, karma, source = 'general') {
+  if (!xp && !karma) return;
+  
+  // Add XP silently
+  if (xp > 0) {
+    let final = xp;
+    if (this.hasActiveXPBoost()) final = xp * 2;
+    this.state.xp += final;
+    this.logAction('xp', { amount: final, source, boosted: final !== xp });
+    this.emit('xpGained', { amount: final, source, skipToast: true });
+  }
+  
+  // Add Karma silently
+  if (karma > 0) {
+    this.state.karma += karma;
+    this.logAction('karma', { amount: karma, source });
+    this.emit('karmaGained', { amount: karma, source, skipToast: true });
+  }
+  
+  // Show combined toast
+  if (this.app?.showToast) {
+    const parts = [];
+    if (xp > 0) parts.push(`+${xp} XP`);
+    if (karma > 0) parts.push(`+${karma} Karma`);
+    this.app.showToast(`✅ ${parts.join(' ')} from ${source}`, 'success');
+  }
+  
+  // Check level up and badges
+  if (xp > 0) this.checkLevelUp();
+  this.queueBadgeCheck('currency');
+  this.saveState();
+}
   hasActiveXPBoost() {
     try {
       const boosts = JSON.parse(localStorage.getItem('karma_active_boosts')) || [];

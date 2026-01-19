@@ -9,9 +9,7 @@
   const SHARED_CONFIG = {
     PULSE_POOL_SIZE: 10,
     AUTO_TRIGGER: false,
-    AUTO_TRIGGER_ALIGN: true,
-    XP_PER_COMPLETION: 10,
-    KARMA_PER_COMPLETION: 1
+    AUTO_TRIGGER_ALIGN: true
   };
 
   /* ==================== TOOL CONFIGURATIONS ==================== */
@@ -453,25 +451,7 @@
       pulse.classList.add('active');
     }
 
-    getXP() {
-      return parseInt(localStorage.getItem(`${this.config.storagePrefix}_xp`) || '0', 10);
-    }
 
-    getKarma() {
-      return parseInt(localStorage.getItem(`${this.config.storagePrefix}_karma`) || '0', 10);
-    }
-
-    addXP(n) {
-      const v = this.getXP() + n;
-      localStorage.setItem(`${this.config.storagePrefix}_xp`, String(v));
-      return v;
-    }
-
-    addKarma(n) {
-      const v = this.getKarma() + n;
-      localStorage.setItem(`${this.config.storagePrefix}_karma`, String(v));
-      return v;
-    }
 
     setProgress(rem, total) {
       const pct = Math.max(0, Math.min(1, rem / total));
@@ -558,6 +538,7 @@
 
     startBreathingCycle() {
       const runInhale = () => {
+        playChime();
         this.setBreathPhase('inhale', this.config.breathIn);
         this.elements.anim.style.transition = `transform ${this.config.breathIn}s linear`;
         this.elements.anim.style.transform = 'scale(1.14)';
@@ -606,7 +587,7 @@
         const elapsed = this.config.duration - this.state.remaining;
         const cycleSeconds = this.config.breathIn + this.config.breathHold + this.config.breathOut;
         const completedCycles = Math.floor(elapsed / cycleSeconds);
-        if (completedCycles + 1 >= this.config.completeRounds) {
+        if (completedCycles >= this.config.completeRounds) {
           runRelax();
         } else {
           runInhale();
@@ -710,10 +691,10 @@
 
     completeSession() {
       playChime();
-      this.addXP(SHARED_CONFIG.XP_PER_COMPLETION);
-      this.addKarma(SHARED_CONFIG.KARMA_PER_COMPLETION);
-      window.app.showToast(`✅ Completed! +${SHARED_CONFIG.XP_PER_COMPLETION} XP, +${SHARED_CONFIG.KARMA_PER_COMPLETION} Karma`, 'success');
-      if (window.app?.gamification) window.app.gamification.incrementWellnessRuns();
+      if (window.app?.gamification) {
+        window.app.gamification.incrementWellnessRuns();
+        window.app.gamification.addBoth(10, 1, 'Wellness Practice');
+      }
     }
 
     finalizeSession() {
@@ -759,8 +740,6 @@
 
     getStats() {
       return {
-        xp: this.getXP(),
-        karma: this.getKarma(),
         autoTriggerEnabled: SHARED_CONFIG.AUTO_TRIGGER
       };
     }
