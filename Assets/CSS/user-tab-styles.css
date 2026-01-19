@@ -144,13 +144,19 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity .3s;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   
   /* MOBILE FIXES */
   touch-action: none;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+}
+
+/* Backdrop blur ONLY on desktop - causes shake on mobile */
+@media (min-width: 769px) {
+  .pricing-overlay {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
 }
 
 .pricing-overlay.show {
@@ -348,7 +354,10 @@ body.blur-behind > *:not(.pricing-overlay) {
     
     /* STOP DIAGONAL MOVEMENT */
     position: relative;
-    transform: none !important;
+    transform: translate3d(0, 0, 0) !important;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000px;
     animation: none !important;
     transition: none !important;
   }

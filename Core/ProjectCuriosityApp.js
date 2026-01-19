@@ -326,6 +326,10 @@ async initializeApp() {
       this.gamification = new GamificationEngine(this);
       this.setupGamificationListeners();
 
+// Initialize DailyCards and wait for boosters to load
+this.dailyCards = new DailyCards(this);
+await this.dailyCards.initializeBoosters();
+
       this._hideAuthScreen();
       this._showMainApp();
 
