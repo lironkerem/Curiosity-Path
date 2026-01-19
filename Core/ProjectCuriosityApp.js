@@ -177,10 +177,6 @@ export default class ProjectCuriosityApp {
       this.playLevelUpAnimation();
     });
     
-    g.on('xpGained', ({ amount, source }) => 
-      showToast(`${EMOJI.SPARKLES} +${amount} XP from ${source}`, 'info')
-    );
-    
     g.on('streakUpdated', ({ current, best }) => {
       if (current > 1) {
         showToast(`${EMOJI.FIRE} ${current} Day Streak!`, 'success');
