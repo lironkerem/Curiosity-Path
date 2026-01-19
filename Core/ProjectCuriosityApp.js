@@ -6,7 +6,9 @@ import * as modal from './Modal.js';
 import { GamificationEngine } from '../Features/GamificationEngine.js';
 import { supabase } from './Supabase.js';
 import { DarkMode } from '/Core/Utils.js';
+import DailyCards from '../Features/DailyCards.js';
 import CTA from './CTA.js';
+
 
 // Constants
 const STORAGE_KEYS = {
