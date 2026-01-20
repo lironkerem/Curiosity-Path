@@ -78,18 +78,8 @@
   };
 
   /* ==================== SHARED STYLES ==================== */
-  const css = `
-  :root {
-    --neuro-bg: #c4ad91;
-    --neuro-shadow-dark: #a08968;
-    --neuro-shadow-light: #e0d4bf;
-    --neuro-text: #3d2f1f;
-    --neuro-accent: #6b9b37;
-    --neuro-accent2: #764ba2;
-    --radius-xl: 24px;
-    --shadow-raised: 8px 8px 16px var(--neuro-shadow-dark), -8px -8px 16px var(--neuro-shadow-light);
-    --shadow-inset: inset 4px 4px 8px var(--neuro-shadow-dark), inset -4px -4px 8px var(--neuro-shadow-light);
-  }
+ const css = `
+  /* Wellness Kit styles - inherits CSS variables from main-styles.css */
 
   .wk-overlay {
     position: fixed;
