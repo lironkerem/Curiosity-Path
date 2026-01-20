@@ -7,37 +7,49 @@
   <meta name="permissions-policy" content="camera=(self)">
   <title>The Curiosity Path - by Aanandoham</title>
 
-  <!-- ① Theme injector (unchanged) -->
-<script data-cfasync="false">
-  const t = localStorage.getItem('activeTheme') || 'default';
-  document.write(
-    (t === 'default' ? '' :
-     '<link rel="preload" as="style" href="/Assets/CSS/Skins/' + t + '.css" onload="this.rel=\'stylesheet\'">') +
-    (t === 'default' ? '' : '<link rel="stylesheet" href="/Assets/CSS/Skins/' + t + '.css">') +
-    '<link rel="stylesheet" href="/Assets/CSS/main-styles.css?v=2.0.0">' +
-    '<link rel="preload" as="style" href="/Assets/CSS/mobile-styles.css" media="(max-width:1024px)" onload="this.rel=\'stylesheet\'">' +
-    '<link rel="stylesheet" href="/Assets/CSS/mobile-styles.css" media="(max-width:1024px)">'
-  );
-</script>
+  <!-- ===== CSS ===== -->
+  <!-- 1. base look (always on) -->
+  <link rel="stylesheet" href="/Assets/CSS/main-styles.css?v=BUILD_HASH">
 
-  <!-- ② Dark-mode only when wanted -->
-  <script data-cfasync="false">
-    if (localStorage.getItem('darkMode') === 'enabled') {
-      document.write('<link rel="stylesheet" href="/Assets/CSS/dark-mode.css">');
-    }
-  </script>
+  <!-- 2. default dark-mode sheet (disabled by default) -->
+  <link rel="preload" href="/Assets/CSS/dark-mode.css" as="style">
+  <link rel="stylesheet" href="/Assets/CSS/dark-mode.css" id="dark_css" disabled>
 
-  <!-- ④ Share helper (tiny) -->
+  <!-- 3. premium skins – preload + disabled -->
+  <link rel="preload" href="/Assets/CSS/Skins/champagne-gold.css" as="style">
+  <link rel="preload" href="/Assets/CSS/Skins/royal-indigo.css"   as="style">
+  <link rel="preload" href="/Assets/CSS/Skins/earth-luxury.css"   as="style">
+  <link rel="preload" href="/Assets/CSS/Skins/matrix-code.css"    as="style">
+
+  <link rel="stylesheet" href="/Assets/CSS/Skins/champagne-gold.css" id="skin_champagne-gold" disabled>
+  <link rel="stylesheet" href="/Assets/CSS/Skins/royal-indigo.css"   id="skin_royal-indigo"   disabled>
+  <link rel="stylesheet" href="/Assets/CSS/Skins/earth-luxury.css"   id="skin_earth-luxury"   disabled>
+  <link rel="stylesheet" href="/Assets/CSS/Skins/matrix-code.css"    id="skin_matrix-code"    disabled>
+
+  <!-- 4. mobile sheet -->
+  <link rel="stylesheet" href="/Assets/CSS/mobile-styles.css?v=BUILD_HASH" media="(max-width:1024px)">
+
+  <!-- 5. tailwind (if still needed) -->
+  <link rel="stylesheet" href="/Assets/CSS/tailwind-output.css?v=BUILD_HASH">
+
+  <!-- ===== Theme activation before first paint ===== -->
   <script>
-    window.shareTheme = name => {
-      localStorage.setItem('activeTheme', name);
-      location.href = '/' + name;
-    };
+  (function(){
+    const dark = localStorage.getItem('darkMode') === 'enabled';
+    const skin = localStorage.getItem('activeTheme') || 'default';
+    document.documentElement.classList.toggle('dark', dark);
+
+    if (skin !== 'default') {
+      const l = document.getElementById('skin_' + skin);
+      if (l) l.disabled = false;          // premium skin on
+      // premium CSS has its own dark rules → keep default dark sheet off
+    } else if (dark) {
+      document.getElementById('dark_css').disabled = false; // default dark on
+    }
+  })();
   </script>
 
-  <!-- ===== rest of your head ===== -->
-  <link rel="stylesheet" href="/Assets/CSS/tailwind-output.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <!-- ===== PWA / icons ===== -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#3F7652">
   <meta name="mobile-web-app-capable" content="yes">
@@ -47,13 +59,12 @@
   <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
   <link rel="icon" href="Icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="Icons/favicon.ico">
+
+  <script>window.shareTheme=n=>{localStorage.setItem('activeTheme',n);location.href='/'+n;};</script>
 </head>
 
 <body>
-  <!-- ===== Auth Gate ===== -->
   <div id="auth-screen"></div>
-
-  <!-- ===== App Shell ===== -->
   <div id="app-container">
     <div id="main-app" class="hidden">
       <main id="main-content">
@@ -75,13 +86,12 @@
     </div>
   </div>
 
-  <!-- ===== Global UI ===== -->
   <div id="toast-container"></div>
 
-  <!-- ===== Dark-mode toggle helper ===== -->
-  <script>document.body.classList.toggle('dark-mode', localStorage.getItem('darkMode') === 'enabled');</script>
+  <script>document.body.classList.toggle('dark',localStorage.getItem('darkMode')==='enabled');</script>
 
-  <!-- ===== Core & Features ===== -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script src="/Assets/CSS/Skins/MatrixRain.js?v=1.0.4"></script>
   <script type="module" src="./Core/Utils.js"></script>
   <script defer src="./Features/TarotVisionAI.js"></script>
   <script type="module" src="./Features/TarotEngine.js"></script>
@@ -90,9 +100,7 @@
   <script type="module" src="./Features/EnergyTracker.js"></script>
   <script type="module" src="./Core/Features.js"></script>
   <script src="./Features/WellnessKit.js"></script>
-<script src="/Assets/CSS/Skins/MatrixRain.js?v=1.0.4"></script>
 
-  <!-- ===== Bootstrap ===== -->
   <script type="module">
     async function init(){
       console.log('🚀 Digital Curiosity - Aanandoham\'s Spiritual Platform Online');
@@ -125,6 +133,29 @@
     document.readyState==='loading'
       ? document.addEventListener('DOMContentLoaded',init)
       : init();
+  </script>
+
+  <!-- ===== Theme-switch helpers ===== -->
+  <script>
+  window.setSkin=function(name){
+    document.querySelectorAll('link[id^="skin_"]').forEach(l=>l.disabled=true);
+    document.getElementById('dark_css').disabled=true; // premium on → default dark off
+    if(name!=='default'){
+      const wanted=document.getElementById('skin_'+name);
+      if(wanted) wanted.disabled=false;
+    }else if(localStorage.getItem('darkMode')==='enabled'){
+      document.getElementById('dark_css').disabled=false; // back to default
+    }
+    localStorage.setItem('activeTheme',name);
+  };
+  window.setDark=function(enable){
+    localStorage.setItem('darkMode',enable?'enabled':'disabled');
+    document.documentElement.classList.toggle('dark',enable);
+    const premiumActive=document.querySelector('link[id^="skin_"]:not([disabled])');
+    if(!premiumActive){ // only toggle default dark when no premium skin
+      document.getElementById('dark_css').disabled=!enable;
+    }
+  };
   </script>
 </body>
 </html>
