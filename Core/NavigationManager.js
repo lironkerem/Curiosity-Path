@@ -181,6 +181,10 @@ export default class NavigationManager {
         
         updateIndicatorVisibility();
         window.addEventListener('resize', updateIndicatorVisibility);
+
+document.querySelectorAll('.tab-dot').forEach(dot => {
+  dot.addEventListener('click', () => this.switchTab(dot.dataset.tab, dot.title));
+});
       }
     }
     
