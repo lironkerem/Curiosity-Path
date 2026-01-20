@@ -1,7 +1,7 @@
 // Digital Curiosity PWA - Service Worker
 // Network-first strategy to fix white screen issue
 
-const CACHE_NAME = 'dc-v3';
+const CACHE_NAME = 'dc-v4';
 const RUNTIME_CACHE = 'dc-runtime';
 
 // Core assets to cache immediately
