@@ -321,76 +321,91 @@ class TarotEngine {
         </div>
       </div>
 
-      <style>
-        .tarot-card-flip-container { 
-          width: clamp(110px, 28vw, 250px); 
-          aspect-ratio: 200 / 350; 
-          perspective: 1000px; 
-          cursor: pointer; 
-        }
-        .tarot-card-flip-inner { position: relative; width: 100%; height: 100%; transition: transform 0.8s; transform-style: preserve-3d; }
-        .tarot-card-flip-container.flipped .tarot-card-flip-inner { transform: rotateY(180deg); }
-        .tarot-card-back, .tarot-card-front { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; }
-        .tarot-card-front { transform: rotateY(180deg); }
-        .tarot-card-image { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .tarot-card-error { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 4rem; }
-        
-        /* Responsive card container */
-        #tarot-tab .flex.flex-col.items-center.mx-auto {
-          width: clamp(110px, 28vw, 250px) !important;
-        }
-        
-        /* Grid gaps */
-        #tarot-tab .grid { gap: 1rem; }
-        @media (min-width: 768px) {
-          #tarot-tab .grid { gap: 1.5rem 2rem; }
-          .tarot-card-flip-container { width: clamp(140px, 24vw, 250px); }
-          #tarot-tab .flex.flex-col.items-center.mx-auto { width: clamp(140px, 24vw, 250px) !important; }
-        }
-        @media (min-width: 1600px) { 
-          .tarot-card-flip-container { width: clamp(160px, 18vw, 280px); }
-          #tarot-tab .flex.flex-col.items-center.mx-auto { width: clamp(160px, 18vw, 280px) !important; }
-        }
+<style>
+  .tarot-card-flip-container { 
+    width: clamp(110px, 22vw, 200px); 
+    aspect-ratio: 200 / 350; 
+    perspective: 1000px; 
+    cursor: pointer; 
+  }
+  .tarot-card-flip-inner { position: relative; width: 100%; height: 100%; transition: transform 0.8s; transform-style: preserve-3d; }
+  .tarot-card-flip-container.flipped .tarot-card-flip-inner { transform: rotateY(180deg); }
+  .tarot-card-back, .tarot-card-front { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; }
+  .tarot-card-front { transform: rotateY(180deg); }
+  .tarot-card-image { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .tarot-card-error { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 4rem; }
+  
+  /* Responsive card container */
+  #tarot-tab .flex.flex-col.items-center.mx-auto {
+    width: clamp(110px, 22vw, 200px) !important;
+  }
+  
+  /* Grid gaps */
+  #tarot-tab .grid { 
+    gap: 0.75rem; 
+    max-width: 100%;
+    padding: 0 0.5rem;
+  }
+  @media (min-width: 768px) {
+    #tarot-tab .grid { 
+      gap: 1rem 1.5rem; 
+      padding: 0;
+    }
+    .tarot-card-flip-container { 
+      width: clamp(140px, 20vw, 220px); 
+    }
+    #tarot-tab .flex.flex-col.items-center.mx-auto { 
+      width: clamp(140px, 20vw, 220px) !important; 
+    }
+  }
+  @media (min-width: 1600px) { 
+    .tarot-card-flip-container { 
+      width: clamp(160px, 16vw, 240px); 
+    }
+    #tarot-tab .flex.flex-col.items-center.mx-auto { 
+      width: clamp(160px, 16vw, 240px) !important; 
+    }
+  }
 
-        /* Pyramid layout */
-        .pyramid-triangle { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-        .pyr-row { display: flex; justify-content: center; gap: 1rem; }
-        @media (min-width: 768px) {
-          .pyr-apex { gap: 2rem; }
-          .pyr-upper { gap: 8rem; }
-          .pyr-lower { gap: 14rem; }
-          .pyr-base { gap: 6rem; }
-        }
-        @media (min-width: 1024px) {
-          .pyr-upper { gap: 15rem; }
-          .pyr-lower { gap: 25rem; }
-          .pyr-base { gap: 12rem; }
-        }
+  /* Pyramid layout */
+  .pyramid-triangle { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+  .pyr-row { display: flex; justify-content: center; gap: 1rem; }
+  @media (min-width: 768px) {
+    .pyr-apex { gap: 2rem; }
+    .pyr-upper { gap: 8rem; }
+    .pyr-lower { gap: 14rem; }
+    .pyr-base { gap: 6rem; }
+  }
+  @media (min-width: 1024px) {
+    .pyr-upper { gap: 15rem; }
+    .pyr-lower { gap: 25rem; }
+    .pyr-base { gap: 12rem; }
+  }
 
-        /* Cross layout */
-        .cross-shape { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-        .cross-top, .cross-bot { display: flex; justify-content: center; }
-        .cross-mid { display: flex; justify-content: center; gap: 1rem; }
-        @media (min-width: 768px) {
-          .cross-mid { gap: 8rem; }
-        }
-        @media (min-width: 1024px) {
-          .cross-mid { gap: 15rem; }
-        }
+  /* Cross layout */
+  .cross-shape { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+  .cross-top, .cross-bot { display: flex; justify-content: center; }
+  .cross-mid { display: flex; justify-content: center; gap: 1rem; }
+  @media (min-width: 768px) {
+    .cross-mid { gap: 8rem; }
+  }
+  @media (min-width: 1024px) {
+    .cross-mid { gap: 15rem; }
+  }
 
-        .premium-badge {
-          position: static;
-          transform: none;
-          margin-left: 0.75rem;
-          background: linear-gradient(135deg, #fcd34d, #f59e0b);
-          color: #111;
-          font-size: .65rem;
-          font-weight: 700;
-          padding: 4px 8px;
-          border-radius: 9999px;
-          letter-spacing: .5px;
-        }
-      </style>
+  .premium-badge {
+    position: static;
+    transform: none;
+    margin-left: 0.75rem;
+    background: linear-gradient(135deg, #fcd34d, #f59e0b);
+    color: #111;
+    font-size: .65rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 9999px;
+    letter-spacing: .5px;
+  }
+</style>
     `;
 
     setTimeout(() => {
