@@ -157,5 +157,29 @@
     }
   };
   </script>
+
+<script>
+setTimeout(() => {
+  const activeTab = document.querySelector('.tab-content.active');
+  const allTabs = document.querySelectorAll('.tab-content');
+  
+  const debug = document.createElement('div');
+  debug.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.95);color:#0f0;padding:20px;border:2px solid #0f0;z-index:99999;max-width:90%;overflow:auto;';
+  
+  debug.innerHTML = `
+    <h3>TAB DEBUG</h3>
+    <p>Active tab: ${activeTab ? activeTab.id : 'NONE'}</p>
+    <p>Active display: ${activeTab ? getComputedStyle(activeTab).display : 'N/A'}</p>
+    <p>Active visibility: ${activeTab ? getComputedStyle(activeTab).visibility : 'N/A'}</p>
+    <p>Active opacity: ${activeTab ? getComputedStyle(activeTab).opacity : 'N/A'}</p>
+    <p>Total tabs: ${allTabs.length}</p>
+    <p>Body classes: ${document.body.className}</p>
+    <button onclick="this.parentElement.remove()" style="margin-top:10px;padding:10px;background:#0f0;color:#000;border:none;width:100%;">CLOSE</button>
+  `;
+  
+  document.body.appendChild(debug);
+}, 2000);
+</script>
+
 </body>
 </html>
