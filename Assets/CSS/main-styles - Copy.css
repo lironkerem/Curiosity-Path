@@ -1,41 +1,60 @@
 /* =========================================================
-   DIGITAL CURIOSITY – MAIN STYLES
-   EARTH-LUXURY LOOK  (stand-alone, no theme file needed)
+   DIGITAL CURIOSITY APP – OPTIMIZED MAIN STYLES
+   Desktop & Base Styles (Mobile in separate file)
    ========================================================= */
 
-/* ===== ROOT DESIGN TOKENS  –  EARTH-LUXURY PALETTE ===== */
+/* ===== ROOT DESIGN TOKENS ===== */
 :root {
-  /* earth palette – bright & natural with more brown */
-  --neuro-bg: #c4ad91;
-  --neuro-bg-lighter: #d4c0a8;
-  --neuro-bg-lightest: #e0d4bf;
-  --neuro-shadow-dark: #a08968;
-  --neuro-shadow-darker: #8b7355;
-  --neuro-shadow-light: #e0d4bf;
-  --neuro-highlight: #ebe2d4;
+  --neuro-bg: #c4ad91;              /* was #e0e5ec */
+  --neuro-bg-lighter: #d4c0a8;      /* was #e8edf4 */
+  --neuro-bg-lightest: #e0d4bf;     /* was #f0f4f8 */
+  --neuro-shadow-dark: #a08968;     /* was #b8bec5 */
+  --neuro-shadow-light: #e0d4bf;    /* was #ffffff */
+  --neuro-text: #3d2f1f;            /* was #2c3e50 */
+  --neuro-text-light: #6d5a42;      /* was #6c757d */
+  --neuro-text-lighter: #8b7355;    /* was #8e9aaf */
+  --neuro-accent: #6b9b37;          /* was #667eea */
+  --neuro-accent-light: #8bc34a;    /* was #764ba2 */
+  --neuro-success: #6b9b37;         /* was #22c55e */
+  --neuro-warning: #d4a574;         /* was #f59e0b */
+  --neuro-error: #c76b5b;           /* was #ef4444 */
+  --neuro-info: #6ba3b3;            /* was #3b82f6 */
 
-  --neuro-text: #3d2f1f;
-  --neuro-text-light: #6d5a42;
-  --neuro-text-lighter: #8b7355;
-  --neuro-text-dim: #a89279;
+--neuro-shadow-darker: #8b7355
+--neuro-highlight: #ebe2d4
+--neuro-forest: #6b9b37
+--neuro-forest-dark: #558030
+--neuro-forest-light: #8bc34a
+--neuro-wood: #8b7355
+--neuro-wood-dark: #6d5a42
+--neuro-wood-light: #a89279
 
-  --neuro-accent: #6b9b37;        /* vibrant leaf green */
-  --neuro-accent-light: #8bc34a;  /* bright spring green */
+--shadow-glow:
+  0 0 20px rgba(107,155,55,.35),
+  0 0 40px rgba(107,155,55,.25),
+  0 0 60px rgba(107,155,55,.15);
 
-  /* Forest / Wood accents */
-  --neuro-forest: #6b9b37;
-  --neuro-forest-dark: #558030;
-  --neuro-forest-light: #8bc34a;
-  --neuro-wood: #8b7355;
-  --neuro-wood-dark: #6d5a42;
-  --neuro-wood-light: #a89279;
+--shadow-intense:
+  0 0 30px rgba(107,155,55,.5),
+  0 0 60px rgba(85,128,48,.35),
+  0 4px 20px rgba(107,155,55,.4);
 
-  --neuro-success: #6b9b37;
-  --neuro-warning: #d4a574;
-  --neuro-error: #c76b5b;
-  --neuro-info: #6ba3b3;
+--shadow-raised-lg:
+  18px 18px 36px var(--neuro-shadow-darker),
+  -12px -12px 24px var(--neuro-shadow-light),
+  inset 2px 2px 4px var(--neuro-highlight),
+  0 8px 32px rgba(107,155,55,.2);
 
-  /* Spacing & radius (unchanged) */
+--shadow-raised-hover:
+  14px 14px 28px var(--neuro-shadow-dark),
+  -10px -10px 20px var(--neuro-shadow-light),
+  inset 1px 1px 2px var(--neuro-highlight),
+  0 4px 24px rgba(107,155,55,.25);
+
+--shadow-inset-lg:
+  inset 8px 8px 16px var(--neuro-shadow-darker),
+  inset -6px -6px 12px var(--neuro-shadow-light);
+
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -48,128 +67,40 @@
   --radius-xl: 24px;
   --radius-2xl: 30px;
   --radius-full: 9999px;
-
-  /* Transitions (unchanged) */
   --transition-fast: 150ms ease-in-out;
   --transition-normal: 300ms ease-in-out;
   --transition-slow: 500ms ease-in-out;
-
-  /* Earth-luxury shadows (green glow included) */
-  --shadow-raised:
-    10px 10px 20px var(--neuro-shadow-dark),
-    -6px -6px 12px var(--neuro-shadow-light),
-    inset 1px 1px 2px var(--neuro-highlight);
-  --shadow-raised-lg:
-    18px 18px 36px var(--neuro-shadow-darker),
-    -12px -12px 24px var(--neuro-shadow-light),
-    inset 2px 2px 4px var(--neuro-highlight),
-    0 8px 32px rgba(107,155,55,.2);
-  --shadow-raised-hover:
-    14px 14px 28px var(--neuro-shadow-dark),
-    -10px -10px 20px var(--neuro-shadow-light),
-    inset 1px 1px 2px var(--neuro-highlight),
-    0 4px 24px rgba(107,155,55,.25);
-  --shadow-inset:
-    inset 5px 5px 10px var(--neuro-shadow-dark),
-    inset -3px -3px 6px var(--neuro-shadow-light);
-  --shadow-inset-sm:
-    inset 3px 3px 6px var(--neuro-shadow-dark),
-    inset -2px -2px 4px var(--neuro-shadow-light);
-  --shadow-inset-lg:
-    inset 8px 8px 16px var(--neuro-shadow-darker),
-    inset -6px -6px 12px var(--neuro-shadow-light);
-  --shadow-glow:
-    0 0 20px rgba(107,155,55,.35),
-    0 0 40px rgba(107,155,55,.25),
-    0 0 60px rgba(107,155,55,.15);
-  --shadow-intense:
-    0 0 30px rgba(107,155,55,.5),
-    0 0 60px rgba(85,128,48,.35),
-    0 4px 20px rgba(107,155,55,.4);
+  --shadow-raised: 8px 8px 16px var(--neuro-shadow-dark), -8px -8px 16px var(--neuro-shadow-light);
+  --shadow-raised-lg: 20px 20px 40px var(--neuro-shadow-dark), -20px -20px 40px var(--neuro-shadow-light);
+  --shadow-raised-hover: 10px 10px 20px var(--neuro-shadow-dark), -10px -10px 20px var(--neuro-shadow-light);
+  --shadow-inset: inset 4px 4px 8px var(--neuro-shadow-dark), inset -4px -4px 8px var(--neuro-shadow-light);
+  --shadow-inset-sm: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light);
+  --shadow-inset-lg: inset 6px 6px 12px var(--neuro-shadow-dark), inset -6px -6px 12px var(--neuro-shadow-light);
 }
 
 /* ===== GLOBAL RESET ===== */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+*, *::before, *::after { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
 }
 
-/* ===== BASE PAGE ===== */
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background: var(--neuro-bg);
   color: var(--neuro-text);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  position: relative;
-  transition: background 0.5s cubic-bezier(.4,0,.2,1);
 }
 
-/* ===== SUBTLE EARTH TEXTURE ===== */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: .6;
-  background-image:
-    repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(139,115,85,.04) 10px, rgba(139,115,85,.04) 20px),
-    radial-gradient(circle at 20% 80%, rgba(168,146,121,.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(107,155,55,.08) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(139,115,85,.05) 0%, transparent 60%);
-}
-
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: .2;
-  background-image:
-    radial-gradient(2px 2px at 25% 35%, rgba(139,115,85,.5), transparent),
-    radial-gradient(1px 1px at 65% 75%, rgba(168,146,121,.4), transparent),
-    radial-gradient(1px 1px at 50% 50%, rgba(107,155,55,.3), transparent),
-    radial-gradient(2px 2px at 85% 15%, rgba(139,115,85,.5), transparent),
-    radial-gradient(1px 1px at 90% 65%, rgba(168,146,121,.4), transparent),
-    radial-gradient(2px 2px at 40% 60%, rgba(139,115,85,.4), transparent);
-  background-size: 200% 200%;
-  animation: breathe 8s ease-in-out infinite;
-}
-
-body > * { position: relative; z-index: 1; }
-
-/* ===== EARTH-LUXURY ANIMATIONS ===== */
-@keyframes breathe {
-  0%, 100% { opacity: .5; transform: scale(1); }
-  50% { opacity: .8; transform: scale(1.05); }
-}
-
-@keyframes leafShimmer {
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
-}
-
-@keyframes naturalSheen {
-  0% { transform: translateX(-100%) skewX(-15deg); }
-  100% { transform: translateX(200%) skewX(-15deg); }
-}
-
-@keyframes earthGlow {
-  0%, 100% { box-shadow: var(--shadow-raised-lg), var(--shadow-glow); }
-  50% { box-shadow: var(--shadow-raised-lg), var(--shadow-intense); }
-}
-
-/* ===== SCROLLBAR (earth tinted) ===== */
+/* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: var(--neuro-bg); }
-::-webkit-scrollbar-thumb {
-  background: var(--neuro-shadow-dark);
-  border-radius: var(--radius-full);
+::-webkit-scrollbar-thumb { 
+  background: var(--neuro-shadow-dark); 
+  border-radius: var(--radius-full); 
 }
-::-webkit-scrollbar-thumb:hover { background: var(--neuro-wood); }
+::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
 
 /* ===== UTILITY CLASSES ===== */
 .hidden { display: none !important; }
@@ -823,24 +754,40 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   min-height: auto; 
 }
 
-/* ===== ACCESSIBILITY – FOCUS ===== */
-*:focus-visible {
-  outline: 3px solid var(--neuro-accent);
-  outline-offset: 3px;
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes spin { 
+  to { transform: rotate(360deg); } 
+}
+
+/* ===== ACCESSIBILITY ===== */
+*:focus-visible { 
+  outline: 3px solid var(--neuro-accent); 
+  outline-offset: 3px; 
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { 
+    animation-duration: 0.01ms !important; 
+    transition-duration: 0.01ms !important; 
+  }
 }
 
 /* ===== PRINT ===== */
 @media print {
-  .main-nav, .user-menu, .btn, #toast-container { display: none !important; }
-  body { background: white; color: #000; }
-}
-
-/* ===== REDUCED MOTION ===== */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+  .main-nav, .user-menu, .btn, #toast-container, .achievement-modal, .karma-modal { 
+    display: none !important; 
   }
+  body { background: white; color: black; }
 }
 
 /* =========================================================
