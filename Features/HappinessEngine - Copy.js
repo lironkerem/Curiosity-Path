@@ -62,41 +62,41 @@ class HappinessEngine {
     return typeof item === 'string' ? item : item.text;
   }
   
-  getRandomAffirmation() {
-    const src = this.affirmations;
-    if (!src) return 'You are capable of amazing things.';
+getRandomAffirmation() {
+  const src = this.affirmations;
+  if (!src) return 'You are capable of amazing things.';
 
-    // flatten once, keep only real items
-    const pool = Object.values(src)
-                       .flat()
-                       .filter(Boolean);   // removes null/undefined
+  // flatten once, keep only real items
+  const pool = Object.values(src)
+                     .flat()
+                     .filter(Boolean);   // removes null/undefined
 
-    if (!pool.length) return 'You are capable of amazing things.';
+  if (!pool.length) return 'You are capable of amazing things.';
 
-    const pick = this.app.randomFrom(pool);
-    return typeof pick === 'string' ? pick : pick.text;
-  }
+  const pick = this.app.randomFrom(pool);
+  return typeof pick === 'string' ? pick : pick.text;
+}
   
-  getRandomInquiry() {
-    const domains = [
-      'Responsibility and Power',
-      'Emotional Honesty',
-      'Identity and Roles',
-      'Creativity and Expression',
-      'Shadow and Integration',
-      'Wisdom and Insight',
-      'Joy and Fulfillment',
-      'Physical Well-Being and Energy',
-      'Relationship',
-      'Spiritual Growth',
-      'Fear and Resistance',
-      'Boundaries and Consent',
-      'Purpose and Direction',
-      'Mind and Awareness'
-    ];
-    const domain = domains[Math.floor(Math.random() * domains.length)];
-    return this.inquiryEngine.getRandomQuestion(domain);
-  }
+getRandomInquiry() {
+  const domains = [
+    'Responsibility and Power',
+    'Emotional Honesty',
+    'Identity and Roles',
+    'Creativity and Expression',
+    'Shadow and Integration',
+    'Wisdom and Insight',
+    'Joy and Fulfillment',
+    'Physical Well-Being and Energy',
+    'Relationship',
+    'Spiritual Growth',
+    'Fear and Resistance',
+    'Boundaries and Consent',
+    'Purpose and Direction',
+    'Mind and Awareness'
+  ];
+  const domain = domains[Math.floor(Math.random() * domains.length)];
+  return this.inquiryEngine.getRandomQuestion(domain); // now guaranteed non-null
+}
 
   trackView() {
     const now = Date.now();
@@ -109,7 +109,7 @@ class HappinessEngine {
     localStorage.setItem('daily_booster_views', JSON.stringify(data));
     
     if (data.count <= 5 && this.app.gamification) {
-      if (data.count === 5) {
+      if (data.count === 5) {               // only once, when the 5th view is reached
         this.app.gamification.progressQuest('daily', 'daily_booster', 5);
       }
     }
@@ -202,7 +202,7 @@ class HappinessEngine {
           <span>${b.duration}</span> • <span>${b.category}</span>
         </div>
       </div>
-      <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
+      <div class="mt-6 flex justify-end">
         <button onclick="window.featuresManager.engines.happiness.refreshBooster()" class="btn btn-secondary">🔄 Refresh Booster</button>
       </div>`);
   }
@@ -220,7 +220,7 @@ class HappinessEngine {
       <p class="mt-3 text-center text-lg" style="color: var(--neuro-text);">
         - ${q.author}
       </p>
-      <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
+      <div class="mt-6 flex justify-end">
         <button onclick="window.featuresManager.engines.happiness.refreshQuote()" class="btn btn-secondary">🔄 Refresh Quote</button>
       </div>`);
   }
@@ -234,7 +234,7 @@ class HappinessEngine {
       <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
         "${a}"
       </p>
-      <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
+      <div class="mt-6 flex justify-end">
         <button onclick="window.featuresManager.engines.happiness.refreshAffirmation()" class="btn btn-secondary">🔄 Refresh Affirmation</button>
       </div>`);
   }
@@ -262,7 +262,7 @@ class HappinessEngine {
           <span>Level ${i.intensity}</span> • <span>Self-Inquiry</span>
         </div>
       </div>
-      <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
+      <div class="mt-6 flex justify-end">
         <button onclick="window.featuresManager.engines.happiness.refreshInquiry()" class="btn btn-secondary">🔄 Refresh Inquiry</button>
       </div>`);
   }
@@ -271,11 +271,10 @@ class HappinessEngine {
     const tab = this._getElement('happiness-tab');
     if (!tab) return;
     
-    // Fresh outputs on every render
-    this.currentBooster = this.getRandomBooster();
-    this.currentQuote = window.QuotesData?.getRandomQuote() || { text: 'Stay positive!', author: 'Unknown' };
-    this.currentAffirmation = this.getRandomAffirmation();
-    this.currentInquiry = this.getRandomInquiry();
+    this.currentBooster = this.currentBooster || this.getDailyBooster();
+    this.currentQuote = this.currentQuote || (window.QuotesData?.getQuoteOfTheDay() || { text: 'Stay positive!', author: 'Unknown' });
+    this.currentAffirmation = this.currentAffirmation || this.getDailyAffirmation();
+    this.currentInquiry = this.currentInquiry || this.getRandomInquiry();
 
     const viewCount = this.getTodayViewCount();
     const intensityEmoji = { 1: '🌱', 2: '🌿', 3: '🌳', 4: '🔥' };
@@ -360,7 +359,7 @@ class HappinessEngine {
             <div class="text-center">
               ${content}
             </div>
-            <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
+            <div class="mt-6 flex justify-end">
               <button onclick="window.featuresManager.engines.happiness.${refreshMethod}()" class="btn btn-secondary">🔄 Refresh</button>
             </div>
           </div>
