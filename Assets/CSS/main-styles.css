@@ -20,14 +20,14 @@
   --neuro-error: #c76b5b;           /* was #ef4444 */
   --neuro-info: #6ba3b3;            /* was #3b82f6 */
 
---neuro-shadow-darker         #8b7355
---neuro-highlight             #ebe2d4
---neuro-forest                #6b9b37
---neuro-forest-dark           #558030
---neuro-forest-light          #8bc34a
---neuro-wood                  #8b7355
---neuro-wood-dark             #6d5a42
---neuro-wood-light            #a89279
+--neuro-shadow-darker: #8b7355
+--neuro-highlight: #ebe2d4
+--neuro-forest: #6b9b37
+--neuro-forest-dark: #558030
+--neuro-forest-light: #8bc34a
+--neuro-wood: #8b7355
+--neuro-wood-dark: #6d5a42
+--neuro-wood-light: #a89279
 
 --shadow-glow:
   0 0 20px rgba(107,155,55,.35),
