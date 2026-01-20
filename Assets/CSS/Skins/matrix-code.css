@@ -1,7 +1,9 @@
 /* =========================================================
-   DIGITAL CURIOSITY – MATRIX CODE SKIN
+   CRITICAL: MATRIX RAIN VISIBILITY & CONTENT FIX
+   Must be at the TOP to override everything
    ========================================================= */
 
+/* Matrix Rain Container */
 body.matrix-code .matrix-rain-container,
 body.matrix-code.dark-mode .matrix-rain-container {
   position: fixed !important;
@@ -20,6 +22,7 @@ body.matrix-code.dark-mode .matrix-rain-container {
   background: transparent !important;
 }
 
+/* Matrix Columns */
 body.matrix-code .matrix-column,
 body.matrix-code.dark-mode .matrix-column {
   display: block !important;
@@ -28,17 +31,42 @@ body.matrix-code.dark-mode .matrix-column {
   pointer-events: none !important;
 }
 
-/* Force above background, below content */
+/* Force content above rain */
 body.matrix-code #app-container,
 body.matrix-code #main-app,
 body.matrix-code #main-content,
-body.matrix-code .tab-content,
 body.matrix-code .mobile-bottom-bar,
 body.matrix-code .mobile-sheet,
 body.matrix-code .user-menu,
 body.matrix-code .lux-footer {
   position: relative !important;
   z-index: 2 !important;
+}
+
+/* CRITICAL: Force tab content visibility */
+body.matrix-code .tab-content,
+body.matrix-code .tab-content.active,
+body.matrix-code #dashboard-tab,
+body.matrix-code #calculator-tab,
+body.matrix-code #flip-script-tab,
+body.matrix-code #meditations-tab,
+body.matrix-code #tarot-tab,
+body.matrix-code #energy-tab,
+body.matrix-code #happiness-tab,
+body.matrix-code #gratitude-tab,
+body.matrix-code #journal-tab,
+body.matrix-code #karma-shop-tab,
+body.matrix-code #shadow-alchemy-tab,
+body.matrix-code #chatbot-tab {
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 2 !important;
+  position: relative !important;
+}
+
+/* Keep hidden tabs hidden */
+body.matrix-code .tab-content.hidden {
+  display: none !important;
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
