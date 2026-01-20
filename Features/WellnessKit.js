@@ -80,11 +80,11 @@
   /* ==================== SHARED STYLES ==================== */
   const css = `
   :root {
-    --neuro-bg: #e0e5ec;
-    --neuro-shadow-dark: #b8bec5;
-    --neuro-shadow-light: #ffffff;
-    --neuro-text: #2c3e50;
-    --neuro-accent: #667eea;
+    --neuro-bg: #c4ad91;
+    --neuro-shadow-dark: #a08968;
+    --neuro-shadow-light: #e0d4bf;
+    --neuro-text: #3d2f1f;
+    --neuro-accent: #6b9b37;
     --neuro-accent2: #764ba2;
     --radius-xl: 24px;
     --shadow-raised: 8px 8px 16px var(--neuro-shadow-dark), -8px -8px 16px var(--neuro-shadow-light);
