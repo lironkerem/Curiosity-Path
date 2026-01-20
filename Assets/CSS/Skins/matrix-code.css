@@ -1,5 +1,5 @@
 /* =========================================================
-   MATRIX RAIN BACKGROUND - STAYS BEHIND CONTENT
+   DIGITAL CURIOSITY – MATRIX CODE SKIN
    ========================================================= */
 
 body.matrix-code .matrix-rain-container,
@@ -11,7 +11,7 @@ body.matrix-code.dark-mode .matrix-rain-container {
   bottom: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
-  z-index: 0 !important;  /* Behind everything */
+  z-index: 1 !important;
   pointer-events: none !important;
   overflow: hidden !important;
   display: block !important;
@@ -28,7 +28,7 @@ body.matrix-code.dark-mode .matrix-column {
   pointer-events: none !important;
 }
 
-/* Force all interactive content above matrix rain */
+/* Force above background, below content */
 body.matrix-code #app-container,
 body.matrix-code #main-app,
 body.matrix-code #main-content,
@@ -38,22 +38,7 @@ body.matrix-code .mobile-sheet,
 body.matrix-code .user-menu,
 body.matrix-code .lux-footer {
   position: relative !important;
-  z-index: 10 !important;
-}
-
-/* Ensure all cards and interactive elements are above and clickable */
-body.matrix-code .card,
-body.matrix-code .neuro-card,
-body.matrix-code .btn,
-body.matrix-code .nav-item,
-body.matrix-code input,
-body.matrix-code textarea,
-body.matrix-code select,
-body.matrix-code button,
-body.matrix-code a {
-  position: relative;
-  z-index: 10;
-  pointer-events: auto !important;
+  z-index: 2 !important;
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
