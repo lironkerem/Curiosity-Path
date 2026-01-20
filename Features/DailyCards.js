@@ -17,6 +17,7 @@ export default class DailyCards {
       BOOSTER: 'daily_booster',
       TAROT: 'daily_tarot_card',
       INQUIRY: 'daily_inquiry',
+      AFFIRMATION: 'daily_affirmation',
       FLIPPED_PREFIX: 'daily_card_flipped_'
     };
     this.CARD_TYPES = {
@@ -110,27 +111,23 @@ export default class DailyCards {
 
   // ========== CARD DATA GETTERS ==========
 
-getRandomBooster() {
-  if (!this.happinessBoosters?.length) {
-    const fallback = [
-      { id: 1, title: '5-Minute Dance Party', emoji: '💃', description: 'Put on your favorite song and move!', duration: '5 min', category: 'Movement' },
-      { id: 2, title: 'Gratitude Snapshot', emoji: '📸', description: 'Notice 3 beautiful things around you', duration: '3 min', category: 'Gratitude' },
-      { id: 3, title: 'Power Pose', emoji: '🦸', description: 'Stand like a superhero for 2 minutes', duration: '2 min', category: 'Confidence' }
-    ];
-    const idx = Math.floor(Math.random() * fallback.length);
-    return fallback[idx];
+  getRandomBooster() {
+    if (!this.happinessBoosters?.length) {
+      const fallback = [
+        { id: 1, title: '5-Minute Dance Party', emoji: '💃', description: 'Put on your favorite song and move!', duration: '5 min', category: 'Movement' },
+        { id: 2, title: 'Gratitude Snapshot', emoji: '📸', description: 'Notice 3 beautiful things around you', duration: '3 min', category: 'Gratitude' },
+        { id: 3, title: 'Power Pose', emoji: '🦸', description: 'Stand like a superhero for 2 minutes', duration: '2 min', category: 'Confidence' }
+      ];
+      const idx = Math.floor(Math.random() * fallback.length);
+      return fallback[idx];
+    }
+    const idx = Math.floor(Math.random() * this.happinessBoosters.length);
+    return this.happinessBoosters[idx];
   }
-  const idx = Math.floor(Math.random() * this.happinessBoosters.length);
-  return this.happinessBoosters[idx];
-}
 
   getDailyBooster() {
-    const cached = this._getFromStorage(this.STORAGE_KEYS.BOOSTER);
-    if (cached) return cached.booster;
-    
-    const booster = this.getRandomBooster();
-    this._saveToStorage(this.STORAGE_KEYS.BOOSTER, { booster });
-    return booster;
+    // Always return a fresh random booster - no caching
+    return this.getRandomBooster();
   }
 
   getDailyTarotCard() {
@@ -151,14 +148,24 @@ getRandomBooster() {
     return card;
   }
 
-  getDailyAffirmation() {
-    if (window.affirmations?.general_positive_affirmations) {
-      const list = window.affirmations.general_positive_affirmations;
-      const dayOfYear = this._getDayOfYear();
-      const affirmation = list[dayOfYear % list.length];
-      return typeof affirmation === 'string' ? affirmation : affirmation.text;
+  getRandomAffirmation() {
+    const affirmationsList = window.affirmations?.general_positive_affirmations || [];
+    if (!affirmationsList.length) {
+      return "I am worthy of love and belonging exactly as I am.";
     }
-    return "I am worthy of love and belonging exactly as I am.";
+    
+    const idx = Math.floor(Math.random() * affirmationsList.length);
+    const affirmation = affirmationsList[idx];
+    return typeof affirmation === 'string' ? affirmation : affirmation.text;
+  }
+
+  getDailyAffirmation() {
+    const cached = this._getFromStorage(this.STORAGE_KEYS.AFFIRMATION);
+    if (cached) return cached.affirmation;
+    
+    const affirmation = this.getRandomAffirmation();
+    this._saveToStorage(this.STORAGE_KEYS.AFFIRMATION, { affirmation });
+    return affirmation;
   }
 
   getDailyInquiry() {
@@ -251,16 +258,17 @@ getRandomBooster() {
   }
 
   _updateBoosterContent(cardEl) {
+    // Get a fresh random booster every time
     const booster = this.getRandomBooster();
     const contentBox = cardEl.querySelector('.dashboard-booster-content');
     if (contentBox) {
-contentBox.innerHTML = `
-  <div class="dashboard-booster-emoji">${booster.emoji}</div>
-  <div class="inquiry-domain-badge">
-    <span>${booster.title}</span>
-  </div>
-  <p class="dashboard-booster-description">${booster.description}</p>
-  <p class="dashboard-booster-meta">${booster.duration} • ${booster.category}</p>`;
+      contentBox.innerHTML = `
+        <div class="dashboard-booster-emoji">${booster.emoji}</div>
+        <div class="inquiry-domain-badge">
+          <span>${booster.title}</span>
+        </div>
+        <p class="dashboard-booster-description">${booster.description}</p>
+        <p class="dashboard-booster-meta">${booster.duration} • ${booster.category}</p>`;
     }
   }
 
@@ -347,12 +355,12 @@ contentBox.innerHTML = `
       frontContent: `
         <div class="daily-card-content-wrapper">
           <div class="dashboard-booster-content">
-<div class="dashboard-booster-emoji">${booster.emoji}</div>
-<div class="inquiry-domain-badge">
-  <span>${booster.title}</span>
-</div>
-<p class="dashboard-booster-description">${booster.description}</p>
-<p class="dashboard-booster-meta">${booster.duration} • ${booster.category}</p>
+            <div class="dashboard-booster-emoji">${booster.emoji}</div>
+            <div class="inquiry-domain-badge">
+              <span>${booster.title}</span>
+            </div>
+            <p class="dashboard-booster-description">${booster.description}</p>
+            <p class="dashboard-booster-meta">${booster.duration} • ${booster.category}</p>
           </div>
         </div>`
     });

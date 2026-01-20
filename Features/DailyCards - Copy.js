@@ -110,13 +110,19 @@ export default class DailyCards {
 
   // ========== CARD DATA GETTERS ==========
 
-  getRandomBooster() {
-    if (!this.happinessBoosters?.length) {
-      return { id: 0, title: 'Loading...', emoji: '⏳', description: 'Please wait', duration: '...', category: 'Loading' };
-    }
-    const idx = Math.floor(Math.random() * this.happinessBoosters.length);
-    return this.happinessBoosters[idx];
+getRandomBooster() {
+  if (!this.happinessBoosters?.length) {
+    const fallback = [
+      { id: 1, title: '5-Minute Dance Party', emoji: '💃', description: 'Put on your favorite song and move!', duration: '5 min', category: 'Movement' },
+      { id: 2, title: 'Gratitude Snapshot', emoji: '📸', description: 'Notice 3 beautiful things around you', duration: '3 min', category: 'Gratitude' },
+      { id: 3, title: 'Power Pose', emoji: '🦸', description: 'Stand like a superhero for 2 minutes', duration: '2 min', category: 'Confidence' }
+    ];
+    const idx = Math.floor(Math.random() * fallback.length);
+    return fallback[idx];
   }
+  const idx = Math.floor(Math.random() * this.happinessBoosters.length);
+  return this.happinessBoosters[idx];
+}
 
   getDailyBooster() {
     const cached = this._getFromStorage(this.STORAGE_KEYS.BOOSTER);
@@ -248,11 +254,13 @@ export default class DailyCards {
     const booster = this.getRandomBooster();
     const contentBox = cardEl.querySelector('.dashboard-booster-content');
     if (contentBox) {
-      contentBox.innerHTML = `
-        <div class="dashboard-booster-emoji">${booster.emoji}</div>
-        <h4 class="dashboard-booster-title">${booster.title}</h4>
-        <p class="dashboard-booster-description">${booster.description}</p>
-        <p class="dashboard-booster-meta">${booster.duration} • ${booster.category}</p>`;
+contentBox.innerHTML = `
+  <div class="dashboard-booster-emoji">${booster.emoji}</div>
+  <div class="inquiry-domain-badge">
+    <span>${booster.title}</span>
+  </div>
+  <p class="dashboard-booster-description">${booster.description}</p>
+  <p class="dashboard-booster-meta">${booster.duration} • ${booster.category}</p>`;
     }
   }
 
@@ -339,10 +347,12 @@ export default class DailyCards {
       frontContent: `
         <div class="daily-card-content-wrapper">
           <div class="dashboard-booster-content">
-            <div class="dashboard-booster-emoji">${booster.emoji}</div>
-            <h4 class="dashboard-booster-title">${booster.title}</h4>
-            <p class="dashboard-booster-description">${booster.description}</p>
-            <p class="dashboard-booster-meta">${booster.duration} • ${booster.category}</p>
+<div class="dashboard-booster-emoji">${booster.emoji}</div>
+<div class="inquiry-domain-badge">
+  <span>${booster.title}</span>
+</div>
+<p class="dashboard-booster-description">${booster.description}</p>
+<p class="dashboard-booster-meta">${booster.duration} • ${booster.category}</p>
           </div>
         </div>`
     });
