@@ -19,6 +19,42 @@
   --neuro-warning: #d4a574;         /* was #f59e0b */
   --neuro-error: #c76b5b;           /* was #ef4444 */
   --neuro-info: #6ba3b3;            /* was #3b82f6 */
+
+--neuro-shadow-darker         #8b7355
+--neuro-highlight             #ebe2d4
+--neuro-forest                #6b9b37
+--neuro-forest-dark           #558030
+--neuro-forest-light          #8bc34a
+--neuro-wood                  #8b7355
+--neuro-wood-dark             #6d5a42
+--neuro-wood-light            #a89279
+
+--shadow-glow:
+  0 0 20px rgba(107,155,55,.35),
+  0 0 40px rgba(107,155,55,.25),
+  0 0 60px rgba(107,155,55,.15);
+
+--shadow-intense:
+  0 0 30px rgba(107,155,55,.5),
+  0 0 60px rgba(85,128,48,.35),
+  0 4px 20px rgba(107,155,55,.4);
+
+--shadow-raised-lg:
+  18px 18px 36px var(--neuro-shadow-darker),
+  -12px -12px 24px var(--neuro-shadow-light),
+  inset 2px 2px 4px var(--neuro-highlight),
+  0 8px 32px rgba(107,155,55,.2);
+
+--shadow-raised-hover:
+  14px 14px 28px var(--neuro-shadow-dark),
+  -10px -10px 20px var(--neuro-shadow-light),
+  inset 1px 1px 2px var(--neuro-highlight),
+  0 4px 24px rgba(107,155,55,.25);
+
+--shadow-inset-lg:
+  inset 8px 8px 16px var(--neuro-shadow-darker),
+  inset -6px -6px 12px var(--neuro-shadow-light);
+
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
