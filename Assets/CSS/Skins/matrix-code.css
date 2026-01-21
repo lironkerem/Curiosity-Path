@@ -206,7 +206,6 @@ body.matrix-code::before{
   animation:digitalRain 20s linear infinite;
 }
 
-
 /* CRT scanline overlay */
 body.matrix-code .scanline-overlay{
   content:"";
@@ -686,6 +685,24 @@ body.matrix-code .mobile-bottom-bar {
   left: 0 !important;
   right: 0 !important;
   z-index: 98 !important;
+}
+
+/* ---- force Matrix sheets to start collapsed ---- */
+body.matrix-code .mobile-sheet {
+  transform: translateY(110%) !important;
+  transition: transform .3s cubic-bezier(.4,0,.2,1) !important;
+}
+body.matrix-code .mobile-sheet[aria-hidden="false"] {
+  transform: translateY(0) !important;
+}
+
+/* same for red dark-mode sheets */
+body.matrix-code.dark-mode .mobile-sheet {
+  transform: translateY(110%) !important;
+  transition: transform .3s cubic-bezier(.4,0,.2,1) !important;
+}
+body.matrix-code.dark-mode .mobile-sheet[aria-hidden="false"] {
+  transform: translateY(0) !important;
 }
 
 /* =========================================================
