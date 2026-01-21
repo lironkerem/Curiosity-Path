@@ -371,7 +371,7 @@ textarea {
   gap: 0.5rem;
 }
 
-/* Achievements */
+/* BADGES */
 .dashboard-achievements {
   padding: 1.5rem;
 }
@@ -424,7 +424,12 @@ textarea {
 #dashboard-quote-card .text-lg {
   font-size: clamp(0.95rem, 3vw, 1.125rem) !important;
 }
-
+@media (max-width: 768px) {
+  .badges-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+}
 /* =========================================================
    ENERGY TRACKER - MOBILE
    ========================================================= */
