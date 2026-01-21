@@ -4,7 +4,7 @@ export default {
     './index.html',
     './Core/**/*.js',
     './Features/**/*.js',
-    './Assets/**/*.css'
+    './CSS/**/*.css'
   ],
   
   theme: {

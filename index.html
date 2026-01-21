@@ -9,28 +9,28 @@
 
   <!-- ===== CSS ===== -->
   <!-- 1. base look (always on) -->
-  <link rel="stylesheet" href="/Assets/CSS/main-styles.css?v=1.0.2">
+  <link rel="stylesheet" href="/CSS/main-styles.css?v=1.0.2">
 
   <!-- 2. default dark-mode sheet (disabled by default) -->
-  <link rel="preload" href="/Assets/CSS/dark-mode.css" as="style">
-  <link rel="stylesheet" href="/Assets/CSS/dark-mode.css" id="dark-mode-css" disabled>
+  <link rel="preload" href="/CSS/dark-mode.css" as="style">
+  <link rel="stylesheet" href="/CSS/dark-mode.css" id="dark-mode-css" disabled>
 
   <!-- 3. premium skins – preload + disabled -->
-  <link rel="preload" href="/Assets/CSS/Skins/champagne-gold.css" as="style">
-  <link rel="preload" href="/Assets/CSS/Skins/royal-indigo.css"   as="style">
-  <link rel="preload" href="/Assets/CSS/Skins/earth-luxury.css"   as="style">
-  <link rel="preload" href="/Assets/CSS/Skins/matrix-code.css"    as="style">
+  <link rel="preload" href="/CSS/Skins/champagne-gold.css" as="style">
+  <link rel="preload" href="/CSS/Skins/royal-indigo.css"   as="style">
+  <link rel="preload" href="/CSS/Skins/earth-luxury.css"   as="style">
+  <link rel="preload" href="/CSS/Skins/matrix-code.css"    as="style">
 
-  <link rel="stylesheet" href="/Assets/CSS/Skins/champagne-gold.css" id="skin_champagne-gold" disabled>
-  <link rel="stylesheet" href="/Assets/CSS/Skins/royal-indigo.css"   id="skin_royal-indigo"   disabled>
-  <link rel="stylesheet" href="/Assets/CSS/Skins/earth-luxury.css"   id="skin_earth-luxury"   disabled>
-  <link rel="stylesheet" href="/Assets/CSS/Skins/matrix-code.css"    id="skin_matrix-code"    disabled>
+  <link rel="stylesheet" href="/CSS/Skins/champagne-gold.css" id="skin_champagne-gold" disabled>
+  <link rel="stylesheet" href="/CSS/Skins/royal-indigo.css"   id="skin_royal-indigo"   disabled>
+  <link rel="stylesheet" href="/CSS/Skins/earth-luxury.css"   id="skin_earth-luxury"   disabled>
+  <link rel="stylesheet" href="/CSS/Skins/matrix-code.css"    id="skin_matrix-code"    disabled>
 
   <!-- 4. mobile sheet -->
-  <link rel="stylesheet" href="/Assets/CSS/mobile-styles.css" media="(max-width:1024px)">
+  <link rel="stylesheet" href="/CSS/mobile-styles.css" media="(max-width:1024px)">
 
   <!-- 5. tailwind (if still needed) -->
-  <link rel="stylesheet" href="/Assets/CSS/tailwind-output.css">
+  <link rel="stylesheet" href="/CSS/tailwind-output.css">
 
   <!-- ===== Theme activation before first paint ===== -->
   <script>
@@ -44,7 +44,7 @@
       if (l) l.disabled = false;          // premium skin on
       // premium CSS has its own dark rules → keep default dark sheet off
     } else if (dark) {
-      document.getElementById('dark_css').disabled = false; // default dark on
+      document.getElementById('dark-mode-css').disabled = false; // default dark on
     }
   })();
   </script>
@@ -56,9 +56,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="The Curiosity Path">
-  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
-  <link rel="icon" href="Icons/favicon.svg" type="image/svg+xml">
-  <link rel="icon" href="Icons/favicon.ico">
+  <link rel="apple-touch-icon" href="Public/Icons/apple-touch-icon.png">
+  <link rel="icon" href="Public/Icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="Public/Icons/favicon.ico">
 
   <script>window.shareTheme=n=>{localStorage.setItem('activeTheme',n);location.href='/'+n;};</script>
 </head>
@@ -91,7 +91,7 @@
   <script>document.body.classList.toggle('dark',localStorage.getItem('darkMode')==='enabled');</script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-  <script src="/Assets/CSS/Skins/MatrixRain.js?v=1.0.4"></script>
+  <script src="/CSS/Skins/MatrixRain.js?v=1.0.4"></script>
   <script type="module" src="./Core/Utils.js"></script>
   <script defer src="./Features/TarotVisionAI.js"></script>
   <script type="module" src="./Features/TarotEngine.js"></script>
@@ -103,11 +103,11 @@
 
   <script type="module">
     async function init(){
-      console.log('🚀 Digital Curiosity - Aanandoham\'s Spiritual Platform Online');
+      console.log('🚀 The Curiosity Path - Aanandoham\'s Spiritual Platform Online');
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./service-worker.js')
-          .then(reg => console.log('✅ SW registered:', reg))
-          .catch(err => console.error('❌ SW registration failed:', err));
+          .then(reg => console.log('✅ Service Worker registered:', reg))
+          .catch(err => console.error('❌ Service Worker registration failed:', err));
       }
       try{
         const [aff,{QUOTES,getRandomQuote,getQuoteOfTheDay}]=await Promise.all([
@@ -139,12 +139,12 @@
   <script>
   window.setSkin=function(name){
     document.querySelectorAll('link[id^="skin_"]').forEach(l=>l.disabled=true);
-    document.getElementById('dark_css').disabled=true; // premium on → default dark off
+    document.getElementById('dark-mode-css').disabled=true; // premium on → default dark off
     if(name!=='default'){
       const wanted=document.getElementById('skin_'+name);
       if(wanted) wanted.disabled=false;
     }else if(localStorage.getItem('darkMode')==='enabled'){
-      document.getElementById('dark_css').disabled=false; // back to default
+      document.getElementById('dark-mode-css').disabled=false; // back to default
     }
     localStorage.setItem('activeTheme',name);
   };
@@ -153,7 +153,7 @@
     document.documentElement.classList.toggle('dark',enable);
     const premiumActive=document.querySelector('link[id^="skin_"]:not([disabled])');
     if(!premiumActive){ // only toggle default dark when no premium skin
-      document.getElementById('dark_css').disabled=!enable;
+      document.getElementById('dark-mode-css').disabled=!enable;
     }
   };
   </script>

@@ -1,5 +1,4 @@
 // Digital Curiosity PWA - Service Worker
-// Network-first strategy to fix white screen issue
 
 const CACHE_NAME = 'dc-v4';
 const RUNTIME_CACHE = 'dc-runtime';
@@ -7,11 +6,13 @@ const RUNTIME_CACHE = 'dc-runtime';
 // Core assets to cache immediately
 const CORE_ASSETS = [
   './',
-  './Icons/icon-192x192.png',
-  './Icons/icon-512x512.png',
-  './Assets/CSS/main-styles.css',
-  './Assets/CSS/mobile-styles.css',
-  './Assets/CSS/tailwind-output.css'
+  './Public/Icons/icon-192x192.png',
+  './Public/Icons/icon-512x512.png',
+  './Public/Icons/icon-512-maskable.png',
+  './Public/Icons/badge-96x96.png',
+  './CSS/main-styles.css',
+  './CSS/mobile-styles.css',
+  './CSS/tailwind-output.css'
 ];
 
 // Install event - cache core assets
@@ -132,10 +133,10 @@ self.addEventListener('push', event => {
     event.waitUntil(
       self.registration.showNotification(title, {
         body,
-        icon: icon || '/Icons/icon-192x192.png',
+        icon: icon || 'Public/Icons/icon-512-maskable.png',
         tag: tag || 'default',
         data: data || {},
-        badge: '/Icons/icon-192x192.png',
+        badge: 'Public/Icons/badge-96x96.png',
         vibrate: [200, 100, 200]
       })
     );
