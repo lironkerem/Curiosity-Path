@@ -205,6 +205,7 @@ body.matrix-code::before{
     repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(0,255,65,.2) 20px, rgba(0,255,65,.2) 21px);
   animation:digitalRain 20s linear infinite;
 }
+body.matrix-code > *:not(.matrix-bg){position:relative;z-index:2}
 
 /* CRT scanline overlay */
 body.matrix-code .scanline-overlay{
@@ -573,15 +574,6 @@ body.matrix-code .mobile-sheet{
   border-top:2px solid var(--neuro-matrix);
   box-shadow:0 -8px 32px rgba(0,255,65,.4);
 }
-/* ---- Matrix mobile-sheet collapse (add this after the colour block) ---- */
-body.matrix-code .mobile-sheet {
-  transform: translateY(110%) !important;          /* start off-screen */
-  transition: transform .3s cubic-bezier(.4,0,.2,1) !important;
-}
-body.matrix-code .mobile-sheet[aria-hidden="false"] {
-  transform: translateY(0) !important;            /* slide in when opened */
-}
-
 body.matrix-code .sheet-grip{background:rgba(0,200,50,.8) !important;}
 body.matrix-code .sheet-header{
   color:#000 !important;
@@ -618,15 +610,6 @@ body.matrix-code.dark-mode .mobile-sheet{
   border-top:2px solid var(--neuro-matrix);
   box-shadow:0 -8px 32px rgba(255,0,65,.4);
 }
-/* same for red dark-mode sheets */
-body.matrix-code.dark-mode .mobile-sheet {
-  transform: translateY(110%) !important;
-  transition: transform .3s cubic-bezier(.4,0,.2,1) !important;
-}
-body.matrix-code.dark-mode .mobile-sheet[aria-hidden="false"] {
-  transform: translateY(0) !important;
-}
-
 body.matrix-code.dark-mode .sheet-grip{background:rgba(200,0,50,.8) !important;}
 body.matrix-code.dark-mode .sheet-header{text-shadow:0 0 8px rgba(255,0,65,1);}
 body.matrix-code.dark-mode .sheet-row{
@@ -676,42 +659,6 @@ body.matrix-code .user-menu-btn {
 body.matrix-code .user-menu-btn:hover {
   background: rgba(0, 255, 65, 0.2) !important;
   box-shadow: var(--shadow-intense) !important;
-}
-
-/* keep bottom bar in viewport */
-body.matrix-code .mobile-bottom-bar {
-  position: fixed !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  z-index: 98 !important;
-}
-
-/* ---- force Matrix sheets to start collapsed ---- */
-body.matrix-code .mobile-sheet {
-  transform: translateY(110%) !important;
-  transition: transform .3s cubic-bezier(.4,0,.2,1) !important;
-}
-body.matrix-code .mobile-sheet[aria-hidden="false"] {
-  transform: translateY(0) !important;
-}
-
-/* same for red dark-mode sheets */
-body.matrix-code.dark-mode .mobile-sheet {
-  transform: translateY(110%) !important;
-  transition: transform .3s cubic-bezier(.4,0,.2,1) !important;
-}
-body.matrix-code.dark-mode .mobile-sheet[aria-hidden="false"] {
-  transform: translateY(0) !important;
-}
-
-/* collapse matrix sheets – same as default */
-body.matrix-code .mobile-sheet {
-  transform: translateY(110%) !important;
-  transition: transform .3s cubic-bezier(.4,0,.2,1) !important;
-}
-body.matrix-code .mobile-sheet[aria-hidden="false"] {
-  transform: translateY(0) !important;
 }
 
 /* =========================================================
