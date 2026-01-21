@@ -9,7 +9,7 @@ import HappinessEngine      from '../Features/HappinessEngine.js';
 import GratitudeEngine      from '../Features/GratitudeEngine.js';
 import QuotesEngine         from '../Features/QuotesEngine.js';
 import AffirmationsEngine   from '../Features/AffirmationsEngine.js';
-import GamificationEngine   from '../Core/GamificationEngine.js';
+import GamificationEngine   from './Core/GamificationEngine.js';
 import JournalEngine        from '../Features/JournalEngine.js';
 import ShadowAlchemyEngine  from '../Mini-Apps/ShadowAlchemyLab/shadowalchemy.js';
 import { ChatBotAI }        from '../Features/ChatBotAI.js';
