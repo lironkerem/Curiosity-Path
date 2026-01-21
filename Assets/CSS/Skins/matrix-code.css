@@ -661,40 +661,6 @@ body.matrix-code .user-menu-btn:hover {
   box-shadow: var(--shadow-intense) !important;
 }
 
-/* ===== ENSURE TABS ARE VISIBLE ===== */
-body.matrix-code .tab-content,
-body.matrix-code .tab-content.active {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  z-index: 2 !important;
-  position: relative !important;
-}
-
-body.matrix-code #main-content,
-body.matrix-code #app-container,
-body.matrix-code #main-app {
-  display: block !important;
-  visibility: visible !important;
-  z-index: 2 !important;
-}
-
-/* Mobile specific */
-@media (max-width: 767px) {
-  body.matrix-code .tab-content {
-    background: transparent !important;
-    min-height: auto !important;
-  }
-  
-  body.matrix-code .card,
-  body.matrix-code .neuro-card,
-  body.matrix-code .dashboard-gamification,
-  body.matrix-code .dashboard-quest-hub {
-    display: block !important;
-    visibility: visible !important;
-  }
-}
-
 /* =========================================================
    END MATRIX-CODE COMPLETE (updated for new CSS)
    ========================================================= */
