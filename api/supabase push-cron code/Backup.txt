@@ -1,1 +1,0 @@
-Backup for the push-cron for notifications in Supabase
