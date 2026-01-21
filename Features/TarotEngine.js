@@ -323,7 +323,7 @@ class TarotEngine {
 
 <style>
   .tarot-card-flip-container { 
-    width: clamp(90px, 22vw, 200px); 
+    width: clamp(110px, 28vw, 200px); 
     aspect-ratio: 200 / 350; 
     perspective: 1000px; 
     cursor: pointer; 
@@ -337,54 +337,62 @@ class TarotEngine {
   
   /* Responsive card container */
   #tarot-tab .flex.flex-col.items-center.mx-auto {
-    width: clamp(90px, 22vw, 200px) !important;
+    width: clamp(110px, 28vw, 200px) !important;
   }
   
-  /* Grid gaps - mobile first with consistent gaps */
+  /* Grid gaps - default */
   #tarot-tab .grid { 
-    gap: 0.5rem; 
+    gap: 0.75rem;
     max-width: 100%;
     padding: 0 0.5rem;
   }
   
-  /* Small screens (under 500px) - tighter control */
+  /* Force cards to scale down on small screens - 3 cards always fit */
   @media (max-width: 499px) {
     .tarot-card-flip-container { 
-      width: clamp(85px, 28vw, 110px); 
+      width: calc((100vw - 3rem) / 3 - 0.5rem) !important;
+      max-width: 110px;
     }
     #tarot-tab .flex.flex-col.items-center.mx-auto { 
-      width: clamp(85px, 28vw, 110px) !important; 
+      width: calc((100vw - 3rem) / 3 - 0.5rem) !important;
+      max-width: 110px;
     }
-    #tarot-tab .grid { 
-      gap: 0.4rem;
-      padding: 0 0.25rem;
+    #tarot-tab .grid {
+      gap: 0.5rem;
+      padding: 0 0.5rem;
+    }
+    
+    /* 6 Cards Spread uses 2 columns on mobile - adjust formula */
+    #tarot-tab .grid.grid-cols-2 .tarot-card-flip-container,
+    #tarot-tab .grid.grid-cols-2 .flex.flex-col.items-center.mx-auto {
+      width: calc((100vw - 3rem) / 2 - 0.5rem) !important;
+      max-width: 150px;
     }
   }
   
-  /* Tablet and up */
   @media (min-width: 500px) and (max-width: 767px) {
     .tarot-card-flip-container { 
-      width: clamp(110px, 22vw, 160px); 
+      width: clamp(100px, 28vw, 160px);
     }
     #tarot-tab .flex.flex-col.items-center.mx-auto { 
-      width: clamp(110px, 22vw, 160px) !important; 
+      width: clamp(100px, 28vw, 160px) !important;
     }
-    #tarot-tab .grid { 
+    #tarot-tab .grid {
       gap: 0.75rem;
       padding: 0 0.5rem;
     }
   }
   
   @media (min-width: 768px) {
-    #tarot-tab .grid { 
-      gap: 1rem 1.5rem; 
-      padding: 0;
-    }
     .tarot-card-flip-container { 
       width: clamp(140px, 20vw, 220px); 
     }
     #tarot-tab .flex.flex-col.items-center.mx-auto { 
       width: clamp(140px, 20vw, 220px) !important; 
+    }
+    #tarot-tab .grid { 
+      gap: 1rem 1.5rem; 
+      padding: 0;
     }
   }
   
