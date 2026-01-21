@@ -53,8 +53,18 @@ export class GamificationEngine {
     };
   }
 
+initializeQuests() {
+  const definitions = this.getQuestDefinitions();
+  
+  // Only initialize if quests don't exist or are empty
+  if (!this.state.quests.daily || this.state.quests.daily.length === 0) {
+    this.state.quests = definitions;
+    this.saveState();
+    console.log('✅ Quests initialized from code definitions');
+  }
+}
   /* ---------------------------------------------------------
-     QUESTS HUB
+     DEFAULT STATE
   --------------------------------------------------------- */
 
 getQuestDefinitions() {
