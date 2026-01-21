@@ -574,6 +574,15 @@ body.matrix-code .mobile-sheet{
   border-top:2px solid var(--neuro-matrix);
   box-shadow:0 -8px 32px rgba(0,255,65,.4);
 }
+/* ---- Matrix mobile-sheet collapse (add this after the colour block) ---- */
+body.matrix-code .mobile-sheet {
+  transform: translateY(110%) !important;          /* start off-screen */
+  transition: transform .3s cubic-bezier(.4,0,.2,1) !important;
+}
+body.matrix-code .mobile-sheet[aria-hidden="false"] {
+  transform: translateY(0) !important;            /* slide in when opened */
+}
+
 body.matrix-code .sheet-grip{background:rgba(0,200,50,.8) !important;}
 body.matrix-code .sheet-header{
   color:#000 !important;
@@ -610,6 +619,15 @@ body.matrix-code.dark-mode .mobile-sheet{
   border-top:2px solid var(--neuro-matrix);
   box-shadow:0 -8px 32px rgba(255,0,65,.4);
 }
+/* same for red dark-mode sheets */
+body.matrix-code.dark-mode .mobile-sheet {
+  transform: translateY(110%) !important;
+  transition: transform .3s cubic-bezier(.4,0,.2,1) !important;
+}
+body.matrix-code.dark-mode .mobile-sheet[aria-hidden="false"] {
+  transform: translateY(0) !important;
+}
+
 body.matrix-code.dark-mode .sheet-grip{background:rgba(200,0,50,.8) !important;}
 body.matrix-code.dark-mode .sheet-header{text-shadow:0 0 8px rgba(255,0,65,1);}
 body.matrix-code.dark-mode .sheet-row{
