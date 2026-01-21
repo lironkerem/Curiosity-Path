@@ -694,6 +694,74 @@ body.matrix-code .user-menu-btn:hover {
   }
 }
 
+/* ===== ENSURE TABS ARE VISIBLE ===== */
+body.matrix-code .tab-content {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 2 !important;
+  min-height: 100vh !important;
+  padding: 1rem !important;
+}
+
+body.matrix-code .tab-content.active {
+  display: block !important;
+}
+
+body.matrix-code .tab-content:not(.active) {
+  display: none !important;
+}
+
+/* CRITICAL: Restore normal layout containers */
+body.matrix-code .dashboard-container,
+body.matrix-code .karma-shop-container {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  padding: 1.5rem !important;
+  min-height: 100vh !important;
+}
+
+body.matrix-code .dashboard-content,
+body.matrix-code .karma-shop-content,
+body.matrix-code .universal-content {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  max-width: 80rem !important;
+  margin: 0 auto !important;
+}
+
+/* Force visibility for all dashboard cards */
+body.matrix-code .card,
+body.matrix-code .neuro-card,
+body.matrix-code .dashboard-gamification,
+body.matrix-code .dashboard-quest-hub,
+body.matrix-code .dashboard-daily-card,
+body.matrix-code .dashboard-quote,
+body.matrix-code .dashboard-achievements,
+body.matrix-code .dashboard-wellness-toolkit {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* Mobile specific */
+@media (max-width: 767px) {
+  body.matrix-code .tab-content {
+    padding: 1rem !important;
+    padding-bottom: 140px !important;
+  }
+  
+  body.matrix-code .dashboard-container,
+  body.matrix-code .karma-shop-container {
+    padding: 1rem !important;
+  }
+}
+
 /* =========================================================
    END MATRIX-CODE COMPLETE (updated for new CSS)
    ========================================================= */
