@@ -55,7 +55,7 @@ export default class GratitudeEngine {
     <div class="universal-content">
 
       <header class="main-header project-curiosity"
-              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavGratitude.png');
+              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavGratitude.png');
                      --header-title:'';
                      --header-tag:'Log in your gratitudes, as much as possible, to open-up for abundance'">
         <h1>Gratitude Practice</h1>

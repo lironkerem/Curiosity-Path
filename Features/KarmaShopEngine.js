@@ -449,7 +449,7 @@ export class KarmaShopEngine {
       <div class="karma-shop-container">
         <div class="karma-shop-content">
           <header class="main-header project-curiosity"
-                  style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavShop.png');
+                  style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/Public/assets/Tabs/NavShop.png');
                          --header-title:'';
                          --header-tag:'Exchange your Karma tokens for goodies and upgrades'">
             <h1>The Karma Shop</h1>

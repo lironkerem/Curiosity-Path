@@ -36,7 +36,7 @@ tab.innerHTML = `
 
 <!--  IMAGE-ONLY MOBILE HEADER  -->
       <header class="main-header project-curiosity"
-              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/Chat.png');
+              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Chat.png');
                      --header-title:'';
                      --header-tag:'Ask me anything about spirituality, self-development, guidance, or just chat with me'">
       <h1>Aanandoham's AI Assistant</h1>

@@ -10,7 +10,7 @@ class MeditationsEngine {
     this.sessionStartTime = null;
     this.progressInterval = null;
     this.eventCleanup = [];
-    this.pdfGuideUrl = 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Assets/Source_PDF/Meditation_Demo.pdf';
+    this.pdfGuideUrl = 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Source_PDF/Meditation_Demo.pdf';
 
     // Constants
     this.SKIP_SECONDS = 15;
@@ -145,7 +145,7 @@ class MeditationsEngine {
         <div class="universal-content">
 
           <header class="main-header project-curiosity"
-                  style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavMeditations.png');
+                  style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavMeditations.png');
                          --header-title:'';
                          --header-tag:'Aanandoham\\'s curated, unique collection of guided meditations'">
             <h1>Guided Meditations</h1>

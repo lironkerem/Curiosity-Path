@@ -284,7 +284,7 @@ class HappinessEngine {
   <div style="padding:1.5rem;min-height:100vh;">
     <div class="universal-content">
       <header class="main-header project-curiosity"
-              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavHappiness.png');
+              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavHappiness.png');
                      --header-title:'';
                      --header-tag:'Your daily dose of Inspirational Quotes with Happiness Boosters, Positive-Affirmations, and Self-Inquiry'">
         <h1>Happiness and Motivation</h1>

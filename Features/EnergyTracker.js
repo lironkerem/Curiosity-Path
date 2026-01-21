@@ -263,7 +263,7 @@ class EnergyEngineEnhanced {
     return `
       <div style="padding:1.5rem;min-height:100vh;">
         <div class="universal-content">
-          <header class="main-header project-curiosity" style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavEnergy.png');--header-title:'';--header-tag:'Check, review, track and learn your energy patterns - Overall and Chakras'">
+          <header class="main-header project-curiosity" style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavEnergy.png');--header-title:'';--header-tag:'Check, review, track and learn your energy patterns - Overall and Chakras'">
             <h1>Energy Tracker</h1>
             <h3>Check, review, track and learn your energy patterns - Overall and Chakras</h3>
           </header>

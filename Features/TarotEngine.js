@@ -271,7 +271,7 @@ class TarotEngine {
         <div class="universal-content">
 
           <header class="main-header project-curiosity"
-                  style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavTarot.png');
+                  style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavTarot.png');
                          --header-title:'';
                          --header-tag:'Self divination, through different Tarot spreads, to assist you in understanding yourself better'">
             <h1>Tarot Cards Guidance</h1>
