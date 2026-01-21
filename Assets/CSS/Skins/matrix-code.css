@@ -661,6 +661,39 @@ body.matrix-code .user-menu-btn:hover {
   box-shadow: var(--shadow-intense) !important;
 }
 
+/* Mobile specific fixes */
+@media (max-width: 767px) {
+  body.matrix-code .tab-content,
+  body.matrix-code .tab-pane {
+    background: transparent !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 1rem !important;
+    margin: 0 !important;
+  }
+  
+  body.matrix-code #main-content,
+  body.matrix-code #app-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+  }
+  
+  /* Remove big spaces */
+  body.matrix-code .dashboard-gamification,
+  body.matrix-code .dashboard-quest-hub,
+  body.matrix-code .dashboard-daily-card {
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Keep mobile nav at bottom */
+  body.matrix-code .mobile-bottom-bar {
+    position: fixed !important;
+    bottom: 0 !important;
+    width: 100% !important;
+  }
+}
+
 /* =========================================================
    END MATRIX-CODE COMPLETE (updated for new CSS)
    ========================================================= */
