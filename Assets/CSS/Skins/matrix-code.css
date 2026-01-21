@@ -661,38 +661,6 @@ body.matrix-code .user-menu-btn:hover {
   box-shadow: var(--shadow-intense) !important;
 }
 
-/* ===== ENSURE TABS ARE VISIBLE ===== */
-body.matrix-code .tab-content,
-body.matrix-code .tab-pane,
-body.matrix-code .tab-content > *,
-body.matrix-code .tab-pane > * {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  position: relative !important;
-  z-index: 2 !important;
-}
-
-body.matrix-code .tab-pane.active {
-  display: block !important;
-}
-
-body.matrix-code .tab-pane:not(.active) {
-  display: none !important;
-}
-
-/* Force visibility for all dashboard elements */
-body.matrix-code .dashboard-gamification,
-body.matrix-code .dashboard-quest-hub,
-body.matrix-code .dashboard-daily-card,
-body.matrix-code .dashboard-quote,
-body.matrix-code .dashboard-achievements,
-body.matrix-code .dashboard-wellness-toolkit {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
 /* =========================================================
    END MATRIX-CODE COMPLETE (updated for new CSS)
    ========================================================= */
