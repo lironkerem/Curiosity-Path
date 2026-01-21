@@ -705,6 +705,15 @@ body.matrix-code.dark-mode .mobile-sheet[aria-hidden="false"] {
   transform: translateY(0) !important;
 }
 
+/* collapse matrix sheets – same as default */
+body.matrix-code .mobile-sheet {
+  transform: translateY(110%) !important;
+  transition: transform .3s cubic-bezier(.4,0,.2,1) !important;
+}
+body.matrix-code .mobile-sheet[aria-hidden="false"] {
+  transform: translateY(0) !important;
+}
+
 /* =========================================================
    END MATRIX-CODE COMPLETE (updated for new CSS)
    ========================================================= */
