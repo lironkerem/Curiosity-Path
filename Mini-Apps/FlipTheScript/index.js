@@ -3,7 +3,7 @@ let cssCache = null;
 
 async function loadCSS() {
   if (cssCache) return cssCache;
-  const res = await fetch(new URL('../../../Assets/CSS/neumorphic-theme.css', import.meta.url));
+  const res = await fetch(new URL('../../../CSS/neumorphic-theme.css', import.meta.url));
   cssCache = await res.text();
   return cssCache;
 }
@@ -60,7 +60,7 @@ export default class FlipTheScriptApp {
 
       <!--  MOBILE-ONLY IMAGE + SUBTITLE HEADER  -->
       <header class="main-header project-curiosity"
-              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavFlip.png');
+              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavFlip.png');
                      --header-title:'';
                      --header-tag:'Flip your Negative thoughts, into Positive affirmations'">
         <h1>Flip the Script</h1>
