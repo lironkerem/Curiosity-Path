@@ -3,7 +3,7 @@
 
 import { showToast } from './Toast.js';
 import * as modal from './Modal.js';
-import { GamificationEngine } from '../Features/GamificationEngine.js';
+import { GamificationEngine } from '../Core/GamificationEngine.js';
 import { supabase } from './Supabase.js';
 import { DarkMode } from '/Core/Utils.js';
 import DailyCards from '../Features/DailyCards.js';
