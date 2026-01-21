@@ -205,7 +205,7 @@ body.matrix-code::before{
     repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(0,255,65,.2) 20px, rgba(0,255,65,.2) 21px);
   animation:digitalRain 20s linear infinite;
 }
-body.matrix-code > *:not(.matrix-bg){position:relative;z-index:2}
+
 
 /* CRT scanline overlay */
 body.matrix-code .scanline-overlay{
