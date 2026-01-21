@@ -323,7 +323,9 @@ class TarotEngine {
 
 <style>
   .tarot-card-flip-container { 
-    width: clamp(110px, 28vw, 200px); 
+    width: 26vw;
+    max-width: 200px;
+    min-width: 80px;
     aspect-ratio: 200 / 350; 
     perspective: 1000px; 
     cursor: pointer; 
@@ -337,71 +339,59 @@ class TarotEngine {
   
   /* Responsive card container */
   #tarot-tab .flex.flex-col.items-center.mx-auto {
-    width: clamp(110px, 28vw, 200px) !important;
+    width: 26vw !important;
+    max-width: 200px !important;
+    min-width: 80px !important;
   }
   
-  /* Grid gaps - default */
+  /* Grid gaps - responsive */
   #tarot-tab .grid { 
-    gap: 0.75rem;
+    gap: 1vw;
     max-width: 100%;
-    padding: 0 0.5rem;
-  }
-  
-  /* Force cards to scale down on small screens - 3 cards always fit */
-  @media (max-width: 499px) {
-    .tarot-card-flip-container { 
-      width: calc((100vw - 3rem) / 3 - 0.5rem) !important;
-      max-width: 110px;
-    }
-    #tarot-tab .flex.flex-col.items-center.mx-auto { 
-      width: calc((100vw - 3rem) / 3 - 0.5rem) !important;
-      max-width: 110px;
-    }
-    #tarot-tab .grid {
-      gap: 0.5rem;
-      padding: 0 0.5rem;
-    }
-    
-    /* 6 Cards Spread uses 2 columns on mobile - adjust formula */
-    #tarot-tab .grid.grid-cols-2 .tarot-card-flip-container,
-    #tarot-tab .grid.grid-cols-2 .flex.flex-col.items-center.mx-auto {
-      width: calc((100vw - 3rem) / 2 - 0.5rem) !important;
-      max-width: 150px;
-    }
-  }
-  
-  @media (min-width: 500px) and (max-width: 767px) {
-    .tarot-card-flip-container { 
-      width: clamp(100px, 28vw, 160px);
-    }
-    #tarot-tab .flex.flex-col.items-center.mx-auto { 
-      width: clamp(100px, 28vw, 160px) !important;
-    }
-    #tarot-tab .grid {
-      gap: 0.75rem;
-      padding: 0 0.5rem;
-    }
+    padding: 0 1rem;
   }
   
   @media (min-width: 768px) {
     .tarot-card-flip-container { 
-      width: clamp(140px, 20vw, 220px); 
+      width: 20vw;
+      max-width: 220px;
+      min-width: 140px;
     }
     #tarot-tab .flex.flex-col.items-center.mx-auto { 
-      width: clamp(140px, 20vw, 220px) !important; 
+      width: 20vw !important;
+      max-width: 220px !important;
+      min-width: 140px !important;
     }
     #tarot-tab .grid { 
-      gap: 1rem 1.5rem; 
+      gap: 1.5vw;
       padding: 0;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .tarot-card-flip-container { 
+      width: 18vw;
+      max-width: 240px;
+    }
+    #tarot-tab .flex.flex-col.items-center.mx-auto { 
+      width: 18vw !important;
+      max-width: 240px !important;
     }
   }
   
   @media (min-width: 1600px) { 
     .tarot-card-flip-container { 
-      width: clamp(160px, 16vw, 240px); 
+      width: 16vw;
+      max-width: 260px;
+      min-width: 160px;
     }
     #tarot-tab .flex.flex-col.items-center.mx-auto { 
-      width: clamp(160px, 16vw, 240px) !important; 
+      width: 16vw !important;
+      max-width: 260px !important;
+      min-width: 160px !important;
+    }
+    #tarot-tab .grid {
+      gap: 2vw;
     }
   }
 
