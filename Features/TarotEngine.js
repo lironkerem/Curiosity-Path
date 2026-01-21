@@ -323,7 +323,7 @@ class TarotEngine {
 
 <style>
   .tarot-card-flip-container { 
-    width: clamp(110px, 22vw, 200px); 
+    width: clamp(90px, 22vw, 200px); 
     aspect-ratio: 200 / 350; 
     perspective: 1000px; 
     cursor: pointer; 
@@ -337,15 +337,44 @@ class TarotEngine {
   
   /* Responsive card container */
   #tarot-tab .flex.flex-col.items-center.mx-auto {
-    width: clamp(110px, 22vw, 200px) !important;
+    width: clamp(90px, 22vw, 200px) !important;
   }
   
-  /* Grid gaps */
+  /* Grid gaps - mobile first with consistent gaps */
   #tarot-tab .grid { 
-    gap: 0.75rem; 
+    gap: 0.5rem; 
     max-width: 100%;
     padding: 0 0.5rem;
   }
+  
+  /* Small screens (under 500px) - tighter control */
+  @media (max-width: 499px) {
+    .tarot-card-flip-container { 
+      width: clamp(85px, 28vw, 110px); 
+    }
+    #tarot-tab .flex.flex-col.items-center.mx-auto { 
+      width: clamp(85px, 28vw, 110px) !important; 
+    }
+    #tarot-tab .grid { 
+      gap: 0.4rem;
+      padding: 0 0.25rem;
+    }
+  }
+  
+  /* Tablet and up */
+  @media (min-width: 500px) and (max-width: 767px) {
+    .tarot-card-flip-container { 
+      width: clamp(110px, 22vw, 160px); 
+    }
+    #tarot-tab .flex.flex-col.items-center.mx-auto { 
+      width: clamp(110px, 22vw, 160px) !important; 
+    }
+    #tarot-tab .grid { 
+      gap: 0.75rem;
+      padding: 0 0.5rem;
+    }
+  }
+  
   @media (min-width: 768px) {
     #tarot-tab .grid { 
       gap: 1rem 1.5rem; 
@@ -358,6 +387,7 @@ class TarotEngine {
       width: clamp(140px, 20vw, 220px) !important; 
     }
   }
+  
   @media (min-width: 1600px) { 
     .tarot-card-flip-container { 
       width: clamp(160px, 16vw, 240px); 

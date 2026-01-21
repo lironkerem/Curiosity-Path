@@ -1,4 +1,4 @@
-// TarotEngine.js - Optimized
+// TarotEngine.js - Optimized & Patched
 
 class TarotEngine {
   constructor(app) {
@@ -155,6 +155,8 @@ class TarotEngine {
 
   completeTarotSpread() {
     const spreadType = this.spreads[this.selectedSpread].name;
+    
+    // Always save the reading
     if (this.app.state) {
       const reading = {
         spreadType,
@@ -165,12 +167,19 @@ class TarotEngine {
       };
       this.app.state.addEntry('tarot', reading);
     }
-    if (this.app.gamification) {
-      this.app.gamification.progressQuest('daily', 'tarot_spread', 1);
-      this.app.gamification.incrementTarotSpreads();
+    
+    // Exclude single and three card spreads from gamification
+    const excludedSpreads = ['single', 'three'];
+    if (!excludedSpreads.includes(this.selectedSpread)) {
+      if (this.app.gamification) {
+        this.app.gamification.progressQuest('daily', 'tarot_spread', 1);
+        this.app.gamification.incrementTarotSpreads();
+      }
+      if (this.app.showToast) {
+        this.app.showToast(`✨ ${spreadType} complete!`, 'success');
+      }
+      this.checkAchievements();
     }
-    if (this.app.showToast) this.app.showToast(`✨ ${spreadType} complete! Reading saved.`, 'success');
-    this.checkAchievements();
   }
 
   checkAchievements() {
@@ -262,7 +271,7 @@ class TarotEngine {
         <div class="universal-content">
 
           <header class="main-header project-curiosity"
-                  style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/assets/Tabs/NavTarot.png');
+                  style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavTarot.png');
                          --header-title:'';
                          --header-tag:'Self divination, through different Tarot spreads, to assist you in understanding yourself better'">
             <h1>Tarot Cards Guidance</h1>
@@ -312,48 +321,91 @@ class TarotEngine {
         </div>
       </div>
 
-      <style>
-        .tarot-card-flip-container { width: clamp(140px, 24vw, 250px); aspect-ratio: 200 / 350; perspective: 1000px; cursor: pointer; }
-        .tarot-card-flip-inner { position: relative; width: 100%; height: 100%; transition: transform 0.8s; transform-style: preserve-3d; }
-        .tarot-card-flip-container.flipped .tarot-card-flip-inner { transform: rotateY(180deg); }
-        .tarot-card-back, .tarot-card-front { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; }
-        .tarot-card-front { transform: rotateY(180deg); }
-        .tarot-card-image { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .tarot-card-error { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 4rem; }
-        @media (min-width: 1600px) { .tarot-card-flip-container { width: clamp(160px, 18vw, 280px); } }
+<style>
+  .tarot-card-flip-container { 
+    width: clamp(110px, 22vw, 200px); 
+    aspect-ratio: 200 / 350; 
+    perspective: 1000px; 
+    cursor: pointer; 
+  }
+  .tarot-card-flip-inner { position: relative; width: 100%; height: 100%; transition: transform 0.8s; transform-style: preserve-3d; }
+  .tarot-card-flip-container.flipped .tarot-card-flip-inner { transform: rotateY(180deg); }
+  .tarot-card-back, .tarot-card-front { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; }
+  .tarot-card-front { transform: rotateY(180deg); }
+  .tarot-card-image { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .tarot-card-error { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 4rem; }
+  
+  /* Responsive card container */
+  #tarot-tab .flex.flex-col.items-center.mx-auto {
+    width: clamp(110px, 22vw, 200px) !important;
+  }
+  
+  /* Grid gaps */
+  #tarot-tab .grid { 
+    gap: 0.75rem; 
+    max-width: 100%;
+    padding: 0 0.5rem;
+  }
+  @media (min-width: 768px) {
+    #tarot-tab .grid { 
+      gap: 1rem 1.5rem; 
+      padding: 0;
+    }
+    .tarot-card-flip-container { 
+      width: clamp(140px, 20vw, 220px); 
+    }
+    #tarot-tab .flex.flex-col.items-center.mx-auto { 
+      width: clamp(140px, 20vw, 220px) !important; 
+    }
+  }
+  @media (min-width: 1600px) { 
+    .tarot-card-flip-container { 
+      width: clamp(160px, 16vw, 240px); 
+    }
+    #tarot-tab .flex.flex-col.items-center.mx-auto { 
+      width: clamp(160px, 16vw, 240px) !important; 
+    }
+  }
 
-        #tarot-tab .grid,
-        #tarot-tab .md\:grid-cols-3,
-        #tarot-tab .grid-cols-3,
-        #tarot-tab .grid-cols-2 { gap: 0.5rem 2rem; }
-        
-        #tarot-tab .pyramid-triangle { gap: 0; }
-        #tarot-tab .cross-shape { margin: 0; }
+  /* Pyramid layout */
+  .pyramid-triangle { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+  .pyr-row { display: flex; justify-content: center; gap: 1rem; }
+  @media (min-width: 768px) {
+    .pyr-apex { gap: 2rem; }
+    .pyr-upper { gap: 8rem; }
+    .pyr-lower { gap: 14rem; }
+    .pyr-base { gap: 6rem; }
+  }
+  @media (min-width: 1024px) {
+    .pyr-upper { gap: 15rem; }
+    .pyr-lower { gap: 25rem; }
+    .pyr-base { gap: 12rem; }
+  }
 
-        .pyramid-triangle { display: flex; flex-direction: column; align-items: center; }
-        .pyr-row { display: flex; justify-content: center; }
-        .pyr-apex { gap: 2rem; }
-        .pyr-upper { gap: 15rem; }
-        .pyr-lower { gap: 25rem; }
-        .pyr-base { gap: 12rem; }
+  /* Cross layout */
+  .cross-shape { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+  .cross-top, .cross-bot { display: flex; justify-content: center; }
+  .cross-mid { display: flex; justify-content: center; gap: 1rem; }
+  @media (min-width: 768px) {
+    .cross-mid { gap: 8rem; }
+  }
+  @media (min-width: 1024px) {
+    .cross-mid { gap: 15rem; }
+  }
 
-        .cross-shape { display: flex; flex-direction: column; align-items: center; }
-        .cross-top, .cross-bot { display: flex; justify-content: center; }
-        .cross-mid { display: flex; justify-content: center; gap: 15rem; }
-
-        .premium-badge {
-          position: static;
-          transform: none;
-          margin-left: 0.75rem;
-          background: linear-gradient(135deg, #fcd34d, #f59e0b);
-          color: #111;
-          font-size: .65rem;
-          font-weight: 700;
-          padding: 4px 8px;
-          border-radius: 9999px;
-          letter-spacing: .5px;
-        }
-      </style>
+  .premium-badge {
+    position: static;
+    transform: none;
+    margin-left: 0.75rem;
+    background: linear-gradient(135deg, #fcd34d, #f59e0b);
+    color: #111;
+    font-size: .65rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 9999px;
+    letter-spacing: .5px;
+  }
+</style>
     `;
 
     setTimeout(() => {
@@ -384,6 +436,14 @@ class TarotEngine {
     this.selectedSpread = spreadKey;
     this.prepareReading();
     this.render();
+    
+    // Scroll to cards section
+    setTimeout(() => {
+      const cardsSection = document.querySelector('#tarot-tab .card:last-child');
+      if (cardsSection) {
+        cardsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
   }
 
   reset() {
