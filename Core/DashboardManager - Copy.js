@@ -1,12 +1,13 @@
-// DashboardManager.js - Complete Patched Version with Admin Badge Support
-// Optimized gamification dashboard with badges, quests, and wellness tracking
+// DashboardManager.js - Complete Patched Version
+// - Mobile 3×2 badge grid (6 badges preview)
+// - Quest structure with inspirational + target text
+// - Full badge support including admin badges
 
 import { InquiryEngine } from '../Features/InquiryEngine.js';
 import DailyCards from '../Features/DailyCards.js';
 
-// Constants
 const CONSTANTS = {
-  BADGES_PREVIEW_COUNT: 9,
+  BADGES_PREVIEW_COUNT: 9,          // Desktop shows 9, mobile shows 6 (dynamic)
   BADGE_GRID_COLUMNS: 3,
   WELLNESS_POLL_INTERVAL: 3000,
   COUNTDOWN_UPDATE_INTERVAL: 1000,
@@ -278,18 +279,49 @@ export default class DashboardManager {
 
   /* ---------- Quote Card ---------- */
 
-renderQuoteCard() {
-  this.currentQuote = window.QuotesData 
-    ? window.QuotesData.getQuoteOfTheDay()
-    : { 
-        text: 'What you think, you become. What you feel, you attract. What you imagine, you create.',
-        author: 'Buddha'
-      };
-  
-  return `
-    <div class="neuro-card flip-card" id="dashboard-quote-card">
-      <div class="flip-card-inner">
-        <div class="flip-card-front flex flex-col justify-between">
+  renderQuoteCard() {
+    this.currentQuote = window.QuotesData 
+      ? window.QuotesData.getQuoteOfTheDay()
+      : { 
+          text: 'What you think, you become. What you feel, you attract. What you imagine, you create.',
+          author: 'Buddha'
+        };
+    
+    return `
+      <div class="neuro-card flip-card" id="dashboard-quote-card">
+        <div class="flip-card-inner">
+          <div class="flip-card-front flex flex-col justify-between">
+            <div>
+              <div class="flex items-center mb-8">
+                <span class="text-3xl mr-4">📜</span>
+                <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2>
+              </div>
+              <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent); line-height: 1.5; padding-top: 2rem; padding-bottom: 2rem;">
+                "${this.currentQuote.text}"
+              </p>
+              <p class="mt-6 text-center text-lg" style="color: var(--neuro-text);">
+                — ${this.currentQuote.author}
+              </p>
+            </div>
+            <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
+              <button onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">
+                🔄 Refresh Quote
+              </button>
+            </div>
+          </div>
+          <div class="flip-card-back"></div>
+        </div>
+      </div>`;
+  }
+
+  refreshQuote() {
+    if (!window.QuotesData) return;
+    
+    try {
+      this.currentQuote = window.QuotesData.getRandomQuote();
+      
+      const html = `
+        <div class="flex flex-col justify-between">
           <div>
             <div class="flex items-center mb-8">
               <span class="text-3xl mr-4">📜</span>
@@ -307,48 +339,17 @@ renderQuoteCard() {
               🔄 Refresh Quote
             </button>
           </div>
-        </div>
-        <div class="flip-card-back"></div>
-      </div>
-    </div>`;
-}
-
-refreshQuote() {
-  if (!window.QuotesData) return;
-  
-  try {
-    this.currentQuote = window.QuotesData.getRandomQuote();
-    
-    const html = `
-      <div class="flex flex-col justify-between">
-        <div>
-          <div class="flex items-center mb-8">
-            <span class="text-3xl mr-4">📜</span>
-            <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2>
-          </div>
-          <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent); line-height: 1.5; padding-top: 2rem; padding-bottom: 2rem;">
-            "${this.currentQuote.text}"
-          </p>
-          <p class="mt-6 text-center text-lg" style="color: var(--neuro-text);">
-            — ${this.currentQuote.author}
-          </p>
-        </div>
-        <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
-          <button onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">
-            🔄 Refresh Quote
-          </button>
-        </div>
-      </div>`;
-    
-    this._flipCard('dashboard-quote-card', html);
-    
-    if (this.app.showToast) {
-      this.app.showToast('📜 New quote revealed!', 'success');
+        </div>`;
+      
+      this._flipCard('dashboard-quote-card', html);
+      
+      if (this.app.showToast) {
+        this.app.showToast('📜 New quote revealed!', 'success');
+      }
+    } catch (error) {
+      console.error('Error refreshing quote:', error);
     }
-  } catch (error) {
-    console.error('Error refreshing quote:', error);
   }
-}
 
   /* ---------- Gamification Widget ---------- */
   
@@ -537,30 +538,14 @@ refreshQuote() {
   }
 
   renderQuestCard(quest, questType = 'daily') {
-    const progressPercent = Math.min(100, ((quest.progress || 0) / (quest.target || 1)) * 100);
+    const progressPercent = Math.min(100, ((quest.progress || 0) / (quest.goal || quest.target || 1)) * 100);
+    const isEnergy = quest.id === 'energy_checkin';
     
-    let progressContent = `
-      <div class="dashboard-quest-progress-header">
-        <span>Progress</span>
-        <span>${quest.progress || 0}/${quest.target || 1}</span>
-      </div>`;
-    
-    if (quest.id === 'energy_checkin') {
-      const dayDone = quest.subProgress?.day || false;
-      const nightDone = quest.subProgress?.night || false;
-      progressContent = `
-        <div class="dashboard-energy-checkin">
-          <span class="${dayDone ? 'dashboard-energy-done' : ''}">☀️ Day ${dayDone ? '✓' : ''}</span>
-          <span class="${nightDone ? 'dashboard-energy-done' : ''}">🌙 Night ${nightDone ? '✓' : ''}</span>
-        </div>`;
-    }
-    
-    const isClickable = !quest.completed && quest.tab;
     const completedClass = quest.completed ? 'dashboard-quest-completed' : '';
-    const clickableClass = isClickable ? 'dashboard-quest-clickable' : '';
-    const hintHtml = isClickable ? '<div class="dashboard-quest-hint">👆 Click to start</div>' : '';
-    const clickHandler = isClickable
-      ? `onclick="window.app.nav.switchTab('${quest.tab}'); window.scrollTo({top:0,behavior:'smooth'});"`
+    const clickableClass = (!quest.completed && quest.tab) ? 'dashboard-quest-clickable' : '';
+    const hintHtml = (!quest.completed && quest.tab) ? '<div class="dashboard-quest-hint">👆 Click to start</div>' : '';
+    const clickHandler = (!quest.completed && quest.tab) 
+      ? `onclick="window.app.nav.switchTab('${quest.tab}'); window.scrollTo({top:0,behavior:'smooth'});"` 
       : '';
 
     return `
@@ -570,15 +555,24 @@ refreshQuote() {
           <div class="dashboard-quest-icon">${quest.icon}</div>
           <div class="dashboard-quest-info">
             <h4 class="dashboard-quest-name">${quest.name}</h4>
-            <p class="dashboard-quest-inspirational">${quest.inspirational}</p>
+            ${quest.inspirational ? `<p class="dashboard-quest-inspirational">${quest.inspirational}</p>` : ''}
+            ${quest.target ? `<p class="dashboard-quest-target" style="font-size:0.85rem;color:var(--neuro-text-secondary);margin-top:0.25rem;">${quest.target}</p>` : ''}
           </div>
         </div>
         ${!quest.completed ? `
           <div class="dashboard-quest-progress">
-            ${progressContent}
-            <div class="dashboard-quest-bar">
-              <div class="dashboard-quest-fill" data-width="${progressPercent}"></div>
-            </div>
+            ${isEnergy ? `
+              <div class="dashboard-energy-checkin">
+                <span class="${quest.subProgress?.day ? 'dashboard-energy-done' : ''}">☀️ Day ${quest.subProgress?.day ? '✓' : ''}</span>
+                <span class="${quest.subProgress?.night ? 'dashboard-energy-done' : ''}">🌙 Night ${quest.subProgress?.night ? '✓' : ''}</span>
+              </div>` : `
+              <div class="dashboard-quest-progress-header">
+                <span>Progress</span>
+                <span>${quest.progress || 0}/${quest.goal || quest.target || 1}</span>
+              </div>
+              <div class="dashboard-quest-bar">
+                <div class="dashboard-quest-fill" data-width="${progressPercent}"></div>
+              </div>`}
           </div>` : '<div class="dashboard-quest-complete-msg">Quest Complete! 🎉</div>'}
         <div class="dashboard-quest-footer">
           <span class="dashboard-quest-xp">+${quest.xpReward} XP</span>
@@ -588,7 +582,7 @@ refreshQuote() {
       </div>`;
   }
 
-  /* ---------- Badge Gallery (WITH ADMIN BADGE SUPPORT) ---------- */
+  /* ---------- Badge Gallery (WITH ADMIN BADGE SUPPORT & MOBILE 3×2) ---------- */
   
   renderRecentAchievements(status) {
     if (!status.badges || status.badges.length === 0) return '';
@@ -596,7 +590,7 @@ refreshQuote() {
     const allDefs = this.app.gamification.getBadgeDefinitions();
     const earned = new Set(status.badges.map(b => b.id));
 
-    // List of known admin badge IDs from Admin-Tab.js
+    // List of known admin badge IDs
     const knownAdminBadgeIds = new Set([
       'early_supporter',
       'vip_member', 
@@ -605,11 +599,15 @@ refreshQuote() {
       'community_hero'
     ]);
 
+    // Dynamic badge count: 6 on mobile, 9 on desktop
+    const isMobile = window.innerWidth <= 768;
+    const previewCount = isMobile ? 6 : 9;
+
     // Latest earned badges for preview (game badges + admin badges)
     const latestEarned = status.badges
       .slice()
       .reverse()
-      .slice(0, CONSTANTS.BADGES_PREVIEW_COUNT)
+      .slice(0, previewCount)
       .map(b => {
         // Check if it's a known admin badge
         const isAdminBadge = knownAdminBadgeIds.has(b.id);
@@ -623,7 +621,7 @@ refreshQuote() {
           rarity: b.rarity || 'epic'
         } : null);
         
-        // Skip if not a valid badge (not in game defs AND not a known admin badge)
+        // Skip if not a valid badge
         if (!def) return null;
         
         return {
@@ -633,7 +631,7 @@ refreshQuote() {
           karma: CONSTANTS.KARMA_BY_RARITY[def.rarity] || 15
         };
       })
-      .filter(Boolean); // Remove nulls
+      .filter(Boolean);
 
     // Full badge list (game badges only for "Show All")
     const gameBadges = Object.entries(allDefs).map(([id, def]) => ({
@@ -688,6 +686,20 @@ refreshQuote() {
       .map(badge => this.renderBadgeCard(badge))
       .join('');
 
+    // Mobile-specific CSS for 3×2 grid
+    const mobileCss = `
+      <style>
+        @media (max-width: 768px) {
+          .badges-grid {
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 0.5rem !important;
+          }
+          .badge-category-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+        }
+      </style>`;
+
     return `
       <div class="card dashboard-achievements mb-8">
         <div style="text-align:center;">
@@ -704,6 +716,7 @@ refreshQuote() {
             ${categoryHtml}
           </div>
         </div>
+        ${mobileCss}
       </div>`;
   }
 
@@ -758,7 +771,7 @@ refreshQuote() {
             author: 'Buddha'
           };
 
-      // Get status (will now include admin-awarded badges)
+      // Get status
       const status = this.app.gamification 
         ? this.app.gamification.getStatusSummary()
         : {

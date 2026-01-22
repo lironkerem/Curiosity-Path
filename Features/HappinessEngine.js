@@ -203,7 +203,7 @@ class HappinessEngine {
         </div>
       </div>
       <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
-        <button onclick="window.featuresManager.engines.happiness.refreshBooster()" class="btn btn-secondary">🔄 Refresh Booster</button>
+        <button onclick="window.featuresManager.engines.happiness.refreshBooster()" class="btn btn-secondary">🔄 Refresh</button>
       </div>`);
   }
 
@@ -221,7 +221,7 @@ class HappinessEngine {
         - ${q.author}
       </p>
       <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
-        <button onclick="window.featuresManager.engines.happiness.refreshQuote()" class="btn btn-secondary">🔄 Refresh Quote</button>
+        <button onclick="window.featuresManager.engines.happiness.refreshQuote()" class="btn btn-secondary">🔄 Refresh</button>
       </div>`);
   }
 
@@ -235,7 +235,7 @@ class HappinessEngine {
         "${a}"
       </p>
       <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
-        <button onclick="window.featuresManager.engines.happiness.refreshAffirmation()" class="btn btn-secondary">🔄 Refresh Affirmation</button>
+        <button onclick="window.featuresManager.engines.happiness.refreshAffirmation()" class="btn btn-secondary">🔄 Refresh</button>
       </div>`);
   }
 
@@ -263,7 +263,7 @@ class HappinessEngine {
         </div>
       </div>
       <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
-        <button onclick="window.featuresManager.engines.happiness.refreshInquiry()" class="btn btn-secondary">🔄 Refresh Inquiry</button>
+        <button onclick="window.featuresManager.engines.happiness.refreshInquiry()" class="btn btn-secondary">🔄 Refresh</button>
       </div>`);
   }
 
