@@ -290,7 +290,7 @@ export default class DailyCards {
 
   _renderCardTemplate(type, config) {
     const { title, frontTitle, backContent, frontContent, gradient = '' } = config;
-    const wasFlipped = this._wasCardFlipped(type);
+    const wasFlipped = type === this.CARD_TYPES.BOOSTER ? false : this._wasCardFlipped(type);
     const flippedClass = wasFlipped ? 'flipped' : '';
     
     return `
