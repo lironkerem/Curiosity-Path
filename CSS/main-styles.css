@@ -3326,23 +3326,23 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 }
 
 #calculator-tab .story-watermark::before {
-  background-image: url('https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Watermarks/Story.svg');
+  background-image: url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Watermarks/Story.svg');
 }
 
 #calculator-tab .numerology-watermark::before {
-  background-image: url('https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Watermarks/Numerology.svg');
+  background-image: url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Watermarks/Numerology.svg');
 }
 
 #calculator-tab .astrology-watermark::before {
-  background-image: url('https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Watermarks/Astrology.svg');
+  background-image: url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Watermarks/Astrology.svg');
 }
 
 #calculator-tab .tree-watermark::before {
-  background-image: url('https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Watermarks/Tree%20of%20Life.svg');
+  background-image: url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Watermarks/Tree%20of%20Life.svg');
 }
 
 #calculator-tab .cta-logo-watermark::before {
-  background-image: url('https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Watermarks/Logo.svg');
+  background-image: url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Watermarks/Logo.svg');
 }
 
 #calculator-tab .story-watermark:has(.expandable-card.expanded)::before,

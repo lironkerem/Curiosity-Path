@@ -17,7 +17,7 @@ export default class AuthManager {
   /* ---------- PRELOAD ASSETS ---------- */
   _preloadAssets() {
     const logo = new Image();
-    logo.src = 'https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Watermarks/Logo.svg';
+    logo.src = 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Watermarks/Logo.svg';
   }
 
   /* ---------- CHECK AUTH ---------- */
@@ -45,7 +45,7 @@ export default class AuthManager {
   <div class="auth-card-enhanced">
     <div class="text-center mb-8 fade-in">
       <div class="logo-icon" style="width:144px;height:144px;display:flex;align-items:center;justify-content:center;margin:0 auto">
-        <img src=https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Watermarks/Logo.svg alt=Aanandoham style="width:120px;height:120px;object-fit:contain" loading="eager">
+        <img src=https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Watermarks/Logo.svg alt=Aanandoham style="width:120px;height:120px;object-fit:contain" loading="eager">
       </div>
       <h1 class="text-3xl font-bold mb-2">The Curiosity Path</h1>
       <p style="color:#6c757d;font-weight:bold;font-size:1.1rem">by Aanandoham</p>
@@ -426,7 +426,7 @@ showSignupForm() {
   <div class="auth-card-enhanced" style="background:white;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.15);padding:48px 40px;max-width:440px;width:100%;border:1px solid rgba(0,0,0,0.08)">
     <div class="text-center mb-8 fade-in">
       <div class="logo-icon" style="width:144px;height:144px;display:flex;align-items:center;justify-content:center;margin:0 auto">
-        <img src=https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Watermarks/Logo.svg alt=Aanandoham style="width:120px;height:120px;object-fit:contain" loading="eager">
+        <img src=https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Logo.svg alt=Aanandoham style="width:120px;height:120px;object-fit:contain" loading="eager">
       </div>
       <h1 class="text-3xl font-bold mb-2">Create Account</h1>
       <p style="color:#6c757d;font-weight:bold;font-size:1.1rem">Join The Curiosity Path</p>
@@ -533,7 +533,7 @@ showSignupForm() {
   <div class="auth-card-enhanced" style="background:white;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.15);padding:48px 40px;max-width:440px;width:100%;border:1px solid rgba(0,0,0,0.08)">
     <div class="text-center mb-8 fade-in">
       <div class="logo-icon" style="width:144px;height:144px;display:flex;align-items:center;justify-content:center;margin:0 auto;margin-bottom:16px">
-        <img src=https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Watermarks/Logo.svg alt=Aanandoham style="width:120px;height:120px;object-fit:contain" loading="eager">
+        <img src=https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Watermarks/Logo.svg alt=Aanandoham style="width:120px;height:120px;object-fit:contain" loading="eager">
       </div>
       <h1 class="text-3xl font-bold mb-2">Reset Password</h1>
       <p style="color:#6c757d;font-size:0.95rem">Enter your email to receive a reset link</p>

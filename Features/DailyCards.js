@@ -12,7 +12,7 @@ export default class DailyCards {
     this.timerInterval = null;
     
     // Constants
-    this.CARD_BACK_URL = 'https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Tarot%20Cards%20images/CardBacks.jpg';
+    this.CARD_BACK_URL = 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tarot%20Cards%20images/CardBacks.jpg';
     this.STORAGE_KEYS = {
       BOOSTER: 'daily_booster',
       TAROT: 'daily_tarot_card',

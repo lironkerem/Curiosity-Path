@@ -3,8 +3,8 @@
 class TarotEngine {
   constructor(app) {
     this.app = app;
-    this.TAROT_BASE_URL = 'https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Tarot%20Cards%20images/';
-    this.CARD_BACK_URL = 'https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Tarot%20Cards%20images/CardBacks.jpg';
+    this.TAROT_BASE_URL = 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tarot%20Cards%20images/';
+    this.CARD_BACK_URL = 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tarot%20Cards%20images/CardBacks.jpg';
 
     this.spreads = {
       single: { name: 'A Single Card Oracle Spread', cards: 1, desc: 'A Single Card Clarification', positions: ['A Single Card'] },
