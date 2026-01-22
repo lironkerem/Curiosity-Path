@@ -270,8 +270,8 @@ export default class CTA {
 
     const sGrid = document.getElementById('sessions-grid');
     const wGrid = document.getElementById('workshops-grid');
-    sessions.forEach((url, i) => sGrid.appendChild(this.card(`${base}Sessions/sessions${i + 1}.jpg`, url, `Session ${i + 1}`)));
-    workshops.forEach((url, i) => wGrid.appendChild(this.card(`${base}Workshops/workshops${i + 1}.jpg`, url, `Workshop ${i + 1}`)));
+    sessions.forEach((url, i) => sGrid.appendChild(this.card(`${base}Sessions/Sessions${i + 1}.jpg`, url, `Session ${i + 1}`)));
+    workshops.forEach((url, i) => wGrid.appendChild(this.card(`${base}Workshops/Workshops${i + 1}.jpg`, url, `Workshop ${i + 1}`)));
   }
 
   card(src, href, alt) {
