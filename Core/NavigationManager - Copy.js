@@ -424,7 +424,7 @@ document.querySelectorAll('.tab-dot').forEach(dot => {
     });
   }
 
-setupSwipeArrows() {
+  setupSwipeArrows() {
     if (window.innerWidth > 767) return;
     
     if (this.arrowListenersAttached) return;
@@ -449,10 +449,7 @@ setupSwipeArrows() {
     
     let arrowDebounce = false;
     let touchStartTime = 0;
-    let touchStartX = 0;
-    let touchStartY = 0;
-    const MIN_TOUCH_DURATION = 200;
-    const MAX_TOUCH_MOVEMENT = 15;
+    const MIN_TOUCH_DURATION = 120;
 
     leftBtn.style.padding = '8px';
     rightBtn.style.padding = '8px';
@@ -463,14 +460,7 @@ setupSwipeArrows() {
       e.stopImmediatePropagation();
       
       const touchDuration = Date.now() - touchStartTime;
-      const touchEndX = e.changedTouches[0].clientX;
-      const touchEndY = e.changedTouches[0].clientY;
-      const moveDistance = Math.sqrt(
-        Math.pow(touchEndX - touchStartX, 2) + 
-        Math.pow(touchEndY - touchStartY, 2)
-      );
-      
-      if (arrowDebounce || touchDuration < MIN_TOUCH_DURATION || moveDistance > MAX_TOUCH_MOVEMENT) return;
+      if (arrowDebounce || touchDuration < MIN_TOUCH_DURATION) return;
       
       arrowDebounce = true;
       
@@ -493,14 +483,7 @@ setupSwipeArrows() {
       e.stopImmediatePropagation();
       
       const touchDuration = Date.now() - touchStartTime;
-      const touchEndX = e.changedTouches[0].clientX;
-      const touchEndY = e.changedTouches[0].clientY;
-      const moveDistance = Math.sqrt(
-        Math.pow(touchEndX - touchStartX, 2) + 
-        Math.pow(touchEndY - touchStartY, 2)
-      );
-      
-      if (arrowDebounce || touchDuration < MIN_TOUCH_DURATION || moveDistance > MAX_TOUCH_MOVEMENT) return;
+      if (arrowDebounce || touchDuration < MIN_TOUCH_DURATION) return;
       
       arrowDebounce = true;
       
@@ -522,8 +505,6 @@ setupSwipeArrows() {
       e.stopPropagation();
       e.stopImmediatePropagation();
       touchStartTime = Date.now();
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
     }, { capture: true });
     
     rightBtn.addEventListener('touchstart', (e) => {
@@ -531,8 +512,6 @@ setupSwipeArrows() {
       e.stopPropagation();
       e.stopImmediatePropagation();
       touchStartTime = Date.now();
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
     }, { capture: true });
 
     if (this.arrowObserver) {
