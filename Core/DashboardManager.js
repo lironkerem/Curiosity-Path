@@ -800,17 +800,6 @@ export default class DashboardManager {
               <h3>Your journey inward begins here, so practice. explore. transform.</h3>
               <span class="header-sub"></span>
             </header>
-
-<!-- TEMPORARY QUEST UPDATE BUTTON -->
-      <div style="text-align:center; padding:2rem;">
-        <button 
-          onclick="window.updateQuestsOnce()" 
-          class="btn btn-primary" 
-          style="font-size:1.2rem; padding:1rem 2rem;">
-          🔄 Update Quests (Click Once)
-        </button>
-      </div>
-
             ${this.renderGamificationWidget(status, stats)}
             ${this.dailyCards.renderDailyCardsSection()}
             ${this.renderWellnessToolkit()}
@@ -863,56 +852,4 @@ export default class DashboardManager {
     
     console.log('DashboardManager destroyed and cleaned up');
   }
-
-// Add to window for temporary use
-window.updateQuestsOnce = function() {
-  const definitions = {
-    daily: [
-      { id: 'gratitude_entry', tab: 'gratitude', icon: '❤️', name: 'Daily Gratitude Practice', inspirational: 'Gratitude transforms what we have into enough.', target: 'Log 10 gratitudes (any entries) to complete this quest.', goal: 10 },
-      { id: 'journal_entry', tab: 'journal', icon: '📔', name: 'Daily Journaling', inspirational: 'Writing clarifies thoughts and soothes the soul.', target: 'Save 1 journal entry to complete this quest.', goal: 1 },
-      { id: 'tarot_spread', tab: 'tarot', icon: '🃏', name: 'Daily Tarot Spread', inspirational: 'The cards reveal what the heart already knows.', target: 'Complete one 6-card (or larger) spread to complete this quest.', goal: 1 },
-      { id: 'meditation_session', tab: 'meditations', icon: '🧘', name: 'Daily Meditation', inspirational: 'Peace begins within.', target: 'Finish 1 meditation session to complete this quest.', goal: 1 },
-      { id: 'energy_checkin', tab: 'energy', icon: '⚡', name: 'Daily Energy Check-in', inspirational: 'Awareness is the first step to transformation.', target: 'Tick both day ☀️ and night 🌙 check-ins to complete this quest.', goal: 2, subProgress: { day: false, night: false } },
-      { id: 'daily_booster', tab: 'happiness', icon: '✨', name: 'Daily Affirmations/Boosters', inspirational: 'Joy is a practice, not a destination.', target: 'Refresh any happiness card 5 times to complete this quest.', goal: 5 }
-    ],
-    weekly: [
-      { id: 'gratitude_streak_7', icon: '💖', name: 'A Gratitude Streak', inspirational: 'Consistency breeds abundance.', target: 'Log 70 gratitudes across the week to complete this quest.', goal: 70 },
-      { id: 'journal_5', icon: '📝', name: 'Journal Writer', inspirational: 'Your story matters.', target: 'Save 5 journal entries across the week to complete this quest.', goal: 5 },
-      { id: 'energy_7', icon: '⚡', name: 'Weekly Energy Check-ins', inspirational: 'Track your rhythm, honor your cycles.', target: 'Tick 14 energy check-ins (day & night) across the week to complete this quest.', goal: 14 },
-      { id: 'happiness_boosters_20', icon: '🎨', name: 'Happy and Motivated Week', inspirational: 'Feed your mind with positivity.', target: 'Refresh happiness cards 35 times across the week to complete this quest.', goal: 35 },
-      { id: 'tarot_4_days', icon: '🔮', name: 'Tarot Lover', inspirational: 'Seek wisdom in the cards.', target: 'Complete five 6-card (or larger) spreads across the week to complete this quest.', goal: 5 },
-      { id: 'meditate_3', icon: '🌟', name: 'Meditating Adept', inspirational: 'Stillness is strength.', target: 'Finish 5 meditation sessions across the week to complete this quest.', goal: 5 }
-    ],
-    monthly: [
-      { id: 'monthly_energy_28', icon: '⚡', name: 'Monthly Energy Check-ins', inspirational: 'Know thyself through daily awareness.', target: 'Tick 60 energy check-ins (day & night) during the month to complete this quest.', goal: 60 },
-      { id: 'monthly_tarot_15', icon: '🔮', name: 'Tarot Enthusiast', inspirational: 'The universe speaks through symbols.', target: 'Complete twenty 6-card (or larger) spreads during the month to complete this quest.', goal: 20 },
-      { id: 'monthly_gratitude_28', icon: '💖', name: 'Gratitude Master', inspirational: 'Gratitude unlocks the fullness of life.', target: 'Log 300 gratitudes during the month to complete this quest.', goal: 300 },
-      { id: 'monthly_journal_20', icon: '📝', name: 'A Journalist', inspirational: 'Write to understand, reflect to grow.', target: 'Save 20 journal entries during the month to complete this quest.', goal: 20 },
-      { id: 'monthly_happiness_100', icon: '🎨', name: 'Super Good Month', inspirational: 'Choose joy every single day.', target: 'Refresh happiness cards 150 times during the month to complete this quest.', goal: 150 },
-      { id: 'monthly_meditation_15', icon: '🌟', name: 'Meditating Healer', inspirational: 'Through stillness, we find our true power.', target: 'Finish 20 meditation sessions during the month to complete this quest.', goal: 20 }
-    ]
-  };
-
-  const g = window.app.gamification;
-  
-  g.state.quests.daily = g.state.quests.daily.map(existing => {
-    const def = definitions.daily.find(d => d.id === existing.id);
-    return def ? { ...def, progress: existing.progress || 0, completed: existing.completed || false, xpReward: existing.xpReward, karmaReward: existing.karmaReward, subProgress: existing.subProgress || def.subProgress } : existing;
-  });
-  
-  g.state.quests.weekly = g.state.quests.weekly.map(existing => {
-    const def = definitions.weekly.find(d => d.id === existing.id);
-    return def ? { ...def, progress: existing.progress || 0, completed: existing.completed || false, xpReward: existing.xpReward, karmaReward: existing.karmaReward } : existing;
-  });
-  
-  g.state.quests.monthly = g.state.quests.monthly.map(existing => {
-    const def = definitions.monthly.find(d => d.id === existing.id);
-    return def ? { ...def, progress: existing.progress || 0, completed: existing.completed || false, xpReward: existing.xpReward, karmaReward: existing.karmaReward } : existing;
-  });
-  
-  g.saveState();
-  alert('✅ Quests updated! Refreshing...');
-  location.reload();
-};
-
 }
