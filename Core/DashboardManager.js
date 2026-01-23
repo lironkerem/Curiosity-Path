@@ -843,6 +843,27 @@ export default class DashboardManager {
       });
     });
   }
+
+  /* ---------- Cleanup ---------- */
+  
+  destroy() {
+    // Clear all intervals
+    this.intervals.forEach(interval => clearInterval(interval));
+    this.intervals = [];
+    
+    // Clear cached elements
+    this.cachedElements = {};
+    
+    // Remove global references
+    if (window.app?.dashboard) {
+      delete window.app.dashboard.refreshQuote;
+      delete window.app.dashboard.switchQuestTab;
+      delete window.app.dashboard.toggleAllBadges;
+    }
+    
+    console.log('DashboardManager destroyed and cleaned up');
+  }
+
 // Add to window for temporary use
 window.updateQuestsOnce = function() {
   const definitions = {
@@ -893,23 +914,5 @@ window.updateQuestsOnce = function() {
   alert('✅ Quests updated! Refreshing...');
   location.reload();
 };
-  /* ---------- Cleanup ---------- */
-  
-  destroy() {
-    // Clear all intervals
-    this.intervals.forEach(interval => clearInterval(interval));
-    this.intervals = [];
-    
-    // Clear cached elements
-    this.cachedElements = {};
-    
-    // Remove global references
-    if (window.app?.dashboard) {
-      delete window.app.dashboard.refreshQuote;
-      delete window.app.dashboard.switchQuestTab;
-      delete window.app.dashboard.toggleAllBadges;
-    }
-    
-    console.log('DashboardManager destroyed and cleaned up');
-  }
+
 }
