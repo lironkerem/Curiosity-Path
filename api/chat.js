@@ -1,6 +1,6 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import Groq from "groq-sdk";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -16,15 +16,16 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
-  const prompt = `You are a friendly chat assistant.\nUser: ${message}\nAssistant:`;
-
   try {
-    const result = await model.generateContentStream(prompt);
-    
-    for await (const chunk of result.stream) {
-      const text = chunk.text();
-      res.write(text);
+    const stream = await groq.chat.completions.create({
+      messages: [{ role: "user", content: message }],
+      model: "llama-3.3-70b-versatile",
+      stream: true,
+    });
+
+    for await (const chunk of stream) {
+      const text = chunk.choices[0]?.delta?.content || '';
+      if (text) res.write(text);
     }
     res.end();
   } catch (err) {
