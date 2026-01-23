@@ -13,6 +13,9 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log('API Key exists:', !!process.env.GROQ_API_KEY);
+    console.log('Image length:', image.length);
+    
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -46,7 +49,8 @@ export default async function handler(req, res) {
     if (!response.ok) {
       const error = await response.text();
       console.error('Groq API error:', response.status, error);
-      return res.status(500).json({ error: 'API request failed' });
+      console.error('Request failed with status:', response.status);
+      return res.status(500).json({ error: `API error: ${response.status}` });
     }
 
     const data = await response.json();
