@@ -17,11 +17,17 @@ export default async function handler(req, res) {
   res.setHeader('Connection', 'keep-alive');
 
   try {
-    const stream = await groq.chat.completions.create({
-      messages: [{ role: "user", content: message }],
-      model: "llama-3.3-70b-versatile",
-      stream: true,
-    });
+const stream = await groq.chat.completions.create({
+  messages: [
+    { 
+      role: "system", 
+      content: "You are Aanandoham's spiritual AI assistant.  You are an expert in Tarot Cards, Meditations, Reiki, Healing and Mindfulness. You provide guidance on spirituality, self-development, and personal growth with wisdom, compassion, and clarity. Keep responses thoughtful but concise."
+    },
+    { role: "user", content: message }
+  ],
+  model: "llama-3.3-70b-versatile",
+  stream: true,
+});
 
     for await (const chunk of stream) {
       const text = chunk.choices[0]?.delta?.content || '';
