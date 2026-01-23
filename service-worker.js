@@ -68,6 +68,11 @@ self.addEventListener('fetch', e => {
 
 // Network-first strategy
 async function networkFirst(request) {
+  // Skip caching for non-GET requests (POST, PUT, DELETE, etc.)
+  if (request.method !== 'GET') {
+    return fetch(request);
+  }
+
   try {
     const networkResponse = await fetch(request);
     
@@ -105,6 +110,11 @@ async function networkFirst(request) {
 
 // Cache-first strategy
 async function cacheFirst(request) {
+  // Skip caching for non-GET requests (POST, PUT, DELETE, etc.)
+  if (request.method !== 'GET') {
+    return fetch(request);
+  }
+
   const cachedResponse = await caches.match(request);
   if (cachedResponse) {
     return cachedResponse;
