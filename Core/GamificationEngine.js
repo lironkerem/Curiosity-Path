@@ -629,8 +629,8 @@ export class GamificationEngine {
       super_day: { name: 'Super Day', icon: '💫', description: 'Gratitude + journal + energy + meditation in one day', xp: 50, rarity: 'rare', category: 'cross' },
       complete_explorer: { name: 'Complete Explorer', icon: '🗺️', description: 'Use every main feature at least once', xp: 100, rarity: 'epic', category: 'cross' },
       renaissance_soul: { name: 'Renaissance Soul', icon: '🎭', description: '≥ 10 actions in 5+ different features', xp: 150, rarity: 'epic', category: 'cross' }
-    };
-
+    }
+}
 // =========================================================
 //  GamificationEngine.js – Part 3 (FINAL)
 //  Badge Checking, Quest Management, Utility Functions
