@@ -303,47 +303,47 @@ class HappinessEngine {
         </div>
       ` : ''}
 
-main class="space-y-6">
-  ${this._renderCard('affirm-card', '✨', 'Positive Affirmation', `
-    <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
-      "${this.currentAffirmation}"
-    </p>
-  `, 'refreshAffirmation')}
+      <main class="space-y-6">
+        ${this._renderCard('booster-card', this.currentBooster.emoji, 'A Quick Happiness Booster', `
+          <h3 class="text-2xl font-bold" style="color: var(--neuro-accent);">${this.currentBooster.title}</h3>
+          <p class="mt-2 text-lg">${this.currentBooster.description}</p>
+          <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
+            <span>${this.currentBooster.duration}</span> • <span>${this.currentBooster.category}</span>
+          </div>
+        `, 'refreshBooster')}
 
-  ${this._renderCard('quote-card', '📜', 'Inspirational Quote', `
-    <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
-      "${this.currentQuote.text}"
-    </p>
-    <p class="mt-3 text-center text-lg" style="color: var(--neuro-text);">
-      - ${this.currentQuote.author}
-    </p>
-  `, 'refreshQuote')}
+        ${this._renderCard('quote-card', '📜', 'Inspirational Quote', `
+          <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
+            "${this.currentQuote.text}"
+          </p>
+          <p class="mt-3 text-center text-lg" style="color: var(--neuro-text);">
+            - ${this.currentQuote.author}
+          </p>
+        `, 'refreshQuote')}
 
-  ${this._renderCard('booster-card', this.currentBooster.emoji, 'A Quick Happiness Booster', `
-    <h3 class="text-2xl font-bold" style="color: var(--neuro-accent);">${this.currentBooster.title}</h3>
-    <p class="mt-2 text-lg">${this.currentBooster.description}</p>
-    <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
-      <span>${this.currentBooster.duration}</span> • <span>${this.currentBooster.category}</span>
-    </div>
-  `, 'refreshBooster')}
+        ${this._renderCard('affirm-card', '✨', 'Positive Affirmation', `
+          <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
+            "${this.currentAffirmation}"
+          </p>
+        `, 'refreshAffirmation')}
 
-  ${this._renderCard('inquiry-card', intensityEmoji[this.currentInquiry.intensity] || '💭', 'Self Inquiry', `
-    <div style="margin-bottom: 1rem; padding: 0.5rem; background: var(--neuro-bg-secondary); border-radius: 8px; display: inline-block;">
-      <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--neuro-accent);">
-        ${this.currentInquiry.domain}
-      </span>
-    </div>
-    <p class="text-2xl font-semibold" style="color: var(--neuro-accent); line-height: 1.4; margin-bottom: 1rem;">
-      ${this.currentInquiry.question}
-    </p>
-    <p class="mt-2 text-lg" style="font-style: italic; color: var(--neuro-text-secondary);">
-      ${this.currentInquiry.holding}
-    </p>
-    <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
-      <span>Level ${this.currentInquiry.intensity}</span> • <span>Self-Inquiry</span>
-    </div>
-  `, 'refreshInquiry')}
-</main>
+        ${this._renderCard('inquiry-card', intensityEmoji[this.currentInquiry.intensity] || '💭', 'Self Inquiry', `
+          <div style="margin-bottom: 1rem; padding: 0.5rem; background: var(--neuro-bg-secondary); border-radius: 8px; display: inline-block;">
+            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--neuro-accent);">
+              ${this.currentInquiry.domain}
+            </span>
+          </div>
+          <p class="text-2xl font-semibold" style="color: var(--neuro-accent); line-height: 1.4; margin-bottom: 1rem;">
+            ${this.currentInquiry.question}
+          </p>
+          <p class="mt-2 text-lg" style="font-style: italic; color: var(--neuro-text-secondary);">
+            ${this.currentInquiry.holding}
+          </p>
+          <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
+            <span>Level ${this.currentInquiry.intensity}</span> • <span>Self-Inquiry</span>
+          </div>
+        `, 'refreshInquiry')}
+      </main>
     </div>
   </div>`;
   }
