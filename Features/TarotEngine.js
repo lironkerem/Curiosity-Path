@@ -346,9 +346,6 @@ class TarotEngine {
     height: 100%; 
     backface-visibility: hidden; 
   }
-  .tarot-card-back { 
-    position: relative; 
-  }
   .tarot-card-front { 
     transform: rotateY(180deg); 
   }
