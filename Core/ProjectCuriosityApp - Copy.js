@@ -1,4 +1,4 @@
-// Core/ProjectCuriosityApp.js - PATCHED: Fixed duplicate toasts
+// Core/ProjectCuriosityApp.js
 /* global window, document, confirm, requestAnimationFrame */
 
 import { showToast } from './Toast.js';
@@ -8,6 +8,7 @@ import { supabase } from './Supabase.js';
 import { DarkMode } from '/Core/Utils.js';
 import DailyCards from '../Features/DailyCards.js';
 import CTA from './CTA.js';
+
 
 // Constants
 const STORAGE_KEYS = {
@@ -48,24 +49,28 @@ export default class ProjectCuriosityApp {
     this.footerCTA = null;
     this._initialized = false;
 
-    this._gamificationListenersReady = false;
-    this.toastThrottle = new Map();
+    this._gamificationListenersReady = false;   // ① guard
+    this.toastThrottle      = new Map();        // ② optional dedupe
 
     this.showToast = showToast;
     window.app = this;
   }
 
-  /* throttled wrapper – same message/type can't fire twice within 1.2 s */
+  /* throttled wrapper – same message/type can’t fire twice within 1.2 s */
   showToastOnce(msg, type = 'info', key = null, cooldown = 1200) {
     const k = key || `${msg}:${type}`;
     const now = Date.now();
     const last = this.toastThrottle.get(k) || 0;
     if (now - last < cooldown) return;
     this.toastThrottle.set(k, now);
-    showToast(msg, type, key);
+    showToast(msg, type, key);          // our singleton queue
   }
 
   /* ---------- PROFILE ---------- */
+  /**
+   * Saves user profile with avatar upload support
+   * @returns {Promise<void>}
+   */
   async saveQuickProfile() {
     const profileData = this._getProfileFormData();
     if (!profileData) {
@@ -164,10 +169,10 @@ export default class ProjectCuriosityApp {
 
   /* ---------- GAMIFICATION ---------- */
   setupGamificationListeners() {
-    if (this._gamificationListenersReady) return;
-    this._gamificationListenersReady = true;
+  if (this._gamificationListenersReady) return;   // prevent duplicate registrations
+  this._gamificationListenersReady = true;
 
-    const g = this.gamification;
+  const g = this.gamification;
     
     g.on('levelUp', ({ level, title }) => {
       showToast(`${EMOJI.LEVEL_UP.slice(0, 2)} Level Up! You are now a ${title} (Level ${level})!`, 'success');
@@ -181,17 +186,6 @@ export default class ProjectCuriosityApp {
       if (current === best && current > 3) {
         showToast(`${EMOJI.TROPHY} New Best Streak: ${best} Days!`, 'success');
       }
-    });
-    
-    // FIXED: Added listeners that respect skipToast flag
-    g.on('xpGained', ({ amount, source, skipToast }) => {
-      if (skipToast) return;
-      showToast(`+${amount} XP from ${source}`, 'success');
-    });
-    
-    g.on('karmaGained', ({ amount, source, skipToast }) => {
-      if (skipToast) return;
-      showToast(`+${amount} Karma from ${source}`, 'success');
     });
     
     g.on('achievementUnlocked', a => {
@@ -290,7 +284,7 @@ export default class ProjectCuriosityApp {
   /* ---------- APP BOOTSTRAP ---------- */
   async init() {
     try {
-      console.log('🧘 Initializing Project Curiosity...');
+      console.log('\u{1F9D8} Initializing Project Curiosity...');
       
       if (!await this.auth.checkAuth()) {
         return this.auth.renderAuthScreen();
@@ -313,25 +307,26 @@ export default class ProjectCuriosityApp {
     return this.state && this.state.data;
   }
 
-  async initializeApp() {
-    if (this._initialized) return;
-    this._initialized = true;
+async initializeApp() {
+  if (this._initialized) return;      // ← NEW
+  this._initialized = true;           // ← NEW
 
-    try {
-      console.log('✅ User authenticated, loading data...');
+  try {
+    console.log('\u{2705} User authenticated, loading data...');
 
+    if (!this._validateState()) {
+      await this.state.ready;
       if (!this._validateState()) {
-        await this.state.ready;
-        if (!this._validateState()) {
-          this.state.data = this.state.emptyModel();
-        }
+        this.state.data = this.state.emptyModel();
       }
+    }
 
       this.gamification = new GamificationEngine(this);
       this.setupGamificationListeners();
 
-      this.dailyCards = new DailyCards(this);
-      await this.dailyCards.initializeBoosters();
+// Initialize DailyCards and wait for boosters to load
+this.dailyCards = new DailyCards(this);
+await this.dailyCards.initializeBoosters();
 
       this._hideAuthScreen();
       this._showMainApp();
@@ -347,7 +342,7 @@ export default class ProjectCuriosityApp {
       this.restoreLastTab();
       this.checkDailyReset();
       
-      console.log('🎉 Project Curiosity loaded successfully!');
+      console.log('\u{1F389} Project Curiosity loaded successfully!');
     } catch (error) {
       console.error('App initialization failed:', error);
       this.showToast('Failed to load app. Please refresh.', 'error');
@@ -372,7 +367,7 @@ export default class ProjectCuriosityApp {
     if (last !== today) {
       this.gamification.resetDailyQuests();
       localStorage.setItem(STORAGE_KEYS.LAST_DAILY_RESET, today);
-      console.log('📅 Daily quests reset');
+      console.log('\u{1F4C5} Daily quests reset');
     }
   }
 
@@ -391,49 +386,52 @@ export default class ProjectCuriosityApp {
     }
   }
 
-  /* ---------- TAB SWITCH WITH CLEANUP ---------- */
-  initializeTab(tab) {
-    if (this.currentTab === 'dashboard' && tab !== 'dashboard' && this.dashboard) {
-      this.dashboard.destroy();
-    }
-    
-    this.currentTab = tab;
-    
-    switch (tab) {
-      case 'dashboard':
-        if (this.deps.DashboardManager) {
-          this.dashboard = new this.deps.DashboardManager(this);
-          this.dashboard.render();
-        }
-        break;
-
-      case 'calculator':
-        this._loadCalculatorTab();
-        break;
-
-      case 'admin':
-        if (this.state.currentUser.isAdmin) {
-          this._loadAdminTab();
-        }
-        break;
-
-      case 'flip-script':
-      case 'karma-shop':
-      case 'meditations':
-      case 'tarot':
-      case 'energy':
-      case 'happiness':
-      case 'gratitude':
-      case 'journal':
-      case 'shadow-alchemy':
-      case 'chatbot':
-        window.featuresManager?.init(tab);
-        break;
-
-      default:
-        console.warn(`Unknown tab: ${tab}`);
-    }
+/* ---------- TAB SWITCH WITH CLEANUP ---------- */
+initializeTab(tab) {
+  // Clean up dashboard when leaving it
+  if (this.currentTab === 'dashboard' && tab !== 'dashboard' && this.dashboard) {
+    this.dashboard.destroy();
   }
+  
+  // Store current tab
+  this.currentTab = tab;
+  
+  switch (tab) {
+    case 'dashboard':
+      // Recreate dashboard when returning to it
+      if (this.deps.DashboardManager) {
+        this.dashboard = new this.deps.DashboardManager(this);
+        this.dashboard.render();
+      }
+      break;
+
+    case 'calculator':
+      this._loadCalculatorTab();
+      break;
+
+    case 'admin':
+      if (this.state.currentUser.isAdmin) {
+        this._loadAdminTab();
+      }
+      break;
+
+    case 'flip-script':
+    case 'karma-shop':
+    case 'meditations':
+    case 'tarot':
+    case 'energy':
+    case 'happiness':
+    case 'gratitude':
+    case 'journal':
+    case 'shadow-alchemy':
+    case 'chatbot':
+      window.featuresManager?.init(tab);
+      break;
+
+    default:
+      console.warn(`Unknown tab: ${tab}`);
+  }
+}
 
   async _loadCalculatorTab() {
     if (window.calculatorChunk === 'loaded') return;
@@ -512,6 +510,9 @@ export default class ProjectCuriosityApp {
     return arr;
   }
 
+  /**
+   * Cleanup method for destroying the app instance
+   */
   destroy() {
     if (this.footerCTA) {
       this.footerCTA = null;

@@ -1,5 +1,5 @@
 // =========================================================
-//  GamificationEngine.js – PATCHED: Fixed duplicate toasts
+//  GamificationEngine.js — Optimized 56-Badge System
 //  Part 1: Core Setup, State Management, Event System
 // =========================================================
 
@@ -12,9 +12,12 @@ export class GamificationEngine {
     this.saveTimeout = null;
     this.initializeQuests();
 
-    // FIXED: Removed immediate checkAllBadges() call
-    // Badge checks will happen naturally through user interactions
-    // The initial call was firing before listeners were ready
+    // Defer initial badge check until AppState is ready
+    if (this.app?.state?.ready) {
+      this.app.state.ready.then(() => this.checkAllBadges());
+    } else {
+      Promise.resolve().then(() => this.checkAllBadges());
+    }
   }
 
   /* ---------------------------------------------------------
@@ -50,249 +53,253 @@ export class GamificationEngine {
     };
   }
 
-  initializeQuests() {
-    const definitions = this.getQuestDefinitions();
-    
-    if (!this.state.quests.daily || this.state.quests.daily.length === 0) {
-      this.state.quests = definitions;
-      this.saveState();
-      console.log('✅ Quests initialized from code definitions');
-    }
+initializeQuests() {
+  const definitions = this.getQuestDefinitions();
+  
+  // Only initialize if quests don't exist or are empty
+  if (!this.state.quests.daily || this.state.quests.daily.length === 0) {
+    this.state.quests = definitions;
+    this.saveState();
+    console.log('✅ Quests initialized from code definitions');
   }
+}
+  /* ---------------------------------------------------------
+     DEFAULT STATE
+  --------------------------------------------------------- */
 
-  getQuestDefinitions() {
-    return {
-      daily: [
-        {
-          id: 'gratitude_entry',
-          tab: 'gratitude',
-          icon: '❤️',
-          name: 'Daily Gratitude Practice',
-          inspirational: 'Gratitude transforms what we have into enough.',
-          target: 'Log 10 gratitudes (any entries) to complete this quest.',
-          goal: 10,
-          progress: 0,
-          xpReward: 20,
-          completed: false,
-          karmaReward: 2
-        },
-        {
-          id: 'journal_entry',
-          tab: 'journal',
-          icon: '📓',
-          name: 'Daily Journaling',
-          inspirational: 'Writing clarifies thoughts and soothes the soul.',
-          target: 'Save 1 journal entry to complete this quest.',
-          goal: 1,
-          progress: 0,
-          xpReward: 35,
-          completed: false,
-          karmaReward: 3
-        },
-        {
-          id: 'tarot_spread',
-          tab: 'tarot',
-          icon: '🃏',
-          name: 'Daily Tarot Spread',
-          inspirational: 'The cards reveal what the heart already knows.',
-          target: 'Complete one 6-card (or larger) spread to complete this quest.',
-          goal: 1,
-          progress: 0,
-          xpReward: 25,
-          completed: false,
-          karmaReward: 2
-        },
-        {
-          id: 'meditation_session',
-          tab: 'meditations',
-          icon: '🧘',
-          name: 'Daily Meditation',
-          inspirational: 'Peace begins within.',
-          target: 'Finish 1 meditation session to complete this quest.',
-          goal: 1,
-          progress: 0,
-          xpReward: 30,
-          completed: false,
-          karmaReward: 3
-        },
-        {
-          id: 'energy_checkin',
-          tab: 'energy',
-          icon: '⚡',
-          name: 'Daily Energy Check-in',
-          inspirational: 'Awareness is the first step to transformation.',
-          target: 'Tick both day ☀️ and night 🌙 check-ins to complete this quest.',
-          goal: 2,
-          progress: 0,
-          xpReward: 20,
-          completed: false,
-          karmaReward: 2,
-          subProgress: { day: false, night: false }
-        },
-        {
-          id: 'daily_booster',
-          tab: 'happiness',
-          icon: '✨',
-          name: 'Daily Affirmations/Boosters',
-          inspirational: 'Joy is a practice, not a destination.',
-          target: 'Refresh any happiness card 5 times to complete this quest.',
-          goal: 5,
-          progress: 0,
-          xpReward: 15,
-          completed: false,
-          karmaReward: 1
-        }
-      ],
-      weekly: [
-        {
-          id: 'gratitude_streak_7',
-          icon: '💖',
-          name: 'A Gratitude Streak',
-          inspirational: 'Consistency breeds abundance.',
-          target: 'Log 70 gratitudes across the week to complete this quest.',
-          goal: 70,
-          progress: 0,
-          xpReward: 100,
-          completed: false,
-          karmaReward: 10
-        },
-        {
-          id: 'journal_5',
-          icon: '📝',
-          name: 'Journal Writer',
-          inspirational: 'Your story matters.',
-          target: 'Save 5 journal entries across the week to complete this quest.',
-          goal: 5,
-          progress: 0,
-          xpReward: 150,
-          completed: false,
-          karmaReward: 15
-        },
-        {
-          id: 'energy_7',
-          icon: '⚡',
-          name: 'Weekly Energy Check-ins',
-          inspirational: 'Track your rhythm, honor your cycles.',
-          target: 'Tick 14 energy check-ins (day & night) across the week to complete this quest.',
-          goal: 14,
-          progress: 0,
-          xpReward: 80,
-          completed: false,
-          karmaReward: 8
-        },
-        {
-          id: 'happiness_boosters_20',
-          icon: '🎨',
-          name: 'Happy and Motivated Week',
-          inspirational: 'Feed your mind with positivity.',
-          target: 'Refresh happiness cards 35 times across the week to complete this quest.',
-          goal: 35,
-          progress: 0,
-          xpReward: 120,
-          completed: false,
-          karmaReward: 12
-        },
-        {
-          id: 'tarot_4_days',
-          icon: '🔮',
-          name: 'Tarot Lover',
-          inspirational: 'Seek wisdom in the cards.',
-          target: 'Complete five 6-card (or larger) spreads across the week to complete this quest.',
-          goal: 5,
-          progress: 0,
-          xpReward: 100,
-          completed: false,
-          karmaReward: 10
-        },
-        {
-          id: 'meditate_3',
-          icon: '🌟',
-          name: 'Meditating Adept',
-          inspirational: 'Stillness is strength.',
-          target: 'Finish 5 meditation sessions across the week to complete this quest.',
-          goal: 5,
-          progress: 0,
-          xpReward: 120,
-          completed: false,
-          karmaReward: 12
-        }
-      ],
-      monthly: [
-        {
-          id: 'monthly_energy_28',
-          icon: '⚡',
-          name: 'Monthly Energy Check-ins',
-          inspirational: 'Know thyself through daily awareness.',
-          target: 'Tick 60 energy check-ins (day & night) during the month to complete this quest.',
-          goal: 60,
-          progress: 0,
-          xpReward: 300,
-          completed: false,
-          karmaReward: 30
-        },
-        {
-          id: 'monthly_tarot_15',
-          icon: '🔮',
-          name: 'Tarot Enthusiast',
-          inspirational: 'The universe speaks through symbols.',
-          target: 'Complete twenty 6-card (or larger) spreads during the month to complete this quest.',
-          goal: 20,
-          progress: 0,
-          xpReward: 400,
-          completed: false,
-          karmaReward: 40
-        },
-        {
-          id: 'monthly_gratitude_28',
-          icon: '💖',
-          name: 'Gratitude Master',
-          inspirational: 'Gratitude unlocks the fullness of life.',
-          target: 'Log 300 gratitudes during the month to complete this quest.',
-          goal: 300,
-          progress: 0,
-          xpReward: 350,
-          completed: false,
-          karmaReward: 35
-        },
-        {
-          id: 'monthly_journal_20',
-          icon: '📝',
-          name: 'A Journalist',
-          inspirational: 'Write to understand, reflect to grow.',
-          target: 'Save 20 journal entries during the month to complete this quest.',
-          goal: 20,
-          progress: 0,
-          xpReward: 500,
-          completed: false,
-          karmaReward: 50
-        },
-        {
-          id: 'monthly_happiness_100',
-          icon: '🎨',
-          name: 'Super Good Month',
-          inspirational: 'Choose joy every single day.',
-          target: 'Refresh happiness cards 150 times during the month to complete this quest.',
-          goal: 150,
-          progress: 0,
-          xpReward: 450,
-          completed: false,
-          karmaReward: 45
-        },
-        {
-          id: 'monthly_meditation_15',
-          icon: '🌟',
-          name: 'Meditating Healer',
-          inspirational: 'Through stillness, we find our true power.',
-          target: 'Finish 20 meditation sessions during the month to complete this quest.',
-          goal: 20,
-          progress: 0,
-          xpReward: 600,
-          completed: false,
-          karmaReward: 60
-        }
-      ]
-    };
-  }
+getQuestDefinitions() {
+  return {
+    daily: [
+      {
+        id: 'gratitude_entry',
+        tab: 'gratitude',
+        icon: '❤️',
+        name: 'Daily Gratitude Practice',
+        inspirational: 'Gratitude transforms what we have into enough.',
+        target: 'Log 10 gratitudes (any entries) to complete this quest.',
+        goal: 10,
+        progress: 0,
+        xpReward: 20,
+        completed: false,
+        karmaReward: 2
+      },
+      {
+        id: 'journal_entry',
+        tab: 'journal',
+        icon: '📔',
+        name: 'Daily Journaling',
+        inspirational: 'Writing clarifies thoughts and soothes the soul.',
+        target: 'Save 1 journal entry to complete this quest.',
+        goal: 1,
+        progress: 0,
+        xpReward: 35,
+        completed: false,
+        karmaReward: 3
+      },
+      {
+        id: 'tarot_spread',
+        tab: 'tarot',
+        icon: '🃏',
+        name: 'Daily Tarot Spread',
+        inspirational: 'The cards reveal what the heart already knows.',
+        target: 'Complete one 6-card (or larger) spread to complete this quest.',
+        goal: 1,
+        progress: 0,
+        xpReward: 25,
+        completed: false,
+        karmaReward: 2
+      },
+      {
+        id: 'meditation_session',
+        tab: 'meditations',
+        icon: '🧘',
+        name: 'Daily Meditation',
+        inspirational: 'Peace begins within.',
+        target: 'Finish 1 meditation session to complete this quest.',
+        goal: 1,
+        progress: 0,
+        xpReward: 30,
+        completed: false,
+        karmaReward: 3
+      },
+      {
+        id: 'energy_checkin',
+        tab: 'energy',
+        icon: '⚡',
+        name: 'Daily Energy Check-in',
+        inspirational: 'Awareness is the first step to transformation.',
+        target: 'Tick both day ☀️ and night 🌙 check-ins to complete this quest.',
+        goal: 2,
+        progress: 0,
+        xpReward: 20,
+        completed: false,
+        karmaReward: 2,
+        subProgress: { day: false, night: false }
+      },
+      {
+        id: 'daily_booster',
+        tab: 'happiness',
+        icon: '✨',
+        name: 'Daily Affirmations/Boosters',
+        inspirational: 'Joy is a practice, not a destination.',
+        target: 'Refresh any happiness card 5 times to complete this quest.',
+        goal: 5,
+        progress: 0,
+        xpReward: 15,
+        completed: false,
+        karmaReward: 1
+      }
+    ],
+    weekly: [
+      {
+        id: 'gratitude_streak_7',
+        icon: '💖',
+        name: 'A Gratitude Streak',
+        inspirational: 'Consistency breeds abundance.',
+        target: 'Log 70 gratitudes across the week to complete this quest.',
+        goal: 70,
+        progress: 0,
+        xpReward: 100,
+        completed: false,
+        karmaReward: 10
+      },
+      {
+        id: 'journal_5',
+        icon: '📝',
+        name: 'Journal Writer',
+        inspirational: 'Your story matters.',
+        target: 'Save 5 journal entries across the week to complete this quest.',
+        goal: 5,
+        progress: 0,
+        xpReward: 150,
+        completed: false,
+        karmaReward: 15
+      },
+      {
+        id: 'energy_7',
+        icon: '⚡',
+        name: 'Weekly Energy Check-ins',
+        inspirational: 'Track your rhythm, honor your cycles.',
+        target: 'Tick 14 energy check-ins (day & night) across the week to complete this quest.',
+        goal: 14,
+        progress: 0,
+        xpReward: 80,
+        completed: false,
+        karmaReward: 8
+      },
+      {
+        id: 'happiness_boosters_20',
+        icon: '🎨',
+        name: 'Happy and Motivated Week',
+        inspirational: 'Feed your mind with positivity.',
+        target: 'Refresh happiness cards 35 times across the week to complete this quest.',
+        goal: 35,
+        progress: 0,
+        xpReward: 120,
+        completed: false,
+        karmaReward: 12
+      },
+      {
+        id: 'tarot_4_days',
+        icon: '🔮',
+        name: 'Tarot Lover',
+        inspirational: 'Seek wisdom in the cards.',
+        target: 'Complete five 6-card (or larger) spreads across the week to complete this quest.',
+        goal: 5,
+        progress: 0,
+        xpReward: 100,
+        completed: false,
+        karmaReward: 10
+      },
+      {
+        id: 'meditate_3',
+        icon: '🌟',
+        name: 'Meditating Adept',
+        inspirational: 'Stillness is strength.',
+        target: 'Finish 5 meditation sessions across the week to complete this quest.',
+        goal: 5,
+        progress: 0,
+        xpReward: 120,
+        completed: false,
+        karmaReward: 12
+      }
+    ],
+    monthly: [
+      {
+        id: 'monthly_energy_28',
+        icon: '⚡',
+        name: 'Monthly Energy Check-ins',
+        inspirational: 'Know thyself through daily awareness.',
+        target: 'Tick 60 energy check-ins (day & night) during the month to complete this quest.',
+        goal: 60,
+        progress: 0,
+        xpReward: 300,
+        completed: false,
+        karmaReward: 30
+      },
+      {
+        id: 'monthly_tarot_15',
+        icon: '🔮',
+        name: 'Tarot Enthusiast',
+        inspirational: 'The universe speaks through symbols.',
+        target: 'Complete twenty 6-card (or larger) spreads during the month to complete this quest.',
+        goal: 20,
+        progress: 0,
+        xpReward: 400,
+        completed: false,
+        karmaReward: 40
+      },
+      {
+        id: 'monthly_gratitude_28',
+        icon: '💖',
+        name: 'Gratitude Master',
+        inspirational: 'Gratitude unlocks the fullness of life.',
+        target: 'Log 300 gratitudes during the month to complete this quest.',
+        goal: 300,
+        progress: 0,
+        xpReward: 350,
+        completed: false,
+        karmaReward: 35
+      },
+      {
+        id: 'monthly_journal_20',
+        icon: '📝',
+        name: 'A Journalist',
+        inspirational: 'Write to understand, reflect to grow.',
+        target: 'Save 20 journal entries during the month to complete this quest.',
+        goal: 20,
+        progress: 0,
+        xpReward: 500,
+        completed: false,
+        karmaReward: 50
+      },
+      {
+        id: 'monthly_happiness_100',
+        icon: '🎨',
+        name: 'Super Good Month',
+        inspirational: 'Choose joy every single day.',
+        target: 'Refresh happiness cards 150 times during the month to complete this quest.',
+        goal: 150,
+        progress: 0,
+        xpReward: 450,
+        completed: false,
+        karmaReward: 45
+      },
+      {
+        id: 'monthly_meditation_15',
+        icon: '🌟',
+        name: 'Meditating Healer',
+        inspirational: 'Through stillness, we find our true power.',
+        target: 'Finish 20 meditation sessions during the month to complete this quest.',
+        goal: 20,
+        progress: 0,
+        xpReward: 600,
+        completed: false,
+        karmaReward: 60
+      }
+    ]
+  };
+}
 
   /* ---------------------------------------------------------
      CLOUD + LOCAL PERSISTENCE (with error handling)
@@ -374,12 +381,6 @@ export class GamificationEngine {
     clearTimeout(this.saveTimeout);
     this.listeners = {};
   }
-}
-
-// =========================================================
-//  GamificationEngine.js – Part 2
-//  XP, Karma, Levels, Badge Checking
-// =========================================================
 
   /* ---------------------------------------------------------
      LIFETIME COUNTERS (optimized with category checks)
@@ -463,7 +464,6 @@ export class GamificationEngine {
     this.queueBadgeCheck('currency');
     this.saveState();
   }
-  
   addKarma(amount, source = 'general') {
     if (!amount || amount <= 0) return;
     this.state.karma += amount;
@@ -472,41 +472,38 @@ export class GamificationEngine {
     this.queueBadgeCheck('currency');
     this.saveState();
   }
-
-  /* FIXED: addBoth now properly sends skipToast flag */
-  addBoth(xp, karma, source = 'general') {
-    if (!xp && !karma) return;
-    
-    // Add XP silently
-    if (xp > 0) {
-      let final = xp;
-      if (this.hasActiveXPBoost()) final = xp * 2;
-      this.state.xp += final;
-      this.logAction('xp', { amount: final, source, boosted: final !== xp });
-      this.emit('xpGained', { amount: final, source, skipToast: true });
-    }
-    
-    // Add Karma silently
-    if (karma > 0) {
-      this.state.karma += karma;
-      this.logAction('karma', { amount: karma, source });
-      this.emit('karmaGained', { amount: karma, source, skipToast: true });
-    }
-    
-    // Show combined toast
-    if (this.app?.showToast) {
-      const parts = [];
-      if (xp > 0) parts.push(`+${xp} XP`);
-      if (karma > 0) parts.push(`+${karma} Karma`);
-      this.app.showToast(`✅ ${parts.join(' • ')} from ${source}`, 'success');
-    }
-    
-    // Check level up and badges
-    if (xp > 0) this.checkLevelUp();
-    this.queueBadgeCheck('currency');
-    this.saveState();
+addBoth(xp, karma, source = 'general') {
+  if (!xp && !karma) return;
+  
+  // Add XP silently
+  if (xp > 0) {
+    let final = xp;
+    if (this.hasActiveXPBoost()) final = xp * 2;
+    this.state.xp += final;
+    this.logAction('xp', { amount: final, source, boosted: final !== xp });
+    this.emit('xpGained', { amount: final, source, skipToast: true });
   }
-
+  
+  // Add Karma silently
+  if (karma > 0) {
+    this.state.karma += karma;
+    this.logAction('karma', { amount: karma, source });
+    this.emit('karmaGained', { amount: karma, source, skipToast: true });
+  }
+  
+  // Show combined toast
+  if (this.app?.showToast) {
+    const parts = [];
+    if (xp > 0) parts.push(`+${xp} XP`);
+    if (karma > 0) parts.push(`+${karma} Karma`);
+    this.app.showToast(`✅ ${parts.join(' ')} from ${source}`, 'success');
+  }
+  
+  // Check level up and badges
+  if (xp > 0) this.checkLevelUp();
+  this.queueBadgeCheck('currency');
+  this.saveState();
+}
   hasActiveXPBoost() {
     try {
       const boosts = JSON.parse(localStorage.getItem('karma_active_boosts')) || [];
@@ -514,7 +511,6 @@ export class GamificationEngine {
       return boosts.some(b => b.id === 'xp_multiplier' && b.expiresAt > now);
     } catch { return false; }
   }
-
   calculateLevel() {
     const ladder = [
       { level: 1, title: 'Seeker', xp: 0 },
@@ -534,7 +530,6 @@ export class GamificationEngine {
     const prog = next.xp === cur.xp ? 100 : ((this.state.xp - cur.xp) / (next.xp - cur.xp)) * 100;
     return { level: cur.level, title: cur.title, progress: Math.round(prog), pointsToNext: Math.max(0, next.xp - this.state.xp) };
   }
-
   checkLevelUp() {
     const prev = this.state.level;
     const { level, title } = this.calculateLevel();
@@ -542,7 +537,7 @@ export class GamificationEngine {
       this.state.level = level;
       this.emit('levelUp', { level, title });
       this.addXP(50, `Level ${level}`);
-      if (this.app?.showToast) this.app.showToast(`🎉 Level ${level} – ${title}  +50 XP`, 'success');
+      if (this.app?.showToast) this.app.showToast(`🎉 Level ${level} — ${title}  +50 XP`, 'success');
       showLevelUpSpectacle({ level, title, xp: 50, karma: 0 });
       this.queueBadgeCheck('level');
     }
@@ -602,7 +597,7 @@ export class GamificationEngine {
       meditation_200: { name: 'Meditation Titan', icon: '🧘‍♀️', description: '200 meditation sessions', xp: 700, rarity: 'legendary', category: 'meditation' },
       happiness_seeker: { name: 'Happiness Seeker', icon: '😊', description: '50 happiness booster views', xp: 50, rarity: 'uncommon', category: 'happiness' },
       joy_master: { name: 'Joy Master', icon: '🎉', description: '150 happiness booster views', xp: 100, rarity: 'rare', category: 'happiness' },
-      happiness_300: { name: 'Happiness Sage', icon: '😍', description: '300 happiness booster views', xp: 200, rarity: 'epic', category: 'happiness' },
+      happiness_300: { name: 'Happiness Sage', icon: '😁', description: '300 happiness booster views', xp: 200, rarity: 'epic', category: 'happiness' },
       happiness_700: { name: 'Happiness Titan', icon: '🤩', description: '700 happiness booster views', xp: 500, rarity: 'legendary', category: 'happiness' },
       wellness_champion: { name: 'Wellness Champion', icon: '🌿', description: '50 wellness exercises', xp: 50, rarity: 'uncommon', category: 'wellness' },
       wellness_guru: { name: 'Wellness Guru', icon: '🌳', description: '150 wellness exercises', xp: 100, rarity: 'rare', category: 'wellness' },
@@ -632,11 +627,6 @@ export class GamificationEngine {
     };
   }
 
-// =========================================================
-//  GamificationEngine.js – Part 3 (FINAL)
-//  Badge Checking, Quest Management, Utility Functions
-// =========================================================
-
   /* ---------------------------------------------------------
      OPTIMIZED BADGE CHECKING (category-based)
   --------------------------------------------------------- */
@@ -659,7 +649,6 @@ export class GamificationEngine {
       default: break;
     }
   }
-
   checkGratitudeBadges(badges, count) {
     if (count >= 1) this.checkAndGrantBadge('first_gratitude', badges);
     if (count >= 30) this.checkAndGrantBadge('gratitude_warrior', badges);
@@ -667,7 +656,6 @@ export class GamificationEngine {
     if (count >= 200) this.checkAndGrantBadge('gratitude_200', badges);
     if (count >= 500) this.checkAndGrantBadge('gratitude_500', badges);
   }
-
   checkJournalBadges(badges, count) {
     if (count >= 1) this.checkAndGrantBadge('first_journal', badges);
     if (count >= 20) this.checkAndGrantBadge('journal_keeper', badges);
@@ -675,7 +663,6 @@ export class GamificationEngine {
     if (count >= 150) this.checkAndGrantBadge('journal_150', badges);
     if (count >= 400) this.checkAndGrantBadge('journal_400', badges);
   }
-
   checkEnergyBadges(badges, count) {
     if (count >= 1) this.checkAndGrantBadge('first_energy', badges);
     if (count >= 30) this.checkAndGrantBadge('energy_tracker', badges);
@@ -683,7 +670,6 @@ export class GamificationEngine {
     if (count >= 300) this.checkAndGrantBadge('energy_300', badges);
     if (count >= 600) this.checkAndGrantBadge('energy_600', badges);
   }
-
   checkTarotBadges(badges, count) {
     if (count >= 1) this.checkAndGrantBadge('first_tarot', badges);
     if (count >= 10) this.checkAndGrantBadge('tarot_apprentice', badges);
@@ -692,7 +678,6 @@ export class GamificationEngine {
     if (count >= 150) this.checkAndGrantBadge('tarot_150', badges);
     if (count >= 400) this.checkAndGrantBadge('tarot_400', badges);
   }
-
   checkMeditationBadges(badges, count) {
     if (count >= 1) this.checkAndGrantBadge('first_meditation', badges);
     if (count >= 20) this.checkAndGrantBadge('meditation_devotee', badges);
@@ -700,21 +685,18 @@ export class GamificationEngine {
     if (count >= 100) this.checkAndGrantBadge('meditation_100', badges);
     if (count >= 200) this.checkAndGrantBadge('meditation_200', badges);
   }
-
   checkHappinessBadges(badges, count) {
     if (count >= 50) this.checkAndGrantBadge('happiness_seeker', badges);
     if (count >= 150) this.checkAndGrantBadge('joy_master', badges);
     if (count >= 300) this.checkAndGrantBadge('happiness_300', badges);
     if (count >= 700) this.checkAndGrantBadge('happiness_700', badges);
   }
-
   checkWellnessBadges(badges, count) {
     if (count >= 50) this.checkAndGrantBadge('wellness_champion', badges);
     if (count >= 150) this.checkAndGrantBadge('wellness_guru', badges);
     if (count >= 300) this.checkAndGrantBadge('wellness_300', badges);
     if (count >= 700) this.checkAndGrantBadge('wellness_700', badges);
   }
-
   checkStreakBadges(badges) {
     const streak = this.state.streak?.current || 0;
     if (streak >= 7) this.checkAndGrantBadge('perfect_week', badges);
@@ -722,21 +704,18 @@ export class GamificationEngine {
     if (streak >= 60) this.checkAndGrantBadge('unstoppable', badges);
     if (streak >= 100) this.checkAndGrantBadge('legendary_streak', badges);
   }
-
   checkLevelBadges(badges) {
     const level = this.calculateLevel().level;
     if (level >= 5) this.checkAndGrantBadge('level_5_hero', badges);
     if (level >= 7) this.checkAndGrantBadge('level_7_hero', badges);
     if (level >= 10) this.checkAndGrantBadge('level_10_hero', badges);
   }
-
   checkCurrencyBadges(badges) {
     if (this.state.karma >= 500) this.checkAndGrantBadge('karma_collector', badges);
     if (this.state.karma >= 2000) this.checkAndGrantBadge('karma_lord', badges);
     if (this.state.xp >= 10000) this.checkAndGrantBadge('xp_milestone', badges);
     if (this.state.xp >= 50000) this.checkAndGrantBadge('xp_titan', badges);
   }
-
   checkQuestBadges(badges) {
     if (this.state.weeklyQuestCompletions >= 4) this.checkAndGrantBadge('weekly_warrior', badges);
     if (this.state.monthlyQuestCompletions >= 1) this.checkAndGrantBadge('monthly_master', badges);
@@ -744,6 +723,9 @@ export class GamificationEngine {
     if (this.state.dailyQuestCompletions >= 30) this.checkAndGrantBadge('daily_champion', badges);
   }
 
+  // =========================================================
+  //  Part 3: Cross-Feature, Chakra, All-Badges, Granting, Quests
+  // =========================================================
   checkCrossFeatureBadges(badges) {
     const data = this.currentData;
     const today = new Date().toDateString();
@@ -763,7 +745,6 @@ export class GamificationEngine {
     const featuresWithTenPlus = Object.values(counts).filter(c => c >= 10).length;
     if (featuresWithTenPlus >= 5) this.checkAndGrantBadge('renaissance_soul', badges);
   }
-
   checkChakraBadges(chakras) {
     const badges = this.getBadgeDefinitions();
     const chakraKeys = ['root', 'sacral', 'solar', 'heart', 'throat', 'thirdEye', 'crown'];
@@ -772,7 +753,6 @@ export class GamificationEngine {
     if (all8Plus) this.checkAndGrantBadge('chakra_balancer', badges);
     if (all9Plus) this.checkAndGrantBadge('chakra_master', badges);
   }
-
   checkAllBadges() {
     if (!this.app?.state?.data) return;
     const badges = this.getBadgeDefinitions();
@@ -790,7 +770,6 @@ export class GamificationEngine {
     this.checkLevelBadges(badges);
     this.checkCrossFeatureBadges(badges);
   }
-
   grantBadge(badge) {
     if (this.state.badges.find(b => b.id === badge.id)) return;
     const karmaMap = { common: 3, uncommon: 5, rare: 10, epic: 15, legendary: 30 };
@@ -805,7 +784,6 @@ export class GamificationEngine {
     if (badge.inspirational) this.emit('inspirationalMessage', badge.inspirational);
     this.saveState();
   }
-
   checkAndGrantBadge(badgeId, badgeDefinitions) {
     if (this.state.badges.find(b => b.id === badgeId)) return;
     const def = badgeDefinitions[badgeId];
@@ -813,9 +791,9 @@ export class GamificationEngine {
     this.grantBadge({ id: badgeId, name: def.name, icon: def.icon, description: def.description, xp: def.xp, rarity: def.rarity, inspirational: def.inspirational });
   }
 
-  /* ---------------------------------------------------------
-     QUEST MANAGEMENT
-  --------------------------------------------------------- */
+  // =========================================================
+  //  Part 4: Quests, Resets, Bulk, Unlocks, Logging, Status
+  // =========================================================
   progressEnergyCheckin(timeOfDay) {
     const quest = this.state.quests.daily.find(q => q.id === 'energy_checkin');
     if (!quest || quest.completed) return;
@@ -827,7 +805,7 @@ export class GamificationEngine {
     this.addXP(10, `Energy Check-in (${key})`);
     this.state.karma += 1;
     this.emit('questProgress', quest);
-    if (quest.progress >= quest.goal) {
+    if (quest.progress >= quest.target) {
       quest.completed = true;
       this.addXP(10, 'Energy Check-in Bonus (Both Complete)');
       this.state.karma += 2;
@@ -842,12 +820,11 @@ export class GamificationEngine {
     }
     this.saveState();
   }
-
   progressQuest(questType, questId, increment = 1) {
     const quest = this.state.quests[questType]?.find(q => q.id === questId);
     if (!quest || quest.completed) return;
-    quest.progress = Math.min(quest.goal, quest.progress + increment);
-    if (quest.progress >= quest.goal) {
+    quest.progress = Math.min(quest.target, quest.progress + increment);
+    if (quest.progress >= quest.target) {
       quest.completed = true;
       this.addXP(quest.xpReward || 50, `Quest: ${quest.name}`);
       if (quest.karmaReward) this.state.karma += quest.karmaReward;
@@ -866,21 +843,17 @@ export class GamificationEngine {
     }
     this.saveState();
   }
-
   completeQuest(questType, questId) {
     const quest = this.state.quests[questType]?.find(q => q.id === questId);
     if (!quest) return;
-    this.progressQuest(questType, questId, quest.goal - quest.progress);
+    this.progressQuest(questType, questId, quest.target - quest.progress);
   }
-
   completeChakraQuest(questType, questId, chakraName, increment = 1) {
     this.progressQuest(questType, questId, increment);
   }
-
   resetDailyQuests() { this._resetQuests('daily'); }
   resetWeeklyQuests() { this._resetQuests('weekly'); }
   resetMonthlyQuests() { this._resetQuests('monthly'); }
-
   _resetQuests(type) {
     const allComplete = this.state.quests[type]?.every(q => q.completed);
     if (allComplete) {
@@ -909,11 +882,9 @@ export class GamificationEngine {
     this.emit('questsReset', type);
     this.saveState();
   }
-
   completeAllDaily() { this._completeBatch('daily'); }
   completeAllWeekly() { this._completeBatch('weekly'); }
   completeAllMonthly() { this._completeBatch('monthly'); }
-
   _completeBatch(type) {
     const quests = this.state.quests[type];
     if (!quests?.length) return;
@@ -930,17 +901,12 @@ export class GamificationEngine {
     this.state._bulkMode = false;
     if (done) this.emit('bulkQuestsComplete', { type, done, xp, karma });
   }
-
-  /* ---------------------------------------------------------
-     UTILITY FUNCTIONS
-  --------------------------------------------------------- */
   unlockFeature(featureId) {
     if (this.state.unlockedFeatures.includes(featureId)) return;
     this.state.unlockedFeatures.push(featureId);
     this.emit('featureUnlocked', featureId);
     this.saveState();
   }
-
   logAction(type, details = {}) {
     try {
       this.state.logs.push({ timestamp: new Date().toISOString(), type, details });
@@ -950,7 +916,6 @@ export class GamificationEngine {
       console.error('Failed to log action:', error);
     }
   }
-
   getStatusSummary() {
     const levelInfo = this.calculateLevel();
     return {
@@ -970,7 +935,6 @@ export class GamificationEngine {
       totalHappinessViews: this.state.totalHappinessViews
     };
   }
-
   reset() {
     try {
       localStorage.removeItem('gamificationState');

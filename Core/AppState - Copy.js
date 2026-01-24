@@ -1,4 +1,4 @@
-// Core/AppState.js - PATCHED: Uses addBoth() to prevent duplicate toasts
+// Core/AppState.js - patched: removed obsolete alignment/energy calls, fully functional
 /* global window, console, localStorage */
 
 import { fetchProgress, saveProgress } from '/Core/DB.js';
@@ -55,14 +55,14 @@ export default class AppState {
       achievements: [],
       streaks: { current: 0, longest: 0, lastActive: null },
       stats: { totalSessions: 0, totalMeditations: 0, totalReadings: 0 },
-      gamification: {
-        xp: 0,
-        level: 1,
-        achievements: [],
-        badges: [],
-        quests: {},
-        streaks: { current: 0, longest: 0, lastActive: null }
-      }
+     gamification: {
+      xp: 0,
+     level: 1,
+     achievements: [],
+     badges: [],
+     quests: {},
+     streaks: { current: 0, longest: 0, lastActive: null }
+   }
     };
   }
 
@@ -115,52 +115,51 @@ export default class AppState {
     if (window.app?.gamification) this.triggerGamificationForEntry(type, entry);
   }
 
-  /* ---------- FIXED: Uses addBoth() to show combined toasts ---------- */
-  triggerGamificationForEntry(type, entry) {
-    const g = window.app.gamification;
-    switch (type) {
-      case 'energy':
-        g.addBoth(20, 2, 'Energy Check-in');
-        g.progressQuest('daily', 'energy_checkin', 1);
-        g.updateStreak();
-        g.queueBadgeCheck('energy');
-        break;
-      case 'gratitude':
-        const cnt = entry.entries?.length || 1;
-        g.addBoth(30 * cnt, 3 * cnt, 'Gratitude Journal');
-        g.progressQuest('daily', 'gratitude_1', cnt);
-        g.updateStreak();
-        g.queueBadgeCheck('gratitude');
-        break;
-      case 'meditation':
-        const dur = entry.duration || 10;
-        g.addBoth(dur * 5, Math.floor(dur / 2), 'Meditation');
-        g.progressQuest('daily', 'meditate_10', dur);
-        g.progressQuest('weekly', 'meditate_5', 1);
-        g.updateStreak();
-        g.queueBadgeCheck('meditation');
-        if (entry.chakra) g.updateChakra(entry.chakra, 5);
-        break;
-      case 'tarot':
-        g.addBoth(25, 2, 'Tarot Reading');
-        g.updateStreak();
-        g.queueBadgeCheck('tarot');
-        break;
-      case 'flip':
-        g.addBoth(40, 4, 'Flip The Script');
-        g.updateStreak();
-        g.queueBadgeCheck('flip');
-        break;
-      case 'journal':
-        g.addBoth(35, 3, 'Journal Entry');
-        g.progressQuest('daily', 'journal_1', 1);
-        g.updateStreak();
-        g.queueBadgeCheck('journal');
-        break;
-      default:
-        g.addBoth(10, 1, 'Activity');
-        g.updateStreak();
-        g.queueBadgeCheck('all');
-    }
+triggerGamificationForEntry(type, entry) {
+  const g = window.app.gamification;
+  switch (type) {
+    case 'energy':
+      g.addXP(20, 'Energy Check-in');
+      g.progressQuest('daily', 'energy_checkin', 1);
+      g.updateStreak();
+      g.checkAllBadges(); // ADD THIS
+      break;
+    case 'gratitude':
+      const cnt = entry.entries?.length || 1;
+      g.addXP(30 * cnt, 'Gratitude Journal');
+      g.progressQuest('daily', 'gratitude_1', cnt);
+      g.updateStreak();
+      g.checkAllBadges(); // ADD THIS
+      break;
+    case 'meditation':
+      const dur = entry.duration || 10;
+      g.addXP(dur * 5, 'Meditation');
+      g.progressQuest('daily', 'meditate_10', dur);
+      g.progressQuest('weekly', 'meditate_5', 1);
+      g.updateStreak();
+      g.checkAllBadges(); // ADD THIS
+      if (entry.chakra) g.updateChakra(entry.chakra, 5);
+      break;
+    case 'tarot':
+      g.addXP(25, 'Tarot Reading');
+      g.updateStreak();
+      g.checkAllBadges(); // ADD THIS
+      break;
+    case 'flip':
+      g.addXP(40, 'Flip The Script');
+      g.updateStreak();
+      g.checkAllBadges(); // ADD THIS
+      break;
+    case 'journal':
+      g.addXP(35, 'Journal Entry');
+      g.progressQuest('daily', 'journal_1', 1);
+      g.updateStreak();
+      g.checkAllBadges(); // ADD THIS
+      break;
+    default:
+      g.addXP(10, 'Activity');
+      g.updateStreak();
+      g.checkAllBadges(); // ADD THIS
   }
+}
 }
