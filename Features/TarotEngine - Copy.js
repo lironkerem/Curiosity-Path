@@ -323,7 +323,8 @@ class TarotEngine {
 
 <style>
   .tarot-card-flip-container { 
-    width: clamp(110px, 22vw, 200px); 
+    width: 100%;
+    max-width: 200px;
     aspect-ratio: 200 / 350; 
     perspective: 1000px; 
     cursor: pointer; 
@@ -335,42 +336,105 @@ class TarotEngine {
   .tarot-card-image { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
   .tarot-card-error { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 4rem; }
   
-  /* Responsive card container */
+  /* Responsive card container - ALWAYS shrinks to fit 3 cards */
   #tarot-tab .flex.flex-col.items-center.mx-auto {
-    width: clamp(110px, 22vw, 200px) !important;
+    width: 100% !important;
+    max-width: 200px;
+    min-width: 0;
+    flex-shrink: 1;
   }
   
-  /* Grid gaps */
-  #tarot-tab .grid { 
-    gap: 0.75rem; 
-    max-width: 100%;
-    padding: 0 0.5rem;
+  /* Prevent text overflow in card labels */
+  #tarot-tab .flex.flex-col.items-center.mx-auto h4 {
+    font-size: clamp(0.65rem, 2.5vw, 1.125rem);
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
   }
+  
+  /* Card details text sizing */
+  #tarot-tab [id^="tarot-card-details-"] {
+    font-size: clamp(0.6rem, 2vw, 0.875rem);
+    height: clamp(40px, 12vw, 100px);
+  }
+  
+  /* Grid - maintains consistent spacing while cards shrink */
+  #tarot-tab .grid { 
+    gap: 0.5rem;
+    max-width: 100%;
+    padding: 0 0.75rem;
+    min-width: 0;
+    width: 100%;
+  }
+  
+  /* Force 3-column grids to NEVER wrap, with fixed gap */
+  #tarot-tab .grid.md\:grid-cols-3,
+  #tarot-tab .grid.grid-cols-2.md\:grid-cols-3 {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    column-gap: 0.5rem !important;
+    row-gap: 0.75rem !important;
+  }
+  
+  @media (min-width: 400px) {
+    #tarot-tab .grid {
+      gap: 0.65rem;
+      padding: 0 1rem;
+    }
+    #tarot-tab .grid.md\:grid-cols-3,
+    #tarot-tab .grid.grid-cols-2.md\:grid-cols-3 {
+      column-gap: 0.65rem !important;
+      row-gap: 0.85rem !important;
+    }
+  }
+  
+  @media (min-width: 640px) {
+    #tarot-tab .grid {
+      gap: 0.75rem;
+      padding: 0 1rem;
+    }
+    #tarot-tab .grid.md\:grid-cols-3,
+    #tarot-tab .grid.grid-cols-2.md\:grid-cols-3 {
+      column-gap: 0.75rem !important;
+      row-gap: 1rem !important;
+    }
+  }
+  
   @media (min-width: 768px) {
     #tarot-tab .grid { 
       gap: 1rem 1.5rem; 
       padding: 0;
     }
+    #tarot-tab .grid.md\:grid-cols-3,
+    #tarot-tab .grid.grid-cols-2.md\:grid-cols-3 {
+      column-gap: 1.5rem !important;
+      row-gap: 1rem !important;
+    }
     .tarot-card-flip-container { 
-      width: clamp(140px, 20vw, 220px); 
+      max-width: 220px; 
     }
     #tarot-tab .flex.flex-col.items-center.mx-auto { 
-      width: clamp(140px, 20vw, 220px) !important; 
+      max-width: 220px;
     }
   }
+  
   @media (min-width: 1600px) { 
     .tarot-card-flip-container { 
-      width: clamp(160px, 16vw, 240px); 
+      max-width: 240px; 
     }
     #tarot-tab .flex.flex-col.items-center.mx-auto { 
-      width: clamp(160px, 16vw, 240px) !important; 
+      max-width: 240px;
     }
   }
-
+  
   /* Pyramid layout */
-  .pyramid-triangle { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-  .pyr-row { display: flex; justify-content: center; gap: 1rem; }
+  .pyramid-triangle { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+  .pyr-row { display: flex; justify-content: center; gap: 0.5rem; width: 100%; }
   @media (min-width: 768px) {
+    .pyramid-triangle { gap: 1rem; }
+    .pyr-row { gap: 1rem; }
     .pyr-apex { gap: 2rem; }
     .pyr-upper { gap: 8rem; }
     .pyr-lower { gap: 14rem; }
@@ -381,18 +445,19 @@ class TarotEngine {
     .pyr-lower { gap: 25rem; }
     .pyr-base { gap: 12rem; }
   }
-
+  
   /* Cross layout */
-  .cross-shape { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+  .cross-shape { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
   .cross-top, .cross-bot { display: flex; justify-content: center; }
-  .cross-mid { display: flex; justify-content: center; gap: 1rem; }
+  .cross-mid { display: flex; justify-content: center; gap: 0.5rem; }
   @media (min-width: 768px) {
+    .cross-shape { gap: 1rem; }
     .cross-mid { gap: 8rem; }
   }
   @media (min-width: 1024px) {
     .cross-mid { gap: 15rem; }
   }
-
+  
   .premium-badge {
     position: static;
     transform: none;

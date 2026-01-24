@@ -1,4 +1,4 @@
-// TarotEngine.js - Optimized & Patched
+// TarotEngine.js - Optimized & Patched with Click to Reveal
 
 class TarotEngine {
   constructor(app) {
@@ -14,7 +14,7 @@ class TarotEngine {
       pyramid: {
         name: 'The Pyramid Spread',
         cards: 9,
-        desc: 'Triangle of Past — Present — Future',
+        desc: 'Triangle of Past – Present – Future',
         positions: ['Where you came from', 'Where you came from', 'Where you came from', 'Where you are now', 'Where you are now', 'Where you are now', 'Where are you going', 'Where are you going', 'Where are you going']
       },
       cross: { name: 'The Simple Cross Spread', cards: 5, desc: 'A Simple Cross Snapshot of Now', positions: ['Direction of the Situation', 'The Root of the Situation', 'Summary', 'Positive side of Situation', 'Obstacles-Challenges'] }
@@ -156,7 +156,6 @@ class TarotEngine {
   completeTarotSpread() {
     const spreadType = this.spreads[this.selectedSpread].name;
     
-    // Always save the reading
     if (this.app.state) {
       const reading = {
         spreadType,
@@ -168,7 +167,6 @@ class TarotEngine {
       this.app.state.addEntry('tarot', reading);
     }
     
-    // Exclude single and three card spreads from gamification
     const excludedSpreads = ['single', 'three'];
     if (!excludedSpreads.includes(this.selectedSpread)) {
       if (this.app.gamification) {
@@ -199,7 +197,10 @@ class TarotEngine {
         <h4 class="text-lg font-bold h-8" style="color: var(--neuro-accent); margin-bottom: 0rem;">${label}</h4>
         <div class="tarot-card-flip-container" id="tarot-card-container-${index}" onclick="window.featuresManager.engines.tarot.flipCard(${index})">
           <div class="tarot-card-flip-inner">
-            <div class="tarot-card-back"><img src="${this.CARD_BACK_URL}" alt="Card Back" class="tarot-card-image"></div>
+            <div class="tarot-card-back">
+              <p class="card-reveal-prompt">Click to reveal</p>
+              <img src="${this.CARD_BACK_URL}" alt="Card Back" class="tarot-card-image">
+            </div>
             <div class="tarot-card-front"></div>
           </div>
         </div>
@@ -303,7 +304,7 @@ class TarotEngine {
               return `
                 <button id="tarot-vision-ai-btn"
                         class="btn w-full inline-flex items-center justify-center gap-3 px-6 py-6 text-xl font-bold text-white rounded-xl shadow transition-transform ${locked ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02]'}">
-                  🔮 Tarot Vision AI — Take a picture/upload a tarot card to analyse it
+                  🔮 Tarot Vision AI – Take a picture/upload a tarot card to analyse it
                   ${locked ? '<span style="font-size: 3rem; opacity: .3; margin-left: .5rem;">🔒</span>' : ''}
                   <span class="premium-badge">PREMIUM</span>
                 </button>`;
@@ -329,14 +330,71 @@ class TarotEngine {
     perspective: 1000px; 
     cursor: pointer; 
   }
-  .tarot-card-flip-inner { position: relative; width: 100%; height: 100%; transition: transform 0.8s; transform-style: preserve-3d; }
-  .tarot-card-flip-container.flipped .tarot-card-flip-inner { transform: rotateY(180deg); }
-  .tarot-card-back, .tarot-card-front { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; }
-  .tarot-card-front { transform: rotateY(180deg); }
-  .tarot-card-image { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-  .tarot-card-error { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 4rem; }
+  .tarot-card-flip-inner { 
+    position: relative; 
+    width: 100%; 
+    height: 100%; 
+    transition: transform 0.8s; 
+    transform-style: preserve-3d; 
+  }
+  .tarot-card-flip-container.flipped .tarot-card-flip-inner { 
+    transform: rotateY(180deg); 
+  }
+  .tarot-card-back, .tarot-card-front { 
+    position: absolute; 
+    width: 100%; 
+    height: 100%; 
+    backface-visibility: hidden; 
+  }
+  .tarot-card-back { 
+    position: relative; 
+  }
+  .tarot-card-front { 
+    transform: rotateY(180deg); 
+  }
+  .tarot-card-image { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+  }
+  .tarot-card-error { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    height: 100%; 
+    font-size: 4rem; 
+  }
   
-  /* Responsive card container - ALWAYS shrinks to fit 3 cards */
+  /* Card reveal prompt - matching Daily Cards styling */
+  .card-reveal-prompt {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.75);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: clamp(0.7rem, 2.5vw, 0.95rem);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  @media (min-width: 768px) {
+    .card-reveal-prompt {
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+    }
+  }
+  
+  /* Responsive card container */
   #tarot-tab .flex.flex-col.items-center.mx-auto {
     width: 100% !important;
     max-width: 200px;
@@ -344,7 +402,6 @@ class TarotEngine {
     flex-shrink: 1;
   }
   
-  /* Prevent text overflow in card labels */
   #tarot-tab .flex.flex-col.items-center.mx-auto h4 {
     font-size: clamp(0.65rem, 2.5vw, 1.125rem);
     line-height: 1.2;
@@ -354,13 +411,11 @@ class TarotEngine {
     width: 100%;
   }
   
-  /* Card details text sizing */
   #tarot-tab [id^="tarot-card-details-"] {
     font-size: clamp(0.6rem, 2vw, 0.875rem);
     height: clamp(40px, 12vw, 100px);
   }
   
-  /* Grid - maintains consistent spacing while cards shrink */
   #tarot-tab .grid { 
     gap: 0.5rem;
     max-width: 100%;
@@ -369,7 +424,6 @@ class TarotEngine {
     width: 100%;
   }
   
-  /* Force 3-column grids to NEVER wrap, with fixed gap */
   #tarot-tab .grid.md\:grid-cols-3,
   #tarot-tab .grid.grid-cols-2.md\:grid-cols-3 {
     display: grid !important;
