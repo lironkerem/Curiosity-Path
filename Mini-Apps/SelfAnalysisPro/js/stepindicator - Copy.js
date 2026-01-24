@@ -1,4 +1,4 @@
-// js/stepIndicator.js - FIXED: Connector draws after current step is completed
+// js/stepIndicator.js - Separated step indicator logic
 export class StepIndicator {
   constructor() {
     this.stepIndicator = document.getElementById('step-indicator');
@@ -41,9 +41,8 @@ export class StepIndicator {
         item.classList.add('active');
       }
       
-      // ✅ FIX: Draw connector when CURRENT step is completed, not next step
       if (connector) {
-        if (this.completedSteps.has(stepNum)) {
+        if (this.completedSteps.has(stepNum + 1)) {
           connector.style.background = 'var(--primary-color)';
         } else {
           connector.style.background = '#ddd';
@@ -116,29 +115,29 @@ export class StepIndicator {
     });
   }
 
-  setupStep4Watchers() {
-    // Trigger on scroll to Step 4 section
-    const step4Section = document.getElementById('step-4-section');
-    if (step4Section) {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
-            this.triggerStep4Animation();
-          }
-        });
-      }, { threshold: 0.5 });
-      
-      observer.observe(step4Section);
-    }
+setupStep4Watchers() {
+  // Trigger on scroll to Step 4 section
+  const step4Section = document.getElementById('step-4-section');
+  if (step4Section) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+          this.triggerStep4Animation();
+        }
+      });
+    }, { threshold: 0.5 });
     
-    // Trigger on clicking the website link
-    document.addEventListener('click', (e) => {
-      const link = e.target.closest('.cta-welcome-link');
-      if (link) {
-        this.triggerStep4Animation();
-      }
-    });
+    observer.observe(step4Section);
   }
+  
+  // Trigger on clicking the website link
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('.cta-welcome-link');
+    if (link) {
+      this.triggerStep4Animation();
+    }
+  });
+}
 
   triggerStep4Animation() {
     if (this.step4Triggered) return;
@@ -268,3 +267,4 @@ export class StepIndicator {
     this.updateStepIndicator();
   }
 }
+
