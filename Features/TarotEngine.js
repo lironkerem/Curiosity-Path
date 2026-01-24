@@ -360,26 +360,45 @@ class TarotEngine {
     height: clamp(40px, 12vw, 100px);
   }
   
-  /* Grid - CRITICAL: allows cards to shrink equally */
+  /* Grid - maintains consistent spacing while cards shrink */
   #tarot-tab .grid { 
-    gap: 0.25rem;
+    gap: 0.5rem;
     max-width: 100%;
-    padding: 0 0.5rem;
+    padding: 0 0.75rem;
     min-width: 0;
     width: 100%;
   }
   
-  /* Force 3-column grids to NEVER wrap */
+  /* Force 3-column grids to NEVER wrap, with fixed gap */
   #tarot-tab .grid.md\:grid-cols-3,
   #tarot-tab .grid.grid-cols-2.md\:grid-cols-3 {
     display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    column-gap: 0.5rem !important;
+    row-gap: 0.75rem !important;
+  }
+  
+  @media (min-width: 400px) {
+    #tarot-tab .grid {
+      gap: 0.65rem;
+      padding: 0 1rem;
+    }
+    #tarot-tab .grid.md\:grid-cols-3,
+    #tarot-tab .grid.grid-cols-2.md\:grid-cols-3 {
+      column-gap: 0.65rem !important;
+      row-gap: 0.85rem !important;
+    }
   }
   
   @media (min-width: 640px) {
     #tarot-tab .grid {
-      gap: 0.5rem;
+      gap: 0.75rem;
       padding: 0 1rem;
+    }
+    #tarot-tab .grid.md\:grid-cols-3,
+    #tarot-tab .grid.grid-cols-2.md\:grid-cols-3 {
+      column-gap: 0.75rem !important;
+      row-gap: 1rem !important;
     }
   }
   
@@ -387,6 +406,11 @@ class TarotEngine {
     #tarot-tab .grid { 
       gap: 1rem 1.5rem; 
       padding: 0;
+    }
+    #tarot-tab .grid.md\:grid-cols-3,
+    #tarot-tab .grid.grid-cols-2.md\:grid-cols-3 {
+      column-gap: 1.5rem !important;
+      row-gap: 1rem !important;
     }
     .tarot-card-flip-container { 
       max-width: 220px; 
@@ -407,7 +431,7 @@ class TarotEngine {
   
   /* Pyramid layout */
   .pyramid-triangle { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
-  .pyr-row { display: flex; justify-content: center; gap: 0.25rem; width: 100%; }
+  .pyr-row { display: flex; justify-content: center; gap: 0.5rem; width: 100%; }
   @media (min-width: 768px) {
     .pyramid-triangle { gap: 1rem; }
     .pyr-row { gap: 1rem; }
@@ -425,7 +449,7 @@ class TarotEngine {
   /* Cross layout */
   .cross-shape { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
   .cross-top, .cross-bot { display: flex; justify-content: center; }
-  .cross-mid { display: flex; justify-content: center; gap: 0.25rem; }
+  .cross-mid { display: flex; justify-content: center; gap: 0.5rem; }
   @media (min-width: 768px) {
     .cross-shape { gap: 1rem; }
     .cross-mid { gap: 8rem; }
