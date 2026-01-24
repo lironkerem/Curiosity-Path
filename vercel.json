@@ -1,0 +1,19 @@
+{
+  "buildCommand": null,
+  "outputDirectory": ".",
+  "installCommand": "npm install",
+  "devCommand": null,
+  "framework": null,
+  "routes": [
+    {
+      "src": "/service-worker.js",
+      "headers": {
+        "cache-control": "public, max-age=0, must-revalidate"
+      }
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}
