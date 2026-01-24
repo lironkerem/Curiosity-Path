@@ -7,9 +7,6 @@
   <meta name="permissions-policy" content="camera=(self)">
   <title>The Curiosity Path - by Aanandoham</title>
 
-  <!-- ===== CDN Preconnect ===== -->
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-
   <!-- ===== CSS ===== -->
   <!-- 1. base look (always on) -->
   <link rel="stylesheet" href="/CSS/main-styles.css?v=1.0.2">
@@ -63,13 +60,7 @@
   <link rel="icon" href="Public/Icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="Public/Icons/favicon.ico">
 
-  <script>
-  // Share theme function - switches theme without navigation
-  window.shareTheme = function(name) {
-    localStorage.setItem('activeTheme', name);
-    window.setSkin(name);
-  };
-  </script>
+  <script>window.shareTheme=n=>{localStorage.setItem('activeTheme',n);location.href='/'+n;};</script>
 </head>
 
 <body>
@@ -97,12 +88,9 @@
 
   <div id="toast-container"></div>
 
-  <!-- ===== External Dependencies ===== -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" 
-          integrity="sha512-HMvenCGMRJ6lZEQTQRQzGsX3iMN8MLLFbBpUMmLgcUCLLfqBqk6y8yyqJ5RzFmfUaZSzC9HYqvWAHzHqSqwJzQ==" 
-          crossorigin="anonymous"></script>
+  <script>document.body.classList.toggle('dark',localStorage.getItem('darkMode')==='enabled');</script>
 
-  <!-- ===== Application Scripts ===== -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
   <script src="/CSS/Skins/MatrixRain.js?v=1.0.4"></script>
   <script type="module" src="./Core/Utils.js"></script>
   <script defer src="./Features/TarotVisionAI.js"></script>
@@ -113,81 +101,59 @@
   <script type="module" src="./Core/Features.js"></script>
   <script src="./Features/WellnessKit.js"></script>
 
-  <!-- ===== Bootstrap Application ===== -->
   <script type="module">
-    async function init() {
-      console.log('[INIT] The Curiosity Path - Aanandoham\'s Spiritual Platform Online');
-      
-      // Register Service Worker
+    async function init(){
+      console.log('🚀 The Curiosity Path - Aanandoham\'s Spiritual Platform Online');
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./service-worker.js')
-          .then(reg => console.log('[SW] Service Worker registered:', reg))
-          .catch(err => console.error('[SW ERROR] Service Worker registration failed:', err));
+          .then(reg => console.log('✅ Service Worker registered:', reg))
+          .catch(err => console.error('❌ Service Worker registration failed:', err));
       }
-
-      try {
-        // Load data modules
-        const [aff, {QUOTES, getRandomQuote, getQuoteOfTheDay}] = await Promise.all([
+      try{
+        const [aff,{QUOTES,getRandomQuote,getQuoteOfTheDay}]=await Promise.all([
           import('./Features/Data/AffirmationsList.js'),
           import('./Features/Data/QuotesList.js')
         ]);
-        
-        window.affirmations = aff.default;
-        window.QuotesData = {QUOTES, getRandomQuote, getQuoteOfTheDay};
+        window.affirmations=aff.default;
+        window.QuotesData={QUOTES,getRandomQuote,getQuoteOfTheDay};
 
-        // Load core modules
-        const Core = await import('./Core/Index.js');
-        const {default: UserTab} = await import('./Core/User-Tab.js');
+        const Core=await import('./Core/Index.js');
+        const {default:UserTab}=await import('./Core/User-Tab.js');
 
-        // Initialize application
-        window.app = new Core.ProjectCuriosityApp({
+        window.app=new Core.ProjectCuriosityApp({
           AppState:          Core.AppState,
           AuthManager:       Core.AuthManager,
           NavigationManager: Core.NavigationManager,
           DashboardManager:  Core.DashboardManager,
           UserTab
         });
-        
         window.app.init();
-      } catch(e) {
-        console.error('[FATAL] Bootstrap failed:', e);
-        document.body.innerHTML = '<div style="padding:2rem;text-align:center;font-family:system-ui"><h1>Loading Error</h1><p>Unable to load the application. Please refresh the page.</p><p style="color:#666;font-size:0.875rem;margin-top:1rem">If the problem persists, try clearing your browser cache.</p></div>';
-      }
+      }catch(e){console.error('Bootstrap failed:',e)}
     }
-
-    // Start initialization
-    document.readyState === 'loading'
-      ? document.addEventListener('DOMContentLoaded', init)
+    document.readyState==='loading'
+      ? document.addEventListener('DOMContentLoaded',init)
       : init();
   </script>
 
-  <!-- ===== Theme Management ===== -->
+  <!-- ===== Theme-switch helpers ===== -->
   <script>
-  // Set active skin theme
-  window.setSkin = function(name) {
-    // Disable all premium skins
-    document.querySelectorAll('link[id^="skin_"]').forEach(l => l.disabled = true);
-    document.getElementById('dark-mode-css').disabled = true; // premium on → default dark off
-    
-    if (name !== 'default') {
-      const wanted = document.getElementById('skin_' + name);
-      if (wanted) wanted.disabled = false;
-    } else if (localStorage.getItem('darkMode') === 'enabled') {
-      document.getElementById('dark-mode-css').disabled = false; // back to default
+  window.setSkin=function(name){
+    document.querySelectorAll('link[id^="skin_"]').forEach(l=>l.disabled=true);
+    document.getElementById('dark-mode-css').disabled=true; // premium on → default dark off
+    if(name!=='default'){
+      const wanted=document.getElementById('skin_'+name);
+      if(wanted) wanted.disabled=false;
+    }else if(localStorage.getItem('darkMode')==='enabled'){
+      document.getElementById('dark-mode-css').disabled=false; // back to default
     }
-    
-    localStorage.setItem('activeTheme', name);
+    localStorage.setItem('activeTheme',name);
   };
-
-  // Toggle dark mode
-  window.setDark = function(enable) {
-    localStorage.setItem('darkMode', enable ? 'enabled' : 'disabled');
-    document.documentElement.classList.toggle('dark', enable);
-    
-    // Only toggle default dark when no premium skin is active
-    const premiumActive = document.querySelector('link[id^="skin_"]:not([disabled])');
-    if (!premiumActive) {
-      document.getElementById('dark-mode-css').disabled = !enable;
+  window.setDark=function(enable){
+    localStorage.setItem('darkMode',enable?'enabled':'disabled');
+    document.documentElement.classList.toggle('dark',enable);
+    const premiumActive=document.querySelector('link[id^="skin_"]:not([disabled])');
+    if(!premiumActive){ // only toggle default dark when no premium skin
+      document.getElementById('dark-mode-css').disabled=!enable;
     }
   };
   </script>
