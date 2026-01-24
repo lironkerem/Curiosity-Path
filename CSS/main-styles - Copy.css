@@ -3240,15 +3240,9 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 }
 
 #calculator-tab .step-item.completed,
-.step-item.completed { 
-  cursor: pointer; 
-  opacity: 1; 
-}
-
+.step-item.completed { cursor: pointer; opacity: 1; }
 #calculator-tab .step-item.active,
-.step-item.active { 
-  opacity: 1; 
-}
+.step-item.active { opacity: 1; }
 
 #calculator-tab .step-dot,
 .step-dot {
@@ -3258,8 +3252,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   background: var(--neuro-bg);
   box-shadow: var(--shadow-inset-sm);
   transition: all var(--transition-normal);
-  position: relative;
-  z-index: 2;
 }
 
 #calculator-tab .step-item.completed .step-dot,
@@ -3271,9 +3263,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 }
 
 #calculator-tab .step-item.active .step-dot,
-.step-item.active .step-dot { 
-  transform: scale(1.2); 
-}
+.step-item.active .step-dot { transform: scale(1.2); }
 
 #calculator-tab .step-label,
 .step-label {
@@ -3287,28 +3277,25 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   color: var(--neuro-text);
 }
 
-/* ✅ FIXED: Connector now properly connects dots */
 #calculator-tab .step-connector,
 .step-connector {
   position: absolute;
-  top: 5px; /* Align with center of dot */
-  left: calc(50% + 5px); /* Start from right edge of current dot */
-  width: calc(100% - 10px); /* Span to next dot, accounting for dot width */
-  height: 2px;
-  background: #ddd;
-  z-index: 1;
-  transition: background var(--transition-normal);
+  top: 5px;
+  left: 50%;
+  width: 100%;
+  height: 1.5px;
+  background: var(--neuro-bg);
+  box-shadow: var(--shadow-inset-sm);
+  z-index: -1;
 }
 
 #calculator-tab .step-item:last-child .step-connector,
-.step-item:last-child .step-connector { 
-  display: none; 
-}
+.step-item:last-child .step-connector { display: none; }
 
 #calculator-tab .step-item.completed .step-connector,
 .step-item.completed .step-connector {
   background: linear-gradient(90deg, var(--neuro-accent), var(--neuro-accent-light));
-  box-shadow: 0 0 4px var(--neuro-accent);
+  box-shadow: none;
 }
 
 #calculator-tab .card {
