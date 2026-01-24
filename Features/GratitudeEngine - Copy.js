@@ -7,9 +7,9 @@ export default class GratitudeEngine {
 
   constructor(app) {
     this.app = app;
+    this.currentEntries = [];
     this.maxEntries = 10;
     this.cachedEntries = null;
-    this.gratitudeCount = 1;
   }
 
   /* ----------  data helpers  ---------- */
@@ -44,29 +44,6 @@ export default class GratitudeEngine {
     }[m]));
   }
 
-  /* ----------  parse gratitudes from textarea  ---------- */
-  parseGratitudes(text) {
-    const lines = text.split('\n').filter(line => line.trim());
-    const gratitudes = [];
-    
-    lines.forEach(line => {
-      // Remove leading number and period (e.g., "1. " or "2. ")
-      const cleaned = line.replace(/^\d+\.\s*/, '').trim();
-      if (cleaned) {
-        gratitudes.push(cleaned);
-      }
-    });
-    
-    return gratitudes;
-  }
-
-  /* ----------  count current gratitudes  ---------- */
-  countCurrentGratitudes() {
-    const textarea = document.getElementById('gratitude-input');
-    if (!textarea) return 0;
-    return this.parseGratitudes(textarea.value).length;
-  }
-
   /* ----------  render  ---------- */
   render() {
     const tab = document.getElementById('gratitude-tab');
@@ -90,7 +67,7 @@ export default class GratitudeEngine {
         <div class="card">
           <div class="flex items-center justify-between" style="margin-bottom: 2rem;">
             <h3 class="text-2xl font-bold" style="color: var(--neuro-text);">My Gratitudes for Today</h3>
-            <span class="badge ${todayTotal >= this.maxEntries ? 'badge-success' : 'badge-primary'}"><span id="today-counter">${todayTotal}</span> / ${this.maxEntries} (Quest)</span>
+            <span class="badge ${todayTotal >= this.maxEntries ? 'badge-success' : 'badge-primary'}">${todayTotal} / ${this.maxEntries} (Quest)</span>
           </div>
 
           ${todayTotal >= this.maxEntries ? `
@@ -99,13 +76,11 @@ export default class GratitudeEngine {
             </div>
           ` : ''}
 
-          <form id="gratitude-form" style="margin-bottom: 1rem;">
-            <textarea id="gratitude-input" class="form-input" rows="8" style="resize: vertical;font-family: monospace;"
-             placeholder="Today, I am Grateful for..." required>1. </textarea>
-            
-            <div class="flex gap-3" style="margin-top: 1rem;">
-              <button type="button" id="add-one-more-btn" class="btn btn-secondary flex-1">➕ Add 1 More</button>
-              <button type="submit" class="btn btn-primary flex-1">💾 Save my Gratitudes</button>
+          <form id="gratitude-form" style="margin-bottom: 2rem;">
+            <div class="flex space-x-3">
+              <textarea id="gratitude-input" class="form-input flex-1" rows="5" style="resize: none;"
+               placeholder="Today, I am Grateful for..." required></textarea>
+              <button type="submit" class="btn btn-primary">Add</button>
             </div>
           </form>
 
@@ -120,6 +95,23 @@ export default class GratitudeEngine {
                 `).join('')}
             </div>
           </div>
+
+          <div class="space-y-3" id="current-entries">
+            ${this.currentEntries.map((entry, index) => `
+              <div class="flex items-start gap-3 p-4 rounded-lg" style="background: rgba(0,0,0,.05);">
+                <span class="text-green-400 text-xl flex-shrink-0">💚</span>
+                <p class="flex-1" style="color: var(--neuro-text);">${this.escapeHtml(entry)}</p>
+                <div class="flex gap-2" style="color: var(--neuro-text-light);">
+                  <button data-action="edit" data-index="${index}" title="Edit" class="hover:text-white">✏️</button>
+                  <button data-action="delete" data-index="${index}" title="Delete" class="hover:text-red-400">🗑️</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          ${this.currentEntries.length > 0 ? `
+            <button id="save-journal-btn" class="btn btn-primary w-full" style="margin-top: 1.5rem;">💾 Save Journal Entry</button>
+          ` : ''}
         </div>
 
         <div class="card">
@@ -175,7 +167,6 @@ export default class GratitudeEngine {
 `;
 
     this.attachHandlers();
-    this.updateCounter();
   }
 
   /* ----------  handlers with event delegation  ---------- */
@@ -197,6 +188,12 @@ export default class GratitudeEngine {
       const timestamp = target.dataset.timestamp;
 
       switch(action) {
+        case 'edit':
+          this.editEntry(index);
+          break;
+        case 'delete':
+          this.removeEntry(index);
+          break;
         case 'edit-history':
           this.editHistoryEntry(timestamp, index);
           break;
@@ -210,15 +207,16 @@ export default class GratitudeEngine {
 
     // Form submission
     const form = document.getElementById('gratitude-form');
-    form?.addEventListener('submit', (e) => this.save(e));
+    form?.addEventListener('submit', (e) => this.addEntry(e));
 
-    // Add one more button
-    const addMoreBtn = document.getElementById('add-one-more-btn');
-    addMoreBtn?.addEventListener('click', () => this.addOneMore());
-
-    // Update counter on input
+    // Enter key handling
     const input = document.getElementById('gratitude-input');
-    input?.addEventListener('input', () => this.updateCounter());
+    input?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { 
+        e.preventDefault(); 
+        form.dispatchEvent(new Event('submit', { cancelable: true })); 
+      }
+    });
 
     // Inspiration buttons
     const grid = document.getElementById('inspiration-grid');
@@ -226,55 +224,50 @@ export default class GratitudeEngine {
       const btn = e.target.closest('.suggestion-btn');
       if (btn) {
         const text = btn.dataset.text;
-        const textarea = document.getElementById('gratitude-input');
-        const currentCount = this.countCurrentGratitudes();
-        
-        // Find the last numbered line
-        const lines = textarea.value.split('\n');
-        const lastLine = lines[lines.length - 1].trim();
-        
-        // If last line is empty or just a number, replace it
-        if (lastLine === '' || /^\d+\.\s*$/.test(lastLine)) {
-          lines[lines.length - 1] = `${currentCount + 1}. ${text}`;
-          textarea.value = lines.join('\n');
-        } else {
-          // Otherwise add to current line
-          textarea.value = textarea.value.trim() + ' ' + text;
-        }
-        
-        textarea.focus();
-        this.updateCounter();
+        input.value = text;
+        input.focus();
       }
     });
+
+    // Save button
+    const saveBtn = document.getElementById('save-journal-btn');
+    saveBtn?.addEventListener('click', () => this.save());
   }
 
-  /* ----------  add one more gratitude  ---------- */
-  addOneMore() {
-    const textarea = document.getElementById('gratitude-input');
-    if (!textarea) return;
-    
-    const currentCount = this.countCurrentGratitudes();
-    const nextNumber = currentCount + 1;
-    
-    // Add new numbered line
-    const currentValue = textarea.value.trim();
-    textarea.value = currentValue + (currentValue ? '\n' : '') + `${nextNumber}. `;
-    
-    // Focus and move cursor to end
-    textarea.focus();
-    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
-    
-    this.updateCounter();
+  addEntry(event) {
+    event.preventDefault();
+    const input = document.getElementById('gratitude-input');
+    const entry = input.value.trim();
+    if (entry) {
+      this.currentEntries.push(entry);
+      input.value = '';
+      this.cachedEntries = null; // Invalidate cache
+      this.render();
+    }
   }
 
-  /* ----------  update counter  ---------- */
-  updateCounter() {
-    const counterSpan = document.getElementById('today-counter');
-    if (!counterSpan) return;
-    
-    const currentCount = this.countCurrentGratitudes();
-    const todayTotal = this.getTodayTotal();
-    counterSpan.textContent = todayTotal + currentCount;
+  removeEntry(index) {
+    this.currentEntries.splice(index, 1);
+    this.cachedEntries = null;
+    this.render();
+  }
+
+  editEntry(index) {
+    const original = this.currentEntries[index];
+    NeumorphicModal.showPrompt(
+      'Edit your gratitude entry:',
+      original,
+      (updated) => {
+        this.currentEntries[index] = updated;
+        this.cachedEntries = null;
+        this.render();
+      },
+      {
+        title: 'Edit Gratitude',
+        icon: '💚',
+        placeholder: 'I am grateful for...'
+      }
+    );
   }
 
   editHistoryEntry(ts, idx) {
@@ -321,23 +314,15 @@ export default class GratitudeEngine {
     );
   }
 
-  /* ----------  save directly  ---------- */
-  save(event) {
-    event.preventDefault();
+  /* ----------  gamification save  ---------- */
+  save() {
+    if (this.currentEntries.length === 0) return;
     
-    const textarea = document.getElementById('gratitude-input');
-    const gratitudes = this.parseGratitudes(textarea.value);
-    
-    if (gratitudes.length === 0) {
-      this.app.showToast('⚠️ Please write at least one gratitude', 'warning');
-      return;
-    }
-    
-    this.app.state.addEntry(GratitudeEngine.TYPE, { entries: gratitudes });
-    this.app.showToast(`✅ ${gratitudes.length} gratitude${gratitudes.length > 1 ? 's' : ''} saved!`, 'success');
+    this.app.state.addEntry(GratitudeEngine.TYPE, { entries: this.currentEntries });
+    this.app.showToast('✅ Gratitude journal saved!', 'success');
 
     if (this.app.gamification) {
-      this.app.gamification.progressQuest('daily', 'gratitude_entry', gratitudes.length);
+    this.app.gamification.progressQuest('daily', 'gratitude_entry', this.currentEntries.length);
     }
 
     const total = this.app.state.data.gratitudeEntries?.length || 0;
@@ -348,8 +333,7 @@ export default class GratitudeEngine {
       if (total === 50) gm.grantAchievement({ id: 'gratitude_50', name: 'Gratitude Master', xp: 250, icon: '🌟', inspirational: '50 entries! Your gratitude practice is transformative!' });
     }
 
-    // Reset textarea
-    textarea.value = '1. ';
+    this.currentEntries = [];
     this.cachedEntries = null;
     this.render();
   }
