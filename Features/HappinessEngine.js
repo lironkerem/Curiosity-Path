@@ -303,7 +303,7 @@ class HappinessEngine {
         </div>
       ` : ''}
 
-main class="space-y-6">
+<main class="space-y-6">
   ${this._renderCard('affirm-card', '✨', 'Positive Affirmation', `
     <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
       "${this.currentAffirmation}"
