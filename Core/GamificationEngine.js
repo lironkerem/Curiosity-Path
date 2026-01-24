@@ -1,6 +1,6 @@
 // =========================================================
-//  GamificationEngine.js – PATCHED: Fixed duplicate toasts
-//  Part 1: Core Setup, State Management, Event System
+//  GamificationEngine.js – Complete Integrated Version
+//  Core Setup, State Management, Event System, XP/Karma/Levels, Badges, Quests
 // =========================================================
 
 export class GamificationEngine {
@@ -11,10 +11,6 @@ export class GamificationEngine {
     this.badgeCheckQueue = new Set();
     this.saveTimeout = null;
     this.initializeQuests();
-
-    // FIXED: Removed immediate checkAllBadges() call
-    // Badge checks will happen naturally through user interactions
-    // The initial call was firing before listeners were ready
   }
 
   /* ---------------------------------------------------------
@@ -374,12 +370,6 @@ export class GamificationEngine {
     clearTimeout(this.saveTimeout);
     this.listeners = {};
   }
-}
-
-// =========================================================
-//  GamificationEngine.js – Part 2
-//  XP, Karma, Levels, Badge Checking
-// =========================================================
 
   /* ---------------------------------------------------------
      LIFETIME COUNTERS (optimized with category checks)
@@ -473,7 +463,6 @@ export class GamificationEngine {
     this.saveState();
   }
 
-  /* FIXED: addBoth now properly sends skipToast flag */
   addBoth(xp, karma, source = 'general') {
     if (!xp && !karma) return;
     
@@ -629,12 +618,8 @@ export class GamificationEngine {
       super_day: { name: 'Super Day', icon: '💫', description: 'Gratitude + journal + energy + meditation in one day', xp: 50, rarity: 'rare', category: 'cross' },
       complete_explorer: { name: 'Complete Explorer', icon: '🗺️', description: 'Use every main feature at least once', xp: 100, rarity: 'epic', category: 'cross' },
       renaissance_soul: { name: 'Renaissance Soul', icon: '🎭', description: '≥ 10 actions in 5+ different features', xp: 150, rarity: 'epic', category: 'cross' }
-    }
-}
-// =========================================================
-//  GamificationEngine.js – Part 3 (FINAL)
-//  Badge Checking, Quest Management, Utility Functions
-// =========================================================
+    };
+  }
 
   /* ---------------------------------------------------------
      OPTIMIZED BADGE CHECKING (category-based)
