@@ -15,7 +15,7 @@
     "personal-growth"
   ],
   "scripts": {
-    "build": "tailwindcss -i ./CSS/input.css -o ./CSS/tailwind-output.css --minify",
+    "build": "echo 'No build step needed'",
     "dev": "tailwindcss -i ./CSS/input.css -o ./CSS/tailwind-output.css --watch"
   },
   "engines": {
