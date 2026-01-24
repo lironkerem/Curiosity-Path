@@ -340,13 +340,7 @@ export default class GratitudeEngine {
       this.app.gamification.progressQuest('daily', 'gratitude_entry', gratitudes.length);
     }
 
-    const total = this.app.state.data.gratitudeEntries?.length || 0;
-    const gm = this.app.gamification;
-    if (gm) {
-      if (total === 1) gm.grantAchievement({ id: 'first_gratitude', name: 'Grateful Heart', xp: 50, icon: '💚', inspirational: 'You\'ve begun the journey of gratitude!' });
-      if (total === 10) gm.grantAchievement({ id: 'gratitude_10', name: 'Gratitude Apprentice', xp: 100, icon: '🙏', inspirational: '10 gratitude entries - abundance flows to you!' });
-      if (total === 50) gm.grantAchievement({ id: 'gratitude_50', name: 'Gratitude Master', xp: 250, icon: '🌟', inspirational: '50 entries! Your gratitude practice is transformative!' });
-    }
+    // Badge checking happens automatically via gamification.checkBadgeCategory('gratitude')
 
     // Reset textarea
     textarea.value = '1. ';
