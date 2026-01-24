@@ -6,8 +6,8 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#e0e5ec",
-  "theme_color": "#3F7652",
+  "background_color": "#c4ad91",
+  "theme_color": "#6b9b37",
   "dir": "ltr",
   "lang": "en",
   "categories": ["lifestyle", "health", "wellness"],
@@ -29,7 +29,7 @@
       "type": "image/png"
     }
   ],
-"notification": {
+  "notification": {
     "badge": "Public/Icons/badge-96x96.png"
   }
 }
