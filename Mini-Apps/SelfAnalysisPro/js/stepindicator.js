@@ -41,9 +41,11 @@ export class StepIndicator {
         item.classList.add('active');
       }
       
-      // ✅ FIX: Draw connector when CURRENT step is completed, not next step
+      // ✅ FIX: Draw connector when NEXT step is active (line connects to active step)
       if (connector) {
-        if (this.completedSteps.has(stepNum)) {
+        const nextStepNum = stepNum + 1;
+        // Draw line if current step is completed AND next step is active or completed
+        if (this.completedSteps.has(stepNum) && (this.currentStep >= nextStepNum || this.completedSteps.has(nextStepNum))) {
           connector.style.background = 'var(--primary-color)';
         } else {
           connector.style.background = '#ddd';
