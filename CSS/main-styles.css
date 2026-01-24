@@ -3287,13 +3287,12 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   color: var(--neuro-text);
 }
 
-/* ✅ FIXED: Connector now properly connects dots */
 #calculator-tab .step-connector,
 .step-connector {
   position: absolute;
-  top: 5px; /* Align with center of dot */
-  left: calc(50% + 5px); /* Start from right edge of current dot */
-  width: calc(100% - 10px); /* Span to next dot, accounting for dot width */
+  top: 5px;
+  left: calc(50% + 5px);
+  width: calc(100% - 10px);
   height: 2px;
   background: #ddd;
   z-index: 1;
