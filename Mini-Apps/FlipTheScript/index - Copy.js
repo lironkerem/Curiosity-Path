@@ -123,22 +123,22 @@ export default class FlipTheScriptApp {
       </div>
 
       <!--  Saved Flips  -->
-      <div class="card calc-expandable-card" id="saved-section">
-        <div class="calc-expandable-header collapse-toggle" aria-expanded="false">
-          <span class="chevron collapse-icon">›</span>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--neuro-accent); flex-shrink: 0;">
-            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-          </svg>
-          <h3 style="color:var(--neuro-text);margin:0;font-size:1.5rem;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,0.1);letter-spacing:0.025em;">Your Saved Flips</h3>
-        </div>
-        <div class="calc-expandable-content collapse-content collapsed">
-          <div class="saved-controls" style="margin-bottom: 1rem;">
-            <input type="text" id="search-saved" class="search-input w-full" placeholder="🔍 Search saved flips...">
-          </div>
-          <ul id="saved-list" style="margin-bottom: 1rem;"></ul>
-          <div class="backup-restore flex gap-3">
-            <button id="backup-id" class="btn flex-1">📥 Backup</button>
-            <button id="restore-id" class="btn flex-1">📤 Restore</button>
+      <div class="card" style="padding:2rem;margin-bottom: 2rem;">
+        <div class="collapsible-card" id="saved-section">
+          <button class="collapse-toggle" aria-expanded="false">
+            <span class="collapse-icon">▶</span>
+            <h2>💾 Your Saved Flips</h2>
+          </button>
+          <div class="collapse-content collapsed">
+            <!--  full-width content  -->
+            <div class="saved-controls" style="margin-bottom: 1rem;">
+              <input type="text" id="search-saved" class="search-input w-full" placeholder="🔍 Search saved flips...">
+            </div>
+            <ul id="saved-list" style="margin-bottom: 1rem;"></ul>
+            <div class="backup-restore flex gap-3">
+              <button id="backup-id" class="btn flex-1">📥 Backup</button>
+              <button id="restore-id" class="btn flex-1">📤 Restore</button>
+            </div>
           </div>
         </div>
       </div>
@@ -172,15 +172,6 @@ export default class FlipTheScriptApp {
     .flex{display:flex;}
     .flex-1{flex:1 1 0%;}
     .gap-3{gap:0.75rem;}
-    
-    /* Collapsible styles matching Energy tracker */
-    .calc-expandable-header { padding: 24px; cursor: pointer; display: flex; align-items: center; gap: 12px; }
-    .calc-expandable-header h3 { margin: 0; font-size: 1.1rem; color: var(--neuro-text); }
-    .chevron { font-size: 1.5rem; transition: transform var(--transition-normal); color: var(--neuro-accent); }
-    .calc-expandable-card[aria-expanded="true"] .chevron { transform: rotate(90deg); }
-    .calc-expandable-content { max-height: 0; overflow: hidden; transition: max-height var(--transition-slow); }
-    .calc-expandable-card:not(.collapsed) .calc-expandable-content,
-    .calc-expandable-header[aria-expanded="true"] + .calc-expandable-content { max-height: 5000px; padding: 0 24px 24px; }
   </style>
 `;
 
