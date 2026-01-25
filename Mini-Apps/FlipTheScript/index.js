@@ -131,7 +131,7 @@ export default class FlipTheScriptApp {
           </svg>
           <h3 style="color:var(--neuro-text);margin:0;font-size:1.5rem;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,0.1);letter-spacing:0.025em;">Your Saved Flips</h3>
         </button>
-        <div class="collapse-content collapsed" style="max-height: 0; overflow: hidden; transition: max-height var(--transition-slow);">
+        <div class="collapse-content collapsed">
           <div style="padding: 0 24px 24px;">
             <div class="saved-controls" style="margin-bottom: 1rem;">
               <input type="text" id="search-saved" class="search-input w-full" placeholder="🔍 Search saved flips...">
@@ -176,9 +176,22 @@ export default class FlipTheScriptApp {
     .gap-3{gap:0.75rem;}
     
     /* Collapsible styles */
-    .chevron { font-size: 1.5rem; transition: transform var(--transition-normal); color: var(--neuro-accent); }
-    .collapse-toggle[aria-expanded="true"] .chevron { transform: rotate(90deg); }
-    .collapse-content.collapsed { max-height: 0 !important; }
+    .collapse-content { 
+      max-height: 5000px; 
+      overflow: hidden; 
+      transition: max-height var(--transition-slow); 
+    }
+    .collapse-content.collapsed { 
+      max-height: 0 !important; 
+    }
+    .chevron { 
+      font-size: 1.5rem; 
+      transition: transform var(--transition-normal); 
+      color: var(--neuro-accent); 
+    }
+    .collapse-toggle[aria-expanded="true"] .chevron { 
+      transform: rotate(90deg); 
+    }
   </style>
 `;
 
