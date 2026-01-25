@@ -1,12 +1,4 @@
 // Mini-Apps/FlipTheScript/index.js
-let cssCache = null;
-
-async function loadCSS() {
-  if (cssCache) return cssCache;
-  const res = await fetch(new URL('../../../CSS/neumorphic-theme.css', import.meta.url));
-  cssCache = await res.text();
-  return cssCache;
-}
 
 export default class FlipTheScriptApp {
   constructor(app) {
@@ -14,24 +6,8 @@ export default class FlipTheScriptApp {
   }
 
   async render() {
-    /* 1.  inject global neumorphic styles once */
-    if (!document.querySelector('#flip-the-script-styles')) {
-      const style = document.createElement('style');
-      style.id = 'flip-the-script-styles';
-      style.textContent = await loadCSS();
-      document.head.appendChild(style);
-    }
 
-    /* 2.  Google font for Amatic SC */
-    if (!document.querySelector('#flip-script-fonts')) {
-      const fontLink = document.createElement('link');
-      fontLink.id = 'flip-script-fonts';
-      fontLink.rel = 'stylesheet';
-      fontLink.href = 'https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap';
-      document.head.appendChild(fontLink);
-    }
-
-    /* 3.  load affirmations data */
+    /* 2. load affirmations data */
     if (!window.affirmations) {
       try {
         const affModule = await import('./data.js');
@@ -195,7 +171,7 @@ export default class FlipTheScriptApp {
   </style>
 `;
 
-    /* 6.  mount behaviour */
+    /* 6. mount behaviour */
     import('./ui.js').then(m => m.mountUI(this.app));
   }
 }
