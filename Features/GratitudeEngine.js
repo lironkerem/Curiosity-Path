@@ -132,40 +132,41 @@ export default class GratitudeEngine {
             <h3 style="color:var(--neuro-text);margin:0;font-size:1.5rem;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,0.1);letter-spacing:0.025em;">My Gratitude Lists</h3>
           </div>
           <div class="calc-expandable-content">
-          ${allEntries.length === 0 ? `
-            <div class="text-center py-12" style="color: var(--neuro-text-light);">
-              <p class="text-4xl" style="margin-bottom: 1rem;">📖</p>
-              <p>Your gratitude list will appear here</p>
-            </div>
-          ` : `
-            <div class="space-y-6" id="history-entries">
-              ${allEntries.slice(0, 30).map(entry => {
-                const date = new Date(entry.timestamp);
-                const dateStr = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                return `
-                  <div class="journal-entry" style="background: rgba(102,126,234,0.05); border-radius: 12px; padding: 20px; border-left: 4px solid var(--neuro-success);">
-                    <div class="text-sm" style="color: var(--neuro-text-light);margin-bottom: 0.75rem;">${dateStr}</div>
-                    <div class="space-y-2">
-                      ${entry.entries.map((item, idx) => `
-                        <div class="flex items-start gap-2">
-                          <span class="text-green-400" style="min-width: 20px;">${idx + 1}.</span>
-                          <p class="flex-1" style="color: var(--neuro-text);">${this.escapeHtml(item)}</p>
-                          <div class="flex gap-2" style="color: var(--neuro-text-light);">
-                            <button data-action="edit-history" data-timestamp="${entry.timestamp}" data-index="${idx}" title="Edit" class="hover:text-white">✏️</button>
-                            <button data-action="delete-history" data-timestamp="${entry.timestamp}" data-index="${idx}" title="Delete" class="hover:text-red-400">🗑️</button>
-                          </div>
-                        </div>
-                      `).join('')}
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-            ${allEntries.length > 30 ? `
-              <div class="text-center" style="margin-top: 1.5rem;">
-                <p class="text-sm" style="color: var(--neuro-text-light);">Showing 30 most recent entries</p>
+            ${allEntries.length === 0 ? `
+              <div class="text-center py-12" style="color: var(--neuro-text-light);">
+                <p class="text-4xl" style="margin-bottom: 1rem;">📖</p>
+                <p>Your gratitude list will appear here</p>
               </div>
-            ` : ''}
+            ` : `
+              <div class="space-y-6" id="history-entries">
+                ${allEntries.slice(0, 30).map(entry => {
+                  const date = new Date(entry.timestamp);
+                  const dateStr = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                  return `
+                    <div class="journal-entry" style="background: rgba(102,126,234,0.05); border-radius: 12px; padding: 20px; border-left: 4px solid var(--neuro-success);">
+                      <div class="text-sm" style="color: var(--neuro-text-light);margin-bottom: 0.75rem;">${dateStr}</div>
+                      <div class="space-y-2">
+                        ${entry.entries.map((item, idx) => `
+                          <div class="flex items-start gap-2">
+                            <span class="text-green-400" style="min-width: 20px;">${idx + 1}.</span>
+                            <p class="flex-1" style="color: var(--neuro-text);">${this.escapeHtml(item)}</p>
+                            <div class="flex gap-2" style="color: var(--neuro-text-light);">
+                              <button data-action="edit-history" data-timestamp="${entry.timestamp}" data-index="${idx}" title="Edit" class="hover:text-white">✏️</button>
+                              <button data-action="delete-history" data-timestamp="${entry.timestamp}" data-index="${idx}" title="Delete" class="hover:text-red-400">🗑️</button>
+                            </div>
+                          </div>
+                        `).join('')}
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+              ${allEntries.length > 30 ? `
+                <div class="text-center" style="margin-top: 1.5rem;">
+                  <p class="text-sm" style="color: var(--neuro-text-light);">Showing 30 most recent entries</p>
+                </div>
+              ` : ''}
+            `}
           </div>
         </div>
       </div>
