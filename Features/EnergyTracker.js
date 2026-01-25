@@ -163,29 +163,11 @@ class EnergyEngineEnhanced {
       }
       
       this.app.showToast(`✅ ${period === 'day' ? 'Day' : 'Night'} energy check-in saved!`, 'success');
-      this.checkAchievements();
       this.render();
     } catch (err) {
       console.error('Error saving checkin:', err);
       this.app.showToast('❌ Failed to save check-in', 'error');
     }
-  }
-
-  checkAchievements() {
-    const gm = this.app.gamification;
-    if (!gm) return;
-    
-    const total = this.app.state.data.energyEntries?.length || 0;
-    const achievements = [
-      { t: 1, id: 'first_energy', n: 'Energy Awareness', xp: 50, ic: '⚡', insp: 'You\'ve begun tracking your energy!' },
-      { t: 10, id: 'energy_10', n: 'Energy Explorer', xp: 100, ic: '🌟', insp: '10 check-ins! Your awareness grows!' },
-      { t: 50, id: 'energy_50', n: 'Energy Master', xp: 250, ic: '✨', insp: '50 check-ins! You understand your energy patterns!' },
-      { t: 100, id: 'energy_100', n: 'Energy Sage', xp: 500, ic: '🔮', insp: '100 check-ins! You are a master of energy flow!' }
-    ];
-    
-    achievements.forEach(a => {
-      if (total === a.t) gm.grantAchievement({ id: a.id, name: a.n, xp: a.xp, icon: a.ic, inspirational: a.insp });
-    });
   }
 
   getWeeklyData() {
@@ -328,7 +310,14 @@ class EnergyEngineEnhanced {
           </div>
 
           <div class="card calc-expandable-card" id="journal-collapsible-card">
-            <div class="calc-expandable-header" id="journal-collapsible-header"><span class="chevron">›</span><h3 class="text-2xl font-bold" style="color:var(--neuro-text);margin-bottom: 1.5rem;">📖 My Energy Trackings Log</h3></div>
+            <div class="calc-expandable-header" id="journal-collapsible-header">
+              <span class="chevron">›</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--neuro-accent); flex-shrink: 0;">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg>
+              <h3 style="color:var(--neuro-text);margin:0;font-size:1.25rem;font-weight:600;">My Energy Trackings Log</h3>
+            </div>
             <div class="calc-expandable-content">
               <div style="margin-bottom: 2rem;"><input type="text" id="journal-search" class="form-input" placeholder="Search notes or moods..." value="${this.searchQuery}"/></div>
               <div class="space-y-4">
@@ -376,7 +365,6 @@ class EnergyEngineEnhanced {
     const notes = this.getElement('energy-notes');
     if (notes) notes.addEventListener('input', e => this.currentCheckin.notes = e.target.value);
 
-    // single bound handler – remove old ones first
     this._boundMoodHandler = this._boundMoodHandler || ((e) => {
       const mood = e.currentTarget.dataset.mood;
       const idx = this.currentCheckin.moodTags.indexOf(mood);
