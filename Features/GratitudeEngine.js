@@ -123,7 +123,13 @@ export default class GratitudeEngine {
         </div>
 
         <div class="card">
-          <h3 class="text-2xl font-bold" style="color: var(--neuro-text);margin-bottom: 1.5rem;">📖 My Gratitude Lists</h3>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--neuro-accent); flex-shrink: 0;">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            <h3 style="color:var(--neuro-text);margin:0;font-size:1.5rem;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,0.1);letter-spacing:0.025em;">My Gratitude Lists</h3>
+          </div>
           ${allEntries.length === 0 ? `
             <div class="text-center py-12" style="color: var(--neuro-text-light);">
               <p class="text-4xl" style="margin-bottom: 1rem;">📖</p>
