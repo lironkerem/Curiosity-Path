@@ -312,11 +312,11 @@ class EnergyEngineEnhanced {
           <div class="card calc-expandable-card" id="journal-collapsible-card">
             <div class="calc-expandable-header" id="journal-collapsible-header">
               <span class="chevron">›</span>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--neuro-accent); flex-shrink: 0;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--neuro-accent); flex-shrink: 0;">
                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
               </svg>
-              <h3 style="color:var(--neuro-text);margin:0;font-size:1.25rem;font-weight:600;">My Energy Trackings Log</h3>
+              <h3 style="color:var(--neuro-text);margin:0;font-size:1.5rem;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,0.1);letter-spacing:0.025em;">My Energy Trackings Log</h3>
             </div>
             <div class="calc-expandable-content">
               <div style="margin-bottom: 2rem;"><input type="text" id="journal-search" class="form-input" placeholder="Search notes or moods..." value="${this.searchQuery}"/></div>
