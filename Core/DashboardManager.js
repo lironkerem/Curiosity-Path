@@ -1,13 +1,15 @@
-// DashboardManager.js - Complete Patched Version
-// - Mobile 3×2 badge grid (6 badges preview)
-// - Quest structure with inspirational + target text
-// - Full badge support including admin badges
+/**
+ * DashboardManager.js - Complete Optimized Version
+ * Manages the user dashboard including gamification, quests, badges, and wellness tracking
+ * @author Aanandoham (Liron Kerem)
+ * @copyright 2026
+ */
 
 import { InquiryEngine } from '../Features/InquiryEngine.js';
 import DailyCards from '../Features/DailyCards.js';
 
 const CONSTANTS = {
-  BADGES_PREVIEW_COUNT: 9,          // Desktop shows 9, mobile shows 6 (dynamic)
+  BADGES_PREVIEW_COUNT: 9,
   BADGE_GRID_COLUMNS: 3,
   WELLNESS_POLL_INTERVAL: 3000,
   COUNTDOWN_UPDATE_INTERVAL: 1000,
@@ -47,7 +49,33 @@ const CONSTANTS = {
   }
 };
 
+const UI_CONSTANTS = {
+  MOBILE_BREAKPOINT: 768,
+  BADGE_PREVIEW_DESKTOP: 9,
+  BADGE_PREVIEW_MOBILE: 6,
+  ANIMATION_FRAME_DELAY: 0,
+  DAILY_BONUS_XP: 50
+};
+
+const KNOWN_ADMIN_BADGE_IDS = new Set([
+  'early_supporter',
+  'vip_member', 
+  'beta_tester',
+  'spiritual_guide',
+  'community_hero'
+]);
+
 export default class DashboardManager {
+  /** @type {Object} Fallback quote when QuotesData unavailable */
+  static FALLBACK_QUOTE = {
+    text: 'What you think, you become. What you feel, you attract. What you imagine, you create.',
+    author: 'Buddha'
+  };
+
+  /**
+   * Creates a new DashboardManager instance
+   * @param {Object} app - Main application instance
+   */
   constructor(app) {
     this.app = app;
     this.currentQuote = null;
@@ -55,6 +83,15 @@ export default class DashboardManager {
     this.intervals = [];
     this.cachedElements = {};
     this.lastWellnessXP = {};
+    
+    // Cache global function references
+    this.globals = {
+      QuotesData: () => window.QuotesData,
+      getSelfResetStats: () => window.getSelfResetStats,
+      getFullBodyScanStats: () => window.getFullBodyScanStats,
+      getNervousResetStats: () => window.getNervousResetStats,
+      getTensionSweepStats: () => window.getTensionSweepStats
+    };
     
     if (window.app) window.app.dailyCards = this.dailyCards;
     
@@ -82,6 +119,13 @@ export default class DashboardManager {
 
   /* ---------- Utility Methods ---------- */
   
+  /**
+   * Debounces a function call
+   * @private
+   * @param {Function} func - Function to debounce
+   * @param {number} wait - Wait time in milliseconds
+   * @returns {Function} Debounced function
+   */
   debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -94,6 +138,12 @@ export default class DashboardManager {
     };
   }
 
+  /**
+   * Flips a card with animation and updates content
+   * @private
+   * @param {string} cardId - ID of the card element
+   * @param {string} newHtml - New HTML content
+   */
   _flipCard(cardId, newHtml) {
     const card = document.getElementById(cardId);
     if (!card) return;
@@ -114,6 +164,11 @@ export default class DashboardManager {
     inner.addEventListener('transitionend', onEnd);
   }
 
+  /**
+   * Gets next reset times for daily, weekly, and monthly periods
+   * @private
+   * @returns {Object} Object with daily, weekly, monthly Date objects
+   */
   _getNextResetTimes() {
     const now = new Date();
     
@@ -131,6 +186,12 @@ export default class DashboardManager {
     return { daily, weekly, monthly };
   }
 
+  /**
+   * Formats milliseconds into countdown string
+   * @private
+   * @param {number} ms - Milliseconds to format
+   * @returns {string} Formatted countdown (e.g., "01d 12h 34m 56s")
+   */
   _formatCountdown(ms) {
     const totalSec = Math.max(0, Math.floor(ms / 1000));
     const d = Math.floor(totalSec / 86400);
@@ -147,26 +208,40 @@ export default class DashboardManager {
     );
     return parts.join(' ');
   }
-
-  /* ---------- Countdown & Intervals ---------- */
+/* ---------- Countdown & Intervals ---------- */
   
+  /**
+   * Starts countdown timer interval
+   * @private
+   */
   startCountdown() {
     const interval = setInterval(() => this.updateCountdownDisplays(), CONSTANTS.COUNTDOWN_UPDATE_INTERVAL);
     this.intervals.push(interval);
   }
 
+  /**
+   * Updates all countdown displays (daily, weekly, monthly)
+   * Optimized with visibility check and batched DOM updates
+   * @private
+   */
   updateCountdownDisplays() {
     if (!this.app.gamification) return;
+    if (document.hidden) return; // Skip if page not visible
     
     try {
       const resets = this._getNextResetTimes();
       const now = new Date();
+      const updates = {};
       
+      // Calculate all updates first
       ['daily', 'weekly', 'monthly'].forEach(type => {
+        updates[type] = this._formatCountdown(resets[type] - now);
+      });
+      
+      // Single reflow with batched DOM updates
+      Object.entries(updates).forEach(([type, text]) => {
         const el = document.getElementById(`countdown-${type}`);
-        if (el) {
-          el.textContent = this._formatCountdown(resets[type] - now);
-        }
+        if (el) el.textContent = text;
       });
     } catch (error) {
       console.error('Error updating countdown:', error);
@@ -175,6 +250,10 @@ export default class DashboardManager {
 
   /* ---------- Quest Listeners ---------- */
   
+  /**
+   * Sets up gamification quest event listeners
+   * @private
+   */
   setupQuestListeners() {
     if (!this.app.gamification) return;
     
@@ -201,12 +280,16 @@ export default class DashboardManager {
     this.app.gamification.on('questProgress', () => this.render());
     
     this.app.gamification.on('dailyQuestsComplete', () => {
-      this.app.showToast('🌟 All Daily Quests Complete! +50 Bonus XP 🌟', 'success');
+      this.app.showToast(`🌟 All Daily Quests Complete! +${UI_CONSTANTS.DAILY_BONUS_XP} Bonus XP 🌟`, 'success');
     });
     
     this.checkDailyReset();
   }
 
+  /**
+   * Checks if daily quests need to be reset
+   * @private
+   */
   checkDailyReset() {
     try {
       const today = new Date().toDateString();
@@ -223,19 +306,23 @@ export default class DashboardManager {
 
   /* ---------- Wellness Tracking ---------- */
   
+  /**
+   * Sets up wellness tool tracking with XP/Karma rewards
+   * @private
+   */
   setupWellnessTracking() {
     const tools = [
-      { name: 'Self Reset', getStats: window.getSelfResetStats },
-      { name: 'Full Body Scan', getStats: window.getFullBodyScanStats },
-      { name: 'Nervous System Reset', getStats: window.getNervousResetStats },
-      { name: 'Tension Sweep', getStats: window.getTensionSweepStats }
+      { name: 'Self Reset', getStats: this.globals.getSelfResetStats },
+      { name: 'Full Body Scan', getStats: this.globals.getFullBodyScanStats },
+      { name: 'Nervous System Reset', getStats: this.globals.getNervousResetStats },
+      { name: 'Tension Sweep', getStats: this.globals.getTensionSweepStats }
     ];
     
     // Initialize tracking
     tools.forEach(tool => {
-      if (tool.getStats) {
+      if (tool.getStats()) {
         try {
-          const stats = tool.getStats();
+          const stats = tool.getStats()();
           this.lastWellnessXP[tool.name] = stats.xp || 0;
         } catch (error) {
           console.error(`Error initializing ${tool.name}:`, error);
@@ -246,10 +333,11 @@ export default class DashboardManager {
     
     const interval = setInterval(() => {
       tools.forEach(tool => {
-        if (!tool.getStats) return;
+        const getStats = tool.getStats();
+        if (!getStats) return;
         
         try {
-          const stats = tool.getStats();
+          const stats = getStats();
           const prev = this.lastWellnessXP[tool.name] || 0;
           
           if (stats.xp > prev) {
@@ -279,13 +367,16 @@ export default class DashboardManager {
 
   /* ---------- Quote Card ---------- */
 
+  /**
+   * Renders the inspirational quote card
+   * @private
+   * @returns {string} HTML string for quote card
+   */
   renderQuoteCard() {
-    this.currentQuote = window.QuotesData 
-      ? window.QuotesData.getQuoteOfTheDay()
-      : { 
-          text: 'What you think, you become. What you feel, you attract. What you imagine, you create.',
-          author: 'Buddha'
-        };
+    const QuotesData = this.globals.QuotesData();
+    this.currentQuote = QuotesData 
+      ? QuotesData.getQuoteOfTheDay()
+      : DashboardManager.FALLBACK_QUOTE;
     
     return `
       <div class="neuro-card flip-card" id="dashboard-quote-card">
@@ -314,11 +405,16 @@ export default class DashboardManager {
       </div>`;
   }
 
+  /**
+   * Refreshes the quote card with a new random quote
+   * @public
+   */
   refreshQuote() {
-    if (!window.QuotesData) return;
+    const QuotesData = this.globals.QuotesData();
+    if (!QuotesData) return;
     
     try {
-      this.currentQuote = window.QuotesData.getRandomQuote();
+      this.currentQuote = QuotesData.getRandomQuote();
       
       const html = `
         <div class="flex flex-col justify-between">
@@ -350,9 +446,15 @@ export default class DashboardManager {
       console.error('Error refreshing quote:', error);
     }
   }
-
-  /* ---------- Gamification Widget ---------- */
+/* ---------- Gamification Widget ---------- */
   
+  /**
+   * Renders the gamification progress widget
+   * @private
+   * @param {Object} status - Gamification status object
+   * @param {Object} stats - User statistics object
+   * @returns {string} HTML string for gamification widget
+   */
   renderGamificationWidget(status, stats) {
     if (!this.app.gamification) return '';
     if (!this.app.state) {
@@ -368,13 +470,15 @@ export default class DashboardManager {
     const statItems = [
       { value: status.karma, label: 'Karma', emoji: '💎' },
       { value: stats.totalGratitudes || 0, label: 'Gratitudes', emoji: '❤️' },
-      { value: status.totalJournalEntries, label: 'Journaling', emoji: '📓' },
+      { value: status.totalJournalEntries, label: 'Journaling', emoji: '📔' },
       { value: status.totalHappinessViews, label: 'Boosters', emoji: '💡' },
       { value: status.totalTarotSpreads, label: 'Tarot Spreads', emoji: '🔮' },
       { value: stats.weeklyMeditations || 0, label: 'Meditations', emoji: '🧘' },
       { value: status.totalWellnessRuns, label: 'Wellness Kit', emoji: '🌿' },
       { value: status.badges.length, label: 'Badges', emoji: '🎖️' }
     ];
+
+    const article = levelInfo.title.match(/^[aeiou]/i) ? 'an' : 'a';
 
     return `
       <div class="card dashboard-gamification mb-6">
@@ -394,7 +498,7 @@ export default class DashboardManager {
         </p>
         <div class="text-center mb-6">
           <h3 style="font-size:1.8rem;font-weight:bold;">
-            You are ${levelInfo.title.match(/^[aeiou]/i) ? 'an' : 'a'} ${levelInfo.title} (Level ${levelInfo.level})
+            You are ${article} ${levelInfo.title} (Level ${levelInfo.level})
           </h3>
         </div>
         <div class="grid grid-cols-4 md:grid-cols-8 gap-2">
@@ -410,6 +514,11 @@ export default class DashboardManager {
 
   /* ---------- Wellness Toolkit ---------- */
   
+  /**
+   * Renders the wellness toolkit section
+   * @private
+   * @returns {string} HTML string for wellness toolkit
+   */
   renderWellnessToolkit() {
     return `
       <div class="card dashboard-wellness-toolkit mb-8">
@@ -468,63 +577,89 @@ export default class DashboardManager {
 
   /* ---------- Quest Hub ---------- */
   
+  /**
+   * Renders the quest hub with tabs for daily/weekly/monthly quests
+   * @private
+   * @param {Object} status - Gamification status object
+   * @returns {string} HTML string for quest hub
+   */
   renderQuestHub(status) {
-    const dailyCompleted = status.quests?.daily?.filter(q => q.completed).length || 0;
-    const dailyTotal = status.quests?.daily?.length || 0;
-    const weeklyCompleted = status.quests?.weekly?.filter(q => q.completed).length || 0;
-    const weeklyTotal = status.quests?.weekly?.length || 0;
-    const monthlyCompleted = status.quests?.monthly?.filter(q => q.completed).length || 0;
-    const monthlyTotal = status.quests?.monthly?.length || 0;
+    try {
+      const dailyCompleted = status.quests?.daily?.filter(q => q.completed).length || 0;
+      const dailyTotal = status.quests?.daily?.length || 0;
+      const weeklyCompleted = status.quests?.weekly?.filter(q => q.completed).length || 0;
+      const weeklyTotal = status.quests?.weekly?.length || 0;
+      const monthlyCompleted = status.quests?.monthly?.filter(q => q.completed).length || 0;
+      const monthlyTotal = status.quests?.monthly?.length || 0;
 
+      return `
+        <div class="card dashboard-quest-hub mb-8">
+          <div class="dashboard-quest-header" style="text-align:center;">
+            <h3 class="dashboard-quest-title">🎯 Quest Hub</h3>
+          </div>
+          <div class="quest-tabs">
+            <button class="quest-tab-btn active" data-quest-tab="daily" onclick="window.app.dashboard.switchQuestTab('daily')">
+              📋 Daily <span class="quest-count">(${dailyCompleted}/${dailyTotal})</span>
+              <span id="countdown-daily" class="countdown-badge"></span>
+            </button>
+            <button class="quest-tab-btn" data-quest-tab="weekly" onclick="window.app.dashboard.switchQuestTab('weekly')">
+              🌟 Weekly <span class="quest-count">(${weeklyCompleted}/${weeklyTotal})</span>
+              <span id="countdown-weekly" class="countdown-badge"></span>
+            </button>
+            <button class="quest-tab-btn" data-quest-tab="monthly" onclick="window.app.dashboard.switchQuestTab('monthly')">
+              ✨ Monthly <span class="quest-count">(${monthlyCompleted}/${monthlyTotal})</span>
+              <span id="countdown-monthly" class="countdown-badge"></span>
+            </button>
+          </div>
+          <div class="quest-tab-content active" id="quest-content-daily">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              ${status.quests.daily.map(q => this.renderQuestCard(q, 'daily')).join('')}
+            </div>
+            ${this.renderQuestCompleteMessage('daily', dailyCompleted, dailyTotal, '🌟', `All Daily Quests Complete! +${UI_CONSTANTS.DAILY_BONUS_XP} Bonus XP`)}
+          </div>
+          <div class="quest-tab-content" id="quest-content-weekly" style="display:none">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              ${status.quests.weekly.map(q => this.renderQuestCard(q, 'weekly')).join('')}
+            </div>
+            ${this.renderQuestCompleteMessage('weekly', weeklyCompleted, weeklyTotal, '⭐', 'All Weekly Quests Complete! Amazing!')}
+          </div>
+          <div class="quest-tab-content" id="quest-content-monthly" style="display:none">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              ${status.quests.monthly.map(q => this.renderQuestCard(q, 'monthly')).join('')}
+            </div>
+            ${this.renderQuestCompleteMessage('monthly', monthlyCompleted, monthlyTotal, '🎉', 'All Monthly Quests Complete! Legendary!')}
+          </div>
+        </div>`;
+    } catch (error) {
+      console.error('Error rendering quest hub:', error);
+      return '<div class="card mb-8"><p style="text-align:center;padding:20px;">Unable to load quests. Please refresh.</p></div>';
+    }
+  }
+
+  /**
+   * Renders quest completion message if all quests are done
+   * @private
+   * @param {string} type - Quest type (daily/weekly/monthly)
+   * @param {number} completed - Number of completed quests
+   * @param {number} total - Total number of quests
+   * @param {string} emoji - Emoji to display
+   * @param {string} message - Completion message
+   * @returns {string} HTML string or empty string
+   */
+  renderQuestCompleteMessage(type, completed, total, emoji, message) {
+    if (completed !== total || total === 0) return '';
+    
     return `
-      <div class="card dashboard-quest-hub mb-8">
-        <div class="dashboard-quest-header" style="text-align:center;">
-          <h3 class="dashboard-quest-title">🎯 Quest Hub</h3>
-        </div>
-        <div class="quest-tabs">
-          <button class="quest-tab-btn active" data-quest-tab="daily" onclick="window.app.dashboard.switchQuestTab('daily')">
-            📋 Daily <span class="quest-count">(${dailyCompleted}/${dailyTotal})</span>
-            <span id="countdown-daily" class="countdown-badge"></span>
-          </button>
-          <button class="quest-tab-btn" data-quest-tab="weekly" onclick="window.app.dashboard.switchQuestTab('weekly')">
-            🌟 Weekly <span class="quest-count">(${weeklyCompleted}/${weeklyTotal})</span>
-            <span id="countdown-weekly" class="countdown-badge"></span>
-          </button>
-          <button class="quest-tab-btn" data-quest-tab="monthly" onclick="window.app.dashboard.switchQuestTab('monthly')">
-            ✨ Monthly <span class="quest-count">(${monthlyCompleted}/${monthlyTotal})</span>
-            <span id="countdown-monthly" class="countdown-badge"></span>
-          </button>
-        </div>
-        <div class="quest-tab-content active" id="quest-content-daily">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            ${status.quests.daily.map(q => this.renderQuestCard(q, 'daily')).join('')}
-          </div>
-          ${dailyCompleted === dailyTotal && dailyTotal > 0 ? `
-            <div class="dashboard-quest-complete dashboard-quest-complete-daily">
-              <p class="dashboard-quest-complete-text">🌟 All Daily Quests Complete! +50 Bonus XP 🌟</p>
-            </div>` : ''}
-        </div>
-        <div class="quest-tab-content" id="quest-content-weekly" style="display:none">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            ${status.quests.weekly.map(q => this.renderQuestCard(q, 'weekly')).join('')}
-          </div>
-          ${weeklyCompleted === weeklyTotal && weeklyTotal > 0 ? `
-            <div class="dashboard-quest-complete dashboard-quest-complete-weekly">
-              <p class="dashboard-quest-complete-text">⭐ All Weekly Quests Complete! Amazing! ⭐</p>
-            </div>` : ''}
-        </div>
-        <div class="quest-tab-content" id="quest-content-monthly" style="display:none">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            ${status.quests.monthly.map(q => this.renderQuestCard(q, 'monthly')).join('')}
-          </div>
-          ${monthlyCompleted === monthlyTotal && monthlyTotal > 0 ? `
-            <div class="dashboard-quest-complete dashboard-quest-complete-monthly">
-              <p class="dashboard-quest-complete-text">🎉 All Monthly Quests Complete! Legendary! 🎉</p>
-            </div>` : ''}
-        </div>
+      <div class="dashboard-quest-complete dashboard-quest-complete-${type}">
+        <p class="dashboard-quest-complete-text">${emoji} ${message} ${emoji}</p>
       </div>`;
   }
 
+  /**
+   * Switches between quest tabs (daily/weekly/monthly)
+   * @public
+   * @param {string} tabName - Tab to switch to (daily/weekly/monthly)
+   */
   switchQuestTab(tabName) {
     document.querySelectorAll('.quest-tab-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.questTab === tabName);
@@ -537,6 +672,13 @@ export default class DashboardManager {
     });
   }
 
+  /**
+   * Renders a single quest card
+   * @private
+   * @param {Object} quest - Quest object
+   * @param {string} questType - Type of quest (daily/weekly/monthly)
+   * @returns {string} HTML string for quest card
+   */
   renderQuestCard(quest, questType = 'daily') {
     const progressPercent = Math.min(100, ((quest.progress || 0) / (quest.goal || quest.target || 1)) * 100);
     const isEnergy = quest.id === 'energy_checkin';
@@ -581,69 +723,156 @@ export default class DashboardManager {
         ${hintHtml}
       </div>`;
   }
-
-  /* ---------- Badge Gallery (WITH ADMIN BADGE SUPPORT & MOBILE 3×2) ---------- */
+/* ---------- Badge Gallery (WITH ADMIN BADGE SUPPORT & MOBILE 3×2) ---------- */
   
+  /**
+   * Renders the badge gallery/achievements section
+   * @private
+   * @param {Object} status - Gamification status object
+   * @returns {string} HTML string for badge gallery
+   */
   renderRecentAchievements(status) {
-    if (!status.badges || status.badges.length === 0) return '';
-    
-    const allDefs = this.app.gamification.getBadgeDefinitions();
-    const earned = new Set(status.badges.map(b => b.id));
+    try {
+      if (!status.badges || status.badges.length === 0) return '';
+      
+      const allDefs = this.app.gamification.getBadgeDefinitions();
+      const earned = new Set(status.badges.map(b => b.id));
 
-    // List of known admin badge IDs
-    const knownAdminBadgeIds = new Set([
-      'early_supporter',
-      'vip_member', 
-      'beta_tester',
-      'spiritual_guide',
-      'community_hero'
-    ]);
+      // Dynamic badge count: 6 on mobile, 9 on desktop
+      const isMobile = window.innerWidth <= UI_CONSTANTS.MOBILE_BREAKPOINT;
+      const previewCount = isMobile ? UI_CONSTANTS.BADGE_PREVIEW_MOBILE : UI_CONSTANTS.BADGE_PREVIEW_DESKTOP;
 
-    // Dynamic badge count: 6 on mobile, 9 on desktop
-    const isMobile = window.innerWidth <= 768;
-    const previewCount = isMobile ? 6 : 9;
+      // Get latest earned badges (game + admin)
+      const latestEarned = this.getLatestEarnedBadges(status, allDefs, previewCount);
 
-    // Latest earned badges for preview (game badges + admin badges)
-    const latestEarned = status.badges
+      // Get full badge list
+      const gameBadges = this.getGameBadges(allDefs, earned);
+      const awardedAdminBadges = this.getAwardedAdminBadges(status.badges);
+      const fullList = [...gameBadges, ...awardedAdminBadges];
+
+      // Build categories
+      const categories = this.buildBadgeCategories(fullList, awardedAdminBadges);
+      const categoryHtml = this.renderBadgeCategories(categories);
+
+      // Preview badges HTML
+      const previewHtml = latestEarned.map(badge => this.renderBadgeCard(badge)).join('');
+
+      // Mobile-specific CSS for 3×2 grid
+      const mobileCss = `
+        <style>
+          @media (max-width: ${UI_CONSTANTS.MOBILE_BREAKPOINT}px) {
+            .badges-grid {
+              grid-template-columns: repeat(3, 1fr) !important;
+              gap: 0.5rem !important;
+            }
+            .badge-category-grid {
+              grid-template-columns: repeat(2, 1fr) !important;
+            }
+          }
+        </style>`;
+
+      return `
+        <div class="card dashboard-achievements mb-8">
+          <div style="text-align:center;">
+            <h3 class="dashboard-achievements-title">🏆 Earned Badges</h3>
+            <div class="badges-grid" style="display: grid; grid-template-columns: repeat(auto-fill,minmax(140px,1fr)); gap: 1rem; margin-bottom: 1rem;">
+              ${previewHtml}
+            </div>
+
+            <button class="btn btn-secondary" id="show-all-btn" onclick="window.app.dashboard.toggleAllBadges()">
+              Show All Badges (${fullList.length})
+            </button>
+
+            <div id="all-badges-container" style="display:none; margin-top:1.5rem;">
+              ${categoryHtml}
+            </div>
+          </div>
+          ${mobileCss}
+        </div>`;
+    } catch (error) {
+      console.error('Error rendering badges:', error);
+      return '<div class="card mb-8"><p style="text-align:center;padding:20px;">Unable to load badges.</p></div>';
+    }
+  }
+
+  /**
+   * Gets latest earned badges for preview
+   * @private
+   * @param {Object} status - Status object with badges
+   * @param {Object} allDefs - All badge definitions
+   * @param {number} count - Number of badges to return
+   * @returns {Array} Array of badge objects
+   */
+  getLatestEarnedBadges(status, allDefs, count) {
+    return status.badges
       .slice()
       .reverse()
-      .slice(0, previewCount)
-      .map(b => {
-        // Check if it's a known admin badge
-        const isAdminBadge = knownAdminBadgeIds.has(b.id);
-        
-        // Get definition from game badges OR use stored admin badge data
-        const def = allDefs[b.id] || (isAdminBadge ? {
-          name: b.name || 'Special Badge',
-          icon: b.icon || '🏆',
-          description: b.description || 'Admin awarded',
-          xp: b.xp || 50,
-          rarity: b.rarity || 'epic'
-        } : null);
-        
-        // Skip if not a valid badge
-        if (!def) return null;
-        
-        return {
-          ...b,
-          ...def,
-          earned: true,
-          karma: CONSTANTS.KARMA_BY_RARITY[def.rarity] || 15
-        };
-      })
+      .slice(0, count)
+      .map(b => this.processBadge(b, allDefs, KNOWN_ADMIN_BADGE_IDS.has(b.id)))
       .filter(Boolean);
+  }
 
-    // Full badge list (game badges only for "Show All")
-    const gameBadges = Object.entries(allDefs).map(([id, def]) => ({
+  /**
+   * Processes a badge with definition lookup
+   * @private
+   * @param {Object} badge - Badge object
+   * @param {Object} allDefs - All badge definitions
+   * @param {boolean} isAdmin - Whether badge is admin-awarded
+   * @returns {Object|null} Processed badge or null
+   */
+  processBadge(badge, allDefs, isAdmin) {
+    const def = allDefs[badge.id] || (isAdmin ? this.getAdminBadgeDefaults(badge) : null);
+    if (!def) return null;
+    
+    return {
+      ...badge,
+      ...def,
+      earned: true,
+      karma: CONSTANTS.KARMA_BY_RARITY[def.rarity] || 15
+    };
+  }
+
+  /**
+   * Gets default values for admin badges
+   * @private
+   * @param {Object} badge - Badge object
+   * @returns {Object} Default badge definition
+   */
+  getAdminBadgeDefaults(badge) {
+    return {
+      name: badge.name || 'Special Badge',
+      icon: badge.icon || '🏆',
+      description: badge.description || 'Admin awarded',
+      xp: badge.xp || 50,
+      rarity: badge.rarity || 'epic'
+    };
+  }
+
+  /**
+   * Gets all game badges with earned status
+   * @private
+   * @param {Object} allDefs - All badge definitions
+   * @param {Set} earned - Set of earned badge IDs
+   * @returns {Array} Array of game badge objects
+   */
+  getGameBadges(allDefs, earned) {
+    return Object.entries(allDefs).map(([id, def]) => ({
       id,
       ...def,
       earned: earned.has(id),
       karma: CONSTANTS.KARMA_BY_RARITY[def.rarity] || 3
     }));
+  }
 
-    // Get only KNOWN admin badges that were actually awarded
-    const awardedAdminBadges = status.badges
-      .filter(b => knownAdminBadgeIds.has(b.id))
+  /**
+   * Gets awarded admin badges
+   * @private
+   * @param {Array} badges - All user badges
+   * @returns {Array} Array of admin badge objects
+   */
+  getAwardedAdminBadges(badges) {
+    return badges
+      .filter(b => KNOWN_ADMIN_BADGE_IDS.has(b.id))
       .map(b => ({
         id: b.id,
         name: b.name || 'Special Badge',
@@ -654,16 +883,41 @@ export default class DashboardManager {
         earned: true,
         karma: CONSTANTS.KARMA_BY_RARITY[b.rarity || 'epic'] || 15
       }));
+  }
 
-    const fullList = [...gameBadges, ...awardedAdminBadges];
-
-    // Category-organized badges (add admin category ONLY if badges were awarded)
+  /**
+   * Builds badge categories including admin if applicable
+   * @private
+   * @param {Array} fullList - Full list of badges
+   * @param {Array} awardedAdminBadges - Awarded admin badges
+   * @returns {Object} Categories object
+   */
+  buildBadgeCategories(fullList, awardedAdminBadges) {
     const categories = { ...CONSTANTS.BADGE_CATEGORIES };
+    
     if (awardedAdminBadges.length > 0) {
       categories['Admin Rewards'] = awardedAdminBadges.map(b => b.id);
     }
+    
+    return categories;
+  }
 
-    const categoryHtml = Object.entries(categories)
+  /**
+   * Renders badge categories HTML
+   * @private
+   * @param {Object} categories - Categories object
+   * @returns {string} HTML string
+   */
+  renderBadgeCategories(categories) {
+    const allDefs = this.app.gamification.getBadgeDefinitions();
+    const status = this.app.gamification.getStatusSummary();
+    const earned = new Set(status.badges.map(b => b.id));
+    
+    const gameBadges = this.getGameBadges(allDefs, earned);
+    const awardedAdminBadges = this.getAwardedAdminBadges(status.badges);
+    const fullList = [...gameBadges, ...awardedAdminBadges];
+
+    return Object.entries(categories)
       .map(([categoryName, badgeIds]) => {
         const categoryBadges = badgeIds
           .map(id => fullList.find(b => b.id === id))
@@ -680,46 +934,14 @@ export default class DashboardManager {
           </div>`;
       })
       .join('');
-
-    // Preview badges HTML
-    const previewHtml = latestEarned
-      .map(badge => this.renderBadgeCard(badge))
-      .join('');
-
-    // Mobile-specific CSS for 3×2 grid
-    const mobileCss = `
-      <style>
-        @media (max-width: 768px) {
-          .badges-grid {
-            grid-template-columns: repeat(3, 1fr) !important;
-            gap: 0.5rem !important;
-          }
-          .badge-category-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-          }
-        }
-      </style>`;
-
-    return `
-      <div class="card dashboard-achievements mb-8">
-        <div style="text-align:center;">
-          <h3 class="dashboard-achievements-title">🏆 Earned Badges</h3>
-          <div class="badges-grid" style="display: grid; grid-template-columns: repeat(auto-fill,minmax(140px,1fr)); gap: 1rem; margin-bottom: 1rem;">
-            ${previewHtml}
-          </div>
-
-          <button class="btn btn-secondary" id="show-all-btn" onclick="window.app.dashboard.toggleAllBadges()">
-            Show All Badges (${fullList.length})
-          </button>
-
-          <div id="all-badges-container" style="display:none; margin-top:1.5rem;">
-            ${categoryHtml}
-          </div>
-        </div>
-        ${mobileCss}
-      </div>`;
   }
 
+  /**
+   * Renders a single badge card
+   * @private
+   * @param {Object} badge - Badge object
+   * @returns {string} HTML string for badge card
+   */
   renderBadgeCard(badge) {
     const cardClass = badge.earned ? '' : 'badge-locked';
     const gradient = CONSTANTS.RARITY_GRADIENTS[badge.rarity] || CONSTANTS.RARITY_GRADIENTS.common;
@@ -737,6 +959,10 @@ export default class DashboardManager {
       </div>`;
   }
 
+  /**
+   * Toggles display of all badges
+   * @public
+   */
   toggleAllBadges() {
     const container = document.getElementById('all-badges-container');
     const btn = document.getElementById('show-all-btn');
@@ -748,29 +974,24 @@ export default class DashboardManager {
     
     const allDefs = this.app.gamification.getBadgeDefinitions();
     const status = this.app.gamification.getStatusSummary();
-    const adminOnlyBadges = status.badges.filter(b => !allDefs[b.id]);
+    const adminOnlyBadges = status.badges.filter(b => !allDefs[b.id] && KNOWN_ADMIN_BADGE_IDS.has(b.id));
     const totalCount = Object.keys(allDefs).length + adminOnlyBadges.length;
     
     btn.textContent = isOpen 
       ? `Show All Badges (${totalCount})` 
       : 'Show Less';
   }
-
-  /* ---------- Main Render ---------- */
+/* ---------- Main Render ---------- */
   
+  /**
+   * Main render method for the dashboard
+   * @private
+   */
   async _render() {
     const dashboard = document.getElementById('dashboard-tab');
     if (!dashboard) return;
 
     try {
-      // Get quote
-      this.currentQuote = window.QuotesData 
-        ? window.QuotesData.getQuoteOfTheDay()
-        : { 
-            text: 'What you think, you become. What you feel, you attract. What you imagine, you create.',
-            author: 'Buddha'
-          };
-
       // Get status
       const status = this.app.gamification 
         ? this.app.gamification.getStatusSummary()
@@ -822,6 +1043,10 @@ export default class DashboardManager {
     }
   }
 
+  /**
+   * Animates progress bars with requestAnimationFrame
+   * @private
+   */
   animateProgressBars() {
     requestAnimationFrame(() => {
       document.querySelectorAll('.dashboard-progress-width, .dashboard-quest-fill').forEach(el => {
@@ -835,6 +1060,10 @@ export default class DashboardManager {
 
   /* ---------- Cleanup ---------- */
   
+  /**
+   * Destroys the dashboard manager and cleans up resources
+   * @public
+   */
   destroy() {
     // Clear all intervals
     this.intervals.forEach(interval => clearInterval(interval));
@@ -842,6 +1071,9 @@ export default class DashboardManager {
     
     // Clear cached elements
     this.cachedElements = {};
+    
+    // Clear wellness tracking
+    this.lastWellnessXP = {};
     
     // Remove global references
     if (window.app?.dashboard) {
