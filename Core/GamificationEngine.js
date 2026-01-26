@@ -1,15 +1,42 @@
 // =========================================================
-//  GamificationEngine.js – Complete Integrated Version
+//  GamificationEngine.js – Complete Optimized Version
 //  Core Setup, State Management, Event System, XP/Karma/Levels, Badges, Quests
 // =========================================================
 
+/**
+ * Manages gamification system: XP, levels, badges, quests, karma
+ * Handles state persistence, event system, and reward mechanics
+ */
 export class GamificationEngine {
+  // Configuration constants
+  static SAVE_DEBOUNCE_MS = 100;
+  static BADGE_CHECK_DEBOUNCE_MS = 300;
+  static MAX_LOGS = 1000;
+  static SPECTACLE_DURATION_MS = 4000;
+  static SPECTACLE_PARTICLE_COUNT = 60;
+
+  // Quest ID constants
+  static QUEST_IDS = {
+    GRATITUDE_ENTRY: 'gratitude_entry',
+    JOURNAL_ENTRY: 'journal_entry',
+    TAROT_SPREAD: 'tarot_spread',
+    MEDITATION_SESSION: 'meditation_session',
+    ENERGY_CHECKIN: 'energy_checkin',
+    DAILY_BOOSTER: 'daily_booster'
+  };
+
+  /**
+   * @param {Object} app - Main app instance with state and UI methods
+   */
   constructor(app) {
     this.app = app;
     this.listeners = {};
     this.state = this.loadState() || this.defaultState();
     this.badgeCheckQueue = new Set();
     this.saveTimeout = null;
+    this.badgeIds = new Set(this.state.badges.map(b => b.id));
+    this._questDefinitions = null;
+    this._badgeDefinitions = null;
     this.initializeQuests();
   }
 
@@ -46,6 +73,9 @@ export class GamificationEngine {
     };
   }
 
+  /**
+   * Initialize quests from definitions if not already loaded
+   */
   initializeQuests() {
     const definitions = this.getQuestDefinitions();
     
@@ -56,11 +86,17 @@ export class GamificationEngine {
     }
   }
 
+  /**
+   * Get quest definitions (cached)
+   * @returns {Object} Quest definitions by type (daily, weekly, monthly)
+   */
   getQuestDefinitions() {
-    return {
+    if (this._questDefinitions) return this._questDefinitions;
+
+    this._questDefinitions = {
       daily: [
         {
-          id: 'gratitude_entry',
+          id: GamificationEngine.QUEST_IDS.GRATITUDE_ENTRY,
           tab: 'gratitude',
           icon: '❤️',
           name: 'Daily Gratitude Practice',
@@ -73,9 +109,9 @@ export class GamificationEngine {
           karmaReward: 2
         },
         {
-          id: 'journal_entry',
+          id: GamificationEngine.QUEST_IDS.JOURNAL_ENTRY,
           tab: 'journal',
-          icon: '📓',
+          icon: '📔',
           name: 'Daily Journaling',
           inspirational: 'Writing clarifies thoughts and soothes the soul.',
           target: 'Save 1 journal entry to complete this quest.',
@@ -86,7 +122,7 @@ export class GamificationEngine {
           karmaReward: 3
         },
         {
-          id: 'tarot_spread',
+          id: GamificationEngine.QUEST_IDS.TAROT_SPREAD,
           tab: 'tarot',
           icon: '🃏',
           name: 'Daily Tarot Spread',
@@ -99,7 +135,7 @@ export class GamificationEngine {
           karmaReward: 2
         },
         {
-          id: 'meditation_session',
+          id: GamificationEngine.QUEST_IDS.MEDITATION_SESSION,
           tab: 'meditations',
           icon: '🧘',
           name: 'Daily Meditation',
@@ -112,7 +148,7 @@ export class GamificationEngine {
           karmaReward: 3
         },
         {
-          id: 'energy_checkin',
+          id: GamificationEngine.QUEST_IDS.ENERGY_CHECKIN,
           tab: 'energy',
           icon: '⚡',
           name: 'Daily Energy Check-in',
@@ -126,7 +162,7 @@ export class GamificationEngine {
           subProgress: { day: false, night: false }
         },
         {
-          id: 'daily_booster',
+          id: GamificationEngine.QUEST_IDS.DAILY_BOOSTER,
           tab: 'happiness',
           icon: '✨',
           name: 'Daily Affirmations/Boosters',
@@ -288,11 +324,16 @@ export class GamificationEngine {
         }
       ]
     };
+
+    return this._questDefinitions;
   }
 
   /* ---------------------------------------------------------
-     CLOUD + LOCAL PERSISTENCE (with error handling)
+     CLOUD + LOCAL PERSISTENCE
   --------------------------------------------------------- */
+  /**
+   * Save state to localStorage and cloud (debounced)
+   */
   saveState() {
     clearTimeout(this.saveTimeout);
     this.saveTimeout = setTimeout(() => {
@@ -305,39 +346,64 @@ export class GamificationEngine {
       } catch (error) {
         console.error('Failed to save gamification state:', error);
       }
-    }, 100);
+    }, GamificationEngine.SAVE_DEBOUNCE_MS);
   }
 
+  /**
+   * Load state from cloud or localStorage with validation
+   * @returns {Object|null} Loaded state or null
+   */
   loadState() {
     try {
+      let loadedState = null;
+
+      // Try cloud first
       if (this.app?.state?.data && this.app.state.data.xp !== undefined) {
-        const cloud = { ...this.app.state.data };
+        loadedState = { ...this.app.state.data };
+        
+        // Remove deprecated fields
         const deprecated = ['streak.best', 'streak.lastCheckIn', 'energyLevel',
           'alignmentScore', 'chakraProgress', 'totalPracticeMinutes'];
         deprecated.forEach(field => {
           const parts = field.split('.');
           if (parts.length === 2) {
-            if (cloud[parts[0]]) delete cloud[parts[0]][parts[1]];
+            if (loadedState[parts[0]]) delete loadedState[parts[0]][parts[1]];
           } else {
-            delete cloud[field];
+            delete loadedState[field];
           }
         });
-        return { ...this.defaultState(), ...cloud };
+      } else {
+        // Fall back to localStorage
+        const local = localStorage.getItem('gamificationState');
+        if (local) loadedState = JSON.parse(local);
       }
-      const local = localStorage.getItem('gamificationState');
-      if (local) return { ...this.defaultState(), ...JSON.parse(local) };
-      return null;
+
+      if (!loadedState) return null;
+
+      // Validate and merge with defaults
+      const validated = { ...this.defaultState(), ...loadedState };
+      
+      // Ensure arrays exist
+      validated.badges = Array.isArray(validated.badges) ? validated.badges : [];
+      validated.logs = Array.isArray(validated.logs) ? validated.logs : [];
+      validated.unlockedFeatures = Array.isArray(validated.unlockedFeatures) ? validated.unlockedFeatures : [];
+
+      return validated;
     } catch (error) {
       console.error('Failed to load gamification state:', error);
       return null;
     }
   }
 
+  /**
+   * Reload state from database
+   */
   async reloadFromDatabase() {
     if (!this.app?.state) return;
     try {
       await this.app.state.loadAppData();
       this.state = this.loadState();
+      this.badgeIds = new Set(this.state.badges.map(b => b.id));
       this.emit('stateReloaded', this.state);
       this.checkAllBadges();
       console.log('✅ Gamification state reloaded from database');
@@ -347,17 +413,31 @@ export class GamificationEngine {
   }
 
   /* ---------------------------------------------------------
-     EVENT BUS (with cleanup)
+     EVENT BUS
   --------------------------------------------------------- */
+  /**
+   * Subscribe to event
+   * @param {string} event - Event name
+   * @param {Function} callback - Callback function
+   * @returns {Function} Unsubscribe function
+   */
   on(event, callback) {
     if (!this.listeners[event]) this.listeners[event] = [];
     this.listeners[event].push(callback);
     return () => this.off(event, callback);
   }
+
+  /**
+   * Unsubscribe from event
+   */
   off(event, callback) {
     if (!this.listeners[event]) return;
     this.listeners[event] = this.listeners[event].filter(cb => cb !== callback);
   }
+
+  /**
+   * Emit event to all subscribers
+   */
   emit(event, data) {
     if (!this.listeners[event]) return;
     this.listeners[event].forEach(cb => {
@@ -366,13 +446,20 @@ export class GamificationEngine {
       }
     });
   }
+
+  /**
+   * Cleanup all listeners and timers
+   */
   destroy() {
     clearTimeout(this.saveTimeout);
+    if (this.debouncedBadgeCheck?.timer) {
+      clearTimeout(this.debouncedBadgeCheck.timer);
+    }
     this.listeners = {};
+    this.badgeCheckQueue.clear();
   }
-
-  /* ---------------------------------------------------------
-     LIFETIME COUNTERS (optimized with category checks)
+/* ---------------------------------------------------------
+     LIFETIME COUNTERS
   --------------------------------------------------------- */
   incrementWellnessRuns() {
     this.state.totalWellnessRuns += 1;
@@ -380,18 +467,21 @@ export class GamificationEngine {
     this.saveState();
     this.emit('wellnessRunCompleted', this.state.totalWellnessRuns);
   }
+
   incrementTarotSpreads() {
     this.state.totalTarotSpreads += 1;
     this.queueBadgeCheck('tarot');
     this.saveState();
     this.emit('tarotSpreadCompleted', this.state.totalTarotSpreads);
   }
+
   incrementJournalEntries() {
     this.state.totalJournalEntries += 1;
     this.queueBadgeCheck('journal');
     this.saveState();
     this.emit('journalEntrySaved', this.state.totalJournalEntries);
   }
+
   incrementHappinessViews() {
     this.state.totalHappinessViews += 1;
     this.queueBadgeCheck('happiness');
@@ -400,32 +490,57 @@ export class GamificationEngine {
   }
 
   /* ---------------------------------------------------------
-     OPTIMIZED BADGE CHECKING (category-based + debounced)
+     OPTIMIZED BADGE CHECKING
   --------------------------------------------------------- */
+  /**
+   * Queue badge check for specific category (debounced)
+   * @param {string} category - Badge category to check
+   */
   queueBadgeCheck(category) {
     this.badgeCheckQueue.add(category);
     this.debouncedBadgeCheck();
   }
+
+  /**
+   * Debounced badge check executor
+   */
   debouncedBadgeCheck = this.debounce(() => {
     const categories = Array.from(this.badgeCheckQueue);
     this.badgeCheckQueue.clear();
-    if (categories.includes('all')) this.checkAllBadges();
-    else categories.forEach(cat => this.checkBadgeCategory(cat));
-  }, 300);
+    if (categories.includes('all')) {
+      this.checkAllBadges();
+    } else {
+      categories.forEach(cat => this.checkBadgeCategory(cat));
+    }
+  }, GamificationEngine.BADGE_CHECK_DEBOUNCE_MS);
+
+  /**
+   * Debounce utility
+   */
   debounce(fn, ms) {
     let timer;
-    return (...args) => {
+    const debounced = (...args) => {
       clearTimeout(timer);
       timer = setTimeout(() => fn.apply(this, args), ms);
     };
+    debounced.timer = null;
+    return debounced;
   }
 
   /* ---------------------------------------------------------
      CACHED DATA ACCESS
   --------------------------------------------------------- */
+  /**
+   * Get current app data
+   */
   get currentData() {
     return this.app?.state?.data || {};
   }
+
+  /**
+   * Get counts of all user activities
+   * @returns {Object} Activity counts by feature
+   */
   getCounts() {
     const data = this.currentData;
     return {
@@ -442,10 +557,17 @@ export class GamificationEngine {
   /* ---------------------------------------------------------
      XP / KARMA / LEVEL
   --------------------------------------------------------- */
+  /**
+   * Add XP with optional boost multiplier
+   * @param {number} amount - XP amount
+   * @param {string} source - Source description
+   */
   addXP(amount, source = 'general') {
     if (!amount || amount <= 0) return;
+    
     let final = amount;
     if (this.hasActiveXPBoost()) final = amount * 2;
+    
     this.state.xp += final;
     this.logAction('xp', { amount: final, source, boosted: final !== amount });
     this.emit('xpGained', { amount: final, source });
@@ -454,8 +576,14 @@ export class GamificationEngine {
     this.saveState();
   }
   
+  /**
+   * Add Karma
+   * @param {number} amount - Karma amount
+   * @param {string} source - Source description
+   */
   addKarma(amount, source = 'general') {
     if (!amount || amount <= 0) return;
+    
     this.state.karma += amount;
     this.logAction('karma', { amount, source });
     this.emit('karmaGained', { amount, source });
@@ -463,6 +591,12 @@ export class GamificationEngine {
     this.saveState();
   }
 
+  /**
+   * Add both XP and Karma with single notification
+   * @param {number} xp - XP amount
+   * @param {number} karma - Karma amount
+   * @param {string} source - Source description
+   */
   addBoth(xp, karma, source = 'general') {
     if (!xp && !karma) return;
     
@@ -490,20 +624,30 @@ export class GamificationEngine {
       this.app.showToast(`✅ ${parts.join(' • ')} from ${source}`, 'success');
     }
     
-    // Check level up and badges
+    // Check level up and badges once
     if (xp > 0) this.checkLevelUp();
     this.queueBadgeCheck('currency');
     this.saveState();
   }
 
+  /**
+   * Check if user has active XP boost
+   * @returns {boolean}
+   */
   hasActiveXPBoost() {
     try {
       const boosts = JSON.parse(localStorage.getItem('karma_active_boosts')) || [];
       const now = Date.now();
       return boosts.some(b => b.id === 'xp_multiplier' && b.expiresAt > now);
-    } catch { return false; }
+    } catch { 
+      return false; 
+    }
   }
 
+  /**
+   * Calculate current level and progress
+   * @returns {Object} Level info with title, progress, pointsToNext
+   */
   calculateLevel() {
     const ladder = [
       { level: 1, title: 'Seeker', xp: 0 },
@@ -517,21 +661,38 @@ export class GamificationEngine {
       { level: 9, title: 'Light', xp: 180000 },
       { level: 10, title: 'Emptiness', xp: 450000 }
     ];
+    
     let i = ladder.length - 1;
     while (i > 0 && this.state.xp < ladder[i].xp) i--;
-    const cur = ladder[i], next = ladder[i + 1] || ladder[i];
+    
+    const cur = ladder[i];
+    const next = ladder[i + 1] || ladder[i];
     const prog = next.xp === cur.xp ? 100 : ((this.state.xp - cur.xp) / (next.xp - cur.xp)) * 100;
-    return { level: cur.level, title: cur.title, progress: Math.round(prog), pointsToNext: Math.max(0, next.xp - this.state.xp) };
+    
+    return { 
+      level: cur.level, 
+      title: cur.title, 
+      progress: Math.round(prog), 
+      pointsToNext: Math.max(0, next.xp - this.state.xp) 
+    };
   }
 
+  /**
+   * Check and handle level up
+   */
   checkLevelUp() {
     const prev = this.state.level;
     const { level, title } = this.calculateLevel();
+    
     if (level > prev) {
       this.state.level = level;
       this.emit('levelUp', { level, title });
       this.addXP(50, `Level ${level}`);
-      if (this.app?.showToast) this.app.showToast(`🎉 Level ${level} – ${title}  +50 XP`, 'success');
+      
+      if (this.app?.showToast) {
+        this.app.showToast(`🎉 Level ${level} – ${title}  +50 XP`, 'success');
+      }
+      
       showLevelUpSpectacle({ level, title, xp: 50, karma: 0 });
       this.queueBadgeCheck('level');
     }
@@ -540,27 +701,38 @@ export class GamificationEngine {
   /* ---------------------------------------------------------
      STREAK
   --------------------------------------------------------- */
+  /**
+   * Update daily streak
+   */
   updateStreak() {
     const today = new Date().toDateString();
     if (this.state.streak.lastCheckIn === today) return;
+    
     const last = this.state.streak.lastCheckIn ? new Date(this.state.streak.lastCheckIn) : null;
     const diff = last ? (new Date(today) - last) / (1000 * 60 * 60 * 24) : null;
+    
     if (!last || diff > this.state.settings.streakResetDays) {
       this.state.streak.current = 1;
     } else {
       this.state.streak.current += 1;
     }
+    
     this.state.streak.lastCheckIn = today;
     this.emit('streakUpdated', { current: this.state.streak.current });
     this.queueBadgeCheck('streak');
     this.saveState();
   }
-
-  /* ---------------------------------------------------------
-     BADGE DEFINITIONS - 56 TOTAL
+/* ---------------------------------------------------------
+     BADGE DEFINITIONS - 56 TOTAL (cached)
   --------------------------------------------------------- */
+  /**
+   * Get all badge definitions (cached)
+   * @returns {Object} Badge definitions by ID
+   */
   getBadgeDefinitions() {
-    return {
+    if (this._badgeDefinitions) return this._badgeDefinitions;
+
+    this._badgeDefinitions = {
       first_step: { name: 'First Step', icon: '🌱', description: 'Any first action in the app', xp: 10, rarity: 'common', category: 'first' },
       first_gratitude: { name: 'First Gratitude', icon: '💚', description: 'First gratitude entry', xp: 10, rarity: 'common', category: 'first' },
       first_journal: { name: 'First Journal', icon: '📝', description: 'First journal entry', xp: 10, rarity: 'common', category: 'first' },
@@ -572,7 +744,7 @@ export class GamificationEngine {
       gratitude_legend: { name: 'Gratitude Legend', icon: '💗', description: '100 gratitude entries', xp: 100, rarity: 'rare', category: 'gratitude' },
       gratitude_200: { name: 'Gratitude Sage', icon: '💖', description: '200 gratitude entries', xp: 200, rarity: 'epic', category: 'gratitude' },
       gratitude_500: { name: 'Gratitude Titan', icon: '💘', description: '500 gratitude entries', xp: 500, rarity: 'legendary', category: 'gratitude' },
-      journal_keeper: { name: 'Journal Keeper', icon: '📓', description: '20 journal entries', xp: 50, rarity: 'uncommon', category: 'journal' },
+      journal_keeper: { name: 'Journal Keeper', icon: '📔', description: '20 journal entries', xp: 50, rarity: 'uncommon', category: 'journal' },
       journal_master: { name: 'Journal Master', icon: '📚', description: '75 journal entries', xp: 100, rarity: 'rare', category: 'journal' },
       journal_150: { name: 'Journal Sage', icon: '📖', description: '150 journal entries', xp: 200, rarity: 'epic', category: 'journal' },
       journal_400: { name: 'Journal Titan', icon: '📜', description: '400 journal entries', xp: 500, rarity: 'legendary', category: 'journal' },
@@ -591,7 +763,7 @@ export class GamificationEngine {
       meditation_200: { name: 'Meditation Titan', icon: '🧘‍♀️', description: '200 meditation sessions', xp: 700, rarity: 'legendary', category: 'meditation' },
       happiness_seeker: { name: 'Happiness Seeker', icon: '😊', description: '50 happiness booster views', xp: 50, rarity: 'uncommon', category: 'happiness' },
       joy_master: { name: 'Joy Master', icon: '🎉', description: '150 happiness booster views', xp: 100, rarity: 'rare', category: 'happiness' },
-      happiness_300: { name: 'Happiness Sage', icon: '😍', description: '300 happiness booster views', xp: 200, rarity: 'epic', category: 'happiness' },
+      happiness_300: { name: 'Happiness Sage', icon: '😃', description: '300 happiness booster views', xp: 200, rarity: 'epic', category: 'happiness' },
       happiness_700: { name: 'Happiness Titan', icon: '🤩', description: '700 happiness booster views', xp: 500, rarity: 'legendary', category: 'happiness' },
       wellness_champion: { name: 'Wellness Champion', icon: '🌿', description: '50 wellness exercises', xp: 50, rarity: 'uncommon', category: 'wellness' },
       wellness_guru: { name: 'Wellness Guru', icon: '🌳', description: '150 wellness exercises', xp: 100, rarity: 'rare', category: 'wellness' },
@@ -619,14 +791,21 @@ export class GamificationEngine {
       complete_explorer: { name: 'Complete Explorer', icon: '🗺️', description: 'Use every main feature at least once', xp: 100, rarity: 'epic', category: 'cross' },
       renaissance_soul: { name: 'Renaissance Soul', icon: '🎭', description: '≥ 10 actions in 5+ different features', xp: 150, rarity: 'epic', category: 'cross' }
     };
+
+    return this._badgeDefinitions;
   }
 
   /* ---------------------------------------------------------
      OPTIMIZED BADGE CHECKING (category-based)
   --------------------------------------------------------- */
+  /**
+   * Check badges for specific category
+   * @param {string} category - Category to check
+   */
   checkBadgeCategory(category) {
     const badges = this.getBadgeDefinitions();
     const counts = this.getCounts();
+    
     switch (category) {
       case 'gratitude': this.checkGratitudeBadges(badges, counts.gratitude); break;
       case 'journal': this.checkJournalBadges(badges, counts.journal); break;
@@ -644,74 +823,106 @@ export class GamificationEngine {
     }
   }
 
+  /**
+   * Generic threshold-based badge checker
+   * @param {Object} badges - Badge definitions
+   * @param {number} count - Current count
+   * @param {Array} thresholds - Array of {threshold, badgeId}
+   */
+  checkBadgesByThresholds(badges, count, thresholds) {
+    thresholds.forEach(({ threshold, badgeId }) => {
+      if (count >= threshold) {
+        this.checkAndGrantBadge(badgeId, badges);
+      }
+    });
+  }
+
   checkGratitudeBadges(badges, count) {
-    if (count >= 1) this.checkAndGrantBadge('first_gratitude', badges);
-    if (count >= 30) this.checkAndGrantBadge('gratitude_warrior', badges);
-    if (count >= 100) this.checkAndGrantBadge('gratitude_legend', badges);
-    if (count >= 200) this.checkAndGrantBadge('gratitude_200', badges);
-    if (count >= 500) this.checkAndGrantBadge('gratitude_500', badges);
+    this.checkBadgesByThresholds(badges, count, [
+      { threshold: 1, badgeId: 'first_gratitude' },
+      { threshold: 30, badgeId: 'gratitude_warrior' },
+      { threshold: 100, badgeId: 'gratitude_legend' },
+      { threshold: 200, badgeId: 'gratitude_200' },
+      { threshold: 500, badgeId: 'gratitude_500' }
+    ]);
   }
 
   checkJournalBadges(badges, count) {
-    if (count >= 1) this.checkAndGrantBadge('first_journal', badges);
-    if (count >= 20) this.checkAndGrantBadge('journal_keeper', badges);
-    if (count >= 75) this.checkAndGrantBadge('journal_master', badges);
-    if (count >= 150) this.checkAndGrantBadge('journal_150', badges);
-    if (count >= 400) this.checkAndGrantBadge('journal_400', badges);
+    this.checkBadgesByThresholds(badges, count, [
+      { threshold: 1, badgeId: 'first_journal' },
+      { threshold: 20, badgeId: 'journal_keeper' },
+      { threshold: 75, badgeId: 'journal_master' },
+      { threshold: 150, badgeId: 'journal_150' },
+      { threshold: 400, badgeId: 'journal_400' }
+    ]);
   }
 
   checkEnergyBadges(badges, count) {
-    if (count >= 1) this.checkAndGrantBadge('first_energy', badges);
-    if (count >= 30) this.checkAndGrantBadge('energy_tracker', badges);
-    if (count >= 100) this.checkAndGrantBadge('energy_sage', badges);
-    if (count >= 300) this.checkAndGrantBadge('energy_300', badges);
-    if (count >= 600) this.checkAndGrantBadge('energy_600', badges);
+    this.checkBadgesByThresholds(badges, count, [
+      { threshold: 1, badgeId: 'first_energy' },
+      { threshold: 30, badgeId: 'energy_tracker' },
+      { threshold: 100, badgeId: 'energy_sage' },
+      { threshold: 300, badgeId: 'energy_300' },
+      { threshold: 600, badgeId: 'energy_600' }
+    ]);
   }
 
   checkTarotBadges(badges, count) {
-    if (count >= 1) this.checkAndGrantBadge('first_tarot', badges);
-    if (count >= 10) this.checkAndGrantBadge('tarot_apprentice', badges);
-    if (count >= 25) this.checkAndGrantBadge('tarot_mystic', badges);
-    if (count >= 75) this.checkAndGrantBadge('tarot_oracle', badges);
-    if (count >= 150) this.checkAndGrantBadge('tarot_150', badges);
-    if (count >= 400) this.checkAndGrantBadge('tarot_400', badges);
+    this.checkBadgesByThresholds(badges, count, [
+      { threshold: 1, badgeId: 'first_tarot' },
+      { threshold: 10, badgeId: 'tarot_apprentice' },
+      { threshold: 25, badgeId: 'tarot_mystic' },
+      { threshold: 75, badgeId: 'tarot_oracle' },
+      { threshold: 150, badgeId: 'tarot_150' },
+      { threshold: 400, badgeId: 'tarot_400' }
+    ]);
   }
 
   checkMeditationBadges(badges, count) {
-    if (count >= 1) this.checkAndGrantBadge('first_meditation', badges);
-    if (count >= 20) this.checkAndGrantBadge('meditation_devotee', badges);
-    if (count >= 60) this.checkAndGrantBadge('meditation_master', badges);
-    if (count >= 100) this.checkAndGrantBadge('meditation_100', badges);
-    if (count >= 200) this.checkAndGrantBadge('meditation_200', badges);
+    this.checkBadgesByThresholds(badges, count, [
+      { threshold: 1, badgeId: 'first_meditation' },
+      { threshold: 20, badgeId: 'meditation_devotee' },
+      { threshold: 60, badgeId: 'meditation_master' },
+      { threshold: 100, badgeId: 'meditation_100' },
+      { threshold: 200, badgeId: 'meditation_200' }
+    ]);
   }
 
   checkHappinessBadges(badges, count) {
-    if (count >= 50) this.checkAndGrantBadge('happiness_seeker', badges);
-    if (count >= 150) this.checkAndGrantBadge('joy_master', badges);
-    if (count >= 300) this.checkAndGrantBadge('happiness_300', badges);
-    if (count >= 700) this.checkAndGrantBadge('happiness_700', badges);
+    this.checkBadgesByThresholds(badges, count, [
+      { threshold: 50, badgeId: 'happiness_seeker' },
+      { threshold: 150, badgeId: 'joy_master' },
+      { threshold: 300, badgeId: 'happiness_300' },
+      { threshold: 700, badgeId: 'happiness_700' }
+    ]);
   }
 
   checkWellnessBadges(badges, count) {
-    if (count >= 50) this.checkAndGrantBadge('wellness_champion', badges);
-    if (count >= 150) this.checkAndGrantBadge('wellness_guru', badges);
-    if (count >= 300) this.checkAndGrantBadge('wellness_300', badges);
-    if (count >= 700) this.checkAndGrantBadge('wellness_700', badges);
+    this.checkBadgesByThresholds(badges, count, [
+      { threshold: 50, badgeId: 'wellness_champion' },
+      { threshold: 150, badgeId: 'wellness_guru' },
+      { threshold: 300, badgeId: 'wellness_300' },
+      { threshold: 700, badgeId: 'wellness_700' }
+    ]);
   }
 
   checkStreakBadges(badges) {
     const streak = this.state.streak?.current || 0;
-    if (streak >= 7) this.checkAndGrantBadge('perfect_week', badges);
-    if (streak >= 30) this.checkAndGrantBadge('dedication_streak', badges);
-    if (streak >= 60) this.checkAndGrantBadge('unstoppable', badges);
-    if (streak >= 100) this.checkAndGrantBadge('legendary_streak', badges);
+    this.checkBadgesByThresholds(badges, streak, [
+      { threshold: 7, badgeId: 'perfect_week' },
+      { threshold: 30, badgeId: 'dedication_streak' },
+      { threshold: 60, badgeId: 'unstoppable' },
+      { threshold: 100, badgeId: 'legendary_streak' }
+    ]);
   }
 
   checkLevelBadges(badges) {
     const level = this.calculateLevel().level;
-    if (level >= 5) this.checkAndGrantBadge('level_5_hero', badges);
-    if (level >= 7) this.checkAndGrantBadge('level_7_hero', badges);
-    if (level >= 10) this.checkAndGrantBadge('level_10_hero', badges);
+    this.checkBadgesByThresholds(badges, level, [
+      { threshold: 5, badgeId: 'level_5_hero' },
+      { threshold: 7, badgeId: 'level_7_hero' },
+      { threshold: 10, badgeId: 'level_10_hero' }
+    ]);
   }
 
   checkCurrencyBadges(badges) {
@@ -732,35 +943,56 @@ export class GamificationEngine {
     const data = this.currentData;
     const today = new Date().toDateString();
     const counts = this.getCounts();
+    
     const totalActions = Object.values(counts).reduce((a, b) => a + b, 0);
     if (totalActions >= 1) this.checkAndGrantBadge('first_step', badges);
+    
     const todayGratitude = (data.gratitudeEntries || []).some(e => new Date(e.timestamp).toDateString() === today);
     const todayJournal = (data.journalEntries || []).some(e => new Date(e.timestamp).toDateString() === today);
     const todayEnergy = (data.energyEntries || []).some(e => new Date(e.timestamp).toDateString() === today);
     const todayTarot = (data.tarotReadings || []).some(e => new Date(e.timestamp).toDateString() === today);
     const todayMeditation = (data.meditationHistory || []).some(e => new Date(e.timestamp).toDateString() === today);
+    
     const todayFeatures = [todayGratitude, todayJournal, todayEnergy, todayTarot, todayMeditation].filter(Boolean).length;
     if (todayFeatures >= 3) this.checkAndGrantBadge('triple_threat', badges);
-    if (todayGratitude && todayJournal && todayEnergy && todayMeditation) this.checkAndGrantBadge('super_day', badges);
-    const usedFeatures = [counts.gratitude > 0, counts.journal > 0, counts.energy > 0, counts.tarot > 0, counts.meditation > 0, counts.happiness > 0, counts.wellness > 0];
+    if (todayGratitude && todayJournal && todayEnergy && todayMeditation) {
+      this.checkAndGrantBadge('super_day', badges);
+    }
+    
+    const usedFeatures = [
+      counts.gratitude > 0, counts.journal > 0, counts.energy > 0, 
+      counts.tarot > 0, counts.meditation > 0, counts.happiness > 0, counts.wellness > 0
+    ];
     if (usedFeatures.every(Boolean)) this.checkAndGrantBadge('complete_explorer', badges);
+    
     const featuresWithTenPlus = Object.values(counts).filter(c => c >= 10).length;
     if (featuresWithTenPlus >= 5) this.checkAndGrantBadge('renaissance_soul', badges);
   }
 
+  /**
+   * Check chakra-based badges
+   * @param {Object} chakras - Chakra values by name
+   */
   checkChakraBadges(chakras) {
     const badges = this.getBadgeDefinitions();
     const chakraKeys = ['root', 'sacral', 'solar', 'heart', 'throat', 'thirdEye', 'crown'];
+    
     const all8Plus = chakraKeys.every(key => (chakras[key] || 0) >= 8);
     const all9Plus = chakraKeys.every(key => (chakras[key] || 0) >= 9);
+    
     if (all8Plus) this.checkAndGrantBadge('chakra_balancer', badges);
     if (all9Plus) this.checkAndGrantBadge('chakra_master', badges);
   }
 
+  /**
+   * Check all badge categories
+   */
   checkAllBadges() {
     if (!this.app?.state?.data) return;
+    
     const badges = this.getBadgeDefinitions();
     const counts = this.getCounts();
+    
     this.checkGratitudeBadges(badges, counts.gratitude);
     this.checkJournalBadges(badges, counts.journal);
     this.checkEnergyBadges(badges, counts.energy);
@@ -775,98 +1007,185 @@ export class GamificationEngine {
     this.checkCrossFeatureBadges(badges);
   }
 
+  /**
+   * Grant a badge to the user
+   * @param {Object} badge - Badge object with id, name, icon, etc.
+   */
   grantBadge(badge) {
-    if (this.state.badges.find(b => b.id === badge.id)) return;
+    if (this.badgeIds.has(badge.id)) return;
+    
     const karmaMap = { common: 3, uncommon: 5, rare: 10, epic: 15, legendary: 30 };
     const karma = karmaMap[badge.rarity] || 0;
+    
     if (karma) {
       this.state.karma += karma;
       this.logAction('karma', { amount: karma, source: `Badge: ${badge.id}` });
     }
+    
     this.state.badges.push({ ...badge, unlocked: true, date: new Date().toISOString() });
+    this.badgeIds.add(badge.id);
     this.emit('badgeUnlocked', badge);
+    
     if (badge.xp) this.addXP(badge.xp, `Badge: ${badge.id}`);
     if (badge.inspirational) this.emit('inspirationalMessage', badge.inspirational);
+    
     this.saveState();
   }
 
+  /**
+   * Check and grant badge if conditions met
+   * @param {string} badgeId - Badge ID to check
+   * @param {Object} badgeDefinitions - Badge definitions object
+   */
   checkAndGrantBadge(badgeId, badgeDefinitions) {
-    if (this.state.badges.find(b => b.id === badgeId)) return;
+    if (this.badgeIds.has(badgeId)) return;
+    
     const def = badgeDefinitions[badgeId];
-    if (!def) { console.warn(`Badge definition not found: ${badgeId}`); return; }
-    this.grantBadge({ id: badgeId, name: def.name, icon: def.icon, description: def.description, xp: def.xp, rarity: def.rarity, inspirational: def.inspirational });
+    if (!def) {
+      console.warn(`Badge definition not found: ${badgeId}`);
+      return;
+    }
+    
+    this.grantBadge({ 
+      id: badgeId, 
+      name: def.name, 
+      icon: def.icon, 
+      description: def.description, 
+      xp: def.xp, 
+      rarity: def.rarity, 
+      inspirational: def.inspirational 
+    });
   }
-
-  /* ---------------------------------------------------------
+/* ---------------------------------------------------------
      QUEST MANAGEMENT
   --------------------------------------------------------- */
+  /**
+   * Progress energy check-in quest with day/night tracking
+   * @param {string} timeOfDay - 'day' or 'night'
+   */
   progressEnergyCheckin(timeOfDay) {
-    const quest = this.state.quests.daily.find(q => q.id === 'energy_checkin');
+    const quest = this.state.quests.daily.find(q => q.id === GamificationEngine.QUEST_IDS.ENERGY_CHECKIN);
     if (!quest || quest.completed) return;
+    
     if (!quest.subProgress) quest.subProgress = { day: false, night: false };
+    
     const key = timeOfDay === 'day' ? 'day' : timeOfDay === 'night' ? 'night' : null;
     if (!key || quest.subProgress[key]) return;
+    
     quest.subProgress[key] = true;
     quest.progress += 1;
     this.addXP(10, `Energy Check-in (${key})`);
     this.state.karma += 1;
     this.emit('questProgress', quest);
+    
     if (quest.progress >= quest.goal) {
       quest.completed = true;
       this.addXP(10, 'Energy Check-in Bonus (Both Complete)');
       this.state.karma += 2;
       if (quest.inspirational) this.emit('inspirationalMessage', quest.inspirational);
       this.emit('questCompleted', quest);
+      
       if (this.state.quests.daily.every(q => q.completed)) {
         this.addXP(50, 'Daily Quest Streak Bonus');
         this.state.karma += 5;
-        if (!this.state._bulkMode && this.app?.showToast) this.app.showToast('🎉 Daily quests finished! +50 XP +5 Karma', 'success');
+        if (!this.state._bulkMode && this.app?.showToast) {
+          this.app.showToast('🎉 Daily quests finished! +50 XP +5 Karma', 'success');
+        }
         this.emit('dailyQuestsComplete', null);
       }
     }
+    
     this.saveState();
   }
 
+  /**
+   * Progress a quest by increment
+   * @param {string} questType - 'daily', 'weekly', or 'monthly'
+   * @param {string} questId - Quest ID
+   * @param {number} increment - Amount to increment
+   */
   progressQuest(questType, questId, increment = 1) {
     const quest = this.state.quests[questType]?.find(q => q.id === questId);
     if (!quest || quest.completed) return;
+    
     quest.progress = Math.min(quest.goal, quest.progress + increment);
+    
     if (quest.progress >= quest.goal) {
       quest.completed = true;
       this.addXP(quest.xpReward || 50, `Quest: ${quest.name}`);
+      
       if (quest.karmaReward) this.state.karma += quest.karmaReward;
       if (quest.badge) this.grantBadge(quest.badge);
       if (quest.inspirational) this.emit('inspirationalMessage', quest.inspirational);
       if (!this.state._bulkMode) this.emit('questCompleted', quest);
+      
       if (questType === 'daily' && this.state.quests.daily.every(q => q.completed)) {
         this.addXP(50, 'Daily Quest Streak Bonus');
         this.state.karma += 5;
-        if (!this.state._bulkMode && this.app?.showToast) this.app.showToast('🎉 Daily quests finished! +50 XP +5 Karma', 'success');
+        if (!this.state._bulkMode && this.app?.showToast) {
+          this.app.showToast('🎉 Daily quests finished! +50 XP +5 Karma', 'success');
+        }
         if (!this.state._bulkMode) this.emit('dailyQuestsComplete', null);
       }
+      
       this.queueBadgeCheck('quest');
     } else {
       this.emit('questProgress', quest);
     }
+    
     this.saveState();
   }
 
+  /**
+   * Complete a quest immediately
+   * @param {string} questType - 'daily', 'weekly', or 'monthly'
+   * @param {string} questId - Quest ID
+   */
   completeQuest(questType, questId) {
     const quest = this.state.quests[questType]?.find(q => q.id === questId);
     if (!quest) return;
     this.progressQuest(questType, questId, quest.goal - quest.progress);
   }
 
+  /**
+   * Progress chakra-related quest
+   * @param {string} questType - Quest type
+   * @param {string} questId - Quest ID
+   * @param {string} chakraName - Chakra name
+   * @param {number} increment - Amount to increment
+   */
   completeChakraQuest(questType, questId, chakraName, increment = 1) {
     this.progressQuest(questType, questId, increment);
   }
 
-  resetDailyQuests() { this._resetQuests('daily'); }
-  resetWeeklyQuests() { this._resetQuests('weekly'); }
-  resetMonthlyQuests() { this._resetQuests('monthly'); }
+  /**
+   * Reset daily quests
+   */
+  resetDailyQuests() { 
+    this._resetQuests('daily'); 
+  }
 
+  /**
+   * Reset weekly quests
+   */
+  resetWeeklyQuests() { 
+    this._resetQuests('weekly'); 
+  }
+
+  /**
+   * Reset monthly quests
+   */
+  resetMonthlyQuests() { 
+    this._resetQuests('monthly'); 
+  }
+
+  /**
+   * Internal quest reset logic
+   * @param {string} type - Quest type to reset
+   */
   _resetQuests(type) {
     const allComplete = this.state.quests[type]?.every(q => q.completed);
+    
     if (allComplete) {
       if (type === 'daily') {
         this.state.dailyQuestCompletions = (this.state.dailyQuestCompletions || 0) + 1;
@@ -874,35 +1193,66 @@ export class GamificationEngine {
       } else if (type === 'weekly') {
         this.addXP(200, 'Weekly Quest Completion Bonus');
         this.state.karma += 20;
-        if (this.app?.showToast) this.app.showToast('🎉 Weekly quests finished! +200 XP +20 Karma', 'success');
+        if (this.app?.showToast) {
+          this.app.showToast('🎉 Weekly quests finished! +200 XP +20 Karma', 'success');
+        }
         this.state.weeklyQuestCompletions = (this.state.weeklyQuestCompletions || 0) + 1;
         this.state.dailyQuestStreak = 0;
       } else if (type === 'monthly') {
         this.addXP(800, 'Monthly Quest Completion Bonus');
         this.state.karma += 80;
-        if (this.app?.showToast) this.app.showToast('🎉 Monthly quests finished! +800 XP +80 Karma', 'success');
+        if (this.app?.showToast) {
+          this.app.showToast('🎉 Monthly quests finished! +800 XP +80 Karma', 'success');
+        }
         this.state.monthlyQuestCompletions = (this.state.monthlyQuestCompletions || 0) + 1;
       }
       this.queueBadgeCheck('quest');
     }
+    
     this.state.quests[type]?.forEach(q => {
       q.progress = 0;
       q.completed = false;
-      if (q.id === 'energy_checkin') q.subProgress = { day: false, night: false };
+      if (q.id === GamificationEngine.QUEST_IDS.ENERGY_CHECKIN) {
+        q.subProgress = { day: false, night: false };
+      }
     });
+    
     this.emit('questsReset', type);
     this.saveState();
   }
 
-  completeAllDaily() { this._completeBatch('daily'); }
-  completeAllWeekly() { this._completeBatch('weekly'); }
-  completeAllMonthly() { this._completeBatch('monthly'); }
+  /**
+   * Complete all daily quests at once
+   */
+  completeAllDaily() { 
+    this._completeBatch('daily'); 
+  }
 
+  /**
+   * Complete all weekly quests at once
+   */
+  completeAllWeekly() { 
+    this._completeBatch('weekly'); 
+  }
+
+  /**
+   * Complete all monthly quests at once
+   */
+  completeAllMonthly() { 
+    this._completeBatch('monthly'); 
+  }
+
+  /**
+   * Batch complete quests
+   * @param {string} type - Quest type
+   */
   _completeBatch(type) {
     const quests = this.state.quests[type];
     if (!quests?.length) return;
+    
     let done = 0, xp = 0, karma = 0;
     this.state._bulkMode = true;
+    
     quests.forEach(q => {
       if (!q.completed) {
         this.completeQuest(type, q.id);
@@ -911,6 +1261,7 @@ export class GamificationEngine {
         karma += q.karmaReward || 0;
       }
     });
+    
     this.state._bulkMode = false;
     if (done) this.emit('bulkQuestsComplete', { type, done, xp, karma });
   }
@@ -918,6 +1269,10 @@ export class GamificationEngine {
   /* ---------------------------------------------------------
      UTILITY FUNCTIONS
   --------------------------------------------------------- */
+  /**
+   * Unlock a feature
+   * @param {string} featureId - Feature ID
+   */
   unlockFeature(featureId) {
     if (this.state.unlockedFeatures.includes(featureId)) return;
     this.state.unlockedFeatures.push(featureId);
@@ -925,16 +1280,33 @@ export class GamificationEngine {
     this.saveState();
   }
 
+  /**
+   * Log an action
+   * @param {string} type - Action type
+   * @param {Object} details - Action details
+   */
   logAction(type, details = {}) {
     try {
-      this.state.logs.push({ timestamp: new Date().toISOString(), type, details });
-      if (this.state.logs.length > 1000) this.state.logs = this.state.logs.slice(-1000);
+      this.state.logs.push({ 
+        timestamp: new Date().toISOString(), 
+        type, 
+        details 
+      });
+      
+      if (this.state.logs.length > GamificationEngine.MAX_LOGS) {
+        this.state.logs = this.state.logs.slice(-GamificationEngine.MAX_LOGS);
+      }
+      
       this.saveState();
     } catch (error) {
       console.error('Failed to log action:', error);
     }
   }
 
+  /**
+   * Get complete status summary
+   * @returns {Object} Status summary
+   */
   getStatusSummary() {
     const levelInfo = this.calculateLevel();
     return {
@@ -955,10 +1327,14 @@ export class GamificationEngine {
     };
   }
 
+  /**
+   * Reset all gamification state
+   */
   reset() {
     try {
       localStorage.removeItem('gamificationState');
       this.state = this.defaultState();
+      this.badgeIds.clear();
       this.emit('reset', null);
       this.saveState();
     } catch (error) {
@@ -968,11 +1344,22 @@ export class GamificationEngine {
 }
 
 /* ---------------------------------------------------------
-   LEVEL-UP SPECTACLE (Inlined Animation)
+   LEVEL-UP SPECTACLE ANIMATION
 --------------------------------------------------------- */
+/**
+ * Show level-up animation spectacle
+ * @param {Object} options - Level up details
+ * @param {number} options.level - New level
+ * @param {string} options.title - Level title
+ * @param {number} options.karma - Karma reward
+ * @param {number} options.xp - XP reward
+ */
 function showLevelUpSpectacle({ level, title, karma = 0, xp = 0 }) {
   if (document.getElementById('lvl-spectacle')) return;
-  const duration = 4000;
+  
+  const duration = GamificationEngine.SPECTACLE_DURATION_MS;
+  
+  // Inject styles
   const st = document.createElement('style');
   st.id = 'lvl-spectacle-styles';
   st.textContent = `
@@ -993,6 +1380,8 @@ function showLevelUpSpectacle({ level, title, karma = 0, xp = 0 }) {
     @keyframes particle { to { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))); opacity: 0; } }
   `;
   document.head.appendChild(st);
+  
+  // Create wrapper
   const wrap = document.createElement('div');
   wrap.id = 'lvl-spectacle';
   wrap.innerHTML = `
@@ -1007,8 +1396,10 @@ function showLevelUpSpectacle({ level, title, karma = 0, xp = 0 }) {
     </div>
   `;
   document.body.appendChild(wrap);
+  
+  // Add particles
   const flare = wrap.querySelector('.lvl-flare');
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < GamificationEngine.SPECTACLE_PARTICLE_COUNT; i++) {
     const p = document.createElement('div');
     const hue = 40 + Math.random() * 40;
     p.style.cssText = `position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; background: hsl(${hue}, 100%, 70%); border-radius: 50%; box-shadow: 0 0 6px hsl(${hue}, 100%, 70%); transform: translate(-50%, -50%); animation: particle ${1.2 + Math.random() * 0.8}s ${Math.random() * 0.3}s ease-out forwards;`;
@@ -1018,7 +1409,12 @@ function showLevelUpSpectacle({ level, title, karma = 0, xp = 0 }) {
     p.style.setProperty('--dy', `${Math.sin(angle) * distance}vmin`);
     flare.appendChild(p);
   }
-  setTimeout(() => { wrap.remove(); st.remove(); }, duration);
+  
+  // Cleanup
+  setTimeout(() => { 
+    wrap.remove(); 
+    st.remove(); 
+  }, duration);
 }
 
 export { showLevelUpSpectacle };
