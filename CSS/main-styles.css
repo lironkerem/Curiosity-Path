@@ -4115,6 +4115,27 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   margin-bottom: var(--spacing-lg);
 }
 
+.lux-social-chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.65rem 0.9rem;
+  background: var(--neuro-bg);
+  border-radius: 999px;
+  box-shadow: var(--shadow-raised);
+  color: var(--neuro-text);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.lux-social-row {
+  display: flex;
+  gap: 0.9rem;
+  justify-content: center;
+  margin-top: 1.1rem;
+  flex-wrap: wrap;
+}
 /* =========================================================
    END OF MAIN STYLES
    ========================================================= */
