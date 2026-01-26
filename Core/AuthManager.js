@@ -1486,3 +1486,4 @@ function attachProfileHelpers() {
 
 // Initialize profile helpers
 attachProfileHelpers();
+}
