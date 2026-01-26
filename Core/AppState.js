@@ -1,166 +1,496 @@
-// Core/AppState.js - PATCHED: Uses addBoth() to prevent duplicate toasts
+/**
+ * AppState - Core Application State Manager
+ * 
+ * Manages user data persistence with cloud-first strategy:
+ * - Primary: Supabase cloud storage
+ * - Fallback: localStorage cache
+ * 
+ * Handles:
+ * - User progress data (entries, readings, meditations)
+ * - Streaks and statistics
+ * - Gamification triggers
+ * - Data synchronization
+ * 
+ * @class AppState
+ */
+
 /* global window, console, localStorage */
 
 import { fetchProgress, saveProgress } from '/Core/DB.js';
 
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+
+const STORAGE_KEY = 'pc_appdata';
+
+const ENTRY_TYPES = {
+  ENERGY: 'energy',
+  GRATITUDE: 'gratitude',
+  MEDITATION: 'meditation',
+  TAROT: 'tarot',
+  FLIP: 'flip',
+  JOURNAL: 'journal'
+};
+
+const XP_REWARDS = {
+  [ENTRY_TYPES.ENERGY]: 20,
+  [ENTRY_TYPES.GRATITUDE]: 30, // per entry
+  [ENTRY_TYPES.MEDITATION]: 5, // per minute
+  [ENTRY_TYPES.TAROT]: 25,
+  [ENTRY_TYPES.FLIP]: 40,
+  [ENTRY_TYPES.JOURNAL]: 35,
+  DEFAULT: 10
+};
+
+const STATS_WINDOW_DAYS = 7;
+const CHAKRA_BOOST = 5;
+
+// ============================================================================
+// MAIN CLASS
+// ============================================================================
+
 export default class AppState {
+  /**
+   * @param {Object} app - Main application instance
+   */
   constructor(app) {
     this.app = app;
     this.currentUser = null;
     this.isAuthenticated = false;
     this.activeTab = 'dashboard';
+    this.data = null;
     this.ready = this.init();
   }
 
+  /**
+   * Initializes the app state by loading data
+   * @returns {Promise<AppState>} This instance when ready
+   */
   async init() {
     this.data = await this.loadAppData();
     return this;
   }
 
-  /* ---------- LOAD: cloud first, local fallback ---------- */
+  // ==========================================================================
+  // DATA PERSISTENCE - LOAD
+  // ==========================================================================
+
+  /**
+   * Loads app data with cloud-first strategy
+   * Priority: Cloud → localStorage → Empty model
+   * @returns {Promise<Object>} User data object
+   */
   async loadAppData() {
     try {
-      const cloud = await fetchProgress();
-      if (cloud != null) {
-        if (Object.keys(cloud).length === 0) return this.emptyModel();
-        console.log('📊 Loaded user data from cloud');
-        return cloud;
-      }
-      throw new Error('Cloud fetch failed');
-    } catch (e) {
-      console.warn('⚠️ Cloud read failed, falling back to localStorage:', e.message);
-      const raw = localStorage.getItem('pc_appdata');
-      if (raw) try { return JSON.parse(raw); } catch { localStorage.removeItem('pc_appdata'); }
-      console.log('📊 No cached data – initializing empty model');
+      const cloudData = await this.loadFromCloud();
+      if (cloudData) return cloudData;
+      
+      // Cloud failed, try localStorage
+      const localData = this.loadFromLocalStorage();
+      if (localData) return localData;
+      
+      // No data found, initialize empty
+      console.log('📊 No cached data — initializing empty model');
+      return this.emptyModel();
+    } catch (error) {
+      console.error('Failed to load app data:', error);
       return this.emptyModel();
     }
   }
 
-  /* ---------- SAVE: cloud (primary) + localStorage (cache) ---------- */
-  async saveAppData() {
-    try { await saveProgress(this.data); } catch (e) { console.error('❌ Cloud save failed:', e); }
-    try { localStorage.setItem('pc_appdata', JSON.stringify(this.data)); } catch (e) {
-      if (e.name === 'QuotaExceededError') localStorage.removeItem('pc_appdata');
+  /**
+   * Loads data from cloud storage
+   * @returns {Promise<Object|null>} Cloud data or null if failed
+   */
+  async loadFromCloud() {
+    try {
+      const cloudData = await fetchProgress();
+      
+      if (cloudData == null) {
+        throw new Error('Cloud fetch returned null');
+      }
+      
+      // Check if empty object (new user)
+      if (Object.keys(cloudData).length === 0) {
+        return this.emptyModel();
+      }
+      
+      console.log('📊 Loaded user data from cloud');
+      return cloudData;
+    } catch (error) {
+      console.warn('⚠️ Cloud read failed:', error.message);
+      return null;
     }
   }
 
-  /* ---------- default empty model ---------- */
+  /**
+   * Loads data from localStorage cache
+   * @returns {Object|null} Cached data or null if invalid
+   */
+  loadFromLocalStorage() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      
+      const parsed = JSON.parse(raw);
+      console.log('📊 Loaded user data from localStorage cache');
+      return parsed;
+    } catch (error) {
+      console.warn('⚠️ localStorage parse failed, clearing cache:', error);
+      this.clearLocalStorage();
+      return null;
+    }
+  }
+
+  // ==========================================================================
+  // DATA PERSISTENCE - SAVE
+  // ==========================================================================
+
+  /**
+   * Saves app data to cloud (primary) and localStorage (cache)
+   * Handles errors gracefully and clears cache if quota exceeded
+   */
+  async saveAppData() {
+    // Save to cloud (primary storage)
+    await this.saveToCloud();
+    
+    // Save to localStorage (cache/fallback)
+    this.saveToLocalStorage();
+  }
+
+  /**
+   * Saves data to cloud storage
+   */
+  async saveToCloud() {
+    try {
+      await saveProgress(this.data);
+    } catch (error) {
+      console.error('❌ Cloud save failed:', error);
+    }
+  }
+
+  /**
+   * Saves data to localStorage cache
+   */
+  saveToLocalStorage() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
+    } catch (error) {
+      if (error.name === 'QuotaExceededError') {
+        console.warn('⚠️ localStorage quota exceeded, clearing cache');
+        this.clearLocalStorage();
+      } else {
+        console.error('❌ localStorage save failed:', error);
+      }
+    }
+  }
+
+  /**
+   * Clears localStorage cache
+   */
+  clearLocalStorage() {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.error('Failed to clear localStorage:', error);
+    }
+  }
+
+  // ==========================================================================
+  // DATA MODEL
+  // ==========================================================================
+
+  /**
+   * Returns empty data model structure for new users
+   * @returns {Object} Empty data model
+   */
   emptyModel() {
     return {
+      // User entries
       energyEntries: [],
       gratitudeEntries: [],
       tarotReadings: [],
       meditationHistory: [],
+      journalEntries: [],
+      flipEntries: [],
+      
+      // User preferences
       favorites: [],
       achievements: [],
-      streaks: { current: 0, longest: 0, lastActive: null },
-      stats: { totalSessions: 0, totalMeditations: 0, totalReadings: 0 },
+      
+      // Progress tracking
+      streaks: {
+        current: 0,
+        longest: 0,
+        lastActive: null
+      },
+      
+      // Statistics
+      stats: {
+        totalSessions: 0,
+        totalMeditations: 0,
+        totalReadings: 0
+      },
+      
+      // Gamification data
       gamification: {
         xp: 0,
         level: 1,
         achievements: [],
         badges: [],
         quests: {},
-        streaks: { current: 0, longest: 0, lastActive: null }
+        streaks: {
+          current: 0,
+          longest: 0,
+          lastActive: null
+        }
       }
     };
   }
 
-  /* ---------- streak & stat helpers ---------- */
+  // ==========================================================================
+  // STREAKS & STATISTICS
+  // ==========================================================================
+
+  /**
+   * Updates user's daily streak
+   * Increments if consecutive day, resets if missed day
+   */
   updateStreak() {
     const today = new Date().toDateString();
-    const last = this.data.streaks.lastActive;
-    if (last === today) return;
+    const lastActive = this.data.streaks.lastActive;
+    
+    // Already updated today
+    if (lastActive === today) return;
 
-    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-    this.data.streaks.current = last === yesterday.toDateString() ? this.data.streaks.current + 1 : 1;
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toDateString();
+    
+    // Increment if consecutive, reset if broken
+    if (lastActive === yesterdayStr) {
+      this.data.streaks.current += 1;
+    } else {
+      this.data.streaks.current = 1;
+    }
+    
     this.data.streaks.lastActive = today;
-    if (this.data.streaks.current > this.data.streaks.longest) this.data.streaks.longest = this.data.streaks.current;
+    
+    // Update longest streak if current exceeds it
+    if (this.data.streaks.current > this.data.streaks.longest) {
+      this.data.streaks.longest = this.data.streaks.current;
+    }
+    
     this.saveAppData();
   }
 
+  /**
+   * Calculates and returns user statistics
+   * @returns {Object} Statistics object
+   */
   getStats() {
-    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
-    const weekMed = (this.data.meditationHistory || []).filter(m => new Date(m.timestamp) >= weekAgo).length;
-    const recentEnergy = (this.data.energyEntries || []).slice(0, 7);
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - STATS_WINDOW_DAYS);
+    
+    // Calculate weekly meditations
+    const weeklyMeditations = (this.data.meditationHistory || [])
+      .filter(m => new Date(m.timestamp) >= weekAgo)
+      .length;
+    
+    // Calculate average energy
+    const recentEnergy = (this.data.energyEntries || []).slice(0, STATS_WINDOW_DAYS);
     const avgEnergy = recentEnergy.length
-      ? Math.round(recentEnergy.reduce((s, e) => s + (e.energy || 0), 0) / recentEnergy.length)
+      ? Math.round(
+          recentEnergy.reduce((sum, entry) => sum + (entry.energy || 0), 0) / recentEnergy.length
+        )
       : 0;
 
     return {
       currentStreak: this.data.streaks?.current || 0,
       longestStreak: this.data.streaks?.longest || 0,
-      weeklyMeditations: weekMed,
+      weeklyMeditations,
       avgEnergy,
       totalGratitudes: (this.data.gratitudeEntries || []).length,
       achievements: (this.data.achievements || []).length
     };
   }
 
+  /**
+   * Gets today's entries for a specific type
+   * @param {string} type - Entry type (energy, gratitude, etc.)
+   * @returns {Array} Today's entries
+   */
   getTodayEntries(type) {
     const today = new Date().toDateString();
     const key = `${type}Entries`;
+    
     if (!this.data[key]) return [];
-    return this.data[key].filter(en => new Date(en.date || en.timestamp).toDateString() === today);
+    
+    return this.data[key].filter(entry => {
+      const entryDate = new Date(entry.date || entry.timestamp);
+      return entryDate.toDateString() === today;
+    });
   }
 
-  /* ---------- addEntry ---------- */
+  // ==========================================================================
+  // ENTRY MANAGEMENT
+  // ==========================================================================
+
+  /**
+   * Adds a new entry of specified type
+   * Triggers streak update and gamification rewards
+   * @param {string} type - Entry type
+   * @param {Object} entry - Entry data
+   */
   async addEntry(type, entry) {
     const key = `${type}Entries`;
-    if (!this.data[key]) this.data[key] = [];
-    this.data[key].unshift({ ...entry, timestamp: new Date().toISOString() });
+    
+    // Initialize array if doesn't exist
+    if (!this.data[key]) {
+      this.data[key] = [];
+    }
+    
+    // Add entry with timestamp
+    const newEntry = {
+      ...entry,
+      timestamp: new Date().toISOString()
+    };
+    
+    this.data[key].unshift(newEntry);
 
+    // Persist changes
     await this.saveAppData();
+    
+    // Update streak
     this.updateStreak();
-    if (window.app?.gamification) this.triggerGamificationForEntry(type, entry);
+    
+    // Trigger gamification rewards
+    if (window.app?.gamification) {
+      this.triggerGamificationForEntry(type, entry);
+    }
   }
 
-  /* ---------- FIXED: Uses addBoth() to show combined toasts ---------- */
+  // ==========================================================================
+  // GAMIFICATION INTEGRATION
+  // ==========================================================================
+
+  /**
+   * Triggers gamification rewards based on entry type
+   * Awards XP, progresses quests, updates streaks, checks badges
+   * @param {string} type - Entry type
+   * @param {Object} entry - Entry data
+   */
   triggerGamificationForEntry(type, entry) {
-    const g = window.app.gamification;
+    const gamification = window.app.gamification;
+    if (!gamification) return;
+
     switch (type) {
-      case 'energy':
-        g.addBoth(20, 2, 'Energy Check-in');
-        g.progressQuest('daily', 'energy_checkin', 1);
-        g.updateStreak();
-        g.queueBadgeCheck('energy');
+      case ENTRY_TYPES.ENERGY:
+        this.handleEnergyGamification(gamification);
         break;
-      case 'gratitude':
-        const cnt = entry.entries?.length || 1;
-        g.addBoth(30 * cnt, 3 * cnt, 'Gratitude Journal');
-        g.progressQuest('daily', 'gratitude_1', cnt);
-        g.updateStreak();
-        g.queueBadgeCheck('gratitude');
+        
+      case ENTRY_TYPES.GRATITUDE:
+        this.handleGratitudeGamification(gamification, entry);
         break;
-      case 'meditation':
-        const dur = entry.duration || 10;
-        g.addBoth(dur * 5, Math.floor(dur / 2), 'Meditation');
-        g.progressQuest('daily', 'meditate_10', dur);
-        g.progressQuest('weekly', 'meditate_5', 1);
-        g.updateStreak();
-        g.queueBadgeCheck('meditation');
-        if (entry.chakra) g.updateChakra(entry.chakra, 5);
+        
+      case ENTRY_TYPES.MEDITATION:
+        this.handleMeditationGamification(gamification, entry);
         break;
-      case 'tarot':
-        g.addBoth(25, 2, 'Tarot Reading');
-        g.updateStreak();
-        g.queueBadgeCheck('tarot');
+        
+      case ENTRY_TYPES.TAROT:
+        this.handleTarotGamification(gamification);
         break;
-      case 'flip':
-        g.addBoth(40, 4, 'Flip The Script');
-        g.updateStreak();
-        g.queueBadgeCheck('flip');
+        
+      case ENTRY_TYPES.FLIP:
+        this.handleFlipGamification(gamification);
         break;
-      case 'journal':
-        g.addBoth(35, 3, 'Journal Entry');
-        g.progressQuest('daily', 'journal_1', 1);
-        g.updateStreak();
-        g.queueBadgeCheck('journal');
+        
+      case ENTRY_TYPES.JOURNAL:
+        this.handleJournalGamification(gamification);
         break;
+        
       default:
-        g.addBoth(10, 1, 'Activity');
-        g.updateStreak();
-        g.queueBadgeCheck('all');
+        this.handleDefaultGamification(gamification);
     }
+  }
+
+  /**
+   * Handles energy check-in gamification
+   */
+  handleEnergyGamification(gamification) {
+    gamification.addXP(XP_REWARDS[ENTRY_TYPES.ENERGY], 'Energy Check-in');
+    gamification.progressQuest('daily', 'energy_checkin', 1);
+    gamification.updateStreak();
+    gamification.checkAllBadges();
+  }
+
+  /**
+   * Handles gratitude journal gamification
+   */
+  handleGratitudeGamification(gamification, entry) {
+    const count = entry.entries?.length || 1;
+    const xp = XP_REWARDS[ENTRY_TYPES.GRATITUDE] * count;
+    
+    gamification.addXP(xp, 'Gratitude Journal');
+    gamification.progressQuest('daily', 'gratitude_1', count);
+    gamification.updateStreak();
+    gamification.checkAllBadges();
+  }
+
+  /**
+   * Handles meditation gamification
+   */
+  handleMeditationGamification(gamification, entry) {
+    const duration = entry.duration || 10;
+    const xp = duration * XP_REWARDS[ENTRY_TYPES.MEDITATION];
+    
+    gamification.addXP(xp, 'Meditation');
+    gamification.progressQuest('daily', 'meditate_10', duration);
+    gamification.progressQuest('weekly', 'meditate_5', 1);
+    gamification.updateStreak();
+    gamification.checkAllBadges();
+    
+    // Update chakra if specified
+    if (entry.chakra) {
+      gamification.updateChakra(entry.chakra, CHAKRA_BOOST);
+    }
+  }
+
+  /**
+   * Handles tarot reading gamification
+   */
+  handleTarotGamification(gamification) {
+    gamification.addXP(XP_REWARDS[ENTRY_TYPES.TAROT], 'Tarot Reading');
+    gamification.updateStreak();
+    gamification.checkAllBadges();
+  }
+
+  /**
+   * Handles flip the script gamification
+   */
+  handleFlipGamification(gamification) {
+    gamification.addXP(XP_REWARDS[ENTRY_TYPES.FLIP], 'Flip The Script');
+    gamification.updateStreak();
+    gamification.checkAllBadges();
+  }
+
+  /**
+   * Handles journal entry gamification
+   */
+  handleJournalGamification(gamification) {
+    gamification.addXP(XP_REWARDS[ENTRY_TYPES.JOURNAL], 'Journal Entry');
+    gamification.progressQuest('daily', 'journal_1', 1);
+    gamification.updateStreak();
+    gamification.checkAllBadges();
+  }
+
+  /**
+   * Handles default activity gamification
+   */
+  handleDefaultGamification(gamification) {
+    gamification.addXP(XP_REWARDS.DEFAULT, 'Activity');
+    gamification.updateStreak();
+    gamification.checkAllBadges();
   }
 }
