@@ -1,11 +1,33 @@
 // ============================================
-// HAPPINESS ENGINE - OPTIMIZED
+// HAPPINESS ENGINE - OPTIMIZED & CONSOLIDATED
 // ============================================
 
 import affirmationsData from '../Features/Data/AffirmationsList.js';
 import { InquiryEngine } from '../Features/InquiryEngine.js';
 
 class HappinessEngine {
+  // Constants
+  static QUEST_TARGET = 5;
+  static DEBOUNCE_MS = 1000;
+  static ROTATION_DEG = 360;
+  static INTENSITY_EMOJIS = { 1: '🌱', 2: '🌿', 3: '🌳', 4: '🔥' };
+  static INQUIRY_DOMAINS = [
+    'Responsibility and Power',
+    'Emotional Honesty',
+    'Identity and Roles',
+    'Creativity and Expression',
+    'Shadow and Integration',
+    'Wisdom and Insight',
+    'Joy and Fulfillment',
+    'Physical Well-Being and Energy',
+    'Relationship',
+    'Spiritual Growth',
+    'Fear and Resistance',
+    'Boundaries and Consent',
+    'Purpose and Direction',
+    'Mind and Awareness'
+  ];
+
   constructor(app) {
     this.app = app;
     this.boosters = [
@@ -16,30 +38,51 @@ class HappinessEngine {
       { id: 5, title: 'Quick Stretch', emoji: '🤸', description: 'Gently stretch your arms, neck, and back for 3 minutes.', duration: '3 min', category: 'Body' },
       { id: 6, title: 'Listen to One Song', emoji: '🎶', description: 'Listen to one favorite song without any distractions.', duration: '4 min', category: 'Joy' }
     ];
-    this.boostersLoaded = true;
+    this.boostersLoaded = false;
     this.currentBooster = this.getRandomBooster();
     this.currentQuote = null;
     this.currentAffirmation = null;
     this.currentInquiry = null;
-    this.affirmations = window.affirmations || affirmationsData;
+    this.affirmations = affirmationsData;
     this.inquiryEngine = new InquiryEngine('beginner');
     this._lastTracked = 0;
     this._cachedElements = {};
     this.loadBoosters();
   }
 
+  // ============================================
+  // DATA LOADING
+  // ============================================
+
+  /**
+   * Asynchronously loads happiness boosters from JSON file
+   * Falls back to default boosters if load fails
+   */
   async loadBoosters() {
     try {
       const res = await fetch('./Features/Data/HappinessBoostersList.json');
-      if (!res.ok) throw new Error(res.status);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       this.boosters = data.boosters;
       this.boostersLoaded = true;
+      
       const tab = this._getElement('happiness-tab');
       if (tab && !tab.classList.contains('hidden')) this.render();
-    } catch (e) { console.error('boosters load failed', e); }
+    } catch (e) {
+      console.error('Failed to load happiness boosters:', e);
+      this.boostersLoaded = true; // Use default boosters
+    }
   }
 
+  // ============================================
+  // UTILITY METHODS
+  // ============================================
+
+  /**
+   * Caches and returns DOM element by ID
+   * @param {string} id - Element ID
+   * @returns {HTMLElement|null}
+   */
   _getElement(id) {
     if (!this._cachedElements[id] || !document.getElementById(id)) {
       this._cachedElements[id] = document.getElementById(id);
@@ -47,14 +90,40 @@ class HappinessEngine {
     return this._cachedElements[id];
   }
 
+  /**
+   * Calculates current day of year (1-365/366)
+   * @returns {number}
+   */
   _getDayOfYear() {
-    const now = new Date(), start = new Date(now.getFullYear(), 0, 0);
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
     return Math.floor((now - start) / 86400000);
   }
 
-  getDailyBooster() { return this.boosters[this._getDayOfYear() % this.boosters.length]; }
-  getRandomBooster() { return this.app.randomFrom(this.boosters); }
+  // ============================================
+  // CONTENT GETTERS
+  // ============================================
+
+  /**
+   * Returns daily booster based on day of year
+   * @returns {Object}
+   */
+  getDailyBooster() {
+    return this.boosters[this._getDayOfYear() % this.boosters.length];
+  }
+
+  /**
+   * Returns random booster
+   * @returns {Object}
+   */
+  getRandomBooster() {
+    return this.app.randomFrom(this.boosters);
+  }
   
+  /**
+   * Returns daily affirmation based on day of year
+   * @returns {string}
+   */
   getDailyAffirmation() {
     const list = this.affirmations?.general_positive_affirmations;
     if (!list?.length) return 'You are doing great.';
@@ -62,45 +131,57 @@ class HappinessEngine {
     return typeof item === 'string' ? item : item.text;
   }
   
+  /**
+   * Returns random affirmation from all categories
+   * @returns {string}
+   */
   getRandomAffirmation() {
-    const src = this.affirmations;
-    if (!src) return 'You are capable of amazing things.';
-
-    // flatten once, keep only real items
-    const pool = Object.values(src)
-                       .flat()
-                       .filter(Boolean);   // removes null/undefined
-
+    const pool = Object.values(this.affirmations || {})
+      .flat()
+      .filter(Boolean);
+    
     if (!pool.length) return 'You are capable of amazing things.';
-
+    
     const pick = this.app.randomFrom(pool);
-    return typeof pick === 'string' ? pick : pick.text;
+    return pick?.text || pick || 'You are capable of amazing things.';
   }
   
+  /**
+   * Returns random self-inquiry question from random domain
+   * @returns {Object}
+   */
   getRandomInquiry() {
-    const domains = [
-      'Responsibility and Power',
-      'Emotional Honesty',
-      'Identity and Roles',
-      'Creativity and Expression',
-      'Shadow and Integration',
-      'Wisdom and Insight',
-      'Joy and Fulfillment',
-      'Physical Well-Being and Energy',
-      'Relationship',
-      'Spiritual Growth',
-      'Fear and Resistance',
-      'Boundaries and Consent',
-      'Purpose and Direction',
-      'Mind and Awareness'
+    const domain = HappinessEngine.INQUIRY_DOMAINS[
+      Math.floor(Math.random() * HappinessEngine.INQUIRY_DOMAINS.length)
     ];
-    const domain = domains[Math.floor(Math.random() * domains.length)];
     return this.inquiryEngine.getRandomQuestion(domain);
   }
 
+  /**
+   * Returns random quote from QuotesData
+   * @returns {Object}
+   */
+  getRandomQuote() {
+    return window.QuotesData?.getRandomQuote() || { 
+      text: 'Stay positive!', 
+      author: 'Unknown' 
+    };
+  }
+
+  // ============================================
+  // QUEST TRACKING
+  // ============================================
+
+  /**
+   * Tracks a happiness content view and updates quest progress
+   * Debounced to prevent double-counting
+   * @returns {number} Total views today
+   */
   trackView() {
     const now = Date.now();
-    if (this._lastTracked && now - this._lastTracked < 1000) return this.getTodayViewCount();
+    if (this._lastTracked && now - this._lastTracked < HappinessEngine.DEBOUNCE_MS) {
+      return this.getTodayViewCount();
+    }
     this._lastTracked = now;
 
     const today = new Date().toDateString();
@@ -108,52 +189,85 @@ class HappinessEngine {
     data.count += 1;
     localStorage.setItem('daily_booster_views', JSON.stringify(data));
     
-    if (data.count <= 5 && this.app.gamification) {
-      if (data.count === 5) {
-        this.app.gamification.progressQuest('daily', 'daily_booster', 5);
-      }
+    // Update quest progress when target reached
+    if (data.count === HappinessEngine.QUEST_TARGET && this.app.gamification) {
+      this.app.gamification.progressQuest('daily', 'daily_booster', HappinessEngine.QUEST_TARGET);
     }
+    
     return data.count;
   }
 
+  /**
+   * Gets today's view count without incrementing
+   * @returns {number}
+   */
   getTodayViewCount() {
     return this._getStorageData(new Date().toDateString()).count;
   }
 
+  /**
+   * Retrieves or initializes storage data for given date
+   * @param {string} today - Date string
+   * @returns {Object}
+   */
   _getStorageData(today) {
     try {
-      const s = localStorage.getItem('daily_booster_views');
-      if (s) {
-        const p = JSON.parse(s);
-        if (p.date === today) return p;
+      const stored = localStorage.getItem('daily_booster_views');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.date === today) return parsed;
       }
-    } catch {}
+    } catch (e) {
+      console.error('Failed to parse storage data:', e);
+    }
     return { date: today, count: 0 };
   }
 
+  /**
+   * Updates quest progress badge and completion banner
+   */
   updateQuestDisplay() {
     const viewCount = this.getTodayViewCount();
     const badge = document.querySelector('#happiness-tab .badge');
+    
     if (badge) {
-      badge.textContent = `${viewCount} / 5 (Quest)`;
-      badge.className = `badge ${viewCount >= 5 ? 'badge-success' : 'badge-primary'}`;
+      badge.textContent = `${viewCount} / ${HappinessEngine.QUEST_TARGET} (Quest)`;
+      badge.className = `badge ${viewCount >= HappinessEngine.QUEST_TARGET ? 'badge-success' : 'badge-primary'}`;
     }
     
+    this._toggleQuestCompleteBanner(viewCount);
+  }
+
+  /**
+   * Shows/hides quest completion banner based on progress
+   * @param {number} viewCount - Current view count
+   */
+  _toggleQuestCompleteBanner(viewCount) {
     const bannerId = 'happiness-quest-complete';
     let banner = document.getElementById(bannerId);
     
-    if (viewCount >= 5 && !banner) {
+    if (viewCount >= HappinessEngine.QUEST_TARGET && !banner) {
       banner = document.createElement('div');
       banner.id = bannerId;
       banner.style.cssText = 'margin-bottom:2rem;padding:1rem;border-radius:0.5rem;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);';
       banner.innerHTML = '<p class="text-center" style="color:#22c55e;">🎉 Daily quest complete! Keep exploring if you\'d like!</p>';
+      
       const header = document.querySelector('#happiness-tab .universal-content');
       header?.insertBefore(banner, header.querySelector('main'));
-    } else if (viewCount < 5 && banner) {
+    } else if (viewCount < HappinessEngine.QUEST_TARGET && banner) {
       banner.remove();
     }
   }
 
+  // ============================================
+  // CARD ANIMATION
+  // ============================================
+
+  /**
+   * Animates card flip transition with new content
+   * @param {string} cardId - Card element ID
+   * @param {string} newHtml - New HTML content
+   */
   _flipCard(cardId, newHtml) {
     const card = this._getElement(cardId);
     if (!card) return;
@@ -164,7 +278,7 @@ class HappinessEngine {
     
     const match = inner.style.transform.match(/-?\d+\.?\d*/);
     const currentY = match ? parseFloat(match[0]) : 0;
-    inner.style.transform = `rotateY(${currentY + 360}deg)`;
+    inner.style.transform = `rotateY(${currentY + HappinessEngine.ROTATION_DEG}deg)`;
     
     const onEnd = () => {
       inner.removeEventListener('transitionend', onEnd);
@@ -173,112 +287,179 @@ class HappinessEngine {
     inner.addEventListener('transitionend', onEnd);
   }
 
-  _handleRefresh(type, getter, cardId, emoji, title, formatter) {
-    this[type] = getter.call(this);
+  // ============================================
+  // CONTENT REFRESH (CONSOLIDATED)
+  // ============================================
+
+  /**
+   * Generic refresh handler for all content types
+   * @param {string} type - Content type (e.g., 'Booster', 'Quote')
+   * @param {Function} getter - Content getter function
+   * @param {string} cardId - Card element ID
+   * @param {string} emoji - Card emoji
+   * @param {string} title - Card title
+   * @param {Function} formatter - HTML formatter function
+   */
+  _refreshContent(type, getter, cardId, emoji, title, formatter) {
+    this[`current${type}`] = getter.call(this);
     const viewCount = this.trackView();
-    const html = formatter(this[type], emoji, title);
+    const html = formatter.call(this, this[`current${type}`], emoji, title);
+    
     this._flipCard(cardId, html);
     this.updateQuestDisplay();
     
-    if (this.app.gamification) this.app.gamification.incrementHappinessViews();
+    if (this.app.gamification) {
+      this.app.gamification.incrementHappinessViews();
+    }
+    
     if (this.app.showToast) {
-      const msg = viewCount >= 5 
-        ? `✨ Quest complete! You've viewed 5 items today!`
-        : `✨ New ${title.toLowerCase()} revealed! (${viewCount}/5)`;
-      this.app.showToast(msg, viewCount >= 5 ? 'success' : 'success');
+      const isComplete = viewCount >= HappinessEngine.QUEST_TARGET;
+      const msg = isComplete 
+        ? `✨ Quest complete! You've viewed ${HappinessEngine.QUEST_TARGET} items today!`
+        : `✨ New ${title.toLowerCase()} revealed! (${viewCount}/${HappinessEngine.QUEST_TARGET})`;
+      this.app.showToast(msg, 'success');
     }
   }
 
   refreshBooster() {
-    this._handleRefresh('currentBooster', this.getRandomBooster, 'booster-card', '💪', 'Booster', (b, emoji) => `
+    this._refreshContent('Booster', this.getRandomBooster, 'booster-card', 
+      '💪', 'Booster', this._formatBooster);
+  }
+
+  refreshQuote() {
+    this._refreshContent('Quote', this.getRandomQuote, 'quote-card', 
+      '📜', 'Quote', this._formatQuote);
+  }
+
+  refreshAffirmation() {
+    this._refreshContent('Affirmation', this.getRandomAffirmation, 'affirm-card', 
+      '✨', 'Affirmation', this._formatAffirmation);
+  }
+
+  refreshInquiry() {
+    this._refreshContent('Inquiry', this.getRandomInquiry, 'inquiry-card', 
+      '💭', 'Inquiry', this._formatInquiry);
+  }
+
+  // ============================================
+  // HTML FORMATTERS
+  // ============================================
+
+  /**
+   * Formats booster card HTML
+   * @param {Object} booster - Booster object
+   * @returns {string} HTML string
+   */
+  _formatBooster(booster) {
+    return `
       <div class="flex items-center" style="margin-bottom: 1rem;">
-        <span class="text-3xl" style="margin-right:0.25rem">${b.emoji}</span>
+        <span class="text-3xl" style="margin-right:0.25rem">${booster.emoji}</span>
         <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> A Quick Happiness Booster</h2>
       </div>
       <div class="text-center">
-        <h3 class="text-2xl font-bold" style="color: var(--neuro-accent);">${b.title}</h3>
-        <p class="mt-2 text-lg">${b.description}</p>
+        <h3 class="text-2xl font-bold" style="color: var(--neuro-accent);">${booster.title}</h3>
+        <p class="mt-2 text-lg">${booster.description}</p>
         <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
-          <span>${b.duration}</span> • <span>${b.category}</span>
+          <span>${booster.duration}</span> • <span>${booster.category}</span>
         </div>
       </div>
       <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
         <button onclick="window.featuresManager.engines.happiness.refreshBooster()" class="btn btn-secondary">🔄 Refresh</button>
-      </div>`);
+      </div>`;
   }
 
-  refreshQuote() {
-    const getQuote = () => window.QuotesData?.getRandomQuote() || { text: 'Stay positive!', author: 'Unknown' };
-    this._handleRefresh('currentQuote', getQuote, 'quote-card', '📜', 'Quote', (q) => `
+  /**
+   * Formats quote card HTML
+   * @param {Object} quote - Quote object with text and author
+   * @returns {string} HTML string
+   */
+  _formatQuote(quote) {
+    return `
       <div class="flex items-center" style="margin-bottom: 1rem;">
         <span class="text-3xl" style="margin-right:0.25rem">📜</span>
         <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> Inspirational Quote</h2>
       </div>
       <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
-        "${q.text}"
+        "${quote.text}"
       </p>
       <p class="mt-3 text-center text-lg" style="color: var(--neuro-text);">
-        - ${q.author}
+        - ${quote.author}
       </p>
       <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
         <button onclick="window.featuresManager.engines.happiness.refreshQuote()" class="btn btn-secondary">🔄 Refresh</button>
-      </div>`);
+      </div>`;
   }
 
-  refreshAffirmation() {
-    this._handleRefresh('currentAffirmation', this.getRandomAffirmation, 'affirm-card', '✨', 'Affirmation', (a) => `
+  /**
+   * Formats affirmation card HTML
+   * @param {string} affirmation - Affirmation text
+   * @returns {string} HTML string
+   */
+  _formatAffirmation(affirmation) {
+    return `
       <div class="flex items-center" style="margin-bottom: 1rem;">
         <span class="text-3xl" style="margin-right:0.25rem">✨</span>
         <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> Positive Affirmation</h2>
       </div>
       <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
-        "${a}"
+        "${affirmation}"
       </p>
       <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
         <button onclick="window.featuresManager.engines.happiness.refreshAffirmation()" class="btn btn-secondary">🔄 Refresh</button>
-      </div>`);
+      </div>`;
   }
 
-  refreshInquiry() {
-    const intensityEmoji = { 1: '🌱', 2: '🌿', 3: '🌳', 4: '🔥' };
-    this._handleRefresh('currentInquiry', this.getRandomInquiry, 'inquiry-card', '💭', 'Inquiry', (i) => `
+  /**
+   * Formats inquiry card HTML
+   * @param {Object} inquiry - Inquiry object with question, domain, holding, intensity
+   * @returns {string} HTML string
+   */
+  _formatInquiry(inquiry) {
+    const emoji = HappinessEngine.INTENSITY_EMOJIS[inquiry.intensity] || '💭';
+    return `
       <div class="flex items-center" style="margin-bottom: 1rem;">
-        <span class="text-3xl" style="margin-right:0.25rem">${intensityEmoji[i.intensity] || '💭'}</span>
+        <span class="text-3xl" style="margin-right:0.25rem">${emoji}</span>
         <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> Self Inquiry</h2>
       </div>
       <div class="text-center">
         <div style="margin-bottom: 1rem; padding: 0.5rem; background: var(--neuro-bg-secondary); border-radius: 8px; display: inline-block;">
           <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--neuro-accent);">
-            ${i.domain}
+            ${inquiry.domain}
           </span>
         </div>
         <p class="text-2xl font-semibold" style="color: var(--neuro-accent); line-height: 1.4; margin-bottom: 1rem;">
-          ${i.question}
+          ${inquiry.question}
         </p>
         <p class="mt-2 text-lg" style="font-style: italic; color: var(--neuro-text-secondary);">
-          ${i.holding}
+          ${inquiry.holding}
         </p>
         <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
-          <span>Level ${i.intensity}</span> • <span>Self-Inquiry</span>
+          <span>Level ${inquiry.intensity}</span> • <span>Self-Inquiry</span>
         </div>
       </div>
       <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
         <button onclick="window.featuresManager.engines.happiness.refreshInquiry()" class="btn btn-secondary">🔄 Refresh</button>
-      </div>`);
+      </div>`;
   }
 
+  // ============================================
+  // RENDERING
+  // ============================================
+
+  /**
+   * Renders the complete happiness tab with all content cards
+   */
   render() {
     const tab = this._getElement('happiness-tab');
     if (!tab) return;
     
-    // Fresh outputs on every render
+    // Generate fresh content
     this.currentBooster = this.getRandomBooster();
-    this.currentQuote = window.QuotesData?.getRandomQuote() || { text: 'Stay positive!', author: 'Unknown' };
+    this.currentQuote = this.getRandomQuote();
     this.currentAffirmation = this.getRandomAffirmation();
     this.currentInquiry = this.getRandomInquiry();
 
     const viewCount = this.getTodayViewCount();
-    const intensityEmoji = { 1: '🌱', 2: '🌿', 3: '🌳', 4: '🔥' };
 
     tab.innerHTML = `
   <div style="padding:1.5rem;min-height:100vh;">
@@ -294,60 +475,67 @@ class HappinessEngine {
 
       <div class="flex items-center justify-between" style="margin-bottom: 2rem; padding: 1rem; background: rgba(102, 126, 234, 0.05); border-radius: 8px;">
         <span style="color: var(--neuro-text); font-weight: 600;">Daily Quest Progress</span>
-        <span class="badge ${viewCount >= 5 ? 'badge-success' : 'badge-primary'}">${viewCount} / 5 (Quest)</span>
+        <span class="badge ${viewCount >= HappinessEngine.QUEST_TARGET ? 'badge-success' : 'badge-primary'}">${viewCount} / ${HappinessEngine.QUEST_TARGET} (Quest)</span>
       </div>
 
-      ${viewCount >= 5 ? `
+      ${viewCount >= HappinessEngine.QUEST_TARGET ? `
         <div id="happiness-quest-complete" style="margin-bottom: 2rem;padding:1rem;border-radius:0.5rem;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);">
           <p class="text-center" style="color: #22c55e;">🎉 Daily quest complete! Keep exploring if you'd like!</p>
         </div>
       ` : ''}
 
-<main class="space-y-6">
-  ${this._renderCard('affirm-card', '✨', 'Positive Affirmation', `
-    <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
-      "${this.currentAffirmation}"
-    </p>
-  `, 'refreshAffirmation')}
+      <main class="space-y-6">
+        ${this._renderCard('affirm-card', '✨', 'Positive Affirmation', 
+          `<p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
+            "${this.currentAffirmation}"
+          </p>`, 'refreshAffirmation')}
 
-  ${this._renderCard('quote-card', '📜', 'Inspirational Quote', `
-    <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
-      "${this.currentQuote.text}"
-    </p>
-    <p class="mt-3 text-center text-lg" style="color: var(--neuro-text);">
-      - ${this.currentQuote.author}
-    </p>
-  `, 'refreshQuote')}
+        ${this._renderCard('quote-card', '📜', 'Inspirational Quote', 
+          `<p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
+            "${this.currentQuote.text}"
+          </p>
+          <p class="mt-3 text-center text-lg" style="color: var(--neuro-text);">
+            - ${this.currentQuote.author}
+          </p>`, 'refreshQuote')}
 
-  ${this._renderCard('booster-card', this.currentBooster.emoji, 'A Quick Happiness Booster', `
-    <h3 class="text-2xl font-bold" style="color: var(--neuro-accent);">${this.currentBooster.title}</h3>
-    <p class="mt-2 text-lg">${this.currentBooster.description}</p>
-    <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
-      <span>${this.currentBooster.duration}</span> • <span>${this.currentBooster.category}</span>
-    </div>
-  `, 'refreshBooster')}
+        ${this._renderCard('booster-card', this.currentBooster.emoji, 'A Quick Happiness Booster', 
+          `<h3 class="text-2xl font-bold" style="color: var(--neuro-accent);">${this.currentBooster.title}</h3>
+          <p class="mt-2 text-lg">${this.currentBooster.description}</p>
+          <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
+            <span>${this.currentBooster.duration}</span> • <span>${this.currentBooster.category}</span>
+          </div>`, 'refreshBooster')}
 
-  ${this._renderCard('inquiry-card', intensityEmoji[this.currentInquiry.intensity] || '💭', 'Self Inquiry', `
-    <div style="margin-bottom: 1rem; padding: 0.5rem; background: var(--neuro-bg-secondary); border-radius: 8px; display: inline-block;">
-      <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--neuro-accent);">
-        ${this.currentInquiry.domain}
-      </span>
-    </div>
-    <p class="text-2xl font-semibold" style="color: var(--neuro-accent); line-height: 1.4; margin-bottom: 1rem;">
-      ${this.currentInquiry.question}
-    </p>
-    <p class="mt-2 text-lg" style="font-style: italic; color: var(--neuro-text-secondary);">
-      ${this.currentInquiry.holding}
-    </p>
-    <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
-      <span>Level ${this.currentInquiry.intensity}</span> • <span>Self-Inquiry</span>
-    </div>
-  `, 'refreshInquiry')}
-</main>
+        ${this._renderCard('inquiry-card', 
+          HappinessEngine.INTENSITY_EMOJIS[this.currentInquiry.intensity] || '💭', 
+          'Self Inquiry', 
+          `<div style="margin-bottom: 1rem; padding: 0.5rem; background: var(--neuro-bg-secondary); border-radius: 8px; display: inline-block;">
+            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--neuro-accent);">
+              ${this.currentInquiry.domain}
+            </span>
+          </div>
+          <p class="text-2xl font-semibold" style="color: var(--neuro-accent); line-height: 1.4; margin-bottom: 1rem;">
+            ${this.currentInquiry.question}
+          </p>
+          <p class="mt-2 text-lg" style="font-style: italic; color: var(--neuro-text-secondary);">
+            ${this.currentInquiry.holding}
+          </p>
+          <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
+            <span>Level ${this.currentInquiry.intensity}</span> • <span>Self-Inquiry</span>
+          </div>`, 'refreshInquiry')}
+      </main>
     </div>
   </div>`;
   }
 
+  /**
+   * Renders a single flip card component
+   * @param {string} id - Card ID
+   * @param {string} emoji - Card emoji
+   * @param {string} title - Card title
+   * @param {string} content - Card content HTML
+   * @param {string} refreshMethod - Refresh method name
+   * @returns {string} HTML string
+   */
   _renderCard(id, emoji, title, content, refreshMethod) {
     return `
       <div class="neuro-card flip-card" id="${id}">
@@ -370,5 +558,7 @@ class HappinessEngine {
   }
 }
 
+// Global export for browser
 if (typeof window !== 'undefined') window.HappinessEngine = HappinessEngine;
+
 export default HappinessEngine;
