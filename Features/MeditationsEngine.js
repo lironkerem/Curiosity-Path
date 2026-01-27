@@ -1,80 +1,8 @@
 // ===================================================================
-// MEDITATIONS ENGINE – Guided Meditation Player
+// MEDITATIONS ENGINE (Optimized)
 // ===================================================================
-
-/**
- * MeditationsEngine: Manages guided meditation playback with YouTube integration,
- * progress tracking, achievements, and wellness toolkit features.
- */
 class MeditationsEngine {
-  // ===== CONSTANTS =====
-  static SKIP_SECONDS = 15;
-  static MIN_PLAYER_WIDTH = 380;
-  static PROGRESS_UPDATE_MS = 1000;
-
-  static WELLNESS_TOOLS = [
-    {
-      id: 'self-reset',
-      icon: '🧘',
-      name: 'Self Reset',
-      description: 'Short Breathing practice',
-      xp: 10,
-      karma: 1,
-      onclick: 'window.openSelfReset()'
-    },
-    {
-      id: 'body-scan',
-      icon: '🌊',
-      name: 'Full Body Scan',
-      description: 'Progressive relaxation',
-      xp: 10,
-      karma: 1,
-      onclick: 'window.openFullBodyScan()'
-    },
-    {
-      id: 'nervous-reset',
-      icon: '⚡',
-      name: 'Nervous System',
-      description: 'Balance & regulation',
-      xp: 10,
-      karma: 1,
-      onclick: 'window.openNervousReset()'
-    },
-    {
-      id: 'tension-sweep',
-      icon: '🌀',
-      name: 'Tension Sweep',
-      description: 'Release stored tension',
-      xp: 10,
-      karma: 1,
-      onclick: 'window.openTensionSweep()'
-    }
-  ];
-
-  static ACHIEVEMENTS = [
-    { count: 1, id: 'first_meditation', name: 'First Journey Within', xp: 50, icon: '🧘', 
-      msg: 'You have begun the sacred practice of meditation!' },
-    { count: 10, id: 'meditation_10', name: 'Meditation Practitioner', xp: 100, icon: '🕉️', 
-      msg: '10 meditations! Your inner light grows brighter!' },
-    { count: 50, id: 'meditation_50', name: 'Meditation Master', xp: 250, icon: '✨', 
-      msg: '50 meditations! You are a beacon of inner peace!' },
-    { count: 100, id: 'meditation_100', name: 'Enlightened One', xp: 500, icon: '🌟', 
-      msg: '100 meditations! You walk in pure awareness!' }
-  ];
-
-  static CHAKRA_MAPPING = {
-    Grounding: 'root',
-    Energy: 'sacral',
-    Chakras: 'heart',
-    Spiritual: 'crown',
-    Healing: 'heart',
-    Manifestation: 'solar',
-    Premium: 'crown'
-  };
-
   constructor(app) {
-    if (!app) throw new Error('MeditationsEngine requires app instance');
-    
     this.app = app;
     this.ytPlayer = null;
     this.isPlaying = false;
@@ -84,31 +12,29 @@ class MeditationsEngine {
     this.eventCleanup = [];
     this.pdfGuideUrl = 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Source_PDF/Meditation_Demo.pdf';
 
+    // Constants
+    this.SKIP_SECONDS = 15;
+    this.MIN_PLAYER_WIDTH = 380;
+    this.PROGRESS_UPDATE_MS = 1000;
+
     this.loadYouTubeAPI();
     this.meditations = this.getMeditationsData();
   }
 
-  /**
-   * Loads YouTube IFrame API if not already present
-   */
   loadYouTubeAPI() {
     if (!window.YT && !document.querySelector('script[src*="youtube.com/iframe_api"]')) {
-      const script = document.createElement('script');
-      script.src = 'https://www.youtube.com/iframe_api';
-      document.head.appendChild(script);
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(tag);
     }
-    
     window.onYouTubeIframeAPIReady = () => {
       window.ytReady = true;
     };
   }
 
-  /**
-   * Returns the complete meditation library data
-   */
   getMeditationsData() {
     return [
-      // FREE MEDITATIONS
+      // FREE
       {
         id: 1,
         title: 'Grounding to the Center of Earth',
@@ -175,8 +101,7 @@ class MeditationsEngine {
         type: 'guided',
         premium: false
       },
-      
-      // PREMIUM MEDITATIONS
+      // PREMIUM
       {
         id: 7,
         title: 'Meeting your Higher Self',
@@ -213,367 +138,601 @@ class MeditationsEngine {
     ];
   }
 
-  // ===== MAIN RENDER =====
-  /**
-   * Renders the meditations tab with library and player
-   */
   render() {
     const tab = document.getElementById('meditations-tab');
-    if (!tab) {
-      console.error('[Meditations] meditations-tab element not found');
-      return;
-    }
-
     tab.innerHTML = `
       <div style="padding:1.5rem;min-height:100vh;">
         <div class="universal-content">
 
-          ${this.renderHeader()}
-          ${this.renderPDFButton()}
-          ${this.renderWellnessToolkit()}
-          ${this.renderMeditationLibrary()}
-          ${this.renderAudioPlayer()}
+          <header class="main-header project-curiosity"
+                  style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavMeditations.png');
+                         --header-title:'';
+                         --header-tag:'Aanandoham\\'s curated, unique collection of guided meditations'">
+            <h1>Guided Meditations</h1>
+            <h3>Aanandoham's curated, unique collection of guided meditations</h3>
+            <span class="header-sub"></span>
+          </header>
 
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * Renders page header
-   */
-  renderHeader() {
-    return `
-      <header class="main-header project-curiosity"
-              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavMeditations.png');
-                     --header-title:'';
-                     --header-tag:'Aanandoham\\'s curated, unique collection of guided meditations'">
-        <h1>Guided Meditations</h1>
-        <h3>Aanandoham's curated, unique collection of guided meditations</h3>
-        <span class="header-sub"></span>
-      </header>
-    `;
-  }
-
-  /**
-   * Renders PDF guide download button
-   */
-  renderPDFButton() {
-    return `
-      <div class="text-center" style="margin-bottom: 2rem;">
-        <button onclick="window.featuresManager.engines.meditations.openPDFGuide()" 
-                class="btn btn-primary" 
-                style="padding: 12px 32px; display: inline-flex; align-items: center; gap: 8px;">
-          📖 A Demo from the 'Art of Meditation' Workbook - Free For you (PDF)
-        </button>
-      </div>
-    `;
-  }
-
-  /**
-   * Renders wellness toolkit section with quick practices
-   */
-  renderWellnessToolkit() {
-    return `
-      <div class="card dashboard-wellness-toolkit" style="margin-bottom: 2rem;">
-        <div class="dashboard-wellness-header">
-          <h3 class="dashboard-wellness-title">🌟 Wellness Toolkit</h3>
-          <p class="dashboard-wellness-subtitle">Quick access to your daily reset practices</p>
-        </div>
-        <div class="wellness-buttons-grid">
-          ${MeditationsEngine.WELLNESS_TOOLS.map(tool => `
-            <button class="wellness-tool-btn wellness-tool-active" 
-                    onclick="${tool.onclick}" 
-                    aria-label="${tool.name}">
-              <div class="wellness-tool-icon">${tool.icon}</div>
-              <div class="wellness-tool-content">
-                <h4 class="wellness-tool-name">${tool.name}</h4>
-                <p class="wellness-tool-description">${tool.description}</p>
-                <div class="wellness-tool-stats">
-                  <span class="wellness-stat-xp">✨ +${tool.xp} XP</span>
-                  <span class="wellness-stat-karma">💎 +${tool.karma} Karma</span>
-                </div>
-              </div>
+          <div class="text-center" style="margin-bottom: 2rem;">
+            <button onclick="window.featuresManager.engines.meditations.openPDFGuide()" 
+                    class="btn btn-primary" 
+                    style="padding: 12px 32px; display: inline-flex; align-items: center; gap: 8px;">
+              📖 A Demo from the 'Art of Meditation' Workbook - Free For you (PDF)
             </button>
-          `).join('')}
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * Renders meditation library grid
-   */
-  renderMeditationLibrary() {
-    const freeMeditations = this.meditations.filter(m => !m.premium);
-    const premiumMeditations = this.meditations.filter(m => m.premium);
-
-    return `
-      <div class="card" style="margin-bottom: 2rem;">
-        <div class="dashboard-wellness-header" style="margin-bottom:1.5rem;">
-          <h3 class="dashboard-wellness-title">🎧 Meditation Library</h3>
-          <p class="dashboard-wellness-subtitle">Choose a guided journey</p>
-        </div>
-        
-        <!-- Free Meditations -->
-        <div style="margin-bottom: 2rem;">
-          <h4 style="margin-bottom: 1rem; color: var(--neuro-text);">✨ Free Meditations</h4>
-          <div class="meditations-grid">
-            ${freeMeditations.map(m => this.renderMeditationCard(m)).join('')}
           </div>
-        </div>
 
-        <!-- Premium Meditations -->
-        ${premiumMeditations.length > 0 ? `
-          <div>
-            <h4 style="margin-bottom: 1rem; color: var(--neuro-text);">💎 Premium Meditations</h4>
-            <div class="meditations-grid">
-              ${premiumMeditations.map(m => this.renderMeditationCard(m)).join('')}
+          <div class="card dashboard-wellness-toolkit" style="margin-bottom: 2rem;">
+            <div class="dashboard-wellness-header">
+              <h3 class="dashboard-wellness-title">🌟 Wellness Toolkit</h3>
+              <p class="dashboard-wellness-subtitle">Quick access to your daily reset practices</p>
+            </div>
+            <div class="wellness-buttons-grid">
+              <button class="wellness-tool-btn wellness-tool-active" onclick="window.openSelfReset()" aria-label="Open 60-Second Self Reset">
+                <div class="wellness-tool-icon">🧘</div>
+                <div class="wellness-tool-content">
+                  <h4 class="wellness-tool-name">Self Reset</h4>
+                  <p class="wellness-tool-description">Short Breathing practice</p>
+                  <div class="wellness-tool-stats">
+                    <span class="wellness-stat-xp">✨ +10 XP</span>
+                    <span class="wellness-stat-karma">💎 +1 Karma</span>
+                  </div>
+                </div>
+              </button>
+              <button class="wellness-tool-btn wellness-tool-active" onclick="window.openFullBodyScan()" aria-label="Full Body Scan">
+                <div class="wellness-tool-icon">🌊</div>
+                <div class="wellness-tool-content">
+                  <h4 class="wellness-tool-name">Full Body Scan</h4>
+                  <p class="wellness-tool-description">Progressive relaxation</p>
+                  <div class="wellness-tool-stats">
+                    <span class="wellness-stat-xp">✨ +10 XP</span>
+                    <span class="wellness-stat-karma">💎 +1 Karma</span>
+                  </div>
+                </div>
+              </button>
+              <button class="wellness-tool-btn wellness-tool-active" onclick="window.openNervousReset()" aria-label="Nervous System Reset">
+                <div class="wellness-tool-icon">⚡</div>
+                <div class="wellness-tool-content">
+                  <h4 class="wellness-tool-name">Nervous System</h4>
+                  <p class="wellness-tool-description">Balance & regulation</p>
+                  <div class="wellness-tool-stats">
+                    <span class="wellness-stat-xp">✨ +10 XP</span>
+                    <span class="wellness-stat-karma">💎 +1 Karma</span>
+                  </div>
+                </div>
+              </button>
+              <button class="wellness-tool-btn wellness-tool-active" onclick="window.openTensionSweep()" aria-label="Tension Sweep">
+                <div class="wellness-tool-icon">🌀</div>
+                <div class="wellness-tool-content">
+                  <h4 class="wellness-tool-name">Tension Sweep</h4>
+                  <p class="wellness-tool-description">Release stored tension</p>
+                  <div class="wellness-tool-stats">
+                    <span class="wellness-stat-xp">✨ +10 XP</span>
+                    <span class="wellness-stat-karma">💎 +1 Karma</span>
+                  </div>
+                </div>
+              </button>
             </div>
           </div>
-        ` : ''}
-      </div>
-    `;
-  }
 
-  /**
-   * Renders individual meditation card
-   */
-  renderMeditationCard(meditation) {
-    const isPremium = meditation.premium;
-    const premiumBadge = isPremium ? '<div class="meditation-premium-badge">PREMIUM 💎</div>' : '';
+          <div class="card" style="margin-bottom: 2rem;">
+            <div class="dashboard-wellness-header" style="margin-bottom:1.5rem;">
+              <h3 class="dashboard-wellness-title">🎧 Guided Meditations</h3>
+              <p class="dashboard-wellness-subtitle">Aanandoham's private, curated, unique collection</p>
+            </div>
 
-    return `
-      <div class="meditation-card ${isPremium ? 'meditation-premium' : ''}" 
-           onclick="window.featuresManager.engines.meditations.playMeditation(${meditation.id})">
-        ${premiumBadge}
-        <div class="meditation-emoji">${meditation.emoji}</div>
-        <h4 class="meditation-title">${this.escapeHtml(meditation.title)}</h4>
-        <p class="meditation-category">${meditation.category}</p>
-        <p class="meditation-description">${this.escapeHtml(meditation.description)}</p>
-        <div class="meditation-duration">⏱️ ${meditation.duration}</div>
-      </div>
-    `;
-  }
-
-  /**
-   * Renders audio player controls (initially hidden)
-   */
-  renderAudioPlayer() {
-    return `
-      <div id="meditation-audio-player" class="card hidden" style="position:sticky;bottom:2rem;z-index:100;">
-        <div class="player-header">
-          <div class="player-info">
-            <div id="player-title" class="player-title">No meditation playing</div>
-            <div id="player-category" class="player-category"></div>
+            <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:1.5rem;">
+              ${this.renderMeditationCards()}
+            </div>
           </div>
-          <button onclick="window.featuresManager.engines.meditations.stopMeditation()" 
-                  class="btn btn-secondary btn-sm">✖️</button>
-        </div>
 
-        <div class="player-progress-container">
-          <svg width="120" height="120" class="player-progress-svg">
-            <circle cx="60" cy="60" r="52" class="player-progress-bg"/>
-            <circle id="player-progress-ring" cx="60" cy="60" r="52" class="player-progress-ring"
-                    style="stroke-dasharray: 326.73 326.73; stroke-dashoffset: 326.73;"/>
-          </svg>
-          <div id="player-time" class="player-time">0:00 / 0:00</div>
-        </div>
+          ${this.renderPlayer()}
 
-        <div class="player-controls">
-          <button onclick="window.featuresManager.engines.meditations.skipBackward()" 
-                  class="player-btn" 
-                  aria-label="Skip backward 15 seconds">⏪</button>
-          <button id="play-pause-btn" 
-                  onclick="window.featuresManager.engines.meditations.togglePlayback()" 
-                  class="player-btn player-btn-main" 
-                  aria-label="Play/Pause">▶️</button>
-          <button onclick="window.featuresManager.engines.meditations.skipForward()" 
-                  class="player-btn" 
-                  aria-label="Skip forward 15 seconds">⏩</button>
         </div>
+      </div>
 
-        <div id="video-pane" class="video-pane hidden">
-          <div id="yt-player-wrapper" style="width:100%;min-width:${MeditationsEngine.MIN_PLAYER_WIDTH}px;"></div>
+      ${this.renderStyles()}
+    `;
+
+    this.attachEventListeners();
+  }
+
+  renderMeditationCards() {
+    return this.meditations.map(med => {
+      const isPremium = med.premium;
+      const isLocked = isPremium && !this.app.gamification?.state?.unlockedFeatures?.includes('advanced_meditations');
+      
+      return `
+        <div class="meditation-card ${isLocked ? 'locked' : ''}" 
+             title="${isLocked ? '🔒 Purchase Advanced Meditations in Karma Shop to unlock' : ''}">
+          ${isPremium ? '<span class="premium-badge">PREMIUM</span>' : ''}
+          ${isLocked ? '<div class="lock-icon">🔒</div>' : ''}
+          
+          <div class="meditation-header">
+            <span class="meditation-emoji">${med.emoji}</span>
+            <span class="meditation-duration">${med.duration}</span>
+          </div>
+          
+          <h4 class="meditation-title">${med.title}</h4>
+          <p class="meditation-description">${med.description}</p>
+
+          <div class="meditation-actions">
+            <button class="btn btn-secondary flex-1" onclick="window.featuresManager.engines.meditations.playAudio(${med.id})">
+              🎧 Audio
+            </button>
+            <button class="btn btn-primary flex-1" onclick="window.featuresManager.engines.meditations.playVideo(${med.id})">
+              ▶️ Video
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  renderPlayer() {
+    return `
+      <div id="meditation-player-wrapper" class="player-wrapper">
+        <div id="meditation-audio-player" class="compact-player hidden">
+          <button onclick="window.featuresManager.engines.meditations.stopMeditation()" class="player-close-btn">✕</button>
+          
+          <div id="video-pane" class="video-pane hidden">
+            <iframe id="yt-iframe"
+                    width="100%"
+                    height="100%"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+            </iframe>
+          </div>
+          
+          <div class="player-info">
+            <div id="player-emoji" class="player-emoji">🎧</div>
+            <div class="player-text">
+              <h4 id="player-title" class="font-bold">No Meditation Selected</h4>
+              <p id="player-time" class="text-sm">0:00 / 0:00</p>
+            </div>
+          </div>
+          
+          <div class="player-controls">
+            <button onclick="window.featuresManager.engines.meditations.skipBackward()" class="icon-btn">⏪</button>
+            <div class="play-pause-wrapper">
+              <svg class="progress-ring" width="60" height="60">
+                <circle class="progress-ring-bg" stroke-width="4" fill="transparent" r="28" cx="30" cy="30" />
+                <circle id="player-progress-ring" class="progress-ring-fg" stroke-width="4" fill="transparent" r="28" cx="30" cy="30" />
+              </svg>
+              <button onclick="window.featuresManager.engines.meditations.togglePlay()" id="play-pause-btn" class="btn btn-primary play-pause-btn">▶️</button>
+              <button onclick="window.featuresManager.engines.meditations.stopMeditation()" class="stop-btn" title="Stop">⏹️</button>
+            </div>
+            <button onclick="window.featuresManager.engines.meditations.skipForward()" class="icon-btn">⏩</button>
+          </div>
         </div>
       </div>
     `;
   }
 
-  // ===== PLAYBACK CONTROL =====
-  /**
-   * Initializes and plays a meditation by ID
-   */
-  playMeditation(id) {
-    const meditation = this.meditations.find(m => m.id === id);
-    if (!meditation) {
-      this.app.showToast('❌ Meditation not found', 'error');
-      return;
-    }
+  renderStyles() {
+    return `
+      <style>
+        .meditation-card {
+          flex: 0 1 320px;
+          max-width: 320px;
+          background: var(--neuro-bg);
+          border-radius: var(--radius-2xl);
+          padding: 1.5rem;
+          box-shadow: 8px 8px 16px var(--neuro-shadow-dark), -8px -8px 16px var(--neuro-shadow-light);
+          position: relative;
+          transition: transform 0.2s;
+        }
+        .meditation-card.locked { opacity: 0.75; }
+        .premium-badge {
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+          background: linear-gradient(135deg, #FFD700, #FFA500);
+          color: #000;
+          padding: 4px 12px;
+          border-radius: 12px;
+          font-size: 0.75rem;
+          font-weight: bold;
+        }
+        .lock-icon {
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+          font-size: 3rem;
+          opacity: 0.3;
+          z-index: 1;
+        }
+        .meditation-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 0.75rem;
+        }
+        .meditation-emoji { font-size: 2rem; }
+        .meditation-duration {
+          font-size: 0.875rem;
+          color: var(--neuro-text-light);
+        }
+        .meditation-title {
+          font-size: 1.25rem;
+          font-weight: bold;
+          color: var(--neuro-text);
+          margin-bottom: 0.5rem;
+        }
+        .meditation-description {
+          font-size: 0.875rem;
+          color: var(--neuro-text-light);
+          margin-bottom: 0.75rem;
+        }
+        .meditation-actions {
+          display: flex;
+          gap: 0.5rem;
+          margin-top: 1rem;
+        }
 
-    // Check premium access
-    if (meditation.premium && !this.app.state?.currentUser?.isPremium) {
-      this.app.showToast('🔒 This is a premium meditation', 'warning');
-      return;
-    }
-
-    this.currentMeditation = meditation;
-    this.sessionStartTime = Date.now();
-
-    // Update player UI
-    document.getElementById('player-title').textContent = meditation.title;
-    document.getElementById('player-category').textContent = meditation.category;
-    document.getElementById('meditation-audio-player').classList.remove('hidden');
-
-    // Initialize YouTube player
-    this._initYouTubePlayer(meditation);
+        .player-wrapper {
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          z-index: 1000;
+          transition: none;
+        }
+        .compact-player {
+          width: 380px;
+          min-width: 380px;
+          background: var(--neuro-bg);
+          border-radius: var(--radius-2xl);
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          box-shadow: 20px 20px 40px var(--neuro-shadow-dark), -20px -20px 40px var(--neuro-shadow-light);
+          user-select: none;
+          position: relative;
+          transition: opacity 0.3s, transform 0.3s;
+        }
+        .compact-player.hidden {
+          transform: translateY(100px);
+          opacity: 0;
+          pointer-events: none;
+        }
+        .compact-player.video-mode {
+          max-width: none;
+          padding: 12px;
+        }
+        .player-close-btn {
+          position: absolute;
+          top: 15px;
+          right: 15px;
+          width: 30px;
+          height: 30px;
+          border: none;
+          background: none;
+          cursor: pointer;
+          color: var(--neuro-text-light);
+          font-size: 1.2rem;
+          z-index: 10;
+        }
+        .player-info {
+          cursor: grab;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .player-info:active { cursor: grabbing; }
+        .player-emoji {
+          width: 50px;
+          height: 50px;
+          flex-shrink: 0;
+          background: var(--neuro-bg);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 2rem;
+          box-shadow: inset 4px 4px 8px var(--neuro-shadow-dark), inset -4px -4px 8px var(--neuro-shadow-light);
+        }
+        .player-text #player-title {
+          color: var(--neuro-text);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .player-text #player-time { color: var(--neuro-text-light); }
+        .player-controls {
+          display: flex;
+          justify-content: space-around;
+          align-items: center;
+          flex-shrink: 0;
+        }
+        .play-pause-wrapper {
+          position: relative;
+          width: 60px;
+          height: 60px;
+        }
+        .play-pause-btn {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          padding: 0;
+        }
+        .play-pause-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        .progress-ring {
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
+        .progress-ring-bg { stroke: var(--neuro-shadow-dark); }
+        .progress-ring-fg {
+          stroke: var(--neuro-accent);
+          transform: rotate(-90deg);
+          transform-origin: 50% 50%;
+          transition: stroke-dashoffset 0.1s linear;
+        }
+        .player-controls .icon-btn {
+          width: 40px;
+          height: 40px;
+          padding: 0;
+        }
+        .video-pane {
+          position: relative;
+          width: 100%;
+          flex: 1;
+          min-height: 240px;
+          border-radius: 12px;
+          overflow: hidden;
+          margin-bottom: 12px;
+          box-shadow: inset 4px 4px 8px var(--neuro-shadow-dark), inset -4px -4px 8px var(--neuro-shadow-light);
+        }
+        .video-pane iframe {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+        }
+        .video-pane.hidden { display: none; }
+        .stop-btn {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) translateX(34px);
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          border: none;
+          background: var(--neuro-bg);
+          box-shadow: 2px 2px 6px var(--neuro-shadow-dark), -2px -2px 6px var(--neuro-shadow-light);
+          font-size: 1.1rem;
+          cursor: pointer;
+          color: var(--neuro-text);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 2;
+        }
+        .stop-btn:active {
+          box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light);
+        }
+      </style>
+    `;
   }
 
-  /**
-   * Initializes YouTube IFrame player
-   */
-  _initYouTubePlayer(meditation) {
-    const videoId = this._extractVideoId(meditation.embedUrl);
-    if (!videoId) {
-      this.app.showToast('❌ Invalid video URL', 'error');
-      return;
-    }
-
-    const wrapper = document.getElementById('yt-player-wrapper');
-    if (!wrapper) {
-      console.error('[Meditations] yt-player-wrapper not found');
-      return;
-    }
-
-    // Clear previous player
-    wrapper.innerHTML = '<div id="yt-player"></div>';
-
-    // Wait for YouTube API
-    const initPlayer = () => {
-      if (!window.YT || !window.YT.Player) {
-        setTimeout(initPlayer, 100);
-        return;
-      }
-
-      try {
-        this.ytPlayer = new window.YT.Player('yt-player', {
-          height: '0',
-          width: '0',
-          videoId: videoId,
-          playerVars: {
-            autoplay: 1,
-            controls: 0,
-            modestbranding: 1,
-            rel: 0,
-            playsinline: 1
-          },
-          events: {
-            onReady: () => this._onPlayerReady(),
-            onStateChange: (event) => this._onPlayerStateChange(event)
-          }
-        });
-      } catch (error) {
-        console.error('Error creating YouTube player:', error);
-        this.app.showToast('❌ Failed to load player', 'error');
-      }
-    };
-
-    initPlayer();
+  attachEventListeners() {
+    // Clean up old listeners
+    this.cleanup();
   }
 
-  /**
-   * Extracts video ID from YouTube URL
-   */
-  _extractVideoId(url) {
-    const match = url.match(/embed\/([^?]+)/);
-    return match ? match[1] : null;
-  }
-
-  /**
-   * Handles YouTube player ready event
-   */
-  _onPlayerReady() {
-    this.isPlaying = true;
-    document.getElementById('play-pause-btn').textContent = '⏸️';
+  playAudio(id) {
+    const med = this.meditations.find(m => m.id === id);
+    if (!med) return;
     
-    // Start progress updates
-    this.progressInterval = setInterval(
-      () => this.updateProgress(),
-      MeditationsEngine.PROGRESS_UPDATE_MS
-    );
-
-    this.app.showToast('▶️ Meditation started', 'info');
+    if (med.premium && !this.app.gamification?.state?.unlockedFeatures?.includes('advanced_meditations')) {
+      this.app.showToast('🔒 Unlock Advanced Meditations in the Karma Shop!', 'info');
+      return;
+    }
+    
+    this._play(med, false);
   }
 
-  /**
-   * Handles YouTube player state changes
-   */
-  _onPlayerStateChange(event) {
-    const YT = window.YT;
-    if (!YT) return;
+  playVideo(id) {
+    const med = this.meditations.find(m => m.id === id);
+    if (!med) return;
+    
+    if (med.premium && !this.app.gamification?.state?.unlockedFeatures?.includes('advanced_meditations')) {
+      this.app.showToast('🔒 Unlock Advanced Meditations in the Karma Shop!', 'info');
+      return;
+    }
+    
+    this._play(med, true);
+  }
 
-    switch (event.data) {
-      case YT.PlayerState.PLAYING:
-        this.isPlaying = true;
-        document.getElementById('play-pause-btn').textContent = '⏸️';
-        break;
-      
-      case YT.PlayerState.PAUSED:
-        this.isPlaying = false;
-        document.getElementById('play-pause-btn').textContent = '▶️';
-        break;
-      
-      case YT.PlayerState.ENDED:
-        this.onMeditationComplete();
-        break;
+  _play(med, showVideo) {
+    try {
+      this.currentMeditation = med;
+      this.sessionStartTime = Date.now();
+
+      const playerBox = document.getElementById('meditation-audio-player');
+      document.getElementById('player-emoji').textContent = med.emoji;
+      document.getElementById('player-title').textContent = med.title;
+      playerBox.classList.remove('hidden');
+
+      if (med.embedUrl) {
+        this._startYouTubePlayer(med, showVideo);
+      }
+    } catch (error) {
+      console.error('Error starting meditation:', error);
+      this.app.showToast('❌ Error starting meditation', 'error');
     }
   }
 
-  /**
-   * Shows video player pane
-   */
-  _showVideoPane() {
-    const pane = document.getElementById('video-pane');
-    if (pane) pane.classList.remove('hidden');
-  }
-
-  /**
-   * Hides video player pane
-   */
-  _hideVideoPane() {
-    const pane = document.getElementById('video-pane');
-    if (pane) pane.classList.add('hidden');
-  }
-
-  /**
-   * Toggles play/pause state
-   */
-  togglePlayback() {
-    if (!this.ytPlayer || typeof this.ytPlayer.getPlayerState !== 'function') {
-      this.app.showToast('⏸️ Player not ready', 'info');
+  _startYouTubePlayer(med, showVideo) {
+    if (!window.ytReady) {
+      this.app.showToast('🎧 Initializing player… please tap again.', 'info');
+      window.onYouTubeIframeAPIReady = () => {
+        window.ytReady = true;
+        this._startYouTubePlayer(med, showVideo);
+      };
       return;
     }
 
     try {
-      const state = this.ytPlayer.getPlayerState();
-      const YT = window.YT;
-      
-      if (!YT) return;
+      const videoId = med.embedUrl.match(/embed\/([a-zA-Z0-9_-]{11})/)[1];
+      const iframe = document.getElementById('yt-iframe');
+      iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&playsinline=1`;
 
-      if (state === YT.PlayerState.PLAYING) {
-        this.ytPlayer.pauseVideo();
-      } else if (state === YT.PlayerState.PAUSED || state === YT.PlayerState.CUED) {
-        this.ytPlayer.playVideo();
+      if (!this.ytPlayer || typeof this.ytPlayer.playVideo !== 'function') {
+        this.ytPlayer = new YT.Player('yt-iframe', {
+          events: {
+            onReady: (e) => {
+              document.getElementById('play-pause-btn').disabled = false;
+              if (!showVideo) {
+                this.ytPlayer.playVideo();
+                this.app.showToast('🎧 Audio playing', 'success');
+              } else {
+                this.app.showToast('Ready – tap play to start', 'info');
+              }
+            },
+            onStateChange: (e) => this._handleYouTubeStateChange(e),
+            onError: (e) => {
+              console.error('YouTube player error:', e);
+              this.app.showToast('❌ Video error', 'error');
+            }
+          }
+        });
+      } else {
+        this.ytPlayer.loadVideoById(videoId);
+        if (!showVideo) {
+          setTimeout(() => this.ytPlayer.playVideo(), 500);
+        }
       }
+
+      document.getElementById('play-pause-btn').disabled = true;
+
+      if (showVideo) {
+        this._showVideoPane();
+      } else {
+        this._hideVideoPane();
+      }
+
+      this._startProgressUpdates();
     } catch (error) {
-      console.error('Error toggling playback:', error);
-      this.app.showToast('⏸️ Player not ready', 'info');
+      console.error('Error initializing YouTube player:', error);
+      this.app.showToast('❌ Error loading video', 'error');
     }
   }
 
-  /**
-   * Stops meditation and hides player
-   */
+  _handleYouTubeStateChange(event) {
+    const eng = window.featuresManager.engines.meditations;
+    
+    if (event.data === YT.PlayerState.ENDED && eng.currentMeditation) {
+      eng.onMeditationComplete();
+    }
+    
+    if (event.data === YT.PlayerState.PLAYING) {
+      eng.isPlaying = true;
+      document.getElementById('play-pause-btn').textContent = '⏸️';
+    }
+    
+    if (event.data === YT.PlayerState.PAUSED) {
+      eng.isPlaying = false;
+      document.getElementById('play-pause-btn').textContent = '▶️';
+    }
+  }
+
+  _startProgressUpdates() {
+    if (this.progressInterval) {
+      clearInterval(this.progressInterval);
+    }
+    
+    this.progressInterval = setInterval(() => {
+      if (this.isPlaying) {
+        this.updateProgress();
+      }
+    }, this.PROGRESS_UPDATE_MS);
+  }
+
+  _showVideoPane() {
+    document.getElementById('video-pane').classList.remove('hidden');
+    document.getElementById('meditation-audio-player').classList.add('video-mode');
+    this.initDrag();
+  }
+
+  _hideVideoPane() {
+    document.getElementById('video-pane').classList.add('hidden');
+    document.getElementById('meditation-audio-player').classList.remove('video-mode');
+  }
+
+  initDrag() {
+    const header = document.querySelector('.player-info');
+    const wrap = document.getElementById('meditation-player-wrapper');
+    if (!header || !wrap) return;
+
+    let px, py, dx, dy;
+
+    const start = (e) => {
+      px = e.touches ? e.touches[0].clientX : e.clientX;
+      py = e.touches ? e.touches[0].clientY : e.clientY;
+      const rect = wrap.getBoundingClientRect();
+      dx = px - rect.left;
+      dy = py - rect.top;
+      
+      document.addEventListener('mousemove', move);
+      document.addEventListener('mouseup', end);
+      document.addEventListener('touchmove', move, { passive: false });
+      document.addEventListener('touchend', end);
+      e.preventDefault();
+    };
+
+    const move = (e) => {
+      const cx = (e.touches ? e.touches[0].clientX : e.clientX) - dx;
+      const cy = (e.touches ? e.touches[0].clientY : e.clientY) - dy;
+      wrap.style.left = cx + 'px';
+      wrap.style.top = cy + 'px';
+      wrap.style.bottom = 'auto';
+      wrap.style.right = 'auto';
+    };
+
+    const end = () => {
+      document.removeEventListener('mousemove', move);
+      document.removeEventListener('mouseup', end);
+      document.removeEventListener('touchmove', move);
+      document.removeEventListener('touchend', end);
+    };
+
+    header.addEventListener('mousedown', start);
+    header.addEventListener('touchstart', start, { passive: false });
+
+    this.eventCleanup.push(() => {
+      header.removeEventListener('mousedown', start);
+      header.removeEventListener('touchstart', start);
+    });
+  }
+
+  togglePlay() {
+    if (!this.currentMeditation) return;
+
+    if (this.ytPlayer && typeof this.ytPlayer.playVideo === 'function') {
+      try {
+        if (this.isPlaying) {
+          this.ytPlayer.pauseVideo();
+        } else {
+          this.ytPlayer.playVideo();
+        }
+      } catch (error) {
+        console.error('Error toggling playback:', error);
+        this.app.showToast('⏸️ Player not ready', 'info');
+      }
+    }
+  }
+
   stopMeditation() {
     try {
       if (this.ytPlayer && typeof this.ytPlayer.stopVideo === 'function') {
@@ -589,53 +748,39 @@ class MeditationsEngine {
         this.progressInterval = null;
       }
 
-      const playBtn = document.getElementById('play-pause-btn');
-      const player = document.getElementById('meditation-audio-player');
-      
-      if (playBtn) playBtn.textContent = '▶️';
-      if (player) player.classList.add('hidden');
-      
+      document.getElementById('play-pause-btn').textContent = '▶️';
+      document.getElementById('meditation-audio-player').classList.add('hidden');
       this._hideVideoPane();
     } catch (error) {
       console.error('Error stopping meditation:', error);
     }
   }
 
-  /**
-   * Skips forward by SKIP_SECONDS
-   */
   skipForward() {
     if (!this.ytPlayer || typeof this.ytPlayer.getCurrentTime !== 'function') return;
     
     try {
       const current = this.ytPlayer.getCurrentTime() || 0;
       const duration = this.ytPlayer.getDuration() || 0;
-      const newTime = Math.min(current + MeditationsEngine.SKIP_SECONDS, duration);
+      const newTime = Math.min(current + this.SKIP_SECONDS, duration);
       this.ytPlayer.seekTo(newTime, true);
     } catch (error) {
       console.error('Error skipping forward:', error);
     }
   }
 
-  /**
-   * Skips backward by SKIP_SECONDS
-   */
   skipBackward() {
     if (!this.ytPlayer || typeof this.ytPlayer.getCurrentTime !== 'function') return;
     
     try {
       const current = this.ytPlayer.getCurrentTime() || 0;
-      const newTime = Math.max(current - MeditationsEngine.SKIP_SECONDS, 0);
+      const newTime = Math.max(current - this.SKIP_SECONDS, 0);
       this.ytPlayer.seekTo(newTime, true);
     } catch (error) {
       console.error('Error skipping backward:', error);
     }
   }
 
-  // ===== PROGRESS TRACKING =====
-  /**
-   * Updates progress display and ring
-   */
   updateProgress() {
     if (!this.ytPlayer || typeof this.ytPlayer.getCurrentTime !== 'function') return;
     
@@ -644,10 +789,8 @@ class MeditationsEngine {
       const duration = this.ytPlayer.getDuration() || 0;
       
       if (duration > 0) {
-        const timeDisplay = document.getElementById('player-time');
-        if (timeDisplay) {
-          timeDisplay.textContent = `${this.formatTime(current)} / ${this.formatTime(duration)}`;
-        }
+        document.getElementById('player-time').textContent = 
+          `${this.formatTime(current)} / ${this.formatTime(duration)}`;
         this.updateRing(current, duration);
       }
     } catch (error) {
@@ -655,16 +798,13 @@ class MeditationsEngine {
     }
   }
 
-  /**
-   * Updates circular progress ring
-   */
   updateRing(current, duration) {
     const ring = document.getElementById('player-progress-ring');
     if (!ring || !duration || duration === 0) return;
     
     try {
-      const radius = ring.r.baseVal.value;
-      const circumference = 2 * Math.PI * radius;
+      const r = ring.r.baseVal.value;
+      const circumference = 2 * Math.PI * r;
       ring.style.strokeDasharray = `${circumference} ${circumference}`;
       
       const progress = current / duration;
@@ -675,16 +815,10 @@ class MeditationsEngine {
     }
   }
 
-  // ===== COMPLETION & ACHIEVEMENTS =====
-  /**
-   * Handles meditation completion - saves session and checks achievements
-   */
   onMeditationComplete() {
     try {
       this.isPlaying = false;
-      const playBtn = document.getElementById('play-pause-btn');
-      if (playBtn) playBtn.textContent = '▶️';
-      
+      document.getElementById('play-pause-btn').textContent = '▶️';
       this.app.showToast('🎉 Meditation complete! Well done.', 'success');
       
       if (!this.currentMeditation) return;
@@ -707,12 +841,10 @@ class MeditationsEngine {
         completedAt: Date.now()
       };
 
-      // Save session
       if (this.app.state) {
         this.app.state.addEntry('meditation', sessionData);
       }
 
-      // Progress quest
       if (sessionData.type === 'guided' && this.app.gamification) {
         this.app.gamification.progressQuest('daily', 'meditation_session', 1);
       }
@@ -724,23 +856,27 @@ class MeditationsEngine {
     }
   }
 
-  /**
-   * Checks and grants meditation achievements
-   */
   checkAchievements() {
     try {
       const total = this.app.state?.data?.meditationEntries?.length || 0;
       const gm = this.app.gamification;
       if (!gm) return;
 
-      MeditationsEngine.ACHIEVEMENTS.forEach(achievement => {
-        if (total === achievement.count) {
+      const achievements = [
+        { count: 1, id: 'first_meditation', name: 'First Journey Within', xp: 50, icon: '🧘', msg: 'You have begun the sacred practice of meditation!' },
+        { count: 10, id: 'meditation_10', name: 'Meditation Practitioner', xp: 100, icon: '🕉️', msg: '10 meditations! Your inner light grows brighter!' },
+        { count: 50, id: 'meditation_50', name: 'Meditation Master', xp: 250, icon: '✨', msg: '50 meditations! You are a beacon of inner peace!' },
+        { count: 100, id: 'meditation_100', name: 'Enlightened One', xp: 500, icon: '🌟', msg: '100 meditations! You walk in pure awareness!' }
+      ];
+
+      achievements.forEach(ach => {
+        if (total === ach.count) {
           gm.grantAchievement({
-            id: achievement.id,
-            name: achievement.name,
-            xp: achievement.xp,
-            icon: achievement.icon,
-            inspirational: achievement.msg
+            id: ach.id,
+            name: ach.name,
+            xp: ach.xp,
+            icon: ach.icon,
+            inspirational: ach.msg
           });
         }
       });
@@ -749,17 +885,19 @@ class MeditationsEngine {
     }
   }
 
-  /**
-   * Maps meditation category to chakra
-   */
   getChakraFromMeditation(category) {
-    return MeditationsEngine.CHAKRA_MAPPING[category] || null;
+    const mapping = {
+      Grounding: 'root',
+      Energy: 'sacral',
+      Chakras: 'heart',
+      Spiritual: 'crown',
+      Healing: 'heart',
+      Manifestation: 'solar',
+      Premium: 'crown'
+    };
+    return mapping[category] || null;
   }
 
-  // ===== UTILITY METHODS =====
-  /**
-   * Formats seconds to MM:SS
-   */
   formatTime(seconds) {
     if (!seconds || isNaN(seconds) || seconds < 0) return '0:00';
     
@@ -768,9 +906,6 @@ class MeditationsEngine {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
 
-  /**
-   * Opens PDF guide in new tab
-   */
   openPDFGuide() {
     if (this.pdfGuideUrl && this.pdfGuideUrl !== 'YOUR_PDF_URL_HERE') {
       window.open(this.pdfGuideUrl, '_blank');
@@ -779,18 +914,6 @@ class MeditationsEngine {
     }
   }
 
-  /**
-   * Escapes HTML to prevent XSS attacks
-   */
-  escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
-  /**
-   * Cleanup method to prevent memory leaks
-   */
   cleanup() {
     try {
       if (this.progressInterval) {
@@ -815,7 +938,6 @@ class MeditationsEngine {
   }
 }
 
-// Export for module systems and global window access
 if (typeof window !== 'undefined') {
   window.MeditationsEngine = MeditationsEngine;
 }
