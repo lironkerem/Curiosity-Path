@@ -1,6 +1,6 @@
 // =========================================================
-//  GamificationEngine.js – COMPLETE FILE (PART 1 of 2)
-//  COPY THIS ENTIRE FILE, THEN APPEND PART 2 AT THE END
+//  GamificationEngine.js – PATCHED: Fixed duplicate toasts
+//  COMPLETE SINGLE FILE - USE THIS ENTIRE FILE
 // =========================================================
 
 export class GamificationEngine {
@@ -11,23 +11,36 @@ export class GamificationEngine {
     this.badgeCheckQueue = new Set();
     this.saveTimeout = null;
     this.initializeQuests();
-    // FIXED: Removed checkAllBadges() call here
+    // FIXED: Removed checkAllBadges() call here to prevent early firing
   }
 
   defaultState() {
     return {
-      xp: 0, level: 1, karma: 0,
+      xp: 0,
+      level: 1,
+      karma: 0,
       streak: { current: 0, lastCheckIn: null },
       completedSessions: { daily: 0, weekly: 0 },
-      badges: [], unlockedFeatures: [],
+      badges: [],
+      unlockedFeatures: [],
       quests: { daily: [], weekly: [], monthly: [] },
       logs: [],
-      totalWellnessRuns: 0, totalTarotSpreads: 0,
-      totalJournalEntries: 0, totalHappinessViews: 0,
-      weeklyQuestCompletions: 0, monthlyQuestCompletions: 0,
-      dailyQuestCompletions: 0, totalQuestCompletions: 0,
-      dailyQuestStreak: 0, _bulkMode: false,
-      settings: { xpPerAction: 10, xpPerLevel: 100, streakResetDays: 1, synergyBonus: 10 }
+      totalWellnessRuns: 0,
+      totalTarotSpreads: 0,
+      totalJournalEntries: 0,
+      totalHappinessViews: 0,
+      weeklyQuestCompletions: 0,
+      monthlyQuestCompletions: 0,
+      dailyQuestCompletions: 0,
+      totalQuestCompletions: 0,
+      dailyQuestStreak: 0,
+      _bulkMode: false,
+      settings: {
+        xpPerAction: 10,
+        xpPerLevel: 100,
+        streakResetDays: 1,
+        synergyBonus: 10
+      }
     };
   }
 
@@ -36,35 +49,240 @@ export class GamificationEngine {
     if (!this.state.quests.daily || this.state.quests.daily.length === 0) {
       this.state.quests = definitions;
       this.saveState();
-      console.log('✅ Quests initialized');
+      console.log('✅ Quests initialized from code definitions');
     }
   }
 
   getQuestDefinitions() {
     return {
       daily: [
-        { id: 'gratitude_entry', tab: 'gratitude', icon: '❤️', name: 'Daily Gratitude Practice', inspirational: 'Gratitude transforms what we have into enough.', target: 'Log 10 gratitudes', goal: 10, progress: 0, xpReward: 20, completed: false, karmaReward: 2 },
-        { id: 'journal_entry', tab: 'journal', icon: '📓', name: 'Daily Journaling', inspirational: 'Writing clarifies thoughts.', target: 'Save 1 journal entry', goal: 1, progress: 0, xpReward: 35, completed: false, karmaReward: 3 },
-        { id: 'tarot_spread', tab: 'tarot', icon: '🃏', name: 'Daily Tarot Spread', inspirational: 'The cards reveal truth.', target: 'Complete one 6-card spread', goal: 1, progress: 0, xpReward: 25, completed: false, karmaReward: 2 },
-        { id: 'meditation_session', tab: 'meditations', icon: '🧘', name: 'Daily Meditation', inspirational: 'Peace begins within.', target: 'Finish 1 meditation', goal: 1, progress: 0, xpReward: 30, completed: false, karmaReward: 3 },
-        { id: 'energy_checkin', tab: 'energy', icon: '⚡', name: 'Daily Energy Check-in', inspirational: 'Awareness is transformation.', target: 'Day & night check-ins', goal: 2, progress: 0, xpReward: 20, completed: false, karmaReward: 2, subProgress: { day: false, night: false } },
-        { id: 'daily_booster', tab: 'happiness', icon: '✨', name: 'Daily Affirmations', inspirational: 'Joy is practice.', target: 'Refresh cards 5 times', goal: 5, progress: 0, xpReward: 15, completed: false, karmaReward: 1 }
+        {
+          id: 'gratitude_entry',
+          tab: 'gratitude',
+          icon: '❤️',
+          name: 'Daily Gratitude Practice',
+          inspirational: 'Gratitude transforms what we have into enough.',
+          target: 'Log 10 gratitudes (any entries) to complete this quest.',
+          goal: 10,
+          progress: 0,
+          xpReward: 20,
+          completed: false,
+          karmaReward: 2
+        },
+        {
+          id: 'journal_entry',
+          tab: 'journal',
+          icon: '📓',
+          name: 'Daily Journaling',
+          inspirational: 'Writing clarifies thoughts and soothes the soul.',
+          target: 'Save 1 journal entry to complete this quest.',
+          goal: 1,
+          progress: 0,
+          xpReward: 35,
+          completed: false,
+          karmaReward: 3
+        },
+        {
+          id: 'tarot_spread',
+          tab: 'tarot',
+          icon: '🃏',
+          name: 'Daily Tarot Spread',
+          inspirational: 'The cards reveal what the heart already knows.',
+          target: 'Complete one 6-card (or larger) spread to complete this quest.',
+          goal: 1,
+          progress: 0,
+          xpReward: 25,
+          completed: false,
+          karmaReward: 2
+        },
+        {
+          id: 'meditation_session',
+          tab: 'meditations',
+          icon: '🧘',
+          name: 'Daily Meditation',
+          inspirational: 'Peace begins within.',
+          target: 'Finish 1 meditation session to complete this quest.',
+          goal: 1,
+          progress: 0,
+          xpReward: 30,
+          completed: false,
+          karmaReward: 3
+        },
+        {
+          id: 'energy_checkin',
+          tab: 'energy',
+          icon: '⚡',
+          name: 'Daily Energy Check-in',
+          inspirational: 'Awareness is the first step to transformation.',
+          target: 'Tick both day ☀️ and night 🌙 check-ins to complete this quest.',
+          goal: 2,
+          progress: 0,
+          xpReward: 20,
+          completed: false,
+          karmaReward: 2,
+          subProgress: { day: false, night: false }
+        },
+        {
+          id: 'daily_booster',
+          tab: 'happiness',
+          icon: '✨',
+          name: 'Daily Affirmations/Boosters',
+          inspirational: 'Joy is a practice, not a destination.',
+          target: 'Refresh any happiness card 5 times to complete this quest.',
+          goal: 5,
+          progress: 0,
+          xpReward: 15,
+          completed: false,
+          karmaReward: 1
+        }
       ],
       weekly: [
-        { id: 'gratitude_streak_7', icon: '💖', name: 'Gratitude Streak', inspirational: 'Consistency breeds abundance.', target: 'Log 70 gratitudes', goal: 70, progress: 0, xpReward: 100, completed: false, karmaReward: 10 },
-        { id: 'journal_5', icon: '📝', name: 'Journal Writer', inspirational: 'Your story matters.', target: 'Save 5 entries', goal: 5, progress: 0, xpReward: 150, completed: false, karmaReward: 15 },
-        { id: 'energy_7', icon: '⚡', name: 'Weekly Energy', inspirational: 'Track your rhythm.', target: '14 check-ins', goal: 14, progress: 0, xpReward: 80, completed: false, karmaReward: 8 },
-        { id: 'happiness_boosters_20', icon: '🎨', name: 'Happy Week', inspirational: 'Feed positivity.', target: 'Refresh 35 times', goal: 35, progress: 0, xpReward: 120, completed: false, karmaReward: 12 },
-        { id: 'tarot_4_days', icon: '🔮', name: 'Tarot Lover', inspirational: 'Seek wisdom.', target: '5 spreads', goal: 5, progress: 0, xpReward: 100, completed: false, karmaReward: 10 },
-        { id: 'meditate_3', icon: '🌟', name: 'Meditating Adept', inspirational: 'Stillness is strength.', target: '5 sessions', goal: 5, progress: 0, xpReward: 120, completed: false, karmaReward: 12 }
+        {
+          id: 'gratitude_streak_7',
+          icon: '💖',
+          name: 'A Gratitude Streak',
+          inspirational: 'Consistency breeds abundance.',
+          target: 'Log 70 gratitudes across the week to complete this quest.',
+          goal: 70,
+          progress: 0,
+          xpReward: 100,
+          completed: false,
+          karmaReward: 10
+        },
+        {
+          id: 'journal_5',
+          icon: '📝',
+          name: 'Journal Writer',
+          inspirational: 'Your story matters.',
+          target: 'Save 5 journal entries across the week to complete this quest.',
+          goal: 5,
+          progress: 0,
+          xpReward: 150,
+          completed: false,
+          karmaReward: 15
+        },
+        {
+          id: 'energy_7',
+          icon: '⚡',
+          name: 'Weekly Energy Check-ins',
+          inspirational: 'Track your rhythm, honor your cycles.',
+          target: 'Tick 14 energy check-ins (day & night) across the week to complete this quest.',
+          goal: 14,
+          progress: 0,
+          xpReward: 80,
+          completed: false,
+          karmaReward: 8
+        },
+        {
+          id: 'happiness_boosters_20',
+          icon: '🎨',
+          name: 'Happy and Motivated Week',
+          inspirational: 'Feed your mind with positivity.',
+          target: 'Refresh happiness cards 35 times across the week to complete this quest.',
+          goal: 35,
+          progress: 0,
+          xpReward: 120,
+          completed: false,
+          karmaReward: 12
+        },
+        {
+          id: 'tarot_4_days',
+          icon: '🔮',
+          name: 'Tarot Lover',
+          inspirational: 'Seek wisdom in the cards.',
+          target: 'Complete five 6-card (or larger) spreads across the week to complete this quest.',
+          goal: 5,
+          progress: 0,
+          xpReward: 100,
+          completed: false,
+          karmaReward: 10
+        },
+        {
+          id: 'meditate_3',
+          icon: '🌟',
+          name: 'Meditating Adept',
+          inspirational: 'Stillness is strength.',
+          target: 'Finish 5 meditation sessions across the week to complete this quest.',
+          goal: 5,
+          progress: 0,
+          xpReward: 120,
+          completed: false,
+          karmaReward: 12
+        }
       ],
       monthly: [
-        { id: 'monthly_energy_28', icon: '⚡', name: 'Monthly Energy', inspirational: 'Know thyself.', target: '60 check-ins', goal: 60, progress: 0, xpReward: 300, completed: false, karmaReward: 30 },
-        { id: 'monthly_tarot_15', icon: '🔮', name: 'Tarot Enthusiast', inspirational: 'Universe speaks.', target: '20 spreads', goal: 20, progress: 0, xpReward: 400, completed: false, karmaReward: 40 },
-        { id: 'monthly_gratitude_28', icon: '💖', name: 'Gratitude Master', inspirational: 'Unlocks fullness.', target: '300 gratitudes', goal: 300, progress: 0, xpReward: 350, completed: false, karmaReward: 35 },
-        { id: 'monthly_journal_20', icon: '📝', name: 'Journalist', inspirational: 'Reflect to grow.', target: '20 entries', goal: 20, progress: 0, xpReward: 500, completed: false, karmaReward: 50 },
-        { id: 'monthly_happiness_100', icon: '🎨', name: 'Super Month', inspirational: 'Choose joy daily.', target: '150 refreshes', goal: 150, progress: 0, xpReward: 450, completed: false, karmaReward: 45 },
-        { id: 'monthly_meditation_15', icon: '🌟', name: 'Meditating Healer', inspirational: 'Find power.', target: '20 sessions', goal: 20, progress: 0, xpReward: 600, completed: false, karmaReward: 60 }
+        {
+          id: 'monthly_energy_28',
+          icon: '⚡',
+          name: 'Monthly Energy Check-ins',
+          inspirational: 'Know thyself through daily awareness.',
+          target: 'Tick 60 energy check-ins (day & night) during the month to complete this quest.',
+          goal: 60,
+          progress: 0,
+          xpReward: 300,
+          completed: false,
+          karmaReward: 30
+        },
+        {
+          id: 'monthly_tarot_15',
+          icon: '🔮',
+          name: 'Tarot Enthusiast',
+          inspirational: 'The universe speaks through symbols.',
+          target: 'Complete twenty 6-card (or larger) spreads during the month to complete this quest.',
+          goal: 20,
+          progress: 0,
+          xpReward: 400,
+          completed: false,
+          karmaReward: 40
+        },
+        {
+          id: 'monthly_gratitude_28',
+          icon: '💖',
+          name: 'Gratitude Master',
+          inspirational: 'Gratitude unlocks the fullness of life.',
+          target: 'Log 300 gratitudes during the month to complete this quest.',
+          goal: 300,
+          progress: 0,
+          xpReward: 350,
+          completed: false,
+          karmaReward: 35
+        },
+        {
+          id: 'monthly_journal_20',
+          icon: '📝',
+          name: 'A Journalist',
+          inspirational: 'Write to understand, reflect to grow.',
+          target: 'Save 20 journal entries during the month to complete this quest.',
+          goal: 20,
+          progress: 0,
+          xpReward: 500,
+          completed: false,
+          karmaReward: 50
+        },
+        {
+          id: 'monthly_happiness_100',
+          icon: '🎨',
+          name: 'Super Good Month',
+          inspirational: 'Choose joy every single day.',
+          target: 'Refresh happiness cards 150 times during the month to complete this quest.',
+          goal: 150,
+          progress: 0,
+          xpReward: 450,
+          completed: false,
+          karmaReward: 45
+        },
+        {
+          id: 'monthly_meditation_15',
+          icon: '🌟',
+          name: 'Meditating Healer',
+          inspirational: 'Through stillness, we find our true power.',
+          target: 'Finish 20 meditation sessions during the month to complete this quest.',
+          goal: 20,
+          progress: 0,
+          xpReward: 600,
+          completed: false,
+          karmaReward: 60
+        }
       ]
     };
   }
@@ -78,24 +296,35 @@ export class GamificationEngine {
           this.app.state.data = { ...this.app.state.data, ...this.state };
           this.app.state.saveAppData();
         }
-      } catch (e) { console.error('Save failed:', e); }
+      } catch (error) {
+        console.error('Failed to save gamification state:', error);
+      }
     }, 100);
   }
 
   loadState() {
     try {
-      if (this.app?.state?.data?.xp !== undefined) {
+      if (this.app?.state?.data && this.app.state.data.xp !== undefined) {
         const cloud = { ...this.app.state.data };
-        ['streak.best', 'streak.lastCheckIn', 'energyLevel', 'alignmentScore', 'chakraProgress', 'totalPracticeMinutes'].forEach(f => {
-          const p = f.split('.');
-          if (p.length === 2) { if (cloud[p[0]]) delete cloud[p[0]][p[1]]; } else delete cloud[f];
+        const deprecated = ['streak.best', 'streak.lastCheckIn', 'energyLevel',
+          'alignmentScore', 'chakraProgress', 'totalPracticeMinutes'];
+        deprecated.forEach(field => {
+          const parts = field.split('.');
+          if (parts.length === 2) {
+            if (cloud[parts[0]]) delete cloud[parts[0]][parts[1]];
+          } else {
+            delete cloud[field];
+          }
         });
         return { ...this.defaultState(), ...cloud };
       }
       const local = localStorage.getItem('gamificationState');
       if (local) return { ...this.defaultState(), ...JSON.parse(local) };
       return null;
-    } catch (e) { console.error('Load failed:', e); return null; }
+    } catch (error) {
+      console.error('Failed to load gamification state:', error);
+      return null;
+    }
   }
 
   async reloadFromDatabase() {
@@ -105,8 +334,10 @@ export class GamificationEngine {
       this.state = this.loadState();
       this.emit('stateReloaded', this.state);
       this.checkAllBadges();
-      console.log('✅ Reloaded from DB');
-    } catch (e) { console.error('Reload failed:', e); }
+      console.log('✅ Gamification state reloaded from database');
+    } catch (error) {
+      console.error('Failed to reload gamification state:', error);
+    }
   }
 
   on(event, callback) {
@@ -123,7 +354,9 @@ export class GamificationEngine {
   emit(event, data) {
     if (!this.listeners[event]) return;
     this.listeners[event].forEach(cb => {
-      try { cb(data); } catch (e) { console.error(`Event ${event} error:`, e); }
+      try { cb(data); } catch (error) {
+        console.error(`Error in event listener for ${event}:`, error);
+      }
     });
   }
 
@@ -132,13 +365,39 @@ export class GamificationEngine {
     this.listeners = {};
   }
 
-  incrementWellnessRuns() { this.state.totalWellnessRuns += 1; this.queueBadgeCheck('wellness'); this.saveState(); this.emit('wellnessRunCompleted', this.state.totalWellnessRuns); }
-  incrementTarotSpreads() { this.state.totalTarotSpreads += 1; this.queueBadgeCheck('tarot'); this.saveState(); this.emit('tarotSpreadCompleted', this.state.totalTarotSpreads); }
-  incrementJournalEntries() { this.state.totalJournalEntries += 1; this.queueBadgeCheck('journal'); this.saveState(); this.emit('journalEntrySaved', this.state.totalJournalEntries); }
-  incrementHappinessViews() { this.state.totalHappinessViews += 1; this.queueBadgeCheck('happiness'); this.saveState(); this.emit('happinessViewAdded', this.state.totalHappinessViews); }
+  incrementWellnessRuns() {
+    this.state.totalWellnessRuns += 1;
+    this.queueBadgeCheck('wellness');
+    this.saveState();
+    this.emit('wellnessRunCompleted', this.state.totalWellnessRuns);
+  }
 
-  queueBadgeCheck(category) { this.badgeCheckQueue.add(category); this.debouncedBadgeCheck(); }
-  
+  incrementTarotSpreads() {
+    this.state.totalTarotSpreads += 1;
+    this.queueBadgeCheck('tarot');
+    this.saveState();
+    this.emit('tarotSpreadCompleted', this.state.totalTarotSpreads);
+  }
+
+  incrementJournalEntries() {
+    this.state.totalJournalEntries += 1;
+    this.queueBadgeCheck('journal');
+    this.saveState();
+    this.emit('journalEntrySaved', this.state.totalJournalEntries);
+  }
+
+  incrementHappinessViews() {
+    this.state.totalHappinessViews += 1;
+    this.queueBadgeCheck('happiness');
+    this.saveState();
+    this.emit('happinessViewAdded', this.state.totalHappinessViews);
+  }
+
+  queueBadgeCheck(category) {
+    this.badgeCheckQueue.add(category);
+    this.debouncedBadgeCheck();
+  }
+
   debouncedBadgeCheck = this.debounce(() => {
     const categories = Array.from(this.badgeCheckQueue);
     this.badgeCheckQueue.clear();
@@ -148,10 +407,15 @@ export class GamificationEngine {
 
   debounce(fn, ms) {
     let timer;
-    return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn.apply(this, args), ms); };
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn.apply(this, args), ms);
+    };
   }
 
-  get currentData() { return this.app?.state?.data || {}; }
+  get currentData() {
+    return this.app?.state?.data || {};
+  }
 
   getCounts() {
     const data = this.currentData;
@@ -187,7 +451,7 @@ export class GamificationEngine {
     this.saveState();
   }
 
-  // FIXED: Properly sends skipToast flag
+  // FIXED: Properly sends skipToast flag to prevent duplicate toasts
   addBoth(xp, karma, source = 'general') {
     if (!xp && !karma) return;
     
@@ -220,7 +484,8 @@ export class GamificationEngine {
   hasActiveXPBoost() {
     try {
       const boosts = JSON.parse(localStorage.getItem('karma_active_boosts')) || [];
-      return boosts.some(b => b.id === 'xp_multiplier' && b.expiresAt > Date.now());
+      const now = Date.now();
+      return boosts.some(b => b.id === 'xp_multiplier' && b.expiresAt > now);
     } catch { return false; }
   }
 
@@ -261,7 +526,7 @@ export class GamificationEngine {
     const today = new Date().toDateString();
     if (this.state.streak.lastCheckIn === today) return;
     const last = this.state.streak.lastCheckIn ? new Date(this.state.streak.lastCheckIn) : null;
-    const diff = last ? (new Date(today) - last) / 86400000 : null;
+    const diff = last ? (new Date(today) - last) / (1000 * 60 * 60 * 24) : null;
     if (!last || diff > this.state.settings.streakResetDays) {
       this.state.streak.current = 1;
     } else {
@@ -275,63 +540,63 @@ export class GamificationEngine {
 
   getBadgeDefinitions() {
     return {
-      first_step: { name: 'First Step', icon: '🌱', description: 'Any first action', xp: 10, rarity: 'common', category: 'first' },
-      first_gratitude: { name: 'First Gratitude', icon: '💚', description: 'First entry', xp: 10, rarity: 'common', category: 'first' },
-      first_journal: { name: 'First Journal', icon: '📝', description: 'First entry', xp: 10, rarity: 'common', category: 'first' },
-      first_energy: { name: 'First Energy', icon: '⚡', description: 'First check-in', xp: 10, rarity: 'common', category: 'first' },
-      first_tarot: { name: 'First Reading', icon: '🃏', description: 'First spread', xp: 10, rarity: 'common', category: 'first' },
-      first_meditation: { name: 'First Meditation', icon: '🧘', description: 'First session', xp: 10, rarity: 'common', category: 'first' },
-      first_purchase: { name: 'First Purchase', icon: '🛒', description: 'Karma Shop', xp: 50, rarity: 'epic', category: 'currency' },
-      gratitude_warrior: { name: 'Gratitude Warrior', icon: '❤️', description: '30 entries', xp: 50, rarity: 'uncommon', category: 'gratitude' },
-      gratitude_legend: { name: 'Gratitude Legend', icon: '💗', description: '100 entries', xp: 100, rarity: 'rare', category: 'gratitude' },
-      gratitude_200: { name: 'Gratitude Sage', icon: '💖', description: '200 entries', xp: 200, rarity: 'epic', category: 'gratitude' },
-      gratitude_500: { name: 'Gratitude Titan', icon: '💘', description: '500 entries', xp: 500, rarity: 'legendary', category: 'gratitude' },
-      journal_keeper: { name: 'Journal Keeper', icon: '📓', description: '20 entries', xp: 50, rarity: 'uncommon', category: 'journal' },
-      journal_master: { name: 'Journal Master', icon: '📚', description: '75 entries', xp: 100, rarity: 'rare', category: 'journal' },
-      journal_150: { name: 'Journal Sage', icon: '📖', description: '150 entries', xp: 200, rarity: 'epic', category: 'journal' },
-      journal_400: { name: 'Journal Titan', icon: '📜', description: '400 entries', xp: 500, rarity: 'legendary', category: 'journal' },
-      energy_tracker: { name: 'Energy Tracker', icon: '⚡', description: '30 logs', xp: 50, rarity: 'uncommon', category: 'energy' },
-      energy_sage: { name: 'Energy Sage', icon: '🔋', description: '100 logs', xp: 100, rarity: 'rare', category: 'energy' },
-      energy_300: { name: 'Energy Titan', icon: '🔌', description: '300 logs', xp: 300, rarity: 'epic', category: 'energy' },
-      energy_600: { name: 'Energy Legend', icon: '⚡️', description: '600 logs', xp: 600, rarity: 'legendary', category: 'energy' },
-      tarot_apprentice: { name: 'Tarot Apprentice', icon: '🔮', description: '10 spreads', xp: 25, rarity: 'common', category: 'tarot' },
-      tarot_mystic: { name: 'Tarot Mystic', icon: '🃏', description: '25 spreads', xp: 50, rarity: 'uncommon', category: 'tarot' },
-      tarot_oracle: { name: 'Tarot Oracle', icon: '🌙', description: '75 spreads', xp: 100, rarity: 'rare', category: 'tarot' },
-      tarot_150: { name: 'Tarot Sage', icon: '🧙', description: '150 spreads', xp: 200, rarity: 'epic', category: 'tarot' },
-      tarot_400: { name: 'Tarot Titan', icon: '🔮', description: '400 spreads', xp: 500, rarity: 'legendary', category: 'tarot' },
-      meditation_devotee: { name: 'Meditation Devotee', icon: '🧘', description: '20 sessions', xp: 50, rarity: 'uncommon', category: 'meditation' },
-      meditation_master: { name: 'Meditation Master', icon: '🕉️', description: '60 sessions', xp: 100, rarity: 'rare', category: 'meditation' },
-      meditation_100: { name: 'Meditation Sage', icon: '🧘‍♂️', description: '100 sessions', xp: 300, rarity: 'epic', category: 'meditation' },
-      meditation_200: { name: 'Meditation Titan', icon: '🧘‍♀️', description: '200 sessions', xp: 700, rarity: 'legendary', category: 'meditation' },
-      happiness_seeker: { name: 'Happiness Seeker', icon: '😊', description: '50 views', xp: 50, rarity: 'uncommon', category: 'happiness' },
-      joy_master: { name: 'Joy Master', icon: '🎉', description: '150 views', xp: 100, rarity: 'rare', category: 'happiness' },
-      happiness_300: { name: 'Happiness Sage', icon: '😍', description: '300 views', xp: 200, rarity: 'epic', category: 'happiness' },
-      happiness_700: { name: 'Happiness Titan', icon: '🤩', description: '700 views', xp: 500, rarity: 'legendary', category: 'happiness' },
-      wellness_champion: { name: 'Wellness Champion', icon: '🌿', description: '50 exercises', xp: 50, rarity: 'uncommon', category: 'wellness' },
-      wellness_guru: { name: 'Wellness Guru', icon: '🌳', description: '150 exercises', xp: 100, rarity: 'rare', category: 'wellness' },
-      wellness_300: { name: 'Wellness Titan', icon: '🌲', description: '300 exercises', xp: 300, rarity: 'epic', category: 'wellness' },
-      wellness_700: { name: 'Wellness Legend', icon: '🌎', description: '700 exercises', xp: 1000, rarity: 'legendary', category: 'wellness' },
-      perfect_week: { name: 'Perfect Week', icon: '⭐', description: '7 day streak', xp: 75, rarity: 'rare', category: 'streak' },
-      dedication_streak: { name: 'Dedication', icon: '💎', description: '30 days', xp: 100, rarity: 'epic', category: 'streak' },
-      unstoppable: { name: 'Unstoppable', icon: '🔥', description: '60 days', xp: 150, rarity: 'epic', category: 'streak' },
-      legendary_streak: { name: 'Legendary Streak', icon: '👑', description: '100 days', xp: 200, rarity: 'legendary', category: 'streak' },
-      weekly_warrior: { name: 'Weekly Warrior', icon: '🔥', description: '4 weeks', xp: 100, rarity: 'epic', category: 'quest' },
-      monthly_master: { name: 'Monthly Master', icon: '🌟', description: '1 month', xp: 150, rarity: 'epic', category: 'quest' },
-      quest_crusher: { name: 'Quest Crusher', icon: '🎯', description: '100 quests', xp: 150, rarity: 'epic', category: 'quest' },
-      daily_champion: { name: 'Daily Champion', icon: '⭐', description: '30 days', xp: 100, rarity: 'rare', category: 'quest' },
-      karma_collector: { name: 'Karma Collector', icon: '💰', description: '500 karma', xp: 50, rarity: 'rare', category: 'currency' },
-      karma_lord: { name: 'Karma Lord', icon: '💎', description: '2000 karma', xp: 200, rarity: 'legendary', category: 'currency' },
-      xp_milestone: { name: 'XP Legend', icon: '⚡', description: '10000 XP', xp: 100, rarity: 'epic', category: 'currency' },
-      xp_titan: { name: 'XP Titan', icon: '⚡', description: '50000 XP', xp: 200, rarity: 'legendary', category: 'currency' },
-      level_5_hero: { name: 'Rising Star', icon: '🎯', description: 'Level 5', xp: 100, rarity: 'epic', category: 'level' },
-      level_7_hero: { name: 'Enlightened Soul', icon: '🌟', description: 'Level 7', xp: 150, rarity: 'epic', category: 'level' },
-      level_10_hero: { name: 'Enlightened Master', icon: '👑', description: 'Level 10', xp: 300, rarity: 'legendary', category: 'level' },
-      chakra_balancer: { name: 'Chakra Balancer', icon: '🌈', description: 'All ≥8', xp: 75, rarity: 'epic', category: 'chakra' },
-      chakra_master: { name: 'Chakra Master', icon: '🎨', description: 'All ≥9', xp: 150, rarity: 'legendary', category: 'chakra' },
-      triple_threat: { name: 'Triple Threat', icon: '🎪', description: '3 features/day', xp: 25, rarity: 'uncommon', category: 'cross' },
-      super_day: { name: 'Super Day', icon: '💫', description: '4 features/day', xp: 50, rarity: 'rare', category: 'cross' },
-      complete_explorer: { name: 'Complete Explorer', icon: '🗺️', description: 'All features', xp: 100, rarity: 'epic', category: 'cross' },
-      renaissance_soul: { name: 'Renaissance Soul', icon: '🎭', description: '≥10 in 5 features', xp: 150, rarity: 'epic', category: 'cross' }
+      first_step: { name: 'First Step', icon: '🌱', description: 'Any first action in the app', xp: 10, rarity: 'common', category: 'first' },
+      first_gratitude: { name: 'First Gratitude', icon: '💚', description: 'First gratitude entry', xp: 10, rarity: 'common', category: 'first' },
+      first_journal: { name: 'First Journal', icon: '📝', description: 'First journal entry', xp: 10, rarity: 'common', category: 'first' },
+      first_energy: { name: 'First Energy', icon: '⚡', description: 'First energy check-in', xp: 10, rarity: 'common', category: 'first' },
+      first_tarot: { name: 'First Reading', icon: '🃏', description: 'First tarot spread', xp: 10, rarity: 'common', category: 'first' },
+      first_meditation: { name: 'First Meditation', icon: '🧘', description: 'First meditation session', xp: 10, rarity: 'common', category: 'first' },
+      first_purchase: { name: 'First Purchase', icon: '🛒', description: 'First purchase in the Karma Shop', xp: 50, rarity: 'epic', category: 'currency' },
+      gratitude_warrior: { name: 'Gratitude Warrior', icon: '❤️', description: '30 gratitude entries', xp: 50, rarity: 'uncommon', category: 'gratitude' },
+      gratitude_legend: { name: 'Gratitude Legend', icon: '💗', description: '100 gratitude entries', xp: 100, rarity: 'rare', category: 'gratitude' },
+      gratitude_200: { name: 'Gratitude Sage', icon: '💖', description: '200 gratitude entries', xp: 200, rarity: 'epic', category: 'gratitude' },
+      gratitude_500: { name: 'Gratitude Titan', icon: '💘', description: '500 gratitude entries', xp: 500, rarity: 'legendary', category: 'gratitude' },
+      journal_keeper: { name: 'Journal Keeper', icon: '📓', description: '20 journal entries', xp: 50, rarity: 'uncommon', category: 'journal' },
+      journal_master: { name: 'Journal Master', icon: '📚', description: '75 journal entries', xp: 100, rarity: 'rare', category: 'journal' },
+      journal_150: { name: 'Journal Sage', icon: '📖', description: '150 journal entries', xp: 200, rarity: 'epic', category: 'journal' },
+      journal_400: { name: 'Journal Titan', icon: '📜', description: '400 journal entries', xp: 500, rarity: 'legendary', category: 'journal' },
+      energy_tracker: { name: 'Energy Tracker', icon: '⚡', description: '30 energy logs', xp: 50, rarity: 'uncommon', category: 'energy' },
+      energy_sage: { name: 'Energy Sage', icon: '🔋', description: '100 energy logs', xp: 100, rarity: 'rare', category: 'energy' },
+      energy_300: { name: 'Energy Titan', icon: '🔌', description: '300 energy logs', xp: 300, rarity: 'epic', category: 'energy' },
+      energy_600: { name: 'Energy Legend', icon: '⚡️', description: '600 energy logs', xp: 600, rarity: 'legendary', category: 'energy' },
+      tarot_apprentice: { name: 'Tarot Apprentice', icon: '🔮', description: '10 tarot spreads', xp: 25, rarity: 'common', category: 'tarot' },
+      tarot_mystic: { name: 'Tarot Mystic', icon: '🃏', description: '25 tarot spreads', xp: 50, rarity: 'uncommon', category: 'tarot' },
+      tarot_oracle: { name: 'Tarot Oracle', icon: '🌙', description: '75 tarot spreads', xp: 100, rarity: 'rare', category: 'tarot' },
+      tarot_150: { name: 'Tarot Sage', icon: '🧙', description: '150 tarot spreads', xp: 200, rarity: 'epic', category: 'tarot' },
+      tarot_400: { name: 'Tarot Titan', icon: '🔮', description: '400 tarot spreads', xp: 500, rarity: 'legendary', category: 'tarot' },
+      meditation_devotee: { name: 'Meditation Devotee', icon: '🧘', description: '20 meditation sessions', xp: 50, rarity: 'uncommon', category: 'meditation' },
+      meditation_master: { name: 'Meditation Master', icon: '🕉️', description: '60 meditation sessions', xp: 100, rarity: 'rare', category: 'meditation' },
+      meditation_100: { name: 'Meditation Sage', icon: '🧘‍♂️', description: '100 meditation sessions', xp: 300, rarity: 'epic', category: 'meditation' },
+      meditation_200: { name: 'Meditation Titan', icon: '🧘‍♀️', description: '200 meditation sessions', xp: 700, rarity: 'legendary', category: 'meditation' },
+      happiness_seeker: { name: 'Happiness Seeker', icon: '😊', description: '50 happiness booster views', xp: 50, rarity: 'uncommon', category: 'happiness' },
+      joy_master: { name: 'Joy Master', icon: '🎉', description: '150 happiness booster views', xp: 100, rarity: 'rare', category: 'happiness' },
+      happiness_300: { name: 'Happiness Sage', icon: '😍', description: '300 happiness booster views', xp: 200, rarity: 'epic', category: 'happiness' },
+      happiness_700: { name: 'Happiness Titan', icon: '🤩', description: '700 happiness booster views', xp: 500, rarity: 'legendary', category: 'happiness' },
+      wellness_champion: { name: 'Wellness Champion', icon: '🌿', description: '50 wellness exercises', xp: 50, rarity: 'uncommon', category: 'wellness' },
+      wellness_guru: { name: 'Wellness Guru', icon: '🌳', description: '150 wellness exercises', xp: 100, rarity: 'rare', category: 'wellness' },
+      wellness_300: { name: 'Wellness Titan', icon: '🌲', description: '300 wellness exercises', xp: 300, rarity: 'epic', category: 'wellness' },
+      wellness_700: { name: 'Wellness Legend', icon: '🌎', description: '700 wellness exercises', xp: 1000, rarity: 'legendary', category: 'wellness' },
+      perfect_week: { name: 'Perfect Week', icon: '⭐', description: 'Complete all daily quests 7 days straight', xp: 75, rarity: 'rare', category: 'streak' },
+      dedication_streak: { name: 'Dedication', icon: '💎', description: '30-day streak', xp: 100, rarity: 'epic', category: 'streak' },
+      unstoppable: { name: 'Unstoppable', icon: '🔥', description: '60-day streak', xp: 150, rarity: 'epic', category: 'streak' },
+      legendary_streak: { name: 'Legendary Streak', icon: '👑', description: '100-day streak', xp: 200, rarity: 'legendary', category: 'streak' },
+      weekly_warrior: { name: 'Weekly Warrior', icon: '🔥', description: 'Finish every weekly quest 4 separate weeks', xp: 100, rarity: 'epic', category: 'quest' },
+      monthly_master: { name: 'Monthly Master', icon: '🌟', description: 'Finish every monthly quest at least once', xp: 150, rarity: 'epic', category: 'quest' },
+      quest_crusher: { name: 'Quest Crusher', icon: '🎯', description: '100 total quests (any type)', xp: 150, rarity: 'epic', category: 'quest' },
+      daily_champion: { name: 'Daily Champion', icon: '⭐', description: 'Finish all dailies on 30 separate days', xp: 100, rarity: 'rare', category: 'quest' },
+      karma_collector: { name: 'Karma Collector', icon: '💰', description: '500 karma accumulated', xp: 50, rarity: 'rare', category: 'currency' },
+      karma_lord: { name: 'Karma Lord', icon: '💎', description: '2000 karma accumulated', xp: 200, rarity: 'legendary', category: 'currency' },
+      xp_milestone: { name: 'XP Legend', icon: '⚡', description: '10000 XP earned', xp: 100, rarity: 'epic', category: 'currency' },
+      xp_titan: { name: 'XP Titan', icon: '⚡', description: '50000 XP earned', xp: 200, rarity: 'legendary', category: 'currency' },
+      level_5_hero: { name: 'Rising Star', icon: '🎯', description: 'Reach Level 5', xp: 100, rarity: 'epic', category: 'level' },
+      level_7_hero: { name: 'Enlightened Soul', icon: '🌟', description: 'Reach Level 7', xp: 150, rarity: 'epic', category: 'level' },
+      level_10_hero: { name: 'Enlightened Master', icon: '👑', description: 'Reach Level 10', xp: 300, rarity: 'legendary', category: 'level' },
+      chakra_balancer: { name: 'Chakra Balancer', icon: '🌈', description: 'All 7 chakras ≥ 8 in one session', xp: 75, rarity: 'epic', category: 'chakra' },
+      chakra_master: { name: 'Chakra Master', icon: '🎨', description: 'All 7 chakras ≥ 9 in one session', xp: 150, rarity: 'legendary', category: 'chakra' },
+      triple_threat: { name: 'Triple Threat', icon: '🎪', description: 'Use 3 different features in one day', xp: 25, rarity: 'uncommon', category: 'cross' },
+      super_day: { name: 'Super Day', icon: '💫', description: 'Gratitude + journal + energy + meditation in one day', xp: 50, rarity: 'rare', category: 'cross' },
+      complete_explorer: { name: 'Complete Explorer', icon: '🗺️', description: 'Use every main feature at least once', xp: 100, rarity: 'epic', category: 'cross' },
+      renaissance_soul: { name: 'Renaissance Soul', icon: '🎭', description: '≥ 10 actions in 5+ different features', xp: 150, rarity: 'epic', category: 'cross' }
     };
   }
 
@@ -351,6 +616,7 @@ export class GamificationEngine {
       case 'currency': this.checkCurrencyBadges(badges); break;
       case 'level': this.checkLevelBadges(badges); break;
       case 'cross': this.checkCrossFeatureBadges(badges); break;
+      default: break;
     }
   }
 
@@ -503,7 +769,7 @@ export class GamificationEngine {
   checkAndGrantBadge(badgeId, badgeDefinitions) {
     if (this.state.badges.find(b => b.id === badgeId)) return;
     const def = badgeDefinitions[badgeId];
-    if (!def) { console.warn(`Badge not found: ${badgeId}`); return; }
+    if (!def) { console.warn(`Badge definition not found: ${badgeId}`); return; }
     this.grantBadge({ id: badgeId, name: def.name, icon: def.icon, description: def.description, xp: def.xp, rarity: def.rarity, inspirational: def.inspirational });
   }
 
@@ -520,12 +786,12 @@ export class GamificationEngine {
     this.emit('questProgress', quest);
     if (quest.progress >= quest.goal) {
       quest.completed = true;
-      this.addXP(10, 'Energy Bonus');
+      this.addXP(10, 'Energy Check-in Bonus (Both Complete)');
       this.state.karma += 2;
       if (quest.inspirational) this.emit('inspirationalMessage', quest.inspirational);
       this.emit('questCompleted', quest);
       if (this.state.quests.daily.every(q => q.completed)) {
-        this.addXP(50, 'Daily Bonus');
+        this.addXP(50, 'Daily Quest Streak Bonus');
         this.state.karma += 5;
         if (!this.state._bulkMode && this.app?.showToast) this.app.showToast('🎉 Daily quests finished! +50 XP +5 Karma', 'success');
         this.emit('dailyQuestsComplete', null);
@@ -546,7 +812,7 @@ export class GamificationEngine {
       if (quest.inspirational) this.emit('inspirationalMessage', quest.inspirational);
       if (!this.state._bulkMode) this.emit('questCompleted', quest);
       if (questType === 'daily' && this.state.quests.daily.every(q => q.completed)) {
-        this.addXP(50, 'Daily Bonus');
+        this.addXP(50, 'Daily Quest Streak Bonus');
         this.state.karma += 5;
         if (!this.state._bulkMode && this.app?.showToast) this.app.showToast('🎉 Daily quests finished! +50 XP +5 Karma', 'success');
         if (!this.state._bulkMode) this.emit('dailyQuestsComplete', null);
@@ -579,13 +845,13 @@ export class GamificationEngine {
         this.state.dailyQuestCompletions = (this.state.dailyQuestCompletions || 0) + 1;
         this.state.dailyQuestStreak = (this.state.dailyQuestStreak || 0) + 1;
       } else if (type === 'weekly') {
-        this.addXP(200, 'Weekly Bonus');
+        this.addXP(200, 'Weekly Quest Completion Bonus');
         this.state.karma += 20;
         if (this.app?.showToast) this.app.showToast('🎉 Weekly quests finished! +200 XP +20 Karma', 'success');
         this.state.weeklyQuestCompletions = (this.state.weeklyQuestCompletions || 0) + 1;
         this.state.dailyQuestStreak = 0;
       } else if (type === 'monthly') {
-        this.addXP(800, 'Monthly Bonus');
+        this.addXP(800, 'Monthly Quest Completion Bonus');
         this.state.karma += 80;
         if (this.app?.showToast) this.app.showToast('🎉 Monthly quests finished! +800 XP +80 Karma', 'success');
         this.state.monthlyQuestCompletions = (this.state.monthlyQuestCompletions || 0) + 1;
@@ -634,18 +900,24 @@ export class GamificationEngine {
       this.state.logs.push({ timestamp: new Date().toISOString(), type, details });
       if (this.state.logs.length > 1000) this.state.logs = this.state.logs.slice(-1000);
       this.saveState();
-    } catch (e) { console.error('Log failed:', e); }
+    } catch (error) {
+      console.error('Failed to log action:', error);
+    }
   }
 
   getStatusSummary() {
     const levelInfo = this.calculateLevel();
     return {
-      xp: this.state.xp, level: this.state.level,
-      pointsToNext: levelInfo.pointsToNext, levelTitle: levelInfo.title,
-      karma: this.state.karma, streak: this.state.streak,
+      xp: this.state.xp,
+      level: this.state.level,
+      pointsToNext: levelInfo.pointsToNext,
+      levelTitle: levelInfo.title,
+      karma: this.state.karma,
+      streak: this.state.streak,
       badges: this.state.badges,
       unlockedFeatures: this.state.unlockedFeatures,
-      quests: this.state.quests, logs: this.state.logs,
+      quests: this.state.quests,
+      logs: this.state.logs,
       totalWellnessRuns: this.state.totalWellnessRuns,
       totalTarotSpreads: this.state.totalTarotSpreads,
       totalJournalEntries: this.state.totalJournalEntries,
@@ -659,7 +931,9 @@ export class GamificationEngine {
       this.state = this.defaultState();
       this.emit('reset', null);
       this.saveState();
-    } catch (e) { console.error('Reset failed:', e); }
+    } catch (error) {
+      console.error('Failed to reset gamification state:', error);
+    }
   }
 }
 
@@ -715,4 +989,4 @@ function showLevelUpSpectacle({ level, title, karma = 0, xp = 0 }) {
 }
 
 export { showLevelUpSpectacle };
-export default GamificationEngine;
+export default GamificationEngine
