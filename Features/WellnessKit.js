@@ -1,18 +1,60 @@
-/* =========================================================
-   WELLNESS KIT - UNIFIED 4-IN-1 SYSTEM (OPTIMIZED)
-   Production-Grade v2.0
-   ========================================================= */
+/**
+ * =========================================================
+ * WELLNESS KIT - UNIFIED 4-IN-1 SYSTEM
+ * Production-Grade v2.1 (Optimized)
+ * =========================================================
+ * @module WellnessKit
+ * @version 2.1
+ * @description Integrated meditation and body awareness tool system
+ *              providing breathing exercises, body scans, nervous system
+ *              resets, and tension releases with gamification support
+ */
 (function () {
   'use strict';
 
-  /* ==================== SHARED CONFIGURATION ==================== */
+  /* ==================== CONFIGURATION CONSTANTS ==================== */
+  
+  /**
+   * Shared configuration across all wellness tools
+   * @const {Object}
+   */
   const SHARED_CONFIG = {
     PULSE_POOL_SIZE: 10,
     AUTO_TRIGGER: false,
     AUTO_TRIGGER_ALIGN: true
   };
 
+  /**
+   * Animation timing constants for consistent behavior
+   * @const {Object}
+   */
+  const ANIMATION_TIMING = {
+    BREATH_PULSE_INTERVAL: 1000,
+    EXHALE_PULSE_INTERVAL: 900,
+    RELAX_PULSE_INTERVAL: 1800,
+    RELAX_TRANSITION: 2600,
+    TEXT_FADE: 100,
+    SCALE_BOUNCE: 240,
+    ESCAPE_DEBOUNCE: 300
+  };
+
+  /**
+   * Breathing phase display text
+   * @const {Object}
+   */
+  const BREATH_PHASE_TEXT = {
+    inhale: 'Inhale deeply',
+    hold: 'HOLD',
+    exhale: 'Exhale slowly',
+    relax: 'Now Relax'
+  };
+
   /* ==================== TOOL CONFIGURATIONS ==================== */
+  
+  /**
+   * Configuration for all wellness tools
+   * @const {Object}
+   */
   const TOOLS = {
     selfReset: {
       id: 'selfreset',
@@ -78,7 +120,7 @@
   };
 
   /* ==================== SHARED STYLES ==================== */
- const css = `
+  const css = `
   /* Wellness Kit styles - inherits CSS variables from main-styles.css */
 
   .wk-overlay {
@@ -305,9 +347,14 @@
   document.head.appendChild(styleEl);
 
   /* ==================== SHARED UTILITIES ==================== */
+  
   const sharedAudioCtx = { ctx: null };
   let globalToastEl = null;
 
+  /**
+   * Plays a completion chime sound using Web Audio API
+   * @function playChime
+   */
   function playChime() {
     try {
       if (!sharedAudioCtx.ctx) {
@@ -344,13 +391,28 @@
       osc1.stop(now + 1.5);
       osc2.stop(now + 1.5);
     } catch (e) {
-      console.warn('WellnessKit: Audio failed', e);
+      console.warn('WellnessKit: Audio playback failed', e);
     }
   }
 
   /* ==================== WELLNESS TOOL CLASS ==================== */
+  
+  /**
+   * Core wellness tool class handling timers, animations, and session management
+   * @class WellnessTool
+   * @param {Object} config - Tool configuration from TOOLS constant
+   * @param {string} config.id - Unique tool identifier
+   * @param {string} config.title - Display title
+   * @param {number} config.duration - Session duration in seconds
+   * @param {string} config.type - Tool type: 'breathing' | 'zones' | 'steps'
+   */
   class WellnessTool {
     constructor(config) {
+      // Validate configuration
+      if (!config || !config.id || !config.duration || !config.type) {
+        throw new Error('WellnessKit: Invalid tool configuration');
+      }
+
       this.config = config;
       this.state = {
         remaining: config.duration,
@@ -368,6 +430,10 @@
       this.resetState();
     }
 
+    /**
+     * Creates the UI elements and injects them into the DOM
+     * @private
+     */
     createUI() {
       const wrapper = document.createElement('div');
       wrapper.innerHTML = `
@@ -401,6 +467,7 @@
       `;
       document.body.appendChild(wrapper);
 
+      // Cache all DOM element references
       this.elements = {
         overlay: document.getElementById(`wk-${this.config.id}-overlay`),
         box: document.getElementById(`wk-${this.config.id}-box`),
@@ -415,13 +482,19 @@
         btnClose: document.getElementById(`wk-${this.config.id}-close`)
       };
 
+      // Apply gradient background
       this.elements.box.style.background = this.config.gradient;
 
+      // Calculate SVG circle properties
       this.R = 40;
       this.CIRC = 2 * Math.PI * this.R;
       this.elements.progress.style.strokeDasharray = this.CIRC;
     }
 
+    /**
+     * Initializes object pool of pulse elements for performance
+     * @private
+     */
     initPulsePool() {
       this.pulsePool = [];
       this.pulseIndex = 0;
@@ -433,41 +506,81 @@
       }
     }
 
+    /**
+     * Spawns a visual pulse animation from the object pool
+     * @private
+     */
     spawnPulse() {
       const pulse = this.pulsePool[this.pulseIndex];
       this.pulseIndex = (this.pulseIndex + 1) % SHARED_CONFIG.PULSE_POOL_SIZE;
       pulse.classList.remove('active');
-      void pulse.offsetWidth;
+      void pulse.offsetWidth; // Force reflow to restart CSS animation
       pulse.classList.add('active');
     }
 
+    /**
+     * Spawns pulse and sets up continuous pulse interval
+     * @private
+     * @param {number} intervalMs - Milliseconds between pulses
+     */
+    spawnPulseWithInterval(intervalMs) {
+      this.spawnPulse();
+      if (this.state.pulseInterval) {
+        clearInterval(this.state.pulseInterval);
+      }
+      this.state.pulseInterval = setInterval(() => this.spawnPulse(), intervalMs);
+    }
 
-
+    /**
+     * Updates the circular progress indicator
+     * @private
+     * @param {number} rem - Remaining seconds
+     * @param {number} total - Total session duration
+     */
     setProgress(rem, total) {
       const pct = Math.max(0, Math.min(1, rem / total));
       const offset = this.CIRC * (1 - pct);
       this.elements.progress.style.strokeDashoffset = offset;
     }
 
+    /**
+     * Clears all active timers and intervals
+     * @private
+     */
     clearTimers() {
-      if (this.state.mainInterval) {
-        clearInterval(this.state.mainInterval);
-        this.state.mainInterval = null;
-      }
-      if (this.state.phaseTimeout) {
-        clearTimeout(this.state.phaseTimeout);
-        this.state.phaseTimeout = null;
-      }
-      if (this.state.pulseInterval) {
-        clearInterval(this.state.pulseInterval);
-        this.state.pulseInterval = null;
-      }
-      if (this.state.countdownInterval) {
-        clearInterval(this.state.countdownInterval);
-        this.state.countdownInterval = null;
-      }
+      const timers = [
+        this.state.mainInterval,
+        this.state.phaseTimeout,
+        this.state.pulseInterval,
+        this.state.countdownInterval
+      ];
+
+      timers.forEach(timer => {
+        if (timer) {
+          clearInterval(timer);
+          clearTimeout(timer);
+        }
+      });
+
+      // Reset all timer references to prevent memory leaks
+      this.state.mainInterval = null;
+      this.state.phaseTimeout = null;
+      this.state.pulseInterval = null;
+      this.state.countdownInterval = null;
     }
 
+    /**
+     * Resets animation transition property
+     * @private
+     */
+    resetAnimationTransition() {
+      this.elements.anim.style.transition = '';
+    }
+
+    /**
+     * Resets tool to initial state
+     * @private
+     */
     resetState() {
       this.clearTimers();
       this.state.remaining = this.config.duration;
@@ -481,11 +594,14 @@
       this.elements.btnStart.textContent = 'Start';
       this.elements.anim.style.transform = 'scale(1.0)';
       this.elements.anim.style.opacity = '0.9';
-      this.elements.anim.style.transition = '';
+      this.resetAnimationTransition();
 
+      // Set initial text based on tool type
       if (this.config.type === 'breathing') {
-        this.elements.text.textContent = 'Inhale deeply';
-        if (this.elements.count) this.elements.count.textContent = String(this.config.breathIn);
+        this.elements.text.textContent = BREATH_PHASE_TEXT.inhale;
+        if (this.elements.count) {
+          this.elements.count.textContent = String(this.config.breathIn);
+        }
       } else if (this.config.type === 'zones') {
         this.elements.text.textContent = this.config.zones[0];
       } else if (this.config.type === 'steps') {
@@ -493,18 +609,24 @@
       }
     }
 
+    /**
+     * Starts the main session timer
+     * @private
+     */
     startMainTimer() {
       if (this.state.mainInterval) return;
 
       this.state.isRunning = true;
       this.elements.btnStart.textContent = 'Stop';
 
+      // Start appropriate phase loop based on tool type
       if (this.config.type === 'breathing') {
         this.startBreathingCycle();
       } else {
         this.startPhaseLoop();
       }
 
+      // Main countdown timer
       this.state.mainInterval = setInterval(() => {
         this.state.remaining -= 1;
         if (this.state.remaining < 0) this.state.remaining = 0;
@@ -519,23 +641,41 @@
       }, 1000);
     }
 
+    /**
+     * Stops the main session timer
+     * @private
+     */
     stopMainTimer() {
       this.clearTimers();
       this.state.isRunning = false;
       this.elements.btnStart.textContent = 'Start';
-      this.elements.anim.style.transition = '';
+      this.resetAnimationTransition();
     }
 
+    /**
+     * Calculates number of completed breathing cycles
+     * @private
+     * @returns {number} Number of completed cycles
+     */
+    getCompletedCycles() {
+      const elapsed = this.config.duration - this.state.remaining;
+      const cycleSeconds = this.config.breathIn + this.config.breathHold + this.config.breathOut;
+      return Math.floor(elapsed / cycleSeconds);
+    }
+
+    /**
+     * Executes breathing cycle: inhale → hold → exhale → relax
+     * @private
+     */
     startBreathingCycle() {
       const runInhale = () => {
         playChime();
         this.setBreathPhase('inhale', this.config.breathIn);
         this.elements.anim.style.transition = `transform ${this.config.breathIn}s linear`;
         this.elements.anim.style.transform = 'scale(1.14)';
-        this.spawnPulse();
-        this.state.pulseInterval = setInterval(() => this.spawnPulse(), 1000);
+        this.spawnPulseWithInterval(ANIMATION_TIMING.BREATH_PULSE_INTERVAL);
         this.state.phaseTimeout = setTimeout(() => {
-          this.elements.anim.style.transition = '';
+          this.resetAnimationTransition();
           runHold();
         }, this.config.breathIn * 1000);
       };
@@ -543,14 +683,17 @@
       const runHold = () => {
         if (this.state.remaining <= 0) return;
         this.setBreathPhase('hold', this.config.breathHold);
+        
+        // Clear pulse interval during hold
         if (this.state.pulseInterval) {
           clearInterval(this.state.pulseInterval);
           this.state.pulseInterval = null;
         }
+        
         this.elements.anim.style.transition = `transform ${this.config.breathHold}s linear`;
         this.elements.anim.style.transform = 'scale(1.18)';
         this.state.phaseTimeout = setTimeout(() => {
-          this.elements.anim.style.transition = '';
+          this.resetAnimationTransition();
           runExhale();
         }, this.config.breathHold * 1000);
       };
@@ -560,23 +703,26 @@
         this.setBreathPhase('exhale', this.config.breathOut);
         this.elements.anim.style.transition = `transform ${this.config.breathOut}s linear`;
         this.elements.anim.style.transform = 'scale(0.94)';
-        this.spawnPulse();
-        this.state.pulseInterval = setInterval(() => this.spawnPulse(), 900);
+        this.spawnPulseWithInterval(ANIMATION_TIMING.EXHALE_PULSE_INTERVAL);
         this.state.phaseTimeout = setTimeout(() => {
-          this.elements.anim.style.transition = '';
+          this.resetAnimationTransition();
           afterCycle();
         }, this.config.breathOut * 1000);
       };
 
       const afterCycle = () => {
         if (this.state.remaining <= 0) return;
+        
+        // Clear pulse animations between phases
         if (this.state.pulseInterval) {
           clearInterval(this.state.pulseInterval);
           this.state.pulseInterval = null;
         }
-        const elapsed = this.config.duration - this.state.remaining;
-        const cycleSeconds = this.config.breathIn + this.config.breathHold + this.config.breathOut;
-        const completedCycles = Math.floor(elapsed / cycleSeconds);
+        
+        // Calculate completed cycles to determine next phase
+        const completedCycles = this.getCompletedCycles();
+        
+        // After configured rounds, enter continuous relaxation mode
         if (completedCycles >= this.config.completeRounds) {
           runRelax();
         } else {
@@ -590,38 +736,39 @@
           clearInterval(this.state.pulseInterval);
           this.state.pulseInterval = null;
         }
-        this.elements.anim.style.transition = 'transform 2.6s ease-in-out';
+        this.elements.anim.style.transition = `transform ${ANIMATION_TIMING.RELAX_TRANSITION}ms ease-in-out`;
         this.elements.anim.style.transform = 'scale(1.0)';
-        this.spawnPulse();
-        this.state.pulseInterval = setInterval(() => this.spawnPulse(), 1800);
+        this.spawnPulseWithInterval(ANIMATION_TIMING.RELAX_PULSE_INTERVAL);
       };
 
+      // Start the cycle with inhale
       runInhale();
     }
 
+    /**
+     * Sets the current breathing phase text and countdown
+     * @private
+     * @param {string} phase - Phase name: 'inhale' | 'hold' | 'exhale' | 'relax'
+     * @param {number|null} seconds - Duration in seconds, null for relax phase
+     */
     setBreathPhase(phase, seconds) {
-      const phaseText = {
-        inhale: 'Inhale deeply',
-        hold: 'HOLD',
-        exhale: 'Exhale slowly',
-        relax: 'Now Relax'
-      };
+      this.elements.text.textContent = BREATH_PHASE_TEXT[phase] || '';
 
-      this.elements.text.textContent = phaseText[phase] || '';
-
+      // Relax phase has no countdown
       if (phase === 'relax') {
         if (this.elements.count) this.elements.count.textContent = '';
         return;
       }
 
+      // Update countdown display
       if (this.elements.count && seconds) {
         if (this.state.countdownInterval) {
           clearInterval(this.state.countdownInterval);
         }
-        
+
         let remaining = seconds;
         this.elements.count.textContent = String(remaining);
-        
+
         this.state.countdownInterval = setInterval(() => {
           remaining -= 1;
           if (remaining <= 0) {
@@ -635,25 +782,33 @@
       }
     }
 
+    /**
+     * Cycles through zones or steps with timed transitions
+     * @private
+     */
     startPhaseLoop() {
       const items = this.config.zones || this.config.steps;
-      
+
       const advance = () => {
         if (this.state.remaining <= 0) return;
 
+        // Fade text during transition
         this.elements.text.classList.add('changing');
         setTimeout(() => {
           this.elements.text.textContent = items[this.state.currentIndex];
           this.elements.text.classList.remove('changing');
           this.spawnPulse();
+          
+          // Subtle scale animation on transition
           this.elements.anim.style.transition = 'transform 0.24s ease-out';
           this.elements.anim.style.transform = 'scale(1.08)';
           setTimeout(() => {
             this.elements.anim.style.transform = 'scale(1.0)';
-            setTimeout(() => this.elements.anim.style.transition = '', 240);
-          }, 240);
-        }, 100);
+            setTimeout(() => this.resetAnimationTransition(), ANIMATION_TIMING.SCALE_BOUNCE);
+          }, ANIMATION_TIMING.SCALE_BOUNCE);
+        }, ANIMATION_TIMING.TEXT_FADE);
 
+        // Schedule next phase if not at end
         if (this.state.currentIndex < items.length - 1) {
           const duration = this.config.stepDurations
             ? this.config.stepDurations[this.state.currentIndex] * 1000
@@ -666,6 +821,7 @@
         }
       };
 
+      // Initialize first item
       this.elements.text.textContent = items[0];
       this.spawnPulse();
 
@@ -679,14 +835,28 @@
       }, duration);
     }
 
+    /**
+     * Marks session as complete and integrates with gamification system
+     * @private
+     */
     completeSession() {
       playChime();
-      if (window.app?.gamification) {
-        window.app.gamification.incrementWellnessRuns();
-        window.app.gamification.addBoth(10, 1, 'Wellness Practice');
+      
+      // Integrate with gamification system if available
+      try {
+        if (window.app?.gamification) {
+          window.app.gamification.incrementWellnessRuns();
+          window.app.gamification.addBoth(10, 1, 'Wellness Practice');
+        }
+      } catch (error) {
+        console.warn('WellnessKit: Gamification integration failed', error);
       }
     }
 
+    /**
+     * Completes session and closes overlay after delay
+     * @private
+     */
     finalizeSession() {
       this.completeSession();
       this.elements.btnStart.classList.add('hidden');
@@ -694,19 +864,32 @@
       setTimeout(() => this.close(), 1200);
     }
 
+    /**
+     * Opens the wellness tool overlay
+     * @public
+     */
     open() {
       this.resetState();
       this.elements.overlay.style.display = 'flex';
       setTimeout(() => this.elements.btnStart.focus(), 100);
     }
 
+    /**
+     * Closes the wellness tool overlay
+     * @public
+     */
     close() {
       this.stopMainTimer();
       this.elements.overlay.style.display = 'none';
       this.resetState();
     }
 
+    /**
+     * Attaches event listeners to UI elements
+     * @private
+     */
     attachEvents() {
+      // Start/Stop button
       this.elements.btnStart.addEventListener('click', () => {
         if (this.state.mainInterval) {
           this.stopMainTimer();
@@ -716,24 +899,36 @@
         }
       });
 
+      // Finish button
       this.elements.btnFinish.addEventListener('click', () => {
         this.completeSession();
         this.close();
       });
 
+      // Close button
       this.elements.btnClose.addEventListener('click', () => this.close());
 
+      // Click overlay to close
       this.elements.overlay.addEventListener('click', (e) => {
         if (e.target === this.elements.overlay) this.close();
       });
     }
 
+    /**
+     * Returns current tool statistics
+     * @public
+     * @returns {Object} Tool statistics
+     */
     getStats() {
       return {
         autoTriggerEnabled: SHARED_CONFIG.AUTO_TRIGGER
       };
     }
 
+    /**
+     * Cleans up tool resources
+     * @public
+     */
     destroy() {
       this.clearTimers();
       if (this.elements.overlay && this.elements.overlay.parentNode) {
@@ -743,10 +938,16 @@
   }
 
   /* ==================== GLOBAL ESCAPE KEY HANDLER ==================== */
-  const activeTools = new Set();
   
+  const activeTools = new Set();
+  let escapeDebounce = null;
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      // Debounce to prevent rapid-fire closes
+      if (escapeDebounce) return;
+      escapeDebounce = setTimeout(() => escapeDebounce = null, ANIMATION_TIMING.ESCAPE_DEBOUNCE);
+
       activeTools.forEach(tool => {
         if (tool.elements.overlay.style.display === 'flex') {
           tool.close();
@@ -756,6 +957,7 @@
   });
 
   /* ==================== INITIALIZE ALL TOOLS ==================== */
+  
   const tools = {
     selfReset: new WellnessTool(TOOLS.selfReset),
     fullBodyScan: new WellnessTool(TOOLS.fullBodyScan),
@@ -767,18 +969,30 @@
   Object.values(tools).forEach(tool => activeTools.add(tool));
 
   /* ==================== CLEANUP ON PAGE UNLOAD ==================== */
+  
   window.addEventListener('beforeunload', () => {
     Object.values(tools).forEach(tool => {
       tool.clearTimers();
       tool.destroy();
     });
+    
+    // Clean up audio context
     if (sharedAudioCtx.ctx) {
-      sharedAudioCtx.ctx.close();
-      sharedAudioCtx.ctx = null;
+      try {
+        sharedAudioCtx.ctx.close();
+        sharedAudioCtx.ctx = null;
+      } catch (e) {
+        console.warn('WellnessKit: Audio context cleanup failed', e);
+      }
     }
   });
 
   /* ==================== PUBLIC API ==================== */
+  
+  /**
+   * WellnessKit public API
+   * @namespace WellnessKit
+   */
   window.WellnessKit = {
     // Open methods
     openSelfReset: () => tools.selfReset.open(),
@@ -810,21 +1024,14 @@
     playChime
   };
 
-  // Backward compatibility - expose individual functions
-  window.openSelfReset = window.WellnessKit.openSelfReset;
-  window.closeSelfReset = window.WellnessKit.closeSelfReset;
-  window.getSelfResetStats = window.WellnessKit.getSelfResetStats;
-
-  window.openFullBodyScan = window.WellnessKit.openFullBodyScan;
-  window.closeFullBodyScan = window.WellnessKit.closeFullBodyScan;
-  window.getFullBodyScanStats = window.WellnessKit.getFullBodyScanStats;
-
-  window.openNervousReset = window.WellnessKit.openNervousReset;
-  window.closeNervousReset = window.WellnessKit.closeNervousReset;
-  window.getNervousResetStats = window.WellnessKit.getNervousResetStats;
-
-  window.openTensionSweep = window.WellnessKit.openTensionSweep;
-  window.closeTensionSweep = window.WellnessKit.closeTensionSweep;
-  window.getTensionSweepStats = window.WellnessKit.getTensionSweepStats;
+  /* ==================== BACKWARD COMPATIBILITY ==================== */
+  
+  // Expose individual functions for backward compatibility
+  const toolNames = ['SelfReset', 'FullBodyScan', 'NervousReset', 'TensionSweep'];
+  toolNames.forEach(name => {
+    window[`open${name}`] = window.WellnessKit[`open${name}`];
+    window[`close${name}`] = window.WellnessKit[`close${name}`];
+    window[`get${name}Stats`] = window.WellnessKit[`get${name}Stats`];
+  });
 
 })();
