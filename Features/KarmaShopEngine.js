@@ -1,12 +1,11 @@
 // ============================================
-// Features/KarmaShopEngine.js
-// Manages karma shop items, boosts, and purchases with cloud sync
+// Features/KarmaShopEngine.js (OPTIMIZED + SUPABASE SYNC + BUGFIX)
 // ============================================
 
 import { supabase } from '../Core/Supabase.js';
 
 export class KarmaShopEngine {
-  // Class constants
+  // Class constants - extracted to avoid duplication
   static NICE_NAMES = {
     xp_multiplier: '⚡ 2× XP Boost',
     karma_multiplier: '💫 2× Karma Multiplier',
@@ -22,46 +21,37 @@ export class KarmaShopEngine {
     monthlySkips: 3
   };
 
-  static RESET_MESSAGES = {
-    skip_all_daily: 'tonight at midnight',
-    skip_all_weekly: 'next Sunday',
-    skip_all_monthly: 'the 1st of next month'
-  };
-
-  static RARITY_GRADIENTS = {
-    common: 'linear-gradient(135deg, rgba(245, 245, 247, 0.85) 0%, rgba(210, 214, 220, 0.85) 100%), linear-gradient(#f5f5f7, #d2d6dc)',
-    uncommon: 'linear-gradient(135deg, rgba(0, 224, 132, 0.85) 0%, rgba(0, 185, 108, 0.85) 100%), linear-gradient(#00e084, #00b96c)',
-    rare: 'linear-gradient(135deg, rgba(0, 168, 255, 0.85) 0%, rgba(0, 123, 204, 0.85) 100%), linear-gradient(#00a8ff, #007bcc)',
-    epic: 'linear-gradient(135deg, rgba(184, 0, 230, 0.85) 0%, rgba(142, 0, 204, 0.85) 100%), linear-gradient(#b800e6, #8e00cc)',
-    legendary: 'linear-gradient(135deg, rgba(255, 195, 0, 0.85) 0%, rgba(255, 135, 0, 0.85) 100%), linear-gradient(#ffc300, #ff8700)'
+  static CAP_MAP = {
+    skip_all_daily: 'dailySkips',
+    skip_all_weekly: 'weeklySkips',
+    skip_all_monthly: 'monthlySkips'
   };
 
   constructor(app) {
     this.app = app;
     this.activeBoosts = [];
     this.items = [];
-    this.skipCaps = {};
+    this.skipCaps = {}; // Memory cache
     this._boostTicker = null;
     this._renderQueued = false;
     this._syncInProgress = false;
     this._initialized = false;
 
-    // Start async initialization
-    this.init()
-      .then(() => {
-        this._initialized = true;
-        console.log('[KarmaShop] Initialization complete');
-      })
-      .catch(err => {
-        console.error('[KarmaShop] init failed:', err);
-        this.activeBoosts = [];
-        this.items = [];
-        this._initialized = true;
-      });
+    // Start async init but don't block
+    this.init().then(() => {
+      this._initialized = true;
+      console.log('[KarmaShop] Initialization complete');
+    }).catch(err => {
+      console.error('[KarmaShop] init failed:', err);
+      this.activeBoosts = [];
+      this.items = [];
+      this._initialized = true;
+    });
   }
 
   /**
-   * Initialize the karma shop: load data, check boosts, build catalog
+   * Initialize the karma shop engine
+   * Loads data from cloud/localStorage, initializes skip caps, checks expired boosts, and builds catalog
    */
   async init() {
     console.log('[KarmaShop] Initializing...');
@@ -72,17 +62,24 @@ export class KarmaShopEngine {
     console.log('[KarmaShop] Init complete with', this.activeBoosts.length, 'active boosts');
   }
 
-  /**
-   * Cleanup method to prevent memory leaks
-   */
+  // Cleanup method to prevent memory leaks
   destroy() {
     this._clearTicker();
+  }
+
+  // Helper to clear boost ticker interval
+  _clearTicker() {
+    if (this._boostTicker) {
+      clearInterval(this._boostTicker);
+      this._boostTicker = null;
+    }
   }
 
   /* ---------- CLOUD SYNC ---------- */
   
   /**
-   * Load active boosts and purchase history from Supabase or localStorage
+   * Load active boosts and purchase history from Supabase cloud storage
+   * Falls back to localStorage if user is not logged in or cloud data is unavailable
    */
   async loadFromCloud() {
     try {
@@ -108,7 +105,7 @@ export class KarmaShopEngine {
       const cloudData = data.payload.karmaShop || {};
       this.activeBoosts = cloudData.activeBoosts || [];
 
-      // Load purchase history from cloud
+      // Also load purchase history from cloud
       if (cloudData.purchaseHistory) {
         localStorage.setItem('karma_purchase_history', JSON.stringify(cloudData.purchaseHistory));
       }
@@ -123,7 +120,8 @@ export class KarmaShopEngine {
   }
 
   /**
-   * Save active boosts and purchase history to Supabase and localStorage
+   * Save active boosts and purchase history to Supabase cloud storage
+   * Prevents concurrent sync operations and always caches to localStorage as fallback
    */
   async saveToCloud() {
     if (this._syncInProgress) return;
@@ -147,7 +145,6 @@ export class KarmaShopEngine {
       if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
 
       const payload = current?.payload || {};
-      
       // Update karma shop data
       payload.karmaShop = {
         activeBoosts: this.activeBoosts,
@@ -170,23 +167,18 @@ export class KarmaShopEngine {
       console.log('[KarmaShop] ☁️ Synced to cloud');
     } catch (err) {
       console.error('[KarmaShop] Cloud save failed:', err);
-      this.saveActiveBoosts();
+      this.saveActiveBoosts(); // fallback
     } finally {
       this._syncInProgress = false;
     }
   }
 
-  /* ---------- ADMIN HELPER ---------- */
-  
+  /* ---------- Admin Helper ---------- */
   _isAdmin() {
     return Boolean(this.app.state.currentUser?.isAdmin);
   }
 
-  /* ---------- SKIP CAP HELPERS ---------- */
-  
-  /**
-   * Initialize skip caps tracking with period-based keys
-   */
+  /* ---------- Cap Helpers (Optimized with cache) ---------- */
   initSkipCaps() {
     const now = Date.now();
     const periods = {
@@ -199,7 +191,7 @@ export class KarmaShopEngine {
       const storageKey = `karma_skip_caps_${type}`;
       let obj = this._getLocalStorage(storageKey, {});
       if (obj.key !== key) obj = { key, used: 0 };
-      this.skipCaps[type] = obj;
+      this.skipCaps[type] = obj; // Cache in memory
       localStorage.setItem(storageKey, JSON.stringify(obj));
     });
   }
@@ -235,277 +227,238 @@ export class KarmaShopEngine {
   }
 
   _whenResets(itemId) {
-    return KarmaShopEngine.RESET_MESSAGES[itemId] || 'soon';
+    const resetMap = {
+      skip_all_daily: 'tonight at midnight',
+      skip_all_weekly: 'next Sunday',
+      skip_all_monthly: 'the 1st of next month'
+    };
+    return resetMap[itemId] || 'soon';
   }
 
-  /* ---------- CATALOG ---------- */
+  /* ---------- Catalog ---------- */
   
+  /**
+   * Build the karma shop catalog with all available items
+   * Dynamically includes remaining skip cap information in item descriptions
+   */
   buildCatalog() {
+    const capsLeft = {
+      daily: Math.max(0, this._skipCapMax('dailySkips') - this._skipCapUsed('dailySkips')),
+      weekly: Math.max(0, this._skipCapMax('weeklySkips') - this._skipCapUsed('weeklySkips')),
+      monthly: Math.max(0, this._skipCapMax('monthlySkips') - this._skipCapUsed('monthlySkips'))
+    };
+
     this.items = [
-      { id: 'xp_multiplier', name: '2× XP Boost', icon: '⚡', description: 'Double all XP gains for 24 hours', cost: 50, category: 'Power-Ups', rarity: 'rare', consumable: true },
-      { id: 'karma_multiplier', name: '2× Karma Multiplier', icon: '💫', description: 'Double all Karma gains for 24 hours', cost: 75, category: 'Power-Ups', rarity: 'epic', consumable: true },
-      { id: 'double_boost', name: 'Double Boost', icon: '🔥', description: 'Double both XP and Karma for 24 hours', cost: 100, category: 'Power-Ups', rarity: 'legendary', consumable: true },
-      { id: 'skip_all_daily', name: 'Skip All Daily Quests', icon: '⭐', description: 'Instantly complete all Daily quests with full rewards', cost: 30, category: 'Quest Helpers', rarity: 'uncommon', consumable: true },
-      { id: 'skip_all_weekly', name: 'Skip All Weekly Quests', icon: '📅', description: 'Instantly complete all Weekly quests with full rewards', cost: 60, category: 'Quest Helpers', rarity: 'rare', consumable: true },
-      { id: 'skip_all_monthly', name: 'Skip All Monthly Quests', icon: '🗓️', description: 'Instantly complete all Monthly quests with full rewards', cost: 120, category: 'Quest Helpers', rarity: 'epic', consumable: true },
-      { id: 'premium_skin_cosmic', name: 'Cosmic Theme', icon: '🌌', description: 'Unlock a cosmic-inspired UI theme', cost: 150, category: 'Premium Skins', rarity: 'legendary', consumable: false },
-      { id: 'premium_skin_forest', name: 'Forest Glade Theme', icon: '🌲', description: 'Unlock a nature-inspired UI theme', cost: 100, category: 'Premium Skins', rarity: 'epic', consumable: false },
-      { id: 'premium_feature_analytics', name: 'Advanced Analytics', icon: '📊', description: 'Unlock detailed progress tracking and insights', cost: 200, category: 'Premium Features', rarity: 'legendary', consumable: false },
-      { id: 'premium_feature_custom_quests', name: 'Custom Quest Creator', icon: '✨', description: 'Create your own personalized quests', cost: 250, category: 'Premium Features', rarity: 'legendary', consumable: false },
-      { id: 'meet_master_session', name: 'Virtual Session with Aanandoham', icon: '🧘', description: 'Book a 1-hour virtual session to deepen your practice', cost: 300, category: 'Meet the Master', rarity: 'legendary', consumable: true },
-      { id: 'meet_master_workshop', name: 'Group Workshop', icon: '👥', description: 'Join a 2-hour interactive group workshop', cost: 200, category: 'Meet the Master', rarity: 'epic', consumable: true }
+      // POWER-UPS
+      { id: 'xp_multiplier', name: 'XP Multiplier', description: 'Double all XP gains for 24 h', cost: 15, icon: '⚡', category: 'Power-Ups', consumable: true, duration: 86400000, rarity: 'uncommon' },
+      { id: 'karma_multiplier', name: 'Karma Multiplier', description: 'Double all Karma gains for 24 h', cost: 20, icon: '💫', category: 'Power-Ups', consumable: true, duration: 86400000, rarity: 'rare' },
+      { id: 'double_boost', name: 'Double Boost', description: 'Double your XP and Karma for 48 hours', cost: 60, icon: '🔥', category: 'Power-Ups', consumable: true, duration: 172800000, rarity: 'epic' },
+
+      // QUEST HELPERS
+      { id: 'skip_all_daily', name: 'Skip All Daily Quests', description: `Instantly complete all daily quests\n(gaining 200 XP | 50 Karma)\nMax 2 per week · ${capsLeft.daily} left this week.`, cost: 70, icon: '⭐', category: 'Quest Helpers', consumable: true, rarity: 'uncommon' },
+      { id: 'skip_all_weekly', name: 'Skip All Weekly Quests', description: `Instantly complete all weekly quests\n(gaining 500 XP | 125 Karma)\nMax 2 per month · ${capsLeft.weekly} left this month.`, cost: 200, icon: '📅', category: 'Quest Helpers', consumable: true, rarity: 'rare' },
+      { id: 'skip_all_monthly', name: 'Skip All Monthly Quests', description: `Instantly complete all monthly quests\n(gaining 900 XP | 225 Karma)\nMax 3 per year · ${capsLeft.monthly} left this year.`, cost: 300, icon: '🗓️', category: 'Quest Helpers', consumable: true, rarity: 'epic' },
+
+      // PREMIUM FEATURES
+      { id: 'advanced_meditations', name: 'Advanced Meditations', description: 'Unlock premium guided meditation library', cost: 150, icon: '🧘‍♀️', category: 'Premium Features', consumable: false, rarity: 'rare' },
+      { id: 'shadow_alchemy_lab', name: 'Shadow Alchemy Lab', description: 'Transform shadows into personal growth tools', cost: 200, icon: '🌑', category: 'Premium Features', consumable: false, rarity: 'epic' },
+      { id: 'advance_tarot_spreads', name: 'Advance Tarot Spreads', description: 'Unlock premium spreads and TarotVision AI', cost: 300, icon: '🃏', category: 'Premium Features', consumable: false, rarity: 'legendary' },
+
+      // PREMIUM SKINS
+      { id: 'luxury_champagne_gold_skin', name: 'Luxury Champagne-Gold Skin', description: 'A rich champagne-gold colour theme for the entire app', cost: 200, icon: '🥂', category: 'Premium Skins', consumable: false, rarity: 'rare' },
+      { id: 'royal_indigo_skin', name: 'Royal Indigo Skin', description: 'Deep royal-indigo luxury dark theme for the entire app', cost: 200, icon: '🟣', category: 'Premium Skins', consumable: false, rarity: 'epic' },
+      { id: 'earth_luxury_skin', name: 'Earth Luxury Skin', description: 'Natural earth-tone luxury dark theme for the entire app', cost: 300, icon: '🌍', category: 'Premium Skins', consumable: false, rarity: 'legendary' },
+
+      // MEET THE MASTER
+      { id: 'private_consultation', name: 'Private Consultation with Aanandoham', description: 'Online Video Session', cost: 1000, icon: '🧘', category: 'Meet the Master', consumable: true, rarity: 'legendary' },
+      { id: 'private_tarot_reading', name: 'Private Tarot Reading with Aanandoham', description: 'Online Tarot Session', cost: 1500, icon: '🔮', category: 'Meet the Master', consumable: true, rarity: 'legendary' },
+      { id: 'reiki_healing', name: 'Reiki Healing with Aanandoham', description: 'Online Session and Distant Healing', cost: 1500, icon: '💫', category: 'Meet the Master', consumable: true, rarity: 'legendary' }
     ];
   }
 
-  /* ---------- PURCHASE LOGIC ---------- */
-  
+  /* ---------- Helpers ---------- */
+  safeUnlockFeature(flag) {
+    try { this.app.gamification.unlockFeature(flag); } catch (e) { console.warn('[KarmaShop] unlockFeature error:', e); }
+  }
+
+  loadActiveBoosts() { return this._getLocalStorage('karma_active_boosts', []); }
+  saveActiveBoosts() {
+    localStorage.setItem('karma_active_boosts', JSON.stringify(this.activeBoosts));
+    this.saveToCloud();
+  }
+
+  _getLocalStorage(key, fallback) {
+    try { const d = localStorage.getItem(key); return d ? JSON.parse(d) : fallback; } catch { return fallback; }
+  }
+  _setLocalStorage(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { console.error(`[KarmaShop] localStorage write failed for ${key}:`, e); }
+  }
+
+  /* ---------- Quest Reset Helpers ---------- */
+  _nextQuestDailyReset() { const t = new Date(); t.setHours(24, 0, 0, 0); if (t <= Date.now()) t.setDate(t.getDate() + 1); return t.getTime(); }
+  _nextQuestWeeklyReset() { const t = new Date(); const daysToSun = (7 - t.getDay()) % 7 || 7; t.setDate(t.getDate() + daysToSun); t.setHours(0, 0, 0, 0); return t.getTime(); }
+  _nextQuestMonthlyReset() { const t = new Date(); t.setMonth(t.getMonth() + 1, 1); t.setHours(0, 0, 0, 0); return t.getTime(); }
+
+  /* ---------- Duration Formatter ---------- */
+  _fmtDuration(ms) {
+    const secs = Math.max(0, Math.floor(ms / 1000));
+    const days = Math.floor(secs / 86400);
+    const hrs = Math.floor((secs % 86400) / 3600);
+    const mins = Math.floor((secs % 3600) / 60);
+    const ss = secs % 60;
+    const pad = n => n.toString().padStart(2, '0');
+    return days ? `${days}d ${pad(hrs)}:${pad(mins)}:${pad(ss)}` : `${pad(hrs)}:${pad(mins)}:${pad(ss)}`;
+  }
+
+  /* ---------- Boost Management ---------- */
+  checkExpiredBoosts() {
+    const now = Date.now();
+    const before = this.activeBoosts.length;
+    this.activeBoosts = this.activeBoosts.filter(b => {
+      if (b.id.startsWith('skip_all_')) return now < (b.resetAt || 0); // BUGFIX: use stored resetAt
+      return b.expiresAt > now;
+    });
+    if (before !== this.activeBoosts.length) { this.saveActiveBoosts(); this.queueRender(); }
+  }
+
+  isBoostActive(boostId) {
+    if (boostId.startsWith('skip_all_')) {
+      const boost = this.activeBoosts.find(b => b.id === boostId);
+      return boost ? Date.now() < (boost.resetAt || 0) : false; // BUGFIX: use stored resetAt
+    }
+    return this.activeBoosts.some(b => b.id === boostId);
+  }
+
+  activateBoost(boostId, duration) {
+    this.activeBoosts.push({ id: boostId, expiresAt: Date.now() + duration });
+    this.saveActiveBoosts();
+  }
+
+  /* ---------- Purchase Logic ---------- */
   /**
-   * Check if user can purchase an item
-   * @param {string} itemId - The item ID to check
-   * @returns {Object} Object with can (boolean) and reason (string)
+   * Check if a user can purchase a specific item
+   * Validates karma balance, ownership status, active boosts, and skip caps
+   * @param {string} itemId - The ID of the item to check
+   * @returns {Object} Object with 'can' (boolean) and 'reason' (string) properties
    */
   canPurchase(itemId) {
     const item = this.items.find(i => i.id === itemId);
     if (!item) return { can: false, reason: 'Item not found' };
-    
     const karma = this.app.gamification.state.karma;
-    if (karma < item.cost) return { can: false, reason: 'Not enough Karma' };
+    if (karma < item.cost) return { can: false, reason: `Need ${item.cost - karma} more Karma` };
+    if (item.consumable && this.isBoostActive(itemId) && !itemId.startsWith('skip_all_')) return { can: false, reason: 'Already active' };
     if (!item.consumable && this.isItemOwned(itemId)) return { can: false, reason: 'Already owned' };
-    if (item.consumable && this.isBoostActive(itemId)) return { can: false, reason: 'Already active' };
-    
-    // Check skip caps
-    if (itemId === 'skip_all_daily' && this._skipCapUsed('dailySkips') >= this._skipCapMax('dailySkips') && !this._isAdmin()) {
-      return { can: false, reason: `Resets ${this._whenResets(itemId)}` };
+    // Cap check (admin bypass)
+    if (!this._isAdmin() && KarmaShopEngine.CAP_MAP[itemId]) {
+      const type = KarmaShopEngine.CAP_MAP[itemId];
+      const used = this._skipCapUsed(type);
+      const max = this._skipCapMax(type);
+      if (used >= max) return { can: false, reason: `Cap reached (${max}/${max})` };
     }
-    if (itemId === 'skip_all_weekly' && this._skipCapUsed('weeklySkips') >= this._skipCapMax('weeklySkips') && !this._isAdmin()) {
-      return { can: false, reason: `Resets ${this._whenResets(itemId)}` };
-    }
-    if (itemId === 'skip_all_monthly' && this._skipCapUsed('monthlySkips') >= this._skipCapMax('monthlySkips') && !this._isAdmin()) {
-      return { can: false, reason: `Resets ${this._whenResets(itemId)}` };
-    }
-    
-    return { can: true, reason: '' };
+    return { can: true };
+  }
+
+  isItemOwned(itemId) {
+    const inHistory = this.getPurchaseHistory().some(p => p.itemId === itemId);
+    const isUnlocked = this.app.gamification?.state?.unlockedFeatures?.includes(itemId);
+    return inHistory || isUnlocked;
   }
 
   /**
-   * Purchase an item from the shop
-   * @param {string} itemId - The item ID to purchase
+   * Purchase an item from the karma shop
+   * @param {string} itemId - The ID of the item to purchase
+   * @returns {boolean} True if purchase was successful, false otherwise
    */
   purchase(itemId) {
-    try {
-      const item = this.items.find(i => i.id === itemId);
-      if (!item) {
-        this.app.showToast('❌ Item not found', 'error');
-        return;
+    const item = this.items.find(i => i.id === itemId);
+    if (!item) { this.app.showToast('❌ Item not found', 'error'); return false; }
+    const check = this.canPurchase(itemId);
+    if (!check.can) {
+      if (itemId.startsWith('skip_all_')) {
+        const type = KarmaShopEngine.CAP_MAP[itemId];
+        const periodName = type === 'dailySkips' ? 'week' : type === 'weeklySkips' ? 'month' : 'year';
+        this.app.showToast(`⏳ You've used all ${this._skipCapMax(type)} purchases for this ${periodName}. Resets ${this._whenResets(itemId)}.`, 'info');
       }
-
-      const check = this.canPurchase(itemId);
-      if (!check.can) {
-        this.app.showToast(`❌ Cannot purchase: ${check.reason}`, 'error');
-        return;
-      }
-
-      // Deduct karma
-      this.app.gamification.state.karma -= item.cost;
-      this.app.gamification.saveState();
-
-      // Record purchase
-      this.recordPurchase(itemId, item.cost);
-
-      // Apply item effect
-      if (item.consumable) {
-        this.activateBoost(itemId);
-      }
-
-      // Special handling for "Meet the Master" items
-      if (item.category === 'Meet the Master') {
-        this.showMasterPurchasePopup(item);
-      }
-
-      this.saveToCloud();
-      this.queueRender();
-      this.app.showToast(`✅ Purchased ${item.name}!`, 'success');
-    } catch (err) {
-      console.error('[KarmaShop] Purchase failed:', err);
-      this.app.showToast('❌ Purchase failed. Please try again.', 'error');
+      this.app.showToast(`❌ ${check.reason}`, 'error');
+      return false;
     }
-  }
-
-  /**
-   * Activate a consumable boost
-   * @param {string} boostId - The boost ID to activate
-   */
-  activateBoost(boostId) {
-    if (boostId.startsWith('skip_all_')) {
-      this.skipAllQuests(boostId);
-      return;
+    // Deduct karma
+    this.app.gamification.state.karma -= item.cost;
+    this.app.gamification.saveState();
+    // Record purchase
+    this.recordPurchase(itemId, item.cost);
+    // Update skip cap if applicable
+    if (KarmaShopEngine.CAP_MAP[itemId]) {
+      this._useSkipCap(KarmaShopEngine.CAP_MAP[itemId]);
     }
-
-    const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
-    this.activeBoosts.push({ id: boostId, expiresAt });
-    this.saveActiveBoosts();
-  }
-
-  /**
-   * Check if a boost is currently active
-   * @param {string} boostId - The boost ID to check
-   * @returns {boolean}
-   */
-  isBoostActive(boostId) {
-    return this.activeBoosts.some(b => b.id === boostId);
-  }
-
-  /**
-   * Check if a non-consumable item is owned
-   * @param {string} itemId - The item ID to check
-   * @returns {boolean}
-   */
-  isItemOwned(itemId) {
+    // First purchase badge
     const history = this.getPurchaseHistory();
-    return history.some(p => p.itemId === itemId);
-  }
-
-  /**
-   * Check and remove expired boosts
-   */
-  checkExpiredBoosts() {
-    const now = Date.now();
-    const before = this.activeBoosts.length;
-    this.activeBoosts = this.activeBoosts.filter(boost => {
-      const isQuest = boost.id.startsWith('skip_all_');
-      const expiry = isQuest ? (boost.resetAt || 0) : boost.expiresAt;
-      return expiry > now;
-    });
-    if (this.activeBoosts.length !== before) {
-      this.saveActiveBoosts();
-      console.log('[KarmaShop] Removed', before - this.activeBoosts.length, 'expired boosts');
-    }
-  }
-
-  /* ---------- PERSISTENCE ---------- */
-  
-  loadActiveBoosts() {
-    return this._getLocalStorage('karma_active_boosts', []);
-  }
-
-  saveActiveBoosts() {
-    localStorage.setItem('karma_active_boosts', JSON.stringify(this.activeBoosts));
-  }
-
-  getPurchaseHistory() {
-    return this._getLocalStorage('karma_purchase_history', []);
+    if (history.length === 1) this.app.gamification.grantBadge({ id: 'first_purchase', name: 'First Purchase', icon: '🛒', description: 'First purchase in the Karma Shop', xp: 50, rarity: 'epic' });
+    // Apply effect
+    this.applyItemEffect(itemId, item);
+    this.app.showToast(`✅ Purchased: ${item.name}!`, 'success');
+    this.queueRender();
+    return true;
   }
 
   recordPurchase(itemId, cost) {
     const history = this.getPurchaseHistory();
-    history.push({ itemId, cost, timestamp: Date.now() });
+    history.push({ itemId, cost, timestamp: new Date().toISOString() });
     localStorage.setItem('karma_purchase_history', JSON.stringify(history));
+    this.saveToCloud();
   }
 
-  _getLocalStorage(key, fallback) {
-    try {
-      const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : fallback;
-    } catch {
-      return fallback;
-    }
-  }
+  getPurchaseHistory() { return this._getLocalStorage('karma_purchase_history', []); }
 
-  /* ---------- SKIP QUESTS ---------- */
-  
   /**
-   * Skip all quests of a specific type
-   * @param {string} skipType - Type of skip (skip_all_daily, skip_all_weekly, skip_all_monthly)
+   * Apply the effect of a purchased item (boosts, unlocks, quest skips, etc.)
+   * @param {string} itemId - The ID of the purchased item
+   * @param {Object} item - The item object containing cost, name, etc.
    */
-  skipAllQuests(skipType) {
-    const configs = {
-      skip_all_daily: { 
-        label: 'Daily', 
-        filter: q => q.frequency === 'daily', 
-        cap: 'dailySkips', 
-        minXP: 50, 
-        minKarma: 5,
-        resetFn: () => {
-          const tomorrow = new Date();
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          tomorrow.setHours(0, 0, 0, 0);
-          return tomorrow.getTime();
-        }
-      },
-      skip_all_weekly: { 
-        label: 'Weekly', 
-        filter: q => q.frequency === 'weekly', 
-        cap: 'weeklySkips', 
-        minXP: 100, 
-        minKarma: 10,
-        resetFn: () => {
-          const nextSunday = new Date();
-          nextSunday.setDate(nextSunday.getDate() + (7 - nextSunday.getDay()));
-          nextSunday.setHours(0, 0, 0, 0);
-          return nextSunday.getTime();
-        }
-      },
-      skip_all_monthly: { 
-        label: 'Monthly', 
-        filter: q => q.frequency === 'monthly', 
-        cap: 'monthlySkips', 
-        minXP: 200, 
-        minKarma: 20,
-        resetFn: () => {
-          const nextMonth = new Date();
-          nextMonth.setMonth(nextMonth.getMonth() + 1);
-          nextMonth.setDate(1);
-          nextMonth.setHours(0, 0, 0, 0);
-          return nextMonth.getTime();
-        }
-      }
+  applyItemEffect(itemId, item) {
+    try {
+      // POWER-UPS
+      if (itemId === 'xp_multiplier') { this.activateBoost('xp_multiplier', item.duration); this.app.showToast('⚡ 2× XP active for 24 h!', 'success'); } else if (itemId === 'karma_multiplier') { this.activateBoost('karma_multiplier', item.duration); this.app.showToast('💫 2× Karma active for 24 h!', 'success'); } else if (itemId === 'double_boost') { this.activateBoost('double_boost', item.duration); this.app.showToast('🔥 2× XP + 2× Karma active for 48 h!', 'success'); }
+      // QUEST HELPERS (Unified) - BUGFIX: store concrete resetAt once
+      else if (itemId.startsWith('skip_all_')) this._applyQuestSkip(itemId);
+      // PREMIUM FEATURES
+      else if (itemId === 'advanced_meditations') { this.safeUnlockFeature('advanced_meditations'); this.app.showToast('🧘‍♀️ Advanced meditations unlocked!', 'success'); } else if (itemId === 'shadow_alchemy_lab') { this.safeUnlockFeature('shadow_alchemy_lab'); this.app.showToast('🌑 Shadow Alchemy Lab unlocked!', 'success'); } else if (itemId === 'advance_tarot_spreads') { this.safeUnlockFeature('advance_tarot_spreads'); this.safeUnlockFeature('tarot_vision_ai'); this.app.showToast('🃏 Advanced Tarot Spreads & 🔮 Tarot Vision AI unlocked!', 'success'); }
+      // PREMIUM SKINS
+      else if (itemId === 'luxury_champagne_gold_skin') { this.safeUnlockFeature('luxury_champagne_gold_skin'); this.app.showToast('🥂 Luxury Champagne-Gold Skin unlocked!', 'success'); } else if (itemId === 'royal_indigo_skin') { this.safeUnlockFeature('royal_indigo_skin'); this.app.showToast('🟣 Royal Indigo Skin unlocked!', 'success'); } else if (itemId === 'earth_luxury_skin') { this.safeUnlockFeature('earth_luxury_skin'); this.app.showToast('🌍 Earth Luxury Skin unlocked!', 'success'); }
+      // MEET THE MASTER
+      else if (['private_consultation', 'private_tarot_reading', 'reiki_healing'].includes(itemId)) this.showMasterPurchasePopup(item);
+    } catch (err) { console.error('[KarmaShop] applyItemEffect error:', err); this.app.showToast('❌ Could not apply item – please reload', 'error'); }
+  }
+
+  // Unified quest skip logic - BUGFIX: store resetAt once
+  _applyQuestSkip(skipType) {
+    const config = {
+      skip_all_daily: { period: 'daily', minXP: 200, minKarma: 50, resetFn: this._nextQuestDailyReset, label: 'daily' },
+      skip_all_weekly: { period: 'weekly', minXP: 500, minKarma: 125, resetFn: this._nextQuestWeeklyReset, label: 'weekly' },
+      skip_all_monthly: { period: 'monthly', minXP: 900, minKarma: 225, resetFn: this._nextQuestMonthlyReset, label: 'monthly' }
     };
-
-    const cfg = configs[skipType];
+    const cfg = config[skipType];
     if (!cfg) return;
-
-    this._useSkipCap(cfg.cap);
-    
-    const todo = this.app.questEngine.quests.filter(cfg.filter).filter(q => !q.completed);
-    if (todo.length === 0) {
-      this.app.showToast(`No incomplete ${cfg.label} quests to skip`, 'info');
-      return;
-    }
-
-    // Calculate and award XP/Karma
+    const todo = this.app.gamification.state.quests[cfg.period].filter(q => !q.completed);
     let xp = 0, karma = 0;
     this.app.gamification._bulkMode = true;
-    todo.forEach(q => { 
-      xp += q.xp ?? 0; 
-      karma += q.karma ?? 0; 
-      q.completed = true; 
-    });
+    todo.forEach(q => { xp += q.xp ?? 0; karma += q.karma ?? 0; q.completed = true; });
     this.app.gamification._bulkMode = false;
-    
     xp = Math.max(xp, cfg.minXP);
     karma = Math.max(karma, cfg.minKarma);
-    
     this.app.gamification.state.xp += xp;
     this.app.gamification.state.karma += karma;
     this.app.gamification.saveState();
-    
-    // Store reset time
-    const resetAt = cfg.resetFn.call(this);
-    this.activeBoosts.push({ id: skipType, resetAt });
+    const resetAt = cfg.resetFn.call(this); // compute once
+    this.activeBoosts.push({ id: skipType, resetAt }); // BUGFIX: store resetAt
     this.saveActiveBoosts();
-    
     this.app.showToast(`✅ All ${cfg.label} quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
   }
 
-  /**
-   * Show popup for "Meet the Master" purchases
-   * @param {Object} item - The purchased item
-   */
   showMasterPurchasePopup(item) {
     const userName = this.app.state.currentUser?.name || 'Friend';
     const karma = item.cost;
     const msg = `${item.name} bought using ${karma} ✨ for ${userName}.`;
-    
     const overlay = document.createElement('div');
     overlay.className = 'karma-shop-master-overlay';
     overlay.innerHTML = `
@@ -521,30 +474,20 @@ export class KarmaShopEngine {
     document.body.appendChild(overlay);
   }
 
-  /* ---------- RENDER ---------- */
-  
-  /**
-   * Queue a render using requestAnimationFrame for performance
-   */
+  /* ---------- Render (Debounced) ---------- */
   queueRender() {
     if (this._renderQueued) return;
     this._renderQueued = true;
-    requestAnimationFrame(() => { 
-      this.render(); 
-      this._renderQueued = false; 
-    });
+    requestAnimationFrame(() => { this.render(); this._renderQueued = false; });
   }
 
   /**
-   * Render the karma shop UI
+   * Render the karma shop interface
+   * Shows loading state if not initialized, then displays shop items by category
    */
   render() {
     const tab = document.getElementById('karma-shop-tab');
-    if (!tab) { 
-      console.error('[KarmaShop] karma-shop-tab element not found'); 
-      return; 
-    }
-
+    if (!tab) { console.error('[KarmaShop] karma-shop-tab element not found'); return; }
     if (!this._initialized) {
       tab.innerHTML = `
         <div class="karma-shop-container">
@@ -556,17 +499,13 @@ export class KarmaShopEngine {
           </div>
         </div>
       `;
-      setTimeout(() => this.render(), 100);
-      return;
+      setTimeout(() => this.render(), 100); return;
     }
-
     this._clearTicker();
-    
     const karma = this.app.gamification.state.karma;
     const purchaseHistory = this.getPurchaseHistory();
     const categories = ['Power-Ups', 'Quest Helpers', 'Premium Features', 'Premium Skins', 'Meet the Master'];
     const boostsHTML = this.renderActiveBoosts();
-
     tab.innerHTML = `
       <div class="karma-shop-container">
         <div class="karma-shop-content">
@@ -600,18 +539,12 @@ export class KarmaShopEngine {
         </div>
       </div>
     `;
-    
     this.startBoostTicker();
   }
 
-  /**
-   * Render active boosts section
-   * @returns {string} HTML string
-   */
   renderActiveBoosts() {
     this.checkExpiredBoosts();
     if (this.activeBoosts.length === 0) return '';
-
     const initialContent = this.activeBoosts.map(boost => {
       const isQuest = boost.id.startsWith('skip_all_');
       const msLeft = isQuest ? (boost.resetAt || 0) - Date.now() : boost.expiresAt - Date.now();
@@ -622,7 +555,6 @@ export class KarmaShopEngine {
         </div>
       `;
     }).join('');
-
     return `
       <div class="card karma-shop-boosts">
         <h3 class="karma-shop-boosts-title">🔋 Active Boosts</h3>
@@ -631,12 +563,8 @@ export class KarmaShopEngine {
     `;
   }
 
-  /**
-   * Start interval ticker to update boost timers
-   */
   startBoostTicker() {
     if (this.activeBoosts.length === 0) return;
-
     const tick = () => {
       const box = document.getElementById('boosts-list-live');
       if (!box) { 
@@ -644,7 +572,6 @@ export class KarmaShopEngine {
         this._clearTicker();
         return; 
       }
-
       box.innerHTML = this.activeBoosts.map(boost => {
         const isQuest = boost.id.startsWith('skip_all_');
         const msLeft = isQuest ? (boost.resetAt || 0) - Date.now() : boost.expiresAt - Date.now();
@@ -656,7 +583,6 @@ export class KarmaShopEngine {
         `;
       }).join('');
     };
-
     setTimeout(() => { 
       const box = document.getElementById('boosts-list-live'); 
       if (box) {
@@ -667,28 +593,12 @@ export class KarmaShopEngine {
     }, 100);
   }
 
-  /**
-   * Clear the boost ticker interval
-   */
-  _clearTicker() {
-    if (this._boostTicker) {
-      clearInterval(this._boostTicker);
-      this._boostTicker = null;
-    }
-  }
-
-  /**
-   * Render a single shop item card
-   * @param {Object} item - The shop item
-   * @returns {string} HTML string
-   */
   renderShopItem(item) {
     const canBuy = this.canPurchase(item.id);
     const isOwned = !item.consumable && this.isItemOwned(item.id);
     const isActive = item.consumable && this.isBoostActive(item.id);
     const badgeText = isOwned ? 'OWNED' : isActive ? 'ACTIVE' : '';
     const rarityColor = this.getRarityColor(item.rarity);
-
     return `
       <div class="card karma-shop-item" data-rarity="${item.rarity}" style="background:${rarityColor}">
         ${badgeText ? `<div class="karma-shop-item-owned-badge">${badgeText}</div>` : ''}
@@ -702,9 +612,7 @@ export class KarmaShopEngine {
             <span class="karma-shop-item-rarity karma-shop-rarity-${item.rarity}">${item.rarity}</span>
             <span class="karma-shop-item-rarity karma-shop-item-cost karma-shop-rarity-${item.rarity}">${item.cost} 💎</span>
           </div>
-          <button onclick="window.featuresManager.engines['karma-shop'].purchase('${item.id}')" 
-                  class="btn ${canBuy.can ? 'btn-primary' : 'btn-secondary'} karma-shop-item-btn" 
-                  ${!canBuy.can ? 'disabled' : ''}>
+          <button onclick="window.featuresManager.engines['karma-shop'].purchase('${item.id}')" class="btn ${canBuy.can ? 'btn-primary' : 'btn-secondary'} karma-shop-item-btn" ${!canBuy.can ? 'disabled' : ''}>
             ${isOwned ? '✓ Owned' : isActive ? '✓ Active' : canBuy.can ? '🛒 Purchase' : canBuy.reason}
           </button>
         </div>
@@ -712,11 +620,6 @@ export class KarmaShopEngine {
     `;
   }
 
-  /**
-   * Render purchase history section
-   * @param {Array} purchaseHistory - Array of purchase records
-   * @returns {string} HTML string
-   */
   renderPurchaseHistory(purchaseHistory) {
     return `
       <div class="card karma-shop-history">
@@ -737,26 +640,15 @@ export class KarmaShopEngine {
     `;
   }
 
-  /**
-   * Get rarity color gradient
-   * @param {string} rarity - Item rarity level
-   * @returns {string} CSS gradient string
-   */
   getRarityColor(rarity) {
-    return KarmaShopEngine.RARITY_GRADIENTS[rarity] || KarmaShopEngine.RARITY_GRADIENTS.common;
-  }
-
-  /**
-   * Format duration in milliseconds to human-readable string
-   * @param {number} ms - Milliseconds
-   * @returns {string} Formatted duration
-   */
-  _fmtDuration(ms) {
-    if (ms <= 0) return 'Expired';
-    const h = Math.floor(ms / 3600000);
-    const m = Math.floor((ms % 3600000) / 60000);
-    if (h > 0) return `${h}h ${m}m`;
-    return `${m}m`;
+    const gradients = {
+      common: 'linear-gradient(135deg, rgba(245, 245, 247, 0.85) 0%, rgba(210, 214, 220, 0.85) 100%), linear-gradient(#f5f5f7, #d2d6dc)',
+      uncommon: 'linear-gradient(135deg, rgba(0, 224, 132, 0.85) 0%, rgba(0, 185, 108, 0.85) 100%), linear-gradient(#00e084, #00b96c)',
+      rare: 'linear-gradient(135deg, rgba(0, 168, 255, 0.85) 0%, rgba(0, 123, 204, 0.85) 100%), linear-gradient(#00a8ff, #007bcc)',
+      epic: 'linear-gradient(135deg, rgba(184, 0, 230, 0.85) 0%, rgba(142, 0, 204, 0.85) 100%), linear-gradient(#b800e6, #8e00cc)',
+      legendary: 'linear-gradient(135deg, rgba(255, 195, 0, 0.85) 0%, rgba(255, 135, 0, 0.85) 100%), linear-gradient(#ffc300, #ff8700)'
+    };
+    return gradients[rarity] || gradients.common;
   }
 }
 
