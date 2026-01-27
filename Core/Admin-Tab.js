@@ -639,7 +639,7 @@ export class AdminTab {
   }
 
   // ==========================================================================
-  // EVENT HANDLERS - PART 1 (Main & XP/Karma)
+  // EVENT HANDLERS
   // ==========================================================================
 
   /**
@@ -715,27 +715,6 @@ export class AdminTab {
       await this.batchUpdate(container, 0, amount);
     });
   }
-
-  /**
-   * Attaches Premium Features button handlers
-   * @param {HTMLElement} container - Main container element
-   */
-  attachFeaturesHandlers(container) {
-    container.querySelector('#unlockFeatures')?.addEventListener('click', async () => {
-      const features = Array.from(
-        container.querySelectorAll('.feature-checkbox:checked')
-      ).map(cb => cb.value);
-      const duration = container.querySelector('#featureDuration')?.value;
-      
-      if (features.length === 0) {
-        alert('Please select at least one feature');
-        return;
-      }
-      if (!this.validateSelection()) return
-
-// ==========================================================================
-  // EVENT HANDLERS - PART 2 (Features, Badges, Messages)
-  // ==========================================================================
 
   /**
    * Attaches Premium Features button handlers
