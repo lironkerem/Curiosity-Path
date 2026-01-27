@@ -1,48 +1,67 @@
-/* =========================================================
-   WELLNESS KIT - UNIFIED 4-IN-1 SYSTEM (OPTIMIZED)
-   Production-Grade v2.0
-   ========================================================= */
+/**
+ * WellnessKit.js - Unified 4-in-1 Wellness System
+ * Provides breathing exercises, body scans, nervous system resets, and tension sweeps
+ * Production-Grade v2.1
+ */
+
 (function () {
   'use strict';
 
   /* ==================== SHARED CONFIGURATION ==================== */
+  
   const SHARED_CONFIG = {
-    PULSE_POOL_SIZE: 10,
-    AUTO_TRIGGER: false,
-    AUTO_TRIGGER_ALIGN: true
+    PULSE_POOL_SIZE: 10,              // Number of pulse elements to pool
+    AUTO_TRIGGER: false,              // Auto-trigger on inactivity (future feature)
+    AUTO_TRIGGER_ALIGN: true          // Align auto-trigger to the hour
   };
 
   /* ==================== TOOL CONFIGURATIONS ==================== */
+  
+  /**
+   * Configuration for all wellness tools
+   * Each tool has: id, title, duration, type, specific settings, storage prefix, gradient
+   */
   const TOOLS = {
     selfReset: {
       id: 'selfreset',
       title: 'Self Reset',
-      duration: 60,
+      duration: 60,                   // 1 minute
       type: 'breathing',
-      breathIn: 7,
-      breathHold: 3,
-      breathOut: 7,
-      completeRounds: 3,
+      breathIn: 7,                    // Seconds to inhale
+      breathHold: 3,                  // Seconds to hold
+      breathOut: 7,                   // Seconds to exhale
+      completeRounds: 3,              // Breathing cycles before relax phase
       storagePrefix: 'pc_wellness_selfreset',
       gradient: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)'
     },
+    
     fullBodyScan: {
       id: 'fullbodyscan',
       title: 'Full Body Scan',
-      duration: 120,
+      duration: 120,                  // 2 minutes
       type: 'zones',
       zones: [
-        "Top of head", "Back of head", "Face", "Throat and neck",
-        "Shoulders", "Arms and hands", "Chest", "Stomach",
-        "Back (upper and lower)", "Pelvic area", "Legs", "Feet"
+        "Top of head", 
+        "Back of head", 
+        "Face", 
+        "Throat and neck",
+        "Shoulders", 
+        "Arms and hands", 
+        "Chest", 
+        "Stomach",
+        "Back (upper and lower)", 
+        "Pelvic area", 
+        "Legs", 
+        "Feet"
       ],
       storagePrefix: 'pc_wellness_fullbodyscan',
       gradient: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)'
     },
+    
     nervousSystem: {
       id: 'nervoussystem',
       title: 'Nervous System Reset',
-      duration: 60,
+      duration: 60,                   // 1 minute
       type: 'steps',
       steps: [
         "Shake your hands",
@@ -53,14 +72,15 @@
         "Feel your feet on the ground",
         "Settle your breath naturally"
       ],
-      stepDurations: [9, 9, 9, 9, 8, 8, 8],
+      stepDurations: [9, 9, 9, 9, 8, 8, 8],  // Custom duration per step (seconds)
       storagePrefix: 'pc_wellness_nervoussystem',
       gradient: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)'
     },
+    
     tensionSweep: {
       id: 'tensionsweep',
       title: 'Tension Sweep',
-      duration: 120,
+      duration: 120,                  // 2 minutes
       type: 'zones',
       zones: [
         "Lift shoulders to your ears then drop",
@@ -78,377 +98,516 @@
   };
 
   /* ==================== SHARED STYLES ==================== */
- const css = `
-  /* Wellness Kit styles - inherits CSS variables from main-styles.css */
+  
+  const css = `
+    /* Wellness Kit Styles - inherits CSS variables from main app */
 
-  .wk-overlay {
-    position: fixed;
-    inset: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    background: rgba(224, 229, 236, 0.72);
-    backdrop-filter: blur(6px);
-    z-index: 999995;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  }
+    /* Overlay */
+    .wk-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(224, 229, 236, 0.72);
+      backdrop-filter: blur(6px);
+      z-index: 999995;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
 
-  .wk-box {
-    width: 460px;
-    max-width: calc(100% - 32px);
-    border-radius: var(--radius-xl);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-    padding: 32px;
-    text-align: center;
-    animation: wk-fadeIn 400ms ease;
-    position: relative;
-    overflow: hidden;
-  }
+    /* Main Card */
+    .wk-box {
+      width: 460px;
+      max-width: calc(100% - 32px);
+      border-radius: var(--radius-xl, 16px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      padding: 32px;
+      text-align: center;
+      animation: wk-fadeIn 400ms ease;
+      position: relative;
+      overflow: hidden;
+    }
 
-  .wk-box::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0.95;
-    z-index: -1;
-  }
+    .wk-box::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.95;
+      z-index: -1;
+    }
 
-  .wk-box h2 {
-    margin: 0 0 20px 0;
-    font-size: 32px;
-    font-weight: 800;
-    color: #1a202c;
-    letter-spacing: -0.5px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
+    /* Title */
+    .wk-box h2 {
+      margin: 0 0 20px 0;
+      font-size: 32px;
+      font-weight: 800;
+      color: #1a202c;
+      letter-spacing: -0.5px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
 
-  .wk-ring-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    width: 200px;
-    height: 200px;
-    margin: 12px auto 20px;
-  }
+    /* Ring Container */
+    .wk-ring-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 12px auto 20px;
+    }
 
-  .wk-timer {
-    position: absolute;
-    z-index: 4;
-    font-size: 44px;
-    font-weight: 700;
-    color: var(--neuro-text);
-    user-select: none;
-  }
+    /* Timer Display */
+    .wk-timer {
+      position: absolute;
+      z-index: 4;
+      font-size: 44px;
+      font-weight: 700;
+      color: var(--neuro-text, #1a202c);
+      user-select: none;
+    }
 
-  .wk-ring {
-    width: 200px;
-    height: 200px;
-    transform: rotate(-90deg);
-    z-index: 2;
-  }
+    /* Progress Ring */
+    .wk-ring {
+      width: 200px;
+      height: 200px;
+      transform: rotate(-90deg);
+      z-index: 2;
+    }
 
-  .wk-anim {
-    position: absolute;
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    z-index: 1;
-    pointer-events: none;
-    box-shadow: 0 0 40px rgba(255, 215, 0, 0.4),
-                0 0 80px rgba(255, 215, 0, 0.2),
-                inset 0 0 60px rgba(255, 255, 255, 0.3);
-    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 215, 0, 0.3) 50%, transparent 70%);
-    animation: wk-breathePulse 3s ease-in-out infinite;
-    will-change: transform;
-  }
-
-  @keyframes wk-breathePulse {
-    0%, 100% { 
-      transform: scale(1); 
+    /* Breathing Animation */
+    .wk-anim {
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      z-index: 1;
+      pointer-events: none;
       box-shadow: 0 0 40px rgba(255, 215, 0, 0.4),
                   0 0 80px rgba(255, 215, 0, 0.2),
                   inset 0 0 60px rgba(255, 255, 255, 0.3);
+      background: radial-gradient(
+        circle at 30% 30%, 
+        rgba(255, 255, 255, 0.8), 
+        rgba(255, 215, 0, 0.3) 50%, 
+        transparent 70%
+      );
+      animation: wk-breathePulse 3s ease-in-out infinite;
+      will-change: transform;
     }
-    50% { 
-      transform: scale(1.15); 
-      box-shadow: 0 0 60px rgba(255, 215, 0, 0.6),
-                  0 0 120px rgba(255, 215, 0, 0.4),
-                  inset 0 0 80px rgba(255, 255, 255, 0.5);
+
+    @keyframes wk-breathePulse {
+      0%, 100% { 
+        transform: scale(1); 
+        box-shadow: 0 0 40px rgba(255, 215, 0, 0.4),
+                    0 0 80px rgba(255, 215, 0, 0.2),
+                    inset 0 0 60px rgba(255, 255, 255, 0.3);
+      }
+      50% { 
+        transform: scale(1.15); 
+        box-shadow: 0 0 60px rgba(255, 215, 0, 0.6),
+                    0 0 120px rgba(255, 215, 0, 0.4),
+                    inset 0 0 80px rgba(255, 255, 255, 0.5);
+      }
     }
-  }
 
-  .wk-pulses {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-  }
+    /* Pulse Effects Container */
+    .wk-pulses {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
 
-  .wk-pulse {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    transform: translate(-50%, -50%) scale(0.2);
-    background: radial-gradient(circle, rgba(102, 126, 234, 0.18), transparent 60%);
-    opacity: 0;
-    will-change: transform, opacity;
-  }
+    /* Individual Pulse */
+    .wk-pulse {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0.2);
+      background: radial-gradient(circle, rgba(102, 126, 234, 0.18), transparent 60%);
+      opacity: 0;
+      will-change: transform, opacity;
+    }
 
-  .wk-pulse.active {
-    animation: wk-pulseGrow 1100ms ease-out forwards;
-  }
+    .wk-pulse.active {
+      animation: wk-pulseGrow 1100ms ease-out forwards;
+    }
 
-  @keyframes wk-pulseGrow {
-    to { transform: translate(-50%, -50%) scale(3.2); opacity: 0; }
-  }
+    @keyframes wk-pulseGrow {
+      to { 
+        transform: translate(-50%, -50%) scale(3.2); 
+        opacity: 0; 
+      }
+    }
 
-  .wk-text {
-    margin-top: 12px;
-    font-weight: 700;
-    color: #1a202c;
-    font-size: 22px;
-    min-height: 32px;
-    transition: opacity 200ms ease;
-    line-height: 1.3;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  }
+    /* Instruction Text */
+    .wk-text {
+      margin-top: 12px;
+      font-weight: 700;
+      color: #1a202c;
+      font-size: 22px;
+      min-height: 32px;
+      transition: opacity 200ms ease;
+      line-height: 1.3;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
 
-  .wk-text.changing {
-    opacity: 0.5;
-  }
+    .wk-text.changing {
+      opacity: 0.5;
+    }
 
-  .wk-mini-count {
-    font-weight: 700;
-    font-size: 18px;
-    color: #2d3748;
-    opacity: 0.9;
-    margin-top: 8px;
-    min-height: 24px;
-  }
+    /* Mini Counter (for breathing phases) */
+    .wk-mini-count {
+      font-weight: 700;
+      font-size: 18px;
+      color: #2d3748;
+      opacity: 0.9;
+      margin-top: 8px;
+      min-height: 24px;
+    }
 
-  .wk-stats {
-    display: none;
-  }
+    /* Stats Display (currently hidden) */
+    .wk-stats {
+      display: none;
+    }
 
-  .wk-footer {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 20px;
-  }
+    /* Button Container */
+    .wk-footer {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
 
-  .wk-btn {
-    padding: 12px 24px;
-    border-radius: 14px;
-    border: none;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    color: var(--neuro-text);
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 180ms ease-in-out;
-    min-width: 90px;
-    font-size: 15px;
-  }
+    /* Buttons */
+    .wk-btn {
+      padding: 12px 24px;
+      border-radius: 14px;
+      border: none;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      color: var(--neuro-text, #1a202c);
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 180ms ease-in-out;
+      min-width: 90px;
+      font-size: 15px;
+    }
 
-  .wk-btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  }
+    .wk-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
 
-  .wk-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+    .wk-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
 
-  .wk-toast {
-    position: fixed;
-    right: 18px;
-    bottom: 18px;
-    background: var(--neuro-bg);
-    box-shadow: var(--shadow-raised);
-    padding: 10px 14px;
-    border-radius: 12px;
-    color: var(--neuro-text);
-    font-weight: 700;
-    z-index: 1000001;
-    opacity: 0;
-    transform: translateY(8px);
-    transition: all 260ms ease;
-  }
+    /* Toast Notification */
+    .wk-toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(26, 32, 44, 0.95);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 999999;
+      opacity: 0;
+      transition: opacity 200ms ease;
+    }
 
-  .wk-toast.show {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    /* Utility Classes */
+    .hidden {
+      display: none !important;
+    }
 
-  .hidden { display: none !important; }
+    @keyframes wk-fadeIn {
+      from { 
+        opacity: 0; 
+        transform: scale(0.95); 
+      }
+      to { 
+        opacity: 1; 
+        transform: scale(1); 
+      }
+    }
 
-  @keyframes wk-fadeIn {
-    from { opacity: 0; transform: translateY(12px) scale(0.95); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
-  :focus-visible {
-    outline: 3px solid rgba(102, 126, 234, 0.3);
-    outline-offset: 3px;
-  }
+    /* Mobile Responsive */
+    @media (max-width: 480px) {
+      .wk-box {
+        padding: 24px;
+      }
+      
+      .wk-box h2 {
+        font-size: 28px;
+      }
+      
+      .wk-ring-wrap {
+        width: 180px;
+        height: 180px;
+      }
+      
+      .wk-ring {
+        width: 180px;
+        height: 180px;
+      }
+      
+      .wk-anim {
+        width: 130px;
+        height: 130px;
+      }
+      
+      .wk-timer {
+        font-size: 38px;
+      }
+      
+      .wk-text {
+        font-size: 20px;
+      }
+    }
   `;
 
+  // Inject styles once
   const styleEl = document.createElement('style');
   styleEl.textContent = css;
   document.head.appendChild(styleEl);
 
-  /* ==================== SHARED UTILITIES ==================== */
-  const sharedAudioCtx = { ctx: null };
-  let globalToastEl = null;
+  /* ==================== SHARED AUDIO CONTEXT ==================== */
+  
+  /**
+   * Shared Web Audio API context for chime sound
+   * Reused across all wellness tools to prevent multiple contexts
+   */
+  const sharedAudioCtx = {
+    ctx: null,
+    
+    /**
+     * Get or create audio context
+     * @returns {AudioContext} Audio context instance
+     */
+    getContext() {
+      if (!this.ctx) {
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return this.ctx;
+    }
+  };
 
+  /**
+   * Play completion chime sound
+   * Uses Web Audio API to synthesize a pleasant tone
+   */
   function playChime() {
     try {
-      if (!sharedAudioCtx.ctx) {
-        sharedAudioCtx.ctx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      const ctx = sharedAudioCtx.ctx;
+      const ctx = sharedAudioCtx.getContext();
       const now = ctx.currentTime;
-
-      const osc1 = ctx.createOscillator();
-      const osc2 = ctx.createOscillator();
+      
+      // Create oscillator for tone
+      const osc = ctx.createOscillator();
+      osc.frequency.value = 528; // 528 Hz (C5 note)
+      
+      // Create gain node for volume control
       const gain = ctx.createGain();
-      const filter = ctx.createBiquadFilter();
-
-      osc1.type = 'sine';
-      osc2.type = 'sine';
-      osc1.frequency.value = 660;
-      osc2.frequency.value = 990;
-      osc2.detune.value = 6;
-
-      filter.type = 'lowpass';
-      filter.frequency.value = 2600;
-
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.28, now + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
-
-      osc1.connect(filter);
-      osc2.connect(filter);
-      filter.connect(gain);
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.3, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+      
+      // Connect nodes
+      osc.connect(gain);
       gain.connect(ctx.destination);
-
-      osc1.start(now);
-      osc2.start(now);
-      osc1.stop(now + 1.5);
-      osc2.stop(now + 1.5);
-    } catch (e) {
-      console.warn('WellnessKit: Audio failed', e);
+      
+      // Play tone
+      osc.start(now);
+      osc.stop(now + 0.8);
+    } catch (error) {
+      console.error('Audio playback failed:', error);
     }
   }
 
   /* ==================== WELLNESS TOOL CLASS ==================== */
+  
+  /**
+   * Main wellness tool class
+   * Handles timer, animations, breathing cycles, zone progressions
+   */
   class WellnessTool {
+    /**
+     * @param {Object} config - Tool configuration from TOOLS object
+     */
     constructor(config) {
       this.config = config;
+      
+      // Initialize state
       this.state = {
         remaining: config.duration,
         mainInterval: null,
         phaseTimeout: null,
         pulseInterval: null,
-        currentIndex: 0,
-        isRunning: false,
-        countdownInterval: null
+        countdownInterval: null,
+        currentIndex: 0
       };
-
-      this.createUI();
-      this.initPulsePool();
+      
+      // Create and cache DOM elements
+      this.elements = this.createDom();
+      
+      // Create pulse pool for performance
+      this.pulsePool = this.createPulsePool();
+      
+      // Setup event listeners
       this.attachEvents();
-      this.resetState();
     }
 
-    createUI() {
-      const wrapper = document.createElement('div');
-      wrapper.innerHTML = `
-        <div class="wk-overlay" id="wk-${this.config.id}-overlay" role="dialog" aria-labelledby="wk-${this.config.id}-title" aria-modal="true">
-          <div class="wk-box" id="wk-${this.config.id}-box">
-            <h2 id="wk-${this.config.id}-title">${this.config.title}</h2>
-            <div class="wk-ring-wrap">
-              <div class="wk-anim" id="wk-${this.config.id}-anim"></div>
-              <svg class="wk-ring" viewBox="0 0 100 100" aria-hidden="true">
-                <defs>
-                  <linearGradient id="wk-${this.config.id}-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#667eea"/>
-                    <stop offset="100%" stop-color="#764ba2"/>
-                  </linearGradient>
-                </defs>
-                <circle cx="50" cy="50" r="40" stroke="rgba(0,0,0,0.06)" stroke-width="8" fill="none"/>
-                <circle id="wk-${this.config.id}-progress" cx="50" cy="50" r="40" stroke="url(#wk-${this.config.id}-grad)" stroke-width="8" stroke-linecap="round" fill="none" stroke-dasharray="251.2" stroke-dashoffset="0"/>
-              </svg>
-              <div class="wk-pulses" id="wk-${this.config.id}-pulses"></div>
-              <div class="wk-timer" id="wk-${this.config.id}-timer" aria-live="polite">${this.config.duration}</div>
-            </div>
-            <div class="wk-text" id="wk-${this.config.id}-text" aria-live="polite"></div>
-            ${this.config.type === 'breathing' ? '<div class="wk-mini-count" id="wk-' + this.config.id + '-count" aria-live="polite"></div>' : ''}
-            <div class="wk-footer">
-              <button class="wk-btn" id="wk-${this.config.id}-start" aria-label="Start session">Start</button>
-              <button class="wk-btn hidden" id="wk-${this.config.id}-finish" aria-label="Mark as finished">Finished</button>
-              <button class="wk-btn" id="wk-${this.config.id}-close" aria-label="Close session">Close</button>
-            </div>
+    /**
+     * Create DOM structure for the tool
+     * @returns {Object} Object containing element references
+     */
+    createDom() {
+      const overlay = document.createElement('div');
+      overlay.className = 'wk-overlay';
+      overlay.innerHTML = `
+        <div class="wk-box">
+          <h2>${this.config.title}</h2>
+          
+          <div class="wk-ring-wrap">
+            <div class="wk-timer">${this.formatTime(this.config.duration)}</div>
+            
+            <svg class="wk-ring" viewBox="0 0 200 200">
+              <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="8"/>
+              <circle class="wk-progress" cx="100" cy="100" r="90" fill="none" 
+                      stroke="rgba(102,126,234,0.8)" stroke-width="8" 
+                      stroke-linecap="round" 
+                      stroke-dasharray="565.48" 
+                      stroke-dashoffset="565.48"
+                      style="transition: stroke-dashoffset 0.5s linear;"/>
+            </svg>
+            
+            <div class="wk-anim"></div>
+            <div class="wk-pulses"></div>
+          </div>
+
+          <div class="wk-text"></div>
+          <div class="wk-mini-count"></div>
+          
+          <div class="wk-stats hidden">
+            <p>Sessions Completed: <span class="wk-stat-count">0</span></p>
+          </div>
+
+          <div class="wk-footer">
+            <button class="wk-btn wk-btn-start">Start</button>
+            <button class="wk-btn wk-btn-finish hidden">Finish</button>
+            <button class="wk-btn wk-btn-close">Close</button>
           </div>
         </div>
       `;
-      document.body.appendChild(wrapper);
 
-      this.elements = {
-        overlay: document.getElementById(`wk-${this.config.id}-overlay`),
-        box: document.getElementById(`wk-${this.config.id}-box`),
-        timer: document.getElementById(`wk-${this.config.id}-timer`),
-        progress: document.getElementById(`wk-${this.config.id}-progress`),
-        pulses: document.getElementById(`wk-${this.config.id}-pulses`),
-        anim: document.getElementById(`wk-${this.config.id}-anim`),
-        text: document.getElementById(`wk-${this.config.id}-text`),
-        count: document.getElementById(`wk-${this.config.id}-count`),
-        btnStart: document.getElementById(`wk-${this.config.id}-start`),
-        btnFinish: document.getElementById(`wk-${this.config.id}-finish`),
-        btnClose: document.getElementById(`wk-${this.config.id}-close`)
+      // Apply gradient background
+      const box = overlay.querySelector('.wk-box');
+      box.querySelector('.wk-box::before, .wk-box').style.background = this.config.gradient;
+      box.style.setProperty('--gradient', this.config.gradient);
+      const before = box.querySelector('.wk-box::before') || box;
+      if (box.querySelector('::before')) {
+        // Can't directly style pseudo-elements, so we set a CSS variable
+        box.style.setProperty('background', this.config.gradient);
+      }
+      box.style.background = this.config.gradient;
+
+      document.body.appendChild(overlay);
+
+      // Cache element references
+      return {
+        overlay,
+        box,
+        timer: overlay.querySelector('.wk-timer'),
+        progress: overlay.querySelector('.wk-progress'),
+        text: overlay.querySelector('.wk-text'),
+        count: overlay.querySelector('.wk-mini-count'),
+        anim: overlay.querySelector('.wk-anim'),
+        pulses: overlay.querySelector('.wk-pulses'),
+        btnStart: overlay.querySelector('.wk-btn-start'),
+        btnFinish: overlay.querySelector('.wk-btn-finish'),
+        btnClose: overlay.querySelector('.wk-btn-close')
       };
-
-      this.elements.box.style.background = this.config.gradient;
-
-      this.R = 40;
-      this.CIRC = 2 * Math.PI * this.R;
-      this.elements.progress.style.strokeDasharray = this.CIRC;
     }
 
-    initPulsePool() {
-      this.pulsePool = [];
-      this.pulseIndex = 0;
+    /**
+     * Create pool of pulse elements for reuse
+     * @returns {Array} Array of pulse DOM elements
+     */
+    createPulsePool() {
+      const pool = [];
       for (let i = 0; i < SHARED_CONFIG.PULSE_POOL_SIZE; i++) {
         const pulse = document.createElement('div');
         pulse.className = 'wk-pulse';
         this.elements.pulses.appendChild(pulse);
-        this.pulsePool.push(pulse);
+        pool.push(pulse);
       }
+      return pool;
     }
 
-    spawnPulse() {
-      const pulse = this.pulsePool[this.pulseIndex];
-      this.pulseIndex = (this.pulseIndex + 1) % SHARED_CONFIG.PULSE_POOL_SIZE;
-      pulse.classList.remove('active');
-      void pulse.offsetWidth;
-      pulse.classList.add('active');
+    /**
+     * Format seconds into MM:SS display
+     * @param {number} sec - Seconds to format
+     * @returns {string} Formatted time string
+     */
+    formatTime(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${m}:${s.toString().padStart(2, '0')}`;
     }
 
-
-
-    setProgress(rem, total) {
-      const pct = Math.max(0, Math.min(1, rem / total));
-      const offset = this.CIRC * (1 - pct);
+    /**
+     * Update progress ring based on remaining time
+     */
+    updateProgressRing() {
+      const fraction = this.state.remaining / this.config.duration;
+      const circumference = 565.48;
+      const offset = circumference * (1 - fraction);
       this.elements.progress.style.strokeDashoffset = offset;
     }
 
+    /**
+     * Spawn a pulse animation from the pool
+     */
+    spawnPulse() {
+      const available = this.pulsePool.find(p => !p.classList.contains('active'));
+      if (!available) return;
+
+      available.classList.add('active');
+      
+      // Remove active class after animation completes
+      setTimeout(() => {
+        available.classList.remove('active');
+      }, 1100);
+    }
+
+    /**
+     * Reset tool state to initial values
+     */
+    resetState() {
+      this.clearTimers();
+      this.state.remaining = this.config.duration;
+      this.state.currentIndex = 0;
+      this.elements.timer.textContent = this.formatTime(this.config.duration);
+      this.elements.text.textContent = '';
+      this.elements.count.textContent = '';
+      this.elements.btnStart.textContent = 'Start';
+      this.elements.btnStart.classList.remove('hidden');
+      this.elements.btnFinish.classList.add('hidden');
+      this.updateProgressRing();
+    }
+
+    /**
+     * Clear all active timers and intervals
+     */
     clearTimers() {
       if (this.state.mainInterval) {
         clearInterval(this.state.mainInterval);
@@ -468,72 +627,53 @@
       }
     }
 
-    resetState() {
-      this.clearTimers();
-      this.state.remaining = this.config.duration;
-      this.state.currentIndex = 0;
-      this.state.isRunning = false;
-
-      this.elements.timer.textContent = String(this.config.duration);
-      this.setProgress(this.config.duration, this.config.duration);
-      this.elements.btnFinish.classList.add('hidden');
-      this.elements.btnStart.classList.remove('hidden');
-      this.elements.btnStart.textContent = 'Start';
-      this.elements.anim.style.transform = 'scale(1.0)';
-      this.elements.anim.style.opacity = '0.9';
-      this.elements.anim.style.transition = '';
-
-      if (this.config.type === 'breathing') {
-        this.elements.text.textContent = 'Inhale deeply';
-        if (this.elements.count) this.elements.count.textContent = String(this.config.breathIn);
-      } else if (this.config.type === 'zones') {
-        this.elements.text.textContent = this.config.zones[0];
-      } else if (this.config.type === 'steps') {
-        this.elements.text.textContent = this.config.steps[0];
-      }
-    }
-
+    /**
+     * Start main countdown timer
+     */
     startMainTimer() {
-      if (this.state.mainInterval) return;
-
-      this.state.isRunning = true;
-      this.elements.btnStart.textContent = 'Stop';
-
+      this.elements.btnStart.textContent = 'Pause';
+      
+      // Start type-specific animation/guidance
       if (this.config.type === 'breathing') {
         this.startBreathingCycle();
       } else {
         this.startPhaseLoop();
       }
 
+      // Main timer countdown
       this.state.mainInterval = setInterval(() => {
         this.state.remaining -= 1;
-        if (this.state.remaining < 0) this.state.remaining = 0;
-
-        this.elements.timer.textContent = String(this.state.remaining);
-        this.setProgress(this.state.remaining, this.config.duration);
+        this.elements.timer.textContent = this.formatTime(this.state.remaining);
+        this.updateProgressRing();
 
         if (this.state.remaining <= 0) {
-          this.clearTimers();
+          this.stopMainTimer();
           this.finalizeSession();
         }
       }, 1000);
     }
 
+    /**
+     * Stop main timer
+     */
     stopMainTimer() {
       this.clearTimers();
-      this.state.isRunning = false;
-      this.elements.btnStart.textContent = 'Start';
-      this.elements.anim.style.transition = '';
+      this.elements.btnStart.textContent = 'Resume';
     }
 
+    /**
+     * Start breathing cycle animation (inhale, hold, exhale, relax)
+     */
     startBreathingCycle() {
       const runInhale = () => {
-        playChime();
+        if (this.state.remaining <= 0) return;
+        
         this.setBreathPhase('inhale', this.config.breathIn);
-        this.elements.anim.style.transition = `transform ${this.config.breathIn}s linear`;
-        this.elements.anim.style.transform = 'scale(1.14)';
+        this.elements.anim.style.transition = `transform ${this.config.breathIn}s ease-in-out`;
+        this.elements.anim.style.transform = 'scale(1.12)';
         this.spawnPulse();
-        this.state.pulseInterval = setInterval(() => this.spawnPulse(), 1000);
+        this.state.pulseInterval = setInterval(() => this.spawnPulse(), 700);
+        
         this.state.phaseTimeout = setTimeout(() => {
           this.elements.anim.style.transition = '';
           runHold();
@@ -542,26 +682,28 @@
 
       const runHold = () => {
         if (this.state.remaining <= 0) return;
+        
         this.setBreathPhase('hold', this.config.breathHold);
+        
         if (this.state.pulseInterval) {
           clearInterval(this.state.pulseInterval);
           this.state.pulseInterval = null;
         }
-        this.elements.anim.style.transition = `transform ${this.config.breathHold}s linear`;
-        this.elements.anim.style.transform = 'scale(1.18)';
+        
         this.state.phaseTimeout = setTimeout(() => {
-          this.elements.anim.style.transition = '';
           runExhale();
         }, this.config.breathHold * 1000);
       };
 
       const runExhale = () => {
         if (this.state.remaining <= 0) return;
+        
         this.setBreathPhase('exhale', this.config.breathOut);
-        this.elements.anim.style.transition = `transform ${this.config.breathOut}s linear`;
+        this.elements.anim.style.transition = `transform ${this.config.breathOut}s ease-in-out`;
         this.elements.anim.style.transform = 'scale(0.94)';
         this.spawnPulse();
         this.state.pulseInterval = setInterval(() => this.spawnPulse(), 900);
+        
         this.state.phaseTimeout = setTimeout(() => {
           this.elements.anim.style.transition = '';
           afterCycle();
@@ -570,13 +712,17 @@
 
       const afterCycle = () => {
         if (this.state.remaining <= 0) return;
+        
         if (this.state.pulseInterval) {
           clearInterval(this.state.pulseInterval);
           this.state.pulseInterval = null;
         }
+        
+        // Check if we've completed required rounds
         const elapsed = this.config.duration - this.state.remaining;
         const cycleSeconds = this.config.breathIn + this.config.breathHold + this.config.breathOut;
         const completedCycles = Math.floor(elapsed / cycleSeconds);
+        
         if (completedCycles >= this.config.completeRounds) {
           runRelax();
         } else {
@@ -586,19 +732,27 @@
 
       const runRelax = () => {
         this.setBreathPhase('relax', null);
+        
         if (this.state.pulseInterval) {
           clearInterval(this.state.pulseInterval);
           this.state.pulseInterval = null;
         }
+        
         this.elements.anim.style.transition = 'transform 2.6s ease-in-out';
         this.elements.anim.style.transform = 'scale(1.0)';
         this.spawnPulse();
         this.state.pulseInterval = setInterval(() => this.spawnPulse(), 1800);
       };
 
+      // Start with inhale
       runInhale();
     }
 
+    /**
+     * Set breathing phase text and countdown
+     * @param {string} phase - Phase name (inhale, hold, exhale, relax)
+     * @param {number|null} seconds - Duration in seconds (null for no countdown)
+     */
     setBreathPhase(phase, seconds) {
       const phaseText = {
         inhale: 'Inhale deeply',
@@ -609,11 +763,15 @@
 
       this.elements.text.textContent = phaseText[phase] || '';
 
+      // Clear countdown for relax phase
       if (phase === 'relax') {
-        if (this.elements.count) this.elements.count.textContent = '';
+        if (this.elements.count) {
+          this.elements.count.textContent = '';
+        }
         return;
       }
 
+      // Start countdown if seconds provided
       if (this.elements.count && seconds) {
         if (this.state.countdownInterval) {
           clearInterval(this.state.countdownInterval);
@@ -635,25 +793,40 @@
       }
     }
 
+    /**
+     * Start zone/step progression loop
+     * Used for body scans, nervous system reset, tension sweep
+     */
     startPhaseLoop() {
       const items = this.config.zones || this.config.steps;
       
+      /**
+       * Advance to next item with animation
+       */
       const advance = () => {
         if (this.state.remaining <= 0) return;
 
+        // Fade transition
         this.elements.text.classList.add('changing');
+        
         setTimeout(() => {
           this.elements.text.textContent = items[this.state.currentIndex];
           this.elements.text.classList.remove('changing');
+          
+          // Pulse animation
           this.spawnPulse();
           this.elements.anim.style.transition = 'transform 0.24s ease-out';
           this.elements.anim.style.transform = 'scale(1.08)';
+          
           setTimeout(() => {
             this.elements.anim.style.transform = 'scale(1.0)';
-            setTimeout(() => this.elements.anim.style.transition = '', 240);
+            setTimeout(() => {
+              this.elements.anim.style.transition = '';
+            }, 240);
           }, 240);
         }, 100);
 
+        // Schedule next item if not at end
         if (this.state.currentIndex < items.length - 1) {
           const duration = this.config.stepDurations
             ? this.config.stepDurations[this.state.currentIndex] * 1000
@@ -666,6 +839,7 @@
         }
       };
 
+      // Start with first item
       this.elements.text.textContent = items[0];
       this.spawnPulse();
 
@@ -679,14 +853,22 @@
       }, duration);
     }
 
+    /**
+     * Mark session as complete and award rewards
+     */
     completeSession() {
       playChime();
+      
+      // Integrate with gamification system if available
       if (window.app?.gamification) {
         window.app.gamification.incrementWellnessRuns();
         window.app.gamification.addBoth(10, 1, 'Wellness Practice');
       }
     }
 
+    /**
+     * Finalize session and auto-close
+     */
     finalizeSession() {
       this.completeSession();
       this.elements.btnStart.classList.add('hidden');
@@ -694,46 +876,70 @@
       setTimeout(() => this.close(), 1200);
     }
 
+    /**
+     * Open the tool overlay
+     */
     open() {
       this.resetState();
       this.elements.overlay.style.display = 'flex';
       setTimeout(() => this.elements.btnStart.focus(), 100);
     }
 
+    /**
+     * Close the tool overlay
+     */
     close() {
       this.stopMainTimer();
       this.elements.overlay.style.display = 'none';
       this.resetState();
     }
 
+    /**
+     * Attach event listeners to buttons
+     */
     attachEvents() {
+      // Start/Pause button
       this.elements.btnStart.addEventListener('click', () => {
         if (this.state.mainInterval) {
           this.stopMainTimer();
         } else {
-          if (this.state.remaining <= 0) this.resetState();
+          if (this.state.remaining <= 0) {
+            this.resetState();
+          }
           this.startMainTimer();
         }
       });
 
+      // Finish button
       this.elements.btnFinish.addEventListener('click', () => {
         this.completeSession();
         this.close();
       });
 
+      // Close button
       this.elements.btnClose.addEventListener('click', () => this.close());
 
+      // Click outside to close
       this.elements.overlay.addEventListener('click', (e) => {
-        if (e.target === this.elements.overlay) this.close();
+        if (e.target === this.elements.overlay) {
+          this.close();
+        }
       });
     }
 
+    /**
+     * Get tool statistics
+     * @returns {Object} Statistics object
+     */
     getStats() {
       return {
         autoTriggerEnabled: SHARED_CONFIG.AUTO_TRIGGER
       };
     }
 
+    /**
+     * Destroy tool and cleanup
+     */
     destroy() {
       this.clearTimers();
       if (this.elements.overlay && this.elements.overlay.parentNode) {
@@ -743,6 +949,7 @@
   }
 
   /* ==================== GLOBAL ESCAPE KEY HANDLER ==================== */
+  
   const activeTools = new Set();
   
   document.addEventListener('keydown', (e) => {
@@ -756,6 +963,7 @@
   });
 
   /* ==================== INITIALIZE ALL TOOLS ==================== */
+  
   const tools = {
     selfReset: new WellnessTool(TOOLS.selfReset),
     fullBodyScan: new WellnessTool(TOOLS.fullBodyScan),
@@ -767,11 +975,14 @@
   Object.values(tools).forEach(tool => activeTools.add(tool));
 
   /* ==================== CLEANUP ON PAGE UNLOAD ==================== */
+  
   window.addEventListener('beforeunload', () => {
     Object.values(tools).forEach(tool => {
       tool.clearTimers();
       tool.destroy();
     });
+    
+    // Close audio context
     if (sharedAudioCtx.ctx) {
       sharedAudioCtx.ctx.close();
       sharedAudioCtx.ctx = null;
@@ -779,6 +990,11 @@
   });
 
   /* ==================== PUBLIC API ==================== */
+  
+  /**
+   * Public API for accessing wellness tools
+   * Provides open, close, and stats methods for each tool
+   */
   window.WellnessKit = {
     // Open methods
     openSelfReset: () => tools.selfReset.open(),
@@ -810,7 +1026,9 @@
     playChime
   };
 
-  // Backward compatibility - expose individual functions
+  /* ==================== BACKWARD COMPATIBILITY ==================== */
+  
+  // Expose individual functions for legacy code
   window.openSelfReset = window.WellnessKit.openSelfReset;
   window.closeSelfReset = window.WellnessKit.closeSelfReset;
   window.getSelfResetStats = window.WellnessKit.getSelfResetStats;
