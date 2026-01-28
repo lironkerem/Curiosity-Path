@@ -592,9 +592,9 @@ class TarotEngine {
   
   .card-reveal-prompt {
     position: absolute;
-    top: 10px;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
     background: rgba(0, 0, 0, 0.7);
     color: white;
     padding: 4px 12px;
