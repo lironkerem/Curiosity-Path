@@ -595,12 +595,11 @@ class TarotEngine {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.75);
+    background: rgba(0, 0, 0, 0.7);
     color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-size: clamp(0.7rem, 2.5vw, 0.95rem);
-    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
     z-index: 10;
   }
   
@@ -677,10 +676,6 @@ class TarotEngine {
     }
     #tarot-tab .flex.flex-col.items-center.mx-auto { 
       max-width: 220px;
-    }
-    .card-reveal-prompt {
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
     }
   }
   
