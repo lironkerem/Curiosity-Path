@@ -1,43 +1,40 @@
 /**
- * Supabase Client Configuration
+ * Supabase Client Configuration - Non-Vite Version
  * 
- * Provides configured Supabase client for database operations.
+ * IMPORTANT: Without a build tool like Vite, environment variables
+ * are NOT available in client-side JavaScript for security reasons.
  * 
- * Tables used:
- * - user_data: Stores all app data (gratitude, journal, energy, etc.)
+ * OPTIONS:
  * 
- * Environment Variables (optional):
- * - SUPABASE_URL: Override default URL
- * - SUPABASE_ANON_KEY: Override default anon key
+ * 1. CURRENT APPROACH (SAFE & RECOMMENDED):
+ *    - Keep hardcoded values in this file
+ *    - Anon keys are PUBLIC by design (safe to expose)
+ *    - RLS policies protect your data
  * 
- * Security Notes:
- * - Anon key is safe to expose (public by design)
- * - Row Level Security (RLS) policies protect data
- * - Users can only access their own data
+ * 2. FUTURE APPROACH (when you add Vite/Webpack):
+ *    - Move to environment variables
+ *    - Use build-time replacement
+ * 
+ * WHY THIS IS SAFE:
+ * - Supabase anon keys are designed to be public
+ * - Row Level Security (RLS) protects data at database level
+ * - Users can only access their own data via RLS policies
+ * - Service role keys (SECRET) are never in client code
  */
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/+esm';
 
-/* --------------------------------------------------
+/* =========================================================
    CONFIGURATION
-   -------------------------------------------------- */
+   ========================================================= */
 
-// Default credentials (can be overridden by environment)
-const DEFAULT_SUPABASE_URL = 'https://qfbarhxfmzpgbgkaymuk.supabase.co';
-const DEFAULT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmYmFyaHhmbXpwZ2Jna2F5bXVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODg4MjEsImV4cCI6MjA4MDE2NDgyMX0.twBWw0dZnLRTWTHav0sJ77GXyvsGR3ZgPplRO2vVSFk';
+// These values are SAFE to be public (anon key is designed for client-side use)
+const SUPABASE_URL = 'https://qfbarhxfmzpgbgkaymuk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmYmFyaHhmbXpwZ2Jna2F5bXVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODg4MjEsImV4cCI6MjA4MDE2NDgyMX0.twBWw0dZnLRTWTHav0sJ77GXyvsGR3ZgPplRO2vVSFk';
 
-// Allow environment override (for testing/staging)
-const SUPABASE_URL = typeof process !== 'undefined' && process.env?.SUPABASE_URL 
-  ? process.env.SUPABASE_URL 
-  : DEFAULT_SUPABASE_URL;
-
-const SUPABASE_ANON_KEY = typeof process !== 'undefined' && process.env?.SUPABASE_ANON_KEY 
-  ? process.env.SUPABASE_ANON_KEY 
-  : DEFAULT_SUPABASE_ANON_KEY;
-
-/* --------------------------------------------------
+/* =========================================================
    CLIENT OPTIONS
-   -------------------------------------------------- */
+   ========================================================= */
 
 const options = {
   auth: {
@@ -50,27 +47,27 @@ const options = {
   // Global fetch options
   global: {
     headers: {
-      'x-app-name': 'digital-curiosity'
+      'x-app-name': 'digital-curiosity',
+      'x-app-version': '1.0.0'
     }
   },
-  // Realtime options (if needed in future)
+  // Realtime options
   realtime: {
     timeout: 10000
   }
 };
 
-/* --------------------------------------------------
+/* =========================================================
    CLIENT INITIALIZATION
-   -------------------------------------------------- */
+   ========================================================= */
 
 let supabaseClient = null;
 
 try {
   supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, options);
+  console.log('✅ Supabase client initialized');
 } catch (error) {
-  console.error('Failed to initialize Supabase client:', error);
-  console.error('URL:', SUPABASE_URL);
-  console.error('Check that Supabase credentials are valid and CDN is accessible');
+  console.error('❌ Failed to initialize Supabase client:', error);
 }
 
 /**
@@ -79,9 +76,9 @@ try {
  */
 export const supabase = supabaseClient;
 
-/* --------------------------------------------------
+/* =========================================================
    HELPER FUNCTIONS
-   -------------------------------------------------- */
+   ========================================================= */
 
 /**
  * Check if Supabase client is initialized and ready
@@ -158,17 +155,27 @@ export async function testConnection() {
   }
 }
 
-/* --------------------------------------------------
+/* =========================================================
    DEVELOPMENT UTILITIES
-   -------------------------------------------------- */
+   ========================================================= */
 
 // Expose client info in development
-if (typeof window !== 'undefined' && import.meta.url.includes('localhost')) {
+if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
   window.__supabase = {
     client: supabaseClient,
     url: SUPABASE_URL,
     version: '2.39.0',
-    testConnection
+    test: testConnection,
+    getCurrentUser,
+    isAuthenticated,
+    signOut
   };
-  console.log('🔧 Supabase client available at window.__supabase');
+  console.log('🔧 Supabase utilities available at window.__supabase');
+  console.log('   Try: await window.__supabase.test()');
 }
+
+/* =========================================================
+   EXPORTS
+   ========================================================= */
+
+export default supabase;
