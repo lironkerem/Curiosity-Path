@@ -601,12 +601,13 @@ class TarotEngine {
     font-weight: 600;
     margin: 0;
     background: rgba(255, 255, 255, 0.95);
-    padding: 0.75rem 1.25rem;
-    border-radius: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
     border: 2px solid rgba(128, 0, 128, 0.8);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     white-space: nowrap;
-    font-size: 0.9rem;
+    font-size: 0.7rem;
+    max-width: 90%;
   }
   
   .tarot-card-front {
