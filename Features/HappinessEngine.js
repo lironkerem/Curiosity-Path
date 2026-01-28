@@ -11,22 +11,7 @@ class HappinessEngine {
   static DEBOUNCE_MS = 1000;
   static ROTATION_DEG = 360;
   static INTENSITY_EMOJIS = { 1: '🌱', 2: '🌿', 3: '🌳', 4: '🔥' };
-  static INQUIRY_DOMAINS = [
-    'Responsibility and Power',
-    'Emotional Honesty',
-    'Identity and Roles',
-    'Creativity and Expression',
-    'Shadow and Integration',
-    'Wisdom and Insight',
-    'Joy and Fulfillment',
-    'Physical Well-Being and Energy',
-    'Relationship',
-    'Spiritual Growth',
-    'Fear and Resistance',
-    'Boundaries and Consent',
-    'Purpose and Direction',
-    'Mind and Awareness'
-  ];
+
 
   constructor(app) {
     this.app = app;
@@ -151,9 +136,8 @@ class HappinessEngine {
    * @returns {Object}
    */
   getRandomInquiry() {
-    const domain = HappinessEngine.INQUIRY_DOMAINS[
-      Math.floor(Math.random() * HappinessEngine.INQUIRY_DOMAINS.length)
-    ];
+    const domains = this.inquiryEngine._getUniqueDomains();
+    const domain = domains[Math.floor(Math.random() * domains.length)];
     return this.inquiryEngine.getRandomQuestion(domain);
   }
 
