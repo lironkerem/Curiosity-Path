@@ -14,6 +14,7 @@ import { supabase } from './Supabase.js';
 import { DarkMode } from '/Core/Utils.js';
 import DailyCards from '../Features/DailyCards.js';
 import CTA from './CTA.js';
+import { fetchProgress, saveProgress, clearCache } from '/Core/DB.js';
 
 /* =========================================================
    CONSTANTS
@@ -893,21 +894,24 @@ export default class ProjectCuriosityApp {
     return arr;
   }
 
-  /* =========================================================
-     LOGOUT
-     ========================================================= */
-
-  /**
-   * Logout current user
-   */
-  async logout() {
-    try {
-      await this.auth.signOut();
-    } catch (error) {
-      console.error('Logout failed:', error);
-      this.showToast('Logout failed. Please try again.', 'error');
-    }
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+/**
+ * Logout current user
+ */
+async logout() {
+  try {
+    // Clear cached progress data before signing out
+    const { clearCache } = await import('./DB.js');
+    clearCache();
+    
+    await this.auth.signOut();
+  } catch (error) {
+    console.error('Logout failed:', error);
+    this.showToast('Logout failed. Please try again.', 'error');
   }
+}
 
   /* =========================================================
      CLEANUP
