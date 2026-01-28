@@ -670,7 +670,7 @@ class EnergyEngineEnhanced {
           </svg>
           <h3 style="color:var(--neuro-text);margin:0;font-size:1.5rem;font-weight:700;
                      text-shadow:0 1px 2px rgba(0,0,0,0.1);letter-spacing:0.025em;">
-            My Energy Trackings Log
+            My Energy Tracker
           </h3>
         </div>
         <div class="calc-expandable-content">

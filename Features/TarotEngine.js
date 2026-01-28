@@ -595,13 +595,18 @@ class TarotEngine {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.75);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-size: clamp(0.7rem, 2.5vw, 0.95rem);
-    font-weight: 600;
     z-index: 10;
+    text-align: center;
+    color: var(--neuro-text);
+    font-weight: 600;
+    margin: 0;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.75rem;
+    border: 2px solid rgba(128, 0, 128, 0.8);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    white-space: nowrap;
+    font-size: 0.9rem;
   }
   
   .tarot-card-front {
@@ -679,7 +684,8 @@ class TarotEngine {
       max-width: 220px;
     }
     .card-reveal-prompt {
-      padding: 0.6rem 1.2rem;
+      padding: 1rem 1.5rem;
+      border-width: 3px;
       font-size: 1rem;
     }
   }

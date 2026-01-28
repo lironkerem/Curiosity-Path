@@ -253,7 +253,7 @@ export default class GratitudeEngine {
             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
           </svg>
           <h3 style="color:var(--neuro-text);margin:0;font-size:1.5rem;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,0.1);letter-spacing:0.025em;">
-            My Gratitude Lists
+            My Gratitudes
           </h3>
         </div>
         <div class="calc-expandable-content">
