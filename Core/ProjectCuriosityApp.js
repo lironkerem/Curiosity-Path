@@ -90,6 +90,7 @@ export default class ProjectCuriosityApp {
     this.gamification = null;
     this.dailyCards = null;
     this.footerCTA = null;
+    this.features = null;
     this.currentTab = null;
 
     // Initialization flags
@@ -674,13 +675,14 @@ export default class ProjectCuriosityApp {
     }
 
     // Initialize features manager if available
-    if (window.FeaturesManager) {
-      try {
-        window.featuresManager = new window.FeaturesManager(this);
-      } catch (error) {
-        console.error('FeaturesManager initialization failed:', error);
-      }
-    }
+if (window.FeaturesManager) {
+  try {
+    this.features = new window.FeaturesManager(this);
+    window.featuresManager = this.features;
+  } catch (error) {
+    console.error('FeaturesManager initialization failed:', error);
+  }
+}
   }
 
   /* =========================================================
@@ -756,13 +758,13 @@ export default class ProjectCuriosityApp {
    * @param {string} tab - Tab name
    */
   _initFeatureTab(tab) {
-    if (window.featuresManager) {
-      window.featuresManager.init(tab);
-    } else {
-      console.error('FeaturesManager not available');
-      this.showToast('Feature not available', 'error');
-    }
+  if (this.features) {
+    this.features.init(tab);
+  } else {
+    console.error('FeaturesManager not available');
+    this.showToast('Feature not available', 'error');
   }
+}
 
   /**
    * Load calculator tab (lazy loaded)
