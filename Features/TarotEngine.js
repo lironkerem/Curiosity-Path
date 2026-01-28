@@ -365,6 +365,101 @@ class TarotEngine {
       details.style.opacity = '0';
       setTimeout(() => { details.style.opacity = '1'; }, 50);
     }, 400);
+
+    // Check if spread is complete
+    this.checkSpreadCompletion();
+  }
+
+  /**
+   * Check if all cards in the spread have been flipped
+   */
+  checkSpreadCompletion() {
+    if (this.flippedCards.size === this.spreads[this.selectedSpread].cards) {
+      this.completeTarotSpread();
+    }
+  }
+
+  /**
+   * Handle spread completion - save reading and update progress
+   */
+  completeTarotSpread() {
+    const spreadType = this.spreads[this.selectedSpread].name;
+    
+    // Save reading to app state
+    if (this.app.state) {
+      const reading = {
+        spreadType,
+        spreadKey: this.selectedSpread,
+        cards: this.currentReading.map(c => ({ name: c.name, meaning: c.meaning })),
+        timestamp: new Date().toISOString(),
+        date: new Date().toLocaleDateString('en-US', { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        })
+      };
+      this.app.state.addEntry('tarot', reading);
+    }
+    
+    // Update progress for non-trivial spreads
+    const excludedSpreads = ['single', 'three'];
+    if (!excludedSpreads.includes(this.selectedSpread)) {
+      if (this.app.gamification) {
+        this.app.gamification.progressQuest('daily', 'tarot_spread', 1);
+        this.app.gamification.incrementTarotSpreads();
+      }
+      if (this.app.showToast) {
+        this.app.showToast(`✨ ${spreadType} complete!`, 'success');
+      }
+      this.checkAchievements();
+    }
+  }
+
+  /**
+   * Check and grant achievements based on total readings
+   */
+  checkAchievements() {
+    const total = this.app.state?.data?.tarotEntries?.length || 0;
+    const gm = this.app.gamification;
+    if (!gm) return;
+
+    if (total === 1) {
+      gm.grantAchievement({ 
+        id: 'first_tarot', 
+        name: 'First Reading', 
+        xp: 50, 
+        icon: '🃏', 
+        inspirational: 'You\'ve opened the door to divine guidance!' 
+      });
+    }
+    if (total === 10) {
+      gm.grantAchievement({ 
+        id: 'tarot_10', 
+        name: 'Tarot Apprentice', 
+        xp: 100, 
+        icon: '🔮', 
+        inspirational: '10 readings! The cards speak to you clearly!' 
+      });
+    }
+    if (total === 50) {
+      gm.grantAchievement({ 
+        id: 'tarot_50', 
+        name: 'Tarot Master', 
+        xp: 250, 
+        icon: '✨', 
+        inspirational: '50 readings! You are attuned to cosmic wisdom!' 
+      });
+    }
+    if (total === 100) {
+      gm.grantAchievement({ 
+        id: 'tarot_100', 
+        name: 'Oracle of the Cards', 
+        xp: 500, 
+        icon: '🌟', 
+        inspirational: '100 readings! The universe speaks through you!' 
+      });
+    }
   }
 
   /* ==================== RENDERING ==================== */
@@ -373,12 +468,21 @@ class TarotEngine {
    * Render the tarot interface
    */
   render() {
+    // Clean up any previous event handlers
+    if (this.cleanup) this.cleanup();
+
+    const tab = document.getElementById('tarot-tab');
+    if (!tab) {
+      console.error('[TarotEngine] tarot-tab element not found');
+      return;
+    }
+
     const spread = this.spreads[this.selectedSpread];
     const premiumSpreads = ['options', 'pyramid', 'cross'];
     const isPremium = premiumSpreads.includes(this.selectedSpread);
     const isUnlocked = this.app?.gamification?.state?.unlockedFeatures?.includes('advance_tarot_spreads');
 
-    return `
+    tab.innerHTML = `
 <style>
   /* Card flip containers */
   .tarot-card-flip-container {
@@ -585,7 +689,7 @@ class TarotEngine {
       const selected = this.selectedSpread === key;
       return `
         <button
-          onclick="window.tarotEngine.selectSpread('${key}')"
+          onclick="window.featuresManager.engines.tarot.selectSpread('${key}')"
           class="relative p-4 rounded-lg border-2 transition-all ${
             selected
               ? 'bg-amber-600/30 border-amber-500'
@@ -614,7 +718,7 @@ class TarotEngine {
       ${isPremium ? '<span class="premium-badge">PREMIUM</span>' : ''}
     </h2>
     <button
-      onclick="window.tarotEngine.reset()"
+      onclick="window.featuresManager.engines.tarot.reset()"
       class="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold py-2 px-4 rounded-lg transition-all duration-300"
     >
       🔄 New Reading
@@ -626,6 +730,9 @@ class TarotEngine {
   ${this.renderSpreadLayout(spread)}
 </div>
     `;
+
+    // Initialize event handlers after DOM is updated
+    this.init();
   }
 
   /**
@@ -704,7 +811,7 @@ class TarotEngine {
         <div
           id="tarot-card-container-${index}"
           class="tarot-card-flip-container"
-          onclick="window.tarotEngine.flipCard(${index})"
+          onclick="window.featuresManager.engines.tarot.flipCard(${index})"
         >
           <div class="tarot-card-inner">
             <div class="tarot-card-back"></div>
