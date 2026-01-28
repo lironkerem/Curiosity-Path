@@ -902,8 +902,10 @@ export default class ProjectCuriosityApp {
  */
 async logout() {
   try {
-    // Clear cached progress data before signing out
-    const { clearCache } = await import('./DB.js');
+    if (this.features) {
+      this.features.destroyAll();
+    }
+    
     clearCache();
     
     await this.auth.signOut();
