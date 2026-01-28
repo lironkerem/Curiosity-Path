@@ -1,6 +1,5 @@
 // InquiryList.js
-// Complete master library of 616 self-inquiry questions for The Daily Inquiry feature
-
+// Complete master library of 616 self-inquiry questions
 
 export const INQUIRY_DOMAINS = {
   RESPONSIBILITY: "Responsibility and Power",
@@ -11,12 +10,12 @@ export const INQUIRY_DOMAINS = {
   WISDOM: "Wisdom and Insight",
   JOY: "Joy and Fulfillment",
   PHYSICAL: "Physical Well-Being and Energy",
-  RELATIONSHIP: "Relationship",
-  SPIRITUALITY: "Spiritual Growth",
-  FEAR: "Fear and Resistance",              // ← ADD THIS
-  BOUNDARIES: "Boundaries and Consent",     // ← ADD THIS
-  PURPOSE: "Purpose and Direction",         // ← ADD THIS
-  MIND: "Mind and Awareness"                // ← ADD THIS
+  RELATIONSHIPS: "Relationship",
+  SPIRITUAL: "Spiritual Growth",
+  FEAR: "Fear and Resistance",
+  BOUNDARIES: "Boundaries and Consent",
+  PURPOSE: "Purpose and Direction",
+  MIND: "Mind and Awareness"
 };
 
 
