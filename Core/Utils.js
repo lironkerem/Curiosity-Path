@@ -664,22 +664,35 @@ export const DarkMode = {
 };
 
 /* =========================================================
-   6. BACKWARD COMPATIBILITY (optional)
+   6. BACKWARD COMPATIBILITY & WINDOW EXPOSURE
    ========================================================= */
 
 // For legacy code that expects AppState name
 export const AppState = FormState;
 
-// Expose to window if needed (optional, can be removed)
-if (typeof window !== 'undefined' && import.meta.url.includes('localhost')) {
-  window.__utils = {
-    Utils,
-    Validation,
-    FormState,
-    ProgressManager,
-    DarkMode
-  };
-  console.log('🔧 Utils available at window.__utils');
+// Auto-initialize DarkMode
+DarkMode.init();
+
+// Expose to window for debugging and compatibility
+if (typeof window !== 'undefined') {
+  // Check if running on localhost (without import.meta)
+  const isLocalhost = 
+    window.location.hostname === 'localhost' || 
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname.includes('localhost');
+  
+  // Always expose in development, optionally in production
+  if (isLocalhost || window.__enableUtilsGlobals) {
+    window.__utils = {
+      Utils,
+      Validation,
+      FormState,
+      ProgressManager,
+      DarkMode
+    };
+    console.log('🔧 Utils available at window.__utils');
+    console.log('   Try: window.__utils.Utils.sanitizeInput("test")');
+  }
 }
 
 /* =========================================================
