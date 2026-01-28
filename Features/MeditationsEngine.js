@@ -302,7 +302,7 @@ class MeditationsEngine {
    */
   renderMeditationCard(meditation) {
     const isPremium = meditation.premium;
-    const isLocked = isPremium && !this.app.state?.isPremium();
+    const isLocked = isPremium && !this.app.state?.isPremium;
     const lockClass = isLocked ? 'locked' : '';
 
     return `
@@ -437,7 +437,7 @@ class MeditationsEngine {
     }
 
     // Check premium access
-    if (meditation.premium && !this.app.state?.isPremium()) {
+    if (meditation.premium && !this.app.state?.isPremium) {
       this.showPremiumPrompt();
       return;
     }
