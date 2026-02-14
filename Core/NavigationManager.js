@@ -285,7 +285,7 @@ export default class NavigationManager {
       const velocity = Math.abs(dx) / dt;
       if (velocity < CONSTANTS.VELOCITY_THRESHOLD) return;
 
-      const currentTab = this.app.state.get('currentTab');
+      const currentTab = this.app.currentTab || 'dashboard';
       const currentIndex = SWIPE_ORDER.indexOf(currentTab);
       if (currentIndex === -1) return;
 
@@ -437,7 +437,7 @@ export default class NavigationManager {
 
     // Observe arrows to update state
     this.arrowObserver = new MutationObserver(() => {
-      const currentTab = this.app.state.get('currentTab');
+      const currentTab = this.app.currentTab || 'dashboard';
       const currentIndex = SWIPE_ORDER.indexOf(currentTab);
 
       if (currentIndex <= 0) {
@@ -524,9 +524,8 @@ export default class NavigationManager {
       }
     });
 
-    // Update state
-    this.app.state.set('currentTab', tabId);
-    this.app.state.set('currentTabLabel', label);
+    // Update app state directly
+    this.app.currentTab = tabId;
 
     // Initialize feature if needed
     this.app.features?.init(tabId);
@@ -539,7 +538,7 @@ export default class NavigationManager {
    * Navigate to previous tab in swipe order
    */
   navigatePrevious() {
-    const currentTab = this.app.state.get('currentTab');
+    const currentTab = this.app.currentTab || 'dashboard';
     const currentIndex = SWIPE_ORDER.indexOf(currentTab);
     if (currentIndex > 0) {
       this.switchTab(SWIPE_ORDER[currentIndex - 1]);
@@ -550,7 +549,7 @@ export default class NavigationManager {
    * Navigate to next tab in swipe order
    */
   navigateNext() {
-    const currentTab = this.app.state.get('currentTab');
+    const currentTab = this.app.currentTab || 'dashboard';
     const currentIndex = SWIPE_ORDER.indexOf(currentTab);
     if (currentIndex < SWIPE_ORDER.length - 1) {
       this.switchTab(SWIPE_ORDER[currentIndex + 1]);
