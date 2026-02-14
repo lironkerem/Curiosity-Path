@@ -20,6 +20,7 @@ import GamificationEngine   from './GamificationEngine.js';
 import JournalEngine        from '../Features/JournalEngine.js';
 import ShadowAlchemyEngine  from '../Mini-Apps/ShadowAlchemyLab/shadowalchemy.js';
 import { ChatBotAI }        from '../Features/ChatBotAI.js';
+import CommunityHubEngine   from '../Mini-Apps/CommunityHub/CommunityHubEngine.js';
 
 /* ---------- Apps ---------- */
 import FlipTheScriptApp     from '../Mini-Apps/FlipTheScript/index.js';
@@ -38,7 +39,8 @@ export const FEATURE_IDS = {
   JOURNAL: 'journal',
   SHADOW_ALCHEMY: 'shadow-alchemy',
   KARMA_SHOP: 'karma-shop',
-  CHATBOT: 'chatbot'
+  CHATBOT: 'chatbot',
+  COMMUNITY_HUB: 'community-hub'
 };
 
 /** Feature registry mapping IDs to engine classes */
@@ -55,7 +57,8 @@ const FEATURE_MAP = {
   [FEATURE_IDS.JOURNAL]: JournalEngine,
   [FEATURE_IDS.SHADOW_ALCHEMY]: ShadowAlchemyEngine,
   [FEATURE_IDS.KARMA_SHOP]: KarmaShopEngine,
-  [FEATURE_IDS.CHATBOT]: ChatBotAI
+  [FEATURE_IDS.CHATBOT]: ChatBotAI,
+  [FEATURE_IDS.COMMUNITY_HUB]: CommunityHubEngine
 };
 
 /**

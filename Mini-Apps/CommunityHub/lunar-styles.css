@@ -1,0 +1,45 @@
+/**
+ * LUNAR-STYLES.CSS
+ * Phase-specific visual overrides
+ * These are automatically injected by each room but can be customized here
+ */
+
+/* ===== NEW MOON - Dark, introspective ===== */
+.newmoon-moon-sphere {
+    background: radial-gradient(circle at 30% 30%, #2a2a3a 0%, #1a1a2a 50%, #0a0a1a 100%);
+    box-shadow: 
+        0 0 20px rgba(100, 100, 120, 0.2),
+        0 0 40px rgba(80, 80, 100, 0.1),
+        inset -5px -5px 15px rgba(255, 255, 255, 0.05),
+        inset 10px 10px 20px rgba(0, 0, 0, 0.6);
+}
+
+/* ===== WAXING MOON - Growing, light gray ===== */
+.waxingmoon-moon-sphere {
+    background: radial-gradient(circle at 30% 30%, #c8c8e0 0%, #a8a8c0 50%, #7878a0 100%);
+    box-shadow: 
+        0 0 28px rgba(180, 180, 200, 0.35),
+        0 0 55px rgba(150, 150, 170, 0.18),
+        inset -7px -7px 18px rgba(0, 0, 0, 0.25),
+        inset 9px 9px 22px rgba(255, 255, 255, 0.45);
+}
+
+/* ===== FULL MOON - Bright, illuminated ===== */
+.fullmoon-moon-sphere {
+    background: radial-gradient(circle at 30% 30%, #f0f0ff 0%, #d0d0e0 50%, #a0a0b0 100%);
+    box-shadow: 
+        0 0 30px rgba(240, 240, 255, 0.4),
+        0 0 60px rgba(200, 200, 220, 0.2),
+        inset -8px -8px 20px rgba(0, 0, 0, 0.2),
+        inset 10px 10px 25px rgba(255, 255, 255, 0.6);
+}
+
+/* ===== WANING MOON - Diminishing, muted ===== */
+.waningmoon-moon-sphere {
+    background: radial-gradient(circle at 30% 30%, #8a8aa0 0%, #5a5a70 50%, #3a3a50 100%);
+    box-shadow: 
+        0 0 25px rgba(140, 140, 160, 0.3),
+        0 0 50px rgba(100, 100, 120, 0.15),
+        inset -6px -6px 18px rgba(0, 0, 0, 0.3),
+        inset 8px 8px 20px rgba(255, 255, 255, 0.4);
+}

@@ -4136,6 +4136,199 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   margin-top: 1.1rem;
   flex-wrap: wrap;
 }
+
+/**
+ * MOBILE NAVIGATION 4-BUTTON PATCH
+ * Add this to your mobile-styles.css or include as a separate patch file
+ * 
+ * Changes the mobile bottom bar from 3 buttons to 4 buttons:
+ * Mini Apps | Home | Community | Features
+ */
+
+/* ===== 4-BUTTON MOBILE BAR LAYOUT ===== */
+@media (max-width: 1024px) {
+  
+  /* Update mobile bottom bar grid */
+  .mobile-bottom-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Changed from 3 to 4 */
+    gap: 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--neuro-bg);
+    border-top: 1px solid var(--neuro-border);
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+    z-index: 1000;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Mobile tab button styling */
+  .mobile-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 4px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 60px;
+  }
+
+  .mobile-tab img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+  }
+
+  .mobile-tab span {
+    font-size: 11px;
+    color: var(--neuro-text-light);
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  /* Active state */
+  .mobile-tab.active {
+    background: var(--neuro-surface-raised);
+    box-shadow: 
+      inset 2px 2px 4px var(--neuro-shadow-dark),
+      inset -2px -2px 4px var(--neuro-shadow-light);
+  }
+
+  .mobile-tab.active img {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+
+  .mobile-tab.active span {
+    color: var(--neuro-accent);
+    opacity: 1;
+    font-weight: 600;
+  }
+
+  /* Hover state (for devices that support it) */
+  @media (hover: hover) {
+    .mobile-tab:hover:not(.active) {
+      background: var(--neuro-surface);
+    }
+
+    .mobile-tab:hover img {
+      opacity: 0.8;
+    }
+
+    .mobile-tab:hover span {
+      opacity: 0.9;
+    }
+  }
+
+  /* Pressed state */
+  .mobile-tab:active {
+    transform: scale(0.95);
+  }
+
+  /* Community button specific styling (optional custom color) */
+  .mobile-tab.community.active span {
+    color: var(--neuro-accent, #6b9b37);
+  }
+
+  /* Adjust spacing for 4 buttons on smaller screens */
+  @media (max-width: 375px) {
+    .mobile-tab span {
+      font-size: 10px;
+    }
+
+    .mobile-tab img {
+      width: 24px;
+      height: 24px;
+    }
+
+    .mobile-bottom-bar {
+      padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    }
+  }
+
+  /* Extra small screens - ultra compact */
+  @media (max-width: 320px) {
+    .mobile-tab {
+      padding: 6px 2px;
+      gap: 2px;
+    }
+
+    .mobile-tab span {
+      font-size: 9px;
+    }
+
+    .mobile-tab img {
+      width: 22px;
+      height: 22px;
+    }
+  }
+}
+
+/* ===== MOBILE TAB INDICATOR ADJUSTMENT ===== */
+@media (max-width: 1024px) {
+  
+  /* Adjust dot spacing for 12 tabs (was 11) */
+  #mobile-tab-indicator {
+    gap: 1px; /* Tighter spacing to fit extra dot */
+  }
+
+  .tab-dot {
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    min-height: 22px !important;
+  }
+
+  /* Further compress on smaller screens */
+  @media (max-width: 375px) {
+    .tab-dot {
+      width: 20px !important;
+      height: 20px !important;
+      min-width: 20px !important;
+      min-height: 20px !important;
+    }
+  }
+
+  @media (max-width: 320px) {
+    .tab-dot {
+      width: 18px !important;
+      height: 18px !important;
+      min-width: 18px !important;
+      min-height: 18px !important;
+    }
+  }
+}
+
+/* ===== SAFE AREA ADJUSTMENTS ===== */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .mobile-bottom-bar {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+.mobile-tab:focus-visible {
+  outline: 2px solid var(--neuro-accent);
+  outline-offset: 2px;
+}
+
+.mobile-tab[aria-expanded="true"] {
+  background: var(--neuro-surface);
+}
+
 /* =========================================================
    END OF MAIN STYLES
    ========================================================= */
