@@ -1,35 +1,47 @@
 {
-  "name": "The Curiosity Path - by Aanandoham",
-  "short_name": "The Curiosity Path",
-  "description": "Step into your next level - A spiritual growth platform for mindfulness, tarot, meditation, and personal transformation",
+  "name": "The Curiosity Path",
+  "short_name": "Curiosity Path",
+  "description": "Step into your next level - Aanandoham's Spiritual Platform",
   "start_url": "/",
-  "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#c4ad91",
+  "background_color": "#ffffff",
   "theme_color": "#6b9b37",
-  "dir": "ltr",
-  "lang": "en",
-  "categories": ["lifestyle", "health", "wellness"],
+  "orientation": "portrait-primary",
+  "categories": ["lifestyle", "health"],
   "icons": [
     {
-      "src": "Public/Icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "/Public/Icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "Public/Icons/icon-512-maskable.png",
+      "src": "/Public/Icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     },
     {
-      "src": "Public/Icons/icon-192x192.png",
-      "sizes": "192x192",
+      "src": "/Public/Icons/apple-touch-icon.png",
+      "sizes": "180x180",
       "type": "image/png"
     }
   ],
-  "notification": {
-    "badge": "Public/Icons/badge-96x96.png"
-  }
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "url": "/",
+      "description": "Go to your dashboard"
+    },
+    {
+      "name": "Meditations",
+      "url": "/?tab=meditations",
+      "description": "Start a meditation"
+    },
+    {
+      "name": "Tarot",
+      "url": "/?tab=tarot",
+      "description": "Draw tarot cards"
+    }
+  ]
 }

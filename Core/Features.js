@@ -94,10 +94,15 @@ class FeaturesManager {
    */
   init(id) {
     try {
+      // Dashboard is not a feature, it's managed by DashboardManager
+      if (id === 'dashboard') {
+        return true;
+      }
+      
       const EngineClass = FEATURE_MAP[id];
       
       if (!EngineClass) {
-        console.error(`[Features] Unknown feature: ${id}`);
+        console.warn(`[Features] Feature not registered: ${id}`);
         return false;
       }
       
