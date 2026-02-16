@@ -134,49 +134,25 @@ class PracticeRoom {
     
     /**
      * Create the practice view DOM
-     * Injects the full room interface into the fullscreen container
+     * Injects the full room interface
      */
     createPracticeView() {
-        // Check for fullscreen container (Big App integration)
-        const dynamicContent = document.getElementById('dynamicRoomContent');
+        // Don't recreate if already exists
+        if (document.getElementById(`${this.roomId}View`)) return;
         
-        if (dynamicContent) {
-            // Render into fullscreen container for Big App integration
-            console.log(`[${this.roomId}] Rendering into fullscreen container`);
-            
-            // Inject safety modals
-            SafetyBar.injectModals();
-            
-            const roomHTML = `
+        // Inject safety modals
+        SafetyBar.injectModals();
+        
+        const viewHTML = `
+            <div class="view practice-space" id="${this.roomId}View">
                 ${this.buildHeader()}
                 ${this.buildBody()}
                 ${this.buildInstructionsModal()}
                 ${this.buildAdditionalModals ? this.buildAdditionalModals() : ''}
-            `;
-            
-            dynamicContent.innerHTML = roomHTML;
-            
-        } else {
-            // Fallback: Original behavior for standalone version
-            console.log(`[${this.roomId}] Rendering as standalone view`);
-            
-            // Don't recreate if already exists
-            if (document.getElementById(`${this.roomId}View`)) return;
-            
-            // Inject safety modals
-            SafetyBar.injectModals();
-            
-            const viewHTML = `
-                <div class="view practice-space" id="${this.roomId}View">
-                    ${this.buildHeader()}
-                    ${this.buildBody()}
-                    ${this.buildInstructionsModal()}
-                    ${this.buildAdditionalModals ? this.buildAdditionalModals() : ''}
-                </div>
-            `;
-            
-            document.body.insertAdjacentHTML('beforeend', viewHTML);
-        }
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', viewHTML);
     }
     
     /**
