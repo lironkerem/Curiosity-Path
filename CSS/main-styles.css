@@ -4138,21 +4138,55 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 }
 
 /**
- * MOBILE NAVIGATION 4-BUTTON PATCH
- * Add this to your mobile-styles.css or include as a separate patch file
- * 
- * Changes the mobile bottom bar from 3 buttons to 4 buttons:
- * Mini Apps | Home | Community | Features
+ * COMMUNITY HUB NAVIGATION STYLES
+ * Adds desktop full-width nav button and mobile 4-button layout
  */
 
-/* ===== 4-BUTTON MOBILE BAR LAYOUT ===== */
+/* ===== DESKTOP: Full-Width Community Hub Button ===== */
+.nav-item-full-width {
+  grid-column: 1 / -1 !important; /* Span all columns */
+  width: 100% !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px !important;
+}
+
+.nav-item-full-width .nav-image {
+  width: 48px;
+  height: 48px;
+}
+
+.nav-item-full-width .nav-label {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--neuro-text);
+  display: block;
+}
+
+.nav-item-full-width:hover .nav-label {
+  color: var(--neuro-accent);
+}
+
+.nav-item-full-width.active {
+  background: var(--neuro-surface-raised);
+  box-shadow: 
+    inset 3px 3px 6px var(--neuro-shadow-dark),
+    inset -3px -3px 6px var(--neuro-shadow-light);
+}
+
+.nav-item-full-width.active .nav-label {
+  color: var(--neuro-accent);
+}
+
+/* ===== MOBILE: 4-Button Bottom Bar ===== */
 @media (max-width: 1024px) {
   
-  /* Update mobile bottom bar grid */
-  .mobile-bottom-bar {
+  .mobile-bottom-bar-4 {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Changed from 3 to 4 */
-    gap: 0;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
     position: fixed;
     bottom: 0;
     left: 0;
@@ -4164,7 +4198,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   }
 
-  /* Mobile tab button styling */
   .mobile-tab {
     display: flex;
     flex-direction: column;
@@ -4218,7 +4251,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
     font-weight: 600;
   }
 
-  /* Hover state (for devices that support it) */
+  /* Hover state */
   @media (hover: hover) {
     .mobile-tab:hover:not(.active) {
       background: var(--neuro-surface);
@@ -4238,12 +4271,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
     transform: scale(0.95);
   }
 
-  /* Community button specific styling (optional custom color) */
-  .mobile-tab.community.active span {
-    color: var(--neuro-accent, #6b9b37);
-  }
-
-  /* Adjust spacing for 4 buttons on smaller screens */
+  /* Responsive adjustments for smaller screens */
   @media (max-width: 375px) {
     .mobile-tab span {
       font-size: 10px;
@@ -4254,12 +4282,13 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
       height: 24px;
     }
 
-    .mobile-bottom-bar {
+    .mobile-bottom-bar-4 {
       padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+      gap: 2px;
     }
   }
 
-  /* Extra small screens - ultra compact */
+  /* Extra small screens */
   @media (max-width: 320px) {
     .mobile-tab {
       padding: 6px 2px;
@@ -4277,50 +4306,16 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   }
 }
 
-/* ===== MOBILE TAB INDICATOR ADJUSTMENT ===== */
-@media (max-width: 1024px) {
-  
-  /* Adjust dot spacing for 12 tabs (was 11) */
-  #mobile-tab-indicator {
-    gap: 1px; /* Tighter spacing to fit extra dot */
-  }
-
-  .tab-dot {
-    width: 22px !important;
-    height: 22px !important;
-    min-width: 22px !important;
-    min-height: 22px !important;
-  }
-
-  /* Further compress on smaller screens */
-  @media (max-width: 375px) {
-    .tab-dot {
-      width: 20px !important;
-      height: 20px !important;
-      min-width: 20px !important;
-      min-height: 20px !important;
-    }
-  }
-
-  @media (max-width: 320px) {
-    .tab-dot {
-      width: 18px !important;
-      height: 18px !important;
-      min-width: 18px !important;
-      min-height: 18px !important;
-    }
-  }
-}
-
 /* ===== SAFE AREA ADJUSTMENTS ===== */
 @supports (padding: env(safe-area-inset-bottom)) {
-  .mobile-bottom-bar {
+  .mobile-bottom-bar-4 {
     padding-bottom: calc(8px + env(safe-area-inset-bottom));
   }
 }
 
 /* ===== ACCESSIBILITY ===== */
-.mobile-tab:focus-visible {
+.mobile-tab:focus-visible,
+.nav-item-full-width:focus-visible {
   outline: 2px solid var(--neuro-accent);
   outline-offset: 2px;
 }
@@ -4328,7 +4323,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 .mobile-tab[aria-expanded="true"] {
   background: var(--neuro-surface);
 }
-
 /* =========================================================
    END OF MAIN STYLES
    ========================================================= */

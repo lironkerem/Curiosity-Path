@@ -213,38 +213,47 @@ export default class NavigationManager {
       this.vibrate(CONSTANTS.VIBRATION_MS);
     };
 
-    // Center button - dashboard
-    const centerHandler = () => {
-      this.closeSheets();
-      this.switchTab('dashboard', 'Main Dashboard');
-    };
-    const centerBtn = mobileBar.querySelector('.mobile-tab.center');
-    if (centerBtn) {
-      centerBtn.addEventListener('click', centerHandler);
-      centerBtn._clickHandler = centerHandler;
-    }
-
-    // Left button - miniapps
-    const leftHandler = (e) => {
-      openSheet('sheet-miniapps');
-      e.currentTarget.setAttribute('aria-expanded', 'true');
-    };
-    const leftBtn = mobileBar.querySelector('.left');
-    if (leftBtn) {
-      leftBtn.addEventListener('click', leftHandler);
-      leftBtn._clickHandler = leftHandler;
-    }
-
-    // Right button - features
-    const rightHandler = (e) => {
-      openSheet('sheet-features');
-      e.currentTarget.setAttribute('aria-expanded', 'true');
-    };
-    const rightBtn = mobileBar.querySelector('.right');
-    if (rightBtn) {
-      rightBtn.addEventListener('click', rightHandler);
-      rightBtn._clickHandler = rightHandler;
-    }
+    // Find all mobile buttons by data attribute
+    const mobileButtons = mobileBar.querySelectorAll('.mobile-tab');
+    
+    mobileButtons.forEach(btn => {
+      const popup = btn.dataset.popup;
+      const tab = btn.dataset.tab;
+      
+      if (popup === 'miniapps') {
+        // Mini Apps button
+        const handler = (e) => {
+          openSheet('sheet-miniapps');
+          e.currentTarget.setAttribute('aria-expanded', 'true');
+        };
+        btn.addEventListener('click', handler);
+        btn._clickHandler = handler;
+      } else if (popup === 'features') {
+        // Features button
+        const handler = (e) => {
+          openSheet('sheet-features');
+          e.currentTarget.setAttribute('aria-expanded', 'true');
+        };
+        btn.addEventListener('click', handler);
+        btn._clickHandler = handler;
+      } else if (tab === 'dashboard') {
+        // Home button
+        const handler = () => {
+          this.closeSheets();
+          this.switchTab('dashboard', 'Main Dashboard');
+        };
+        btn.addEventListener('click', handler);
+        btn._clickHandler = handler;
+      } else if (tab === 'community-hub') {
+        // Community button
+        const handler = () => {
+          this.closeSheets();
+          this.switchTab('community-hub', 'Community Hub');
+        };
+        btn.addEventListener('click', handler);
+        btn._clickHandler = handler;
+      }
+    });
 
     // Scrim click - close sheets
     const scrimHandler = () => this.closeSheets();
@@ -699,22 +708,29 @@ export default class NavigationManager {
           <li class="nav-item" data-tab="chatbot" data-label="AI Assistant" role="tab" aria-selected="false" tabindex="-1">
             <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Chat.png" alt="AI Assistant">
           </li>
+          <li class="nav-item nav-item-full-width" data-tab="community-hub" data-label="Community Hub" role="tab" aria-selected="false" tabindex="-1">
+            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Dashboard.png" alt="Community Hub">
+            <span class="nav-label">Community Hub</span>
+          </li>
         </ul>
       </nav>
 
       <!-- CTA FOOTER -->
       <div id="cta-footer-wrapper"></div>
 
-      <!-- MOBILE 3-BUTTON BAR -->
-      <nav id="mobile-bottom-bar" class="mobile-bottom-bar" role="navigation" aria-label="Mobile navigation">
-        <button class="mobile-tab left" data-popup="miniapps" aria-haspopup="true" aria-expanded="false">
+      <!-- MOBILE 4-BUTTON BAR -->
+      <nav id="mobile-bottom-bar" class="mobile-bottom-bar mobile-bottom-bar-4" role="navigation" aria-label="Mobile navigation">
+        <button class="mobile-tab" data-popup="miniapps" aria-haspopup="true" aria-expanded="false">
           <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/MiniApps.png" alt=""><span>Mini Apps</span>
         </button>
-        <button class="mobile-tab center active" data-tab="dashboard" aria-selected="true">
+        <button class="mobile-tab" data-popup="features" aria-haspopup="true" aria-expanded="false">
+          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Features.png" alt=""><span>Features</span>
+        </button>
+        <button class="mobile-tab active" data-tab="dashboard" aria-selected="true">
           <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Dashboard.png" alt=""><span>Home</span>
         </button>
-        <button class="mobile-tab right" data-popup="features" aria-haspopup="true" aria-expanded="false">
-          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Features.png" alt=""><span>Features</span>
+        <button class="mobile-tab" data-tab="community-hub" aria-selected="false">
+          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Dashboard.png" alt=""><span>Community</span>
         </button>
       </nav>
 
