@@ -1,11 +1,4 @@
-/**
- * CommunityHubEngine.js - PHASE 1: PLACEHOLDER VERSION
- * Shows a working placeholder - NO script loading to prevent freezing
- * We'll add the real loading in Phase 4 after testing
- * @author Aanandoham (Liron Kerem)
- * @copyright 2026
- */
-
+// Mini-Apps/CommunityHub/CommunityHubEngine.js - Big-App Integration Engine
 class CommunityHubEngine {
   constructor(app) {
     this.app = app;
@@ -14,13 +7,13 @@ class CommunityHubEngine {
 
   async render() {
     const tab = document.getElementById('community-hub-tab');
-    
+
     if (!tab) {
       console.error('[CommunityHub] Tab element not found');
       return;
     }
 
-    // Simple placeholder - NO LOADING, NO FREEZING
+    // Render wrapper with header
     tab.innerHTML = `
       <div style="background:var(--neuro-bg);padding:1.5rem;min-height:100vh;">
         <div class="universal-content">
@@ -34,59 +27,131 @@ class CommunityHubEngine {
             <span class="header-sub"></span>
           </header>
 
-          <div class="card" style="padding:3rem; text-align:center;">
-            <div style="font-size: 5rem; margin-bottom: 2rem;">🌟</div>
-            <h2 style="color: var(--neuro-text); font-size: 2.5rem; margin-bottom: 1rem;">
-              Community Hub
-            </h2>
-            <p style="color: var(--neuro-text-light); font-size: 1.2rem; line-height: 1.6; max-width: 600px; margin: 0 auto 2rem;">
-              Welcome to your sacred space for mindful practice and togetherness.
-            </p>
-
-            <div style="background: var(--neuro-surface); border-radius: var(--radius-lg); padding: 2rem; margin: 2rem auto; max-width: 800px;">
-              <h3 style="color: var(--neuro-text); margin-bottom: 1.5rem;">Coming Soon</h3>
-              
-              <div style="text-align: left; color: var(--neuro-text-light); line-height: 1.8;">
-                <p style="margin-bottom: 1rem;">✨ <strong>Practice Spaces</strong> - Silent meditation, guided sessions, breathwork, and more</p>
-                <p style="margin-bottom: 1rem;">🌙 <strong>Lunar Cycles</strong> - Align your practice with moon phases</p>
-                <p style="margin-bottom: 1rem;">☀️ <strong>Solar Seasons</strong> - Honor the wheel of the year</p>
-                <p style="margin-bottom: 1rem;">💬 <strong>Community Chat</strong> - Connect with fellow practitioners</p>
-                <p style="margin-bottom: 1rem;">🎯 <strong>Collective Field</strong> - Share intentions and reflections</p>
-              </div>
-            </div>
-
-            <div style="margin-top: 3rem;">
-              <a href="https://chat.whatsapp.com/HQGczWRf70tGqIspByIrL4" 
-                 target="_blank" 
-                 rel="noopener noreferrer"
-                 style="display: inline-flex; align-items: center; gap: 12px; padding: 16px 32px; background: #25D366; color: white; text-decoration: none; border-radius: var(--radius-md); font-size: 1.1rem; font-weight: 600; transition: transform 0.2s;"
-                 onmouseover="this.style.transform='scale(1.05)'"
-                 onmouseout="this.style.transform='scale(1)'">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" 
-                     alt="WhatsApp" 
-                     width="28" 
-                     height="28"
-                     style="filter: brightness(0) invert(1);">
-                <span>Join Community Chat Now</span>
-              </a>
-            </div>
-
-            <p style="color: var(--neuro-text-lighter); font-size: 0.9rem; margin-top: 3rem; font-style: italic;">
-              The full Community Hub experience is being prepared with love and intention.
-            </p>
+          <div class="card" style="padding:2rem">
+            <main id="community-hub-main-content"></main>
           </div>
 
         </div>
       </div>
     `;
 
-    this.initialized = true;
-    console.log('✅ Community Hub placeholder rendered');
+    // Initialize once
+    if (!this.initialized) {
+      await this.initializeCommunityHub();
+      this.initialized = true;
+    } else if (window.Core?.init) {
+      window.Core.init();
+    }
   }
 
-  destroy() {
-    this.initialized = false;
-    console.log('🗑️ Community Hub destroyed');
+  async initializeCommunityHub() {
+    try {
+      console.log('🌟 Loading Community Hub...');
+
+      // Load stylesheets
+      this.loadStylesheet('/Mini-Apps/CommunityHub/community-hub.css');
+      this.loadStylesheet('/Mini-Apps/CommunityHub/lunar-styles.css');
+      this.loadStylesheet('/Mini-Apps/CommunityHub/solar-styles.css');
+
+      // Load external dependencies
+      await this.loadScript('https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js');
+      await this.loadScript('https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.min.js');
+
+      // Load core system
+      await this.loadScript('/Mini-Apps/CommunityHub/js/core.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/supabase-client.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/rituals.js');
+
+      // Load modules
+      await this.loadScript('/Mini-Apps/CommunityHub/js/profile-module.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/community-module.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/SafetyBar.js');
+
+      // Load practice room base & mixins
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/PracticeRoom.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/mixins/YouTubePlayerMixin.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/mixins/CycleStateMixin.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/mixins/ChatMixin.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/mixins/SoundSettingsMixin.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/mixins/TimerMixin.js');
+
+      // Load practice rooms
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/silent-room.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/guided-room.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/osho-room.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/breathwork-room.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/deepwork-room.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/campfire-room.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/tarot-room.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/reiki-room.js');
+
+      // Load lunar system
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunar-core.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunar-ui.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunar-config.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunarengine.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/newmoon-room.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/waxingmoon-room.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/fullmoon-room.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/waningmoon-room.js');
+
+      // Load solar system
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-constants.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-config.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-ui.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-base-room.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/winter-solar-room.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/spring-solar-room.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/summer-solar-room.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/autumn-solar-room.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solarengine.js');
+
+      // Load dynamic sections
+      await this.loadScript('/Mini-Apps/CommunityHub/js/active-members.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/collective-field.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/resonance.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/upcoming-events.js');
+
+      // Initialize Core
+      if (window.Core?.init) {
+        window.Core.init();
+        console.log('✅ Community Hub loaded successfully');
+      } else {
+        throw new Error('Core module not found');
+      }
+
+    } catch (err) {
+      console.error('❌ Failed to load Community Hub:', err);
+      const main = document.getElementById('community-hub-main-content');
+      if (main) {
+        main.innerHTML = `
+          <div class="card" style="text-align:center;padding:var(--spacing-xl)">
+            <h3 style="color:var(--neuro-text)">Failed to Load</h3>
+            <p style="color:var(--neuro-text-light)">Please refresh the page and try again.</p>
+            <p style="color:var(--neuro-text-lighter);font-size:0.9rem;margin-top:1rem">${err.message}</p>
+          </div>
+        `;
+      }
+    }
+  }
+
+  loadStylesheet(href) {
+    if (document.querySelector(`link[href="${href}"]`)) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    document.head.appendChild(link);
+  }
+
+  loadScript(src) {
+    return new Promise((resolve, reject) => {
+      if (document.querySelector(`script[src="${src}"]`)) return resolve();
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = resolve;
+      script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+      document.body.appendChild(script);
+    });
   }
 }
 
