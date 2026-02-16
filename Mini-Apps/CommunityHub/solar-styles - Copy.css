@@ -74,27 +74,14 @@
    BASE LAYOUT & BACKGROUND
    ======================================== */
 
-/* IMPORTANT: Only apply background to solar room container, not body */
-.solar-content-wrapper[data-season] {
-  position: relative;
-  min-height: 100vh;
-}
-
-.solar-content-wrapper[data-season]::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+body.solar-room-active[data-season] {
   background: linear-gradient(135deg, 
     var(--season-bg-start) 0%, 
     var(--season-bg-mid1) 25%, 
     var(--season-bg-mid2) 50%, 
     var(--season-bg-mid3) 75%, 
-    var(--season-bg-end) 100%);
-  z-index: -1;
-  pointer-events: none;
+    var(--season-bg-end) 100%) !important;
+  background-attachment: fixed !important;
 }
 
 .solar-floating-bg {
