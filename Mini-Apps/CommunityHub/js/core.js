@@ -325,19 +325,14 @@ const Core = {
                 }
                 
                 // Update view state within hub
-                const views = document.querySelectorAll('.view');
-                views.forEach(view => view.classList.remove('active'));
-                
-                const hubView = document.getElementById('hubView');
-                if (hubView) {
-                    hubView.classList.add('active');
-                }
+                const views = document.querySelectorAll('#hubView');
+                views.forEach(view => view.classList.add('active'));
                 
                 this.state.currentView = 'hubView';
                 console.log('Navigated to hubView');
                 
             } else if (viewId === 'practiceRoomView') {
-                // Entering practice room - show fullscreen container, hide hub tab
+                // Entering practice room - show fullscreen container, COMPLETELY HIDE hub tab
                 if (fullscreenContainer) {
                     fullscreenContainer.style.display = 'block';
                     
@@ -347,6 +342,8 @@ const Core = {
                         practiceView.classList.add('active');
                     }
                 }
+                
+                // CRITICAL: Completely hide the entire community-hub-tab (removes header, card, everything)
                 if (hubTab) {
                     hubTab.style.display = 'none';
                 }
