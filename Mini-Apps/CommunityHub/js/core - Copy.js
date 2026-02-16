@@ -307,27 +307,89 @@ const Core = {
     
     /**
      * Navigate between different views in the application
+     * Handles both in-tab hub views and fullscreen practice rooms
      * @param {string} viewId - ID of the view to navigate to
      */
     navigateTo(viewId) {
         try {
-            // Hide all views
-            const views = document.querySelectorAll('.view');
-            views.forEach(view => {
-                view.classList.remove('active');
-            });
-
-            // Show target view
-            const targetView = document.getElementById(viewId);
-            if (targetView) {
-                targetView.classList.add('active');
-                this.state.currentView = viewId;
-                console.log(`Navigated to ${viewId}`);
+            console.log(`[Core] navigateTo called with viewId: ${viewId}`);
+            
+            const fullscreenContainer = document.getElementById('communityHubFullscreenContainer');
+            const hubTab = document.getElementById('community-hub-tab');
+            
+            console.log(`[Core] fullscreenContainer exists: ${!!fullscreenContainer}`);
+            console.log(`[Core] hubTab exists: ${!!hubTab}`);
+            
+            // Check if this is a room view (any view ending with 'View' except 'hubView')
+            const isRoomView = viewId !== 'hubView' && (
+                viewId === 'practiceRoomView' || 
+                viewId.endsWith('View') ||
+                viewId.includes('Room') ||
+                viewId.includes('Practice')
+            );
+            
+            if (viewId === 'hubView') {
+                // Returning to hub - hide fullscreen container, show hub tab
+                if (fullscreenContainer) {
+                    fullscreenContainer.style.display = 'none';
+                    console.log('[Core] Fullscreen container hidden');
+                }
+                if (hubTab) {
+                    hubTab.style.display = 'block';
+                    console.log('[Core] Hub tab shown');
+                }
+                
+                // Update view state within hub
+                const views = document.querySelectorAll('#hubView');
+                views.forEach(view => view.classList.add('active'));
+                
+                this.state.currentView = 'hubView';
+                console.log('[Core] Navigated to hubView');
+                
+            } else if (isRoomView) {
+                // Entering practice room - show fullscreen container, COMPLETELY HIDE hub tab
+                console.log('[Core] Entering practice room...');
+                
+                if (fullscreenContainer) {
+                    fullscreenContainer.style.display = 'block';
+                    console.log('[Core] Fullscreen container shown');
+                    
+                    // Activate practice room view within fullscreen container
+                    const practiceView = fullscreenContainer.querySelector('#practiceRoomView');
+                    if (practiceView) {
+                        practiceView.classList.add('active');
+                        console.log('[Core] Practice view activated');
+                    }
+                }
+                
+                // CRITICAL: Completely hide the entire community-hub-tab
+                if (hubTab) {
+                    hubTab.style.display = 'none';
+                    console.log('[Core] Hub tab hidden - display:', window.getComputedStyle(hubTab).display);
+                } else {
+                    console.error('[Core] Hub tab not found! Cannot hide it.');
+                }
+                
+                this.state.currentView = viewId; // Store the actual room view ID
+                console.log(`[Core] Navigated to ${viewId} (fullscreen mode)`);
+                
             } else {
-                console.error(`View not found: ${viewId}`);
+                // Fallback for other views (shouldn't happen in normal flow)
+                console.warn(`[Core] Unexpected viewId: ${viewId}`);
+                const views = document.querySelectorAll('.view');
+                views.forEach(view => view.classList.remove('active'));
+                
+                const targetView = document.getElementById(viewId);
+                if (targetView) {
+                    targetView.classList.add('active');
+                    this.state.currentView = viewId;
+                    console.log(`[Core] Navigated to ${viewId}`);
+                } else {
+                    console.error(`[Core] View not found: ${viewId}`);
+                }
             }
         } catch (error) {
-            console.error('Navigation error:', error);
+            console.error('[Core] Navigation error:', error);
         }
     },
 
