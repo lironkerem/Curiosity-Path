@@ -75,27 +75,6 @@
         <span>Join our Community Chat</span>
     </a>
 
-    <!-- Ritual Overlays -->
-    <div class="ritual-overlay opening" id="openingOverlay" role="dialog" aria-labelledby="openingRitualText">
-        <div class="ritual-card">
-            <div class="ritual-candle" aria-hidden="true"></div>
-            <div class="ritual-text" id="openingRitualText">"Enter with intention, leave with gratitude"</div>
-            <button class="ritual-btn" data-action="ritual-opening" aria-label="Enter the space">
-                Enter the Space
-            </button>
-        </div>
-    </div>
-
-    <div class="ritual-overlay closing" id="closingOverlay" role="dialog" aria-labelledby="closingRitualText">
-        <div class="ritual-card">
-            <div class="ritual-candle" aria-hidden="true"></div>
-            <div class="ritual-text" id="closingRitualText">"Thank you for holding space with us"</div>
-            <button class="ritual-btn" data-action="ritual-closing" aria-label="Close gently">
-                Close Gently
-            </button>
-        </div>
-    </div>
-
     <!-- Main Hub View -->
     <div id="hubView" class="view active">
         <!-- Profile Hero - Dynamically rendered -->
@@ -149,20 +128,46 @@
         </div>
     </div>
 
-    <!-- Practice Room View -->
-    <div id="practiceRoomView" class="view">
-        <div class="practice-room-container">
-            <button class="back-to-hub-btn" 
-                    data-action="back-to-hub" 
-                    aria-label="Back to hub">
-                ← Back to Hub
-            </button>
-            <div id="dynamicRoomContent"></div>
-        </div>
-    </div>
-
     <!-- Toast Notifications -->
     <div class="toast" id="toast" role="alert" aria-live="assertive"></div>
+
+    <!-- ========================================================================== -->
+    <!-- FULLSCREEN ROOM CONTAINER (outside main flow for fullscreen rooms) -->
+    <!-- ========================================================================== -->
+    <div id="communityHubFullscreenContainer" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; background: var(--background); display: none; overflow: auto;">
+        <!-- Ritual Overlays -->
+        <div class="ritual-overlay opening" id="openingOverlay" role="dialog" aria-labelledby="openingRitualText">
+            <div class="ritual-card">
+                <div class="ritual-candle" aria-hidden="true"></div>
+                <div class="ritual-text" id="openingRitualText">"Enter with intention, leave with gratitude"</div>
+                <button class="ritual-btn" data-action="ritual-opening" aria-label="Enter the space">
+                    Enter the Space
+                </button>
+            </div>
+        </div>
+
+        <div class="ritual-overlay closing" id="closingOverlay" role="dialog" aria-labelledby="closingRitualText">
+            <div class="ritual-card">
+                <div class="ritual-candle" aria-hidden="true"></div>
+                <div class="ritual-text" id="closingRitualText">"Thank you for holding space with us"</div>
+                <button class="ritual-btn" data-action="ritual-closing" aria-label="Close gently">
+                    Close Gently
+                </button>
+            </div>
+        </div>
+
+        <!-- Practice Room View -->
+        <div id="practiceRoomView" class="view" style="min-height: 100vh; padding: 20px;">
+            <div class="practice-room-container">
+                <button class="back-to-hub-btn" 
+                        data-action="back-to-hub" 
+                        aria-label="Back to hub">
+                    ← Back to Hub
+                </button>
+                <div id="dynamicRoomContent"></div>
+            </div>
+        </div>
+    </div>
 
     <!-- ========================================================================== -->
     <!-- CORE SCRIPTS - Load in strict dependency order -->

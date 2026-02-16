@@ -307,66 +307,24 @@ const Core = {
     
     /**
      * Navigate between different views in the application
-     * Handles both in-tab hub views and fullscreen practice rooms
      * @param {string} viewId - ID of the view to navigate to
      */
     navigateTo(viewId) {
         try {
-            const fullscreenContainer = document.getElementById('communityHubFullscreenContainer');
-            const hubTab = document.getElementById('community-hub-tab');
-            
-            if (viewId === 'hubView') {
-                // Returning to hub - hide fullscreen container, show hub tab
-                if (fullscreenContainer) {
-                    fullscreenContainer.style.display = 'none';
-                }
-                if (hubTab) {
-                    hubTab.style.display = 'block';
-                }
-                
-                // Update view state within hub
-                const views = document.querySelectorAll('.view');
-                views.forEach(view => view.classList.remove('active'));
-                
-                const hubView = document.getElementById('hubView');
-                if (hubView) {
-                    hubView.classList.add('active');
-                }
-                
-                this.state.currentView = 'hubView';
-                console.log('Navigated to hubView');
-                
-            } else if (viewId === 'practiceRoomView') {
-                // Entering practice room - show fullscreen container, hide hub tab
-                if (fullscreenContainer) {
-                    fullscreenContainer.style.display = 'block';
-                    
-                    // Activate practice room view within fullscreen container
-                    const practiceView = fullscreenContainer.querySelector('#practiceRoomView');
-                    if (practiceView) {
-                        practiceView.classList.add('active');
-                    }
-                }
-                if (hubTab) {
-                    hubTab.style.display = 'none';
-                }
-                
-                this.state.currentView = 'practiceRoomView';
-                console.log('Navigated to practiceRoomView (fullscreen)');
-                
+            // Hide all views
+            const views = document.querySelectorAll('.view');
+            views.forEach(view => {
+                view.classList.remove('active');
+            });
+
+            // Show target view
+            const targetView = document.getElementById(viewId);
+            if (targetView) {
+                targetView.classList.add('active');
+                this.state.currentView = viewId;
+                console.log(`Navigated to ${viewId}`);
             } else {
-                // Fallback for other views
-                const views = document.querySelectorAll('.view');
-                views.forEach(view => view.classList.remove('active'));
-                
-                const targetView = document.getElementById(viewId);
-                if (targetView) {
-                    targetView.classList.add('active');
-                    this.state.currentView = viewId;
-                    console.log(`Navigated to ${viewId}`);
-                } else {
-                    console.error(`View not found: ${viewId}`);
-                }
+                console.error(`View not found: ${viewId}`);
             }
         } catch (error) {
             console.error('Navigation error:', error);

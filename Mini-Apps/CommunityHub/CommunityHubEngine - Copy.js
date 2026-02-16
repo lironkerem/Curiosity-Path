@@ -13,7 +13,7 @@ class CommunityHubEngine {
       return;
     }
 
-    // Render Community Hub dashboard (stays in tab container)
+    // Render full Community Hub HTML structure
     tab.innerHTML = `
       <div style="background:var(--neuro-bg);padding:1.5rem;min-height:100vh;">
         <div class="universal-content">
@@ -43,6 +43,27 @@ class CommunityHubEngine {
                      height="24">
                 <span>Join our Community Chat</span>
             </a>
+
+            <!-- Ritual Overlays -->
+            <div class="ritual-overlay opening" id="openingOverlay" role="dialog" aria-labelledby="openingRitualText">
+                <div class="ritual-card">
+                    <div class="ritual-candle" aria-hidden="true"></div>
+                    <div class="ritual-text" id="openingRitualText">"Enter with intention, leave with gratitude"</div>
+                    <button class="ritual-btn" data-action="ritual-opening" aria-label="Enter the space">
+                        Enter the Space
+                    </button>
+                </div>
+            </div>
+
+            <div class="ritual-overlay closing" id="closingOverlay" role="dialog" aria-labelledby="closingRitualText">
+                <div class="ritual-card">
+                    <div class="ritual-candle" aria-hidden="true"></div>
+                    <div class="ritual-text" id="closingRitualText">"Thank you for holding space with us"</div>
+                    <button class="ritual-btn" data-action="ritual-closing" aria-label="Close gently">
+                        Close Gently
+                    </button>
+                </div>
+            </div>
 
             <!-- Main Hub View -->
             <div id="hubView" class="view active">
@@ -97,6 +118,18 @@ class CommunityHubEngine {
                 </div>
             </div>
 
+            <!-- Practice Room View -->
+            <div id="practiceRoomView" class="view">
+                <div class="practice-room-container">
+                    <button class="back-to-hub-btn" 
+                            data-action="back-to-hub" 
+                            aria-label="Back to hub">
+                        ← Back to Hub
+                    </button>
+                    <div id="dynamicRoomContent"></div>
+                </div>
+            </div>
+
             <!-- Toast Notifications -->
             <div class="toast" id="toast" role="alert" aria-live="assertive"></div>
           </div>
@@ -105,9 +138,6 @@ class CommunityHubEngine {
       </div>
     `;
 
-    // Create fullscreen room container at body level (outside all app containers)
-    this.createFullscreenRoomContainer();
-
     // Initialize once
     if (!this.initialized) {
       await this.initializeCommunityHub();
@@ -115,69 +145,6 @@ class CommunityHubEngine {
     } else if (window.Core?.init) {
       window.Core.init();
     }
-  }
-
-  /**
-   * Creates a fullscreen container for practice rooms at body level
-   * This allows rooms to break free from the app's card containers
-   */
-  createFullscreenRoomContainer() {
-    // Check if container already exists
-    if (document.getElementById('communityHubFullscreenContainer')) {
-      return;
-    }
-
-    const container = document.createElement('div');
-    container.id = 'communityHubFullscreenContainer';
-    container.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 9999;
-      background: var(--background);
-      display: none;
-      overflow: auto;
-    `;
-
-    container.innerHTML = `
-      <!-- Ritual Overlays (at fullscreen level) -->
-      <div class="ritual-overlay opening" id="openingOverlay" role="dialog" aria-labelledby="openingRitualText">
-          <div class="ritual-card">
-              <div class="ritual-candle" aria-hidden="true"></div>
-              <div class="ritual-text" id="openingRitualText">"Enter with intention, leave with gratitude"</div>
-              <button class="ritual-btn" data-action="ritual-opening" aria-label="Enter the space">
-                  Enter the Space
-              </button>
-          </div>
-      </div>
-
-      <div class="ritual-overlay closing" id="closingOverlay" role="dialog" aria-labelledby="closingRitualText">
-          <div class="ritual-card">
-              <div class="ritual-candle" aria-hidden="true"></div>
-              <div class="ritual-text" id="closingRitualText">"Thank you for holding space with us"</div>
-              <button class="ritual-btn" data-action="ritual-closing" aria-label="Close gently">
-                  Close Gently
-              </button>
-          </div>
-      </div>
-
-      <!-- Practice Room View (fullscreen) -->
-      <div id="practiceRoomView" class="view" style="min-height: 100vh; padding: 20px;">
-          <div class="practice-room-container">
-              <button class="back-to-hub-btn" 
-                      data-action="back-to-hub" 
-                      aria-label="Back to hub">
-                  ← Back to Hub
-              </button>
-              <div id="dynamicRoomContent"></div>
-          </div>
-      </div>
-    `;
-
-    document.body.appendChild(container);
-    console.log('✓ Fullscreen room container created');
   }
 
   async initializeCommunityHub() {
