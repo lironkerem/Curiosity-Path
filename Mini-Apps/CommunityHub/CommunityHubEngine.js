@@ -13,7 +13,7 @@ class CommunityHubEngine {
       return;
     }
 
-    // Render wrapper with header
+    // Render full Community Hub HTML structure
     tab.innerHTML = `
       <div style="background:var(--neuro-bg);padding:1.5rem;min-height:100vh;">
         <div class="universal-content">
@@ -28,7 +28,110 @@ class CommunityHubEngine {
           </header>
 
           <div class="card" style="padding:2rem">
-            <main id="community-hub-main-content"></main>
+            <!-- Season Flash Notification -->
+            <div class="season-flash" id="seasonFlash" aria-live="polite"></div>
+
+            <!-- WhatsApp Community Link -->
+            <a href="https://chat.whatsapp.com/HQGczWRf70tGqIspByIrL4" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="whatsapp-float"
+               aria-label="Join our Community Chat on WhatsApp">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" 
+                     alt="WhatsApp" 
+                     width="24" 
+                     height="24">
+                <span>Join our Community Chat</span>
+            </a>
+
+            <!-- Ritual Overlays -->
+            <div class="ritual-overlay opening" id="openingOverlay" role="dialog" aria-labelledby="openingRitualText">
+                <div class="ritual-card">
+                    <div class="ritual-candle" aria-hidden="true"></div>
+                    <div class="ritual-text" id="openingRitualText">"Enter with intention, leave with gratitude"</div>
+                    <button class="ritual-btn" data-action="ritual-opening" aria-label="Enter the space">
+                        Enter the Space
+                    </button>
+                </div>
+            </div>
+
+            <div class="ritual-overlay closing" id="closingOverlay" role="dialog" aria-labelledby="closingRitualText">
+                <div class="ritual-card">
+                    <div class="ritual-candle" aria-hidden="true"></div>
+                    <div class="ritual-text" id="closingRitualText">"Thank you for holding space with us"</div>
+                    <button class="ritual-btn" data-action="ritual-closing" aria-label="Close gently">
+                        Close Gently
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Hub View -->
+            <div id="hubView" class="view active">
+                <!-- Profile Hero - Dynamically rendered -->
+                <div id="profileHeroContainer"></div>
+
+                <!-- Sanctuary Content -->
+                <div class="sanctuary-content">
+                    <!-- Active Members - Dynamically rendered -->
+                    <div id="activeMembersContainer"></div>
+
+                    <!-- Collective Field - Dynamically rendered -->
+                    <div id="collectiveFieldContainer"></div>
+
+                    <!-- Resonance - Dynamically rendered (currently disabled) -->
+                    <div id="resonanceContainer"></div>
+
+                    <!-- Practice Spaces Section -->
+                    <section class="section" aria-labelledby="practiceSpacesTitle">
+                        <div class="section-header">
+                            <div class="section-title" id="practiceSpacesTitle">Practice Spaces</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Choose your practice</div>
+                        </div>
+                        <div class="rooms-grid" id="roomsGrid">
+                            <!-- Rooms dynamically rendered by core.js -->
+                        </div>
+                    </section>
+
+                    <!-- Celestial Cycles Section -->
+                    <section class="section" aria-labelledby="celestialCyclesTitle">
+                        <div class="section-header">
+                            <div class="section-title" id="celestialCyclesTitle">Celestial Cycles</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Practice with nature's rhythms</div>
+                        </div>
+                        
+                        <!-- Lunar Phases -->
+                        <div id="lunarContainer" class="celestial-container">
+                            <!-- Lunar rooms dynamically rendered -->
+                        </div>
+
+                        <!-- Solar Seasons -->
+                        <div id="solarContainer" class="celestial-container">
+                            <!-- Solar rooms dynamically rendered -->
+                        </div>
+                    </section>
+
+                    <!-- Community Reflections - Dynamically rendered -->
+                    <div id="communityReflectionsContainer"></div>
+
+                    <!-- Upcoming Events - Dynamically rendered -->
+                    <div id="upcomingEventsContainer"></div>
+                </div>
+            </div>
+
+            <!-- Practice Room View -->
+            <div id="practiceRoomView" class="view">
+                <div class="practice-room-container">
+                    <button class="back-to-hub-btn" 
+                            data-action="back-to-hub" 
+                            aria-label="Back to hub">
+                        ← Back to Hub
+                    </button>
+                    <div id="dynamicRoomContent"></div>
+                </div>
+            </div>
+
+            <!-- Toast Notifications -->
+            <div class="toast" id="toast" role="alert" aria-live="assertive"></div>
           </div>
 
         </div>
