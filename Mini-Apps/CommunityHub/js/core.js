@@ -312,16 +312,23 @@ const Core = {
      */
     navigateTo(viewId) {
         try {
+            console.log(`[Core] navigateTo called with viewId: ${viewId}`);
+            
             const fullscreenContainer = document.getElementById('communityHubFullscreenContainer');
             const hubTab = document.getElementById('community-hub-tab');
+            
+            console.log(`[Core] fullscreenContainer exists: ${!!fullscreenContainer}`);
+            console.log(`[Core] hubTab exists: ${!!hubTab}`);
             
             if (viewId === 'hubView') {
                 // Returning to hub - hide fullscreen container, show hub tab
                 if (fullscreenContainer) {
                     fullscreenContainer.style.display = 'none';
+                    console.log('[Core] Fullscreen container hidden');
                 }
                 if (hubTab) {
                     hubTab.style.display = 'block';
+                    console.log('[Core] Hub tab shown');
                 }
                 
                 // Update view state within hub
@@ -329,27 +336,34 @@ const Core = {
                 views.forEach(view => view.classList.add('active'));
                 
                 this.state.currentView = 'hubView';
-                console.log('Navigated to hubView');
+                console.log('[Core] Navigated to hubView');
                 
             } else if (viewId === 'practiceRoomView') {
                 // Entering practice room - show fullscreen container, COMPLETELY HIDE hub tab
+                console.log('[Core] Entering practice room...');
+                
                 if (fullscreenContainer) {
                     fullscreenContainer.style.display = 'block';
+                    console.log('[Core] Fullscreen container shown');
                     
                     // Activate practice room view within fullscreen container
                     const practiceView = fullscreenContainer.querySelector('#practiceRoomView');
                     if (practiceView) {
                         practiceView.classList.add('active');
+                        console.log('[Core] Practice view activated');
                     }
                 }
                 
-                // CRITICAL: Completely hide the entire community-hub-tab (removes header, card, everything)
+                // CRITICAL: Completely hide the entire community-hub-tab
                 if (hubTab) {
                     hubTab.style.display = 'none';
+                    console.log('[Core] Hub tab hidden - display:', window.getComputedStyle(hubTab).display);
+                } else {
+                    console.error('[Core] Hub tab not found! Cannot hide it.');
                 }
                 
                 this.state.currentView = 'practiceRoomView';
-                console.log('Navigated to practiceRoomView (fullscreen)');
+                console.log('[Core] Navigated to practiceRoomView (fullscreen)');
                 
             } else {
                 // Fallback for other views
@@ -360,13 +374,13 @@ const Core = {
                 if (targetView) {
                     targetView.classList.add('active');
                     this.state.currentView = viewId;
-                    console.log(`Navigated to ${viewId}`);
+                    console.log(`[Core] Navigated to ${viewId}`);
                 } else {
-                    console.error(`View not found: ${viewId}`);
+                    console.error(`[Core] View not found: ${viewId}`);
                 }
             }
         } catch (error) {
-            console.error('Navigation error:', error);
+            console.error('[Core] Navigation error:', error);
         }
     },
 
