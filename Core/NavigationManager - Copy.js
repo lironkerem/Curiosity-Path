@@ -14,7 +14,7 @@ import UserTab from './User-Tab.js';
 const SWIPE_ORDER = [
   'dashboard', 'energy', 'tarot', 'gratitude', 'happiness',
   'journal', 'meditations', 'flip-script', 'calculator',
-  'shadow-alchemy', 'community-hub', 'karma-shop'
+  'shadow-alchemy', 'karma-shop'
 ];
 
 const CONSTANTS = {
