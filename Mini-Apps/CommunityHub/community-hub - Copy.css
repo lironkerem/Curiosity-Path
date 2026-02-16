@@ -633,7 +633,7 @@ body.dev-mode .practice-room.in-session::before {
 /* PRACTICE SPACE VIEW */
 .practice-space {
     min-height: 100vh;
-    background: transparent;
+    background: var(--season-bg);
     position: relative;
 }
 
