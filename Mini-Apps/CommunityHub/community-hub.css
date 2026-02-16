@@ -1,68 +1,113 @@
 /* =========================================================
    COMMUNITY HUB STYLES
-   Inherits from Digital Curiosity main-styles.css
+   Aligned with Digital Curiosity Earth-Luxury Design System
    ========================================================= */
+
+/* ===== BASE RESET ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 /* ===== ROOT VARIABLES (Inherits from main app) ===== */
 :root {
-    /* Community Hub specific colors - using main app variables */
-    --season-bg: var(--neuro-bg);
-    --season-accent: var(--neuro-accent);
-    --season-mood: var(--neuro-bg-lightest);
-    --season-text: var(--neuro-text);
+    /* Use earth-luxury palette from main app */
+    --season-bg: var(--neuro-bg, #c4ad91);
+    --season-accent: var(--neuro-accent, #6b9b37);
+    --season-mood: var(--neuro-bg-lightest, #e0d4bf);
+    --season-text: var(--neuro-text, #3d2f1f);
     
-    /* Practice status rings using earth tones from main app */
-    --ring-silent: #6ba3b3;          /* calm blue-teal (same as --neuro-info) */
-    --ring-available: var(--neuro-accent);
-    --ring-guiding: var(--neuro-warning);
-    --ring-deep: var(--neuro-wood);
-    --ring-resonant: var(--neuro-forest);
-    --ring-offline: var(--neuro-text-dim);
+    /* Practice status rings using earth tones */
+    --ring-silent: #6ba3b3;          /* calm blue-teal */
+    --ring-available: #6b9b37;       /* vibrant leaf green */
+    --ring-guiding: #d4a574;         /* warm amber */
+    --ring-deep: #8b7355;            /* deep wood brown */
+    --ring-resonant: #6b9b37;        /* forest green */
+    --ring-offline: #a89279;         /* muted taupe */
     
-    /* Aliases for community hub components - point to main app */
-    --primary: var(--neuro-accent);
-    --surface: var(--neuro-bg-lighter);
-    --text: var(--neuro-text);
-    --text-muted: var(--neuro-text-light);
-    --text-secondary: var(--neuro-text-lighter);
-    --border: var(--neuro-shadow-light);
-    --background: var(--neuro-bg);
-    --accent: var(--neuro-accent);
+    --primary: var(--neuro-accent, #6b9b37);
+    --surface: var(--neuro-bg-lighter, #d4c0a8);
+    --text: var(--neuro-text, #3d2f1f);
+    --text-muted: var(--neuro-text-light, #6d5a42);
+    --border: var(--neuro-shadow-light, #e0d4bf);
     
-    /* Use main app's shadows directly */
-    --shadow-raised: var(--shadow-raised);
-    --shadow-raised-lg: var(--shadow-raised-lg);
-    --shadow-raised-hover: var(--shadow-raised-hover);
-    --shadow-inset: var(--shadow-inset);
-    --shadow-inset-sm: var(--shadow-inset-sm);
-    --shadow-inset-lg: var(--shadow-inset-lg);
-    --shadow-glow: var(--shadow-glow);
+    /* Neomorphic shadows from main app */
+    --shadow-raised: 10px 10px 20px var(--neuro-shadow-dark, #a08968), -6px -6px 12px var(--neuro-shadow-light, #e0d4bf), inset 1px 1px 2px var(--neuro-highlight, #ebe2d4);
+    --shadow-raised-lg: 18px 18px 36px var(--neuro-shadow-darker, #8b7355), -12px -12px 24px var(--neuro-shadow-light, #e0d4bf), inset 2px 2px 4px var(--neuro-highlight, #ebe2d4);
+    --shadow-raised-hover: 14px 14px 28px var(--neuro-shadow-dark, #a08968), -10px -10px 20px var(--neuro-shadow-light, #e0d4bf), inset 1px 1px 2px var(--neuro-highlight, #ebe2d4);
+    --shadow-inset: inset 5px 5px 10px var(--neuro-shadow-dark, #a08968), inset -3px -3px 6px var(--neuro-shadow-light, #e0d4bf);
+    --shadow-inset-sm: inset 3px 3px 6px var(--neuro-shadow-dark, #a08968), inset -2px -2px 4px var(--neuro-shadow-light, #e0d4bf);
+    --shadow-inset-lg: inset 8px 8px 16px var(--neuro-shadow-darker, #8b7355), inset -6px -6px 12px var(--neuro-shadow-light, #e0d4bf);
+    --shadow-glow: 0 0 20px rgba(107,155,55,.35), 0 0 40px rgba(107,155,55,.25), 0 0 60px rgba(107,155,55,.15);
     
-    /* Use main app's typography */
-    --serif: Georgia, 'Times New Roman', serif;
+    --serif: 'Georgia', 'Times New Roman', serif;
     
-    /* Use main app's spacing & radius */
-    --radius-sm: var(--radius-sm);
-    --radius-md: var(--radius-md);
-    --radius-lg: var(--radius-lg);
-    --radius-xl: var(--radius-xl);
-    --radius-2xl: var(--radius-2xl);
-    --radius-full: var(--radius-full);
-    --spacing-xs: var(--spacing-xs);
-    --spacing-sm: var(--spacing-sm);
-    --spacing-md: var(--spacing-md);
-    --spacing-lg: var(--spacing-lg);
-    --spacing-xl: var(--spacing-xl);
-    --spacing-2xl: var(--spacing-2xl);
-    --transition-fast: var(--transition-fast);
-    --transition-normal: var(--transition-normal);
-    --transition-slow: var(--transition-slow);
+    /* Spacing from main app */
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 20px;
+    --radius-xl: 24px;
+    --radius-2xl: 30px;
+    --radius-full: 9999px;
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+    --transition-fast: 150ms ease-in-out;
+    --transition-normal: 300ms ease-in-out;
+    --transition-slow: 500ms ease-in-out;
 }
 
 /* ===== SEASONAL VARIATIONS ===== */
-/* Handled by main-styles.css - Community Hub inherits from body classes */
+/* These override the root variables based on body class */
 
-/* ===== COMMUNITY HUB VIEWS ===== */
+/* WINTER (Default earthy palette - already in :root) */
+body.winter {
+    --season-bg: #c4ad91;
+    --season-accent: #6ba3b3;        /* Cool blue-teal for winter */
+    --season-mood: #e0d4bf;
+    --season-text: #3d2f1f;
+    --ring-silent: #6ba3b3;          /* Winter's calm blue */
+}
+
+/* SPRING (Fresh greens and light tones) */
+body.spring { 
+    --season-bg: #d4dfc0; 
+    --season-accent: #8bc34a; 
+    --season-mood: #e8f0d8; 
+    --season-text: #3d4a28;
+    --ring-available: #8bc34a;       /* Spring's vibrant green */
+}
+
+/* SUMMER (Warm golden tones) */
+body.summer { 
+    --season-bg: #e5d4b8; 
+    --season-accent: #d4a574; 
+    --season-mood: #f0e8d8; 
+    --season-text: #5a4428;
+    --ring-guiding: #d4a574;         /* Summer's golden warmth */
+}
+
+/* AUTUMN (Rich earth and rust tones) */
+body.autumn { 
+    --season-bg: #d4b8a0; 
+    --season-accent: #c76b5b; 
+    --season-mood: #e8d8c8; 
+    --season-text: #4a3428;
+    --ring-deep: #c76b5b;            /* Autumn's deep rust */
+}
+
+/* ===== GLOBAL BODY STYLES ===== */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--season-bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+    transition: background 1.5s ease;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ===== GLOBAL VIEWS ===== */
 .view { 
     display: none; 
     min-height: 100vh; 
@@ -588,7 +633,7 @@ body.dev-mode .practice-room.in-session::before {
 /* PRACTICE SPACE VIEW */
 .practice-space {
     min-height: 100vh;
-    background: transparent;
+    background: var(--season-bg);
     position: relative;
 }
 
