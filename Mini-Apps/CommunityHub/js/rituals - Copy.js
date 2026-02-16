@@ -21,8 +21,7 @@ const Rituals = {
     
     state: {
         hasSeenOpening: false,
-        isInitialized: false,
-        autoCloseTimer: null
+        isInitialized: false
     },
 
     // ============================================================================
@@ -70,9 +69,6 @@ const Rituals = {
             // Check if user has seen opening before
             this.loadState();
             
-            // Set up event listeners
-            this.setupEventListeners();
-            
             // Auto-show opening ritual on first visit
             if (!this.state.hasSeenOpening) {
                 setTimeout(() => this.showOpening(), 100);
@@ -83,39 +79,6 @@ const Rituals = {
         } catch (error) {
             console.error('Rituals initialization failed:', error);
         }
-    },
-
-    /**
-     * Set up event listeners for ritual interactions
-     */
-    setupEventListeners() {
-        // ESC key to close any active ritual
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                const openingOverlay = document.getElementById('openingOverlay');
-                const closingOverlay = document.getElementById('closingOverlay');
-                
-                if (openingOverlay && openingOverlay.classList.contains('active')) {
-                    this.completeOpening();
-                } else if (closingOverlay && closingOverlay.classList.contains('active')) {
-                    this.completeClosing();
-                }
-            }
-        });
-
-        // Click handlers for ritual buttons (delegated)
-        document.addEventListener('click', (e) => {
-            const btn = e.target.closest('[data-action]');
-            if (!btn) return;
-
-            const action = btn.dataset.action;
-            
-            if (action === 'ritual-opening') {
-                this.completeOpening();
-            } else if (action === 'ritual-closing') {
-                this.completeClosing();
-            }
-        });
     },
 
     // ============================================================================
@@ -167,12 +130,6 @@ const Rituals = {
         try {
             overlay.classList.add('active');
             console.log('✓ Opening ritual displayed');
-            
-            // Auto-close after 5 seconds
-            this.state.autoCloseTimer = setTimeout(() => {
-                this.completeOpening();
-            }, 5000);
-            
         } catch (error) {
             console.error('Error showing opening ritual:', error);
         }
@@ -189,12 +146,6 @@ const Rituals = {
         }
 
         try {
-            // Clear auto-close timer if exists
-            if (this.state.autoCloseTimer) {
-                clearTimeout(this.state.autoCloseTimer);
-                this.state.autoCloseTimer = null;
-            }
-            
             overlay.classList.remove('active');
             
             // Mark as seen

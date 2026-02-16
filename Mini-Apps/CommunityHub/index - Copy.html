@@ -273,6 +273,18 @@
                         }
                         break;
                     
+                    case 'ritual-opening':
+                        if (window.Rituals) {
+                            Rituals.completeOpening();
+                        }
+                        break;
+                    
+                    case 'ritual-closing':
+                        if (window.Rituals) {
+                            Rituals.completeClosing();
+                        }
+                        break;
+                    
                     case 'switch-mode':
                         // Mode switching handled by individual lunar room instances
                         const mode = actionBtn.dataset.mode;
