@@ -134,7 +134,7 @@
     <!-- ========================================================================== -->
     <!-- FULLSCREEN ROOM CONTAINER (outside main flow for fullscreen rooms) -->
     <!-- ========================================================================== -->
-    <div id="communityHubFullscreenContainer" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; background: var(--background); display: none; overflow: auto;">
+    <div id="communityHubFullscreenContainer" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; background: transparent; display: none; overflow: auto;">
         <!-- Ritual Overlays -->
         <div class="ritual-overlay opening" id="openingOverlay" role="dialog" aria-labelledby="openingRitualText">
             <div class="ritual-card">
@@ -157,11 +157,12 @@
         </div>
 
         <!-- Practice Room View -->
-        <div id="practiceRoomView" class="view" style="min-height: 100vh; padding: 20px;">
-            <div class="practice-room-container">
+        <div id="practiceRoomView" class="view" style="min-height: 100vh; padding: 0; margin: 0;">
+            <div class="practice-room-container" style="padding: 0; margin: 0;">
                 <button class="back-to-hub-btn" 
                         data-action="back-to-hub" 
-                        aria-label="Back to hub">
+                        aria-label="Back to hub"
+                        style="margin: 20px;">
                     ← Back to Hub
                 </button>
                 <div id="dynamicRoomContent"></div>

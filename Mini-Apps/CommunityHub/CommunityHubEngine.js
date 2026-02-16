@@ -136,7 +136,7 @@ class CommunityHubEngine {
       width: 100vw;
       height: 100vh;
       z-index: 99999;
-      background: var(--background, #ffffff);
+      background: transparent;
       display: none;
       overflow: auto;
     `;
@@ -164,11 +164,12 @@ class CommunityHubEngine {
       </div>
 
       <!-- Practice Room View (fullscreen) -->
-      <div id="practiceRoomView" class="view" style="min-height: 100vh; padding: 20px;">
-          <div class="practice-room-container">
+      <div id="practiceRoomView" class="view" style="min-height: 100vh; padding: 0; margin: 0;">
+          <div class="practice-room-container" style="padding: 0; margin: 0;">
               <button class="back-to-hub-btn" 
                       data-action="back-to-hub" 
-                      aria-label="Back to hub">
+                      aria-label="Back to hub"
+                      style="margin: 20px;">
                   ← Back to Hub
               </button>
               <div id="dynamicRoomContent"></div>
