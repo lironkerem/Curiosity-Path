@@ -733,6 +733,7 @@ if (window.FeaturesManager) {
       case TAB_NAMES.JOURNAL:
       case TAB_NAMES.SHADOW_ALCHEMY:
       case TAB_NAMES.CHATBOT:
+      case TAB_NAMES.COMMUNITY_HUB:
         this._initFeatureTab(tab);
         break;
 
