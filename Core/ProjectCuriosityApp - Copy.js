@@ -49,8 +49,7 @@ const TAB_NAMES = {
   GRATITUDE: 'gratitude',
   JOURNAL: 'journal',
   SHADOW_ALCHEMY: 'shadow-alchemy',
-  CHATBOT: 'chatbot',
-  COMMUNITY_HUB: 'community-hub'
+  CHATBOT: 'chatbot'
 };
 
 const EMOJI = {
