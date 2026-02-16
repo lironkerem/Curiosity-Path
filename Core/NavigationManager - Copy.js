@@ -1,14 +1,8 @@
 /**
- * NavigationManager.js - Complete Production Version (PATCHED FOR COMMUNITY HUB)
+ * NavigationManager.js - Complete Production Version
  * 
  * Manages app navigation, tab switching, mobile gestures, and UI state.
  * Handles both desktop and mobile navigation patterns.
- * 
- * CHANGES:
- * - Added 'community-hub' to SWIPE_ORDER
- * - Added Community Hub desktop nav item
- * - Changed mobile bottom bar from 3 to 4 buttons (Mini-Apps/Home/Community/Features)
- * - Added Community Hub mobile dot indicator
  */
 
 import UserTab from './User-Tab.js';
@@ -20,7 +14,7 @@ import UserTab from './User-Tab.js';
 const SWIPE_ORDER = [
   'dashboard', 'energy', 'tarot', 'gratitude', 'happiness',
   'journal', 'meditations', 'flip-script', 'calculator',
-  'shadow-alchemy', 'community-hub', 'karma-shop'
+  'shadow-alchemy', 'karma-shop'
 ];
 
 const CONSTANTS = {
@@ -196,162 +190,210 @@ export default class NavigationManager {
   }
 
   /**
-   * Setup mobile bottom bar interactions
+   * Setup mobile bottom bar
    */
   setupMobileBottomBar() {
-    const { mobileBar, scrim } = this.cachedElements;
+    if (window.innerWidth > 767) return;
+
+    const { mobileBar, sheets, scrim } = this.cachedElements;
     if (!mobileBar) return;
 
-    // Center button (Home)
+    const openSheet = (id) => {
+      const sheet = document.getElementById(id);
+      if (!sheet) return;
+
+      sheet.setAttribute('aria-hidden', 'false');
+      scrim.classList.add('visible');
+      this.sheetOpen = true;
+      document.body.classList.add('sheet-open');
+
+      const firstRow = sheet.querySelector('.sheet-row');
+      if (firstRow) firstRow.focus();
+
+      this.vibrate(CONSTANTS.VIBRATION_MS);
+    };
+
+    // Center button - dashboard
+    const centerHandler = () => {
+      this.closeSheets();
+      this.switchTab('dashboard', 'Main Dashboard');
+    };
     const centerBtn = mobileBar.querySelector('.mobile-tab.center');
     if (centerBtn) {
-      const clickHandler = () => this.switchTab('dashboard', 'Dashboard');
-      centerBtn.addEventListener('click', clickHandler);
-      centerBtn._clickHandler = clickHandler;
+      centerBtn.addEventListener('click', centerHandler);
+      centerBtn._clickHandler = centerHandler;
     }
 
-    // Community button
-    const communityBtn = mobileBar.querySelector('.mobile-tab.community');
-    if (communityBtn) {
-      const clickHandler = () => this.switchTab('community-hub', 'Community Hub');
-      communityBtn.addEventListener('click', clickHandler);
-      communityBtn._clickHandler = clickHandler;
-    }
-
-    // Left button (Mini Apps)
+    // Left button - miniapps
+    const leftHandler = (e) => {
+      openSheet('sheet-miniapps');
+      e.currentTarget.setAttribute('aria-expanded', 'true');
+    };
     const leftBtn = mobileBar.querySelector('.left');
     if (leftBtn) {
-      const clickHandler = () => this.openSheet('miniapps', leftBtn);
-      leftBtn.addEventListener('click', clickHandler);
-      leftBtn._clickHandler = clickHandler;
+      leftBtn.addEventListener('click', leftHandler);
+      leftBtn._clickHandler = leftHandler;
     }
 
-    // Right button (Features)
+    // Right button - features
+    const rightHandler = (e) => {
+      openSheet('sheet-features');
+      e.currentTarget.setAttribute('aria-expanded', 'true');
+    };
     const rightBtn = mobileBar.querySelector('.right');
     if (rightBtn) {
-      const clickHandler = () => this.openSheet('features', rightBtn);
-      rightBtn.addEventListener('click', clickHandler);
-      rightBtn._clickHandler = clickHandler;
+      rightBtn.addEventListener('click', rightHandler);
+      rightBtn._clickHandler = rightHandler;
     }
 
-    // Scrim click to close
+    // Scrim click - close sheets
+    const scrimHandler = () => this.closeSheets();
     if (scrim) {
-      const clickHandler = () => this.closeSheets();
-      scrim.addEventListener('click', clickHandler);
-      scrim._clickHandler = clickHandler;
+      scrim.addEventListener('click', scrimHandler);
+      scrim._clickHandler = scrimHandler;
     }
 
     // Sheet row clicks
-    this.cachedElements.sheetRows.forEach(row => {
-      const handler = () => {
-        const tab = row.dataset.tab;
-        const img = row.querySelector('img');
-        const alt = img ? img.alt : '';
-        this.switchTab(tab, alt || tab);
+    sheets.forEach(sheet => {
+      const sheetHandler = (e) => {
+        const row = e.target.closest('.sheet-row');
+        if (!row) return;
+
         this.closeSheets();
+        const tabName = row.dataset.tab;
+        const navItem = document.querySelector(`[data-tab="${tabName}"]`);
+        const label = navItem?.dataset.label || row.querySelector('span')?.textContent || tabName;
+        this.switchTab(tabName, label);
       };
-      row.addEventListener('click', handler);
-      this.eventHandlers.sheetHandlers.push({ element: row, handler });
+
+      sheet.addEventListener('click', sheetHandler);
+      this.eventHandlers.sheetHandlers.push({ element: sheet, handler: sheetHandler });
     });
   }
 
   /**
-   * Setup swipe gestures for tab switching
+   * Close bottom sheets
    */
-  setupSwipeGestures() {
-    let startX = 0;
-    let startY = 0;
-    let startTime = 0;
+  closeSheets() {
+    const { sheets, scrim, mobileBar } = this.cachedElements;
 
-    const touchStartHandler = (e) => {
-      if (this.sheetOpen) return;
-      const t = e.touches[0];
-      startX = t.clientX;
-      startY = t.clientY;
-      startTime = Date.now();
-    };
+    sheets.forEach(s => s.setAttribute('aria-hidden', 'true'));
+    scrim.classList.remove('visible');
 
-    const touchEndHandler = (e) => {
-      if (this.sheetOpen) return;
-      const t = e.changedTouches[0];
-      const dx = t.clientX - startX;
-      const dy = t.clientY - startY;
-      const dt = Date.now() - startTime;
+    if (mobileBar) {
+      const tabs = mobileBar.querySelectorAll('.mobile-tab');
+      tabs.forEach(t => t.setAttribute('aria-expanded', 'false'));
+    }
 
-      if (Math.abs(dy) > Math.abs(dx)) return;
-      if (Math.abs(dx) < CONSTANTS.SWIPE_THRESHOLD) return;
-      if (dt > CONSTANTS.SWIPE_TIME_MS) return;
-
-      const velocity = Math.abs(dx) / dt;
-      if (velocity < CONSTANTS.VELOCITY_THRESHOLD) return;
-
-      const currentTab = this.app.currentTab || 'dashboard';
-      const currentIndex = SWIPE_ORDER.indexOf(currentTab);
-      if (currentIndex === -1) return;
-
-      let nextIndex;
-      if (dx > 0) {
-        nextIndex = Math.max(0, currentIndex - 1);
-      } else {
-        nextIndex = Math.min(SWIPE_ORDER.length - 1, currentIndex + 1);
-      }
-
-      if (nextIndex !== currentIndex) {
-        this.switchTab(SWIPE_ORDER[nextIndex]);
-        this.vibrate(CONSTANTS.VIBRATION_MS);
-      }
-    };
-
-    window.addEventListener('touchstart', touchStartHandler, { passive: true });
-    window.addEventListener('touchend', touchEndHandler, { passive: true });
-
-    this.eventHandlers.touchStart = touchStartHandler;
-    this.eventHandlers.touchEnd = touchEndHandler;
+    this.sheetOpen = false;
+    document.body.classList.remove('sheet-open');
   }
 
+  /* =========================================================
+     SWIPE GESTURES
+     ========================================================= */
+
   /**
-   * Setup swipe-to-close for mobile sheets
+   * Setup swipe gesture detection
+   */
+  setupSwipeGestures() {
+    // Remove old listeners if they exist
+    if (this.eventHandlers.touchStart) {
+      window.removeEventListener('touchstart', this.eventHandlers.touchStart);
+    }
+    if (this.eventHandlers.touchEnd) {
+      window.removeEventListener('touchend', this.eventHandlers.touchEnd);
+    }
+
+    let touchStartX = 0;
+    let touchStartTime = 0;
+
+    const handleTouchStart = (e) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartTime = Date.now();
+    };
+
+    const handleTouchEnd = (e) => {
+      const endX = e.changedTouches[0].clientX;
+      const deltaX = touchStartX - endX;
+      const deltaT = Date.now() - touchStartTime;
+
+      if (Math.abs(deltaX) < CONSTANTS.SWIPE_THRESHOLD || deltaT > CONSTANTS.SWIPE_TIME_MS) {
+        return;
+      }
+
+      const active = localStorage.getItem('pc_active_tab') || 'dashboard';
+      let idx = SWIPE_ORDER.indexOf(active);
+      const direction = deltaX > 0 ? 1 : -1;
+
+      idx = (idx + direction + SWIPE_ORDER.length) % SWIPE_ORDER.length;
+
+      const navItem = document.querySelector(`[data-tab="${SWIPE_ORDER[idx]}"]`);
+      if (navItem) {
+        this.switchTab(SWIPE_ORDER[idx], navItem.dataset.label);
+      }
+    };
+
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    this.eventHandlers.touchStart = handleTouchStart;
+    this.eventHandlers.touchEnd = handleTouchEnd;
+  }
+/**
+   * Setup sheet swipe-to-close
    */
   setupSheetSwipeClose() {
-    this.cachedElements.sheets.forEach(sheet => {
-      let startY = 0;
-      let currentY = 0;
-      let isDragging = false;
+    const { sheets } = this.cachedElements;
+
+    sheets.forEach(sheet => {
+      const scroller = sheet.querySelector('.sheet-scroller');
+      if (!scroller) return;
+
+      let startY = 0, startT = 0, isDragging = false;
 
       const touchStartHandler = (e) => {
         startY = e.touches[0].clientY;
-        isDragging = true;
-        sheet.style.transition = 'none';
+        startT = Date.now();
+        isDragging = false;
       };
 
       const touchMoveHandler = (e) => {
-        if (!isDragging) return;
-        currentY = e.touches[0].clientY;
-        const diff = currentY - startY;
+        const currentY = e.touches[0].clientY;
+        const deltaY = currentY - startY;
 
-        if (diff > 0) {
-          sheet.style.transform = `translateY(${diff}px)`;
+        if (scroller.scrollTop === 0 && deltaY > CONSTANTS.MIN_DRAG_START) {
+          isDragging = true;
+          const dragAmount = Math.min(deltaY * 0.5, 150);
+          sheet.style.transform = `translateY(${dragAmount}px)`;
+          sheet.style.transition = 'none';
         }
       };
 
-      const touchEndHandler = () => {
+      const touchEndHandler = (e) => {
         if (!isDragging) return;
-        isDragging = false;
-        sheet.style.transition = '';
 
-        const diff = currentY - startY;
-        if (diff > CONSTANTS.OVERSCROLL_THRESHOLD) {
-          this.closeSheets();
+        const endY = e.changedTouches[0].clientY;
+        const deltaY = endY - startY;
+        const deltaT = Date.now() - startT;
+        const velocity = deltaY / deltaT;
+
+        sheet.style.transition = 'transform 0.3s ease';
+        sheet.style.transform = '';
+
+        if (deltaY > CONSTANTS.OVERSCROLL_THRESHOLD || velocity > CONSTANTS.VELOCITY_THRESHOLD) {
           this.vibrate(CONSTANTS.VIBRATION_SHEET_MS);
-        } else {
-          sheet.style.transform = '';
+          this.closeSheets();
         }
+
+        isDragging = false;
       };
 
       sheet.addEventListener('touchstart', touchStartHandler, { passive: true });
       sheet.addEventListener('touchmove', touchMoveHandler, { passive: true });
       sheet.addEventListener('touchend', touchEndHandler, { passive: true });
 
+      // Store for cleanup
       sheet._touchStartHandler = touchStartHandler;
       sheet._touchMoveHandler = touchMoveHandler;
       sheet._touchEndHandler = touchEndHandler;
@@ -362,276 +404,214 @@ export default class NavigationManager {
    * Setup swipe arrow buttons
    */
   setupSwipeArrows() {
+    if (window.innerWidth > 767) return;
     if (this.arrowListenersAttached) return;
 
     const { leftArrow, rightArrow, swipeArrows } = this.cachedElements;
     if (!leftArrow || !rightArrow || !swipeArrows) return;
 
-    // Left arrow
-    const leftTouchStart = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+    // Make non-focusable
+    leftArrow.tabIndex = -1;
+    rightArrow.tabIndex = -1;
+
+    // Add SVG icons if not present
+    if (!leftArrow.querySelector('svg')) {
+      leftArrow.innerHTML = `<svg viewBox="0 0 200 180" style="transform:scale(0.5); pointer-events:none;"><path d="M115 10 L100 90 L115 170" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"/></svg>`;
+    }
+    if (!rightArrow.querySelector('svg')) {
+      rightArrow.innerHTML = `<svg viewBox="0 0 200 180" style="transform:scaleX(-1) scale(0.5); pointer-events:none;"><path d="M115 10 L100 90 L115 170" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"/></svg>`;
+    }
+
+    leftArrow.style.padding = '8px';
+    rightArrow.style.padding = '8px';
+
+    // Navigate function
+    const navigate = (direction) => {
       if (this.arrowDebounce) return;
+
       this.arrowDebounce = true;
-      this.touchState.startTime = Date.now();
-      this.touchState.startX = e.touches[0].clientX;
-      this.touchState.startY = e.touches[0].clientY;
-    };
 
-    const leftTouchEnd = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+      const active = localStorage.getItem('pc_active_tab') || 'dashboard';
+      let idx = SWIPE_ORDER.indexOf(active);
+      idx = direction === 'left'
+        ? (idx - 1 + SWIPE_ORDER.length) % SWIPE_ORDER.length
+        : (idx + 1) % SWIPE_ORDER.length;
 
-      const duration = Date.now() - this.touchState.startTime;
-      const dx = e.changedTouches[0].clientX - this.touchState.startX;
-      const dy = e.changedTouches[0].clientY - this.touchState.startY;
-
-      if (duration < CONSTANTS.MIN_TOUCH_DURATION && 
-          Math.abs(dx) < CONSTANTS.MAX_TOUCH_MOVEMENT && 
-          Math.abs(dy) < CONSTANTS.MAX_TOUCH_MOVEMENT) {
-        this.navigatePrevious();
-        this.vibrate(CONSTANTS.VIBRATION_MS);
+      const navItem = document.querySelector(`[data-tab="${SWIPE_ORDER[idx]}"]`);
+      if (navItem) {
+        this.switchTab(SWIPE_ORDER[idx], navItem.dataset.label);
       }
 
-      setTimeout(() => { this.arrowDebounce = false; }, CONSTANTS.ARROW_DEBOUNCE_MS);
+      setTimeout(() => {
+        this.arrowDebounce = false;
+      }, CONSTANTS.ARROW_DEBOUNCE_MS);
     };
 
-    leftArrow.addEventListener('touchstart', leftTouchStart, { capture: true, passive: false });
-    leftArrow.addEventListener('touchend', leftTouchEnd, { capture: true, passive: false });
-    leftArrow._touchStart = leftTouchStart;
-    leftArrow._touchEnd = leftTouchEnd;
+    // Touch handlers
+    const createTouchHandlers = (direction, button) => {
+      const start = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.touchState.startTime = Date.now();
+        this.touchState.startX = e.touches[0].clientX;
+        this.touchState.startY = e.touches[0].clientY;
+      };
 
-    // Right arrow
-    const rightTouchStart = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (this.arrowDebounce) return;
-      this.arrowDebounce = true;
-      this.touchState.startTime = Date.now();
-      this.touchState.startX = e.touches[0].clientX;
-      this.touchState.startY = e.touches[0].clientY;
+      const end = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const duration = Date.now() - this.touchState.startTime;
+        const endX = e.changedTouches[0].clientX;
+        const endY = e.changedTouches[0].clientY;
+        const moveDistance = Math.sqrt(
+          Math.pow(endX - this.touchState.startX, 2) +
+          Math.pow(endY - this.touchState.startY, 2)
+        );
+
+        if (duration < CONSTANTS.MIN_TOUCH_DURATION || moveDistance > CONSTANTS.MAX_TOUCH_MOVEMENT) {
+          return;
+        }
+
+        navigate(direction);
+        setTimeout(() => button.blur(), 0);
+      };
+
+      return { start, end };
     };
 
-    const rightTouchEnd = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+    const leftHandlers = createTouchHandlers('left', leftArrow);
+    const rightHandlers = createTouchHandlers('right', rightArrow);
 
-      const duration = Date.now() - this.touchState.startTime;
-      const dx = e.changedTouches[0].clientX - this.touchState.startX;
-      const dy = e.changedTouches[0].clientY - this.touchState.startY;
+    leftArrow.addEventListener('touchstart', leftHandlers.start, { capture: true });
+    leftArrow.addEventListener('touchend', leftHandlers.end, { capture: true });
+    rightArrow.addEventListener('touchstart', rightHandlers.start, { capture: true });
+    rightArrow.addEventListener('touchend', rightHandlers.end, { capture: true });
 
-      if (duration < CONSTANTS.MIN_TOUCH_DURATION && 
-          Math.abs(dx) < CONSTANTS.MAX_TOUCH_MOVEMENT && 
-          Math.abs(dy) < CONSTANTS.MAX_TOUCH_MOVEMENT) {
-        this.navigateNext();
-        this.vibrate(CONSTANTS.VIBRATION_MS);
-      }
+    // Store for cleanup
+    leftArrow._touchStart = leftHandlers.start;
+    leftArrow._touchEnd = leftHandlers.end;
+    rightArrow._touchStart = rightHandlers.start;
+    rightArrow._touchEnd = rightHandlers.end;
 
-      setTimeout(() => { this.arrowDebounce = false; }, CONSTANTS.ARROW_DEBOUNCE_MS);
-    };
+    // Observe sheet open/close state
+    if (this.arrowObserver) {
+      this.arrowObserver.disconnect();
+    }
 
-    rightArrow.addEventListener('touchstart', rightTouchStart, { capture: true, passive: false });
-    rightArrow.addEventListener('touchend', rightTouchEnd, { capture: true, passive: false });
-    rightArrow._touchStart = rightTouchStart;
-    rightArrow._touchEnd = rightTouchEnd;
-
-    // Observe arrows to update state
     this.arrowObserver = new MutationObserver(() => {
-      const currentTab = this.app.currentTab || 'dashboard';
-      const currentIndex = SWIPE_ORDER.indexOf(currentTab);
-
-      if (currentIndex <= 0) {
-        leftArrow.classList.add('disabled');
-      } else {
-        leftArrow.classList.remove('disabled');
-      }
-
-      if (currentIndex >= SWIPE_ORDER.length - 1) {
-        rightArrow.classList.add('disabled');
-      } else {
-        rightArrow.classList.remove('disabled');
-      }
+      swipeArrows.style.display = this.sheetOpen ? 'none' : 'flex';
     });
 
-    this.arrowObserver.observe(document.body, {
-      attributes: true,
-      childList: true,
-      subtree: true
-    });
+    this.arrowObserver.observe(document.body, { attributeFilter: ['class'] });
 
     this.arrowListenersAttached = true;
   }
 
   /* =========================================================
-     NAVIGATION
+     TAB SWITCHING
      ========================================================= */
 
   /**
-   * Switch to a specific tab
-   * @param {string} tabId - Tab identifier
-   * @param {string} [label] - Optional label for the tab
+   * Switch to tab
+   * @param {string} tabName - Tab identifier
+   * @param {string} label - Tab label for accessibility
    */
-  switchTab(tabId, label = '') {
-    console.log(`🔄 Switching to tab: ${tabId}`);
-
-    // Hide all tabs
-    document.querySelectorAll('.tab-content').forEach(tab => {
-      tab.classList.add('hidden');
-      tab.classList.remove('active');
-    });
-
-    // Show target tab
-    const targetTab = document.getElementById(`${tabId}-tab`);
-    if (targetTab) {
-      targetTab.classList.remove('hidden');
-      targetTab.classList.add('active');
-    } else {
-      console.error(`Tab not found: ${tabId}-tab`);
-      return;
+  switchTab(tabName, label) {
+    if (tabName === 'calculator' && !window.calculatorChunk) {
+      window.calculatorChunk = 'requested';
     }
 
-    // Update desktop nav
-    this.cachedElements.navItems?.forEach(item => {
-      if (item.dataset.tab === tabId) {
-        item.classList.add('active');
-        item.setAttribute('aria-selected', 'true');
-        item.setAttribute('tabindex', '0');
-      } else {
-        item.classList.remove('active');
-        item.setAttribute('aria-selected', 'false');
-        item.setAttribute('tabindex', '-1');
-      }
+    const { navItems } = this.cachedElements;
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    // Update nav items
+    navItems.forEach(t => {
+      const isActive = t.dataset.tab === tabName;
+      t.classList.toggle('active', isActive);
+      t.setAttribute('aria-selected', isActive);
+      t.tabIndex = isActive ? 0 : -1;
     });
 
-    // Update mobile bottom bar
-    const mobileButtons = document.querySelectorAll('.mobile-tab');
-    mobileButtons?.forEach(btn => {
-      if (btn.dataset.tab === tabId) {
-        btn.classList.add('active');
-        btn.setAttribute('aria-selected', 'true');
-      } else {
-        btn.classList.remove('active');
-        btn.setAttribute('aria-selected', 'false');
-      }
+    // Update tab contents
+    tabContents.forEach(c => {
+      c.classList.remove('active', 'hidden');
+      c.style.display = 'none';
+      c.setAttribute('aria-hidden', 'true');
     });
 
-    // Update mobile indicator dots
-    this.cachedElements.tabDots?.forEach(dot => {
-      if (dot.dataset.tab === tabId) {
+    const target = document.getElementById(`${tabName}-tab`);
+    if (target) {
+      target.classList.add('active');
+      target.classList.remove('hidden');
+      target.style.display = 'block';
+      target.setAttribute('aria-hidden', 'false');
+    }
+
+    // Initialize tab in app
+    this.app.initializeTab(tabName);
+
+    // Update state
+    localStorage.setItem('pc_active_tab', tabName);
+    window.scrollTo(0, 0);
+    this.vibrate(CONSTANTS.VIBRATION_MS);
+
+    // Update mobile indicator
+    this.updateTabIndicator(tabName);
+  }
+
+  /**
+   * Update mobile tab indicator dots
+   * @param {string} tabName - Active tab name
+   */
+  updateTabIndicator(tabName) {
+    if (window.innerWidth > 767) return;
+
+    const { tabDots } = this.cachedElements;
+    if (!tabDots) return;
+
+    tabDots.forEach(dot => {
+      const isActive = dot.dataset.tab === tabName;
+
+      if (isActive) {
         dot.classList.add('active');
+        Object.assign(dot.style, {
+          width: '28px',
+          height: '28px',
+          minWidth: '28px',
+          minHeight: '28px',
+          background: 'linear-gradient(135deg, var(--neuro-accent), var(--neuro-accent-light))',
+          boxShadow: '0 0 10px rgba(102, 126, 234, 0.5), 0 2px 6px rgba(102, 126, 234, 0.3), 4px 4px 8px var(--neuro-shadow-dark), -4px -4px 8px var(--neuro-shadow-light)',
+          transform: 'scale(1.15)',
+          opacity: '1'
+        });
       } else {
         dot.classList.remove('active');
+        Object.assign(dot.style, {
+          width: '24px',
+          height: '24px',
+          minWidth: '24px',
+          minHeight: '24px',
+          background: 'var(--neuro-shadow-dark)',
+          boxShadow: 'inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light)',
+          transform: 'scale(1)',
+          opacity: '0.6'
+        });
       }
-    });
-
-    // Update app state directly
-    this.app.currentTab = tabId;
-
-    // Initialize feature if needed
-    this.app.features?.init(tabId);
-
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  /**
-   * Navigate to previous tab in swipe order
-   */
-  navigatePrevious() {
-    const currentTab = this.app.currentTab || 'dashboard';
-    const currentIndex = SWIPE_ORDER.indexOf(currentTab);
-    if (currentIndex > 0) {
-      this.switchTab(SWIPE_ORDER[currentIndex - 1]);
-    }
-  }
-
-  /**
-   * Navigate to next tab in swipe order
-   */
-  navigateNext() {
-    const currentTab = this.app.currentTab || 'dashboard';
-    const currentIndex = SWIPE_ORDER.indexOf(currentTab);
-    if (currentIndex < SWIPE_ORDER.length - 1) {
-      this.switchTab(SWIPE_ORDER[currentIndex + 1]);
-    }
-  }
-
-  /* =========================================================
-     SHEET MANAGEMENT
-     ========================================================= */
-
-  /**
-   * Open a mobile sheet
-   * @param {string} sheetId - Sheet identifier
-   * @param {HTMLElement} btn - Button that triggered the sheet
-   */
-  openSheet(sheetId, btn) {
-    const sheet = document.getElementById(`sheet-${sheetId}`);
-    const { scrim } = this.cachedElements;
-
-    if (!sheet || !scrim) return;
-
-    // Close other sheets
-    this.cachedElements.sheets?.forEach(s => {
-      if (s !== sheet) {
-        s.classList.remove('open');
-        s.setAttribute('aria-hidden', 'true');
-      }
-    });
-
-    // Open target sheet
-    sheet.classList.add('open');
-    sheet.setAttribute('aria-hidden', 'false');
-    scrim.classList.add('active');
-    this.sheetOpen = true;
-
-    // Update button state
-    if (btn) {
-      btn.setAttribute('aria-expanded', 'true');
-    }
-
-    // Focus first row
-    const firstRow = sheet.querySelector('.sheet-row');
-    if (firstRow) {
-      setTimeout(() => firstRow.focus(), 100);
-    }
-
-    this.vibrate(CONSTANTS.VIBRATION_SHEET_MS);
-  }
-
-  /**
-   * Close all mobile sheets
-   */
-  closeSheets() {
-    const { sheets, scrim, mobileBar } = this.cachedElements;
-
-    sheets?.forEach(sheet => {
-      sheet.classList.remove('open');
-      sheet.setAttribute('aria-hidden', 'true');
-      sheet.style.transform = '';
-    });
-
-    scrim?.classList.remove('active');
-    this.sheetOpen = false;
-
-    // Update button states
-    const buttons = mobileBar?.querySelectorAll('[data-popup]');
-    buttons?.forEach(btn => {
-      btn.setAttribute('aria-expanded', 'false');
     });
   }
 
   /* =========================================================
-     UTILITY
+     UTILITIES
      ========================================================= */
 
   /**
-   * Trigger haptic feedback
-   * @param {number} ms - Vibration duration
+   * Trigger device vibration
+   * @param {number} duration - Vibration duration in ms
    */
-  vibrate(ms) {
-    if ('vibrate' in navigator) {
-      navigator.vibrate(ms);
+  vibrate(duration) {
+    if (navigator.vibrate) {
+      navigator.vibrate(duration);
     }
   }
 
@@ -640,66 +620,78 @@ export default class NavigationManager {
    * @private
    */
   _renderMobileIndicator() {
-    const mobileBar = document.getElementById('mobile-bottom-bar');
-    if (!mobileBar) return;
+    const indicatorHTML = this._getMobileIndicatorHTML();
+    const headerEl = document.querySelector('.app-header');
 
-    mobileBar.insertAdjacentHTML('beforebegin', this._getMobileIndicatorHTML());
+    if (headerEl) {
+      headerEl.insertAdjacentHTML('afterend', indicatorHTML);
 
-    // Setup dot click handlers
-    const dots = document.querySelectorAll('.tab-dot');
-    dots.forEach(dot => {
-      const clickHandler = () => {
-        const tab = dot.dataset.tab;
-        this.switchTab(tab);
-        this.vibrate(CONSTANTS.VIBRATION_MS);
+      const updateVisibility = () => {
+        const indicator = document.getElementById('mobile-tab-indicator');
+        if (indicator) {
+          indicator.style.display = window.innerWidth <= 767 ? 'flex' : 'none';
+        }
       };
-      dot.addEventListener('click', clickHandler);
-      dot._clickHandler = clickHandler;
-    });
-  }
 
-  /**
-   * Get navigation HTML
+      updateVisibility();
+      this.eventHandlers.resize = updateVisibility;
+      window.addEventListener('resize', updateVisibility);
+
+      // Dot click handlers
+      document.querySelectorAll('.tab-dot').forEach(dot => {
+        const clickHandler = () => this.switchTab(dot.dataset.tab, dot.title);
+        dot.addEventListener('click', clickHandler);
+        dot._clickHandler = clickHandler;
+      });
+    }
+  }
+/**
+   * Get navigation HTML template
    * @private
    * @returns {string} HTML string
    */
   _getNavHTML() {
     return `
-      <!-- DESKTOP HEADER -->
-      <header class="app-header" role="banner">
-        <nav class="nav-tabs" role="tablist" aria-label="Main navigation">
-          <li class="nav-item active" data-tab="dashboard" data-label="Dashboard" role="tab" aria-selected="true" tabindex="0">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Dashboard.png" alt="Dashboard">
+      <!-- CENTERED HEADER -->
+      <div class="app-header">
+        <img class="header-image" 
+             src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Header.png" 
+             alt="Aanandoham Header">
+      </div>
+
+      <!-- DESKTOP NAV TABS -->
+      <nav class="main-nav desktop-nav" role="navigation" aria-label="Main navigation">
+        <ul class="nav-tabs" id="nav-tabs" role="tablist">
+          <li class="nav-item active" data-tab="dashboard" data-label="Main Dashboard" role="tab" aria-selected="true" tabindex="0">
+            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavDashboard.png" alt="Main Dashboard">
           </li>
-          <li class="nav-item" data-tab="energy" data-label="Energy Tracker" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavEnergy.png" alt="Energy Tracker">
+          <li class="nav-item" data-tab="energy" data-label="Daily Energy Tracker" role="tab" aria-selected="false" tabindex="-1">
+            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavEnergy.png" alt="Daily Energy Tracker">
           </li>
-          <li class="nav-item" data-tab="tarot" data-label="Tarot Reading" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavTarot.png" alt="Tarot Reading">
+          <li class="nav-item" data-tab="tarot" data-label="Tarot Cards Guidance" role="tab" aria-selected="false" tabindex="-1">
+            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavTarot.png" alt="Tarot Cards Guidance">
           </li>
-          <li class="nav-item" data-tab="gratitude" data-label="Gratitude" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavGratitude.png" alt="Gratitude">
+          <li class="nav-item" data-tab="gratitude" data-label="Gratitude Practice" role="tab" aria-selected="false" tabindex="-1">
+            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavGratitude.png" alt="Gratitude Practice">
           </li>
-          <li class="nav-item" data-tab="happiness" data-label="Happiness" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavHappiness.png" alt="Happiness">
+          <li class="nav-item" data-tab="happiness" data-label="Happiness Booster" role="tab" aria-selected="false" tabindex="-1">
+            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavHappiness.png" alt="Happiness Booster">
           </li>
-          <li class="nav-item" data-tab="journal" data-label="Journal" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavJournal.png" alt="Journal">
+          <li class="nav-item" data-tab="journal" data-label="My Private Journal" role="tab" aria-selected="false" tabindex="-1">
+            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavJournal.png" alt="My Private Journal">
           </li>
-          <li class="nav-item" data-tab="meditations" data-label="Meditations" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavMeditations.png" alt="Meditations">
+          <li class="nav-item" data-tab="meditations" data-label="Guided Meditations" role="tab" aria-selected="false" tabindex="-1">
+            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavMeditations.png" alt="Guided Meditations">
           </li>
-          <li class="nav-item" data-tab="flip-script" data-label="Flip Script" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavFlip.png" alt="Flip Script">
+          <li class="nav-item" data-tab="flip-script" data-label="Flip The Script" role="tab" aria-selected="false" tabindex="-1">
+            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavFlip.png" alt="Flip The Script">
           </li>
-          <li class="nav-item" data-tab="calculator" data-label="Calculator" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavAnalysis.png" alt="Calculator">
+          <li class="nav-item" data-tab="calculator" data-label="Self Analysis Pro" role="tab" aria-selected="false" tabindex="-1">
+            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavAnalysis.png" alt="Self Analysis Pro">
           </li>
-          <li class="nav-item" data-tab="shadow-alchemy" data-label="Shadow Alchemy" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavShadow.png" alt="Shadow Alchemy">
-          </li>
-          <li class="nav-item" data-tab="community-hub" data-label="Community Hub" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavShadow.png" alt="Community Hub">
+          <li class="nav-item" data-tab="shadow-alchemy" data-label="Shadow Alchemy Lab" role="tab" aria-selected="false" tabindex="-1">
+            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavShadow.png" alt="Shadow Alchemy Lab">
+            <span class="premium-badge">PREMIUM</span>
           </li>
           <li class="nav-item" data-tab="karma-shop" data-label="Karma Shop" role="tab" aria-selected="false" tabindex="-1">
             <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavShop.png" alt="Karma Shop">
@@ -713,16 +705,13 @@ export default class NavigationManager {
       <!-- CTA FOOTER -->
       <div id="cta-footer-wrapper"></div>
 
-      <!-- MOBILE 4-BUTTON BAR -->
+      <!-- MOBILE 3-BUTTON BAR -->
       <nav id="mobile-bottom-bar" class="mobile-bottom-bar" role="navigation" aria-label="Mobile navigation">
         <button class="mobile-tab left" data-popup="miniapps" aria-haspopup="true" aria-expanded="false">
           <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/MiniApps.png" alt=""><span>Mini Apps</span>
         </button>
         <button class="mobile-tab center active" data-tab="dashboard" aria-selected="true">
           <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Dashboard.png" alt=""><span>Home</span>
-        </button>
-        <button class="mobile-tab community" data-tab="community-hub" aria-selected="false">
-          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Dashboard.png" alt=""><span>Community</span>
         </button>
         <button class="mobile-tab right" data-popup="features" aria-haspopup="true" aria-expanded="false">
           <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Features.png" alt=""><span>Features</span>
@@ -783,7 +772,6 @@ export default class NavigationManager {
       { tab: 'flip-script', title: 'Flip Script', img: 'FlipDot.png' },
       { tab: 'calculator', title: 'Analysis', img: 'AnalysisDot.png' },
       { tab: 'shadow-alchemy', title: 'Shadow Alchemy', img: 'ShadowDot.png' },
-      { tab: 'community-hub', title: 'Community Hub', img: 'DashDot.png' },
       { tab: 'karma-shop', title: 'Karma Shop', img: 'ShopDot.png' }
     ];
 
@@ -831,12 +819,10 @@ export default class NavigationManager {
     const { mobileBar, scrim } = this.cachedElements;
     if (mobileBar) {
       const centerBtn = mobileBar.querySelector('.mobile-tab.center');
-      const communityBtn = mobileBar.querySelector('.mobile-tab.community');
       const leftBtn = mobileBar.querySelector('.left');
       const rightBtn = mobileBar.querySelector('.right');
       
       if (centerBtn?._clickHandler) centerBtn.removeEventListener('click', centerBtn._clickHandler);
-      if (communityBtn?._clickHandler) communityBtn.removeEventListener('click', communityBtn._clickHandler);
       if (leftBtn?._clickHandler) leftBtn.removeEventListener('click', leftBtn._clickHandler);
       if (rightBtn?._clickHandler) rightBtn.removeEventListener('click', rightBtn._clickHandler);
     }
