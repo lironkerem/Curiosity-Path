@@ -320,6 +320,14 @@ const Core = {
             console.log(`[Core] fullscreenContainer exists: ${!!fullscreenContainer}`);
             console.log(`[Core] hubTab exists: ${!!hubTab}`);
             
+            // Check if this is a room view (any view ending with 'View' except 'hubView')
+            const isRoomView = viewId !== 'hubView' && (
+                viewId === 'practiceRoomView' || 
+                viewId.endsWith('View') ||
+                viewId.includes('Room') ||
+                viewId.includes('Practice')
+            );
+            
             if (viewId === 'hubView') {
                 // Returning to hub - hide fullscreen container, show hub tab
                 if (fullscreenContainer) {
@@ -338,7 +346,7 @@ const Core = {
                 this.state.currentView = 'hubView';
                 console.log('[Core] Navigated to hubView');
                 
-            } else if (viewId === 'practiceRoomView') {
+            } else if (isRoomView) {
                 // Entering practice room - show fullscreen container, COMPLETELY HIDE hub tab
                 console.log('[Core] Entering practice room...');
                 
@@ -362,11 +370,12 @@ const Core = {
                     console.error('[Core] Hub tab not found! Cannot hide it.');
                 }
                 
-                this.state.currentView = 'practiceRoomView';
-                console.log('[Core] Navigated to practiceRoomView (fullscreen)');
+                this.state.currentView = viewId; // Store the actual room view ID
+                console.log(`[Core] Navigated to ${viewId} (fullscreen mode)`);
                 
             } else {
-                // Fallback for other views
+                // Fallback for other views (shouldn't happen in normal flow)
+                console.warn(`[Core] Unexpected viewId: ${viewId}`);
                 const views = document.querySelectorAll('.view');
                 views.forEach(view => view.classList.remove('active'));
                 
