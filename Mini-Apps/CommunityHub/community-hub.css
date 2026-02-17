@@ -1334,7 +1334,8 @@ body.dev-mode .practice-room.in-session::before {
     filter: brightness(0.6);
 }
 
-#dynamicRoomContent.dimmed {
+#dynamicRoomContent.dimmed,
+#practiceRoomView.dimmed {
     filter: brightness(0.3);
     transition: filter 0.5s ease;
 }

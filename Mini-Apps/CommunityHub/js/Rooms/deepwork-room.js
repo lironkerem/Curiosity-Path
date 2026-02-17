@@ -530,7 +530,7 @@ class DeepWorkRoom extends PracticeRoom {
     }
     
     toggleDimMode() {
-        const view = document.getElementById('dynamicRoomContent');
+        const view = document.getElementById('practiceRoomView');
         const btn = document.getElementById(`${this.roomId}DimModeBtn`);
         
         if (view) {

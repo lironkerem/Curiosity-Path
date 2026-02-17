@@ -204,8 +204,7 @@ class PracticeRoom {
         const gradientStyle = this.getHeaderGradient();
         
         // Register gentlyLeave global for onclick
-        const gentlyLeaveMethod = `${this.getClassName()}_gentlyLeave`;
-        window[gentlyLeaveMethod] = () => this.gentlyLeave();
+        window[`${this.roomId}_gentlyLeave`] = () => this.gentlyLeave();
         
         return `
         <header class="ps-header" style="padding: 12px 16px; ${gradientStyle}">
@@ -230,7 +229,7 @@ class PracticeRoom {
             <div style="display: flex; gap: 12px; position: relative; margin: 0; padding: 0; flex-wrap: nowrap;">
                 ${this.buildAdditionalHeaderButtons ? this.buildAdditionalHeaderButtons() : ''}
                 ${this.buildSafetyDropdown()}
-                <button class="ps-leave" onclick="${this.getClassName()}_gentlyLeave()" 
+                <button class="ps-leave" onclick="window['${this.roomId}_gentlyLeave']()" 
                         style="margin: 0; padding: 12px 24px; white-space: nowrap; min-width: 150px;">
                     Gently Leave
                 </button>
