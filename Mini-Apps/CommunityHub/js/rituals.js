@@ -158,6 +158,7 @@ const Rituals = {
     showOpening() {
         console.log('🕯️ showOpening() called');
         const overlay = document.getElementById('openingOverlay');
+        const container = document.getElementById('communityHubFullscreenContainer');
         console.log('Opening overlay found:', overlay);
         
         if (!overlay) {
@@ -166,10 +167,15 @@ const Rituals = {
         }
 
         try {
-            // Show the overlay with flex display
+            // Show the parent container first
+            if (container) {
+                container.style.display = 'block';
+                container.style.pointerEvents = 'auto';
+            }
+            // Show the overlay
             overlay.style.display = 'flex';
             overlay.classList.add('active');
-            console.log('✓ Opening ritual displayed - overlay.style.display:', overlay.style.display);
+            console.log('✓ Opening ritual displayed');
             
             // Auto-close after 5 seconds
             this.state.autoCloseTimer = setTimeout(() => {
@@ -187,27 +193,29 @@ const Rituals = {
      */
     completeOpening() {
         const overlay = document.getElementById('openingOverlay');
+        const container = document.getElementById('communityHubFullscreenContainer');
         if (!overlay) {
             console.warn('Opening overlay not found');
             return;
         }
 
         try {
-            // Clear auto-close timer if exists
             if (this.state.autoCloseTimer) {
                 clearTimeout(this.state.autoCloseTimer);
                 this.state.autoCloseTimer = null;
             }
             
-            // Hide the overlay
+            // Hide overlay and container
             overlay.style.display = 'none';
             overlay.classList.remove('active');
+            if (container) {
+                container.style.display = 'none';
+                container.style.pointerEvents = 'none';
+            }
             
-            // Mark as seen
             this.state.hasSeenOpening = true;
             this.saveState();
             
-            // Show welcome toast
             if (window.Core && typeof window.Core.showToast === 'function') {
                 window.Core.showToast('Welcome to the space');
             }
