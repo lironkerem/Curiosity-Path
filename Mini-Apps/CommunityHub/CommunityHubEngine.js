@@ -197,69 +197,83 @@ class CommunityHubEngine {
     try {
       console.log('🌟 Loading Community Hub...');
 
-      // Load stylesheets
+      // Stylesheets - all parallel, non-blocking
       this.loadStylesheet('/Mini-Apps/CommunityHub/community-hub.css');
       this.loadStylesheet('/Mini-Apps/CommunityHub/lunar-styles.css');
       this.loadStylesheet('/Mini-Apps/CommunityHub/solar-styles.css');
 
-      // Load external dependencies
-      await this.loadScript('https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js');
-      await this.loadScript('https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.min.js');
+      // GROUP 1: External CDN deps + core system in parallel
+      await Promise.all([
+        this.loadScript('https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js'),
+        this.loadScript('https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.min.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/core.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/supabase-client.js'),
+      ]);
 
-      // Load core system
-      await this.loadScript('/Mini-Apps/CommunityHub/js/core.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/supabase-client.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/rituals.js');
+      // GROUP 2: Modules that depend on core (parallel)
+      await Promise.all([
+        this.loadScript('/Mini-Apps/CommunityHub/js/rituals.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/profile-module.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/community-module.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/SafetyBar.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/PracticeRoom.js'), // base class needed before mixins
+      ]);
 
-      // Load modules
-      await this.loadScript('/Mini-Apps/CommunityHub/js/profile-module.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/community-module.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/SafetyBar.js');
+      // GROUP 3: Mixins (depend on PracticeRoom base, load in parallel)
+      await Promise.all([
+        this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/mixins/YouTubePlayerMixin.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/mixins/CycleStateMixin.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/mixins/ChatMixin.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/mixins/SoundSettingsMixin.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/mixins/TimerMixin.js'),
+        // Solar constants must come before solar rooms
+        this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-constants.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-config.js'),
+        // Lunar core must come before lunar rooms
+        this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunar-core.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunar-ui.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunar-config.js'),
+      ]);
 
-      // Load practice room base & mixins
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/PracticeRoom.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/mixins/YouTubePlayerMixin.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/mixins/CycleStateMixin.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/mixins/ChatMixin.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/mixins/SoundSettingsMixin.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/mixins/TimerMixin.js');
+      // GROUP 4: All rooms + solar/lunar UI in parallel (deps from group 3 satisfied)
+      await Promise.all([
+        // Practice rooms
+        this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/silent-room.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/guided-room.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/osho-room.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/breathwork-room.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/deepwork-room.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/campfire-room.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/tarot-room.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/reiki-room.js'),
+        // Solar base (needed before season rooms)
+        this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-ui.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-base-room.js'),
+        // Lunar engine
+        this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunarengine.js'),
+        // Dynamic sections
+        this.loadScript('/Mini-Apps/CommunityHub/js/active-members.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/collective-field.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/resonance.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/upcoming-events.js'),
+      ]);
 
-      // Load practice rooms
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/silent-room.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/guided-room.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/osho-room.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/breathwork-room.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/deepwork-room.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/campfire-room.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/tarot-room.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/reiki-room.js');
+      // GROUP 5: Season rooms + lunar rooms (depend on base classes from group 4)
+      await Promise.all([
+        this.loadScript('/Mini-Apps/CommunityHub/js/Solar/winter-solar-room.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Solar/spring-solar-room.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Solar/summer-solar-room.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Solar/autumn-solar-room.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/newmoon-room.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/waxingmoon-room.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/fullmoon-room.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/waningmoon-room.js'),
+      ]);
 
-      // Load lunar system
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunar-core.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunar-ui.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunar-config.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunarengine.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/newmoon-room.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/waxingmoon-room.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/fullmoon-room.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/waningmoon-room.js');
-
-      // Load solar system
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-constants.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-config.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-ui.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-base-room.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/winter-solar-room.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/spring-solar-room.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/summer-solar-room.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/autumn-solar-room.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solarengine.js');
-
-      // Load dynamic sections
-      await this.loadScript('/Mini-Apps/CommunityHub/js/active-members.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/collective-field.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/resonance.js');
-      await this.loadScript('/Mini-Apps/CommunityHub/js/upcoming-events.js');
+      // GROUP 6: Engines last (depend on all rooms being registered)
+      await Promise.all([
+        this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solarengine.js'),
+      ]);
 
       // Initialize Core
       if (window.Core?.init) {
