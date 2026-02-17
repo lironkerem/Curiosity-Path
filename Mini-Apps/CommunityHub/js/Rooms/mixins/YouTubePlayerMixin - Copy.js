@@ -45,10 +45,7 @@ const YouTubePlayerMixin = {
             firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
         }
         
-        // Chain callbacks so multiple rooms don't overwrite each other
-        const previousCallback = window.onYouTubeIframeAPIReady;
         window.onYouTubeIframeAPIReady = () => {
-            if (previousCallback) previousCallback();
             this.initPlayer();
         };
     },
@@ -68,11 +65,10 @@ const YouTubePlayerMixin = {
         this.state.player = new YT.Player(`${this.roomId}-youtube-player`, {
             videoId: session.videoId,
             playerVars: {
-                autoplay: 1,
+                autoplay: 0,
                 controls: 1,
                 modestbranding: 1,
-                rel: 0,
-                mute: 1  // Required for autoplay to work in modern browsers
+                rel: 0
             },
             events: {
                 onReady: this.onPlayerReady.bind(this),
@@ -90,19 +86,6 @@ const YouTubePlayerMixin = {
     onPlayerReady(event) {
         this.state.playerReady = true;
         console.log(`${this.config.icon} Player ready`);
-        
-        // Auto-start if session is already in progress
-        if (this.state.isInSession || this.devMode) {
-            event.target.playVideo();
-            // Unmute after a short delay (browser autoplay policy requires muted start)
-            setTimeout(() => {
-                if (this.state.player && this.state.player.unMute) {
-                    this.state.player.unMute();
-                    this.state.player.setVolume(100);
-                }
-            }, 500);
-            this.state.sessionStarted = true;
-        }
         
         // Custom ready callback
         if (this.onPlayerReadyCustom) {
@@ -252,7 +235,13 @@ const YouTubePlayerMixin = {
         
         return `
         <div class="guided-player-container">
-            <div id="${this.roomId}-youtube-player"></div>
+            <iframe id="${this.roomId}-youtube-player"
+                width="100%"
+                height="100%"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+            </iframe>
             <div class="player-overlay" id="${this.roomId}PlayerOverlay">
                 <div class="session-info">
                     <div class="session-emoji" id="${this.roomId}SessionEmoji">${session?.emoji || '🎧'}</div>
