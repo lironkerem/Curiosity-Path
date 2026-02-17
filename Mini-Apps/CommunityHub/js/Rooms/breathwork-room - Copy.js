@@ -1,9 +1,9 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * OSHO ACTIVE MEDITATION ROOM (REFACTORED)
+ * BREATHWORK ROOM (REFACTORED)
  * ═══════════════════════════════════════════════════════════════════════════
  * 
- * @class OshoRoom
+ * @class BreathworkRoom
  * @extends PracticeRoom
  * @mixes YouTubePlayerMixin, CycleStateMixin
  * @version 3.0.0
@@ -11,16 +11,16 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
-class OshoRoom extends PracticeRoom {
+class BreathworkRoom extends PracticeRoom {
     constructor() {
         super({
-            roomId: 'osho',
+            roomId: 'breathwork',
             roomType: 'timed',
-            name: 'OSHO Active',
-            icon: '💃',
-            description: '7 OSHO methods. Dynamic practice.',
-            energy: 'Dynamic',
-            imageUrl: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/OSHO.png',
+            name: 'Breathwork',
+            icon: '💨',
+            description: 'Holotropic, Wim Hof, and more.',
+            energy: 'Transformative',
+            imageUrl: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Breathwork.png',
             participants: 0,
             cycleDuration: 100 * 60,     // 100 minutes
             openDuration: 10 * 60,       // 10 minutes open window
@@ -34,26 +34,22 @@ class OshoRoom extends PracticeRoom {
         this.initPlayerState();
         this.initCycleState();
         
-        // OSHO library - 7 methods rotating every 100 minutes
-        this.oshoMeditations = [
-            { id: 1, title: 'OSHO Chakra Breathing Meditation', duration: '77:00', category: 'Energy', 
-              videoId: 'DqmQFz7aZ8w', emoji: '🌬️' },
-            { id: 2, title: 'OSHO Chakra Sounds Meditation', duration: '77:00', category: 'Sound', 
-              videoId: 'DqmQFz7aZ8w', emoji: '🎵' },
-            { id: 3, title: 'OSHO Devavani Meditation', duration: '77:00', category: 'Voice', 
-              videoId: 'DqmQFz7aZ8w', emoji: '🗣️' },
-            { id: 4, title: 'OSHO Kundalini Meditation', duration: '77:00', category: 'Movement', 
-              videoId: 'DqmQFz7aZ8w', emoji: '💃' },
-            { id: 5, title: 'OSHO Mandala Meditation', duration: '77:00', category: 'Energy', 
-              videoId: 'DqmQFz7aZ8w', emoji: '⭕' },
-            { id: 6, title: 'OSHO Nadabrahma Meditation', duration: '77:00', category: 'Humming', 
-              videoId: 'DqmQFz7aZ8w', emoji: '🕉️' },
-            { id: 7, title: 'OSHO Nataraj Meditation', duration: '77:00', category: 'Dance', 
-              videoId: 'DqmQFz7aZ8w', emoji: '🎭' }
+        // Breathwork library - 5 techniques rotating every 100 minutes
+        this.breathworkSessions = [
+            { id: 1, title: 'Holotropic Breathwork', duration: '70:00', category: 'Deep', 
+              videoId: 'HOLOTROPIC_VIDEO_ID', emoji: '🌊' },
+            { id: 2, title: 'Wim Hof Method', duration: '70:00', category: 'Power', 
+              videoId: 'WIM_HOF_VIDEO_ID', emoji: '❄️' },
+            { id: 3, title: 'Box Breathing (Navy SEAL)', duration: '70:00', category: 'Focus', 
+              videoId: 'BOX_BREATHING_VIDEO_ID', emoji: '⬜' },
+            { id: 4, title: 'Pranayama - Nadi Shodhana', duration: '70:00', category: 'Balance', 
+              videoId: 'NADI_SHODHANA_VIDEO_ID', emoji: '🧘' },
+            { id: 5, title: 'Circular Breathing', duration: '70:00', category: 'Energy', 
+              videoId: 'CIRCULAR_VIDEO_ID', emoji: '🔄' }
         ];
         
-        this.state.currentMeditation = null;
-        this.state.nextMeditation = null;
+        this.state.currentSession = null;
+        this.state.nextSession = null;
     }
     
     // ═══════════════════════════════════════════════════════════════════════
@@ -80,20 +76,20 @@ class OshoRoom extends PracticeRoom {
     setSessions(now) {
         const cycleMs = this.config.cycleDuration * 1000;
         const cycleNumber = Math.floor(now / cycleMs);
-        const meditationIndex = cycleNumber % this.oshoMeditations.length;
+        const sessionIndex = cycleNumber % this.breathworkSessions.length;
         
-        this.state.currentMeditation = this.oshoMeditations[meditationIndex];
+        this.state.currentSession = this.breathworkSessions[sessionIndex];
         
-        const nextIndex = (meditationIndex + 1) % this.oshoMeditations.length;
-        this.state.nextMeditation = this.oshoMeditations[nextIndex];
+        const nextIndex = (sessionIndex + 1) % this.breathworkSessions.length;
+        this.state.nextSession = this.breathworkSessions[nextIndex];
     }
     
     getCurrentSession() {
-        return this.state.currentMeditation;
+        return this.state.currentSession;
     }
     
     getNextSession() {
-        return this.state.nextMeditation;
+        return this.state.nextSession;
     }
     
     // ═══════════════════════════════════════════════════════════════════════
@@ -101,14 +97,14 @@ class OshoRoom extends PracticeRoom {
     // ═══════════════════════════════════════════════════════════════════════
     
     buildBody() {
-        const meditation = this.getCurrentSession();
+        const session = this.getCurrentSession();
         
         return `
         <div class="ps-body">
             <main class="ps-main">
-                <!-- Current Meditation Title -->
+                <!-- Current Session Title -->
                 <h2 style="text-align: center; margin: 20px 0; font-size: 24px; font-weight: 600; color: var(--text);" id="${this.roomId}MeditationHeading">
-                    Current Session - ${meditation?.title || 'Loading...'}
+                    Current Session - ${session?.title || 'Loading...'}
                 </h2>
 
                 ${this.buildPlayerContainer()}
@@ -126,7 +122,7 @@ class OshoRoom extends PracticeRoom {
         <div class="modal-overlay" id="${this.roomId}ScheduleModal">
             <div class="modal-card schedule-modal">
                 <button class="modal-close" onclick="${this.getClassName()}.closeScheduleModal()">×</button>
-                <h2>📅 Upcoming OSHO Sessions</h2>
+                <h2>📅 Upcoming Breathwork Sessions</h2>
                 <div class="schedule-content" id="${this.roomId}ScheduleContent"></div>
             </div>
         </div>`;
@@ -134,32 +130,30 @@ class OshoRoom extends PracticeRoom {
     
     getInstructions() {
         return `
-            <p><strong>Active OSHO meditation techniques every 100 minutes.</strong></p>
+            <p><strong>Transformative breathwork sessions every 100 minutes.</strong></p>
             
             <h3>How It Works:</h3>
             <ul>
                 <li>Open window: First 10 minutes of each cycle</li>
                 <li>Session runs for 90 minutes</li>
-                <li>7 different OSHO methods rotating continuously</li>
+                <li>5 different techniques rotating continuously</li>
             </ul>
             
-            <h3>Practice Guidelines:</h3>
+            <h3>Safety Guidelines:</h3>
             <ul>
-                <li>Enter during the open window</li>
-                <li>Follow the practice</li>
-                <li>Express freely - move, breathe, sound</li>
-                <li>Allow whatever arises</li>
+                <li>Find a safe position (lying or seated)</li>
+                <li>Never practice while driving or in water</li>
+                <li>Stop if you feel dizzy or uncomfortable</li>
+                <li>Breathe normally if needed</li>
             </ul>
             
-            <h3>The 7 Methods:</h3>
+            <h3>Techniques:</h3>
             <ul>
-                <li>🌬️ Chakra Breathing - Energy activation</li>
-                <li>🎵 Chakra Sounds - Vocal energy work</li>
-                <li>🗣️ Devavani - Gibberish and silence</li>
-                <li>💃 Kundalini - Shaking and dancing</li>
-                <li>⭕ Mandala - Running in circles</li>
-                <li>🕉️ Nadabrahma - Humming meditation</li>
-                <li>🎭 Nataraj - Dance meditation</li>
+                <li>🌊 Holotropic - Deep transformative breathing</li>
+                <li>❄️ Wim Hof - Power breathing and breath holds</li>
+                <li>⬜ Box Breathing - Military focus technique</li>
+                <li>🧘 Pranayama - Traditional yogic breathing</li>
+                <li>🔄 Circular - Continuous energy breathing</li>
             </ul>`;
     }
     
@@ -178,11 +172,11 @@ class OshoRoom extends PracticeRoom {
         
         let scheduleHTML = '<div class="schedule-list">';
         
-        // Show next 14 sessions (2 full cycles of 7)
-        for (let i = 0; i < 14; i++) {
+        // Show next 10 sessions
+        for (let i = 0; i < 10; i++) {
             const cycleIndex = (currentCycle + i);
-            const meditationIndex = cycleIndex % this.oshoMeditations.length;
-            const meditation = this.oshoMeditations[meditationIndex];
+            const sessionIndex = cycleIndex % this.breathworkSessions.length;
+            const session = this.breathworkSessions[sessionIndex];
             const cycleStart = cycleIndex * cycleMs;
             const timeUntil = cycleStart - now;
             const isCurrent = i === 0;
@@ -207,10 +201,10 @@ class OshoRoom extends PracticeRoom {
                 <div class="schedule-item ${isCurrent ? 'current' : ''}" 
                      style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: var(--radius-md); margin-bottom: 8px; ${isCurrent ? 'background: var(--accent); color: white;' : 'background: var(--surface);'}">
                     <div style="flex: 1; display: flex; align-items: center; gap: 12px;">
-                        <span style="font-size: 24px;">${meditation.emoji}</span>
+                        <span style="font-size: 24px;">${session.emoji}</span>
                         <div>
-                            <div style="font-weight: 600; font-size: 14px;">${meditation.title}</div>
-                            <div style="font-size: 11px; opacity: 0.7;">${meditation.category} • ${meditation.duration}</div>
+                            <div style="font-weight: 600; font-size: 14px;">${session.title}</div>
+                            <div style="font-size: 11px; opacity: 0.7;">${session.category} • ${session.duration}</div>
                         </div>
                     </div>
                     <div style="font-size: 12px; font-weight: 500;">${timeText}</div>
@@ -230,12 +224,12 @@ class OshoRoom extends PracticeRoom {
 }
 
 // Apply mixins
-Object.assign(OshoRoom.prototype, YouTubePlayerMixin);
-Object.assign(OshoRoom.prototype, CycleStateMixin);
+Object.assign(BreathworkRoom.prototype, YouTubePlayerMixin);
+Object.assign(BreathworkRoom.prototype, CycleStateMixin);
 
 // Create and bind singleton instance
-const oshoInstance = (() => {
-    const instance = new OshoRoom();
+const breathworkInstance = (() => {
+    const instance = new BreathworkRoom();
     
     // Bind ALL methods to the instance
     let proto = Object.getPrototypeOf(instance);
@@ -251,8 +245,8 @@ const oshoInstance = (() => {
     return instance;
 })();
 
-window.OshoRoom = oshoInstance;
+window.BreathworkRoom = breathworkInstance;
 // CRITICAL: Create global variable for onclick handlers
-if (typeof OshoRoom === 'undefined') {
-    OshoRoom = oshoInstance;
+if (typeof BreathworkRoom === 'undefined') {
+    BreathworkRoom = breathworkInstance;
 }

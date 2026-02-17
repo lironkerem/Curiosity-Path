@@ -37,19 +37,19 @@ class OshoRoom extends PracticeRoom {
         // OSHO library - 7 methods rotating every 100 minutes
         this.oshoMeditations = [
             { id: 1, title: 'OSHO Chakra Breathing Meditation', duration: '77:00', category: 'Energy', 
-              videoId: 'DqmQFz7aZ8w', emoji: '🌬️' },
+              videoId: 'CHAKRA_BREATHING_VIDEO_ID', emoji: '🌬️' },
             { id: 2, title: 'OSHO Chakra Sounds Meditation', duration: '77:00', category: 'Sound', 
-              videoId: 'DqmQFz7aZ8w', emoji: '🎵' },
+              videoId: 'CHAKRA_SOUNDS_VIDEO_ID', emoji: '🎵' },
             { id: 3, title: 'OSHO Devavani Meditation', duration: '77:00', category: 'Voice', 
-              videoId: 'DqmQFz7aZ8w', emoji: '🗣️' },
+              videoId: 'DEVAVANI_VIDEO_ID', emoji: '🗣️' },
             { id: 4, title: 'OSHO Kundalini Meditation', duration: '77:00', category: 'Movement', 
-              videoId: 'DqmQFz7aZ8w', emoji: '💃' },
+              videoId: 'KUNDALINI_VIDEO_ID', emoji: '💃' },
             { id: 5, title: 'OSHO Mandala Meditation', duration: '77:00', category: 'Energy', 
-              videoId: 'DqmQFz7aZ8w', emoji: '⭕' },
+              videoId: 'MANDALA_VIDEO_ID', emoji: '⭕' },
             { id: 6, title: 'OSHO Nadabrahma Meditation', duration: '77:00', category: 'Humming', 
-              videoId: 'DqmQFz7aZ8w', emoji: '🕉️' },
+              videoId: 'NADABRAHMA_VIDEO_ID', emoji: '🕉️' },
             { id: 7, title: 'OSHO Nataraj Meditation', duration: '77:00', category: 'Dance', 
-              videoId: 'DqmQFz7aZ8w', emoji: '🎭' }
+              videoId: 'NATARAJ_VIDEO_ID', emoji: '🎭' }
         ];
         
         this.state.currentMeditation = null;

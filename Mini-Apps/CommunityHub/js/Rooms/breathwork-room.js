@@ -37,15 +37,15 @@ class BreathworkRoom extends PracticeRoom {
         // Breathwork library - 5 techniques rotating every 100 minutes
         this.breathworkSessions = [
             { id: 1, title: 'Holotropic Breathwork', duration: '70:00', category: 'Deep', 
-              videoId: 'HOLOTROPIC_VIDEO_ID', emoji: '🌊' },
+              videoId: 'DqmQFz7aZ8w', emoji: '🌊' },
             { id: 2, title: 'Wim Hof Method', duration: '70:00', category: 'Power', 
-              videoId: 'WIM_HOF_VIDEO_ID', emoji: '❄️' },
+              videoId: 'DqmQFz7aZ8w', emoji: '❄️' },
             { id: 3, title: 'Box Breathing (Navy SEAL)', duration: '70:00', category: 'Focus', 
-              videoId: 'BOX_BREATHING_VIDEO_ID', emoji: '⬜' },
+              videoId: 'DqmQFz7aZ8w', emoji: '⬜' },
             { id: 4, title: 'Pranayama - Nadi Shodhana', duration: '70:00', category: 'Balance', 
-              videoId: 'NADI_SHODHANA_VIDEO_ID', emoji: '🧘' },
+              videoId: 'DqmQFz7aZ8w', emoji: '🧘' },
             { id: 5, title: 'Circular Breathing', duration: '70:00', category: 'Energy', 
-              videoId: 'CIRCULAR_VIDEO_ID', emoji: '🔄' }
+              videoId: 'DqmQFz7aZ8w', emoji: '🔄' }
         ];
         
         this.state.currentSession = null;
