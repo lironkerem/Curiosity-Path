@@ -1,100 +1,51 @@
-/* =========================================================================
-   COMMUNITY HUB - UNIFIED STYLESHEET
-   Combines: community-hub.css + lunar-styles.css + solar-styles.css
-   Generated: Mon Feb 16 12:53:58 UTC 2026
-   ========================================================================= */
-
-/* =========================================================================
-   SECTION 1: COMMUNITY HUB BASE STYLES
-   ========================================================================= */
 /* =========================================================
    COMMUNITY HUB STYLES
-   Inherits from Digital Curiosity main-styles.css
+   Aligned with Digital Curiosity Earth-Luxury Design System
    ========================================================= */
 
-/* ===== CRITICAL BACKGROUND FIX ===== */
-/* Ensure practice rooms inherit app background, not celestial room backgrounds */
-#communityHubFullscreenContainer,
-#practiceRoomView,
-#dynamicRoomContent,
-.practice-space {
-    background: transparent !important;
-}
-
-/* Force body to use proper background - override ANY solar/lunar pollution */
-body {
-    background: var(--neuro-bg) !important;
-}
-
-/* Block solar dark variables from applying globally */
-:root {
-    --season-bg-start: var(--neuro-bg) !important;
-    --season-bg-mid1: var(--neuro-bg) !important;
-    --season-bg-mid2: var(--neuro-bg) !important;
-    --season-bg-mid3: var(--neuro-bg) !important;
-    --season-bg-end: var(--neuro-bg) !important;
-}
+/* ===== BASE RESET ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 /* ===== ROOT VARIABLES (Inherits from main app) ===== */
 :root {
-    /* Community Hub specific colors - using main app variables */
-    --season-bg: var(--neuro-bg);
-    --season-accent: var(--neuro-accent);
-    --season-mood: var(--neuro-bg-lightest);
-    --season-text: var(--neuro-text);
+    /* Community Hub now uses main app variables directly */
+    /* All --neuro-* variables are inherited from main app CSS */
     
-    /* Practice status rings using earth tones from main app */
-    --ring-silent: #6ba3b3;          /* calm blue-teal (same as --neuro-info) */
-    --ring-available: var(--neuro-accent);
-    --ring-guiding: var(--neuro-warning);
-    --ring-deep: var(--neuro-wood);
-    --ring-resonant: var(--neuro-forest);
-    --ring-offline: var(--neuro-text-dim);
+    /* Practice status rings using main app accent colors */
+    --ring-silent: var(--neuro-info, #6ba3b3);          /* calm blue-teal */
+    --ring-available: var(--neuro-accent, #6b9b37);     /* vibrant leaf green */
+    --ring-guiding: var(--neuro-warning, #d4a574);      /* warm amber */
+    --ring-deep: var(--neuro-wood, #8b7355);            /* deep wood brown */
+    --ring-resonant: var(--neuro-accent, #6b9b37);      /* forest green */
+    --ring-offline: var(--neuro-wood-light, #a89279);   /* muted taupe */
     
-    /* Aliases for community hub components - point to main app */
+    /* Alias main app variables for Community Hub compatibility */
     --primary: var(--neuro-accent);
     --surface: var(--neuro-bg-lighter);
+    --background: var(--neuro-bg);
     --text: var(--neuro-text);
     --text-muted: var(--neuro-text-light);
-    --text-secondary: var(--neuro-text-lighter);
     --border: var(--neuro-shadow-light);
-    --background: var(--neuro-bg);
     --accent: var(--neuro-accent);
     
-    /* Use main app's shadows directly */
-    --shadow-raised: var(--shadow-raised);
-    --shadow-raised-lg: var(--shadow-raised-lg);
-    --shadow-raised-hover: var(--shadow-raised-hover);
-    --shadow-inset: var(--shadow-inset);
-    --shadow-inset-sm: var(--shadow-inset-sm);
-    --shadow-inset-lg: var(--shadow-inset-lg);
-    --shadow-glow: var(--shadow-glow);
-    
-    /* Use main app's typography */
-    --serif: Georgia, 'Times New Roman', serif;
-    
-    /* Use main app's spacing & radius */
-    --radius-sm: var(--radius-sm);
-    --radius-md: var(--radius-md);
-    --radius-lg: var(--radius-lg);
-    --radius-xl: var(--radius-xl);
-    --radius-2xl: var(--radius-2xl);
-    --radius-full: var(--radius-full);
-    --spacing-xs: var(--spacing-xs);
-    --spacing-sm: var(--spacing-sm);
-    --spacing-md: var(--spacing-md);
-    --spacing-lg: var(--spacing-lg);
-    --spacing-xl: var(--spacing-xl);
-    --spacing-2xl: var(--spacing-2xl);
-    --transition-fast: var(--transition-fast);
-    --transition-normal: var(--transition-normal);
-    --transition-slow: var(--transition-slow);
+    /* Use main app's serif font */
+    --serif: 'Georgia', 'Times New Roman', serif;
 }
 
 /* ===== SEASONAL VARIATIONS ===== */
-/* Handled by main-styles.css - Community Hub inherits from body classes */
+/* These override based on body class - removed, now controlled by main app */
 
-/* ===== COMMUNITY HUB VIEWS ===== */
+/* ===== COMMUNITY HUB SCOPED STYLES ===== */
+/* Apply Community Hub background only to the tab container */
+#community-hub-tab {
+    background: var(--neuro-bg);
+    transition: background 1.5s ease;
+    min-height: 100vh;
+}
+
+/* Community Hub inherits all typography from main app body styles */
+
+/* ===== GLOBAL VIEWS ===== */
 .view { 
     display: none; 
     min-height: 100vh; 
@@ -114,7 +65,7 @@ body {
 .season-flash {
     position: fixed; 
     inset: 0; 
-    background: var(--season-accent);
+    background: var(--neuro-accent);
     opacity: 0; 
     pointer-events: none; 
     z-index: 9999;
@@ -138,12 +89,12 @@ body {
 .ritual-card { text-align: center; max-width: 400px; padding: 48px; }
 .ritual-candle {
     width: 80px; height: 80px; margin: 0 auto 32px;
-    background: radial-gradient(circle, var(--season-accent) 0%, transparent 70%);
+    background: radial-gradient(circle, var(--neuro-accent) 0%, transparent 70%);
     border-radius: 50%; animation: flicker 3s infinite;
 }
 @keyframes flicker { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } }
 .ritual-text { font-family: var(--serif); font-size: 24px; font-style: italic; margin-bottom: 24px; color: inherit; }
-.ritual-overlay.closing .ritual-text { color: var(--season-mood); }
+.ritual-overlay.closing .ritual-text { color: var(--neuro-bg-lightest); }
 .ritual-btn {
     padding: 12px 32px; border: 2px solid currentColor; background: transparent;
     border-radius: var(--radius-full); font-family: var(--serif); font-style: italic; cursor: pointer;
@@ -156,7 +107,7 @@ body {
 
 /* PROFILE HEADER */
 .profile-hero {
-    background: linear-gradient(to bottom, var(--season-mood), transparent);
+    background: linear-gradient(to bottom, var(--neuro-bg-lightest), transparent);
     padding: 40px 0 32px;
     margin-bottom: 24px;
     border-bottom: 2px solid var(--border);
@@ -168,7 +119,7 @@ body {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; height: 4px;
-    background: linear-gradient(90deg, transparent, var(--season-accent), transparent);
+    background: linear-gradient(90deg, transparent, var(--neuro-accent), transparent);
     opacity: 0.5;
 }
 
@@ -209,7 +160,7 @@ body {
     font-size: 48px;
     color: white;
     font-weight: 700;
-    border: 4px solid var(--season-mood);
+    border: 4px solid var(--neuro-bg-lightest);
     box-shadow: var(--shadow-raised-lg);
     position: relative;
     background: linear-gradient(135deg, var(--neuro-forest-dark, #558030) 0%, var(--neuro-forest, #6b9b37) 100%);
@@ -239,7 +190,7 @@ body {
     right: 0;
     width: 36px;
     height: 36px;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     border: 2px solid var(--border);
     border-radius: 50%;
     display: flex;
@@ -534,7 +485,7 @@ body.dev-mode .practice-room.in-session::before {
     width: 48px;
     height: 48px;
     border-radius: var(--radius-md);
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -585,7 +536,7 @@ body.dev-mode .practice-room.in-session::before {
     right: 20px;
     padding: 8px 16px;
     background: var(--text);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
     border: none;
     border-radius: var(--radius-md);
     font-size: 13px;
@@ -620,7 +571,7 @@ body.dev-mode .practice-room.in-session::before {
 /* PRACTICE SPACE VIEW */
 .practice-space {
     min-height: 100vh;
-    background: transparent;
+    background: var(--neuro-bg);
     position: relative;
 }
 
@@ -788,7 +739,7 @@ body.dev-mode .practice-room.in-session::before {
     width: 72px;
     height: 72px;
     background: var(--text);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
     border-color: var(--text);
 }
 
@@ -931,7 +882,7 @@ body.dev-mode .practice-room.in-session::before {
 .dw-status {
     font-size: 12px;
     padding: 4px 8px;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     border-radius: 4px;
     font-weight: 500;
 }
@@ -954,7 +905,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .support-btn:hover {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     transform: scale(1.05);
 }
 
@@ -1010,7 +961,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .ambient-option:hover {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
 }
 
 .ambient-option input[type="radio"] {
@@ -1038,7 +989,7 @@ body.dev-mode .practice-room.in-session::before {
 
 .category-option:hover,
 .duration-option:hover {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
 }
 
 .category-option input[type="radio"],
@@ -1146,7 +1097,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .campfire-msg.own {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
 }
 
 .campfire-msg-avatar {
@@ -1215,7 +1166,7 @@ body.dev-mode .practice-room.in-session::before {
     padding: 14px 18px;
     border: 2px solid var(--border);
     border-radius: var(--radius-lg);
-    background: var(--season-bg);
+    background: var(--neuro-bg);
     font-size: 14px;
     font-family: inherit;
     transition: all var(--transition-fast);
@@ -1296,7 +1247,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .campfire-participant:hover {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
 }
 
 .campfire-participant-avatar {
@@ -1480,7 +1431,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .sound-option:hover {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
 }
 
 .sound-option input[type="radio"] {
@@ -1605,7 +1556,7 @@ body.dev-mode .practice-room.in-session::before {
 
 .timer-main {
     background: var(--text);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
     border-color: var(--text);
 }
 
@@ -1711,7 +1662,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .ps-close:hover {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
 }
 
 .chat-messages {
@@ -1726,7 +1677,7 @@ body.dev-mode .practice-room.in-session::before {
 .chat-msg {
     max-width: 85%;
     padding: 12px 16px;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     border-radius: var(--radius-md);
     border-bottom-left-radius: 4px;
     font-size: 14px;
@@ -1766,7 +1717,7 @@ body.dev-mode .practice-room.in-session::before {
 .chat-input-container button {
     padding: 10px 20px;
     background: var(--primary);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
     border: none;
     border-radius: var(--radius-full);
     cursor: pointer;
@@ -1834,7 +1785,7 @@ body.dev-mode .practice-room.in-session::before {
 
 .reflection-input-card textarea:focus {
     outline: none;
-    border-color: var(--season-accent);
+    border-color: var(--neuro-accent);
 }
 
 .reflection-input-footer {
@@ -1851,7 +1802,7 @@ body.dev-mode .practice-room.in-session::before {
 .share-btn {
     padding: 10px 20px;
     background: var(--text);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
     border: none;
     border-radius: var(--radius-md);
     font-weight: 600;
@@ -1911,9 +1862,9 @@ body.dev-mode .practice-room.in-session::before {
 
 .ref-content {
     padding: 16px;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     border-radius: var(--radius-md);
-    border-left: 3px solid var(--season-accent);
+    border-left: 3px solid var(--neuro-accent);
     margin-bottom: 16px;
     line-height: 1.6;
     box-shadow: var(--shadow-inset-sm);
@@ -1949,7 +1900,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .wave-card {
-    background: linear-gradient(135deg, var(--season-mood) 0%, var(--surface) 100%);
+    background: linear-gradient(135deg, var(--neuro-bg-lightest) 0%, var(--surface) 100%);
     border: 2px solid var(--border);
     border-radius: var(--radius-lg);
     padding: 24px;
@@ -1986,7 +1937,7 @@ body.dev-mode .practice-room.in-session::before {
 
 .prog-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--season-accent), var(--primary));
+    background: linear-gradient(90deg, var(--neuro-accent), var(--primary));
     position: relative;
 }
 
@@ -2088,11 +2039,11 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .modal-close:hover {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
 }
 
 .help-option:hover {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     transform: translateX(4px);
     box-shadow: var(--shadow-raised);
 }
@@ -2157,11 +2108,11 @@ body.dev-mode .practice-room.in-session::before {
 
 .member-btn.primary {
     background: var(--primary);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
 }
 
 .member-btn:not(.primary) {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     color: var(--text);
 }
 
@@ -2225,7 +2176,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .safety-menu button:hover {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
 }
 
 /* TOAST */
@@ -2235,7 +2186,7 @@ body.dev-mode .practice-room.in-session::before {
     left: 50%;
     transform: translateX(-50%) translateY(-100px);
     background: rgba(61, 47, 31, 0.95);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
     padding: 12px 24px;
     border-radius: var(--radius-md);
     font-size: 13px;
@@ -2345,7 +2296,7 @@ body.dev-mode .practice-room.in-session::before {
     left: 50%; 
     transform: translateX(-50%);
     background: var(--text); 
-    color: var(--season-mood); 
+    color: var(--neuro-bg-lightest); 
     padding: 6px 10px;
     border-radius: var(--radius-sm); 
     font-size: 11px; 
@@ -2389,7 +2340,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .v-btn.active { 
-    background: var(--season-mood); 
+    background: var(--neuro-bg-lightest); 
     color: var(--text); 
     box-shadow: var(--shadow-raised);
 }
@@ -2490,8 +2441,8 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .cycle-phase.active {
-    background: var(--season-accent);
-    color: var(--season-text);
+    background: var(--neuro-accent);
+    color: var(--neuro-text);
     box-shadow: var(--shadow-raised);
 }
 
@@ -2536,7 +2487,7 @@ body.dev-mode .practice-room.in-session::before {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, var(--season-accent), var(--primary));
+    background: linear-gradient(90deg, var(--neuro-accent), var(--primary));
     opacity: 0.6;
 }
 
@@ -2549,7 +2500,7 @@ body.dev-mode .practice-room.in-session::before {
     width: 80px;
     height: 80px;
     margin-bottom: 20px;
-    color: var(--season-accent);
+    color: var(--neuro-accent);
     opacity: 0.8;
 }
 
@@ -2659,7 +2610,7 @@ body.dev-mode .practice-room.in-session::before {
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--season-accent), var(--primary));
+    background: linear-gradient(90deg, var(--neuro-accent), var(--primary));
     border-radius: var(--radius-full);
     transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -2731,7 +2682,7 @@ body.dev-mode .practice-room.in-session::before {
 .collective-action-btn:hover {
     box-shadow: var(--shadow-raised-hover);
     transform: translateY(-2px);
-    border-color: var(--season-accent);
+    border-color: var(--neuro-accent);
 }
 
 .collective-action-btn:active {
@@ -2744,9 +2695,9 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .collective-action-btn.sent {
-    background: var(--season-accent);
-    color: var(--season-mood);
-    border-color: var(--season-accent);
+    background: var(--neuro-accent);
+    color: var(--neuro-bg-lightest);
+    border-color: var(--neuro-accent);
 }
 
 @keyframes pulseButton {
@@ -2934,7 +2885,7 @@ body.dev-mode .practice-room.in-session::before {
 
 .share-input:focus { 
     outline: none; 
-    border-color: var(--season-accent); 
+    border-color: var(--neuro-accent); 
 }
 
 .share-actions {
@@ -2970,7 +2921,7 @@ body.dev-mode .practice-room.in-session::before {
     width: 40px;
     height: 40px;
     border-radius: var(--radius-md);
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3064,15 +3015,15 @@ body.dev-mode .practice-room.in-session::before {
 
 .t-btn.primary { 
     background: var(--text); 
-    color: var(--season-mood); 
+    color: var(--neuro-bg-lightest); 
     border-color: var(--text); 
 }
 
 .gratitude-btn {
     padding: 12px 24px;
     background: transparent;
-    border: 2px solid var(--season-accent);
-    color: var(--season-text);
+    border: 2px solid var(--neuro-accent);
+    color: var(--neuro-text);
     border-radius: var(--radius-full);
     font-family: var(--serif);
     font-style: italic;
@@ -3082,7 +3033,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .gratitude-btn:hover { 
-    background: var(--season-mood); 
+    background: var(--neuro-bg-lightest); 
     box-shadow: var(--shadow-raised-hover);
     transform: translateY(-2px);
 }
@@ -3141,7 +3092,7 @@ body.dev-mode .practice-room.in-session::before {
     height: 36px;
     border-radius: 50%;
     background: var(--primary);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
     border: none;
     cursor: pointer;
     display: flex;
@@ -3229,11 +3180,11 @@ body.dev-mode .practice-room.in-session::before {
 
 .m-btn-primary { 
     background: var(--primary); 
-    color: var(--season-mood); 
+    color: var(--neuro-bg-lightest); 
 }
 
 .m-btn-secondary { 
-    background: var(--season-mood); 
+    background: var(--neuro-bg-lightest); 
     color: var(--text); 
 }
 
@@ -3243,7 +3194,7 @@ body.dev-mode .practice-room.in-session::before {
     gap: 16px; 
     margin: 24px 0; 
     padding: 20px; 
-    background: var(--season-mood); 
+    background: var(--neuro-bg-lightest); 
     border-radius: var(--radius-md); 
     box-shadow: var(--shadow-inset-sm);
 }
@@ -3283,8 +3234,8 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .member-card-mini:hover {
-    background: var(--season-mood);
-    border-color: var(--season-accent);
+    background: var(--neuro-bg-lightest);
+    border-color: var(--neuro-accent);
     transform: translateY(-4px);
     box-shadow: var(--shadow-raised-hover);
 }
@@ -3396,7 +3347,7 @@ body.dev-mode .practice-room.in-session::before {
     font-size: 64px;
     color: white;
     font-weight: 700;
-    border: 5px solid var(--season-mood);
+    border: 5px solid var(--neuro-bg-lightest);
     box-shadow: var(--shadow-raised-lg);
     position: relative;
     background: linear-gradient(135deg, var(--neuro-forest-dark, #558030) 0%, var(--neuro-forest, #6b9b37) 100%);
@@ -3444,9 +3395,9 @@ body.dev-mode .practice-room.in-session::before {
     color: var(--text-muted);
     margin-bottom: 16px;
     padding: 12px 16px;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     border-radius: var(--radius-md);
-    border-left: 3px solid var(--season-accent);
+    border-left: 3px solid var(--neuro-accent);
     box-shadow: var(--shadow-inset-sm);
 }
 
@@ -3479,7 +3430,7 @@ body.dev-mode .practice-room.in-session::before {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     color: var(--text);
     border: 1px solid var(--border);
 }
@@ -3516,7 +3467,7 @@ body.dev-mode .practice-room.in-session::before {
     height: 240px;
     overflow: hidden;
     position: relative;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
 }
 
 .event-flyer img {
@@ -3566,11 +3517,11 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .event-datetime {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     padding: 16px;
     border-radius: var(--radius-md);
     margin-bottom: 20px;
-    border-left: 3px solid var(--season-accent);
+    border-left: 3px solid var(--neuro-accent);
     box-shadow: var(--shadow-inset-sm);
 }
 
@@ -3590,7 +3541,7 @@ body.dev-mode .practice-room.in-session::before {
     width: 100%;
     padding: 14px 24px;
     background: var(--primary);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
     border: none;
     border-radius: var(--radius-md);
     font-size: 15px;
@@ -3635,7 +3586,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .solar-card::before {
-    background: linear-gradient(90deg, var(--ring-guiding), var(--season-accent));
+    background: linear-gradient(90deg, var(--ring-guiding), var(--neuro-accent));
 }
 
 .celestial-content-horizontal {
@@ -3729,7 +3680,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .celestial-card {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     border-radius: var(--radius-lg);
     padding: 24px;
     text-align: center;
@@ -3807,7 +3758,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .decl-value {
-    color: var(--season-accent);
+    color: var(--neuro-accent);
     font-weight: 700;
 }
 
@@ -3830,7 +3781,7 @@ body.dev-mode .practice-room.in-session::before {
     flex-direction: column;
     align-items: flex-start;
     padding: 6px 12px;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     border-radius: var(--radius-sm);
     margin-bottom: 6px;
 }
@@ -3867,7 +3818,7 @@ body.dev-mode .practice-room.in-session::before {
     color: var(--text-muted);
     font-style: italic;
     padding: 10px 14px;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     border-radius: var(--radius-sm);
     margin-top: 12px;
 }
@@ -3916,7 +3867,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .decl-value {
-    color: var(--season-accent);
+    color: var(--neuro-accent);
     font-weight: 700;
     font-size: 16px;
 }
@@ -3971,7 +3922,7 @@ body.dev-mode .practice-room.in-session::before {
     align-items: center;
     justify-content: center;
     font-size: 24px;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     box-shadow: var(--shadow-inset-sm);
     flex-shrink: 0;
 }
@@ -4010,7 +3961,7 @@ body.dev-mode .practice-room.in-session::before {
 .join-btn-inline {
     padding: 10px 24px;
     background: var(--primary);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
     border: none;
     border-radius: var(--radius-md);
     font-size: 14px;
@@ -4084,960 +4035,34 @@ body.dev-mode .practice-room.in-session::before {
         }
     }
 
+/* ===== PRACTICE ROOM BACKGROUND FIX ===== */
+/* Override for fullscreen practice room container - uses main app variables */
+#communityHubFullscreenContainer {
+    --background: var(--neuro-bg-lightest);
+    --surface: var(--neuro-bg-lighter);
+    --text: var(--neuro-text);
+    --text-muted: var(--neuro-text-light);
+    --border: var(--neuro-shadow-light);
+    --accent: var(--neuro-accent);
+}
+
+/* Reset body background when practice room is open - inherits from main app */
+body:has(#communityHubFullscreenContainer[style*="display: block"]),
+body:has(#communityHubFullscreenContainer:not([style*="display: none"])) {
+    background: var(--neuro-bg-lightest) !important;
+}
+
+/* Ensure the practice room view has proper background */
+#practiceRoomView {
+    background: var(--neuro-bg-lightest);
+    min-height: 100vh;
+}
+
 .practice-room-container {
     min-height: 100vh;
     width: 100%;
-    /* background removed - using body.solar-room-active background instead */
+    background: var(--neuro-bg-lightest);
     position: relative;
     overflow-x: hidden;
     padding: 2rem 1rem;
-}
-/* =========================================================================
-   SECTION 2: LUNAR ROOM STYLES
-   ========================================================================= */
-/**
- * LUNAR-STYLES.CSS
- * Phase-specific visual overrides
- * These are automatically injected by each room but can be customized here
- */
-
-/* ===== NEW MOON - Dark, introspective ===== */
-.newmoon-moon-sphere {
-    background: radial-gradient(circle at 30% 30%, #2a2a3a 0%, #1a1a2a 50%, #0a0a1a 100%);
-    box-shadow: 
-        0 0 20px rgba(100, 100, 120, 0.2),
-        0 0 40px rgba(80, 80, 100, 0.1),
-        inset -5px -5px 15px rgba(255, 255, 255, 0.05),
-        inset 10px 10px 20px rgba(0, 0, 0, 0.6);
-}
-
-/* ===== WAXING MOON - Growing, light gray ===== */
-.waxingmoon-moon-sphere {
-    background: radial-gradient(circle at 30% 30%, #c8c8e0 0%, #a8a8c0 50%, #7878a0 100%);
-    box-shadow: 
-        0 0 28px rgba(180, 180, 200, 0.35),
-        0 0 55px rgba(150, 150, 170, 0.18),
-        inset -7px -7px 18px rgba(0, 0, 0, 0.25),
-        inset 9px 9px 22px rgba(255, 255, 255, 0.45);
-}
-
-/* ===== FULL MOON - Bright, illuminated ===== */
-.fullmoon-moon-sphere {
-    background: radial-gradient(circle at 30% 30%, #f0f0ff 0%, #d0d0e0 50%, #a0a0b0 100%);
-    box-shadow: 
-        0 0 30px rgba(240, 240, 255, 0.4),
-        0 0 60px rgba(200, 200, 220, 0.2),
-        inset -8px -8px 20px rgba(0, 0, 0, 0.2),
-        inset 10px 10px 25px rgba(255, 255, 255, 0.6);
-}
-
-/* ===== WANING MOON - Diminishing, muted ===== */
-.waningmoon-moon-sphere {
-    background: radial-gradient(circle at 30% 30%, #8a8aa0 0%, #5a5a70 50%, #3a3a50 100%);
-    box-shadow: 
-        0 0 25px rgba(140, 140, 160, 0.3),
-        0 0 50px rgba(100, 100, 120, 0.15),
-        inset -6px -6px 18px rgba(0, 0, 0, 0.3),
-        inset 8px 8px 20px rgba(255, 255, 255, 0.4);
-}
-/* =========================================================================
-   SECTION 3: SOLAR ROOM STYLES
-   ========================================================================= */
-/* SOLAR-ROOMS.CSS
- * Unified styles for all seasonal solar practice rooms
- * Uses CSS custom properties for season-specific theming
- */
-
-/* ========================================
-   CSS CUSTOM PROPERTIES (THEME VARIABLES)
-   ======================================== */
-
-/* IMPORTANT: Scope these ONLY to solar rooms, not global :root */
-.solar-content-wrapper {
-  /* Shared neutrals & utilities */
-  --solar-bg-dark: rgba(0, 0, 0, 0.3);
-  --solar-bg-darker: rgba(0, 0, 0, 0.2);
-  --solar-text-primary: rgba(224, 224, 255, 0.9);
-  --solar-text-secondary: rgba(224, 224, 255, 0.7);
-  --solar-text-muted: rgba(224, 224, 255, 0.5);
-  --solar-border-light: rgba(255, 255, 255, 0.1);
-  --solar-border-medium: rgba(255, 255, 255, 0.15);
-  --solar-border-accent: rgba(212, 165, 116, 0.3);
-  --solar-glow-warm: rgba(244, 164, 96, 0.6);
-  --solar-glow-soft: rgba(212, 165, 116, 0.4);
-  --solar-success: #4ade80;
-  
-  /* Default theme (Autumn) - overridden by season */
-  --season-accent: #d4a574;
-  --season-accent-light: #f4a460;
-  --season-accent-dark: #a67c52;
-  --season-bg-start: #3a1f0f;
-  --season-bg-mid1: #5a3520;
-  --season-bg-mid2: #4a2615;
-  --season-bg-mid3: #6a4530;
-  --season-bg-end: #3a1f0f;
-  --season-sun-glow: rgba(212, 165, 116, 0.4);
-}
-
-/* Season-specific theme overrides - ONLY within solar rooms */
-.solar-content-wrapper[data-season="winter"] {
-  --season-accent: #a0b8c8;
-  --season-accent-light: #c0d4e4;
-  --season-accent-dark: #7a8c9c;
-  --season-bg-start: #1a2a3a;
-  --season-bg-mid1: #2d4050;
-  --season-bg-mid2: #1e3545;
-  --season-bg-mid3: #2f4a5a;
-  --season-bg-end: #1a2a3a;
-  --season-sun-glow: rgba(160, 184, 200, 0.4);
-}
-
-.solar-content-wrapper[data-season="spring"] {
-  --season-accent: #ffd740;
-  --season-accent-light: #ffe066;
-  --season-accent-dark: #f4c542;
-  --season-bg-start: #1a3a2a;
-  --season-bg-mid1: #2d5a3d;
-  --season-bg-mid2: #234a35;
-  --season-bg-mid3: #3d6a4d;
-  --season-bg-end: #1a3a2a;
-  --season-sun-glow: rgba(255, 215, 64, 0.4);
-}
-
-.solar-content-wrapper[data-season="summer"] {
-  --season-accent: #ff8c42;
-  --season-accent-light: #ffa552;
-  --season-accent-dark: #ff6b35;
-  --season-bg-start: #ff6b35;
-  --season-bg-mid1: #ff8c42;
-  --season-bg-mid2: #ffa552;
-  --season-bg-mid3: #ffbe68;
-  --season-bg-end: #ff6b35;
-  --season-sun-glow: rgba(255, 140, 66, 0.4);
-}
-
-/* ========================================
-   BASE LAYOUT & BACKGROUND
-   ======================================== */
-
-/* IMPORTANT: Only apply background to solar room container, not body */
-.solar-content-wrapper[data-season] {
-  position: relative;
-  min-height: 100vh;
-}
-
-.solar-content-wrapper[data-season]::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, 
-    var(--season-bg-start) 0%, 
-    var(--season-bg-mid1) 25%, 
-    var(--season-bg-mid2) 50%, 
-    var(--season-bg-mid3) 75%, 
-    var(--season-bg-end) 100%);
-  z-index: -1;
-  pointer-events: none;
-}
-
-.solar-floating-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
-  overflow: hidden;
-}
-
-.solar-floating-element {
-  position: absolute;
-  font-size: 2rem;
-  animation: float linear infinite;
-  opacity: 0.6;
-}
-
-@keyframes float {
-  0% {
-    top: -50px;
-    transform: translateX(0) rotate(0deg);
-    opacity: 0.6;
-  }
-  100% {
-    top: 100vh;
-    transform: translateX(100px) rotate(360deg);
-    opacity: 0.3;
-  }
-}
-
-/* ========================================
-   TOP NAVIGATION BAR
-   ======================================== */
-
-.solar-top-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  padding: 2rem;
-  z-index: 100;
-  pointer-events: none;
-}
-
-.solar-top-bar > * {
-  pointer-events: auto;
-}
-
-.solar-phase-left {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  justify-self: start;
-}
-
-.solar-sun-icon {
-  font-size: 3rem;
-  line-height: 1;
-}
-
-.solar-phase-info h2 {
-  font-size: 1.5rem;
-  color: var(--season-accent);
-  margin: 0;
-  font-family: 'Cormorant Garamond', serif;
-  font-weight: 500;
-  line-height: 1.2;
-}
-
-.solar-phase-info p {
-  font-size: 0.9rem;
-  color: rgba(212, 165, 116, 0.7);
-  margin: 0.25rem 0 0 0;
-}
-
-.solar-live-count-top {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: rgba(212, 165, 116, 0.1);
-  border: 1px solid rgba(212, 165, 116, 0.2);
-  border-radius: 20px;
-  font-size: 0.9rem;
-  color: rgba(212, 165, 116, 0.9);
-  justify-self: center;
-}
-
-.solar-pulse-dot {
-  width: 8px;
-  height: 8px;
-  background: var(--solar-success);
-  border-radius: 50%;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-.solar-back-hub-btn {
-  padding: 0.625rem 1.25rem;
-  background: rgba(212, 165, 116, 0.1);
-  border: 1px solid rgba(212, 165, 116, 0.3);
-  border-radius: 12px;
-  color: rgba(212, 165, 116, 0.9);
-  cursor: pointer;
-  transition: all 0.3s;
-  font-size: 0.9rem;
-  justify-self: end;
-}
-
-.solar-back-hub-btn:hover {
-  background: rgba(212, 165, 116, 0.2);
-  border-color: rgba(212, 165, 116, 0.5);
-}
-
-/* ========================================
-   MAIN CONTENT AREA
-   ======================================== */
-
-.solar-content-wrapper {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 8rem 2rem 4rem 2rem;
-  position: relative;
-  z-index: 2;
-}
-
-/* Sun Visual */
-.solar-sun-visual {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 3rem;
-}
-
-.solar-sun-glow {
-  width: 160px;
-  height: 160px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.solar-sun-sphere {
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at 35% 35%, 
-    var(--season-accent-light) 0%, 
-    var(--season-accent) 40%, 
-    var(--season-accent-dark) 100%);
-  border-radius: 50%;
-  box-shadow: 
-    0 0 40px var(--solar-glow-warm),
-    0 0 80px var(--season-sun-glow),
-    inset -8px -8px 20px rgba(0, 0, 0, 0.3),
-    inset 10px 10px 25px rgba(255, 255, 255, 0.3);
-  animation: sunGlow 4s ease-in-out infinite;
-}
-
-@keyframes sunGlow {
-  0%, 100% { 
-    box-shadow: 0 0 40px var(--solar-glow-warm), 
-                0 0 80px var(--season-sun-glow), 
-                inset -8px -8px 20px rgba(0, 0, 0, 0.3),
-                inset 10px 10px 25px rgba(255, 255, 255, 0.3);
-  }
-  50% { 
-    box-shadow: 0 0 50px var(--solar-glow-warm), 
-                0 0 100px var(--season-sun-glow), 
-                inset -8px -8px 20px rgba(0, 0, 0, 0.3),
-                inset 10px 10px 25px rgba(255, 255, 255, 0.4);
-  }
-}
-
-/* Intro Card */
-.solar-intro-card {
-  background: rgba(212, 165, 116, 0.05);
-  border: 1px solid rgba(212, 165, 116, 0.15);
-  border-radius: 20px;
-  padding: 2rem;
-  margin-bottom: 3rem;
-  text-align: center;
-}
-
-.solar-season-img {
-  width: 100%;
-  max-width: 500px;
-  height: auto;
-  margin: 0 auto 1.5rem;
-  display: block;
-  border-radius: 12px;
-  filter: invert(1);
-}
-
-.solar-intro-card p {
-  color: var(--solar-text-secondary);
-  font-size: 1.1rem;
-  line-height: 1.7;
-  margin: 0;
-}
-
-/* ========================================
-   MODE TOGGLE
-   ======================================== */
-
-.solar-mode-toggle {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  margin-bottom: 2rem;
-}
-
-.solar-mode-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.875rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--solar-border-light);
-  border-radius: 12px;
-  color: var(--solar-text-muted);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.95rem;
-}
-
-.solar-mode-btn:hover {
-  background: rgba(212, 165, 116, 0.1);
-  border-color: rgba(212, 165, 116, 0.3);
-  color: rgba(212, 165, 116, 0.9);
-}
-
-.solar-mode-btn.active {
-  background: linear-gradient(135deg, rgba(212, 165, 116, 0.2) 0%, rgba(166, 124, 82, 0.2) 100%);
-  border-color: rgba(212, 165, 116, 0.5);
-  color: var(--season-accent);
-}
-
-.solar-mode-btn svg {
-  flex-shrink: 0;
-}
-
-/* ========================================
-   MODE CONTENT
-   ======================================== */
-
-.solar-mode-content {
-  animation: fadeIn 0.5s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.solar-mode-description {
-  text-align: center;
-  margin-bottom: 2.5rem;
-}
-
-.solar-mode-description h3 {
-  color: var(--season-accent);
-  font-size: 1.5rem;
-  margin: 0 0 0.5rem 0;
-  font-family: 'Cormorant Garamond', serif;
-}
-
-.solar-mode-description p {
-  color: var(--solar-text-secondary);
-  margin: 0;
-}
-
-/* ========================================
-   PRACTICES GRID
-   ======================================== */
-
-.solar-practices-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 3rem;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-@media (max-width: 600px) {
-  .solar-practices-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.solar-practice-card {
-  background: rgba(212, 165, 116, 0.1);
-  border: 1px solid var(--solar-border-accent);
-  border-radius: 16px;
-  padding: 1.5rem;
-  cursor: pointer;
-  transition: all 0.3s;
-  position: relative;
-}
-
-.solar-practice-card:hover {
-  border-color: var(--season-accent);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-.solar-practice-card.locked {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.solar-lock-icon {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  color: var(--solar-success);
-  font-size: 1.5rem;
-}
-
-.solar-practice-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-  color: white;
-}
-
-.solar-practice-icon svg {
-  width: 24px;
-  height: 24px;
-}
-
-.solar-practice-title {
-  color: var(--season-accent);
-  margin: 0 0 0.5rem 0;
-  font-size: 1.2rem;
-  font-family: 'Cormorant Garamond', serif;
-}
-
-.solar-practice-desc {
-  color: var(--solar-text-secondary);
-  margin: 0;
-  font-size: 0.95rem;
-}
-
-/* ========================================
-   SAVED INPUTS DISPLAY
-   ======================================== */
-
-.solar-saved-inputs {
-  background: rgba(212, 165, 116, 0.05);
-  border: 1px solid rgba(212, 165, 116, 0.15);
-  border-radius: 16px;
-  padding: 2rem;
-  margin-top: 2rem;
-}
-
-.solar-saved-inputs h3 {
-  color: var(--season-accent);
-  margin: 0 0 1.5rem 0;
-  font-family: 'Cormorant Garamond', serif;
-  text-align: center;
-}
-
-.solar-input-display {
-  background: var(--solar-bg-dark);
-  border: 1px solid var(--solar-border-light);
-  border-radius: 12px;
-  padding: 1.5rem;
-}
-
-.solar-input-display h4 {
-  color: var(--season-accent);
-  margin: 0 0 0.75rem 0;
-  font-size: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.solar-input-display p {
-  color: var(--solar-text-primary);
-  margin: 0;
-  line-height: 1.6;
-}
-
-.solar-saved-inputs > p {
-  text-align: center;
-  color: var(--solar-text-muted);
-  font-size: 0.9rem;
-  margin: 2rem 0 0 0;
-  font-style: italic;
-}
-
-/* ========================================
-   GROUP PRACTICE
-   ======================================== */
-
-.solar-group-container {
-  background: rgba(212, 165, 116, 0.1);
-  border: 1px solid var(--solar-border-accent);
-  border-radius: 20px;
-  padding: 2.5rem;
-  text-align: center;
-}
-
-.solar-group-emoji {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.solar-group-title {
-  color: var(--season-accent);
-  margin: 0 0 1rem 0;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.5rem;
-}
-
-.solar-group-desc {
-  color: var(--solar-text-secondary);
-  margin-bottom: 2rem;
-  line-height: 1.7;
-}
-
-.solar-live-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  background: var(--solar-bg-darker);
-  padding: 1rem 1.5rem;
-  border-radius: 12px;
-  margin-bottom: 2rem;
-}
-
-.solar-live-badge span {
-  color: var(--solar-text-primary);
-  font-weight: 500;
-}
-
-.solar-group-list {
-  text-align: left;
-  color: var(--solar-text-secondary);
-  list-style: none;
-  padding: 0;
-  max-width: 500px;
-  margin: 0 auto 2rem;
-}
-
-.solar-group-list li {
-  margin-bottom: 0.75rem;
-  padding-left: 1.5rem;
-  position: relative;
-}
-
-.solar-group-list li span {
-  position: absolute;
-  left: 0;
-}
-
-.solar-btn-primary {
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, var(--season-accent) 0%, var(--season-accent-dark) 100%);
-  border: none;
-  border-radius: 12px;
-  color: white;
-  font-size: 1.1rem;
-  cursor: pointer;
-  font-weight: 500;
-  transition: transform 0.2s;
-}
-
-.solar-btn-primary:hover {
-  transform: scale(1.05);
-}
-
-.solar-group-note {
-  color: var(--solar-text-muted);
-  margin-top: 1.5rem;
-  font-size: 0.9rem;
-  font-style: italic;
-}
-
-/* ========================================
-   SEASON CLOSURE
-   ======================================== */
-
-.solar-closure {
-  background: rgba(212, 165, 116, 0.1);
-  border: 1px solid var(--solar-border-accent);
-  border-radius: 20px;
-  padding: 2rem;
-  margin-top: 3rem;
-  margin-bottom: 2rem;
-}
-
-.solar-closure h3 {
-  color: var(--season-accent);
-  margin: 0 0 1rem 0;
-  font-family: 'Cormorant Garamond', serif;
-}
-
-.solar-closure p {
-  color: var(--solar-text-secondary);
-  margin-bottom: 1.5rem;
-}
-
-.solar-textarea {
-  width: 100%;
-  min-height: 100px;
-  background: var(--solar-bg-dark);
-  border: 1px solid var(--solar-border-light);
-  border-radius: 12px;
-  padding: 1rem;
-  color: var(--solar-text-primary);
-  font-family: inherit;
-  font-size: 1rem;
-  line-height: 1.6;
-  box-sizing: border-box;
-  resize: vertical;
-}
-
-.solar-textarea:focus {
-  outline: none;
-  border-color: var(--season-accent);
-}
-
-.solar-btn-secondary {
-  margin-top: 1rem;
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, var(--season-accent) 0%, var(--season-accent-dark) 100%);
-  border: none;
-  border-radius: 12px;
-  color: white;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 1rem;
-  transition: transform 0.2s;
-}
-
-.solar-btn-secondary:hover {
-  transform: scale(1.02);
-}
-
-/* ========================================
-   FOOTER WISDOM
-   ======================================== */
-
-.solar-wisdom-text {
-  text-align: center;
-  margin-top: 4rem;
-  padding-top: 2rem;
-  border-top: 1px solid rgba(212, 165, 116, 0.2);
-  color: rgba(212, 165, 116, 0.5);
-  font-size: 0.9rem;
-  font-style: italic;
-}
-
-/* ========================================
-   POPUP MODAL
-   ======================================== */
-
-.solar-popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  padding: 2rem;
-  animation: fadeIn 0.3s;
-}
-
-.solar-popup-content {
-  background: linear-gradient(135deg, #2a1810 0%, #3a2515 100%);
-  border: 1px solid rgba(212, 165, 116, 0.3);
-  border-radius: 20px;
-  max-width: 600px;
-  width: 100%;
-  max-height: 85vh;
-  overflow-y: auto;
-  animation: slideUp 0.3s;
-}
-
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.solar-popup-header {
-  padding: 2rem 2rem 1rem 2rem;
-  border-bottom: 1px solid rgba(212, 165, 116, 0.2);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.solar-popup-header h2 {
-  color: var(--season-accent);
-  margin: 0;
-  font-family: 'Cormorant Garamond', serif;
-}
-
-.solar-popup-close {
-  background: none;
-  border: none;
-  color: rgba(212, 165, 116, 0.6);
-  font-size: 2rem;
-  cursor: pointer;
-  line-height: 1;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  transition: color 0.3s;
-}
-
-.solar-popup-close:hover {
-  color: var(--season-accent);
-}
-
-.solar-popup-body {
-  padding: 2rem;
-}
-
-.solar-popup-section {
-  margin-bottom: 2rem;
-}
-
-.solar-popup-section:last-child {
-  margin-bottom: 0;
-}
-
-.solar-popup-section h3 {
-  color: var(--season-accent);
-  margin: 0 0 1rem 0;
-  font-size: 1.3rem;
-  font-family: 'Cormorant Garamond', serif;
-}
-
-.solar-popup-section p {
-  color: var(--solar-text-secondary);
-  line-height: 1.7;
-  margin: 0 0 1rem 0;
-}
-
-.solar-popup-section ul {
-  color: var(--solar-text-secondary);
-  line-height: 1.8;
-  padding-left: 1.5rem;
-  margin: 0;
-}
-
-.solar-popup-section li {
-  margin-bottom: 0.75rem;
-}
-
-.solar-popup-highlight {
-  background: rgba(212, 165, 116, 0.1);
-  border-left: 3px solid var(--season-accent);
-  padding: 1rem 1.5rem;
-  border-radius: 8px;
-  margin: 1.5rem 0;
-}
-
-.solar-popup-highlight p {
-  color: var(--solar-text-primary);
-  font-style: italic;
-  margin: 0;
-}
-
-.solar-popup-footer {
-  padding: 1.5rem 2rem;
-  border-top: 1px solid rgba(212, 165, 116, 0.2);
-  text-align: center;
-}
-
-.solar-popup-btn {
-  padding: 0.75rem 2rem;
-  background: linear-gradient(135deg, var(--season-accent) 0%, var(--season-accent-dark) 100%);
-  border: none;
-  border-radius: 12px;
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-  font-weight: 500;
-  transition: transform 0.2s;
-}
-
-.solar-popup-btn:hover {
-  transform: scale(1.05);
-}
-
-/* Affirmation buttons in popup */
-.solar-affirmation-btn {
-  display: block;
-  width: 100%;
-  padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--solar-border-light);
-  border-radius: 8px;
-  color: var(--solar-text-secondary);
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.3s;
-  margin-bottom: 0.5rem;
-  font-size: 0.95rem;
-}
-
-.solar-affirmation-btn:hover {
-  background: rgba(212, 165, 116, 0.1);
-  border-color: rgba(212, 165, 116, 0.3);
-  color: var(--season-accent);
-}
-
-/* ========================================
-   INACTIVE ROOM STATE
-   ======================================== */
-
-.solar-inactive {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #2a1810 0%, #4a2820 100%);
-  padding: 2rem;
-}
-
-.solar-inactive-container {
-  max-width: 800px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.solar-inactive-header {
-  margin-bottom: 3rem;
-}
-
-.solar-inactive-sun {
-  display: inline-block;
-  width: 120px;
-  height: 120px;
-  position: relative;
-  margin-bottom: 1.5rem;
-}
-
-.solar-inactive-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 3rem;
-  color: var(--season-accent);
-  margin: 0 0 0.5rem 0;
-  text-shadow: 0 2px 10px rgba(212, 165, 116, 0.3);
-}
-
-.solar-inactive-subtitle {
-  color: rgba(212, 165, 116, 0.7);
-  font-size: 1.2rem;
-}
-
-.solar-inactive-card {
-  background: rgba(212, 165, 116, 0.1);
-  border: 1px solid rgba(212, 165, 116, 0.3);
-  border-radius: 20px;
-  padding: 3rem;
-}
-
-.solar-inactive-card h2 {
-  color: var(--season-accent);
-  margin: 0 0 1rem 0;
-  font-family: 'Cormorant Garamond', serif;
-}
-
-.solar-inactive-card p {
-  color: var(--solar-text-secondary);
-  font-size: 1.1rem;
-  margin-bottom: 1.5rem;
-}
-
-.solar-inactive-days {
-  color: rgba(212, 165, 116, 0.6);
-  font-size: 1rem;
-}
-
-.solar-inactive-note {
-  color: var(--solar-text-muted);
-  margin-top: 2rem;
-  font-style: italic;
 }

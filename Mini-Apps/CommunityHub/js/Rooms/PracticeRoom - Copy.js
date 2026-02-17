@@ -83,7 +83,7 @@ class PracticeRoom {
         }
         
         this.createPracticeView();
-        Core.navigateTo(`${this.roomId}View`);
+        Core.navigateTo('practiceRoomView'); // Navigate to generic practice view (matches lunar rooms)
         Core.showToast(`${this.config.icon} Entered ${this.config.name}`);
         
         this.setupEventListeners();

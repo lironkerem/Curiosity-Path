@@ -7,8 +7,7 @@
    CSS CUSTOM PROPERTIES (THEME VARIABLES)
    ======================================== */
 
-/* IMPORTANT: Scope these ONLY to solar rooms, not global :root */
-.solar-content-wrapper {
+:root {
   /* Shared neutrals & utilities */
   --solar-bg-dark: rgba(0, 0, 0, 0.3);
   --solar-bg-darker: rgba(0, 0, 0, 0.2);
@@ -34,8 +33,8 @@
   --season-sun-glow: rgba(212, 165, 116, 0.4);
 }
 
-/* Season-specific theme overrides - ONLY within solar rooms */
-.solar-content-wrapper[data-season="winter"] {
+/* Season-specific theme overrides */
+[data-season="winter"] {
   --season-accent: #a0b8c8;
   --season-accent-light: #c0d4e4;
   --season-accent-dark: #7a8c9c;
@@ -47,7 +46,7 @@
   --season-sun-glow: rgba(160, 184, 200, 0.4);
 }
 
-.solar-content-wrapper[data-season="spring"] {
+[data-season="spring"] {
   --season-accent: #ffd740;
   --season-accent-light: #ffe066;
   --season-accent-dark: #f4c542;
@@ -59,7 +58,7 @@
   --season-sun-glow: rgba(255, 215, 64, 0.4);
 }
 
-.solar-content-wrapper[data-season="summer"] {
+[data-season="summer"] {
   --season-accent: #ff8c42;
   --season-accent-light: #ffa552;
   --season-accent-dark: #ff6b35;
@@ -75,27 +74,14 @@
    BASE LAYOUT & BACKGROUND
    ======================================== */
 
-/* IMPORTANT: Only apply background to solar room container, not body */
-.solar-content-wrapper[data-season] {
-  position: relative;
-  min-height: 100vh;
-}
-
-.solar-content-wrapper[data-season]::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+body.solar-room-active[data-season] {
   background: linear-gradient(135deg, 
     var(--season-bg-start) 0%, 
     var(--season-bg-mid1) 25%, 
     var(--season-bg-mid2) 50%, 
     var(--season-bg-mid3) 75%, 
-    var(--season-bg-end) 100%);
-  z-index: -1;
-  pointer-events: none;
+    var(--season-bg-end) 100%) !important;
+  background-attachment: fixed !important;
 }
 
 .solar-floating-bg {
