@@ -217,6 +217,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     padding: 0 24px;
 }
 
+
 @keyframes pulse-ring {
     0%, 100% { box-shadow: 0 0 0 4px var(--neuro-accent-a20); }
     50% { box-shadow: 0 0 0 8px rgba(107, 155, 55, 0); }
@@ -276,6 +277,13 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     box-shadow: var(--shadow-inset-sm);
 }
 
+.profile-bio {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
 .profile-stats {
     display: flex;
     gap: 32px;
@@ -284,6 +292,16 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 @media (max-width: 768px) {
     .profile-stats { justify-content: center; }
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
 }
 
 .stat-label {
@@ -295,6 +313,11 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 /* HUB CONTAINER */
+.hub-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+}
 
 /* PRESENCE WIDGET */
 .presence-widget {
@@ -342,8 +365,54 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     letter-spacing: 1px;
 }
 
+.pulse-btn {
+    padding: 12px 32px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    font-size: 14px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-raised);
+}
+
+.pulse-btn:hover {
+    box-shadow: var(--shadow-raised-hover);
+    transform: translateY(-2px);
+}
+
+.pulse-btn.sending {
+    animation: pulse-send 0.6s;
+}
+
+.pulse-btn.sent {
+    border-color: var(--ring-available);
+    background: var(--surface);
+    box-shadow: var(--shadow-inset);
+}
+
 @keyframes pulse-send {
     0%, 100% { transform: scale(1); }
+}
+
+.pulse-bar {
+    max-width: 200px;
+    margin: 16px auto 0;
+    height: 6px;
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    box-shadow: var(--shadow-inset-sm);
+}
+
+.pulse-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--ring-available), var(--primary));
+    width: 0%;
+    transition: width 1s ease;
 }
 
 /* SECTION */
@@ -432,6 +501,24 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 /* Dev mode styling for in-session rooms */
+body.dev-mode .practice-room.in-session {
+    opacity: 0.85;
+    border-color: #f59e0b;
+}
+
+body.dev-mode .practice-room.in-session::before {
+    content: '🔧 DEV MODE';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 10px;
+    padding: 4px 8px;
+    background: #f59e0b;
+    color: white;
+    border-radius: 4px;
+    font-weight: 600;
+    z-index: 10;
+}
 
 .room-icon {
     width: 48px;
@@ -505,6 +592,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     transform: translateY(0); 
 }
 
+
 .join-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -545,11 +633,30 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     min-height: calc(100vh - 80px); /* Subtract header height */
 }
 
+.intention-anchor {
+    position: absolute;
+    top: 40px;
+    max-width: 500px;
+    text-align: center;
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1.6;
+    opacity: 0.8;
+    transition: opacity 1s;
+}
+
+.intention-anchor.fade { opacity: 0.3; }
+
 .ps-main {
     position: relative;
 }
 
 /* Guided Meditation Styles */
+.ps-meditation-info {
+    margin-top: 4px;
+}
 
 .guided-player-container {
     position: relative;
@@ -622,6 +729,22 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     margin-bottom: 40px;
 }
 
+.guided-progress-ring {
+    position: relative;
+    width: 100px;
+    height: 100px;
+}
+
+.progress-time {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 600;
+}
+
 .control-buttons {
     display: flex;
     gap: 20px;
@@ -662,17 +785,167 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 /* OSHO Audio Indicator */
+.osho-audio-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.audio-visualizer {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 60px;
+}
+
+.audio-bar {
+    width: 6px;
+    background: var(--ring-available);
+    border-radius: 3px;
+    animation: audioWave 1.2s ease-in-out infinite;
+}
+
+.audio-bar:nth-child(1) { animation-delay: 0s; }
+.audio-bar:nth-child(2) { animation-delay: 0.15s; }
+.audio-bar:nth-child(3) { animation-delay: 0.3s; }
+.audio-bar:nth-child(4) { animation-delay: 0.45s; }
+.audio-bar:nth-child(5) { animation-delay: 0.6s; }
 
 @keyframes audioWave {
     0%, 100% { height: 15px; }
     50% { height: 60px; }
 }
 
+.audio-text {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 600;
+    color: white;
+}
+
+.audio-subtext {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    font-style: italic;
+}
+
 /* Deep Work / Digital Nomads Styles */
+.deep-work-timer-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+}
+
+.deep-work-timer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--serif);
+    font-size: 36px;
+    font-weight: 600;
+}
+
+.deep-work-participants {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.participant-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 16px;
+}
+
+.dw-participant {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-normal);
+}
+
+.dw-participant:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-raised);
+}
+
+.dw-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 8px;
+    animation: gentle-pulse 3s ease-in-out infinite;
+}
 
 @keyframes gentle-pulse {
     0%, 100% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.05); opacity: 0.9; }
+}
+
+.dw-name {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.dw-location {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.dw-status {
+    font-size: 12px;
+    padding: 4px 8px;
+    background: var(--neuro-bg-lightest);
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.silent-support {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.support-btn {
+    padding: 10px 20px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all var(--transition-normal);
+}
+
+.support-btn:hover {
+    background: var(--neuro-bg-lightest);
+    transform: scale(1.05);
+}
+
+.support-btn:active {
+    animation: pulse-support 0.3s ease-out;
 }
 
 @keyframes pulse-support {
@@ -681,10 +954,38 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     100% { transform: scale(1); }
 }
 
+.status-change,
+.ambient-sound-control,
+.break-panel {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 16px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+}
+
 .status-btn,
+.break-btn {
+    padding: 8px 16px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all var(--transition-fast);
+}
 
 .status-btn:hover,
+.break-btn:hover {
+    background: var(--ring-available);
+    color: white;
+    border-color: var(--ring-available);
+}
 
+.ambient-option,
 .sound-option {
     display: flex;
     align-items: center;
@@ -695,14 +996,17 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     transition: background 0.2s;
 }
 
+.ambient-option:hover,
 .sound-option:hover {
     background: var(--neuro-bg-lightest);
 }
 
+.ambient-option input[type="radio"],
 .sound-option input[type="radio"] {
     cursor: pointer;
 }
 
+.ambient-option label,
 .sound-option label {
     cursor: pointer;
     font-size: 13px;
@@ -794,6 +1098,12 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     margin-bottom: 20px;
 }
 
+.campfire-flame {
+    font-size: 48px;
+    margin-bottom: 16px;
+    animation: flicker 2s ease-in-out infinite;
+}
+
 @keyframes flicker {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.9; transform: scale(1.05); }
@@ -882,6 +1192,12 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     border: 2px solid var(--border);
     border-radius: var(--radius-lg);
     margin: 0 16px 16px 16px;
+}
+
+.campfire-input-wrap {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 8px;
 }
 
 .campfire-input {
@@ -1057,8 +1373,30 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 .practice-space.dimmed .timer-display,
+.practice-space.dimmed .intention-anchor {
+    filter: brightness(1.2);
+}
 
 /* Rotating affirmations */
+.rotating-affirmation {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 500px;
+    text-align: center;
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--text-muted);
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    z-index: 10;
+}
+
+.rotating-affirmation.visible {
+    opacity: 0.7;
+}
 
 /* Breathing participant dots */
 .ps-participants .participant-stack {
@@ -1119,6 +1457,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     color: var(--text-muted);
     margin-bottom: 10px;
 }
+
 
 .sound-preview-btn {
     width: 28px;
@@ -1184,6 +1523,17 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     transform: translateX(20px);
 }
 
+.timer-circle {
+    position: relative;
+    width: 240px;
+    height: 240px;
+    margin-bottom: 40px;
+}
+
+.timer-circle svg {
+    transform: rotate(-90deg);
+}
+
 .timer-display {
     font-family: var(--serif);
     font-size: 72px;
@@ -1200,6 +1550,46 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     gap: 12px;
     position: relative;
     z-index: 3;
+}
+
+.timer-adj, .timer-main {
+    padding: 12px 24px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: var(--shadow-raised);
+}
+
+.timer-adj:hover, .timer-main:hover {
+    box-shadow: var(--shadow-raised-hover);
+    transform: translateY(-2px);
+}
+
+.timer-main {
+    background: var(--text);
+    color: var(--neuro-bg-lightest);
+    border-color: var(--text);
+}
+
+.leave-btn {
+    padding: 10px 24px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-raised);
+}
+
+.leave-btn:hover {
+    border-color: var(--neuro-error, #c76b5b);
+    color: var(--neuro-error, #c76b5b);
+    box-shadow: var(--shadow-raised-hover);
 }
 
 .gratitude-container {
@@ -1264,6 +1654,30 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.ps-title {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.ps-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-muted);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all var(--transition-fast);
+}
+
+.ps-close:hover {
+    background: var(--neuro-bg-lightest);
 }
 
 .chat-messages {
@@ -1360,6 +1774,62 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 .fab-chat.hidden { display: none; }
 
 /* REFLECTIONS FEED */
+.reflection-input-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-raised);
+}
+
+.reflection-input-card textarea {
+    width: 100%;
+    padding: 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    resize: none;
+    margin-bottom: 12px;
+    font-family: inherit;
+    min-height: 100px;
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow-inset);
+}
+
+.reflection-input-card textarea:focus {
+    outline: none;
+    border-color: var(--neuro-accent);
+}
+
+.reflection-input-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.char-count {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.share-btn {
+    padding: 10px 20px;
+    background: var(--text);
+    color: var(--neuro-bg-lightest);
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-raised);
+}
+
+.share-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-raised-hover);
+}
 
 .reflection {
     background: var(--surface);
@@ -1438,6 +1908,11 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 .ref-action.active { color: var(--primary); }
 
 /* COLLECTIVE WAVES */
+.waves-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
 
 .wave-card {
     background: linear-gradient(135deg, var(--neuro-bg-lightest) 0%, var(--surface) 100%);
@@ -1582,6 +2057,85 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     background: var(--neuro-bg-lightest);
 }
 
+.help-option:hover {
+    background: var(--neuro-bg-lightest);
+    transform: translateX(4px);
+    box-shadow: var(--shadow-raised);
+}
+
+.member-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 40px;
+    font-weight: 700;
+    box-shadow: var(--shadow-raised-lg);
+    background: linear-gradient(135deg, var(--neuro-forest-dark, #558030) 0%, var(--neuro-forest, #6b9b37) 100%);
+}
+
+.member-name {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.member-status {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+.member-bio {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+}
+
+.member-stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 24px;
+    font-size: 14px;
+}
+
+.member-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.member-btn {
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-raised);
+}
+
+.member-btn.primary {
+    background: var(--primary);
+    color: var(--neuro-bg-lightest);
+}
+
+.member-btn:not(.primary) {
+    background: var(--neuro-bg-lightest);
+    color: var(--text);
+}
+
+.member-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-raised-hover);
+}
+
 /* SAFETY FAB */
 .safety-fab {
     position: fixed;
@@ -1661,11 +2215,17 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
+    .hub-container {
+        padding: 0 16px 80px;
+    }
     
     .presence-widget {
         padding: 24px;
     }
     
+    .spaces-grid {
+        grid-template-columns: 1fr;
+    }
     
     .ps-sidebar {
         width: 100%;
@@ -1845,7 +2405,65 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     padding: 8px;
 }
 
+.season-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: transform var(--transition-normal), border-color var(--transition-normal);
+    box-shadow: var(--shadow-raised);
+}
+
+.season-dot:hover { transform: scale(1.3); }
+
+.season-dot.active { 
+    border-color: var(--text); 
+    transform: scale(1.1); 
+    box-shadow: var(--shadow-raised-hover);
+}
+
+.season-dot.winter { background: #e5e7eb; }
+.season-dot.spring { background: #86efac; }
+.season-dot.summer { background: #fcd34d; }
+.season-dot.autumn { background: #fb923c; }
+
 /* Daily Cycle Bar */
+.cycle-bar {
+    max-width: 600px;
+    margin: 0 auto 32px;
+    height: 40px;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    display: flex;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    box-shadow: var(--shadow-inset-sm);
+}
+
+.cycle-phase {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    position: relative;
+    transition: all var(--transition-normal);
+    font-weight: 600;
+}
+
+.cycle-phase.active {
+    background: var(--neuro-accent);
+    color: var(--neuro-text);
+    box-shadow: var(--shadow-raised);
+}
+
+.cycle-phase.completed { 
+    opacity: 0.5; 
+}
 
 /* Presence Sanctuary */
 /* ===== COLLECTIVE FIELD GRID (Energy + Wave Side by Side) ===== */
@@ -2137,6 +2755,30 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     50% { transform: scale(1.5); opacity: 1; }
 }
 
+.collective-meter {
+    max-width: 200px;
+    margin: 0 auto;
+    height: 6px;
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    box-shadow: var(--shadow-inset-sm);
+}
+
+.collective-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--ring-available), var(--primary));
+    transition: width 1s;
+}
+
+.meter-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
 /* Section Header */
 .section-header {
     display: flex;
@@ -2175,15 +2817,103 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 /* Resonance Section */
+.resonance-section { 
+    margin-top: 40px; 
+    padding-top: 40px; 
+    border-top: 2px solid var(--border); 
+}
+
+.resonance-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-raised);
+}
+
+.resonance-card:hover {
+    border-color: var(--ring-available);
+    transform: translateX(8px);
+    box-shadow: var(--shadow-raised-hover);
+}
 
 @keyframes rotate { 
     from { transform: rotate(0deg); } 
     to { transform: rotate(360deg); } 
 }
 
+.res-content { flex: 1; }
+
+.res-title { 
+    font-weight: 600; 
+    margin-bottom: 4px; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+}
+
+.res-meta { 
+    font-size: 13px; 
+    color: var(--text-muted); 
+}
+
 /* Feed Title */
+.feed-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-align: center;
+    margin: 40px 0 24px;
+    font-weight: 700;
+}
 
 /* Share Box */
+.share-box {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-raised);
+}
+
+.share-input {
+    width: 100%;
+    padding: 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    resize: none;
+    margin-bottom: 12px;
+    font-family: inherit;
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow-inset);
+}
+
+.share-input:focus { 
+    outline: none; 
+    border-color: var(--neuro-accent); 
+}
+
+.share-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.share-hint { 
+    font-size: 13px; 
+    color: var(--text-muted); 
+    font-style: italic; 
+}
 
 /* Practice Space - PS Elements */
 .ps-header {
@@ -2200,6 +2930,24 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     display: flex; 
     align-items: center; 
     gap: 5px; 
+}
+
+.ps-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    background: var(--neuro-bg-lightest);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: var(--shadow-inset-sm);
+}
+
+.ps-title { 
+    font-family: var(--serif); 
+    font-size: 20px; 
+    font-weight: 600;
 }
 
 .ps-participants { 
@@ -2417,6 +3165,57 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     text-align: center; 
 }
 
+.m-status-ring { 
+    position: absolute; 
+    inset: -4px; 
+    border-radius: 50%; 
+    border: 3px solid var(--ring-available); 
+}
+
+.modal-role { 
+    font-size: 12px; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    color: var(--text-muted); 
+    margin-bottom: 24px; 
+}
+
+.m-btn { 
+    padding: 10px 20px; 
+    border-radius: var(--radius-md); 
+    border: none; 
+    font-weight: 600; 
+    cursor: pointer; 
+    transition: all var(--transition-normal); 
+    box-shadow: var(--shadow-raised);
+}
+
+.m-btn:hover {
+    box-shadow: var(--shadow-raised-hover);
+    transform: translateY(-2px);
+}
+
+.m-btn-primary { 
+    background: var(--primary); 
+    color: var(--neuro-bg-lightest); 
+}
+
+.m-btn-secondary { 
+    background: var(--neuro-bg-lightest); 
+    color: var(--text); 
+}
+
+.m-stats { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 16px; 
+    margin: 24px 0; 
+    padding: 20px; 
+    background: var(--neuro-bg-lightest); 
+    border-radius: var(--radius-md); 
+    box-shadow: var(--shadow-inset-sm);
+}
+
 /* ACTIVE MEMBERS SECTION */
 .active-members-grid {
     display: grid;
@@ -2487,6 +3286,10 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 .member-mini-status.online {
     background: var(--ring-available);
     animation: pulse-status 2s infinite;
+}
+
+.member-mini-status.busy {
+    background: var(--ring-guiding);
 }
 
 .member-mini-status.away {
@@ -2637,6 +3440,17 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 /* Room Badge for scheduled sessions */
+.room-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: var(--neuro-bg-lightest);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
 
 /* UPCOMING EVENTS SECTION */
 .events-grid {
@@ -2712,6 +3526,13 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     font-weight: 500;
 }
 
+.event-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
 .event-datetime {
     background: var(--neuro-bg-lightest);
     padding: 16px;
@@ -2726,6 +3547,11 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     font-weight: 600;
     color: var(--text);
     margin-bottom: 6px;
+}
+
+.event-time {
+    font-size: 13px;
+    color: var(--text-muted);
 }
 
 .event-btn {
@@ -2831,9 +3657,43 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     }
 }
 
+.celestial-rooms-grid {
+    margin-bottom: 40px;
+}
+
 /* Keep old celestial widget styles for backward compatibility */
+.celestial-widget {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 32px;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow-raised-lg);
+}
+
+.celestial-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.celestial-title {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+}
+
+.celestial-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+}
 
 @media (max-width: 768px) {
+    .celestial-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .celestial-card {
@@ -2842,6 +3702,15 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     padding: 24px;
     text-align: center;
     box-shadow: var(--shadow-inset-sm);
+}
+
+.celestial-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
 }
 
 /* Moon Visual */
@@ -2899,6 +3768,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     color: var(--text);
     margin-bottom: 8px;
 }
+
 
 /* Celestial Times */
 .celestial-times {
@@ -2993,10 +3863,22 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     margin-bottom: 10px;
 }
 
+.decl-label {
+    color: var(--text-muted);
+    font-weight: 400;
+    font-size: 13px;
+}
+
 .decl-value {
     color: var(--neuro-accent);
     font-weight: 700;
     font-size: 16px;
+}
+
+.solar-season-info {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-style: italic;
 }
 
 /* ===== INTEGRATED CELESTIAL PRACTICE ROOMS ===== */
@@ -3170,6 +4052,14 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 /* Reset body background when practice room is active */
+body.practice-room-active {
+    background: var(--neuro-bg) !important;
+}
+
+body.practice-room-active::before,
+body.practice-room-active::after {
+    display: none !important;
+}
 
 /* Ensure the practice room view has proper background */
 #communityHubFullscreenContainer #practiceRoomView {
@@ -3391,6 +4281,7 @@ body.solar-room-active[data-season] {
   animation: pulse 2s infinite;
 }
 
+
 .solar-back-hub-btn {
   padding: 0.625rem 1.25rem;
   background: var(--neuro-warning-a10);
@@ -3542,6 +4433,7 @@ body.solar-room-active[data-season] {
 .solar-mode-content {
   animation: fadeIn 0.5s ease-out;
 }
+
 
 .solar-mode-description {
   text-align: center;
@@ -3836,6 +4728,16 @@ body.solar-room-active[data-season] {
    FOOTER WISDOM
    ======================================== */
 
+.solar-wisdom-text {
+  text-align: center;
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(212, 165, 116, 0.2);
+  color: rgba(212, 165, 116, 0.5);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
 /* ========================================
    POPUP MODAL
    ======================================== */
@@ -3865,6 +4767,7 @@ body.solar-room-active[data-season] {
   overflow-y: auto;
   animation: slideUp 0.3s;
 }
+
 
 .solar-popup-header {
   padding: 2rem 2rem 1rem 2rem;
