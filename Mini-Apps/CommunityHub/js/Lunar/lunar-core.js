@@ -552,6 +552,7 @@ class LunarRoom {
             const starfieldHTML = LunarUI.generateStarfield();
 
             container.innerHTML = `
+                <div class="lunar-room-bg">
                 <div class="${this.config.cssPrefix}-starfield lunar-starfield">
                     ${starfieldHTML}
                 </div>
@@ -597,6 +598,7 @@ class LunarRoom {
                     <div class="lunar-wisdom-section">
                         ${LunarUI.renderWisdomText(this.config.wisdomQuote)}
                     </div>
+                </div>
                 </div>
             `;
 
