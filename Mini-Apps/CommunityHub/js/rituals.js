@@ -202,11 +202,10 @@ const Rituals = {
                 this.state.autoCloseTimer = null;
             }
             
-            // Hide overlay and container
+            // Hide overlay only - container stays visible for the hub/room behind it
             overlay.classList.remove('active');
             if (container) {
                 container.style.display = 'none';
-                container.style.pointerEvents = 'none';
             }
             
             this.state.hasSeenOpening = true;
@@ -264,7 +263,6 @@ const Rituals = {
             overlay.classList.remove('active');
             if (container) {
                 container.style.display = 'none';
-                container.style.pointerEvents = 'none';
             }
             
             // Clean up any active practice room
