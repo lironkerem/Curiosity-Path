@@ -489,6 +489,7 @@ class LunarRoom {
                 window.Core.navigateTo('practiceRoomView');
             }
 
+            window.currentLunarRoom = this;
             this.renderRoomDashboard();
             window.scrollTo(0, 0);
         } catch (error) {
@@ -507,6 +508,7 @@ class LunarRoom {
             // Cleanup
             this._clearTimer();
             this._removeEventListeners();
+            window.currentLunarRoom = null;
             
             if (window.Core) {
                 window.Core.navigateTo('hubView');
@@ -808,7 +810,11 @@ class LunarRoom {
                     this.submitClosure();
                     break;
                 case 'back-to-hub':
-                    this.leaveRoom();
+                    if (window.Rituals) {
+                        Rituals.showClosing();
+                    } else {
+                        this.leaveRoom();
+                    }
                     break;
             }
         };
