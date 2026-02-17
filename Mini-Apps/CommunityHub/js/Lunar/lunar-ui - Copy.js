@@ -368,18 +368,10 @@ const LunarUI = {
             @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap');
 
             /* ===== BASE LAYOUT ===== */
-            .lunar-room-bg {
-                min-height: 100vh;
-                width: 100%;
-                background: linear-gradient(180deg, #0a0a1a 0%, #1a1a2e 50%, #0f0f1e 100%);
-                position: relative;
-                overflow-x: hidden;
-                padding: 2rem 1rem;
-            }
-
             .practice-room-container {
                 min-height: 100vh;
                 width: 100%;
+                background: linear-gradient(180deg, #0a0a1a 0%, #1a1a2e 50%, #0f0f1e 100%);
                 position: relative;
                 overflow-x: hidden;
                 padding: 2rem 1rem;
