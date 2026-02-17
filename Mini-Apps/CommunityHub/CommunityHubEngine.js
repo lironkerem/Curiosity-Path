@@ -13,8 +13,10 @@ class CommunityHubEngine {
       return;
     }
 
-    // Create fullscreen container FIRST (before any content, so rituals can work)
+    // Create fullscreen container FIRST and immediately show ritual
+    // This covers the screen before any content renders - eliminates blink
     this.createFullscreenRoomContainer();
+    this._showRitualImmediately();
 
     // Only build the HTML on first load - don't wipe it on re-visits
     if (!this.initialized) {
@@ -120,11 +122,24 @@ class CommunityHubEngine {
         window.Core.state.initialized = false;
         window.Core.init();
       }
-      // Show opening ritual on every tab re-visit
+      // Ritual already shown by _showRitualImmediately() above
       if (window.Rituals) {
         window.Rituals.state.hasSeenOpening = false;
-        window.Rituals.showOpening();
       }
+    }
+  }
+
+  /**
+   * Show the opening ritual overlay immediately to prevent content blink
+   * Called before tab content renders
+   */
+  _showRitualImmediately() {
+    const container = document.getElementById('communityHubFullscreenContainer');
+    const overlay = document.getElementById('openingOverlay');
+    if (container && overlay) {
+      container.style.display = 'block';
+      container.style.pointerEvents = 'auto';
+      overlay.classList.add('active');
     }
   }
 
@@ -278,10 +293,9 @@ class CommunityHubEngine {
       // Initialize Core
       if (window.Core?.init) {
         window.Core.init();
-        // Show opening ritual now that everything is ready
+        // Ritual already shown by _showRitualImmediately - just reset state
         if (window.Rituals) {
           window.Rituals.state.hasSeenOpening = false;
-          window.Rituals.showOpening();
         }
         console.log('✅ Community Hub loaded successfully');
       } else {
