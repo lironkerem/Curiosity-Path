@@ -89,23 +89,27 @@
 }
 .ritual-overlay.opening { background: rgba(212, 173, 145, 0.25); }
 .ritual-overlay.closing { background: rgba(61, 47, 31, 0.25); }
-.ritual-overlay.active { display: flex; animation: breathe 4s infinite; pointer-events: auto; }
+.ritual-overlay.active { display: flex; pointer-events: auto; }
 @keyframes breathe { 0%, 100% { opacity: 0.95; } 50% { opacity: 1; } }
 
-.ritual-card { text-align: center; max-width: 400px; padding: 48px; }
+.ritual-card { 
+    text-align: center; max-width: 400px; padding: 48px;
+    animation: breathe 4s infinite;
+}
 .ritual-candle {
     width: 80px; height: 80px; margin: 0 auto 32px;
     background: radial-gradient(circle, var(--neuro-accent) 0%, transparent 70%);
     border-radius: 50%; animation: flicker 3s infinite;
 }
 @keyframes flicker { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } }
-.ritual-text { font-family: var(--serif); font-size: 24px; font-style: italic; margin-bottom: 24px; color: inherit; }
+.ritual-text { font-family: var(--serif); font-size: 24px; font-style: italic; margin-bottom: 24px; color: var(--text); }
 .ritual-overlay.closing .ritual-text { color: var(--neuro-bg-lightest); }
 .ritual-btn {
-    padding: 12px 32px; border: 2px solid currentColor; background: transparent;
+    padding: 12px 32px; border: 2px solid var(--text); background: transparent; color: var(--text);
     border-radius: var(--radius-full); font-family: var(--serif); font-style: italic; cursor: pointer;
     font-size: 15px; transition: all var(--transition-normal);
 }
+.ritual-overlay.closing .ritual-btn { border-color: var(--neuro-bg-lightest); color: var(--neuro-bg-lightest); }
 .ritual-btn:hover { 
     box-shadow: var(--shadow-raised-hover); 
     transform: translateY(-2px);
