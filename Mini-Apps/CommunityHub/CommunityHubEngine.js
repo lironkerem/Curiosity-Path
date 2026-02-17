@@ -110,13 +110,6 @@ class CommunityHubEngine {
     `;
     } // end if (!this.initialized)
 
-    // Show ritual AFTER tab content is in DOM so backdrop-filter has content to blur
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        this._showRitualImmediately();
-      });
-    });
-
     // Initialize once
     if (!this.initialized) {
       await this.initializeCommunityHub();
@@ -305,9 +298,10 @@ class CommunityHubEngine {
       // Initialize Core
       if (window.Core?.init) {
         window.Core.init();
-        // Ritual already shown by _showRitualImmediately - just reset state
+        // Show opening ritual now that Rituals module is loaded and can set random text
         if (window.Rituals) {
           window.Rituals.state.hasSeenOpening = false;
+          window.Rituals.showOpening();
         }
         console.log('✅ Community Hub loaded successfully');
       } else {
