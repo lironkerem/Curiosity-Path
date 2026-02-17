@@ -2983,7 +2983,8 @@ body.dev-mode .practice-room.in-session::before {
 .ps-body { 
     flex: 1; 
     display: flex; 
-    overflow: hidden; 
+    overflow: hidden;
+    background: #e0d4bf;
 }
 
 .ps-main {
@@ -2993,6 +2994,7 @@ body.dev-mode .practice-room.in-session::before {
     align-items: center;
     justify-content: center;
     padding: 40px;
+    background: #e0d4bf;
     position: relative;
 }
 
@@ -4038,18 +4040,18 @@ body.dev-mode .practice-room.in-session::before {
 /* ===== PRACTICE ROOM BACKGROUND FIX ===== */
 /* Override for fullscreen practice room container - uses main app variables */
 #communityHubFullscreenContainer {
-    --background: var(--neuro-bg-lightest);
-    --surface: var(--neuro-bg-lighter);
-    --text: var(--neuro-text);
-    --text-muted: var(--neuro-text-light);
-    --border: var(--neuro-shadow-light);
-    --accent: var(--neuro-accent);
-    background: var(--neuro-bg-lightest) !important;
+    --background: #f5f5f5;
+    --surface: #ffffff;
+    --text: #1a1a1a;
+    --text-muted: #6b6b6b;
+    --border: #e0e0e0;
+    --accent: var(--neuro-accent, #6b9b37);
+    background: #f5f5f5 !important;
 }
 
 /* Reset body background when practice room is active */
 body.practice-room-active {
-    background: var(--neuro-bg-lightest) !important;
+    background: #f5f5f5 !important;
 }
 
 body.practice-room-active::before,
@@ -4057,17 +4059,24 @@ body.practice-room-active::after {
     display: none !important;
 }
 
-/* Ensure the practice room view has proper background */
-#practiceRoomView {
-    background: var(--neuro-bg-lightest);
+/* Ensure the practice room view has proper background with maximum specificity */
+#communityHubFullscreenContainer #practiceRoomView {
+    background: #f5f5f5 !important;
     min-height: 100vh;
 }
 
-.practice-room-container {
+#communityHubFullscreenContainer .practice-room-container {
     min-height: 100vh;
     width: 100%;
-    background: var(--neuro-bg-lightest);
+    background: #f5f5f5 !important;
     position: relative;
     overflow-x: hidden;
     padding: 2rem 1rem;
+}
+
+/* Override any practice space backgrounds */
+#communityHubFullscreenContainer .practice-space,
+#communityHubFullscreenContainer .ps-main,
+#communityHubFullscreenContainer .ps-body {
+    background: #f5f5f5 !important;
 }
