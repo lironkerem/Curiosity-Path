@@ -167,12 +167,10 @@ const Rituals = {
         }
 
         try {
-            // Show the parent container first
             if (container) {
                 container.style.display = 'block';
                 container.style.pointerEvents = 'auto';
             }
-            // Add active class - CSS handles display:flex + animation
             overlay.classList.add('active');
             console.log('✓ Opening ritual displayed');
             

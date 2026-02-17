@@ -149,8 +149,7 @@ class CommunityHubEngine {
 
     container.innerHTML = `
       <!-- Ritual Overlays (at fullscreen level) -->
-      <div class="ritual-overlay opening" id="openingOverlay" role="dialog" aria-labelledby="openingRitualText" 
-           style="pointer-events: auto;">
+      <div class="ritual-overlay opening" id="openingOverlay" role="dialog" aria-labelledby="openingRitualText">
           <div class="ritual-card">
               <div class="ritual-candle" aria-hidden="true"></div>
               <div class="ritual-text" id="openingRitualText">"Enter with intention, leave with gratitude"</div>
@@ -160,8 +159,7 @@ class CommunityHubEngine {
           </div>
       </div>
 
-      <div class="ritual-overlay closing" id="closingOverlay" role="dialog" aria-labelledby="closingRitualText"
-           style="pointer-events: auto;">
+      <div class="ritual-overlay closing" id="closingOverlay" role="dialog" aria-labelledby="closingRitualText">
           <div class="ritual-card">
               <div class="ritual-candle" aria-hidden="true"></div>
               <div class="ritual-text" id="closingRitualText">"Thank you for holding space with us"</div>
@@ -187,14 +185,6 @@ class CommunityHubEngine {
 
     document.body.appendChild(container);
     console.log('✓ Fullscreen room container created');
-
-    // Show opening ritual immediately (before scripts finish loading)
-    const openingOverlay = container.querySelector('#openingOverlay');
-    if (openingOverlay) {
-      container.style.display = 'block';
-      container.style.pointerEvents = 'auto';
-      openingOverlay.style.display = 'flex';
-    }
   }
 
   async initializeCommunityHub() {
@@ -268,6 +258,11 @@ class CommunityHubEngine {
       // Initialize Core
       if (window.Core?.init) {
         window.Core.init();
+        // Show opening ritual now that everything is ready
+        if (window.Rituals) {
+          window.Rituals.state.hasSeenOpening = false;
+          window.Rituals.showOpening();
+        }
         console.log('✅ Community Hub loaded successfully');
       } else {
         throw new Error('Core module not found');

@@ -346,16 +346,9 @@ const Core = {
                     fullscreenContainer.style.display = 'block';
                     console.log('[Core] Fullscreen container shown');
                     
-                    // Hide ritual overlays - they should NOT show when entering a room
-                    const openingOverlay = fullscreenContainer.querySelector('#openingOverlay');
-                    const closingOverlay = fullscreenContainer.querySelector('#closingOverlay');
-                    if (openingOverlay) { openingOverlay.classList.remove('active'); }
-                    if (closingOverlay) { closingOverlay.classList.remove('active'); }
-                    
                     // Activate practice room view within fullscreen container
                     const practiceView = fullscreenContainer.querySelector('#practiceRoomView');
                     if (practiceView) {
-                        practiceView.style.display = 'block';
                         practiceView.classList.add('active');
                         console.log('[Core] Practice view activated');
                     }
