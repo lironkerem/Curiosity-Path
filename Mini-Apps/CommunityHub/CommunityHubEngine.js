@@ -220,6 +220,7 @@ class CommunityHubEngine {
                   </defs>
                 </svg>
               </div>
+              <div class="ritual-text" id="closingRitualText"></div>
               <button class="ritual-btn" data-action="ritual-closing" aria-label="Close gently">
                   Close Gently
               </button>
