@@ -177,7 +177,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     50%       { transform: scale(1.2); opacity: 1; }
 }
 @keyframes candleFloat {
-    0%, 100% { transform: translateY(0px); }
+    0%, 100% { transform: translateY(0); }
     50%       { transform: translateY(-4px); }
 }
 .ritual-text { font-family: var(--serif); font-size: 24px; font-style: italic; margin-bottom: 24px; color: var(--text); }
@@ -985,7 +985,8 @@ body.dev-mode .practice-room.in-session::before {
     border-color: var(--ring-available);
 }
 
-.ambient-option {
+.ambient-option,
+.sound-option {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -995,15 +996,18 @@ body.dev-mode .practice-room.in-session::before {
     transition: background 0.2s;
 }
 
-.ambient-option:hover {
+.ambient-option:hover,
+.sound-option:hover {
     background: var(--neuro-bg-lightest);
 }
 
-.ambient-option input[type="radio"] {
+.ambient-option input[type="radio"],
+.sound-option input[type="radio"] {
     cursor: pointer;
 }
 
-.ambient-option label {
+.ambient-option label,
+.sound-option label {
     cursor: pointer;
     font-size: 13px;
     flex: 1;
@@ -1454,29 +1458,6 @@ body.dev-mode .practice-room.in-session::before {
     margin-bottom: 10px;
 }
 
-.sound-option {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px;
-    cursor: pointer;
-    border-radius: var(--radius-md);
-    transition: background 0.2s;
-}
-
-.sound-option:hover {
-    background: var(--neuro-bg-lightest);
-}
-
-.sound-option input[type="radio"] {
-    cursor: pointer;
-}
-
-.sound-option label {
-    cursor: pointer;
-    font-size: 13px;
-    flex: 1;
-}
 
 .sound-preview-btn {
     width: 28px;
@@ -4045,9 +4026,9 @@ body.dev-mode .practice-room.in-session::before {
     
 @media (max-width: 768px) {
     .whatsapp-float {
-            left: 10px;
-            padding: 14px 10px;
-        }
+        left: 10px;
+        padding: 14px 10px;
+    }
     .whatsapp-float span {
         font-size: 12px;
     }
@@ -4479,10 +4460,8 @@ body.solar-room-active[data-season] {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
-  margin-bottom: 3rem;
+  margin: 0 auto 3rem;
   max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 @media (max-width: 600px) {
@@ -4694,8 +4673,7 @@ body.solar-room-active[data-season] {
   border: 1px solid var(--solar-border-accent);
   border-radius: 20px;
   padding: 2rem;
-  margin-top: 3rem;
-  margin-bottom: 2rem;
+  margin: 3rem 0 2rem;
 }
 
 .solar-closure h3 {
