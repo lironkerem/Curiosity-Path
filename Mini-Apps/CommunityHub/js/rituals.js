@@ -172,8 +172,7 @@ const Rituals = {
                 container.style.display = 'block';
                 container.style.pointerEvents = 'auto';
             }
-            // Show the overlay
-            overlay.style.display = 'flex';
+            // Add active class - CSS handles display:flex + animation
             overlay.classList.add('active');
             console.log('✓ Opening ritual displayed');
             
@@ -206,7 +205,6 @@ const Rituals = {
             }
             
             // Hide overlay and container
-            overlay.style.display = 'none';
             overlay.classList.remove('active');
             if (container) {
                 container.style.display = 'none';
@@ -236,13 +234,16 @@ const Rituals = {
      */
     showClosing() {
         const overlay = document.getElementById('closingOverlay');
+        const container = document.getElementById('communityHubFullscreenContainer');
         if (!overlay) {
             console.warn('Closing overlay not found');
             return;
         }
-
         try {
-            overlay.style.display = 'flex';
+            if (container) {
+                container.style.display = 'block';
+                container.style.pointerEvents = 'auto';
+            }
             overlay.classList.add('active');
             console.log('✓ Closing ritual displayed');
         } catch (error) {
@@ -255,14 +256,18 @@ const Rituals = {
      */
     completeClosing() {
         const overlay = document.getElementById('closingOverlay');
+        const container = document.getElementById('communityHubFullscreenContainer');
         if (!overlay) {
             console.warn('Closing overlay not found');
             return;
         }
 
         try {
-            overlay.style.display = 'none';
             overlay.classList.remove('active');
+            if (container) {
+                container.style.display = 'none';
+                container.style.pointerEvents = 'none';
+            }
             
             // Clean up any active practice room
             this.cleanupActiveRoom();
