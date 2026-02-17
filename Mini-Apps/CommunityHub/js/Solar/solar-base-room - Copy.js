@@ -244,7 +244,6 @@ const BaseSolarRoom = {
     const imageUrl = `${SOLAR_CONSTANTS.IMAGE_BASE_URL}${this.config.displayName}.png`;
 
     container.innerHTML = `
-      <div class="solar-room-bg">
       <div class="solar-floating-bg">
         ${SolarUIManager.utils.generateFloatingElements(this.config.floatingEmojis)}
       </div>
@@ -301,7 +300,6 @@ const BaseSolarRoom = {
         </div>
         
         ${daysRemaining <= 7 ? SolarUIManager.renderers.closureSection() : ''}
-      </div>
       </div>
     `;
     
@@ -430,8 +428,7 @@ const BaseSolarRoom = {
         saveAction: `window.currentSolarRoom.savePractice('${practiceId}')`
       });
       
-      const _popupTarget = document.getElementById('communityHubFullscreenContainer') || document.body;
-      _popupTarget.appendChild(popup);
+      document.body.appendChild(popup);
       
       // ✅ ADDED: Attach event listeners for affirmation buttons
       this._attachPopupListeners(popup, practiceId);
@@ -581,8 +578,7 @@ const BaseSolarRoom = {
         </div>
       `;
       
-      const _popupTarget = document.getElementById('communityHubFullscreenContainer') || document.body;
-      _popupTarget.appendChild(popup);
+      document.body.appendChild(popup);
       
     } catch (error) {
       console.error('Error showing collective popup:', error);
