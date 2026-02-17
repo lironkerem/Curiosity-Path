@@ -82,10 +82,16 @@
     z-index: 999; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
 }
 .ritual-overlay.opening {
-    position: absolute; inset: 0;
+    position: fixed; inset: 0; z-index: 100000;
 }
 .ritual-overlay.closing {
-    position: fixed; inset: 0;
+    position: fixed; inset: 0; z-index: 100000;
+}
+
+/* Blur entire page content behind ritual */
+body.ritual-active > *:not(#communityHubFullscreenContainer):not([id="openingOverlay"]) {
+    filter: blur(8px);
+    transition: filter 0.3s ease;
 }
 .ritual-overlay.opening { background: rgba(212, 173, 145, 0.25); }
 .ritual-overlay.closing { background: rgba(61, 47, 31, 0.25); }

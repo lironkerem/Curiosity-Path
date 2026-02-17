@@ -162,6 +162,7 @@ const Rituals = {
             return;
         }
         try {
+            document.body.classList.add('ritual-active');
             overlay.classList.add('active');
             console.log('✓ Opening ritual displayed');
             this.state.autoCloseTimer = setTimeout(() => {
@@ -184,6 +185,7 @@ const Rituals = {
                 this.state.autoCloseTimer = null;
             }
             overlay.classList.remove('active');
+            document.body.classList.remove('ritual-active');
             this.state.hasSeenOpening = true;
             this.saveState();
             if (window.Core && typeof window.Core.showToast === 'function') {
@@ -210,6 +212,7 @@ const Rituals = {
             return;
         }
         try {
+            document.body.classList.add('ritual-active');
             if (container) {
                 container.style.display = 'block';
                 container.style.pointerEvents = 'auto';
@@ -234,6 +237,7 @@ const Rituals = {
 
         try {
             overlay.classList.remove('active');
+            document.body.classList.remove('ritual-active');
             if (container) {
                 container.style.display = 'none';
             }
