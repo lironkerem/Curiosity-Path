@@ -114,6 +114,13 @@ class CommunityHubEngine {
       this.initialized = true;
     } else if (window.Core?.init) {
       window.Core.init();
+      // Show opening ritual on every tab visit
+      setTimeout(() => {
+        if (window.Rituals) {
+          window.Rituals.state.hasSeenOpening = false;
+          window.Rituals.showOpening();
+        }
+      }, 300);
     }
   }
 
@@ -260,18 +267,14 @@ class CommunityHubEngine {
         
         // Give DOM a moment to settle, then show opening ritual
         setTimeout(() => {
-          console.log('🔍 Checking for opening ritual...');
-          console.log('Rituals object:', window.Rituals);
-          console.log('Has seen opening:', window.Rituals?.state?.hasSeenOpening);
-          
           const overlay = document.getElementById('openingOverlay');
           console.log('Opening overlay element:', overlay);
           
-          if (window.Rituals && !window.Rituals.state.hasSeenOpening) {
+          if (window.Rituals) {
+            // Reset so ritual shows every time the hub tab is opened
+            window.Rituals.state.hasSeenOpening = false;
             console.log('✅ Triggering opening ritual...');
             window.Rituals.showOpening();
-          } else {
-            console.log('⏭️ Skipping opening ritual (already seen)');
           }
         }, 300);
         
