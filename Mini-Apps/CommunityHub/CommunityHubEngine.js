@@ -150,7 +150,7 @@ class CommunityHubEngine {
       background: transparent;
       display: none;
       overflow: auto;
-      pointer-events: none;
+      pointer-events: auto;
     `;
 
     container.innerHTML = `
