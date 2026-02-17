@@ -103,66 +103,11 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     animation: breathe 4s infinite;
 }
 .ritual-candle {
-    width: 140px; height: 140px; margin: 0 auto 32px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 80px; height: 80px; margin: 0 auto 32px;
+    background: radial-gradient(circle, var(--neuro-accent) 0%, transparent 70%);
+    border-radius: 50%; animation: flicker 3s infinite;
 }
-.ritual-candle::before {
-    content: '';
-    position: absolute;
-    width: 140px; height: 140px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 180, 80, 0.18) 0%, transparent 70%);
-    animation: outerGlow 4s ease-in-out infinite;
-}
-.ritual-candle::after {
-    content: '';
-    position: absolute;
-    width: 100px; height: 100px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 200, 100, 0.25) 0%, transparent 70%);
-    animation: innerGlow 3s ease-in-out infinite;
-}
-.ritual-candle svg {
-    position: relative;
-    z-index: 2;
-    width: 72px; height: 100px;
-    filter: drop-shadow(0 0 8px rgba(255, 180, 60, 0.6));
-    animation: candleFloat 4s ease-in-out infinite;
-}
-.flame-outer { animation: flameOuter 1.8s ease-in-out infinite; transform-origin: 50% 100%; }
-.flame-inner { animation: flameInner 1.4s ease-in-out infinite; transform-origin: 50% 100%; }
-.flame-core  { animation: flameCore 1s ease-in-out infinite; transform-origin: 50% 100%; }
-
-@keyframes flameOuter {
-    0%, 100% { transform: scaleX(1) scaleY(1) rotate(-1deg); opacity: 0.9; }
-    25%       { transform: scaleX(0.88) scaleY(1.06) rotate(1.5deg); opacity: 1; }
-    50%       { transform: scaleX(1.06) scaleY(0.95) rotate(-2deg); opacity: 0.85; }
-    75%       { transform: scaleX(0.92) scaleY(1.04) rotate(1deg); opacity: 1; }
-}
-@keyframes flameInner {
-    0%, 100% { transform: scaleX(1) scaleY(1) rotate(1deg); opacity: 0.85; }
-    33%       { transform: scaleX(0.9) scaleY(1.08) rotate(-1.5deg); opacity: 1; }
-    66%       { transform: scaleX(1.05) scaleY(0.94) rotate(2deg); opacity: 0.9; }
-}
-@keyframes flameCore {
-    0%, 100% { opacity: 0.9; transform: scaleY(1); }
-    50%       { opacity: 1; transform: scaleY(1.05); }
-}
-@keyframes outerGlow {
-    0%, 100% { transform: scale(1); opacity: 0.7; }
-    50%       { transform: scale(1.15); opacity: 1; }
-}
-@keyframes innerGlow {
-    0%, 100% { transform: scale(1); opacity: 0.8; }
-    50%       { transform: scale(1.2); opacity: 1; }
-}
-@keyframes candleFloat {
-    0%, 100% { transform: translateY(0px); }
-    50%       { transform: translateY(-4px); }
-}
+@keyframes flicker { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } }
 .ritual-text { font-family: var(--serif); font-size: 24px; font-style: italic; margin-bottom: 24px; color: var(--text); }
 .ritual-overlay.closing .ritual-text { color: var(--neuro-bg-lightest); }
 .ritual-btn {
