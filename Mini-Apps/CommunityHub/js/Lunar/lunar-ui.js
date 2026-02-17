@@ -373,8 +373,7 @@ const LunarUI = {
                 width: 100%;
                 background: linear-gradient(180deg, #0a0a1a 0%, #1a1a2e 50%, #0f0f1e 100%);
                 position: relative;
-                overflow-x: hidden;
-                padding: 2rem 1rem;
+                overflow-x: clip;
             }
 
             .practice-room-container {
