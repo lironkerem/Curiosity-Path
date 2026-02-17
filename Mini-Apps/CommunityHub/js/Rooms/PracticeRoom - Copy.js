@@ -39,7 +39,7 @@ class PracticeRoom {
             icon: config.icon || '🧘',
             description: config.description || 'A space for practice',
             energy: config.energy || 'Peaceful',
-            statusRingColor: config.statusRingColor || 'var(--season-accent)',
+            statusRingColor: config.statusRingColor || 'var(--neuro-accent)',
             imageUrl: config.imageUrl || '',
             ...config
         };

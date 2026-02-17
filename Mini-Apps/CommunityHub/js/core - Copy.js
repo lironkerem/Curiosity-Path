@@ -331,6 +331,13 @@ const Core = {
                     console.log('[Core] Hub tab shown');
                 }
                 
+                // Remove practice room body class
+                document.body.classList.remove('practice-room-active');
+                
+                // Restore original body/html background
+                document.body.style.removeProperty('background');
+                document.documentElement.style.removeProperty('background');
+                
                 // Update view state within hub
                 const views = document.querySelectorAll('#hubView');
                 views.forEach(view => view.classList.add('active'));
@@ -353,6 +360,13 @@ const Core = {
                         console.log('[Core] Practice view activated');
                     }
                 }
+                
+                // Add practice room body class to override background
+                document.body.classList.add('practice-room-active');
+                
+                // FORCE body and html background to light color
+                document.body.style.setProperty('background', '#e0d4bf', 'important');
+                document.documentElement.style.setProperty('background', '#e0d4bf', 'important');
                 
                 // CRITICAL: Completely hide the entire community-hub-tab
                 if (hubTab) {
