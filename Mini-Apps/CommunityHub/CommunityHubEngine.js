@@ -20,18 +20,6 @@ class CommunityHubEngine {
     if (!this.initialized) {
       tab.innerHTML = `
       <div style="background:var(--neuro-bg);padding:1.5rem;min-height:100vh; position: relative;">
-
-        <!-- Opening Ritual Overlay - inside tab so it blurs hub content -->
-        <div id="openingOverlay" class="ritual-overlay opening" role="dialog"
-             style="position: absolute; z-index: 999;">
-            <div class="ritual-card">
-                <div class="ritual-candle" aria-hidden="true"></div>
-                <div class="ritual-text" id="openingRitualText">"Enter with intention, leave with gratitude"</div>
-                <button class="ritual-btn" data-action="ritual-opening" aria-label="Enter the space">
-                    Enter the Space
-                </button>
-            </div>
-        </div>
         <div class="universal-content">
 
           <header class="main-header project-curiosity"
@@ -150,9 +138,9 @@ class CommunityHubEngine {
    * Called before tab content renders
    */
   _showRitualImmediately() {
-    // Opening overlay is inside the tab - just activate it
     const overlay = document.getElementById('openingOverlay');
     if (overlay) {
+      document.body.classList.add('ritual-active');
       overlay.classList.add('active');
     }
   }
@@ -209,6 +197,26 @@ class CommunityHubEngine {
     `;
 
     document.body.appendChild(container);
+
+    // Inject opening overlay directly into app-container (or body) as fixed
+    // This ensures it covers everything: header, nav, content, footer
+    if (!document.getElementById('openingOverlay')) {
+      const openingOverlay = document.createElement('div');
+      openingOverlay.innerHTML = `
+        <div id="openingOverlay" class="ritual-overlay opening" role="dialog">
+            <div class="ritual-card">
+                <div class="ritual-candle" aria-hidden="true"></div>
+                <div class="ritual-text" id="openingRitualText">"Enter with intention, leave with gratitude"</div>
+                <button class="ritual-btn" data-action="ritual-opening" aria-label="Enter the space">
+                    Enter the Space
+                </button>
+            </div>
+        </div>
+      `;
+      const appContainer = document.getElementById('app-container') || document.body;
+      appContainer.appendChild(openingOverlay.firstElementChild);
+    }
+
     console.log('✓ Fullscreen room container created');
   }
 

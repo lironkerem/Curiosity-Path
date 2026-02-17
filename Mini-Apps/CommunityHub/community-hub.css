@@ -82,20 +82,20 @@
     z-index: 999; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
 }
 .ritual-overlay.opening {
-    position: fixed; inset: 0; z-index: 100000;
+    position: fixed; inset: 0; z-index: 2147483646;
 }
 .ritual-overlay.closing {
-    position: fixed; inset: 0; z-index: 100000;
+    position: fixed; inset: 0; z-index: 2147483646;
 }
 
-/* Blur entire page content behind ritual */
-body.ritual-active > *:not(#communityHubFullscreenContainer):not([id="openingOverlay"]) {
+/* Blur entire page behind ritual */
+body.ritual-active #app-container > *:not(#openingOverlay) {
     filter: blur(8px);
     transition: filter 0.3s ease;
+    pointer-events: none;
 }
 .ritual-overlay.opening { background: rgba(212, 173, 145, 0.25); }
-.ritual-overlay.closing { background: rgba(61, 47, 31, 0.25); }
-.ritual-overlay.active { display: flex; pointer-events: auto; }
+.ritual-overlay.closing { background: rgba(61, 47, 31, 0.25); }.ritual-overlay.active { display: flex; pointer-events: auto; }
 @keyframes breathe { 0%, 100% { opacity: 0.95; } 50% { opacity: 1; } }
 
 .ritual-card { 
