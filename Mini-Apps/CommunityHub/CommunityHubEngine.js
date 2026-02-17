@@ -13,6 +13,9 @@ class CommunityHubEngine {
       return;
     }
 
+    // Create fullscreen container FIRST (before any content, so rituals can work)
+    this.createFullscreenRoomContainer();
+
     // Render Community Hub dashboard (stays in tab container)
     tab.innerHTML = `
       <div style="background:var(--neuro-bg);padding:1.5rem;min-height:100vh;">
@@ -104,9 +107,6 @@ class CommunityHubEngine {
         </div>
       </div>
     `;
-
-    // Create fullscreen room container at body level (outside all app containers)
-    this.createFullscreenRoomContainer();
 
     // Initialize once
     if (!this.initialized) {
@@ -252,6 +252,14 @@ class CommunityHubEngine {
       // Initialize Core
       if (window.Core?.init) {
         window.Core.init();
+        
+        // Give DOM a moment to settle, then show opening ritual
+        setTimeout(() => {
+          if (window.Rituals && !window.Rituals.state.hasSeenOpening) {
+            window.Rituals.showOpening();
+          }
+        }, 300);
+        
         console.log('✅ Community Hub loaded successfully');
       } else {
         throw new Error('Core module not found');

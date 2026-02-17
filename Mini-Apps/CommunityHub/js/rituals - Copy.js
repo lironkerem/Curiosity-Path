@@ -73,8 +73,10 @@ const Rituals = {
             // Set up event listeners
             this.setupEventListeners();
             
-            // DON'T auto-show here - let CommunityHubEngine control timing
-            // to ensure DOM is fully ready
+            // Auto-show opening ritual on first visit
+            if (!this.state.hasSeenOpening) {
+                setTimeout(() => this.showOpening(), 100);
+            }
             
             this.state.isInitialized = true;
             

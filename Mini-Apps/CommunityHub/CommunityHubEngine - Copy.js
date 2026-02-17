@@ -136,13 +136,12 @@ class CommunityHubEngine {
       width: 100vw;
       height: 100vh;
       z-index: 99999;
-      background: var(--neuro-bg);
+      background: transparent;
       display: none;
       overflow: auto;
     `;
 
     container.innerHTML = `
-      <div style="background: var(--neuro-bg); min-height: 100vh; width: 100%; position: relative;">
       <!-- Ritual Overlays (at fullscreen level) -->
       <div class="ritual-overlay opening" id="openingOverlay" role="dialog" aria-labelledby="openingRitualText">
           <div class="ritual-card">
@@ -175,7 +174,6 @@ class CommunityHubEngine {
               </button>
               <div id="dynamicRoomContent"></div>
           </div>
-      </div>
       </div>
     `;
 
