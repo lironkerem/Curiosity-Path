@@ -13,10 +13,8 @@ class CommunityHubEngine {
       return;
     }
 
-    // Create fullscreen container FIRST and immediately show ritual
-    // This covers the screen before any content renders - eliminates blink
+    // Create fullscreen container FIRST
     this.createFullscreenRoomContainer();
-    this._showRitualImmediately();
 
     // Only build the HTML on first load - don't wipe it on re-visits
     if (!this.initialized) {
@@ -112,6 +110,13 @@ class CommunityHubEngine {
     `;
     } // end if (!this.initialized)
 
+    // Show ritual AFTER tab content is in DOM so backdrop-filter has content to blur
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this._showRitualImmediately();
+      });
+    });
+
     // Initialize once
     if (!this.initialized) {
       await this.initializeCommunityHub();
@@ -122,7 +127,6 @@ class CommunityHubEngine {
         window.Core.state.initialized = false;
         window.Core.init();
       }
-      // Ritual already shown by _showRitualImmediately() above
       if (window.Rituals) {
         window.Rituals.state.hasSeenOpening = false;
       }
