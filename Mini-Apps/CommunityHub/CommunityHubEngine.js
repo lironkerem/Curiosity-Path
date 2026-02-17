@@ -19,7 +19,19 @@ class CommunityHubEngine {
     // Only build the HTML on first load - don't wipe it on re-visits
     if (!this.initialized) {
       tab.innerHTML = `
-      <div style="background:var(--neuro-bg);padding:1.5rem;min-height:100vh;">
+      <div style="background:var(--neuro-bg);padding:1.5rem;min-height:100vh; position: relative;">
+
+        <!-- Opening Ritual Overlay - inside tab so it blurs hub content -->
+        <div id="openingOverlay" class="ritual-overlay opening" role="dialog"
+             style="position: absolute; z-index: 999;">
+            <div class="ritual-card">
+                <div class="ritual-candle" aria-hidden="true"></div>
+                <div class="ritual-text" id="openingRitualText">"Enter with intention, leave with gratitude"</div>
+                <button class="ritual-btn" data-action="ritual-opening" aria-label="Enter the space">
+                    Enter the Space
+                </button>
+            </div>
+        </div>
         <div class="universal-content">
 
           <header class="main-header project-curiosity"
@@ -138,11 +150,9 @@ class CommunityHubEngine {
    * Called before tab content renders
    */
   _showRitualImmediately() {
-    const container = document.getElementById('communityHubFullscreenContainer');
+    // Opening overlay is inside the tab - just activate it
     const overlay = document.getElementById('openingOverlay');
-    if (container && overlay) {
-      container.style.display = 'block';
-      container.style.pointerEvents = 'auto';
+    if (overlay) {
       overlay.classList.add('active');
     }
   }
@@ -173,17 +183,7 @@ class CommunityHubEngine {
     `;
 
     container.innerHTML = `
-      <!-- Ritual Overlays (at fullscreen level) -->
-      <div class="ritual-overlay opening" id="openingOverlay" role="dialog" aria-labelledby="openingRitualText">
-          <div class="ritual-card">
-              <div class="ritual-candle" aria-hidden="true"></div>
-              <div class="ritual-text" id="openingRitualText">"Enter with intention, leave with gratitude"</div>
-              <button class="ritual-btn" data-action="ritual-opening" aria-label="Enter the space">
-                  Enter the Space
-              </button>
-          </div>
-      </div>
-
+      <!-- Closing Ritual Overlay only - opening is inside the tab -->
       <div class="ritual-overlay closing" id="closingOverlay" role="dialog" aria-labelledby="closingRitualText">
           <div class="ritual-card">
               <div class="ritual-candle" aria-hidden="true"></div>

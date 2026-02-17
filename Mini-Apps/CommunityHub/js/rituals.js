@@ -156,30 +156,17 @@ const Rituals = {
      * Show opening ritual overlay
      */
     showOpening() {
-        console.log('🕯️ showOpening() called');
         const overlay = document.getElementById('openingOverlay');
-        const container = document.getElementById('communityHubFullscreenContainer');
-        console.log('Opening overlay found:', overlay);
-        
         if (!overlay) {
             console.warn('Opening overlay not found');
             return;
         }
-
         try {
-            if (container) {
-                container.style.display = 'block';
-                container.style.pointerEvents = 'auto';
-            }
             overlay.classList.add('active');
             console.log('✓ Opening ritual displayed');
-            
-            // Auto-close after 5 seconds
             this.state.autoCloseTimer = setTimeout(() => {
-                console.log('⏰ Auto-closing opening ritual');
                 this.completeOpening();
             }, 5000);
-            
         } catch (error) {
             console.error('Error showing opening ritual:', error);
         }
@@ -190,33 +177,19 @@ const Rituals = {
      */
     completeOpening() {
         const overlay = document.getElementById('openingOverlay');
-        const container = document.getElementById('communityHubFullscreenContainer');
-        if (!overlay) {
-            console.warn('Opening overlay not found');
-            return;
-        }
-
+        if (!overlay) return;
         try {
             if (this.state.autoCloseTimer) {
                 clearTimeout(this.state.autoCloseTimer);
                 this.state.autoCloseTimer = null;
             }
-            
-            // Hide overlay only - container stays visible for the hub/room behind it
             overlay.classList.remove('active');
-            if (container) {
-                container.style.display = 'none';
-            }
-            
             this.state.hasSeenOpening = true;
             this.saveState();
-            
             if (window.Core && typeof window.Core.showToast === 'function') {
                 window.Core.showToast('Welcome to the space');
             }
-            
             console.log('✓ Opening ritual completed');
-            
         } catch (error) {
             console.error('Error completing opening ritual:', error);
         }
