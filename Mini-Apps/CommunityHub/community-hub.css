@@ -77,21 +77,6 @@
     to { opacity: 1; } 
 }
 
-/* ===== SEASONAL TRANSITION FLASH ===== */
-.season-flash {
-    position: fixed; 
-    inset: 0; 
-    background: var(--neuro-accent);
-    opacity: 0; 
-    pointer-events: none; 
-    z-index: 9999;
-    transition: opacity 2s;
-}
-
-.season-flash.active { 
-    opacity: 0.2; 
-}
-
 /* RITUAL OVERLAYS */
 .ritual-overlay {
     display: none; align-items: center; justify-content: center;
@@ -1836,15 +1821,6 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     padding: 0 24px 40px;
 }
 
-/* Season Selector Wheel */
-.season-wheel {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 32px;
-    padding: 8px;
-}
-
 /* Daily Cycle Bar */
 
 /* Presence Sanctuary */
@@ -3224,43 +3200,6 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
   --season-bg-mid3: #6a4530;
   --season-bg-end: #3a1f0f;
   --season-sun-glow: rgba(212, 165, 116, 0.4);
-}
-
-/* Season-specific theme overrides */
-[data-season="winter"] {
-  --season-accent: #a0b8c8;
-  --season-accent-light: #c0d4e4;
-  --season-accent-dark: #7a8c9c;
-  --season-bg-start: #1a2a3a;
-  --season-bg-mid1: #2d4050;
-  --season-bg-mid2: #1e3545;
-  --season-bg-mid3: #2f4a5a;
-  --season-bg-end: #1a2a3a;
-  --season-sun-glow: rgba(160, 184, 200, 0.4);
-}
-
-[data-season="spring"] {
-  --season-accent: #ffd740;
-  --season-accent-light: #ffe066;
-  --season-accent-dark: #f4c542;
-  --season-bg-start: #1a3a2a;
-  --season-bg-mid1: #2d5a3d;
-  --season-bg-mid2: #234a35;
-  --season-bg-mid3: #3d6a4d;
-  --season-bg-end: #1a3a2a;
-  --season-sun-glow: rgba(255, 215, 64, 0.4);
-}
-
-[data-season="summer"] {
-  --season-accent: #ff8c42;
-  --season-accent-light: #ffa552;
-  --season-accent-dark: #ff6b35;
-  --season-bg-start: #ff6b35;
-  --season-bg-mid1: #ff8c42;
-  --season-bg-mid2: #ffa552;
-  --season-bg-mid3: #ffbe68;
-  --season-bg-end: #ff6b35;
-  --season-sun-glow: rgba(255, 140, 66, 0.4);
 }
 
 /* ========================================

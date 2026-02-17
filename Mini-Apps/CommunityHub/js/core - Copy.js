@@ -5,6 +5,7 @@
  * - Global state management
  * - Application initialization and lifecycle
  * - Module coordination and dependency management
+ * - Season detection and management
  * - Navigation and view switching
  * - Utility functions
  * 
@@ -28,6 +29,7 @@ const Core = {
             offered: 127,
             status: 'available' // available, silent, guiding, deep, resonant, offline
         },
+        currentSeason: 'winter',
         presenceCount: 127,
         pulseSent: false,
         timerRunning: false,
@@ -42,6 +44,7 @@ const Core = {
     
     config: {
         DEV_MODE: true, // Set to true to access all lunar/solar rooms regardless of phase/season
+        seasons: ['winter', 'spring', 'summer', 'autumn'],
         statusRings: {
             silent: '#60a5fa',
             available: '#34d399',
@@ -50,6 +53,7 @@ const Core = {
             resonant: '#f472b6',
             offline: '#d1d5db'
         },
+        SEASON_CHECK_INTERVAL: 86400000, // 24 hours in ms
         RENDER_DELAY: 100, // Delay before rendering rooms
         CELESTIAL_INIT_DELAY: 500 // Increased delay for Solar system to ensure SunCalc is loaded
     },
@@ -73,6 +77,8 @@ const Core = {
             console.log('🌟 Community Hub Initializing...');
             
             this.setupEventListeners();
+            this.autoDetectSeason();
+            this.startSeasonMonitoring();
             this.initializeSafetyModals(); // Initialize safety modals
             this.initializeModules();
             this.initializePracticeRooms();
@@ -102,6 +108,19 @@ const Core = {
             stack: error.stack,
             state: this.state
         });
+    },
+
+    /**
+     * Start periodic season monitoring
+     */
+    startSeasonMonitoring() {
+        setInterval(() => {
+            try {
+                this.autoDetectSeason();
+            } catch (error) {
+                console.error('Season monitoring error:', error);
+            }
+        }, this.config.SEASON_CHECK_INTERVAL);
     },
 
     /**
@@ -439,6 +458,88 @@ const Core = {
         setTimeout(() => {
             toast.classList.remove('show');
         }, duration);
+    },
+
+    // ============================================================================
+    // SEASON MANAGEMENT
+    // ============================================================================
+    
+    /**
+     * Automatically detect and set the current season based on date
+     */
+    autoDetectSeason() {
+        const now = new Date();
+        const month = now.getMonth(); // 0-11
+        
+        let season;
+        
+        // Northern Hemisphere seasons
+        if (month >= 2 && month <= 4) {
+            season = 'spring';  // March, April, May
+        } else if (month >= 5 && month <= 7) {
+            season = 'summer';  // June, July, August
+        } else if (month >= 8 && month <= 10) {
+            season = 'autumn';  // September, October, November
+        } else {
+            season = 'winter';  // December, January, February
+        }
+        
+        // Only change if different
+        if (this.state.currentSeason !== season) {
+            console.log(`Season auto-detected: ${season}`);
+            this.changeSeason(season, true);
+        }
+    },
+
+    /**
+     * Manually change the season
+     * @param {string} season - Target season
+     * @param {boolean} isAuto - Whether this is an automatic change
+     */
+    changeSeason(season, isAuto = false) {
+        if (!this.config.seasons.includes(season)) {
+            console.error(`Invalid season: ${season}`);
+            return;
+        }
+        
+        try {
+            this.state.currentSeason = season;
+            document.body.className = season;
+            this.updateSeasonWheel(season);
+            this.triggerSeasonFlash();
+            
+            const message = isAuto 
+                ? `✨ Season shifted to ${season}` 
+                : `Season changed to ${season}`;
+            this.showToast(message);
+            
+        } catch (error) {
+            console.error('Season change error:', error);
+        }
+    },
+
+    /**
+     * Update the season wheel UI
+     * @param {string} season - Current season
+     */
+    updateSeasonWheel(season) {
+        const wheel = document.querySelector('.season-wheel');
+        if (!wheel) return;
+
+        const seasonIndex = this.config.seasons.indexOf(season);
+        const rotation = seasonIndex * 90; // 90 degrees per season
+        wheel.style.transform = `rotate(${rotation}deg)`;
+    },
+
+    /**
+     * Trigger the season change flash effect
+     */
+    triggerSeasonFlash() {
+        const flash = document.getElementById('seasonFlash');
+        if (flash) {
+            flash.classList.add('active');
+            setTimeout(() => flash.classList.remove('active'), 2000);
+        }
     },
 
     // ============================================================================
