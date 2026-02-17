@@ -552,7 +552,6 @@ class LunarRoom {
             const starfieldHTML = LunarUI.generateStarfield();
 
             container.innerHTML = `
-                <div class="lunar-room-bg">
                 <div class="${this.config.cssPrefix}-starfield lunar-starfield">
                     ${starfieldHTML}
                 </div>
@@ -598,7 +597,6 @@ class LunarRoom {
                     <div class="lunar-wisdom-section">
                         ${LunarUI.renderWisdomText(this.config.wisdomQuote)}
                     </div>
-                </div>
                 </div>
             `;
 
@@ -886,7 +884,8 @@ class LunarRoom {
                 onClose: () => this.closePracticePopup()
             });
 
-            document.body.appendChild(popup);
+            const _popupTarget = document.getElementById('communityHubFullscreenContainer') || document.body;
+            _popupTarget.appendChild(popup);
             this.domCache.popup = popup;
 
             // Attach popup-specific event listeners
@@ -1074,7 +1073,8 @@ class LunarRoom {
                 onClose: () => this.closeCollectivePopup()
             });
 
-            document.body.appendChild(popup);
+            const _popupTarget = document.getElementById('communityHubFullscreenContainer') || document.body;
+            _popupTarget.appendChild(popup);
             this.domCache.popup = popup;
 
             // Attach listeners
