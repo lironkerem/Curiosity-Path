@@ -331,6 +331,9 @@ const Core = {
                     console.log('[Core] Hub tab shown');
                 }
                 
+                // Remove practice room body class
+                document.body.classList.remove('practice-room-active');
+                
                 // Update view state within hub
                 const views = document.querySelectorAll('#hubView');
                 views.forEach(view => view.classList.add('active'));
@@ -353,6 +356,9 @@ const Core = {
                         console.log('[Core] Practice view activated');
                     }
                 }
+                
+                // Add practice room body class to override background
+                document.body.classList.add('practice-room-active');
                 
                 // CRITICAL: Completely hide the entire community-hub-tab
                 if (hubTab) {

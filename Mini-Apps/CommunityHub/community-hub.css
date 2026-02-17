@@ -4046,9 +4046,8 @@ body.dev-mode .practice-room.in-session::before {
     --accent: var(--neuro-accent);
 }
 
-/* Reset body background when practice room is open - inherits from main app */
-body:has(#communityHubFullscreenContainer[style*="display: block"]),
-body:has(#communityHubFullscreenContainer:not([style*="display: none"])) {
+/* Reset body background when practice room is active */
+body.practice-room-active {
     background: var(--neuro-bg-lightest) !important;
 }
 
