@@ -415,18 +415,18 @@ const LunarUI = {
 
             /* ===== TOP BAR (matches Solar style) ===== */
             .lunar-top-bar {
-                position: sticky;
+                position: fixed;
                 top: 0;
                 left: 0;
                 right: 0;
-                z-index: 100;
+                z-index: 200;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 padding: 1.5rem 2rem;
-                background: transparent;
-                backdrop-filter: none;
-                border: none;
+                background: rgba(10, 10, 26, 0.85);
+                backdrop-filter: blur(12px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
                 margin-bottom: 0;
             }
 
@@ -506,6 +506,7 @@ const LunarUI = {
                 z-index: 5;
                 max-width: 1200px;
                 margin: 0 auto;
+                padding-top: 6rem;
             }
 
             /* ===== MOON VISUAL ===== */
