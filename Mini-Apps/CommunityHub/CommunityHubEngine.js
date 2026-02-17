@@ -176,7 +176,7 @@ class CommunityHubEngine {
       </div>
 
       <!-- Practice Room View (fullscreen) -->
-      <div id="practiceRoomView" class="view" style="min-height: 100vh; padding: 0; margin: 0;">
+      <div id="practiceRoomView" class="view" style="min-height: 100vh; padding: 0; margin: 0; display: none;">
           <div class="practice-room-container" style="padding: 0; margin: 0;">
               <button class="back-to-hub-btn" 
                       data-action="back-to-hub" 
