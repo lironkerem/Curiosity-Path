@@ -142,6 +142,7 @@ class CommunityHubEngine {
     `;
 
     container.innerHTML = `
+      <div style="background: #e0d4bf; min-height: 100vh; width: 100%; position: relative;">
       <!-- Ritual Overlays (at fullscreen level) -->
       <div class="ritual-overlay opening" id="openingOverlay" role="dialog" aria-labelledby="openingRitualText">
           <div class="ritual-card">
@@ -174,6 +175,7 @@ class CommunityHubEngine {
               </button>
               <div id="dynamicRoomContent"></div>
           </div>
+      </div>
       </div>
     `;
 
