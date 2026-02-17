@@ -2964,7 +2964,6 @@ body.dev-mode .practice-room.in-session::before {
 
 /* Practice Space - PS Elements */
 .ps-header {
-    background: var(--surface);
     border-bottom: 2px solid var(--border);
     padding: 20px 40px;
     display: flex;
