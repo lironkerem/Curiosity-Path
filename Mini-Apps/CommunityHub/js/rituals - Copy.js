@@ -30,30 +30,6 @@ const Rituals = {
     // ============================================================================
     
     config: {
-        OPENING_TEXTS: [
-            "Enter with intention, leave with gratitude",
-            "This space holds you. Enter with presence.",
-            "Breathe in. You are welcome here.",
-            "Leave the noise behind. Step into stillness.",
-            "You are exactly where you need to be.",
-            "Enter gently. This moment is yours.",
-            "Set down what you carry. Enter with an open heart.",
-            "The space is ready. So are you.",
-            "Come as you are. This is a place of welcome.",
-            "Arrive fully. Begin with intention."
-        ],
-        CLOSING_TEXTS: [
-            "Thank you for holding space with us",
-            "Carry the stillness with you as you go.",
-            "You showed up. That is enough.",
-            "May what was planted here continue to grow.",
-            "Go gently. You have done something meaningful.",
-            "The practice continues beyond this space.",
-            "Thank you for your presence in this circle.",
-            "Rest in what was received here today.",
-            "You are changed by having paused. Go well.",
-            "Until next time — carry the quiet with you."
-        ],
         ROOM_MODULES: [
             'BreathworkRoom',
             'SilentRoom',
@@ -186,11 +162,6 @@ const Rituals = {
             return;
         }
         try {
-            const texts = this.config.OPENING_TEXTS;
-            const randomText = texts[Math.floor(Math.random() * texts.length)];
-            const textEl = document.getElementById('openingRitualText');
-            if (textEl) textEl.textContent = `"${randomText}"`;
-
             document.body.classList.add('ritual-active');
             overlay.classList.add('active');
             console.log('✓ Opening ritual displayed');
@@ -241,11 +212,6 @@ const Rituals = {
             return;
         }
         try {
-            const texts = this.config.CLOSING_TEXTS;
-            const randomText = texts[Math.floor(Math.random() * texts.length)];
-            const textEl = document.getElementById('closingRitualText');
-            if (textEl) textEl.textContent = `"${randomText}"`;
-
             document.body.classList.add('ritual-active');
             if (container) {
                 container.style.display = 'block';

@@ -175,7 +175,7 @@ class CommunityHubEngine {
       <div class="ritual-overlay closing" id="closingOverlay" role="dialog" aria-labelledby="closingRitualText">
           <div class="ritual-card">
               <div class="ritual-candle" aria-hidden="true"></div>
-              <div class="ritual-text" id="closingRitualText"></div>
+              <div class="ritual-text" id="closingRitualText">"Thank you for holding space with us"</div>
               <button class="ritual-btn" data-action="ritual-closing" aria-label="Close gently">
                   Close Gently
               </button>
@@ -206,7 +206,7 @@ class CommunityHubEngine {
         <div id="openingOverlay" class="ritual-overlay opening" role="dialog">
             <div class="ritual-card">
                 <div class="ritual-candle" aria-hidden="true"></div>
-                <div class="ritual-text" id="openingRitualText"></div>
+                <div class="ritual-text" id="openingRitualText">"Enter with intention, leave with gratitude"</div>
                 <button class="ritual-btn" data-action="ritual-opening" aria-label="Enter the space">
                     Enter the Space
                 </button>
