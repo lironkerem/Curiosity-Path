@@ -110,6 +110,13 @@ class CommunityHubEngine {
     `;
     } // end if (!this.initialized)
 
+    // Show ritual immediately before scripts load - pick random text inline
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this._showRitualImmediately();
+      });
+    });
+
     // Initialize once
     if (!this.initialized) {
       await this.initializeCommunityHub();
@@ -133,6 +140,22 @@ class CommunityHubEngine {
   _showRitualImmediately() {
     const overlay = document.getElementById('openingOverlay');
     if (overlay) {
+      const texts = [
+        "Enter with intention, leave with gratitude",
+        "This space holds you. Enter with presence.",
+        "Breathe in. You are welcome here.",
+        "Leave the noise behind. Step into stillness.",
+        "You are exactly where you need to be.",
+        "Enter gently. This moment is yours.",
+        "Set down what you carry. Enter with an open heart.",
+        "The space is ready. So are you.",
+        "Come as you are. This is a place of welcome.",
+        "Arrive fully. Begin with intention."
+      ];
+      const randomText = texts[Math.floor(Math.random() * texts.length)];
+      const textEl = document.getElementById('openingRitualText');
+      if (textEl) textEl.textContent = `"${randomText}"`;
+
       document.body.classList.add('ritual-active');
       overlay.classList.add('active');
     }
@@ -298,10 +321,8 @@ class CommunityHubEngine {
       // Initialize Core
       if (window.Core?.init) {
         window.Core.init();
-        // Show opening ritual now that Rituals module is loaded and can set random text
         if (window.Rituals) {
           window.Rituals.state.hasSeenOpening = false;
-          window.Rituals.showOpening();
         }
         console.log('✅ Community Hub loaded successfully');
       } else {
