@@ -163,6 +163,8 @@ const Rituals = {
         }
 
         try {
+            // Show the overlay with flex display
+            overlay.style.display = 'flex';
             overlay.classList.add('active');
             console.log('✓ Opening ritual displayed');
             
@@ -193,6 +195,8 @@ const Rituals = {
                 this.state.autoCloseTimer = null;
             }
             
+            // Hide the overlay
+            overlay.style.display = 'none';
             overlay.classList.remove('active');
             
             // Mark as seen
@@ -226,6 +230,7 @@ const Rituals = {
         }
 
         try {
+            overlay.style.display = 'flex';
             overlay.classList.add('active');
             console.log('✓ Closing ritual displayed');
         } catch (error) {
@@ -244,6 +249,7 @@ const Rituals = {
         }
 
         try {
+            overlay.style.display = 'none';
             overlay.classList.remove('active');
             
             // Clean up any active practice room

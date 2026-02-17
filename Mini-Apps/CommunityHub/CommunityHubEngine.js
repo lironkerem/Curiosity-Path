@@ -143,7 +143,8 @@ class CommunityHubEngine {
 
     container.innerHTML = `
       <!-- Ritual Overlays (at fullscreen level) -->
-      <div class="ritual-overlay opening" id="openingOverlay" role="dialog" aria-labelledby="openingRitualText">
+      <div class="ritual-overlay opening" id="openingOverlay" role="dialog" aria-labelledby="openingRitualText" 
+           style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.95);">
           <div class="ritual-card">
               <div class="ritual-candle" aria-hidden="true"></div>
               <div class="ritual-text" id="openingRitualText">"Enter with intention, leave with gratitude"</div>
@@ -153,7 +154,8 @@ class CommunityHubEngine {
           </div>
       </div>
 
-      <div class="ritual-overlay closing" id="closingOverlay" role="dialog" aria-labelledby="closingRitualText">
+      <div class="ritual-overlay closing" id="closingOverlay" role="dialog" aria-labelledby="closingRitualText"
+           style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.95);">
           <div class="ritual-card">
               <div class="ritual-candle" aria-hidden="true"></div>
               <div class="ritual-text" id="closingRitualText">"Thank you for holding space with us"</div>
