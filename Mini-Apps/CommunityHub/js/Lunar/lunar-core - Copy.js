@@ -139,9 +139,10 @@ class LunarRoom {
         try {
             // Check if LunarEngine is ready (required for both DEV and production)
             if (!window.LunarEngine?.currentMoonData) {
-                // Only log the first time, not on every retry
+                console.log(`⏳ ${this.config.name}: Waiting for LunarEngine...`);
+                
+                // ✅ RETRY FIX: Try again in 500ms
                 if (!this._retryCheckTimeout) {
-                    console.log(`⏳ ${this.config.name}: Waiting for LunarEngine...`);
                     this._retryCheckTimeout = setTimeout(() => {
                         this._retryCheckTimeout = null;
                         this.checkIfWeekActive();
@@ -152,7 +153,7 @@ class LunarRoom {
 
             // DEV MODE: Always active, but still calculate dates properly
             if (window.Core?.config?.DEV_MODE) {
-                console.log(`🔧 DEV MODE: ${this.config.name} force-enabled (phase: ${window.LunarEngine.currentMoonData.phase.toFixed(3)})`);
+                console.log(`🔧 DEV MODE: ${this.config.name} Room force-enabled`);
                 this.isActive = true;
                 this.calculateWeekDates();
                 this.loadUserWeekData();
@@ -202,7 +203,7 @@ class LunarRoom {
             // ✅ DEV_MODE FIX: If not in phase but DEV_MODE is on, use first range as fallback
             if (!activeRange) {
                 if (window.Core?.config?.DEV_MODE) {
-                    console.debug(`DEV MODE: ${this.config.name} using fallback range (phase ${phase.toFixed(3)} outside active range)`);
+                    console.warn(`⚠️ DEV MODE: Phase ${phase.toFixed(3)} not in ${this.config.name} range, using first range as fallback`);
                     activeRange = this.config.phaseRanges[0];
                 } else {
                     // Not in phase - calculate next occurrence
@@ -228,8 +229,8 @@ class LunarRoom {
                 (activeRange[1] * cycleDuration * LunarRoom.CONSTANTS.MS_PER_DAY)
             );
             
-            // Detailed phase info available in debug console
-            console.debug(`${this.config.name} Phase Calculation:`, {
+            // ✅ ADDED: More detailed debug logging
+            console.log(`${this.config.name} Phase Calculation:`, {
                 currentPhase: phase.toFixed(3),
                 activeRange: `[${activeRange[0].toFixed(3)}, ${activeRange[1].toFixed(3)}]`,
                 moonAge: age.toFixed(2) + ' days',

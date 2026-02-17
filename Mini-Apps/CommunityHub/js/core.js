@@ -116,12 +116,15 @@ const Core = {
 
         modules.forEach(({ name, instance }) => {
             try {
-                if (instance && typeof instance.init === 'function') {
-                    instance.init();
-                    console.log(`✓ ${name} initialized`);
-                } else {
+                if (!instance || typeof instance.init !== 'function') {
                     console.warn(`⚠ ${name} module not found or missing init method`);
+                    return;
                 }
+                if (instance.state?.isInitialized) {
+                    return; // Already initialized by CommunityHubEngine, skip silently
+                }
+                instance.init();
+                console.log(`✓ ${name} initialized`);
             } catch (error) {
                 console.error(`✗ ${name} initialization failed:`, error);
             }
