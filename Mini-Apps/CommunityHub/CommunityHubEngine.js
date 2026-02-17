@@ -114,13 +114,11 @@ class CommunityHubEngine {
       this.initialized = true;
     } else if (window.Core?.init) {
       window.Core.init();
-      // Show opening ritual on every tab visit
-      setTimeout(() => {
-        if (window.Rituals) {
-          window.Rituals.state.hasSeenOpening = false;
-          window.Rituals.showOpening();
-        }
-      }, 300);
+      // Show opening ritual immediately on every tab re-visit
+      if (window.Rituals) {
+        window.Rituals.state.hasSeenOpening = false;
+        window.Rituals.showOpening();
+      }
     }
   }
 
@@ -152,7 +150,7 @@ class CommunityHubEngine {
     container.innerHTML = `
       <!-- Ritual Overlays (at fullscreen level) -->
       <div class="ritual-overlay opening" id="openingOverlay" role="dialog" aria-labelledby="openingRitualText" 
-           style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.95); pointer-events: auto;">
+           style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); background: rgba(0,0,0,0.4); pointer-events: auto;">
           <div class="ritual-card" style="text-align: center; color: white; padding: 40px;">
               <div class="ritual-candle" aria-hidden="true" style="font-size: 48px; margin-bottom: 20px;">🕯️</div>
               <div class="ritual-text" id="openingRitualText" style="font-size: 24px; margin-bottom: 30px; font-style: italic;">"Enter with intention, leave with gratitude"</div>
@@ -164,7 +162,7 @@ class CommunityHubEngine {
       </div>
 
       <div class="ritual-overlay closing" id="closingOverlay" role="dialog" aria-labelledby="closingRitualText"
-           style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.95); pointer-events: auto;">
+           style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); background: rgba(0,0,0,0.4); pointer-events: auto;">
           <div class="ritual-card" style="text-align: center; color: white; padding: 40px;">
               <div class="ritual-candle" aria-hidden="true" style="font-size: 48px; margin-bottom: 20px;">🕯️</div>
               <div class="ritual-text" id="closingRitualText" style="font-size: 24px; margin-bottom: 30px; font-style: italic;">"Thank you for holding space with us"</div>
@@ -191,6 +189,14 @@ class CommunityHubEngine {
 
     document.body.appendChild(container);
     console.log('✓ Fullscreen room container created');
+
+    // Show opening ritual immediately (before scripts finish loading)
+    const openingOverlay = container.querySelector('#openingOverlay');
+    if (openingOverlay) {
+      container.style.display = 'block';
+      container.style.pointerEvents = 'auto';
+      openingOverlay.style.display = 'flex';
+    }
   }
 
   async initializeCommunityHub() {
@@ -264,20 +270,6 @@ class CommunityHubEngine {
       // Initialize Core
       if (window.Core?.init) {
         window.Core.init();
-        
-        // Give DOM a moment to settle, then show opening ritual
-        setTimeout(() => {
-          const overlay = document.getElementById('openingOverlay');
-          console.log('Opening overlay element:', overlay);
-          
-          if (window.Rituals) {
-            // Reset so ritual shows every time the hub tab is opened
-            window.Rituals.state.hasSeenOpening = false;
-            console.log('✅ Triggering opening ritual...');
-            window.Rituals.showOpening();
-          }
-        }, 300);
-        
         console.log('✅ Community Hub loaded successfully');
       } else {
         throw new Error('Core module not found');
