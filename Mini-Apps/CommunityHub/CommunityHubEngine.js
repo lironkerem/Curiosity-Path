@@ -137,29 +137,32 @@ class CommunityHubEngine {
       height: 100vh;
       z-index: 99999;
       background: transparent;
-      display: none;
+      display: block;
       overflow: auto;
+      pointer-events: none;
     `;
 
     container.innerHTML = `
       <!-- Ritual Overlays (at fullscreen level) -->
       <div class="ritual-overlay opening" id="openingOverlay" role="dialog" aria-labelledby="openingRitualText" 
-           style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.95);">
-          <div class="ritual-card">
-              <div class="ritual-candle" aria-hidden="true"></div>
-              <div class="ritual-text" id="openingRitualText">"Enter with intention, leave with gratitude"</div>
-              <button class="ritual-btn" data-action="ritual-opening" aria-label="Enter the space">
+           style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.95); pointer-events: auto;">
+          <div class="ritual-card" style="text-align: center; color: white; padding: 40px;">
+              <div class="ritual-candle" aria-hidden="true" style="font-size: 48px; margin-bottom: 20px;">🕯️</div>
+              <div class="ritual-text" id="openingRitualText" style="font-size: 24px; margin-bottom: 30px; font-style: italic;">"Enter with intention, leave with gratitude"</div>
+              <button class="ritual-btn" data-action="ritual-opening" aria-label="Enter the space" 
+                      style="padding: 12px 32px; font-size: 16px; background: white; color: black; border: none; border-radius: 8px; cursor: pointer;">
                   Enter the Space
               </button>
           </div>
       </div>
 
       <div class="ritual-overlay closing" id="closingOverlay" role="dialog" aria-labelledby="closingRitualText"
-           style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.95);">
-          <div class="ritual-card">
-              <div class="ritual-candle" aria-hidden="true"></div>
-              <div class="ritual-text" id="closingRitualText">"Thank you for holding space with us"</div>
-              <button class="ritual-btn" data-action="ritual-closing" aria-label="Close gently">
+           style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.95); pointer-events: auto;">
+          <div class="ritual-card" style="text-align: center; color: white; padding: 40px;">
+              <div class="ritual-candle" aria-hidden="true" style="font-size: 48px; margin-bottom: 20px;">🕯️</div>
+              <div class="ritual-text" id="closingRitualText" style="font-size: 24px; margin-bottom: 30px; font-style: italic;">"Thank you for holding space with us"</div>
+              <button class="ritual-btn" data-action="ritual-closing" aria-label="Close gently"
+                      style="padding: 12px 32px; font-size: 16px; background: white; color: black; border: none; border-radius: 8px; cursor: pointer;">
                   Close Gently
               </button>
           </div>
@@ -257,8 +260,18 @@ class CommunityHubEngine {
         
         // Give DOM a moment to settle, then show opening ritual
         setTimeout(() => {
+          console.log('🔍 Checking for opening ritual...');
+          console.log('Rituals object:', window.Rituals);
+          console.log('Has seen opening:', window.Rituals?.state?.hasSeenOpening);
+          
+          const overlay = document.getElementById('openingOverlay');
+          console.log('Opening overlay element:', overlay);
+          
           if (window.Rituals && !window.Rituals.state.hasSeenOpening) {
+            console.log('✅ Triggering opening ritual...');
             window.Rituals.showOpening();
+          } else {
+            console.log('⏭️ Skipping opening ritual (already seen)');
           }
         }, 300);
         

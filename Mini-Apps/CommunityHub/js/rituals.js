@@ -156,7 +156,10 @@ const Rituals = {
      * Show opening ritual overlay
      */
     showOpening() {
+        console.log('🕯️ showOpening() called');
         const overlay = document.getElementById('openingOverlay');
+        console.log('Opening overlay found:', overlay);
+        
         if (!overlay) {
             console.warn('Opening overlay not found');
             return;
@@ -166,10 +169,11 @@ const Rituals = {
             // Show the overlay with flex display
             overlay.style.display = 'flex';
             overlay.classList.add('active');
-            console.log('✓ Opening ritual displayed');
+            console.log('✓ Opening ritual displayed - overlay.style.display:', overlay.style.display);
             
             // Auto-close after 5 seconds
             this.state.autoCloseTimer = setTimeout(() => {
+                console.log('⏰ Auto-closing opening ritual');
                 this.completeOpening();
             }, 5000);
             
