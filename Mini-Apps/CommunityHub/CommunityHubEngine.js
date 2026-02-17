@@ -136,6 +136,7 @@ class CommunityHubEngine {
       width: 100vw;
       height: 100vh;
       z-index: 99999;
+      background: #e0d4bf;
       display: none;
       overflow: auto;
     `;
