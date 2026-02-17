@@ -16,8 +16,9 @@ class CommunityHubEngine {
     // Create fullscreen container FIRST (before any content, so rituals can work)
     this.createFullscreenRoomContainer();
 
-    // Render Community Hub dashboard (stays in tab container)
-    tab.innerHTML = `
+    // Only build the HTML on first load - don't wipe it on re-visits
+    if (!this.initialized) {
+      tab.innerHTML = `
       <div style="background:var(--neuro-bg);padding:1.5rem;min-height:100vh;">
         <div class="universal-content">
 
@@ -107,14 +108,19 @@ class CommunityHubEngine {
         </div>
       </div>
     `;
+    } // end if (!this.initialized)
 
     // Initialize once
     if (!this.initialized) {
       await this.initializeCommunityHub();
       this.initialized = true;
-    } else if (window.Core?.init) {
-      window.Core.init();
-      // Show opening ritual immediately on every tab re-visit
+    } else {
+      // Re-visit: reset Core so it re-renders all sections
+      if (window.Core) {
+        window.Core.state.initialized = false;
+        window.Core.init();
+      }
+      // Show opening ritual on every tab re-visit
       if (window.Rituals) {
         window.Rituals.state.hasSeenOpening = false;
         window.Rituals.showOpening();
