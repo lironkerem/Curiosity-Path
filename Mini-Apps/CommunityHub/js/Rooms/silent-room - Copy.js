@@ -167,19 +167,13 @@ class SilentRoom extends PracticeRoom {
     // ═══════════════════════════════════════════════════════════════════════
     
     toggleDimMode() {
-        const view = document.getElementById('dynamicRoomContent');
+        const view = document.getElementById(`${this.roomId}View`);
         const btn = document.getElementById(`${this.roomId}DimModeBtn`);
         
         if (view) {
             view.classList.toggle('dimmed');
             const isDimmed = view.classList.contains('dimmed');
             if (btn) btn.textContent = isDimmed ? '☀️ Bright' : '🌙 Dim';
-            
-            // Dim the fullscreen container background too
-            const container = document.getElementById('communityHubFullscreenContainer');
-            if (container) {
-                container.style.background = isDimmed ? 'rgba(0,0,0,0.85)' : 'transparent';
-            }
         }
     }
     

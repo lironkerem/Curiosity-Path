@@ -1334,6 +1334,11 @@ body.dev-mode .practice-room.in-session::before {
     filter: brightness(0.6);
 }
 
+#dynamicRoomContent.dimmed {
+    filter: brightness(0.3);
+    transition: filter 0.5s ease;
+}
+
 .practice-space.dimmed .timer-display,
 .practice-space.dimmed .intention-anchor {
     filter: brightness(1.2);
@@ -1994,7 +1999,7 @@ body.dev-mode .practice-room.in-session::before {
     display: none;
     align-items: center;
     justify-content: center;
-    z-index: 500;
+    z-index: 100002;
     padding: 20px;
 }
 

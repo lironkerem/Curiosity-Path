@@ -530,18 +530,12 @@ class DeepWorkRoom extends PracticeRoom {
     }
     
     toggleDimMode() {
-        const view = document.getElementById('dynamicRoomContent');
-        const btn = document.getElementById(`${this.roomId}DimModeBtn`);
+        const body = document.body;
+        body.classList.toggle('dim-mode');
         
-        if (view) {
-            view.classList.toggle('dimmed');
-            const isDimmed = view.classList.contains('dimmed');
-            if (btn) btn.textContent = isDimmed ? '☀️ Bright' : '🌙 Dim';
-            
-            const container = document.getElementById('communityHubFullscreenContainer');
-            if (container) {
-                container.style.background = isDimmed ? 'rgba(0,0,0,0.85)' : 'transparent';
-            }
+        const btn = document.getElementById(`${this.roomId}DimModeBtn`);
+        if (btn) {
+            btn.textContent = body.classList.contains('dim-mode') ? '☀️ Bright' : '🌙 Dim';
         }
     }
     

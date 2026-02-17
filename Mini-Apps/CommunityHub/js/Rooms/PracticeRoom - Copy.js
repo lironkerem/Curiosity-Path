@@ -104,22 +104,6 @@ class PracticeRoom {
         // Call custom leave logic if defined
         if (this.onLeave) this.onLeave();
     }
-
-    /**
-     * Gently leave - shows closing ritual, then cleans up room
-     */
-    gentlyLeave() {
-        // Cleanup room first
-        this.cleanup();
-        if (this.onLeave) this.onLeave();
-        
-        // Then show closing ritual (it will navigate back to hub on complete)
-        if (window.Rituals) {
-            Rituals.showClosing();
-        } else {
-            Core.navigateTo('hubView');
-        }
-    }
     
     /**
      * Check if user can enter room (override for timed rooms)
@@ -203,10 +187,6 @@ class PracticeRoom {
         const participantText = this.getParticipantText();
         const gradientStyle = this.getHeaderGradient();
         
-        // Register gentlyLeave global for onclick
-        const gentlyLeaveMethod = `${this.getClassName()}_gentlyLeave`;
-        window[gentlyLeaveMethod] = () => this.gentlyLeave();
-        
         return `
         <header class="ps-header" style="padding: 12px 16px; ${gradientStyle}">
             <div class="ps-info" style="display: flex; flex-direction: column; align-items: flex-start; width: 100%;">
@@ -230,7 +210,7 @@ class PracticeRoom {
             <div style="display: flex; gap: 12px; position: relative; margin: 0; padding: 0; flex-wrap: nowrap;">
                 ${this.buildAdditionalHeaderButtons ? this.buildAdditionalHeaderButtons() : ''}
                 ${this.buildSafetyDropdown()}
-                <button class="ps-leave" onclick="${this.getClassName()}_gentlyLeave()" 
+                <button class="ps-leave" onclick="Rituals.showClosing()" 
                         style="margin: 0; padding: 12px 24px; white-space: nowrap; min-width: 150px;">
                     Gently Leave
                 </button>
@@ -258,7 +238,7 @@ class PracticeRoom {
                 <span style="font-size: 12px;">▼</span>
             </button>
             <div id="${this.roomId}SafetyDropdown" 
-                 style="display: none; position: absolute; top: 100%; right: 0; margin-top: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); min-width: 200px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); z-index: 100001;">
+                 style="display: none; position: absolute; top: 100%; right: 0; margin-top: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); min-width: 200px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); z-index: 1000;">
                 <button onclick="${showInstructionsMethod}(); ${toggleMethod}(event);" 
                         style="width: 100%; padding: 12px 16px; text-align: left; background: none; border: none; border-bottom: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; gap: 12px; color: var(--text);">
                     <span>📖</span> Instructions
