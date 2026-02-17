@@ -489,16 +489,6 @@ class LunarRoom {
                 window.Core.navigateTo('practiceRoomView');
             }
 
-            // Apply lunar dark starry background
-            const fullscreenContainer = document.getElementById('communityHubFullscreenContainer');
-            if (fullscreenContainer) {
-                fullscreenContainer.style.background = 'linear-gradient(180deg, #0a0a1a 0%, #1a1a2e 50%, #0f0f1e 100%)';
-            }
-            const practiceRoomView = document.getElementById('practiceRoomView');
-            if (practiceRoomView) {
-                practiceRoomView.style.background = 'linear-gradient(180deg, #0a0a1a 0%, #1a1a2e 50%, #0f0f1e 100%)';
-            }
-
             this.renderRoomDashboard();
             window.scrollTo(0, 0);
         } catch (error) {
@@ -517,16 +507,6 @@ class LunarRoom {
             // Cleanup
             this._clearTimer();
             this._removeEventListeners();
-
-            // Remove lunar-specific background so other rooms aren't affected
-            const fullscreenContainer = document.getElementById('communityHubFullscreenContainer');
-            if (fullscreenContainer) {
-                fullscreenContainer.style.background = 'transparent';
-            }
-            const practiceRoomView = document.getElementById('practiceRoomView');
-            if (practiceRoomView) {
-                practiceRoomView.style.background = '';
-            }
             
             if (window.Core) {
                 window.Core.navigateTo('hubView');
