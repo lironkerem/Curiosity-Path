@@ -8,104 +8,42 @@
 
 /* ===== ROOT VARIABLES (Inherits from main app) ===== */
 :root {
-    /* Use earth-luxury palette from main app */
-    --season-bg: var(--neuro-bg, #c4ad91);
-    --season-accent: var(--neuro-accent, #6b9b37);
-    --season-mood: var(--neuro-bg-lightest, #e0d4bf);
-    --season-text: var(--neuro-text, #3d2f1f);
+    /* Community Hub now uses main app variables directly */
+    /* All --neuro-* variables are inherited from main app CSS */
     
-    /* Practice status rings using earth tones */
-    --ring-silent: #6ba3b3;          /* calm blue-teal */
-    --ring-available: #6b9b37;       /* vibrant leaf green */
-    --ring-guiding: #d4a574;         /* warm amber */
-    --ring-deep: #8b7355;            /* deep wood brown */
-    --ring-resonant: #6b9b37;        /* forest green */
-    --ring-offline: #a89279;         /* muted taupe */
+    /* Practice status rings using main app accent colors */
+    --ring-silent: var(--neuro-info, #6ba3b3);          /* calm blue-teal */
+    --ring-available: var(--neuro-accent, #6b9b37);     /* vibrant leaf green */
+    --ring-guiding: var(--neuro-warning, #d4a574);      /* warm amber */
+    --ring-deep: var(--neuro-wood, #8b7355);            /* deep wood brown */
+    --ring-resonant: var(--neuro-accent, #6b9b37);      /* forest green */
+    --ring-offline: var(--neuro-wood-light, #a89279);   /* muted taupe */
     
-    --primary: var(--neuro-accent, #6b9b37);
-    --surface: var(--neuro-bg-lighter, #d4c0a8);
-    --text: var(--neuro-text, #3d2f1f);
-    --text-muted: var(--neuro-text-light, #6d5a42);
-    --border: var(--neuro-shadow-light, #e0d4bf);
+    /* Alias main app variables for Community Hub compatibility */
+    --primary: var(--neuro-accent);
+    --surface: var(--neuro-bg-lighter);
+    --background: var(--neuro-bg);
+    --text: var(--neuro-text);
+    --text-muted: var(--neuro-text-light);
+    --border: var(--neuro-shadow-light);
+    --accent: var(--neuro-accent);
     
-    /* Neomorphic shadows from main app */
-    --shadow-raised: 10px 10px 20px var(--neuro-shadow-dark, #a08968), -6px -6px 12px var(--neuro-shadow-light, #e0d4bf), inset 1px 1px 2px var(--neuro-highlight, #ebe2d4);
-    --shadow-raised-lg: 18px 18px 36px var(--neuro-shadow-darker, #8b7355), -12px -12px 24px var(--neuro-shadow-light, #e0d4bf), inset 2px 2px 4px var(--neuro-highlight, #ebe2d4);
-    --shadow-raised-hover: 14px 14px 28px var(--neuro-shadow-dark, #a08968), -10px -10px 20px var(--neuro-shadow-light, #e0d4bf), inset 1px 1px 2px var(--neuro-highlight, #ebe2d4);
-    --shadow-inset: inset 5px 5px 10px var(--neuro-shadow-dark, #a08968), inset -3px -3px 6px var(--neuro-shadow-light, #e0d4bf);
-    --shadow-inset-sm: inset 3px 3px 6px var(--neuro-shadow-dark, #a08968), inset -2px -2px 4px var(--neuro-shadow-light, #e0d4bf);
-    --shadow-inset-lg: inset 8px 8px 16px var(--neuro-shadow-darker, #8b7355), inset -6px -6px 12px var(--neuro-shadow-light, #e0d4bf);
-    --shadow-glow: 0 0 20px rgba(107,155,55,.35), 0 0 40px rgba(107,155,55,.25), 0 0 60px rgba(107,155,55,.15);
-    
+    /* Use main app's serif font */
     --serif: 'Georgia', 'Times New Roman', serif;
-    
-    /* Spacing from main app */
-    --radius-sm: 12px;
-    --radius-md: 16px;
-    --radius-lg: 20px;
-    --radius-xl: 24px;
-    --radius-2xl: 30px;
-    --radius-full: 9999px;
-    --spacing-xs: 0.25rem;
-    --spacing-sm: 0.5rem;
-    --spacing-md: 1rem;
-    --spacing-lg: 1.5rem;
-    --spacing-xl: 2rem;
-    --spacing-2xl: 3rem;
-    --transition-fast: 150ms ease-in-out;
-    --transition-normal: 300ms ease-in-out;
-    --transition-slow: 500ms ease-in-out;
 }
 
 /* ===== SEASONAL VARIATIONS ===== */
-/* These override the root variables based on body class */
+/* These override based on body class - removed, now controlled by main app */
 
-/* WINTER (Default earthy palette - already in :root) */
-body.winter {
-    --season-bg: #c4ad91;
-    --season-accent: #6ba3b3;        /* Cool blue-teal for winter */
-    --season-mood: #e0d4bf;
-    --season-text: #3d2f1f;
-    --ring-silent: #6ba3b3;          /* Winter's calm blue */
-}
-
-/* SPRING (Fresh greens and light tones) */
-body.spring { 
-    --season-bg: #d4dfc0; 
-    --season-accent: #8bc34a; 
-    --season-mood: #e8f0d8; 
-    --season-text: #3d4a28;
-    --ring-available: #8bc34a;       /* Spring's vibrant green */
-}
-
-/* SUMMER (Warm golden tones) */
-body.summer { 
-    --season-bg: #e5d4b8; 
-    --season-accent: #d4a574; 
-    --season-mood: #f0e8d8; 
-    --season-text: #5a4428;
-    --ring-guiding: #d4a574;         /* Summer's golden warmth */
-}
-
-/* AUTUMN (Rich earth and rust tones) */
-body.autumn { 
-    --season-bg: #d4b8a0; 
-    --season-accent: #c76b5b; 
-    --season-mood: #e8d8c8; 
-    --season-text: #4a3428;
-    --ring-deep: #c76b5b;            /* Autumn's deep rust */
-}
-
-/* ===== GLOBAL BODY STYLES ===== */
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background: var(--season-bg);
-    color: var(--text);
-    line-height: 1.6;
-    overflow-x: hidden;
+/* ===== COMMUNITY HUB SCOPED STYLES ===== */
+/* Apply Community Hub background only to the tab container */
+#community-hub-tab {
+    background: var(--neuro-bg);
     transition: background 1.5s ease;
-    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
 }
+
+/* Community Hub inherits all typography from main app body styles */
 
 /* ===== GLOBAL VIEWS ===== */
 .view { 
@@ -127,7 +65,7 @@ body {
 .season-flash {
     position: fixed; 
     inset: 0; 
-    background: var(--season-accent);
+    background: var(--neuro-accent);
     opacity: 0; 
     pointer-events: none; 
     z-index: 9999;
@@ -151,12 +89,12 @@ body {
 .ritual-card { text-align: center; max-width: 400px; padding: 48px; }
 .ritual-candle {
     width: 80px; height: 80px; margin: 0 auto 32px;
-    background: radial-gradient(circle, var(--season-accent) 0%, transparent 70%);
+    background: radial-gradient(circle, var(--neuro-accent) 0%, transparent 70%);
     border-radius: 50%; animation: flicker 3s infinite;
 }
 @keyframes flicker { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } }
 .ritual-text { font-family: var(--serif); font-size: 24px; font-style: italic; margin-bottom: 24px; color: inherit; }
-.ritual-overlay.closing .ritual-text { color: var(--season-mood); }
+.ritual-overlay.closing .ritual-text { color: var(--neuro-bg-lightest); }
 .ritual-btn {
     padding: 12px 32px; border: 2px solid currentColor; background: transparent;
     border-radius: var(--radius-full); font-family: var(--serif); font-style: italic; cursor: pointer;
@@ -169,7 +107,7 @@ body {
 
 /* PROFILE HEADER */
 .profile-hero {
-    background: linear-gradient(to bottom, var(--season-mood), transparent);
+    background: linear-gradient(to bottom, var(--neuro-bg-lightest), transparent);
     padding: 40px 0 32px;
     margin-bottom: 24px;
     border-bottom: 2px solid var(--border);
@@ -181,7 +119,7 @@ body {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; height: 4px;
-    background: linear-gradient(90deg, transparent, var(--season-accent), transparent);
+    background: linear-gradient(90deg, transparent, var(--neuro-accent), transparent);
     opacity: 0.5;
 }
 
@@ -222,7 +160,7 @@ body {
     font-size: 48px;
     color: white;
     font-weight: 700;
-    border: 4px solid var(--season-mood);
+    border: 4px solid var(--neuro-bg-lightest);
     box-shadow: var(--shadow-raised-lg);
     position: relative;
     background: linear-gradient(135deg, var(--neuro-forest-dark, #558030) 0%, var(--neuro-forest, #6b9b37) 100%);
@@ -252,7 +190,7 @@ body {
     right: 0;
     width: 36px;
     height: 36px;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     border: 2px solid var(--border);
     border-radius: 50%;
     display: flex;
@@ -547,7 +485,7 @@ body.dev-mode .practice-room.in-session::before {
     width: 48px;
     height: 48px;
     border-radius: var(--radius-md);
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -598,7 +536,7 @@ body.dev-mode .practice-room.in-session::before {
     right: 20px;
     padding: 8px 16px;
     background: var(--text);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
     border: none;
     border-radius: var(--radius-md);
     font-size: 13px;
@@ -633,7 +571,7 @@ body.dev-mode .practice-room.in-session::before {
 /* PRACTICE SPACE VIEW */
 .practice-space {
     min-height: 100vh;
-    background: var(--season-bg);
+    background: var(--neuro-bg);
     position: relative;
 }
 
@@ -801,7 +739,7 @@ body.dev-mode .practice-room.in-session::before {
     width: 72px;
     height: 72px;
     background: var(--text);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
     border-color: var(--text);
 }
 
@@ -944,7 +882,7 @@ body.dev-mode .practice-room.in-session::before {
 .dw-status {
     font-size: 12px;
     padding: 4px 8px;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     border-radius: 4px;
     font-weight: 500;
 }
@@ -967,7 +905,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .support-btn:hover {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     transform: scale(1.05);
 }
 
@@ -1023,7 +961,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .ambient-option:hover {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
 }
 
 .ambient-option input[type="radio"] {
@@ -1051,7 +989,7 @@ body.dev-mode .practice-room.in-session::before {
 
 .category-option:hover,
 .duration-option:hover {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
 }
 
 .category-option input[type="radio"],
@@ -1159,7 +1097,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .campfire-msg.own {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
 }
 
 .campfire-msg-avatar {
@@ -1228,7 +1166,7 @@ body.dev-mode .practice-room.in-session::before {
     padding: 14px 18px;
     border: 2px solid var(--border);
     border-radius: var(--radius-lg);
-    background: var(--season-bg);
+    background: var(--neuro-bg);
     font-size: 14px;
     font-family: inherit;
     transition: all var(--transition-fast);
@@ -1309,7 +1247,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .campfire-participant:hover {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
 }
 
 .campfire-participant-avatar {
@@ -1493,7 +1431,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .sound-option:hover {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
 }
 
 .sound-option input[type="radio"] {
@@ -1618,7 +1556,7 @@ body.dev-mode .practice-room.in-session::before {
 
 .timer-main {
     background: var(--text);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
     border-color: var(--text);
 }
 
@@ -1724,7 +1662,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .ps-close:hover {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
 }
 
 .chat-messages {
@@ -1739,7 +1677,7 @@ body.dev-mode .practice-room.in-session::before {
 .chat-msg {
     max-width: 85%;
     padding: 12px 16px;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     border-radius: var(--radius-md);
     border-bottom-left-radius: 4px;
     font-size: 14px;
@@ -1779,7 +1717,7 @@ body.dev-mode .practice-room.in-session::before {
 .chat-input-container button {
     padding: 10px 20px;
     background: var(--primary);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
     border: none;
     border-radius: var(--radius-full);
     cursor: pointer;
@@ -1847,7 +1785,7 @@ body.dev-mode .practice-room.in-session::before {
 
 .reflection-input-card textarea:focus {
     outline: none;
-    border-color: var(--season-accent);
+    border-color: var(--neuro-accent);
 }
 
 .reflection-input-footer {
@@ -1864,7 +1802,7 @@ body.dev-mode .practice-room.in-session::before {
 .share-btn {
     padding: 10px 20px;
     background: var(--text);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
     border: none;
     border-radius: var(--radius-md);
     font-weight: 600;
@@ -1924,9 +1862,9 @@ body.dev-mode .practice-room.in-session::before {
 
 .ref-content {
     padding: 16px;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     border-radius: var(--radius-md);
-    border-left: 3px solid var(--season-accent);
+    border-left: 3px solid var(--neuro-accent);
     margin-bottom: 16px;
     line-height: 1.6;
     box-shadow: var(--shadow-inset-sm);
@@ -1962,7 +1900,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .wave-card {
-    background: linear-gradient(135deg, var(--season-mood) 0%, var(--surface) 100%);
+    background: linear-gradient(135deg, var(--neuro-bg-lightest) 0%, var(--surface) 100%);
     border: 2px solid var(--border);
     border-radius: var(--radius-lg);
     padding: 24px;
@@ -1999,7 +1937,7 @@ body.dev-mode .practice-room.in-session::before {
 
 .prog-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--season-accent), var(--primary));
+    background: linear-gradient(90deg, var(--neuro-accent), var(--primary));
     position: relative;
 }
 
@@ -2101,11 +2039,11 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .modal-close:hover {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
 }
 
 .help-option:hover {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     transform: translateX(4px);
     box-shadow: var(--shadow-raised);
 }
@@ -2170,11 +2108,11 @@ body.dev-mode .practice-room.in-session::before {
 
 .member-btn.primary {
     background: var(--primary);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
 }
 
 .member-btn:not(.primary) {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     color: var(--text);
 }
 
@@ -2238,7 +2176,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .safety-menu button:hover {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
 }
 
 /* TOAST */
@@ -2248,7 +2186,7 @@ body.dev-mode .practice-room.in-session::before {
     left: 50%;
     transform: translateX(-50%) translateY(-100px);
     background: rgba(61, 47, 31, 0.95);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
     padding: 12px 24px;
     border-radius: var(--radius-md);
     font-size: 13px;
@@ -2358,7 +2296,7 @@ body.dev-mode .practice-room.in-session::before {
     left: 50%; 
     transform: translateX(-50%);
     background: var(--text); 
-    color: var(--season-mood); 
+    color: var(--neuro-bg-lightest); 
     padding: 6px 10px;
     border-radius: var(--radius-sm); 
     font-size: 11px; 
@@ -2402,7 +2340,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .v-btn.active { 
-    background: var(--season-mood); 
+    background: var(--neuro-bg-lightest); 
     color: var(--text); 
     box-shadow: var(--shadow-raised);
 }
@@ -2503,8 +2441,8 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .cycle-phase.active {
-    background: var(--season-accent);
-    color: var(--season-text);
+    background: var(--neuro-accent);
+    color: var(--neuro-text);
     box-shadow: var(--shadow-raised);
 }
 
@@ -2549,7 +2487,7 @@ body.dev-mode .practice-room.in-session::before {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, var(--season-accent), var(--primary));
+    background: linear-gradient(90deg, var(--neuro-accent), var(--primary));
     opacity: 0.6;
 }
 
@@ -2562,7 +2500,7 @@ body.dev-mode .practice-room.in-session::before {
     width: 80px;
     height: 80px;
     margin-bottom: 20px;
-    color: var(--season-accent);
+    color: var(--neuro-accent);
     opacity: 0.8;
 }
 
@@ -2672,7 +2610,7 @@ body.dev-mode .practice-room.in-session::before {
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--season-accent), var(--primary));
+    background: linear-gradient(90deg, var(--neuro-accent), var(--primary));
     border-radius: var(--radius-full);
     transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -2744,7 +2682,7 @@ body.dev-mode .practice-room.in-session::before {
 .collective-action-btn:hover {
     box-shadow: var(--shadow-raised-hover);
     transform: translateY(-2px);
-    border-color: var(--season-accent);
+    border-color: var(--neuro-accent);
 }
 
 .collective-action-btn:active {
@@ -2757,9 +2695,9 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .collective-action-btn.sent {
-    background: var(--season-accent);
-    color: var(--season-mood);
-    border-color: var(--season-accent);
+    background: var(--neuro-accent);
+    color: var(--neuro-bg-lightest);
+    border-color: var(--neuro-accent);
 }
 
 @keyframes pulseButton {
@@ -2947,7 +2885,7 @@ body.dev-mode .practice-room.in-session::before {
 
 .share-input:focus { 
     outline: none; 
-    border-color: var(--season-accent); 
+    border-color: var(--neuro-accent); 
 }
 
 .share-actions {
@@ -2964,6 +2902,7 @@ body.dev-mode .practice-room.in-session::before {
 
 /* Practice Space - PS Elements */
 .ps-header {
+    background: var(--surface);
     border-bottom: 2px solid var(--border);
     padding: 20px 40px;
     display: flex;
@@ -2982,7 +2921,7 @@ body.dev-mode .practice-room.in-session::before {
     width: 40px;
     height: 40px;
     border-radius: var(--radius-md);
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3055,8 +2994,8 @@ body.dev-mode .practice-room.in-session::before {
     align-items: center;
     justify-content: center;
     padding: 40px;
-    position: relative;
     background: var(--neuro-bg);
+    position: relative;
 }
 
 .t-btn {
@@ -3078,15 +3017,15 @@ body.dev-mode .practice-room.in-session::before {
 
 .t-btn.primary { 
     background: var(--text); 
-    color: var(--season-mood); 
+    color: var(--neuro-bg-lightest); 
     border-color: var(--text); 
 }
 
 .gratitude-btn {
     padding: 12px 24px;
     background: transparent;
-    border: 2px solid var(--season-accent);
-    color: var(--season-text);
+    border: 2px solid var(--neuro-accent);
+    color: var(--neuro-text);
     border-radius: var(--radius-full);
     font-family: var(--serif);
     font-style: italic;
@@ -3096,7 +3035,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .gratitude-btn:hover { 
-    background: var(--season-mood); 
+    background: var(--neuro-bg-lightest); 
     box-shadow: var(--shadow-raised-hover);
     transform: translateY(-2px);
 }
@@ -3155,7 +3094,7 @@ body.dev-mode .practice-room.in-session::before {
     height: 36px;
     border-radius: 50%;
     background: var(--primary);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
     border: none;
     cursor: pointer;
     display: flex;
@@ -3243,11 +3182,11 @@ body.dev-mode .practice-room.in-session::before {
 
 .m-btn-primary { 
     background: var(--primary); 
-    color: var(--season-mood); 
+    color: var(--neuro-bg-lightest); 
 }
 
 .m-btn-secondary { 
-    background: var(--season-mood); 
+    background: var(--neuro-bg-lightest); 
     color: var(--text); 
 }
 
@@ -3257,7 +3196,7 @@ body.dev-mode .practice-room.in-session::before {
     gap: 16px; 
     margin: 24px 0; 
     padding: 20px; 
-    background: var(--season-mood); 
+    background: var(--neuro-bg-lightest); 
     border-radius: var(--radius-md); 
     box-shadow: var(--shadow-inset-sm);
 }
@@ -3297,8 +3236,8 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .member-card-mini:hover {
-    background: var(--season-mood);
-    border-color: var(--season-accent);
+    background: var(--neuro-bg-lightest);
+    border-color: var(--neuro-accent);
     transform: translateY(-4px);
     box-shadow: var(--shadow-raised-hover);
 }
@@ -3410,7 +3349,7 @@ body.dev-mode .practice-room.in-session::before {
     font-size: 64px;
     color: white;
     font-weight: 700;
-    border: 5px solid var(--season-mood);
+    border: 5px solid var(--neuro-bg-lightest);
     box-shadow: var(--shadow-raised-lg);
     position: relative;
     background: linear-gradient(135deg, var(--neuro-forest-dark, #558030) 0%, var(--neuro-forest, #6b9b37) 100%);
@@ -3458,9 +3397,9 @@ body.dev-mode .practice-room.in-session::before {
     color: var(--text-muted);
     margin-bottom: 16px;
     padding: 12px 16px;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     border-radius: var(--radius-md);
-    border-left: 3px solid var(--season-accent);
+    border-left: 3px solid var(--neuro-accent);
     box-shadow: var(--shadow-inset-sm);
 }
 
@@ -3493,7 +3432,7 @@ body.dev-mode .practice-room.in-session::before {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     color: var(--text);
     border: 1px solid var(--border);
 }
@@ -3530,7 +3469,7 @@ body.dev-mode .practice-room.in-session::before {
     height: 240px;
     overflow: hidden;
     position: relative;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
 }
 
 .event-flyer img {
@@ -3580,11 +3519,11 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .event-datetime {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     padding: 16px;
     border-radius: var(--radius-md);
     margin-bottom: 20px;
-    border-left: 3px solid var(--season-accent);
+    border-left: 3px solid var(--neuro-accent);
     box-shadow: var(--shadow-inset-sm);
 }
 
@@ -3604,7 +3543,7 @@ body.dev-mode .practice-room.in-session::before {
     width: 100%;
     padding: 14px 24px;
     background: var(--primary);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
     border: none;
     border-radius: var(--radius-md);
     font-size: 15px;
@@ -3649,7 +3588,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .solar-card::before {
-    background: linear-gradient(90deg, var(--ring-guiding), var(--season-accent));
+    background: linear-gradient(90deg, var(--ring-guiding), var(--neuro-accent));
 }
 
 .celestial-content-horizontal {
@@ -3743,7 +3682,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .celestial-card {
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     border-radius: var(--radius-lg);
     padding: 24px;
     text-align: center;
@@ -3821,7 +3760,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .decl-value {
-    color: var(--season-accent);
+    color: var(--neuro-accent);
     font-weight: 700;
 }
 
@@ -3844,7 +3783,7 @@ body.dev-mode .practice-room.in-session::before {
     flex-direction: column;
     align-items: flex-start;
     padding: 6px 12px;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     border-radius: var(--radius-sm);
     margin-bottom: 6px;
 }
@@ -3881,7 +3820,7 @@ body.dev-mode .practice-room.in-session::before {
     color: var(--text-muted);
     font-style: italic;
     padding: 10px 14px;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     border-radius: var(--radius-sm);
     margin-top: 12px;
 }
@@ -3930,7 +3869,7 @@ body.dev-mode .practice-room.in-session::before {
 }
 
 .decl-value {
-    color: var(--season-accent);
+    color: var(--neuro-accent);
     font-weight: 700;
     font-size: 16px;
 }
@@ -3985,7 +3924,7 @@ body.dev-mode .practice-room.in-session::before {
     align-items: center;
     justify-content: center;
     font-size: 24px;
-    background: var(--season-mood);
+    background: var(--neuro-bg-lightest);
     box-shadow: var(--shadow-inset-sm);
     flex-shrink: 0;
 }
@@ -4024,7 +3963,7 @@ body.dev-mode .practice-room.in-session::before {
 .join-btn-inline {
     padding: 10px 24px;
     background: var(--primary);
-    color: var(--season-mood);
+    color: var(--neuro-bg-lightest);
     border: none;
     border-radius: var(--radius-md);
     font-size: 14px;
@@ -4098,10 +4037,39 @@ body.dev-mode .practice-room.in-session::before {
         }
     }
 
-.practice-room-container {
+/* ===== PRACTICE ROOM BACKGROUND FIX ===== */
+/* Override for fullscreen practice room container - uses main app variables */
+#communityHubFullscreenContainer {
+    --neuro-bg: #c4ad91;
+    --background: var(--neuro-bg);
+    --surface: var(--neuro-bg-lighter);
+    --text: var(--neuro-text);
+    --text-muted: var(--neuro-text-light);
+    --border: var(--neuro-shadow-light);
+    --accent: var(--neuro-accent);
+    background: var(--neuro-bg) !important;
+}
+
+/* Reset body background when practice room is active */
+body.practice-room-active {
+    background: var(--neuro-bg) !important;
+}
+
+body.practice-room-active::before,
+body.practice-room-active::after {
+    display: none !important;
+}
+
+/* Ensure the practice room view has proper background */
+#communityHubFullscreenContainer #practiceRoomView {
+    background: var(--neuro-bg) !important;
+    min-height: 100vh;
+}
+
+#communityHubFullscreenContainer .practice-room-container {
     min-height: 100vh;
     width: 100%;
-    /* background removed - using body.solar-room-active background instead */
+    background: var(--neuro-bg) !important;
     position: relative;
     overflow-x: hidden;
     padding: 2rem 1rem;
