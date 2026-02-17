@@ -528,7 +528,7 @@ class PracticeRoom {
      * @returns {string} CSS gradient
      */
     getHeaderGradient() {
-        return 'background: linear-gradient(135deg, rgba(107, 155, 55, 0.08) 0%, rgba(107, 155, 55, 0.03) 100%);';
+        return 'background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%);';
     }
     
     /**
