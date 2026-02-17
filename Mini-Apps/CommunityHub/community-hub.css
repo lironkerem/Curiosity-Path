@@ -4044,11 +4044,17 @@ body.dev-mode .practice-room.in-session::before {
     --text-muted: var(--neuro-text-light);
     --border: var(--neuro-shadow-light);
     --accent: var(--neuro-accent);
+    background: var(--neuro-bg-lightest) !important;
 }
 
 /* Reset body background when practice room is active */
 body.practice-room-active {
     background: var(--neuro-bg-lightest) !important;
+}
+
+body.practice-room-active::before,
+body.practice-room-active::after {
+    display: none !important;
 }
 
 /* Ensure the practice room view has proper background */
