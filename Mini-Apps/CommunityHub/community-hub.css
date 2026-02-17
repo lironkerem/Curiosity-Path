@@ -39,6 +39,13 @@
     
     /* Use main app's serif font */
     --serif: 'Georgia', 'Times New Roman', serif;
+
+    /* Accent color alpha variants (replaces hardcoded rgba) */
+    --neuro-accent-a08: var(--neuro-accent-a08);
+    --neuro-accent-a10: var(--neuro-accent-a10);
+    --neuro-accent-a20: var(--neuro-accent-a20);
+    --neuro-accent-a30: var(--neuro-accent-a30);
+    --neuro-warning-a10: var(--neuro-warning-a10);
 }
 
 /* ===== SEASONAL VARIATIONS ===== */
@@ -210,58 +217,9 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     padding: 0 24px;
 }
 
-.profile-content {
-    display: flex;
-    gap: 32px;
-    align-items: flex-end;
-}
-
-@media (max-width: 768px) {
-    .profile-content {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-}
-
-.profile-avatar-wrap {
-    position: relative;
-    flex-shrink: 0;
-    width: 120px;
-    height: 120px;
-}
-
-.profile-avatar {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 48px;
-    color: white;
-    font-weight: 700;
-    border: 4px solid var(--neuro-bg-lightest);
-    box-shadow: var(--shadow-raised-lg);
-    position: relative;
-    background: linear-gradient(135deg, var(--neuro-forest-dark, #558030) 0%, var(--neuro-forest, #6b9b37) 100%);
-}
-
-.profile-status-ring {
-    position: absolute;
-    top: -8px;
-    left: -8px;
-    width: calc(100% + 16px);
-    height: calc(100% + 16px);
-    border-radius: 50%;
-    border: 4px solid var(--ring-available);
-    box-shadow: 0 0 0 4px rgba(107, 155, 55, 0.2);
-    animation: pulse-ring 3s infinite;
-    pointer-events: none;
-}
 
 @keyframes pulse-ring {
-    0%, 100% { box-shadow: 0 0 0 4px rgba(107, 155, 55, 0.2); }
+    0%, 100% { box-shadow: 0 0 0 4px var(--neuro-accent-a20); }
     50% { box-shadow: 0 0 0 8px rgba(107, 155, 55, 0); }
 }
 
@@ -634,10 +592,6 @@ body.dev-mode .practice-room.in-session::before {
     transform: translateY(0); 
 }
 
-.practice-room.in-session .join-btn {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
 
 .join-btn:disabled {
     opacity: 0.6;
@@ -1256,7 +1210,7 @@ body.dev-mode .practice-room.in-session::before {
 .campfire-input:focus {
     outline: none;
     border-color: var(--ring-available);
-    box-shadow: 0 0 0 3px rgba(107, 155, 55, 0.1);
+    box-shadow: 0 0 0 3px var(--neuro-accent-a10);
 }
 
 .campfire-send {
@@ -2629,7 +2583,7 @@ body.dev-mode .practice-room.in-session::before {
     font-style: italic;
     margin-bottom: 24px;
     padding: 6px 12px;
-    background: rgba(107, 155, 55, 0.08);
+    background: var(--neuro-accent-a08);
     border-radius: var(--radius-sm);
 }
 
@@ -2660,7 +2614,7 @@ body.dev-mode .practice-room.in-session::before {
     color: var(--text-muted);
     margin-bottom: 24px;
     padding: 6px 12px;
-    background: rgba(107, 155, 55, 0.08);
+    background: var(--neuro-accent-a08);
     border-radius: var(--radius-sm);
 }
 
@@ -2866,13 +2820,13 @@ body.dev-mode .practice-room.in-session::before {
 .role-spaceholder { 
     color: var(--neuro-wood-dark, #6d5a42); 
     border-color: var(--neuro-warning, #d4a574); 
-    background: rgba(212, 165, 116, 0.1); 
+    background: var(--neuro-warning-a10); 
 }
 
 .role-guide { 
     color: var(--primary); 
     border-color: var(--primary); 
-    background: rgba(107, 155, 55, 0.1); 
+    background: var(--neuro-accent-a10); 
 }
 
 .role-practitioner { 
@@ -3345,7 +3299,7 @@ body.dev-mode .practice-room.in-session::before {
     height: 14px;
     border-radius: 50%;
     border: 3px solid var(--surface);
-    box-shadow: 0 0 0 2px rgba(107, 155, 55, 0.3);
+    box-shadow: 0 0 0 2px var(--neuro-accent-a30);
 }
 
 .member-mini-status.online {
@@ -3363,10 +3317,10 @@ body.dev-mode .practice-room.in-session::before {
 
 @keyframes pulse-status {
     0%, 100% { 
-        box-shadow: 0 0 0 2px rgba(107, 155, 55, 0.3); 
+        box-shadow: 0 0 0 2px var(--neuro-accent-a30); 
     }
     50% { 
-        box-shadow: 0 0 0 4px rgba(107, 155, 55, 0.1); 
+        box-shadow: 0 0 0 4px var(--neuro-accent-a10); 
     }
 }
 
@@ -3443,7 +3397,7 @@ body.dev-mode .practice-room.in-session::before {
     height: calc(100% + 20px);
     border-radius: 50%;
     border: 5px solid var(--ring-available);
-    box-shadow: 0 0 0 5px rgba(107, 155, 55, 0.2);
+    box-shadow: 0 0 0 5px var(--neuro-accent-a20);
     animation: pulse-ring 3s infinite;
     pointer-events: none;
 }
@@ -4330,7 +4284,7 @@ body.solar-room-active[data-season] {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: rgba(212, 165, 116, 0.1);
+  background: var(--neuro-warning-a10);
   border: 1px solid rgba(212, 165, 116, 0.2);
   border-radius: 20px;
   font-size: 0.9rem;
@@ -4349,7 +4303,7 @@ body.solar-room-active[data-season] {
 
 .solar-back-hub-btn {
   padding: 0.625rem 1.25rem;
-  background: rgba(212, 165, 116, 0.1);
+  background: var(--neuro-warning-a10);
   border: 1px solid rgba(212, 165, 116, 0.3);
   border-radius: 12px;
   color: rgba(212, 165, 116, 0.9);
@@ -4476,7 +4430,7 @@ body.solar-room-active[data-season] {
 }
 
 .solar-mode-btn:hover {
-  background: rgba(212, 165, 116, 0.1);
+  background: var(--neuro-warning-a10);
   border-color: rgba(212, 165, 116, 0.3);
   color: rgba(212, 165, 116, 0.9);
 }
@@ -4538,7 +4492,7 @@ body.solar-room-active[data-season] {
 }
 
 .solar-practice-card {
-  background: rgba(212, 165, 116, 0.1);
+  background: var(--neuro-warning-a10);
   border: 1px solid var(--solar-border-accent);
   border-radius: 16px;
   padding: 1.5rem;
@@ -4648,7 +4602,7 @@ body.solar-room-active[data-season] {
    ======================================== */
 
 .solar-group-container {
-  background: rgba(212, 165, 116, 0.1);
+  background: var(--neuro-warning-a10);
   border: 1px solid var(--solar-border-accent);
   border-radius: 20px;
   padding: 2.5rem;
@@ -4736,7 +4690,7 @@ body.solar-room-active[data-season] {
    ======================================== */
 
 .solar-closure {
-  background: rgba(212, 165, 116, 0.1);
+  background: var(--neuro-warning-a10);
   border: 1px solid var(--solar-border-accent);
   border-radius: 20px;
   padding: 2rem;
@@ -4905,7 +4859,7 @@ body.solar-room-active[data-season] {
 }
 
 .solar-popup-highlight {
-  background: rgba(212, 165, 116, 0.1);
+  background: var(--neuro-warning-a10);
   border-left: 3px solid var(--season-accent);
   padding: 1rem 1.5rem;
   border-radius: 8px;
@@ -4957,7 +4911,7 @@ body.solar-room-active[data-season] {
 }
 
 .solar-affirmation-btn:hover {
-  background: rgba(212, 165, 116, 0.1);
+  background: var(--neuro-warning-a10);
   border-color: rgba(212, 165, 116, 0.3);
   color: var(--season-accent);
 }
@@ -5004,7 +4958,7 @@ body.solar-room-active[data-season] {
 }
 
 .solar-inactive-card {
-  background: rgba(212, 165, 116, 0.1);
+  background: var(--neuro-warning-a10);
   border: 1px solid rgba(212, 165, 116, 0.3);
   border-radius: 20px;
   padding: 3rem;
