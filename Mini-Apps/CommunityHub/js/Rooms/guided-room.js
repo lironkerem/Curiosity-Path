@@ -212,26 +212,5 @@ class GuidedRoom extends PracticeRoom {
 Object.assign(GuidedRoom.prototype, YouTubePlayerMixin);
 Object.assign(GuidedRoom.prototype, CycleStateMixin);
 
-// Create and bind singleton instance
-const guidedInstance = (() => {
-    const instance = new GuidedRoom();
-    
-    // Bind ALL methods to the instance
-    let proto = Object.getPrototypeOf(instance);
-    while (proto && proto !== Object.prototype) {
-        Object.getOwnPropertyNames(proto).forEach(key => {
-            if (key !== 'constructor' && typeof instance[key] === 'function') {
-                instance[key] = instance[key].bind(instance);
-            }
-        });
-        proto = Object.getPrototypeOf(proto);
-    }
-    
-    return instance;
-})();
-
-window.GuidedRoom = guidedInstance;
-// CRITICAL: Create global variable for onclick handlers
-if (typeof GuidedRoom === 'undefined') {
-    GuidedRoom = guidedInstance;
-}
+// Export singleton instance
+window.GuidedRoom = new GuidedRoom();

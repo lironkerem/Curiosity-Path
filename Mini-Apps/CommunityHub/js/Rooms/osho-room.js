@@ -233,26 +233,5 @@ class OshoRoom extends PracticeRoom {
 Object.assign(OshoRoom.prototype, YouTubePlayerMixin);
 Object.assign(OshoRoom.prototype, CycleStateMixin);
 
-// Create and bind singleton instance
-const oshoInstance = (() => {
-    const instance = new OshoRoom();
-    
-    // Bind ALL methods to the instance
-    let proto = Object.getPrototypeOf(instance);
-    while (proto && proto !== Object.prototype) {
-        Object.getOwnPropertyNames(proto).forEach(key => {
-            if (key !== 'constructor' && typeof instance[key] === 'function') {
-                instance[key] = instance[key].bind(instance);
-            }
-        });
-        proto = Object.getPrototypeOf(proto);
-    }
-    
-    return instance;
-})();
-
-window.OshoRoom = oshoInstance;
-// CRITICAL: Create global variable for onclick handlers
-if (typeof OshoRoom === 'undefined') {
-    OshoRoom = oshoInstance;
-}
+// Export singleton instance
+window.OshoRoom = new OshoRoom();

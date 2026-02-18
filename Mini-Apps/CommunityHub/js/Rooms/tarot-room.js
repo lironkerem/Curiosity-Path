@@ -42,22 +42,6 @@ class TarotRoom extends PracticeRoom {
         this.state.personalDeck = [];
         this.state.personalDrawn = false;
         this.state.currentTab = 'daily';
-        
-        // Auto-bind methods
-        this.bindMethods();
-    }
-    
-    // ═══════════════════════════════════════════════════════════════════════
-    // METHOD BINDING
-    // ═══════════════════════════════════════════════════════════════════════
-    
-    bindMethods() {
-        const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(this));
-        methods.forEach(method => {
-            if (method !== 'constructor' && typeof this[method] === 'function') {
-                this[method] = this[method].bind(this);
-            }
-        });
     }
     
     // ═══════════════════════════════════════════════════════════════════════

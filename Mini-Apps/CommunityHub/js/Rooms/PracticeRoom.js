@@ -53,6 +53,9 @@ class PracticeRoom {
         
         // Event listeners registry
         this.eventListeners = [];
+        
+        // Bind all methods to this instance for onclick handlers
+        this._bindAllMethods();
     }
     
     // ═══════════════════════════════════════════════════════════════════════
@@ -581,6 +584,23 @@ class PracticeRoom {
     registerEventListener(element, event, handler) {
         element.addEventListener(event, handler);
         this.eventListeners.push({ element, event, handler });
+    }
+    
+    /**
+     * Bind all methods to this instance
+     * Called in constructor to enable onclick handlers to work
+     * Walks the prototype chain to bind inherited methods from mixins
+     */
+    _bindAllMethods() {
+        let proto = Object.getPrototypeOf(this);
+        while (proto && proto !== Object.prototype) {
+            Object.getOwnPropertyNames(proto)
+                .filter(key => key !== 'constructor' && typeof this[key] === 'function')
+                .forEach(key => {
+                    this[key] = this[key].bind(this);
+                });
+            proto = Object.getPrototypeOf(proto);
+        }
     }
 }
 

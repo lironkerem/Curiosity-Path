@@ -29,6 +29,7 @@ const Core = {
             status: 'available' // available, silent, guiding, deep, resonant, offline
         },
         presenceCount: 127,
+        presenceInterval: null,
         pulseSent: false,
         timerRunning: false,
         timeLeft: 1200, // 20 minutes in seconds
@@ -42,6 +43,16 @@ const Core = {
     
     config: {
         DEV_MODE: true, // Set to true to access all lunar/solar rooms regardless of phase/season
+        ROOM_MODULES: [
+            'SilentRoom',
+            'CampfireRoom',
+            'GuidedRoom',
+            'BreathworkRoom',
+            'OshoRoom',
+            'DeepWorkRoom',
+            'TarotRoom',
+            'ReikiRoom'
+        ],
         statusRings: {
             silent: '#60a5fa',
             available: '#34d399',
@@ -116,15 +127,12 @@ const Core = {
 
         modules.forEach(({ name, instance }) => {
             try {
-                if (!instance || typeof instance.init !== 'function') {
+                if (instance && typeof instance.init === 'function') {
+                    instance.init();
+                    console.log(`✓ ${name} initialized`);
+                } else {
                     console.warn(`⚠ ${name} module not found or missing init method`);
-                    return;
                 }
-                if (instance.state?.isInitialized) {
-                    return; // Already initialized by CommunityHubEngine, skip silently
-                }
-                instance.init();
-                console.log(`✓ ${name} initialized`);
             } catch (error) {
                 console.error(`✗ ${name} initialization failed:`, error);
             }
@@ -140,17 +148,7 @@ const Core = {
      * PATCHED: Now properly handles refactored room instances
      */
     initializePracticeRooms() {
-        const rooms = [
-            'SilentRoom',
-            'CampfireRoom',
-            'GuidedRoom',
-            'BreathworkRoom',
-            'OshoRoom',
-            'DeepWorkRoom',
-            'TarotRoom',
-            'ReikiRoom'
-        ];
-
+        const rooms = this.config.ROOM_MODULES;
         let initializedCount = 0;
 
         rooms.forEach(roomName => {
@@ -201,17 +199,7 @@ const Core = {
             return;
         }
 
-        const roomModules = [
-            'SilentRoom',
-            'CampfireRoom',
-            'GuidedRoom',
-            'BreathworkRoom',
-            'OshoRoom',
-            'DeepWorkRoom',
-            'TarotRoom',
-            'ReikiRoom'
-        ];
-
+        const roomModules = this.config.ROOM_MODULES;
         const roomCards = [];
         
         roomModules.forEach(moduleName => {
@@ -296,23 +284,16 @@ const Core = {
      */
     navigateTo(viewId) {
         try {
-            console.log(`[Core] navigateTo called with viewId: ${viewId}`);
-            
             const fullscreenContainer = document.getElementById('communityHubFullscreenContainer');
             const hubTab = document.getElementById('community-hub-tab');
-            
-            console.log(`[Core] fullscreenContainer exists: ${!!fullscreenContainer}`);
-            console.log(`[Core] hubTab exists: ${!!hubTab}`);
             
             if (viewId === 'hubView') {
                 // Returning to hub - hide fullscreen container, show hub tab
                 if (fullscreenContainer) {
                     fullscreenContainer.style.display = 'none';
-                    console.log('[Core] Fullscreen container hidden');
                 }
                 if (hubTab) {
                     hubTab.style.display = 'block';
-                    console.log('[Core] Hub tab shown');
                 }
                 
                 // Update view state within hub
@@ -320,15 +301,11 @@ const Core = {
                 views.forEach(view => view.classList.add('active'));
                 
                 this.state.currentView = 'hubView';
-                console.log('[Core] Navigated to hubView');
                 
             } else if (viewId === 'practiceRoomView') {
                 // Entering practice room - show fullscreen container, COMPLETELY HIDE hub tab
-                console.log('[Core] Entering practice room...');
-                
                 if (fullscreenContainer) {
                     fullscreenContainer.style.display = 'block';
-                    console.log('[Core] Fullscreen container shown');
                     
                     // Hide ritual overlays - they should NOT show when entering a room
                     const openingOverlay = fullscreenContainer.querySelector('#openingOverlay');
@@ -341,20 +318,17 @@ const Core = {
                     if (practiceView) {
                         practiceView.style.display = 'block';
                         practiceView.classList.add('active');
-                        console.log('[Core] Practice view activated');
                     }
                 }
                 
                 // CRITICAL: Completely hide the entire community-hub-tab
                 if (hubTab) {
                     hubTab.style.display = 'none';
-                    console.log('[Core] Hub tab hidden - display:', window.getComputedStyle(hubTab).display);
                 } else {
                     console.error('[Core] Hub tab not found! Cannot hide it.');
                 }
                 
                 this.state.currentView = 'practiceRoomView';
-                console.log('[Core] Navigated to practiceRoomView (fullscreen)');
                 
             } else {
                 // Fallback for other views (shouldn't happen in normal flow)
@@ -397,8 +371,13 @@ const Core = {
      * Update the presence count display
      */
     updatePresenceCount() {
+        // Clear existing interval to prevent stacking on re-visits
+        if (this.state.presenceInterval) {
+            clearInterval(this.state.presenceInterval);
+        }
+        
         // Simulate presence count update
-        setInterval(() => {
+        this.state.presenceInterval = setInterval(() => {
             this.state.presenceCount = Math.floor(Math.random() * 50) + 100;
         }, 30000); // Update every 30 seconds
     },

@@ -205,37 +205,5 @@ class SilentRoom extends PracticeRoom {
 Object.assign(SilentRoom.prototype, TimerMixin);
 Object.assign(SilentRoom.prototype, SoundSettingsMixin);
 
-// Create and export singleton instance
-const silentRoomInstance = new SilentRoom();
-
-// Explicitly bind and copy ALL methods to the instance as own properties
-const getAllMethods = (obj) => {
-    let methods = new Set();
-    let current = obj;
-    
-    while (current && current !== Object.prototype) {
-        Object.getOwnPropertyNames(current).forEach(name => {
-            if (name !== 'constructor' && typeof obj[name] === 'function') {
-                methods.add(name);
-            }
-        });
-        current = Object.getPrototypeOf(current);
-    }
-    
-    return methods;
-};
-
-// Get all method names and bind them
-const allMethods = getAllMethods(Object.getPrototypeOf(silentRoomInstance));
-
-allMethods.forEach(methodName => {
-    if (typeof silentRoomInstance[methodName] === 'function') {
-        silentRoomInstance[methodName] = silentRoomInstance[methodName].bind(silentRoomInstance);
-    }
-});
-
-// Export to global scope (for onclick handlers) and window
-window.SilentRoom = silentRoomInstance;
-// CRITICAL: Force global variable for onclick handlers (without var/let/const)
-this.SilentRoom = silentRoomInstance;
-self.SilentRoom = silentRoomInstance;
+// Export singleton instance
+window.SilentRoom = new SilentRoom();

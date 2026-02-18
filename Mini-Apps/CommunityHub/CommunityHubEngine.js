@@ -191,34 +191,7 @@ class CommunityHubEngine {
       <div class="ritual-overlay closing" id="closingOverlay" role="dialog" aria-labelledby="closingRitualText">
           <div class="ritual-card">
               <div class="ritual-candle" aria-hidden="true">
-                <svg viewBox="0 0 48 70" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <ellipse class="flame-outer" cx="24" cy="16" rx="7" ry="11" fill="url(#flameGradOuter-c)" opacity="0.9"/>
-                  <ellipse class="flame-inner" cx="24" cy="18" rx="4.5" ry="7.5" fill="url(#flameGradInner-c)" opacity="0.95"/>
-                  <ellipse class="flame-core" cx="24" cy="20" rx="2" ry="3.5" fill="#fff9e6" opacity="0.95"/>
-                  <line x1="24" y1="26" x2="24" y2="29" stroke="#3a2a1a" stroke-width="1.2" stroke-linecap="round"/>
-                  <rect x="14" y="29" width="20" height="34" rx="3" fill="url(#candleGrad-c)"/>
-                  <path d="M14 35 Q11 38 12 43 Q13 46 14 48 L14 35Z" fill="url(#dripGrad-c)" opacity="0.7"/>
-                  <path d="M34 38 Q37 41 36 46 Q35 48 34 49 L34 38Z" fill="url(#dripGrad-c)" opacity="0.5"/>
-                  <ellipse cx="24" cy="29" rx="10" ry="2.5" fill="url(#topGrad-c)"/>
-                  <rect x="17" y="31" width="4" height="28" rx="2" fill="white" opacity="0.08"/>
-                  <defs>
-                    <radialGradient id="flameGradOuter-c" cx="50%" cy="80%" r="60%">
-                      <stop offset="0%" stop-color="#ffe066"/><stop offset="50%" stop-color="#ff9a00"/><stop offset="100%" stop-color="#ff4400" stop-opacity="0"/>
-                    </radialGradient>
-                    <radialGradient id="flameGradInner-c" cx="50%" cy="80%" r="60%">
-                      <stop offset="0%" stop-color="#fff5c0"/><stop offset="60%" stop-color="#ffb830"/><stop offset="100%" stop-color="#ff6600" stop-opacity="0"/>
-                    </radialGradient>
-                    <linearGradient id="candleGrad-c" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stop-color="#c8a882"/><stop offset="40%" stop-color="#e8d0b0"/><stop offset="70%" stop-color="#d4b88a"/><stop offset="100%" stop-color="#b89060"/>
-                    </linearGradient>
-                    <linearGradient id="dripGrad-c" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#e8d0b0"/><stop offset="100%" stop-color="#c8a882" stop-opacity="0"/>
-                    </linearGradient>
-                    <radialGradient id="topGrad-c" cx="50%" cy="50%" r="50%">
-                      <stop offset="0%" stop-color="#f0dfc0"/><stop offset="100%" stop-color="#c8a882"/>
-                    </radialGradient>
-                  </defs>
-                </svg>
+                ${this._buildCandleSVG('c')}
               </div>
               <div class="ritual-text" id="closingRitualText"></div>
               <button class="ritual-btn" data-action="ritual-closing" aria-label="Close gently">
@@ -251,34 +224,7 @@ class CommunityHubEngine {
         <div id="openingOverlay" class="ritual-overlay opening" role="dialog">
             <div class="ritual-card">
                 <div class="ritual-candle" aria-hidden="true">
-                  <svg viewBox="0 0 48 70" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <ellipse class="flame-outer" cx="24" cy="16" rx="7" ry="11" fill="url(#flameGradOuter-o)" opacity="0.9"/>
-                    <ellipse class="flame-inner" cx="24" cy="18" rx="4.5" ry="7.5" fill="url(#flameGradInner-o)" opacity="0.95"/>
-                    <ellipse class="flame-core" cx="24" cy="20" rx="2" ry="3.5" fill="#fff9e6" opacity="0.95"/>
-                    <line x1="24" y1="26" x2="24" y2="29" stroke="#3a2a1a" stroke-width="1.2" stroke-linecap="round"/>
-                    <rect x="14" y="29" width="20" height="34" rx="3" fill="url(#candleGrad-o)"/>
-                    <path d="M14 35 Q11 38 12 43 Q13 46 14 48 L14 35Z" fill="url(#dripGrad-o)" opacity="0.7"/>
-                    <path d="M34 38 Q37 41 36 46 Q35 48 34 49 L34 38Z" fill="url(#dripGrad-o)" opacity="0.5"/>
-                    <ellipse cx="24" cy="29" rx="10" ry="2.5" fill="url(#topGrad-o)"/>
-                    <rect x="17" y="31" width="4" height="28" rx="2" fill="white" opacity="0.08"/>
-                    <defs>
-                      <radialGradient id="flameGradOuter-o" cx="50%" cy="80%" r="60%">
-                        <stop offset="0%" stop-color="#ffe066"/><stop offset="50%" stop-color="#ff9a00"/><stop offset="100%" stop-color="#ff4400" stop-opacity="0"/>
-                      </radialGradient>
-                      <radialGradient id="flameGradInner-o" cx="50%" cy="80%" r="60%">
-                        <stop offset="0%" stop-color="#fff5c0"/><stop offset="60%" stop-color="#ffb830"/><stop offset="100%" stop-color="#ff6600" stop-opacity="0"/>
-                      </radialGradient>
-                      <linearGradient id="candleGrad-o" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stop-color="#c8a882"/><stop offset="40%" stop-color="#e8d0b0"/><stop offset="70%" stop-color="#d4b88a"/><stop offset="100%" stop-color="#b89060"/>
-                      </linearGradient>
-                      <linearGradient id="dripGrad-o" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="#e8d0b0"/><stop offset="100%" stop-color="#c8a882" stop-opacity="0"/>
-                      </linearGradient>
-                      <radialGradient id="topGrad-o" cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stop-color="#f0dfc0"/><stop offset="100%" stop-color="#c8a882"/>
-                      </radialGradient>
-                    </defs>
-                  </svg>
+                  ${this._buildCandleSVG('o')}
                 </div>
                 <div class="ritual-text" id="openingRitualText"></div>
                 <button class="ritual-btn" data-action="ritual-opening" aria-label="Enter the space">
@@ -327,8 +273,7 @@ class CommunityHubEngine {
         this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/mixins/ChatMixin.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/mixins/SoundSettingsMixin.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/mixins/TimerMixin.js'),
-        // Solar constants must come before solar rooms
-        this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-constants.js'),
+        // Solar config (includes constants) must come before solar rooms
         this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-config.js'),
         // Lunar core must come before lunar rooms
         this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunar-core.js'),
@@ -419,6 +364,43 @@ class CommunityHubEngine {
       script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
       document.body.appendChild(script);
     });
+  }
+
+  /**
+   * Generate candle SVG with unique gradient IDs
+   * @param {string} idSuffix - Suffix for gradient IDs ('c' for closing, 'o' for opening)
+   * @returns {string} SVG HTML
+   */
+  _buildCandleSVG(idSuffix) {
+    return `
+      <svg viewBox="0 0 48 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse class="flame-outer" cx="24" cy="16" rx="7" ry="11" fill="url(#flameGradOuter-${idSuffix})" opacity="0.9"/>
+        <ellipse class="flame-inner" cx="24" cy="18" rx="4.5" ry="7.5" fill="url(#flameGradInner-${idSuffix})" opacity="0.95"/>
+        <ellipse class="flame-core" cx="24" cy="20" rx="2" ry="3.5" fill="#fff9e6" opacity="0.95"/>
+        <line x1="24" y1="26" x2="24" y2="29" stroke="#3a2a1a" stroke-width="1.2" stroke-linecap="round"/>
+        <rect x="14" y="29" width="20" height="34" rx="3" fill="url(#candleGrad-${idSuffix})"/>
+        <path d="M14 35 Q11 38 12 43 Q13 46 14 48 L14 35Z" fill="url(#dripGrad-${idSuffix})" opacity="0.7"/>
+        <path d="M34 38 Q37 41 36 46 Q35 48 34 49 L34 38Z" fill="url(#dripGrad-${idSuffix})" opacity="0.5"/>
+        <ellipse cx="24" cy="29" rx="10" ry="2.5" fill="url(#topGrad-${idSuffix})"/>
+        <rect x="17" y="31" width="4" height="28" rx="2" fill="white" opacity="0.08"/>
+        <defs>
+          <radialGradient id="flameGradOuter-${idSuffix}" cx="50%" cy="80%" r="60%">
+            <stop offset="0%" stop-color="#ffe066"/><stop offset="50%" stop-color="#ff9a00"/><stop offset="100%" stop-color="#ff4400" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="flameGradInner-${idSuffix}" cx="50%" cy="80%" r="60%">
+            <stop offset="0%" stop-color="#fff5c0"/><stop offset="60%" stop-color="#ffb830"/><stop offset="100%" stop-color="#ff6600" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="candleGrad-${idSuffix}" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#c8a882"/><stop offset="40%" stop-color="#e8d0b0"/><stop offset="70%" stop-color="#d4b88a"/><stop offset="100%" stop-color="#b89060"/>
+          </linearGradient>
+          <linearGradient id="dripGrad-${idSuffix}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#e8d0b0"/><stop offset="100%" stop-color="#c8a882" stop-opacity="0"/>
+          </linearGradient>
+          <radialGradient id="topGrad-${idSuffix}" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#f0dfc0"/><stop offset="100%" stop-color="#c8a882"/>
+          </radialGradient>
+        </defs>
+      </svg>`;
   }
 }
 

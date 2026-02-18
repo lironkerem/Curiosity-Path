@@ -42,22 +42,6 @@ class ReikiRoom extends PracticeRoom {
         this.state.dailyImageIndex = 0;
         this.state.personalImageIndex = 0;
         this.state.currentTab = 'daily';
-        
-        // Auto-bind all methods
-        this.bindMethods();
-    }
-    
-    // ═══════════════════════════════════════════════════════════════════════
-    // METHOD BINDING (OPTIMIZATION #4)
-    // ═══════════════════════════════════════════════════════════════════════
-    
-    bindMethods() {
-        const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(this));
-        methods.forEach(method => {
-            if (method !== 'constructor' && typeof this[method] === 'function') {
-                this[method] = this[method].bind(this);
-            }
-        });
     }
     
     // ═══════════════════════════════════════════════════════════════════════

@@ -53,22 +53,6 @@ class DeepWorkRoom extends PracticeRoom {
             planning: { icon: '📋', label: 'PLANNING', gradient: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)', border: 'rgba(139, 92, 246, 0.3)' },
             coding: { icon: '💻', label: 'CODING', gradient: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)', border: 'rgba(16, 185, 129, 0.3)' }
         };
-        
-        // Auto-bind methods
-        this.bindMethods();
-    }
-    
-    // ═══════════════════════════════════════════════════════════════════════
-    // METHOD BINDING
-    // ═══════════════════════════════════════════════════════════════════════
-    
-    bindMethods() {
-        const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(this));
-        methods.forEach(method => {
-            if (method !== 'constructor' && typeof this[method] === 'function') {
-                this[method] = this[method].bind(this);
-            }
-        });
     }
     
     // ═══════════════════════════════════════════════════════════════════════
@@ -138,17 +122,17 @@ class DeepWorkRoom extends PracticeRoom {
                 <!-- Status Selector -->
                 <div class="status-selector" style="display: flex; gap: 8px; margin-bottom: 30px;">
                     <button class="status-btn ${this.state.currentStatus === 'deep-focus' ? 'active' : ''}" 
-                            onclick="${this.getClassName()}.changeStatus('deep-focus')"
+                            onclick="${this.getClassName()}.changeStatus('deep-focus', event)"
                             style="padding: 12px 24px; border: 2px solid var(--border); border-radius: var(--radius-md); background: ${this.state.currentStatus === 'deep-focus' ? 'var(--accent)' : 'var(--surface)'}; color: ${this.state.currentStatus === 'deep-focus' ? 'white' : 'var(--text)'}; cursor: pointer; font-weight: 600; transition: all 0.2s;">
                         🎯 Deep
                     </button>
                     <button class="status-btn ${this.state.currentStatus === 'light-focus' ? 'active' : ''}" 
-                            onclick="${this.getClassName()}.changeStatus('light-focus')"
+                            onclick="${this.getClassName()}.changeStatus('light-focus', event)"
                             style="padding: 12px 24px; border: 2px solid var(--border); border-radius: var(--radius-md); background: ${this.state.currentStatus === 'light-focus' ? 'var(--accent)' : 'var(--surface)'}; color: ${this.state.currentStatus === 'light-focus' ? 'white' : 'var(--text)'}; cursor: pointer; font-weight: 600; transition: all 0.2s;">
                         ✨ Light
                     </button>
                     <button class="status-btn ${this.state.currentStatus === 'break' ? 'active' : ''}" 
-                            onclick="${this.getClassName()}.changeStatus('break')"
+                            onclick="${this.getClassName()}.changeStatus('break', event)"
                             style="padding: 12px 24px; border: 2px solid var(--border); border-radius: var(--radius-md); background: ${this.state.currentStatus === 'break' ? 'var(--accent)' : 'var(--surface)'}; color: ${this.state.currentStatus === 'break' ? 'white' : 'var(--text)'}; cursor: pointer; font-weight: 600; transition: all 0.2s;">
                         ☕ Break
                     </button>
@@ -401,7 +385,7 @@ class DeepWorkRoom extends PracticeRoom {
         return statusMap[this.state.currentStatus] || 'DEEP FOCUS';
     }
     
-    changeStatus(newStatus) {
+    changeStatus(newStatus, event = null) {
         if (newStatus !== 'break') {
             this.state.lastFocusStatus = newStatus;
         }
@@ -417,7 +401,10 @@ class DeepWorkRoom extends PracticeRoom {
         document.querySelectorAll('.status-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        event.target.classList.add('active');
+        // Only update the clicked button if event is provided
+        if (event && event.target) {
+            event.target.classList.add('active');
+        }
         
         // Handle chat availability
         const chatInput = document.getElementById(`${this.roomId}ChatInput`);
@@ -481,7 +468,6 @@ class DeepWorkRoom extends PracticeRoom {
         this.state.showSetup = false;
         
         this.closeSetupModal();
-        Core.navigateTo(`${this.roomId}View`);
         
         // Update display
         setTimeout(() => {

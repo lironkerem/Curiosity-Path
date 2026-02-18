@@ -227,26 +227,5 @@ class BreathworkRoom extends PracticeRoom {
 Object.assign(BreathworkRoom.prototype, YouTubePlayerMixin);
 Object.assign(BreathworkRoom.prototype, CycleStateMixin);
 
-// Create and bind singleton instance
-const breathworkInstance = (() => {
-    const instance = new BreathworkRoom();
-    
-    // Bind ALL methods to the instance
-    let proto = Object.getPrototypeOf(instance);
-    while (proto && proto !== Object.prototype) {
-        Object.getOwnPropertyNames(proto).forEach(key => {
-            if (key !== 'constructor' && typeof instance[key] === 'function') {
-                instance[key] = instance[key].bind(instance);
-            }
-        });
-        proto = Object.getPrototypeOf(proto);
-    }
-    
-    return instance;
-})();
-
-window.BreathworkRoom = breathworkInstance;
-// CRITICAL: Create global variable for onclick handlers
-if (typeof BreathworkRoom === 'undefined') {
-    BreathworkRoom = breathworkInstance;
-}
+// Export singleton instance
+window.BreathworkRoom = new BreathworkRoom();
