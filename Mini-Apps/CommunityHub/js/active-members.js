@@ -129,15 +129,20 @@ const ActiveMembers = {
     getMemberCardHTML(presenceRow) {
         if (!presenceRow) return '';
 
-        const profile  = presenceRow.profiles || {};
-        const name     = profile.name  || 'Member';
-        const emoji    = profile.emoji || '';
-        const initial  = name.charAt(0).toUpperCase();
-        const display  = emoji || initial;
-        const status   = presenceRow.status   || 'online';
-        const activity = presenceRow.activity || '✨ Available';
-        const userId   = presenceRow.user_id;
-        const gradient = Core.getAvatarGradient(userId || name);
+        const profile    = presenceRow.profiles || {};
+        const name       = profile.name       || 'Member';
+        const emoji      = profile.emoji      || '';
+        const avatarUrl  = profile.avatar_url || '';
+        const initial    = name.charAt(0).toUpperCase();
+        const status     = presenceRow.status   || 'online';
+        const activity   = presenceRow.activity || '\u2728 Available';
+        const userId     = presenceRow.user_id;
+        const gradient   = Core.getAvatarGradient(userId || name);
+
+        const avatarInner = avatarUrl
+            ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" alt="${this.escapeHtml(name)}">`
+            : `<span>${this.escapeHtml(emoji || initial)}</span>`;
+        const avatarStyle = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
 
         return `
             <div class="member-card-mini"
@@ -146,10 +151,8 @@ const ActiveMembers = {
                  role="button"
                  tabindex="0"
                  aria-label="View ${this.escapeHtml(name)}'s profile">
-                <div class="member-mini-avatar"
-                     style="background: ${gradient};"
-                     aria-hidden="true">
-                    ${this.escapeHtml(display)}
+                <div class="member-mini-avatar" style="${avatarStyle}" aria-hidden="true">
+                    ${avatarInner}
                 </div>
                 <div class="member-mini-status ${status}"
                      aria-label="${status}"
@@ -160,7 +163,7 @@ const ActiveMembers = {
             </div>`;
     },
 
-    // ============================================================================
+        // ============================================================================
     // INTERACTIONS
     // ============================================================================
 
@@ -171,22 +174,14 @@ const ActiveMembers = {
     handleViewMember(userId) {
         if (!userId) return;
         try {
-            if (window.CommunityModule && typeof window.CommunityModule.viewMember === 'function') {
-                window.CommunityModule.viewMember(userId);
+            if (window.MemberProfileModal) {
+                MemberProfileModal.open(userId);
             } else {
-                this.viewMember(userId);
+                Core.showToast('Member profiles loading...');
             }
         } catch (error) {
             console.error('View member error:', error);
         }
-    },
-
-    /** Fallback view member */
-    viewMember(userId) {
-        if (window.Core && typeof window.Core.showToast === 'function') {
-            window.Core.showToast('Member profiles coming soon');
-        }
-        console.log('View member:', userId);
     },
 
     // ============================================================================
