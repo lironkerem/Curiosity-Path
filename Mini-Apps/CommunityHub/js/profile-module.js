@@ -103,6 +103,20 @@ const ProfileModule = {
                                 <span class="p-stat-num" id="statOffered">0</span>
                                 <div class="p-stat-label">Gifts</div>
                             </div>
+                            <div class="p-stat">
+                                <span class="p-stat-num" id="statKarma">0</span>
+                                <div class="p-stat-label">Karma</div>
+                            </div>
+                            <div class="p-stat">
+                                <span class="p-stat-num" id="statXP">0</span>
+                                <div class="p-stat-label">XP</div>
+                            </div>
+                        </div>
+                        <div class="profile-level-row" id="profileLevelRow" style="margin:0.5rem 0;font-size:0.85rem;color:var(--text-muted);">
+                            <span id="profileLevelBadge"></span>
+                        </div>
+                        <div class="profile-activity-counts" id="profileActivityCounts"
+                             style="display:flex;gap:12px;flex-wrap:wrap;font-size:0.78rem;color:var(--text-muted);margin-bottom:0.5rem;">
                         </div>
 
                         <div class="badges-row" id="badgesRow">
@@ -242,12 +256,44 @@ const ProfileModule = {
     // ── Karma ────────────────────────────────────────────────────────────────────
 
     updateKarma(user) {
-        const el = document.getElementById('karmaBadge');
+        // Get own gamification state — in-memory first, DB fallback
+        const g = window.CommunityDB?.getOwnGamificationState?.();
+
+        const karma = g?.karma ?? user.karma ?? 0;
+        const xp    = g?.xp    ?? user.xp    ?? 0;
+        const level = g?.level ?? user.level ?? 1;
+
+        // Karma badge (top right of name row)
+        const karmaBadge = document.getElementById('karmaBadge');
+        if (karmaBadge) karmaBadge.textContent = `⭐ ${karma.toLocaleString()} Karma`;
+
+        // Stat boxes
+        const statKarma = document.getElementById('statKarma');
+        if (statKarma) statKarma.textContent = karma.toLocaleString();
+
+        const statXP = document.getElementById('statXP');
+        if (statXP) statXP.textContent = xp.toLocaleString();
+
+        // Level badge
+        const levelTitles = {1:'Seeker',2:'Practitioner',3:'Adept',4:'Healer',5:'Master',6:'Sage',7:'Enlightened',8:'Buddha',9:'Light',10:'Emptiness'};
+        const title = levelTitles[level] || 'Seeker';
+        const levelBadge = document.getElementById('profileLevelBadge');
+        if (levelBadge) levelBadge.textContent = `✦ Level ${level} · ${title}`;
+
+        // Activity counts
+        if (g) this.updateActivityCounts(g);
+    },
+
+    updateActivityCounts(g) {
+        const el = document.getElementById('profileActivityCounts');
         if (!el) return;
-        // GamificationEngine is authoritative for karma/xp (from user_progress.payload)
-        const karma = window.GamificationEngine?.state?.karma ?? user.karma ?? 0;
-        const xp    = window.GamificationEngine?.state?.xp    ?? user.xp    ?? 0;
-        el.textContent = `⭐ ${karma.toLocaleString()} Karma  ·  ${xp.toLocaleString()} XP`;
+        const items = [
+            g.totalSessions    > 0 ? `🧘 ${g.totalSessions} meditations`   : null,
+            g.totalTarotSpreads > 0 ? `🔮 ${g.totalTarotSpreads} readings`  : null,
+            g.totalJournalEntries > 0 ? `📓 ${g.totalJournalEntries} journal entries` : null,
+            g.streak           > 0 ? `🔥 ${g.streak}-day streak`            : null,
+        ].filter(Boolean);
+        el.innerHTML = items.map(i => `<span>${i}</span>`).join('');
     },
 
     // ── Bio ──────────────────────────────────────────────────────────────────────

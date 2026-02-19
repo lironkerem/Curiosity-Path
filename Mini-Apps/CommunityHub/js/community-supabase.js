@@ -75,6 +75,72 @@ const CommunityDB = {
   },
 
   /**
+   * Get gamification data for any user from user_progress.
+   * Returns { xp, karma, level, badges, streaks, stats, activityCounts } or null.
+   */
+  async getUserProgress(userId) {
+    if (!this.ready) return null;
+    try {
+      const { data, error } = await this._sb
+        .from('user_progress')
+        .select('payload')
+        .eq('user_id', userId)
+        .single();
+      if (error || !data) return null;
+      const p = typeof data.payload === 'string' ? JSON.parse(data.payload) : data.payload;
+      return {
+        xp:             p.xp             ?? 0,
+        karma:          p.karma          ?? 0,
+        level:          p.level          ?? 1,
+        badges:         p.badges         ?? [],
+        streak:         p.streaks?.current ?? p.streak?.current ?? 0,
+        longestStreak:  p.streaks?.longest ?? 0,
+        totalSessions:  p.stats?.totalSessions   ?? 0,
+        totalMeditations: p.stats?.totalMeditations ?? 0,
+        totalReadings:  p.stats?.totalReadings   ?? 0,
+        totalTarotSpreads:   p.totalTarotSpreads   ?? 0,
+        totalJournalEntries: p.totalJournalEntries ?? 0,
+        totalWellnessRuns:   p.totalWellnessRuns   ?? 0,
+        totalHappinessViews: p.totalHappinessViews ?? 0,
+      };
+    } catch (err) {
+      console.error('[CommunityDB] getUserProgress:', err);
+      return null;
+    }
+  },
+
+  /**
+   * Read own gamification state — tries GamificationEngine first (in-memory),
+   * falls back to DB query. Returns same shape as getUserProgress.
+   */
+  getOwnGamificationState() {
+    // Try every known path the main app might expose the engine
+    const eng = window.GamificationEngine
+             ?? window.app?.gamification
+             ?? window.App?.gamification
+             ?? window.ProjectCuriosityApp?.gamification;
+    if (eng?.state) {
+      const s = eng.state;
+      return {
+        xp:             s.xp    ?? 0,
+        karma:          s.karma ?? 0,
+        level:          s.level ?? 1,
+        badges:         s.badges ?? [],
+        streak:         s.streaks?.current ?? s.streak?.current ?? 0,
+        longestStreak:  s.streaks?.longest ?? 0,
+        totalSessions:  s.stats?.totalSessions   ?? 0,
+        totalMeditations: s.stats?.totalMeditations ?? 0,
+        totalReadings:  s.stats?.totalReadings   ?? 0,
+        totalTarotSpreads:   s.totalTarotSpreads   ?? 0,
+        totalJournalEntries: s.totalJournalEntries ?? 0,
+        totalWellnessRuns:   s.totalWellnessRuns   ?? 0,
+        totalHappinessViews: s.totalHappinessViews ?? 0,
+      };
+    }
+    return null; // caller should fall back to getUserProgress(this._uid)
+  },
+
+  /**
    * Update current user's profile fields
    * @param {Object} updates - e.g. { inspiration: 'new text', community_status: 'silent' }
    */
@@ -145,7 +211,6 @@ const CommunityDB = {
    * @param {Function} callback  (members: Array) => void
    */
   subscribeToPresence(callback) {
-    if (!this.ready) { console.warn('[CommunityDB] subscribeToPresence: not ready yet'); return null; }
     if (this._subs.presence) this._subs.presence.unsubscribe();
 
     this._subs.presence = this._sb
@@ -215,7 +280,6 @@ const CommunityDB = {
    * Callback receives the full reflection object (with profile).
    */
   subscribeToReflections(callback) {
-    if (!this.ready) { console.warn('[CommunityDB] subscribeToReflections: not ready yet'); return null; }
     if (this._subs.reflections) this._subs.reflections.unsubscribe();
 
     this._subs.reflections = this._sb
@@ -330,7 +394,6 @@ const CommunityDB = {
    * @param {Function} callback  (message: Object) => void
    */
   subscribeToRoomChat(roomId, callback) {
-    if (!this.ready) { console.warn('[CommunityDB] subscribeToRoomChat: not ready yet'); return null; }
     const key = `room-${roomId}`;
     if (this._subs[key]) this._subs[key].unsubscribe();
 
@@ -413,7 +476,6 @@ const CommunityDB = {
    * Callback receives the raw new whisper row.
    */
   subscribeToWhispers(callback) {
-    if (!this.ready) { console.warn('[CommunityDB] subscribeToWhispers: not ready yet'); return null; }
     if (this._subs.whispers) this._subs.whispers.unsubscribe();
 
     this._subs.whispers = this._sb

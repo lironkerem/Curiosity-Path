@@ -93,27 +93,51 @@ const MemberProfileModal = {
                                     padding:0 0.5rem;line-height:1.5;">
                         </div>
 
+                        <!-- Level badge -->
+                        <div id="memberModalLevel"
+                             style="text-align:center;font-size:0.82rem;
+                                    color:var(--text-muted);margin-bottom:1rem;">
+                        </div>
+
                         <!-- Stats row -->
                         <div style="display:flex;justify-content:space-around;
-                                    margin-bottom:1.75rem;
+                                    margin-bottom:1rem;
                                     padding:1rem;
                                     border-radius:12px;
                                     background:var(--neuro-shadow-light,rgba(0,0,0,0.04));">
                             <div style="text-align:center;">
+                                <div id="memberModalKarma"
+                                     style="font-size:1.3rem;font-weight:700;color:var(--primary,#667eea);">—</div>
+                                <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">Karma</div>
+                            </div>
+                            <div style="text-align:center;">
+                                <div id="memberModalXP"
+                                     style="font-size:1.3rem;font-weight:700;color:var(--primary,#667eea);">—</div>
+                                <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">XP</div>
+                            </div>
+                            <div style="text-align:center;">
                                 <div id="memberModalSessions"
-                                     style="font-size:1.3rem;font-weight:700;color:var(--primary,#667eea);">0</div>
+                                     style="font-size:1.3rem;font-weight:700;color:var(--primary,#667eea);">—</div>
                                 <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">Sessions</div>
                             </div>
                             <div style="text-align:center;">
                                 <div id="memberModalGifts"
-                                     style="font-size:1.3rem;font-weight:700;color:var(--primary,#667eea);">0</div>
+                                     style="font-size:1.3rem;font-weight:700;color:var(--primary,#667eea);">—</div>
                                 <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">Gifts</div>
                             </div>
-                            <div style="text-align:center;">
-                                <div id="memberModalKarma"
-                                     style="font-size:1.3rem;font-weight:700;color:var(--primary,#667eea);">0</div>
-                                <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">Karma</div>
-                            </div>
+                        </div>
+
+                        <!-- Activity counts -->
+                        <div id="memberModalActivity"
+                             style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
+                                    font-size:0.78rem;color:var(--text-muted);
+                                    margin-bottom:1rem;min-height:1.2rem;">
+                        </div>
+
+                        <!-- Badges -->
+                        <div id="memberModalBadges"
+                             style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
+                                    margin-bottom:1.25rem;min-height:1.5rem;">
                         </div>
 
                         <!-- Action buttons -->
@@ -271,6 +295,12 @@ const MemberProfileModal = {
                 return;
             }
             this._populate(profile);
+
+            // Fetch gamification data in parallel (non-blocking)
+            CommunityDB.getUserProgress(userId).then(g => {
+                if (g) this._populateGamification(g);
+            }).catch(() => {});
+
             loading.style.display = 'none';
             content.style.display = 'block';
         } catch (err) {
@@ -342,9 +372,57 @@ const MemberProfileModal = {
         const gifts = document.getElementById('memberModalGifts');
         if (gifts) gifts.textContent = (profile.gifts_given || 0).toLocaleString();
 
-        // Karma: not in getProfile select — show dash for other users
+        // Gamification data loaded separately via _populateGamification
+    },
+
+    _populateGamification(g) {
+        const levelTitles = {1:'Seeker',2:'Practitioner',3:'Adept',4:'Healer',5:'Master',
+                             6:'Sage',7:'Enlightened',8:'Buddha',9:'Light',10:'Emptiness'};
+
+        const level = document.getElementById('memberModalLevel');
+        if (level) {
+            const title = levelTitles[g.level] || 'Seeker';
+            level.textContent = `✦ Level ${g.level} · ${title}`;
+        }
+
         const karma = document.getElementById('memberModalKarma');
-        if (karma) karma.textContent = '—';
+        if (karma) karma.textContent = (g.karma ?? 0).toLocaleString();
+
+        const xp = document.getElementById('memberModalXP');
+        if (xp) xp.textContent = (g.xp ?? 0).toLocaleString();
+
+        const sessions = document.getElementById('memberModalSessions');
+        if (sessions) sessions.textContent = (g.totalSessions ?? 0).toLocaleString();
+
+        // Activity counts
+        const actEl = document.getElementById('memberModalActivity');
+        if (actEl) {
+            const items = [
+                g.totalTarotSpreads   > 0 ? `🔮 ${g.totalTarotSpreads} readings`      : null,
+                g.totalJournalEntries > 0 ? `📓 ${g.totalJournalEntries} journal entries` : null,
+                g.streak              > 0 ? `🔥 ${g.streak}-day streak`                : null,
+            ].filter(Boolean);
+            actEl.innerHTML = items.map(i => `<span>${i}</span>`).join('');
+        }
+
+        // Badges
+        const badgesEl = document.getElementById('memberModalBadges');
+        if (badgesEl) {
+            const earned = g.badges || [];
+            if (earned.length === 0) {
+                badgesEl.innerHTML = '';
+            } else {
+                const rarityColors = {common:'#9ca3af',uncommon:'#10b981',rare:'#3b82f6',epic:'#a855f7',legendary:'#f59e0b'};
+                badgesEl.innerHTML = [...earned].slice(-8).reverse().map(b => {
+                    const color = rarityColors[b.rarity] || rarityColors.common;
+                    return `<div title="${b.name || 'Badge'}"
+                                 style="width:32px;height:32px;border-radius:50%;
+                                        border:2px solid ${color};
+                                        display:flex;align-items:center;justify-content:center;
+                                        font-size:1.1rem;cursor:default;">${b.icon || '🏅'}</div>`;
+                }).join('');
+            }
+        }
     },
 
     // ============================================================================
