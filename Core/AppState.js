@@ -60,15 +60,17 @@ export default class AppState {
     this.isAuthenticated = false;
     this.activeTab = 'dashboard';
     this.data = null;
-    this.ready = this.init();
+    this.ready = Promise.resolve(this); // Don't load data until auth is confirmed
   }
 
   /**
-   * Initializes the app state by loading data
+   * Loads data after authentication is confirmed.
+   * Call this explicitly after checkAuth() succeeds.
    * @returns {Promise<AppState>} This instance when ready
    */
-  async init() {
+  async loadData() {
     this.data = await this.loadAppData();
+    this.ready = Promise.resolve(this);
     return this;
   }
 

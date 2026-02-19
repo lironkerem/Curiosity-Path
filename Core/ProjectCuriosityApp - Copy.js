@@ -543,9 +543,6 @@ export default class ProjectCuriosityApp {
         return this.auth.renderAuthScreen();
       }
 
-      // Load data now that auth is confirmed
-      await this.state.loadData();
-
       // Wait for state to be ready
       await this.state.ready;
 
