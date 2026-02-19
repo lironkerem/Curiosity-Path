@@ -223,6 +223,12 @@ const BaseSolarRoom = {
 
     this.renderDashboard();
     window.scrollTo(0, 0);
+
+    // ── Supabase presence ──────────────────────────────────────────────
+    this._setPresence();
+
+    // ── Load collective words from DB ──────────────────────────────────
+    this._loadCollectiveWords();
   },
 
   /**
@@ -805,6 +811,14 @@ const BaseSolarRoom = {
       
       this.userData.collectiveWord = word;
       this.userData.intentionShared = true;
+
+      // ── Persist to Supabase ────────────────────────────────────────────
+      if (window.CommunityDB && CommunityDB.ready) {
+        const collectiveRoomId = `${this._getSolarRoomId()}-collective`;
+        CommunityDB.sendRoomMessage(collectiveRoomId, word).catch(err => {
+          console.error('[BaseSolarRoom] submitWordToCollective DB error:', err);
+        });
+      }
       
       this.startCollectiveStep5();
       
@@ -821,9 +835,12 @@ const BaseSolarRoom = {
       const content = document.getElementById('collectiveIntentionContent');
       if (!content) return;
       
-      const mockWords = this._getMockCollectiveWords();
-      const wordCloudHTML = this._renderWordCloud(mockWords);
-      const totalWords = mockWords.length;
+      // PATCHED: prefer words loaded from DB, fall back to mock
+      const words = (this._dbCollectiveWords && this._dbCollectiveWords.length > 0)
+        ? this._dbCollectiveWords
+        : this._getMockCollectiveWords();
+      const wordCloudHTML = this._renderWordCloud(words);
+      const totalWords = words.length;
       
       content.innerHTML = `
         <div class="solar-popup-section" style="text-align: center;">
@@ -942,10 +959,80 @@ const BaseSolarRoom = {
     }));
   },
 
+  // ============================================================================
+  // SUPABASE INTEGRATION HELPERS (PRIVATE)
+  // ============================================================================
+
   /**
-   * Render word cloud
+   * Derive the Supabase/DB room_id for this solar season.
+   * @private
+   * @returns {string} e.g. 'spring-solar'
    */
-  _renderWordCloud(words) {
+  _getSolarRoomId() {
+    return `${this.config.name}-solar`;
+  },
+
+  /**
+   * Update Supabase presence to show user is in this solar room.
+   * @private
+   */
+  _setPresence() {
+    if (!window.CommunityDB || !CommunityDB.ready) return;
+    try {
+      const roomId   = this._getSolarRoomId();
+      const activity = `${this.config.emoji} ${this.config.displayName}`;
+      CommunityDB.setPresence('online', activity, roomId);
+
+      if (window.Core?.state) {
+        Core.state.currentRoom = roomId;
+        if (Core.state.currentUser) Core.state.currentUser.activity = activity;
+      }
+    } catch (err) {
+      console.error('[BaseSolarRoom] _setPresence error:', err);
+    }
+  },
+
+  /**
+   * Reset Supabase presence back to "available at hub".
+   * @private
+   */
+  _clearPresence() {
+    if (!window.CommunityDB || !CommunityDB.ready) return;
+    try {
+      CommunityDB.setPresence('online', '✨ Available', null);
+
+      if (window.Core?.state) {
+        Core.state.currentRoom = null;
+        if (Core.state.currentUser) Core.state.currentUser.activity = '✨ Available';
+      }
+    } catch (err) {
+      console.error('[BaseSolarRoom] _clearPresence error:', err);
+    }
+  },
+
+  /**
+   * Load collective words from Supabase for this season.
+   * Falls back to mock data if DB unavailable.
+   * Populates this._dbCollectiveWords for use in startCollectiveStep5.
+   * @private
+   */
+  async _loadCollectiveWords() {
+    if (!window.CommunityDB || !CommunityDB.ready) return;
+    try {
+      const collectiveRoomId = `${this._getSolarRoomId()}-collective`;
+      const rows = await CommunityDB.getRoomMessages(collectiveRoomId, 100);
+
+      if (rows && rows.length > 0) {
+        this._dbCollectiveWords = rows.map(row => ({
+          word:      row.message,
+          timestamp: new Date(row.created_at).getTime()
+        }));
+      }
+    } catch (err) {
+      console.warn('[BaseSolarRoom] _loadCollectiveWords error:', err);
+    }
+  },
+
     if (!words || words.length === 0) {
       return '<p style="color: rgba(224,224,255,0.5);">No words yet. Be the first to share.</p>';
     }

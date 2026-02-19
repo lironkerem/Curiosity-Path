@@ -95,10 +95,6 @@ try {
  */
 export const supabase = supabaseClient;
 
-// Expose globally so Community Hub can reuse the same authenticated session
-if (typeof window !== 'undefined') {
-  window.AppSupabase = supabaseClient;
-}
 /* =========================================================
    HELPER FUNCTIONS
    ========================================================= */

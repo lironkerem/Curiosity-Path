@@ -6,14 +6,7 @@
  * @class TarotRoom
  * @extends PracticeRoom
  * @mixes ChatMixin
- * @version 3.1.0
- * 
- * Restored Features:
- * - Dual tab system (Daily Collective + Personal Draw)
- * - Community chat sections for both tabs
- * - Participant list sidebar
- * - Rich card display styling
- * - Complete tarot deck with all meanings
+ * @version 3.2.0 — PATCHED: Chat loads from Supabase DB with realtime
  * 
  * ═══════════════════════════════════════════════════════════════════════════
  */
@@ -38,10 +31,10 @@ class TarotRoom extends PracticeRoom {
         this.initializeTarotData();
         
         // Room state
-        this.state.dailyCard = null;
+        this.state.dailyCard    = null;
         this.state.personalDeck = [];
         this.state.personalDrawn = false;
-        this.state.currentTab = 'daily';
+        this.state.currentTab   = 'daily';
     }
     
     // ═══════════════════════════════════════════════════════════════════════
@@ -54,9 +47,9 @@ class TarotRoom extends PracticeRoom {
         
         this.SUIT_NAMES = {
             pentacles: 'Pentacles',
-            swords: 'Swords',
-            cups: 'Cups',
-            wands: 'Wands'
+            swords:    'Swords',
+            cups:      'Cups',
+            wands:     'Wands'
         };
         
         this.COURT_RANKS = {
@@ -71,10 +64,10 @@ class TarotRoom extends PracticeRoom {
             const response = await fetch('./js/Rooms/tarot-data.json');
             if (response.ok) {
                 const data = await response.json();
-                this.MAJOR_ARCANA_NAMES = data.majorArcana.names;
+                this.MAJOR_ARCANA_NAMES    = data.majorArcana.names;
                 this.MAJOR_ARCANA_MEANINGS = data.majorArcana.meanings;
                 this.MINOR_ARCANA_MEANINGS = data.minorArcana;
-                this.COURT_CARD_MEANINGS = data.courtCards;
+                this.COURT_CARD_MEANINGS   = data.courtCards;
             } else {
                 this.loadInlineTarotData();
             }
@@ -87,25 +80,25 @@ class TarotRoom extends PracticeRoom {
     // Fallback: inline data if JSON file unavailable
     loadInlineTarotData() {
         this.MAJOR_ARCANA_NAMES = {
-            0: "The Fool", 1: "The Magician", 2: "The High Priestess", 3: "The Empress",
-            4: "The Emperor", 5: "The Hierophant", 6: "The Lovers", 7: "The Chariot",
-            8: "Strength", 9: "The Hermit", 10: "Wheel of Fortune", 11: "Justice",
-            12: "The Hanged Man", 13: "Death", 14: "Temperance", 15: "The Devil",
-            16: "The Tower", 17: "The Star", 18: "The Moon", 19: "The Sun",
-            20: "Judgement", 21: "The World"
+            0: "The Fool",        1: "The Magician",     2: "The High Priestess", 3: "The Empress",
+            4: "The Emperor",     5: "The Hierophant",   6: "The Lovers",         7: "The Chariot",
+            8: "Strength",        9: "The Hermit",       10: "Wheel of Fortune",  11: "Justice",
+            12: "The Hanged Man", 13: "Death",           14: "Temperance",        15: "The Devil",
+            16: "The Tower",      17: "The Star",        18: "The Moon",          19: "The Sun",
+            20: "Judgement",      21: "The World"
         };
         
         this.MAJOR_ARCANA_MEANINGS = {
-            0: "A sacred beginning, full of faith and curiosity. Trust the unknown path before you.",
-            1: "All the tools are in your hands. You are the bridge between spirit and matter.",
-            2: "Silence holds the answers you seek. Trust your inner knowing.",
-            3: "The Earth mirrors your abundance. Nurture what you love.",
-            4: "True power is built through order and wisdom. Take authority over your life.",
-            5: "Seek guidance in tradition and timeless truth. Knowledge becomes lived wisdom.",
-            6: "Union of soul and choice of heart. Harmony is born when love aligns with truth.",
-            7: "Willpower shapes destiny. Victory is achieved through balance of heart and mind.",
-            8: "Gentle courage tames inner storms. True strength is soft yet unbreakable.",
-            9: "Withdraw to reconnect with your light. The answers you seek are within.",
+            0:  "A sacred beginning, full of faith and curiosity. Trust the unknown path before you.",
+            1:  "All the tools are in your hands. You are the bridge between spirit and matter.",
+            2:  "Silence holds the answers you seek. Trust your inner knowing.",
+            3:  "The Earth mirrors your abundance. Nurture what you love.",
+            4:  "True power is built through order and wisdom. Take authority over your life.",
+            5:  "Seek guidance in tradition and timeless truth. Knowledge becomes lived wisdom.",
+            6:  "Union of soul and choice of heart. Harmony is born when love aligns with truth.",
+            7:  "Willpower shapes destiny. Victory is achieved through balance of heart and mind.",
+            8:  "Gentle courage tames inner storms. True strength is soft yet unbreakable.",
+            9:  "Withdraw to reconnect with your light. The answers you seek are within.",
             10: "Life turns in divine rhythm. Every rise and fall carries hidden blessings.",
             11: "The scales always balance in time. Choose integrity.",
             12: "Surrender brings revelation. Sometimes you must pause to see from a higher angle.",
@@ -122,105 +115,106 @@ class TarotRoom extends PracticeRoom {
         
         this.MINOR_ARCANA_MEANINGS = {
             pentacles: {
-                1: "New financial opportunity or material beginning. Plant seeds for future abundance.",
-                2: "Balance between multiple priorities. Juggling responsibilities with grace.",
-                3: "Collaboration and teamwork. Your skills are recognized and valued.",
-                4: "Holding on too tightly. Security through control or fear of loss.",
-                5: "Financial or material hardship. Temporary struggle leads to resilience.",
-                6: "Generosity and fair exchange. Giving and receiving in balance.",
-                7: "Patience with long-term investments. Results take time to manifest.",
-                8: "Mastery through practice. Dedication to craft and skill development.",
-                9: "Self-sufficiency and material comfort. Enjoying the fruits of your labor.",
+                1:  "New financial opportunity or material beginning. Plant seeds for future abundance.",
+                2:  "Balance between multiple priorities. Juggling responsibilities with grace.",
+                3:  "Collaboration and teamwork. Your skills are recognized and valued.",
+                4:  "Holding on too tightly. Security through control or fear of loss.",
+                5:  "Financial or material hardship. Temporary struggle leads to resilience.",
+                6:  "Generosity and fair exchange. Giving and receiving in balance.",
+                7:  "Patience with long-term investments. Results take time to manifest.",
+                8:  "Mastery through practice. Dedication to craft and skill development.",
+                9:  "Self-sufficiency and material comfort. Enjoying the fruits of your labor.",
                 10: "Lasting wealth and legacy. Family, tradition, and generational abundance."
             },
             swords: {
-                1: "Mental clarity and breakthrough. Truth cuts through confusion.",
-                2: "Difficult decision or stalemate. Time to weigh options carefully.",
-                3: "Heartbreak or painful truth. Necessary release brings healing.",
-                4: "Rest and recovery. Taking time to recharge mentally.",
-                5: "Conflict and defeat. Learning humility through challenge.",
-                6: "Transition to calmer waters. Moving away from turmoil.",
-                7: "Deception or strategy. Proceed with awareness and caution.",
-                8: "Mental restriction. Breaking free from limiting beliefs.",
-                9: "Anxiety and worry. Nightmares that lose power in daylight.",
+                1:  "Mental clarity and breakthrough. Truth cuts through confusion.",
+                2:  "Difficult decision or stalemate. Time to weigh options carefully.",
+                3:  "Heartbreak or painful truth. Necessary release brings healing.",
+                4:  "Rest and recovery. Taking time to recharge mentally.",
+                5:  "Conflict and defeat. Learning humility through challenge.",
+                6:  "Transition to calmer waters. Moving away from turmoil.",
+                7:  "Deception or strategy. Proceed with awareness and caution.",
+                8:  "Mental restriction. Breaking free from limiting beliefs.",
+                9:  "Anxiety and worry. Nightmares that lose power in daylight.",
                 10: "Ending of a difficult cycle. Rock bottom becomes foundation."
             },
             cups: {
-                1: "New emotional beginning. Opening your heart to love and connection.",
-                2: "Partnership and mutual attraction. Harmony between two souls.",
-                3: "Celebration and friendship. Joy shared multiplies.",
-                4: "Emotional apathy or missed opportunity. Look beyond dissatisfaction.",
-                5: "Loss and disappointment. Grief that teaches perspective.",
-                6: "Nostalgia and innocence. Returning to simpler joys.",
-                7: "Fantasy and illusion. Choose wisely between dreams and reality.",
-                8: "Walking away from what no longer serves. Seeking deeper meaning.",
-                9: "Emotional fulfillment and contentment. Wishes coming true.",
+                1:  "New emotional beginning. Opening your heart to love and connection.",
+                2:  "Partnership and mutual attraction. Harmony between two souls.",
+                3:  "Celebration and friendship. Joy shared multiplies.",
+                4:  "Emotional apathy or missed opportunity. Look beyond dissatisfaction.",
+                5:  "Loss and disappointment. Grief that teaches perspective.",
+                6:  "Nostalgia and innocence. Returning to simpler joys.",
+                7:  "Fantasy and illusion. Choose wisely between dreams and reality.",
+                8:  "Walking away from what no longer serves. Seeking deeper meaning.",
+                9:  "Emotional fulfillment and contentment. Wishes coming true.",
                 10: "Lasting happiness and harmony. Love overflowing in all forms."
             },
             wands: {
-                1: "Creative inspiration and new venture. Pure potential ready to ignite.",
-                2: "Planning and vision. The world is yours to explore.",
-                3: "Expansion and foresight. Leadership with strategic thinking.",
-                4: "Celebration and homecoming. Achievement and stability.",
-                5: "Competition and conflict. Challenges that test resolve.",
-                6: "Victory and recognition. Success earned through effort.",
-                7: "Standing your ground. Defense of values and boundaries.",
-                8: "Swift action and momentum. Things moving quickly forward.",
-                9: "Resilience and persistence. Last push before completion.",
+                1:  "Creative inspiration and new venture. Pure potential ready to ignite.",
+                2:  "Planning and vision. The world is yours to explore.",
+                3:  "Expansion and foresight. Leadership with strategic thinking.",
+                4:  "Celebration and homecoming. Achievement and stability.",
+                5:  "Competition and conflict. Challenges that test resolve.",
+                6:  "Victory and recognition. Success earned through effort.",
+                7:  "Standing your ground. Defense of values and boundaries.",
+                8:  "Swift action and momentum. Things moving quickly forward.",
+                9:  "Resilience and persistence. Last push before completion.",
                 10: "Burden of responsibility. Strength to carry what must be carried."
             }
         };
         
         this.COURT_CARD_MEANINGS = {
             pentacles: {
-                'Page': "Studious and practical messenger. New opportunities in material realm.",
+                'Page':   "Studious and practical messenger. New opportunities in material realm.",
                 'Knight': "Reliable and methodical worker. Steady progress toward goals.",
-                'Queen': "Nurturing and prosperous provider. Grounded in abundance.",
-                'King': "Master of material world. Wealth through wisdom and patience."
+                'Queen':  "Nurturing and prosperous provider. Grounded in abundance.",
+                'King':   "Master of material world. Wealth through wisdom and patience."
             },
             swords: {
-                'Page': "Curious and vigilant observer. Mental agility and truth-seeking.",
+                'Page':   "Curious and vigilant observer. Mental agility and truth-seeking.",
                 'Knight': "Swift and direct communicator. Action driven by intellect.",
-                'Queen': "Clear-minded and independent thinker. Wisdom through experience.",
-                'King': "Authoritative and analytical leader. Justice and mental mastery."
+                'Queen':  "Clear-minded and independent thinker. Wisdom through experience.",
+                'King':   "Authoritative and analytical leader. Justice and mental mastery."
             },
             cups: {
-                'Page': "Sensitive and intuitive messenger. Emotional openness and creativity.",
+                'Page':   "Sensitive and intuitive messenger. Emotional openness and creativity.",
                 'Knight': "Romantic and idealistic dreamer. Following the heart's calling.",
-                'Queen': "Compassionate and emotionally intelligent. Nurturing through love.",
-                'King': "Emotionally balanced and wise. Mastery of feelings and relationships."
+                'Queen':  "Compassionate and emotionally intelligent. Nurturing through love.",
+                'King':   "Emotionally balanced and wise. Mastery of feelings and relationships."
             },
             wands: {
-                'Page': "Enthusiastic and adventurous explorer. Creative spark and potential.",
+                'Page':   "Enthusiastic and adventurous explorer. Creative spark and potential.",
                 'Knight': "Passionate and impulsive adventurer. Bold action and courage.",
-                'Queen': "Confident and charismatic leader. Warmth and determination.",
-                'King': "Visionary and inspirational leader. Creative mastery and enterprise."
+                'Queen':  "Confident and charismatic leader. Warmth and determination.",
+                'King':   "Visionary and inspirational leader. Creative mastery and enterprise."
             }
         };
     }
     
     // ═══════════════════════════════════════════════════════════════════════
-    // OVERRIDE: ON ENTER
+    // LIFECYCLE OVERRIDE: ON ENTER
     // ═══════════════════════════════════════════════════════════════════════
     
     onEnter() {
-        // Draw daily card and build deck
+        // Draw daily card and build personal deck
         this.drawDailyCard();
         this.state.personalDeck = this.buildFullDeck();
         
-        // Render daily card
+        // Render daily card and scroll to top
         setTimeout(() => {
             this.renderDailyCard();
-            
-            // Scroll to top
             const mainContent = document.querySelector(`#${this.roomId}View .tarot-main`);
             if (mainContent) mainContent.scrollTop = 0;
             window.scrollTo(0, 0);
         }, 100);
+
+        // PATCHED: Load chat history from Supabase for both channels
+        this.initializeChat();
     }
     
     // ═══════════════════════════════════════════════════════════════════════
-    // OVERRIDE: BUILD BODY WITH TAB SYSTEM
+    // BUILD BODY WITH TAB SYSTEM
     // ═══════════════════════════════════════════════════════════════════════
     
     buildBody() {
@@ -334,29 +328,29 @@ class TarotRoom extends PracticeRoom {
     // ═══════════════════════════════════════════════════════════════════════
     
     switchTab(tabName) {
-        const dailyTab = document.getElementById(`${this.roomId}DailyTab`);
-        const personalTab = document.getElementById(`${this.roomId}PersonalTab`);
-        const dailyBtn = document.getElementById(`${this.roomId}TabDaily`);
-        const personalBtn = document.getElementById(`${this.roomId}TabPersonal`);
+        const dailyTab     = document.getElementById(`${this.roomId}DailyTab`);
+        const personalTab  = document.getElementById(`${this.roomId}PersonalTab`);
+        const dailyBtn     = document.getElementById(`${this.roomId}TabDaily`);
+        const personalBtn  = document.getElementById(`${this.roomId}TabPersonal`);
         
         if (tabName === 'daily') {
-            dailyTab.style.display = 'block';
+            dailyTab.style.display    = 'block';
             personalTab.style.display = 'none';
-            dailyBtn.style.background = 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)';
-            dailyBtn.style.color = 'white';
-            dailyBtn.style.borderBottom = '3px solid #8b5cf6';
-            personalBtn.style.background = 'transparent';
-            personalBtn.style.color = 'var(--text)';
+            dailyBtn.style.background    = 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)';
+            dailyBtn.style.color         = 'white';
+            dailyBtn.style.borderBottom  = '3px solid #8b5cf6';
+            personalBtn.style.background   = 'transparent';
+            personalBtn.style.color        = 'var(--text)';
             personalBtn.style.borderBottom = '3px solid transparent';
         } else {
-            dailyTab.style.display = 'none';
+            dailyTab.style.display    = 'none';
             personalTab.style.display = 'block';
-            personalBtn.style.background = 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)';
-            personalBtn.style.color = 'white';
+            personalBtn.style.background   = 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)';
+            personalBtn.style.color        = 'white';
             personalBtn.style.borderBottom = '3px solid #8b5cf6';
-            dailyBtn.style.background = 'transparent';
-            dailyBtn.style.color = 'var(--text)';
-            dailyBtn.style.borderBottom = '3px solid transparent';
+            dailyBtn.style.background    = 'transparent';
+            dailyBtn.style.color         = 'var(--text)';
+            dailyBtn.style.borderBottom  = '3px solid transparent';
         }
         
         this.state.currentTab = tabName;
@@ -370,10 +364,10 @@ class TarotRoom extends PracticeRoom {
         return [
             // Major Arcana (0-21)
             ...Array.from({ length: 22 }, (_, i) => ({ type: 'major', number: i, suit: 'major' })),
-            // Minor Arcana (1-10 + Court cards 11-14 for each suit)
-            ...this.suits.flatMap(suit => 
+            // Minor Arcana + Court cards for each suit
+            ...this.suits.flatMap(suit =>
                 Array.from({ length: 14 }, (_, i) => ({
-                    type: i < 10 ? 'minor' : 'court',
+                    type:   i < 10 ? 'minor' : 'court',
                     number: i + 1,
                     suit
                 }))
@@ -392,19 +386,19 @@ class TarotRoom extends PracticeRoom {
     
     getCardName(number, suit = 'major') {
         if (suit === 'major') return this.MAJOR_ARCANA_NAMES[number] || "The Fool";
-        if (number <= 10) return `${number} of ${this.SUIT_NAMES[suit]}`;
+        if (number <= 10)     return `${number} of ${this.SUIT_NAMES[suit]}`;
         return `${this.COURT_RANKS[number]} of ${this.SUIT_NAMES[suit]}`;
     }
     
     getCardMeaning(number, suit = 'major') {
         if (suit === 'major') return this.MAJOR_ARCANA_MEANINGS[number] || '';
-        if (number <= 10) return this.MINOR_ARCANA_MEANINGS[suit]?.[number] || '';
+        if (number <= 10)     return this.MINOR_ARCANA_MEANINGS[suit]?.[number] || '';
         return this.COURT_CARD_MEANINGS[suit]?.[this.COURT_RANKS[number]] || '';
     }
     
     getCardImage(number, suit = 'major') {
         if (suit === 'major') {
-            const n = String(number).padStart(2, '0');
+            const n    = String(number).padStart(2, '0');
             const name = this.getCardName(number, 'major').replace(/\s+/g, '');
             return `${this.TAROT_BASE_URL}${n}-${name}.jpg`;
         }
@@ -433,7 +427,6 @@ class TarotRoom extends PracticeRoom {
     renderDailyCard() {
         const container = document.getElementById(`${this.roomId}DailyCardContainer`);
         if (!container || !this.state.dailyCard) return;
-        
         container.innerHTML = this.buildCardDisplay(this.state.dailyCard);
     }
     

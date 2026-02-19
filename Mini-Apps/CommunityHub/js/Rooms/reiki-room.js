@@ -6,13 +6,7 @@
  * @class ReikiRoom
  * @extends PracticeRoom
  * @mixes ChatMixin
- * @version 3.2.0
- * 
- * Optimizations Applied:
- * - External JSON for chakra data
- * - Extracted shared chakra display component
- * - Simplified method binding
- * - Removed redundant methods
+ * @version 3.3.0 — PATCHED: Chat loads from Supabase DB with realtime
  * 
  * ═══════════════════════════════════════════════════════════════════════════
  */
@@ -204,29 +198,29 @@ class ReikiRoom extends PracticeRoom {
         };
         
         this.CHAKRA_OPTIONS = [
-            { value: 'root', label: 'Root Chakra', color: 'Red', 
-              image: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Muladhara1.jpg',
+            { value: 'root',       label: 'Root Chakra',   color: 'Red',
+              image:  'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Muladhara1.jpg',
               image2: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Muladhara2.jpg' },
-            { value: 'sacral', label: 'Sacral Chakra', color: 'Orange',
-              image: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Svadhistana1.jpg',
+            { value: 'sacral',     label: 'Sacral Chakra', color: 'Orange',
+              image:  'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Svadhistana1.jpg',
               image2: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Svadhistana2.jpg' },
-            { value: 'solar', label: 'Solar Plexus', color: 'Yellow',
-              image: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Manipura1.jpg',
+            { value: 'solar',      label: 'Solar Plexus',  color: 'Yellow',
+              image:  'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Manipura1.jpg',
               image2: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Manipura2.jpg' },
-            { value: 'heart', label: 'Heart Chakra', color: 'Green',
-              image: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Anahata1.jpg',
+            { value: 'heart',      label: 'Heart Chakra',  color: 'Green',
+              image:  'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Anahata1.jpg',
               image2: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Anahata2.jpg' },
-            { value: 'throat', label: 'Throat Chakra', color: 'Blue',
-              image: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Vissudha1.jpg',
+            { value: 'throat',     label: 'Throat Chakra', color: 'Blue',
+              image:  'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Vissudha1.jpg',
               image2: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Vissudha2.jpg' },
-            { value: 'third-eye', label: 'Third Eye', color: 'Indigo',
-              image: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Ajna1.jpg',
+            { value: 'third-eye',  label: 'Third Eye',     color: 'Indigo',
+              image:  'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Ajna1.jpg',
               image2: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Ajna2.jpg',
-              practices: ['Focus on space between eyebrows', 'Close eyes and look inward', 'Trust your intuition on one decision', 'Meditate in darkness for 5 minutes', 'Notice synchronicities today', 'Visualize indigo light at third eye', 'Ask a question and listen for inner answer', 'Practice seeing with eyes closed', 'Trust your first instinct', 'Say: I see clearly'],
+              practices:  ['Focus on space between eyebrows', 'Close eyes and look inward', 'Trust your intuition on one decision', 'Meditate in darkness for 5 minutes', 'Notice synchronicities today', 'Visualize indigo light at third eye', 'Ask a question and listen for inner answer', 'Practice seeing with eyes closed', 'Trust your first instinct', 'Say: I see clearly'],
               practices2: ['Gently press center of forehead', 'Imagine opening inner eye', 'Write down one intuitive hit', 'Notice patterns in your life', 'Practice visualization', 'Breathe indigo light through third eye', 'Trust gut feelings', 'Observe dreams and symbols', 'Release need to understand everything', 'Say: My intuition guides me'],
               inquiry: 'What does my intuition know that my mind doesn\'t?' },
-            { value: 'crown', label: 'Crown Chakra', color: 'Violet',
-              image: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Sahasrara1.jpg',
+            { value: 'crown',      label: 'Crown Chakra',  color: 'Violet',
+              image:  'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Sahasrara1.jpg',
               image2: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Sahasrara2.jpg' }
         ];
         
@@ -234,9 +228,9 @@ class ReikiRoom extends PracticeRoom {
         this.CHAKRA_OPTIONS.forEach(opt => {
             const dayKey = scheduleKeys[opt.value];
             if (dayKey && this.CHAKRA_SCHEDULE[dayKey]) {
-                opt.practices = opt.practices || this.CHAKRA_SCHEDULE[dayKey].practice;
+                opt.practices  = opt.practices  || this.CHAKRA_SCHEDULE[dayKey].practice;
                 opt.practices2 = opt.practices2 || this.CHAKRA_SCHEDULE[dayKey].practice2;
-                opt.inquiry = opt.inquiry || this.CHAKRA_SCHEDULE[dayKey].inquiry;
+                opt.inquiry    = opt.inquiry    || this.CHAKRA_SCHEDULE[dayKey].inquiry;
             }
         });
     }
@@ -259,7 +253,8 @@ class ReikiRoom extends PracticeRoom {
     }
     
     // ═══════════════════════════════════════════════════════════════════════
-    // OVERRIDE: ON ENTER - SCROLL TO TOP
+    // LIFECYCLE OVERRIDE: ON ENTER
+    // PATCHED: also loads both chat channels from Supabase with realtime
     // ═══════════════════════════════════════════════════════════════════════
     
     onEnter() {
@@ -268,10 +263,13 @@ class ReikiRoom extends PracticeRoom {
             if (mainContent) mainContent.scrollTop = 0;
             window.scrollTo(0, 0);
         }, 100);
+
+        // PATCHED: load chat history from Supabase for both channels
+        this.initializeChat();
     }
     
     // ═══════════════════════════════════════════════════════════════════════
-    // SHARED COMPONENT: CHAKRA DISPLAY (OPTIMIZATION #3)
+    // SHARED COMPONENT: CHAKRA DISPLAY
     // ═══════════════════════════════════════════════════════════════════════
     
     buildChakraDisplay(chakra, imageIndex, onPrev, onNext) {
@@ -316,7 +314,7 @@ class ReikiRoom extends PracticeRoom {
     }
     
     // ═══════════════════════════════════════════════════════════════════════
-    // OVERRIDE: BUILD BODY WITH TAB SYSTEM
+    // BUILD BODY WITH TAB SYSTEM
     // ═══════════════════════════════════════════════════════════════════════
     
     buildBody() {
@@ -447,29 +445,29 @@ class ReikiRoom extends PracticeRoom {
     // ═══════════════════════════════════════════════════════════════════════
     
     switchTab(tabName) {
-        const dailyTab = document.getElementById(`${this.roomId}DailyTab`);
+        const dailyTab    = document.getElementById(`${this.roomId}DailyTab`);
         const personalTab = document.getElementById(`${this.roomId}PersonalTab`);
-        const dailyBtn = document.getElementById(`${this.roomId}TabDaily`);
+        const dailyBtn    = document.getElementById(`${this.roomId}TabDaily`);
         const personalBtn = document.getElementById(`${this.roomId}TabPersonal`);
         
         if (tabName === 'daily') {
-            dailyTab.style.display = 'block';
+            dailyTab.style.display    = 'block';
             personalTab.style.display = 'none';
-            dailyBtn.style.background = 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)';
-            dailyBtn.style.color = 'white';
-            dailyBtn.style.borderBottom = '3px solid #8b5cf6';
-            personalBtn.style.background = 'transparent';
-            personalBtn.style.color = 'var(--text)';
+            dailyBtn.style.background    = 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)';
+            dailyBtn.style.color         = 'white';
+            dailyBtn.style.borderBottom  = '3px solid #8b5cf6';
+            personalBtn.style.background   = 'transparent';
+            personalBtn.style.color        = 'var(--text)';
             personalBtn.style.borderBottom = '3px solid transparent';
         } else {
-            dailyTab.style.display = 'none';
+            dailyTab.style.display    = 'none';
             personalTab.style.display = 'block';
-            personalBtn.style.background = 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)';
-            personalBtn.style.color = 'white';
+            personalBtn.style.background   = 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)';
+            personalBtn.style.color        = 'white';
             personalBtn.style.borderBottom = '3px solid #8b5cf6';
-            dailyBtn.style.background = 'transparent';
-            dailyBtn.style.color = 'var(--text)';
-            dailyBtn.style.borderBottom = '3px solid transparent';
+            dailyBtn.style.background    = 'transparent';
+            dailyBtn.style.color         = 'var(--text)';
+            dailyBtn.style.borderBottom  = '3px solid transparent';
         }
         
         this.state.currentTab = tabName;
@@ -522,14 +520,14 @@ class ReikiRoom extends PracticeRoom {
     
     startPersonalSession() {
         const select = document.getElementById(`${this.roomId}PersonalFocus`);
-        const focus = select.value;
+        const focus  = select.value;
         
         if (!focus) {
             Core.showToast('Please select a focus');
             return;
         }
         
-        this.state.personalFocus = focus;
+        this.state.personalFocus      = focus;
         this.state.personalImageIndex = 0;
         const selected = this.CHAKRA_OPTIONS.find(opt => opt.value === focus);
         

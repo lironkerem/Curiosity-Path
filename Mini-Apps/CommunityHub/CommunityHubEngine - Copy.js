@@ -255,7 +255,6 @@ class CommunityHubEngine {
         this.loadScript('https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.min.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/core.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/supabase-client.js'),
-        this.loadScript('/Mini-Apps/CommunityHub/js/community-supabase.js'),
       ]);
 
       // GROUP 2: Modules that depend on core (parallel)

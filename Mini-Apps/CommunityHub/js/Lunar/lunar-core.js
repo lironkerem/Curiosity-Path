@@ -491,6 +491,13 @@ class LunarRoom {
             window.currentLunarRoom = this;
             this.renderRoomDashboard();
             window.scrollTo(0, 0);
+
+            // ── Supabase presence ──────────────────────────────────────────
+            this._setPresence();
+
+            // ── Load collective words from DB ──────────────────────────────
+            this._loadCollectiveWords();
+
         } catch (error) {
             console.error('Error entering room:', error);
             if (window.Core) {
@@ -504,6 +511,9 @@ class LunarRoom {
      */
     leaveRoom() {
         try {
+            // ── Supabase presence ──────────────────────────────────────────
+            this._clearPresence();
+
             // Cleanup
             this._clearTimer();
             this._removeEventListeners();
@@ -1315,6 +1325,14 @@ class LunarRoom {
             }
             this.collectiveWords.push({ word: sanitized, timestamp: Date.now() });
 
+            // ── Persist to Supabase ────────────────────────────────────────
+            if (window.CommunityDB && CommunityDB.ready) {
+                const collectiveRoomId = `${this._getLunarRoomId()}-collective`;
+                CommunityDB.sendRoomMessage(collectiveRoomId, sanitized).catch(err => {
+                    console.error('[LunarRoom] submitWordToCollective DB error:', err);
+                });
+            }
+
             this.startCollectiveStep5();
 
         } catch (error) {
@@ -1522,7 +1540,31 @@ class LunarRoom {
      * @returns {number} Random presence count
      */
     getLivingPresenceCount() {
-        return Math.floor(Math.random() * 8) + 3;
+        // Return cached value immediately; refresh async from Supabase
+        if (typeof this._cachedPresenceCount === 'number') {
+            return this._cachedPresenceCount;
+        }
+
+        // First call: seed with random, then update from DB
+        this._cachedPresenceCount = Math.floor(Math.random() * 8) + 3;
+
+        if (window.CommunityDB && CommunityDB.ready) {
+            const roomId = this._getLunarRoomId();
+            CommunityDB.getRoomPresence(roomId)
+                .then(count => {
+                    if (typeof count === 'number') {
+                        this._cachedPresenceCount = count;
+                        // Refresh the live count in DOM if dashboard is still visible
+                        const el = document.querySelector('.lunar-live-presence span');
+                        if (el) el.textContent = `${count} members in circle`;
+                    }
+                })
+                .catch(err => {
+                    console.warn('[LunarRoom] getLivingPresenceCount DB error:', err);
+                });
+        }
+
+        return this._cachedPresenceCount;
     }
 
     /**
@@ -1552,6 +1594,87 @@ class LunarRoom {
     getCollectiveWordsCount() {
         const words = this.collectiveWords || this.getMockCollectiveWords();
         return words.length;
+    }
+
+    // ============================================================================
+    // SUPABASE INTEGRATION HELPERS (PRIVATE)
+    // ============================================================================
+
+    /**
+     * Derive the Supabase/DB room_id for this lunar phase.
+     * Maps cssPrefix → hyphenated room ID used in community_presence.
+     * @private
+     * @returns {string}
+     */
+    _getLunarRoomId() {
+        const map = {
+            newmoon:    'new-moon',
+            waxingmoon: 'waxing-moon',
+            fullmoon:   'full-moon',
+            waningmoon: 'waning-moon'
+        };
+        return map[this.config.cssPrefix] || this.config.cssPrefix;
+    }
+
+    /**
+     * Update Supabase presence to show user is in this lunar room.
+     * @private
+     */
+    _setPresence() {
+        if (!window.CommunityDB || !CommunityDB.ready) return;
+        try {
+            const roomId   = this._getLunarRoomId();
+            const activity = `${this.config.emoji} ${this.config.name}`;
+            CommunityDB.setPresence('online', activity, roomId);
+
+            if (window.Core?.state) {
+                Core.state.currentRoom = roomId;
+                if (Core.state.currentUser) Core.state.currentUser.activity = activity;
+            }
+        } catch (err) {
+            console.error('[LunarRoom] _setPresence error:', err);
+        }
+    }
+
+    /**
+     * Reset Supabase presence back to "available at hub".
+     * @private
+     */
+    _clearPresence() {
+        if (!window.CommunityDB || !CommunityDB.ready) return;
+        try {
+            CommunityDB.setPresence('online', '✨ Available', null);
+
+            if (window.Core?.state) {
+                Core.state.currentRoom = null;
+                if (Core.state.currentUser) Core.state.currentUser.activity = '✨ Available';
+            }
+        } catch (err) {
+            console.error('[LunarRoom] _clearPresence error:', err);
+        }
+    }
+
+    /**
+     * Load collective words from Supabase for this phase.
+     * Falls back to mock data if DB unavailable.
+     * Updates this.collectiveWords in place.
+     * @private
+     */
+    async _loadCollectiveWords() {
+        if (!window.CommunityDB || !CommunityDB.ready) return;
+        try {
+            const collectiveRoomId = `${this._getLunarRoomId()}-collective`;
+            const rows = await CommunityDB.getRoomMessages(collectiveRoomId, 100);
+
+            if (rows && rows.length > 0) {
+                this.collectiveWords = rows.map(row => ({
+                    word:      row.message,
+                    timestamp: new Date(row.created_at).getTime()
+                }));
+            }
+        } catch (err) {
+            console.warn('[LunarRoom] _loadCollectiveWords error:', err);
+        }
     }
 
     /**

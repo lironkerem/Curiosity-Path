@@ -6,7 +6,7 @@
  * @class CampfireRoom
  * @extends PracticeRoom
  * @mixes ChatMixin
- * @version 3.0.0
+ * @version 3.1.0 — PATCHED: Chat loads from Supabase DB with realtime
  * 
  * ═══════════════════════════════════════════════════════════════════════════
  */
@@ -34,11 +34,14 @@ class CampfireRoom extends PracticeRoom {
     // ═══════════════════════════════════════════════════════════════════════
     
     onInit() {
-        this.loadMessagesFromStorage('main');
+        // PATCHED: no longer pre-loading from localStorage.
+        // History loads from Supabase in onEnter() after the DOM is ready.
     }
     
     onEnter() {
-        this.renderSavedMessages('main');
+        // PATCHED: load chat history from Supabase and subscribe to realtime.
+        // Falls back to localStorage rendering if DB is not available.
+        this.loadRoomChatFromDB('main');
     }
     
     // ═══════════════════════════════════════════════════════════════════════
@@ -111,12 +114,12 @@ class CampfireRoom extends PracticeRoom {
     }
     
     buildParticipantsList() {
-        // Sample participants
+        // Sample participants — will be replaced by real presence in a future pass
         const participants = [
             { name: 'Alice', country: '🇺🇸 United States', color: '#667eea' },
-            { name: 'Marco', country: '🇮🇹 Italy', color: '#f093fb' },
-            { name: 'Yuki', country: '🇯🇵 Japan', color: '#4facfe' },
-            { name: 'Sofia', country: '🇧🇷 Brazil', color: '#43e97b' }
+            { name: 'Marco', country: '🇮🇹 Italy',         color: '#f093fb' },
+            { name: 'Yuki',  country: '🇯🇵 Japan',          color: '#4facfe' },
+            { name: 'Sofia', country: '🇧🇷 Brazil',         color: '#43e97b' }
         ];
         
         return participants.map(p => `

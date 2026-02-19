@@ -5,7 +5,7 @@
  * 
  * @class PracticeRoom
  * @description Base class for all practice rooms with shared functionality
- * @version 3.0.0
+ * @version 3.1.0 — PATCHED: Supabase presence tracking in all lifecycle methods
  * 
  * Features:
  * - Room lifecycle management
@@ -13,12 +13,14 @@
  * - Event handling
  * - Room card generation
  * - Template system for customization
+ * - ✅ Presence tracking on enter/leave (all rooms, no per-room code needed)
  * 
  * Dependencies:
  * - Core (navigation, toast notifications)
  * - SafetyBar (safety modals)
  * - CommunityModule (safety actions)
  * - Rituals (closing ceremony)
+ * - CommunityDB (presence tracking)
  * 
  * ═══════════════════════════════════════════════════════════════════════════
  */
@@ -75,8 +77,9 @@ class PracticeRoom {
     }
     
     /**
-     * Enter the practice room
-     * Creates view and navigates to it
+     * Enter the practice room.
+     * Creates view, navigates, sets up listeners.
+     * PATCHED: Updates Supabase presence with room ID after entry.
      */
     enterRoom() {
         // Check if entry is allowed (for timed rooms)
@@ -86,20 +89,28 @@ class PracticeRoom {
         }
         
         this.createPracticeView();
-        Core.navigateTo('practiceRoomView'); // Navigate to generic practice view (matches lunar rooms)
+        Core.navigateTo('practiceRoomView');
         Core.showToast(`${this.config.icon} Entered ${this.config.name}`);
         
         this.setupEventListeners();
         
         // Call custom entry logic if defined
         if (this.onEnter) this.onEnter();
+
+        // ── Supabase presence ──────────────────────────────────────────────
+        // Mark user as "in this room" in community_presence
+        this._setRoomPresence(this.roomId);
     }
     
     /**
-     * Leave the practice room
-     * Cleanup and navigate back to hub
+     * Leave the practice room.
+     * Cleanup and navigate back to hub.
+     * PATCHED: Resets Supabase presence back to hub / available.
      */
     leaveRoom() {
+        // ── Supabase presence ──────────────────────────────────────────────
+        this._clearRoomPresence();
+
         this.cleanup();
         Core.navigateTo('hubView');
         Core.showToast(`Left ${this.config.name}`);
@@ -109,9 +120,13 @@ class PracticeRoom {
     }
 
     /**
-     * Gently leave - shows closing ritual, then cleans up room
+     * Gently leave — shows closing ritual, then cleans up room.
+     * PATCHED: Resets Supabase presence before the ritual.
      */
     gentlyLeave() {
+        // ── Supabase presence ──────────────────────────────────────────────
+        this._clearRoomPresence();
+
         // Cleanup room first
         this.cleanup();
         if (this.onLeave) this.onLeave();
@@ -145,6 +160,55 @@ class PracticeRoom {
         
         // Call custom cleanup if defined
         if (this.onCleanup) this.onCleanup();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // PRESENCE HELPERS (PRIVATE)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /**
+     * Update Supabase presence to show user is in this room.
+     * @param {string} roomId
+     */
+    _setRoomPresence(roomId) {
+        if (!window.CommunityDB || !CommunityDB.ready) return;
+
+        try {
+            // Use activity label from Practice config if available, else derive from room config
+            const activity = (window.Practice?.config?.ROOM_ACTIVITIES?.[roomId])
+                || `${this.config.icon} ${this.config.name}`;
+
+            CommunityDB.setPresence('online', activity, roomId);
+
+            if (window.Core?.state) {
+                Core.state.currentRoom = roomId;
+                if (Core.state.currentUser) Core.state.currentUser.activity = activity;
+            }
+
+            console.log(`[${roomId}] Presence → in room`);
+        } catch (error) {
+            console.error('[PracticeRoom] _setRoomPresence error:', error);
+        }
+    }
+
+    /**
+     * Reset Supabase presence back to "available at hub".
+     */
+    _clearRoomPresence() {
+        if (!window.CommunityDB || !CommunityDB.ready) return;
+
+        try {
+            CommunityDB.setPresence('online', '✨ Available', null);
+
+            if (window.Core?.state) {
+                Core.state.currentRoom = null;
+                if (Core.state.currentUser) Core.state.currentUser.activity = '✨ Available';
+            }
+
+            console.log(`[${this.roomId}] Presence → available`);
+        } catch (error) {
+            console.error('[PracticeRoom] _clearRoomPresence error:', error);
+        }
     }
     
     // ═══════════════════════════════════════════════════════════════════════

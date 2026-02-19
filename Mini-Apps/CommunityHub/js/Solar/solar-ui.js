@@ -65,7 +65,29 @@ const SolarUIManager = {
 
     getRandomPresenceCount() {
       const { min, max } = SOLAR_CONSTANTS.PRESENCE_RANGE;
-      return Math.floor(Math.random() * (max - min + 1)) + min;
+      const fallback = Math.floor(Math.random() * (max - min + 1)) + min;
+
+      // Async-refresh from Supabase if a solar room is active
+      if (window.CommunityDB && CommunityDB.ready && window.currentSolarRoom) {
+        const roomId = `${window.currentSolarRoom.config?.name}-solar`;
+        CommunityDB.getRoomPresence(roomId)
+          .then(count => {
+            if (typeof count === 'number') {
+              // Update any live presence badges still in the DOM
+              document.querySelectorAll('.solar-live-count-top span').forEach(el => {
+                el.textContent = `${count} members practicing with you now`;
+              });
+              document.querySelectorAll('.solar-live-badge span').forEach(el => {
+                el.textContent = `${count} gathering now`;
+              });
+            }
+          })
+          .catch(err => {
+            console.warn('[SolarUIManager] getRandomPresenceCount DB error:', err);
+          });
+      }
+
+      return fallback;
     },
 
     formatDate(date) {
@@ -310,6 +332,11 @@ const SolarUIManager = {
   },
 
   handleBackToHub() {
+    // ── Clear Supabase presence ────────────────────────────────────────
+    if (window.currentSolarRoom && typeof window.currentSolarRoom._clearPresence === 'function') {
+      window.currentSolarRoom._clearPresence();
+    }
+
     // Remove solar room background class
     document.body.classList.remove('solar-room-active');
     

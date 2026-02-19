@@ -6,15 +6,10 @@
  * @class DeepWorkRoom
  * @extends PracticeRoom
  * @mixes TimerMixin, SoundSettingsMixin
- * @version 3.1.0
+ * @version 3.2.0 — PATCHED: Break chat saves to Supabase DB with realtime
  * 
- * Restored Features:
- * - Animated SVG timer ring with gradient
- * - Rich setup modal with grid layouts
- * - Category badge display
- * - Break-only chat sidebar
- * - Dim mode toggle
- * - Sound settings
+ * Chat uses room_id: 'deepwork' in community_room_messages table.
+ * (Break-room-only chat — enabled only when status === 'break')
  * 
  * ═══════════════════════════════════════════════════════════════════════════
  */
@@ -37,21 +32,21 @@ class DeepWorkRoom extends PracticeRoom {
         this.initSoundState();
         
         // Deep Work specific state
-        this.state.currentStatus = 'deep-focus';
-        this.state.lastFocusStatus = 'deep-focus';
-        this.state.currentIntention = '';
-        this.state.currentCategory = 'work';
-        this.state.showSetup = true;
+        this.state.currentStatus       = 'deep-focus';
+        this.state.lastFocusStatus     = 'deep-focus';
+        this.state.currentIntention    = '';
+        this.state.currentCategory     = 'work';
+        this.state.showSetup           = true;
         this.state.customDurationVisible = false;
         
         // Category data
         this.CATEGORIES = {
-            work: { icon: '💼', label: 'WORK', gradient: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(239, 68, 68, 0.2) 100%)', border: 'rgba(245, 158, 11, 0.3)' },
-            study: { icon: '📚', label: 'STUDY', gradient: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(147, 51, 234, 0.2) 100%)', border: 'rgba(59, 130, 246, 0.3)' },
-            creative: { icon: '🎨', label: 'CREATIVE', gradient: 'linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%)', border: 'rgba(236, 72, 153, 0.3)' },
-            reading: { icon: '📖', label: 'READING', gradient: 'linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)', border: 'rgba(34, 197, 94, 0.3)' },
-            planning: { icon: '📋', label: 'PLANNING', gradient: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)', border: 'rgba(139, 92, 246, 0.3)' },
-            coding: { icon: '💻', label: 'CODING', gradient: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)', border: 'rgba(16, 185, 129, 0.3)' }
+            work:     { icon: '💼', label: 'WORK',     gradient: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(239, 68, 68, 0.2) 100%)',    border: 'rgba(245, 158, 11, 0.3)' },
+            study:    { icon: '📚', label: 'STUDY',    gradient: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(147, 51, 234, 0.2) 100%)',   border: 'rgba(59, 130, 246, 0.3)' },
+            creative: { icon: '🎨', label: 'CREATIVE', gradient: 'linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%)',   border: 'rgba(236, 72, 153, 0.3)' },
+            reading:  { icon: '📖', label: 'READING',  gradient: 'linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)',   border: 'rgba(34, 197, 94, 0.3)' },
+            planning: { icon: '📋', label: 'PLANNING', gradient: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)',   border: 'rgba(139, 92, 246, 0.3)' },
+            coding:   { icon: '💻', label: 'CODING',   gradient: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)',   border: 'rgba(16, 185, 129, 0.3)' }
         };
     }
     
@@ -71,11 +66,19 @@ class DeepWorkRoom extends PracticeRoom {
             if (mainContent) mainContent.scrollTop = 0;
             window.scrollTo(0, 0);
         }, 100);
+
+        // PATCHED: load break-room chat history from Supabase
+        this._loadBreakChat();
     }
     
     onCleanup() {
         this.cleanupTimer();
         this.cleanupSound();
+
+        // PATCHED: unsubscribe from realtime break chat
+        if (window.CommunityDB && CommunityDB.ready) {
+            try { CommunityDB.unsubscribeFromRoomChat('deepwork'); } catch (e) {}
+        }
     }
     
     onTimerComplete() {
@@ -91,6 +94,89 @@ class DeepWorkRoom extends PracticeRoom {
             soundSettings.classList.remove('visible');
         }
     }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // BREAK CHAT — SUPABASE (PRIVATE)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /**
+     * Load break-room chat history from Supabase and subscribe to realtime.
+     * Called from onEnter().
+     */
+    async _loadBreakChat() {
+        const messagesContainer = document.getElementById(`${this.roomId}ChatMessages`);
+        if (!messagesContainer) return;
+
+        if (!window.CommunityDB || !CommunityDB.ready) return;
+
+        try {
+            const rows    = await CommunityDB.getRoomMessages('deepwork', 50);
+            const blocked = await CommunityDB.getBlockedUsers();
+
+            const visible = rows.filter(r => !blocked.has(r.profiles?.id));
+            visible.forEach(row => {
+                messagesContainer.insertAdjacentHTML('beforeend', this._buildBreakMsgHTML(row));
+            });
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Realtime subscription
+            CommunityDB.subscribeToRoomChat('deepwork', async (newMsg) => {
+                // Skip own — already rendered optimistically
+                if (newMsg.profiles?.id === window.Core?.state?.currentUser?.id) return;
+
+                const blocked = await CommunityDB.getBlockedUsers();
+                if (blocked.has(newMsg.profiles?.id)) return;
+
+                const container = document.getElementById(`${this.roomId}ChatMessages`);
+                if (container) {
+                    container.insertAdjacentHTML('beforeend', this._buildBreakMsgHTML(newMsg));
+                    container.scrollTop = container.scrollHeight;
+                }
+            });
+
+        } catch (error) {
+            console.error('[DeepWorkRoom] _loadBreakChat error:', error);
+        }
+    },
+
+    /**
+     * Build a chat message HTML from a DB row.
+     * @param {Object} row - DB row with optional profiles join
+     * @returns {string}
+     */
+    _buildBreakMsgHTML(row) {
+        const profile  = row.profiles || {};
+        const isOwn    = profile.id === window.Core?.state?.currentUser?.id;
+        const name     = isOwn ? 'You' : (profile.name || 'Member');
+        const initial  = profile.emoji || name.charAt(0).toUpperCase();
+        const gradient = window.Core?.getAvatarGradient
+            ? Core.getAvatarGradient(profile.id || name)
+            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        const time     = new Date(row.created_at || Date.now())
+            .toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+        const text     = this._escapeHtml(row.message || '');
+
+        return `
+            <div style="margin-bottom: 12px; padding: 8px; background: var(--surface); border-radius: var(--radius-md);">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: ${gradient}; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: white;">${initial}</div>
+                    <span style="font-size: 11px; color: var(--text-muted);">${name} · ${time}</span>
+                </div>
+                <div style="font-size: 13px; padding-left: 32px;">${text}</div>
+            </div>`;
+    },
+
+    /**
+     * Escape HTML entities.
+     * @param {string} str
+     * @returns {string}
+     */
+    _escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    },
     
     // ═══════════════════════════════════════════════════════════════════════
     // UI BUILDING
@@ -378,9 +464,9 @@ class DeepWorkRoom extends PracticeRoom {
     
     getStatusText() {
         const statusMap = {
-            'deep-focus': 'DEEP FOCUS',
+            'deep-focus':  'DEEP FOCUS',
             'light-focus': 'LIGHT FOCUS',
-            'break': 'BREAK TIME'
+            'break':       'BREAK TIME'
         };
         return statusMap[this.state.currentStatus] || 'DEEP FOCUS';
     }
@@ -401,20 +487,19 @@ class DeepWorkRoom extends PracticeRoom {
         document.querySelectorAll('.status-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        // Only update the clicked button if event is provided
         if (event && event.target) {
             event.target.classList.add('active');
         }
         
         // Handle chat availability
         const chatInput = document.getElementById(`${this.roomId}ChatInput`);
-        const chatSend = document.querySelector('.chat-send');
+        const chatSend  = document.querySelector('.chat-send');
         if (newStatus === 'break') {
             if (chatInput) chatInput.disabled = false;
-            if (chatSend) chatSend.disabled = false;
+            if (chatSend)  chatSend.disabled  = false;
         } else {
             if (chatInput) chatInput.disabled = true;
-            if (chatSend) chatSend.disabled = true;
+            if (chatSend)  chatSend.disabled  = true;
         }
         
         Core.showToast(`Switched to ${this.getStatusText()}`);
@@ -432,26 +517,21 @@ class DeepWorkRoom extends PracticeRoom {
     
     toggleCustomDuration(show) {
         const customDiv = document.getElementById(`${this.roomId}CustomDuration`);
-        if (customDiv) {
-            customDiv.style.display = show ? 'block' : 'none';
-        }
+        if (customDiv) customDiv.style.display = show ? 'block' : 'none';
         this.state.customDurationVisible = show;
     }
     
     confirmSetup() {
-        const intentionInput = document.getElementById(`${this.roomId}IntentionInput`);
-        const categoryInputs = document.querySelectorAll(`input[name="${this.roomId}Category"]`);
-        const durationInputs = document.querySelectorAll(`input[name="${this.roomId}Duration"]`);
+        const intentionInput   = document.getElementById(`${this.roomId}IntentionInput`);
+        const categoryInputs   = document.querySelectorAll(`input[name="${this.roomId}Category"]`);
+        const durationInputs   = document.querySelectorAll(`input[name="${this.roomId}Duration"]`);
         
-        // Get intention
         this.state.currentIntention = intentionInput.value.trim() || 'Focus session';
         
-        // Get category
         categoryInputs.forEach(input => {
             if (input.checked) this.state.currentCategory = input.value;
         });
         
-        // Get duration
         let duration = 30;
         durationInputs.forEach(input => {
             if (input.checked) {
@@ -464,24 +544,21 @@ class DeepWorkRoom extends PracticeRoom {
             }
         });
         
-        this.state.timeLeft = duration * 60;
+        this.state.timeLeft  = duration * 60;
         this.state.showSetup = false;
         
         this.closeSetupModal();
         
-        // Update display
         setTimeout(() => {
             this.updateTimerDisplay();
-            const intentionDiv = document.getElementById('currentIntention');
+            const intentionDiv  = document.getElementById('currentIntention');
             const categoryBadge = document.getElementById('categoryBadge');
-            if (intentionDiv) {
-                intentionDiv.textContent = this.state.currentIntention;
-            }
+            if (intentionDiv)  intentionDiv.textContent = this.state.currentIntention;
             if (categoryBadge) {
                 const catData = this.CATEGORIES[this.state.currentCategory];
-                categoryBadge.innerHTML = `${catData.icon} ${catData.label}`;
-                categoryBadge.style.background = catData.gradient;
-                categoryBadge.style.border = `2px solid ${catData.border}`;
+                categoryBadge.innerHTML          = `${catData.icon} ${catData.label}`;
+                categoryBadge.style.background   = catData.gradient;
+                categoryBadge.style.border       = `2px solid ${catData.border}`;
             }
         }, 100);
         
@@ -495,29 +572,43 @@ class DeepWorkRoom extends PracticeRoom {
             sidebar.style.width = isOpen ? '0' : '320px';
         }
     }
-    
-    sendChat() {
+
+    /**
+     * Send a break-room message.
+     * PATCHED: Renders optimistically, then saves to Supabase.
+     */
+    async sendChat() {
         const input = document.getElementById(`${this.roomId}ChatInput`);
         if (!input || !input.value.trim() || this.state.currentStatus !== 'break') return;
         
+        const text             = input.value.trim();
         const messagesContainer = document.getElementById(`${this.roomId}ChatMessages`);
-        const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-        
+        const time             = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+
+        // Optimistic render
         const msgHTML = `
             <div style="margin-bottom: 12px; padding: 8px; background: var(--surface); border-radius: var(--radius-md);">
                 <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">You · ${time}</div>
-                <div style="font-size: 13px;">${input.value}</div>
+                <div style="font-size: 13px;">${this._escapeHtml(text)}</div>
             </div>
         `;
-        
         messagesContainer.insertAdjacentHTML('beforeend', msgHTML);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
         input.value = '';
+
+        // ── Persist to Supabase ───────────────────────────────────────────
+        if (window.CommunityDB && CommunityDB.ready) {
+            try {
+                await CommunityDB.sendRoomMessage('deepwork', text);
+            } catch (error) {
+                console.error('[DeepWorkRoom] sendChat DB error:', error);
+            }
+        }
     }
     
     toggleDimMode() {
         const view = document.getElementById('practiceRoomView');
-        const btn = document.getElementById(`${this.roomId}DimModeBtn`);
+        const btn  = document.getElementById(`${this.roomId}DimModeBtn`);
         
         if (view) {
             view.classList.toggle('dimmed');
@@ -537,17 +628,17 @@ class DeepWorkRoom extends PracticeRoom {
     
     updateTimerDisplay() {
         const timerDisplay = document.getElementById(`${this.roomId}TimerDisplay`);
-        const timerRing = document.getElementById(`${this.roomId}TimerRing`);
+        const timerRing    = document.getElementById(`${this.roomId}TimerRing`);
         
         if (timerDisplay) {
             timerDisplay.textContent = this.formatTime(this.state.timeLeft);
         }
         
         if (timerRing) {
-            const totalTime = this.state.timerDuration || 1800;
-            const progress = (totalTime - this.state.timeLeft) / totalTime;
+            const totalTime  = this.state.timerDuration || 1800;
+            const progress   = (totalTime - this.state.timeLeft) / totalTime;
             const circumference = 1131; // 2 * π * 180
-            const offset = circumference - (progress * circumference);
+            const offset     = circumference - (progress * circumference);
             timerRing.style.strokeDashoffset = offset;
         }
     }
