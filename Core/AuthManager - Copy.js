@@ -23,6 +23,7 @@ export default class AuthManager {
   _preloadAssets() { const logo = new Image(); logo.src = ASSETS.LOGO_URL; }
 
   async checkAuth() {
+    if (this._restoreLocalUser()) return true;
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) { await this._setAuthenticated(session.user); return true; }
     this._clearLocalUser(); return false;

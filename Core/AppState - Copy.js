@@ -105,7 +105,7 @@ export default class AppState {
    */
   async loadFromCloud() {
     try {
-      const cloudData = await fetchProgress(true);
+      const cloudData = fetchProgress(true);
       
       if (cloudData == null) {
         throw new Error('Cloud fetch returned null');
