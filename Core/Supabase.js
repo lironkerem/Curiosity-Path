@@ -1,5 +1,5 @@
 /**
- * Supabase Client Configuration - Future-Proof Versionn
+ * Supabase Client Configuration - Future-Proof Version
  * 
  * WORKS NOW (without Vite):
  * - Uses hardcoded values
