@@ -71,19 +71,12 @@ const ActiveMembers = {
                     </div>
                 </section>`;
 
-            // Subscribe to live presence changes (retry if CommunityDB not ready yet)
-            const _presenceCb = async (updatedMembers) => {
+            // Subscribe to live presence changes
+            CommunityDB.subscribeToPresence(async (updatedMembers) => {
                 const blocked = await CommunityDB.getBlockedUsers();
                 const visible = updatedMembers.filter(m => !blocked.has(m.user_id));
                 this._updateGrid(visible);
-            };
-            if (!CommunityDB.subscribeToPresence(_presenceCb)) {
-                const _pi = setInterval(() => {
-                    if (!window.CommunityDB?.ready) return;
-                    clearInterval(_pi);
-                    CommunityDB.subscribeToPresence(_presenceCb);
-                }, 300);
-            }
+            });
 
             this.state.isRendered = true;
             console.log('✓ Active Members rendered');
@@ -252,5 +245,11 @@ const ActiveMembers = {
 // AUTO-INITIALIZATION
 // ============================================================================
 
-// core.js calls ActiveMembers.render() after CommunityDB is ready — no self-init here.
+// Render after DOM is ready. CommunityDB must be initialized first (done in Core.init).
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => ActiveMembers.render());
+} else {
+    ActiveMembers.render();
+}
+
 window.ActiveMembers = ActiveMembers;

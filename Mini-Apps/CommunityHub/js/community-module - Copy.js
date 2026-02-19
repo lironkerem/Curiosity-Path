@@ -54,19 +54,12 @@ const CommunityModule = {
             // Subscribe to new reflections being posted by others
             this.subscribeToNewReflections();
 
-            // Subscribe to incoming whispers (retry if CommunityDB not ready yet)
-            const _whisperCb = (whisper) => {
+            // Subscribe to incoming whispers
+            CommunityDB.subscribeToWhispers((whisper) => {
                 Core.showToast('💬 You have a new whisper');
                 console.log('[Whisper received]', whisper);
                 // TODO: Open whisper panel here
-            };
-            if (!CommunityDB.subscribeToWhispers(_whisperCb)) {
-                const _wi = setInterval(() => {
-                    if (!window.CommunityDB?.ready) return;
-                    clearInterval(_wi);
-                    CommunityDB.subscribeToWhispers(_whisperCb);
-                }, 300);
-            }
+            });
 
             this.renderWaves();
             this.renderMembers();
@@ -211,7 +204,7 @@ const CommunityModule = {
     },
 
     subscribeToNewReflections() {
-        const sub = CommunityDB.subscribeToReflections(async (newReflection) => {
+        CommunityDB.subscribeToReflections(async (newReflection) => {
             // Don't duplicate own reflections (we add them optimistically on post)
             if (newReflection.profiles?.id === Core?.state?.currentUser?.id) return;
 
@@ -226,16 +219,7 @@ const CommunityModule = {
             const el = div.firstElementChild;
             if (el) container.insertBefore(el, container.firstChild);
         });
-        if (!sub) {
-            // CommunityDB wasn't ready — retry once it is
-            const interval = setInterval(() => {
-                if (!window.CommunityDB?.ready) return;
-                clearInterval(interval);
-                this.subscribeToNewReflections();
-            }, 300);
-        }
     },
-
 
     // ============================================================================
     // SHARE / DELETE REFLECTION
@@ -649,8 +633,13 @@ const CommunityModule = {
 };
 
 // ============================================================================
-// AUTO-INITIALIZATION — deferred until CommunityDB is ready
+// AUTO-INITIALIZATION
 // ============================================================================
 
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => CommunityModule.init());
+} else {
+    CommunityModule.init();
+}
+
 window.CommunityModule = CommunityModule;
-// core.js calls CommunityModule.init() after CommunityDB is ready — no self-init here.
