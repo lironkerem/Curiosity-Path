@@ -19,7 +19,7 @@ const Core = {
             emoji:    '',
             avatar_url: null,
             bio:      '',
-            status:   'available',
+            status:   'online',
             role:     'Member',
             karma:    0,
             minutes:  0,
@@ -144,7 +144,8 @@ const Core = {
                 emoji:            profile.emoji            || '',
                 avatar_url:       profile.avatar_url       || null,
                 bio:              profile.inspiration      || 'Here to practice with intention.',
-                status:           profile.community_status || 'available',
+                status:           ['online','away','offline'].includes(profile.community_status)
+                                    ? profile.community_status : 'online',
                 role:             profile.community_role   || 'Member',
                 minutes:          profile.total_minutes    || 0,
                 circles:          profile.total_sessions   || 0,
