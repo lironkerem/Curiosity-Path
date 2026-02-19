@@ -138,24 +138,19 @@ const Core = {
             }
 
             this.state.currentUser = {
-                id:               profile.id,
-                name:             profile.name             || 'Anonymous',
-                avatar:           (profile.name || 'A').charAt(0).toUpperCase(),
-                emoji:            profile.emoji            || '',
-                avatar_url:       profile.avatar_url       || null,
-                bio:              profile.inspiration      || 'Here to practice with intention.',
-                status:           profile.community_status || 'available',
-                role:             profile.community_role   || 'Member',
-                minutes:          profile.total_minutes    || 0,
-                circles:          profile.total_sessions   || 0,
-                offered:          profile.gifts_given      || 0,
-                birthday:         profile.birthday         || null,
-                country:          profile.country          || null,
-                email:            profile.email            || '',
-                // karma/xp/badges loaded from user_progress.payload by GamificationEngine
-                karma:            window.GamificationEngine?.state?.karma ?? 0,
-                xp:               window.GamificationEngine?.state?.xp    ?? 0,
-                badges:           window.GamificationEngine?.state?.badges ?? []
+                id:         profile.id,
+                name:       profile.name        || 'Anonymous',
+                avatar:     (profile.name || 'A').charAt(0).toUpperCase(),
+                emoji:      profile.emoji       || '',
+                avatar_url: profile.avatar_url  || null,
+                bio:        profile.inspiration || 'Here to practice with intention.',
+                status:     profile.community_status || 'available',
+                role:       profile.community_role   || 'Member',
+                minutes:    profile.total_minutes    || 0,
+                circles:    profile.total_sessions   || 0,
+                offered:    profile.gifts_given      || 0,
+                karma:      0,   // loaded separately by GamificationEngine via user_progress
+                email:      profile.email || ''
             };
 
             console.log('[Core] User loaded:', this.state.currentUser.name);

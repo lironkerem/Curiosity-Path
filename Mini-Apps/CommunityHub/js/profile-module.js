@@ -1,8 +1,15 @@
 /**
  * PROFILE MODULE
- * PATCHED: Saves inspiration to Supabase, pulse updates presence
- *
- * @version 2.0.0
+ * v3.0.0 — Full Supabase integration
+ * - Avatar: shows Google/uploaded image from profiles.avatar_url
+ * - Name: from profiles.name
+ * - Karma: from profiles.karma (with GamificationEngine fallback)
+ * - Sessions: from profiles.total_sessions
+ * - Gifts: from profiles.gifts_given
+ * - Minutes: from profiles.total_minutes
+ * - Badges: from GamificationEngine (earned badges)
+ * - Birthday + Country: from profiles.birthday / profiles.country (editable)
+ * - No auto-init: core.js calls init() after CommunityDB is ready
  */
 
 const ProfileModule = {
@@ -53,7 +60,12 @@ const ProfileModule = {
                 <div class="profile-content">
                     <div class="profile-avatar-section">
                         <div class="profile-avatar-wrap">
-                            <div class="profile-avatar" id="profileAvatar" aria-label="Profile avatar">A</div>
+                            <div class="profile-avatar" id="profileAvatar" aria-label="Profile avatar">
+                                <img id="profileAvatarImg"
+                                     style="display:none;width:100%;height:100%;object-fit:cover;border-radius:inherit;"
+                                     alt="Profile photo">
+                                <span id="profileAvatarFallback">?</span>
+                            </div>
                             <div class="profile-status-ring" id="statusRing" aria-hidden="true"></div>
                             <button class="edit-avatar"
                                     onclick="ProfileModule.editProfile()"
@@ -93,11 +105,8 @@ const ProfileModule = {
                             </div>
                         </div>
 
-                        <div class="badges-row">
-                            <div class="badge">🔥<div class="badge-tooltip">7-Day Streak</div></div>
-                            <div class="badge">🧘<div class="badge-tooltip">Zen Master</div></div>
-                            <div class="badge">⭐<div class="badge-tooltip">First Share</div></div>
-                            <div class="badge">🎯<div class="badge-tooltip">Deep Focus</div></div>
+                        <div class="badges-row" id="badgesRow">
+                            <!-- Populated dynamically from GamificationEngine -->
                         </div>
 
                         <div class="view-toggle">
@@ -126,6 +135,22 @@ const ProfileModule = {
                                 <span class="detail-label">Status</span>
                                 <span class="detail-val" id="privateStatus">Available</span>
                             </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Birthday</span>
+                                <span class="detail-val" id="privateBirthday">—</span>
+                                <button class="edit-inline-btn"
+                                        onclick="ProfileModule.editBirthday()"
+                                        title="Edit birthday"
+                                        style="background:none;border:none;cursor:pointer;font-size:12px;opacity:0.6;margin-left:6px;">✏️</button>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Country</span>
+                                <span class="detail-val" id="privateCountry">—</span>
+                                <button class="edit-inline-btn"
+                                        onclick="ProfileModule.editCountry()"
+                                        title="Edit country"
+                                        style="background:none;border:none;cursor:pointer;font-size:12px;opacity:0.6;margin-left:6px;">✏️</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -151,11 +176,6 @@ const ProfileModule = {
     // DATA POPULATION
     // ============================================================================
 
-    /**
-     * Populate profile UI from Core.state.currentUser.
-     * Core.init() loads the real user before calling ProfileModule.init(),
-     * so all data here is real Supabase data.
-     */
     populateData() {
         if (!window.Core?.state?.currentUser) {
             console.warn('Core.state.currentUser not available');
@@ -170,79 +190,182 @@ const ProfileModule = {
             this.updateStats(user);
             this.updateStatusRing(user.status);
             this.updateRole(user);
+            this.updateBadges();
+            this.updateBirthday(user);
+            this.updateCountry(user);
             console.log('✓ Profile data populated');
         } catch (error) {
             console.error('Profile data population error:', error);
         }
     },
 
+    // ── Avatar ───────────────────────────────────────────────────────────────────
+
     updateAvatar(user) {
-        const avatar = document.getElementById('profileAvatar');
-        if (!avatar) return;
+        const avatarWrap   = document.getElementById('profileAvatar');
+        const avatarImg    = document.getElementById('profileAvatarImg');
+        const avatarFallback = document.getElementById('profileAvatarFallback');
+        if (!avatarWrap) return;
 
-        // Show emoji if available, otherwise initial
-        avatar.textContent = user.emoji || user.avatar || 'U';
+        // Priority 1: real photo from profiles.avatar_url
+        const photoUrl = user.avatar_url || user.avatarUrl;
+        if (photoUrl && avatarImg) {
+            avatarImg.src = photoUrl;
+            avatarImg.style.display = 'block';
+            if (avatarFallback) avatarFallback.style.display = 'none';
+            avatarWrap.style.background = 'transparent';
+            return;
+        }
 
-        if (window.Core && typeof window.Core.getAvatarGradient === 'function') {
-            avatar.style.background = window.Core.getAvatarGradient(user.id || user.name || 'default');
+        // Priority 2: emoji
+        if (avatarFallback) {
+            avatarFallback.textContent = user.emoji || user.avatar || '?';
+            avatarFallback.style.display = 'block';
+            if (avatarImg) avatarImg.style.display = 'none';
+        }
+
+        // Gradient background when no photo
+        if (window.Core?.getAvatarGradient) {
+            avatarWrap.style.background = Core.getAvatarGradient(user.id || user.name || 'default');
         }
     },
+
+    // ── Name ─────────────────────────────────────────────────────────────────────
 
     updateName(user) {
-        const name = document.getElementById('profileName');
-        if (name && user.name) name.textContent = user.name;
+        const el = document.getElementById('profileName');
+        if (!el) return;
+        // profiles.name is the display name
+        el.textContent = user.name || user.displayName || 'Member';
     },
+
+    // ── Karma ────────────────────────────────────────────────────────────────────
 
     updateKarma(user) {
-        const karma = document.getElementById('karmaBadge');
-        if (karma && typeof user.karma === 'number') {
-            karma.textContent = `⭐ ${user.karma.toLocaleString()} Karma`;
-        }
+        const el = document.getElementById('karmaBadge');
+        if (!el) return;
+        // GamificationEngine is authoritative for karma/xp (from user_progress.payload)
+        const karma = window.GamificationEngine?.state?.karma ?? user.karma ?? 0;
+        const xp    = window.GamificationEngine?.state?.xp    ?? user.xp    ?? 0;
+        el.textContent = `⭐ ${karma.toLocaleString()} Karma  ·  ${xp.toLocaleString()} XP`;
     },
+
+    // ── Bio ──────────────────────────────────────────────────────────────────────
 
     updateBio(user) {
-        const bio = document.getElementById('profileInspiration');
-        if (bio && user.bio) bio.textContent = `"${user.bio}"`;
+        const el = document.getElementById('profileInspiration');
+        if (!el) return;
+        const text = user.bio || user.inspiration;
+        if (text) el.textContent = `"${text}"`;
     },
+
+    // ── Stats ────────────────────────────────────────────────────────────────────
 
     updateStats(user) {
-        const statMinutes = document.getElementById('statMinutes');
-        if (statMinutes && typeof user.minutes === 'number') {
-            statMinutes.textContent = this.formatMinutes(user.minutes);
+        const sessions = document.getElementById('statCircles');
+        if (sessions) {
+            sessions.textContent = (user.circles ?? 0).toLocaleString();
         }
 
-        const statCircles = document.getElementById('statCircles');
-        if (statCircles && typeof user.circles === 'number') {
-            statCircles.textContent = user.circles.toLocaleString();
+        const gifts = document.getElementById('statOffered');
+        if (gifts) {
+            gifts.textContent = (user.offered ?? 0).toLocaleString();
         }
 
-        const statOffered = document.getElementById('statOffered');
-        if (statOffered && typeof user.offered === 'number') {
-            statOffered.textContent = user.offered.toLocaleString();
+        const minutes = document.getElementById('statMinutes');
+        if (minutes) {
+            this.formatMinutes(user.minutes ?? 0, minutes);
         }
     },
+
+    formatMinutes(totalMinutes, el) {
+        const n = typeof totalMinutes === 'number' && totalMinutes >= 0 ? totalMinutes : 0;
+        const hours = Math.floor(n / 60);
+        const mins  = n % 60;
+        let text;
+        if (hours === 0)    text = `${mins} minutes`;
+        else if (mins === 0) text = `${hours} ${hours === 1 ? 'hour' : 'hours'}`;
+        else                text = `${hours}h ${mins}m`;
+        if (el) el.textContent = text;
+        return text;
+    },
+
+    // ── Role / Status ────────────────────────────────────────────────────────────
 
     updateRole(user) {
-        const role = document.getElementById('profileRole');
-        if (role && user.role) role.textContent = `👤 ${user.role}`;
+        const role = user.role || 'Member';
+        const status = user.status || 'available';
+
+        const roleEl = document.getElementById('profileRole');
+        if (roleEl) roleEl.textContent = `👤 ${role}`;
 
         const privateRole = document.getElementById('privateRole');
-        if (privateRole && user.role) privateRole.textContent = user.role;
+        if (privateRole) privateRole.textContent = role;
 
         const privateStatus = document.getElementById('privateStatus');
-        if (privateStatus && user.status) {
-            privateStatus.textContent = user.status.charAt(0).toUpperCase() + user.status.slice(1);
+        if (privateStatus) {
+            privateStatus.textContent = status.charAt(0).toUpperCase() + status.slice(1);
         }
     },
 
-    formatMinutes(totalMinutes) {
-        if (typeof totalMinutes !== 'number' || totalMinutes < 0) return '0 minutes';
-        const hours   = Math.floor(totalMinutes / 60);
-        const minutes = totalMinutes % 60;
-        if (hours === 0)       return `${minutes} minutes`;
-        if (minutes === 0)     return `${hours} ${hours === 1 ? 'hour' : 'hours'}`;
-        return `${hours} ${hours === 1 ? 'hour' : 'hours'} ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
+    // ── Birthday ─────────────────────────────────────────────────────────────────
+
+    updateBirthday(user) {
+        const el = document.getElementById('privateBirthday');
+        if (!el) return;
+        if (user.birthday) {
+            // Format date nicely: "February 14" or "14 February 1990"
+            try {
+                const d = new Date(user.birthday + 'T00:00:00');
+                el.textContent = d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+            } catch {
+                el.textContent = user.birthday;
+            }
+        } else {
+            el.textContent = '—';
+        }
     },
+
+    // ── Country ──────────────────────────────────────────────────────────────────
+
+    updateCountry(user) {
+        const el = document.getElementById('privateCountry');
+        if (!el) return;
+        el.textContent = user.country || '—';
+    },
+
+    // ── Badges ───────────────────────────────────────────────────────────────────
+
+    updateBadges() {
+        const row = document.getElementById('badgesRow');
+        if (!row) return;
+
+        // Badges live in user_progress.payload.badges via GamificationEngine
+        const earned = window.GamificationEngine?.state?.badges
+                    ?? window.GamificationEngine?.state?.gamification?.badges
+                    ?? [];
+
+        if (!earned || earned.length === 0) {
+            row.innerHTML = '<span style="font-size:12px;color:var(--text-muted);opacity:0.6;">No badges earned yet</span>';
+            return;
+        }
+
+        // Show up to 8 most recently earned, newest first
+        const toShow = [...earned].slice(-8).reverse();
+        row.innerHTML = toShow.map(b => {
+            const icon    = b.icon  || '🏅';
+            const name    = b.name  || (typeof b === 'string' ? b : 'Badge');
+            const rarity  = b.rarity || 'common';
+            const rarityColors = { common:'#9ca3af', uncommon:'#10b981', rare:'#3b82f6', epic:'#a855f7', legendary:'#f59e0b' };
+            const color   = rarityColors[rarity] || rarityColors.common;
+            return `<div class="badge" style="border-color:${color};" title="${name}">
+                        ${icon}
+                        <div class="badge-tooltip">${name}</div>
+                    </div>`;
+        }).join('');
+    },
+
+    // ── Status Ring ──────────────────────────────────────────────────────────────
 
     updateStatusRing(status) {
         const ring = document.getElementById('statusRing');
@@ -258,64 +381,73 @@ const ProfileModule = {
     },
 
     updatePresenceCount() {
-        if (window.Core && typeof window.Core.updatePresenceCount === 'function') {
-            window.Core.updatePresenceCount();
-        }
+        if (window.Core?.updatePresenceCount) Core.updatePresenceCount();
     },
 
     // ============================================================================
-    // PROFILE EDITING
+    // EDITING
     // ============================================================================
 
     editProfile() {
-        Core.showToast('Profile editing coming soon');
-        console.log('Edit profile clicked');
+        Core.showToast('Edit your profile in the main menu (👤 icon)');
     },
 
-    /**
-     * Edit and save the inspiration (bio) message.
-     * Saves to Supabase profiles.inspiration.
-     */
     async editInspiration() {
-        const inspirationEl = document.getElementById('profileInspiration');
-        if (!inspirationEl) return;
-
+        const el = document.getElementById('profileInspiration');
+        if (!el) return;
         try {
-            const currentText = inspirationEl.textContent.replace(/"/g, '').trim();
-            const newText = prompt('Edit your inspiration message:', currentText);
-
+            const current = el.textContent.replace(/"/g, '').trim();
+            const newText = prompt('Edit your inspiration message:', current);
             if (newText === null || !newText.trim()) return;
 
-            const sanitized = this.sanitizeInspiration(newText.trim());
+            const sanitized = newText.trim()
+                .substring(0, this.config.MAX_INSPIRATION_LENGTH)
+                .replace(/<[^>]*>/g, '');
             if (!sanitized) return;
 
-            // Save to Supabase
             const ok = await CommunityDB.updateProfile({ inspiration: sanitized });
-            if (!ok) {
-                Core.showToast('Could not save — please try again');
-                return;
-            }
+            if (!ok) { Core.showToast('Could not save — please try again'); return; }
 
-            // Update display
-            inspirationEl.textContent = `"${sanitized}"`;
-
-            // Update local state
-            if (Core?.state?.currentUser) {
-                Core.state.currentUser.bio = sanitized;
-            }
-
+            el.textContent = `"${sanitized}"`;
+            if (Core?.state?.currentUser) Core.state.currentUser.inspiration = sanitized;
             Core.showToast('✓ Inspiration updated');
-
         } catch (error) {
             console.error('Error editing inspiration:', error);
         }
     },
 
-    sanitizeInspiration(text) {
-        if (!text || typeof text !== 'string') return '';
-        return text.trim()
-            .substring(0, this.config.MAX_INSPIRATION_LENGTH)
-            .replace(/<[^>]*>/g, '');
+    async editBirthday() {
+        const current = Core?.state?.currentUser?.birthday || '';
+        const newVal = prompt('Enter your birthday (YYYY-MM-DD):', current);
+        if (newVal === null) return;
+
+        const trimmed = newVal.trim();
+        // Basic date format validation
+        if (trimmed && !/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+            Core.showToast('Please use format YYYY-MM-DD');
+            return;
+        }
+
+        const ok = await CommunityDB.updateProfile({ birthday: trimmed || null });
+        if (!ok) { Core.showToast('Could not save — please try again'); return; }
+
+        if (Core?.state?.currentUser) Core.state.currentUser.birthday = trimmed || null;
+        this.updateBirthday(Core.state.currentUser);
+        Core.showToast('✓ Birthday updated');
+    },
+
+    async editCountry() {
+        const current = Core?.state?.currentUser?.country || '';
+        const newVal = prompt('Enter your country:', current);
+        if (newVal === null) return;
+
+        const trimmed = newVal.trim().substring(0, 60);
+        const ok = await CommunityDB.updateProfile({ country: trimmed || null });
+        if (!ok) { Core.showToast('Could not save — please try again'); return; }
+
+        if (Core?.state?.currentUser) Core.state.currentUser.country = trimmed || null;
+        this.updateCountry(Core.state.currentUser);
+        Core.showToast('✓ Country updated');
     },
 
     // ============================================================================
@@ -327,17 +459,12 @@ const ProfileModule = {
         try {
             const privateDetails = document.getElementById('privateDetails');
             const buttons = document.querySelectorAll('.v-btn');
-
             buttons.forEach(btn => {
                 const isActive = btn.textContent.toLowerCase().includes(view);
                 btn.classList.toggle('active', isActive);
                 btn.setAttribute('aria-pressed', isActive.toString());
             });
-
-            if (privateDetails) {
-                privateDetails.classList.toggle('visible', view === 'private');
-            }
-
+            if (privateDetails) privateDetails.classList.toggle('visible', view === 'private');
             this.state.currentView = view;
         } catch (error) {
             console.error('Error toggling profile view:', error);
@@ -345,50 +472,31 @@ const ProfileModule = {
     },
 
     // ============================================================================
-    // PULSE SYSTEM
+    // PULSE
     // ============================================================================
 
     async sendPulse() {
-        if (!window.Core?.state) {
-            console.error('Core not available');
-            return;
-        }
-
-        if (window.Core.state.pulseSent) {
-            Core.showToast('Already offered');
-            return;
-        }
+        if (!window.Core?.state) { console.error('Core not available'); return; }
+        if (window.Core.state.pulseSent) { Core.showToast('Already offered'); return; }
 
         const btn = document.getElementById('pulseBtn');
         if (!btn) return;
 
         try {
             btn.classList.add('sending');
-
             setTimeout(async () => {
                 btn.classList.remove('sending');
                 btn.classList.add('sent');
                 btn.innerHTML = '✓<span class="pulse-ripple"></span>';
-
                 window.Core.state.pulseSent = true;
 
                 const pulseFill = document.getElementById('pulseFill');
                 if (pulseFill) pulseFill.style.width = '50%';
 
                 Core.showToast('💗 Calm offered to the community');
-
-                // Update presence to show "offering calm"
-                await CommunityDB.setPresence(
-                    'online',
-                    '💗 Offering calm',
-                    Core.state.currentRoom || null
-                );
-                if (Core?.state?.currentUser) {
-                    Core.state.currentUser.activity = '💗 Offering calm';
-                }
-
+                await CommunityDB.setPresence('online', '💗 Offering calm', Core.state.currentRoom || null);
+                if (Core?.state?.currentUser) Core.state.currentUser.activity = '💗 Offering calm';
             }, this.config.PULSE_ANIMATION_DURATION);
-
         } catch (error) {
             console.error('Error sending pulse:', error);
         }
@@ -402,9 +510,7 @@ const ProfileModule = {
         const input   = document.getElementById('reflectionInput');
         const counter = document.getElementById('charCount');
         if (input && counter) {
-            input.addEventListener('input', () => {
-                counter.textContent = input.value.length;
-            });
+            input.addEventListener('input', () => { counter.textContent = input.value.length; });
             console.log('✓ Character counter initialized');
         }
     },
@@ -419,14 +525,5 @@ const ProfileModule = {
     }
 };
 
-// ============================================================================
-// AUTO-INITIALIZATION
-// ============================================================================
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => ProfileModule.init());
-} else {
-    ProfileModule.init();
-}
-
+// core.js calls ProfileModule.init() after CommunityDB is ready — no self-init here.
 window.ProfileModule = ProfileModule;
