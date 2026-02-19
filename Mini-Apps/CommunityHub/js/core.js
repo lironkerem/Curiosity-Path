@@ -200,6 +200,16 @@ const Core = {
                 console.error(`✗ ${name} initialization failed:`, error);
             }
         });
+
+        // ActiveMembers uses render() not init() — call it after CommunityDB is ready
+        if (window.ActiveMembers && typeof window.ActiveMembers.render === 'function') {
+            window.ActiveMembers.render().catch(e =>
+                console.error('✗ ActiveMembers render failed:', e)
+            );
+            console.log('✓ ActiveMembers render triggered');
+        } else {
+            console.warn('⚠ ActiveMembers not found');
+        }
     },
 
     // ============================================================================
