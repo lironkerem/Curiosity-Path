@@ -137,7 +137,7 @@ class DeepWorkRoom extends PracticeRoom {
         } catch (error) {
             console.error('[DeepWorkRoom] _loadBreakChat error:', error);
         }
-    }
+    },
 
     /**
      * Build a chat message HTML from a DB row.
@@ -164,7 +164,7 @@ class DeepWorkRoom extends PracticeRoom {
                 </div>
                 <div style="font-size: 13px; padding-left: 32px;">${text}</div>
             </div>`;
-    }
+    },
 
     /**
      * Escape HTML entities.
@@ -176,7 +176,7 @@ class DeepWorkRoom extends PracticeRoom {
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
-    }
+    },
     
     // ═══════════════════════════════════════════════════════════════════════
     // UI BUILDING

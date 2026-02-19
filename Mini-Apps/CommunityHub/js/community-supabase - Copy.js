@@ -145,7 +145,6 @@ const CommunityDB = {
    * @param {Function} callback  (members: Array) => void
    */
   subscribeToPresence(callback) {
-    if (!this.ready) { console.warn('[CommunityDB] subscribeToPresence: not ready yet'); return null; }
     if (this._subs.presence) this._subs.presence.unsubscribe();
 
     this._subs.presence = this._sb
@@ -215,7 +214,6 @@ const CommunityDB = {
    * Callback receives the full reflection object (with profile).
    */
   subscribeToReflections(callback) {
-    if (!this.ready) { console.warn('[CommunityDB] subscribeToReflections: not ready yet'); return null; }
     if (this._subs.reflections) this._subs.reflections.unsubscribe();
 
     this._subs.reflections = this._sb
@@ -330,7 +328,6 @@ const CommunityDB = {
    * @param {Function} callback  (message: Object) => void
    */
   subscribeToRoomChat(roomId, callback) {
-    if (!this.ready) { console.warn('[CommunityDB] subscribeToRoomChat: not ready yet'); return null; }
     const key = `room-${roomId}`;
     if (this._subs[key]) this._subs[key].unsubscribe();
 
@@ -413,7 +410,6 @@ const CommunityDB = {
    * Callback receives the raw new whisper row.
    */
   subscribeToWhispers(callback) {
-    if (!this.ready) { console.warn('[CommunityDB] subscribeToWhispers: not ready yet'); return null; }
     if (this._subs.whispers) this._subs.whispers.unsubscribe();
 
     this._subs.whispers = this._sb

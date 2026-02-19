@@ -61,7 +61,7 @@ class TarotRoom extends PracticeRoom {
         
         // Load from external JSON file (falls back to inline if fetch fails)
         try {
-            const response = await fetch('/Mini-Apps/CommunityHub/js/Rooms/tarot-data.json');
+            const response = await fetch('./js/Rooms/tarot-data.json');
             if (response.ok) {
                 const data = await response.json();
                 this.MAJOR_ARCANA_NAMES    = data.majorArcana.names;

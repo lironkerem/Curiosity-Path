@@ -244,15 +244,13 @@ class CommunityHubEngine {
     try {
       console.log('🌟 Loading Community Hub...');
 
-      // Stylesheets - all parallel, non-blocking
+      // Stylesheets
       this.loadStylesheet('/Mini-Apps/CommunityHub/community-hub.css');
-      this.loadStylesheet('/Mini-Apps/CommunityHub/lunar-styles.css');
-      this.loadStylesheet('/Mini-Apps/CommunityHub/solar-styles.css');
 
       // GROUP 1: External CDN deps + core system in parallel
       await Promise.all([
         this.loadScript('https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js'),
-        this.loadScript('https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.min.js'),
+
         this.loadScript('/Mini-Apps/CommunityHub/js/core.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/supabase-client.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/community-supabase.js'),
@@ -282,7 +280,11 @@ class CommunityHubEngine {
         this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunar-config.js'),
       ]);
 
-      // GROUP 4: All rooms + solar/lunar UI in parallel (deps from group 3 satisfied)
+      // GROUP 4a: Solar base must load sequentially (solar-ui → solar-base-room)
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-ui.js');
+      await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-base-room.js');
+
+      // GROUP 4b: All rooms + remaining deps in parallel (BaseSolarRoom now guaranteed)
       await Promise.all([
         // Practice rooms
         this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/silent-room.js'),
@@ -293,9 +295,6 @@ class CommunityHubEngine {
         this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/campfire-room.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/tarot-room.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/reiki-room.js'),
-        // Solar base (needed before season rooms)
-        this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-ui.js'),
-        this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-base-room.js'),
         // Lunar engine
         this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunarengine.js'),
         // Dynamic sections

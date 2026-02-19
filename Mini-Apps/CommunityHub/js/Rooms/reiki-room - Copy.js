@@ -47,7 +47,7 @@ class ReikiRoom extends PracticeRoom {
         
         // Load from external JSON file (falls back to inline if fetch fails)
         try {
-            const response = await fetch('/Mini-Apps/CommunityHub/js/Rooms/chakra-schedule.json');
+            const response = await fetch('./js/Rooms/chakra-schedule.json');
             if (response.ok) {
                 this.CHAKRA_SCHEDULE = await response.json();
             } else {
