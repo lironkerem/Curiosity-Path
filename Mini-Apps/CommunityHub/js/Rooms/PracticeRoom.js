@@ -403,10 +403,11 @@ class PracticeRoom {
      * @param {number} count
      */
     _updateRoomCardCount(count) {
+        this.state.participants = count;
         const card = document.querySelector(`[data-room-id="${this.roomId}"]`);
         if (!card) return;
         const el = card.querySelector('.room-participants');
-        if (el) el.textContent = `${count} present`;
+        if (el) el.textContent = this.getParticipantText();
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -779,7 +780,7 @@ class PracticeRoom {
         
         return `
         <div style="text-align: left;">
-            <span style="font-size: 12px; color: var(--text-muted);">
+            <span class="room-participants" style="font-size: 12px; color: var(--text-muted);">
                 ${this.getParticipantText()}
             </span>
         </div>`;
