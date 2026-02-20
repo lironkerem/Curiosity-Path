@@ -401,6 +401,8 @@ const CommunityModule = {
             console.log('[CommunityModule] Whisper button: no hub nav container found, using floating fallback. Add id="communityHubActions" to your hub nav to place it there.');
         }
     },
+
+    async whisper(recipientId) {
         if (!recipientId) return;
 
         // Fetch profile so we can open a named thread
