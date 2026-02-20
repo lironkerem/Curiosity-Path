@@ -86,7 +86,7 @@ const LunarUI = {
 
                     <div class="${cssPrefix}-live-count-top lunar-live-count-top">
                         <div class="lunar-pulse-dot"></div>
-                        <span id="lunarLiveCountTop">${livingPresenceCount} members practicing with you now</span>
+                        <span>${livingPresenceCount} members practicing with you now</span>
                     </div>
 
                     <button data-action="back-to-hub" class="${cssPrefix}-back-hub-btn lunar-back-hub-btn" aria-label="Leave practice and return to hub">

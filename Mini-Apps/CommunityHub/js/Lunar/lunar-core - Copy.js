@@ -488,11 +488,6 @@ class LunarRoom {
                 window.Core.navigateTo('practiceRoomView');
             }
 
-            // Stop hub card subscription while inside a room
-            if (window.PracticeRoom?.stopHubPresence) {
-                PracticeRoom.stopHubPresence();
-            }
-
             window.currentLunarRoom = this;
             this.renderRoomDashboard();
             window.scrollTo(0, 0);
@@ -502,9 +497,6 @@ class LunarRoom {
 
             // ── Load collective words from DB ──────────────────────────────
             this._loadCollectiveWords();
-
-            // ── Live participant count + realtime subscription ─────────────
-            setTimeout(() => this._refreshLivePresence(), 300);
 
         } catch (error) {
             console.error('Error entering room:', error);
@@ -522,26 +514,11 @@ class LunarRoom {
             // ── Supabase presence ──────────────────────────────────────────
             this._clearPresence();
 
-            // ── Unsubscribe from presence subscription ─────────────────────
-            if (this._presenceSub) {
-                try { this._presenceSub.unsubscribe(); } catch(e) {}
-                this._presenceSub = null;
-            }
-            if (this._collectiveWordsSub) {
-                try { this._collectiveWordsSub.unsubscribe(); } catch(e) {}
-                this._collectiveWordsSub = null;
-            }
-
             // Cleanup
             this._clearTimer();
             this._removeEventListeners();
             window.currentLunarRoom = null;
-
-            // ── Restart shared hub presence subscription ───────────────────
-            if (window.PracticeRoom?.startHubPresence) {
-                PracticeRoom.startHubPresence();
-            }
-
+            
             if (window.Core) {
                 window.Core.navigateTo('hubView');
             }
@@ -1559,97 +1536,35 @@ class LunarRoom {
     }
 
     /**
-     * Get living presence count — returns cached value synchronously (0 on first call).
-     * Actual count is fetched async via _refreshLivePresence().
-     * @returns {number}
+     * Get living presence count (mock for now)
+     * @returns {number} Random presence count
      */
     getLivingPresenceCount() {
-        return typeof this._cachedPresenceCount === 'number' ? this._cachedPresenceCount : 0;
-    }
-
-    /**
-     * Fetch live participant count + real avatars from Supabase,
-     * update DOM, and subscribe to realtime presence changes.
-     * Called on enterRoom() and whenever the dashboard re-renders.
-     * @private
-     */
-    async _refreshLivePresence() {
-        if (!window.CommunityDB || !CommunityDB.ready) return;
-
-        const roomId = this._getLunarRoomId();
-
-        const _doRefresh = async () => {
-            try {
-                const participants = await CommunityDB.getRoomParticipants(roomId);
-                const blocked      = await CommunityDB.getBlockedUsers();
-                const visible      = participants.filter(p => !blocked.has(p.user_id));
-                const count        = visible.length;
-
-                this._cachedPresenceCount  = count;
-                this._cachedParticipants   = visible;
-
-                // ── Top bar live count ──────────────────────────────────────
-                const topEl = document.getElementById('lunarLiveCountTop');
-                if (topEl) topEl.textContent = `${count} members practicing with you now`;
-
-                // ── Group circle count ──────────────────────────────────────
-                const circleEl = document.querySelector('.lunar-live-presence span');
-                if (circleEl) circleEl.textContent = `${count} members in circle`;
-
-                // ── Group circle avatars ────────────────────────────────────
-                const avatarEl = document.querySelector('.lunar-group-avatars');
-                if (avatarEl) avatarEl.innerHTML = this._buildRealAvatars(visible);
-
-            } catch (err) {
-                console.warn('[LunarRoom] _refreshLivePresence error:', err);
-            }
-        };
-
-        await _doRefresh();
-
-        // Realtime subscription — update whenever presence changes
-        if (this._presenceSub) {
-            try { this._presenceSub.unsubscribe(); } catch(e) {}
+        // Return cached value immediately; refresh async from Supabase
+        if (typeof this._cachedPresenceCount === 'number') {
+            return this._cachedPresenceCount;
         }
-        this._presenceSub = CommunityDB.subscribeToPresence(_doRefresh);
-    }
 
-    /**
-     * Build real user avatars from participant data (photo > emoji > initial).
-     * @param {Array} participants
-     * @returns {string} HTML string
-     * @private
-     */
-    _buildRealAvatars(participants) {
-        const MAX = 5;
-        const shown = participants.slice(0, MAX);
-        const overflow = participants.length - MAX;
+        // First call: seed with random, then update from DB
+        this._cachedPresenceCount = Math.floor(Math.random() * 8) + 3;
 
-        const avatarHTML = shown.map(p => {
-            const profile = p.profiles || {};
-            const name    = profile.name || profile.display_name || '?';
-            const initial = name.charAt(0).toUpperCase();
-            const gradient = window.Core?.getAvatarGradient
-                ? Core.getAvatarGradient(p.user_id)
-                : `background: #8B7AFF`;
+        if (window.CommunityDB && CommunityDB.ready) {
+            const roomId = this._getLunarRoomId();
+            CommunityDB.getRoomPresence(roomId)
+                .then(count => {
+                    if (typeof count === 'number') {
+                        this._cachedPresenceCount = count;
+                        // Refresh the live count in DOM if dashboard is still visible
+                        const el = document.querySelector('.lunar-live-presence span');
+                        if (el) el.textContent = `${count} members in circle`;
+                    }
+                })
+                .catch(err => {
+                    console.warn('[LunarRoom] getLivingPresenceCount DB error:', err);
+                });
+        }
 
-            let inner;
-            if (profile.avatar_url) {
-                inner = `<img src="${profile.avatar_url}" alt="${initial}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-            } else if (profile.emoji) {
-                inner = `<span style="font-size:18px;">${profile.emoji}</span>`;
-            } else {
-                inner = `<span style="font-size:14px;font-weight:600;">${initial}</span>`;
-            }
-
-            return `<div class="lunar-avatar" style="${gradient};display:flex;align-items:center;justify-content:center;" aria-label="${name}">${inner}</div>`;
-        }).join('');
-
-        const overflowHTML = overflow > 0
-            ? `<div class="lunar-avatar" style="background:#333;display:flex;align-items:center;justify-content:center;font-size:12px;">+${overflow}</div>`
-            : `<div class="lunar-avatar lunar-join-avatar" aria-label="Join circle"><span>+</span></div>`;
-
-        return avatarHTML + overflowHTML;
+        return this._cachedPresenceCount;
     }
 
     /**
@@ -1742,42 +1657,21 @@ class LunarRoom {
     /**
      * Load collective words from Supabase for this phase.
      * Falls back to mock data if DB unavailable.
-     * Subscribes to realtime updates so new words appear live.
+     * Updates this.collectiveWords in place.
      * @private
      */
     async _loadCollectiveWords() {
         if (!window.CommunityDB || !CommunityDB.ready) return;
         try {
             const collectiveRoomId = `${this._getLunarRoomId()}-collective`;
+            const rows = await CommunityDB.getRoomMessages(collectiveRoomId, 100);
 
-            const _doLoad = async () => {
-                const rows = await CommunityDB.getRoomMessages(collectiveRoomId, 100);
-                if (rows && rows.length > 0) {
-                    this.collectiveWords = rows.map(row => ({
-                        word:      row.message,
-                        timestamp: new Date(row.created_at).getTime()
-                    }));
-
-                    // Update word cloud if currently visible
-                    const cloudEl = document.getElementById('wordCloud');
-                    if (cloudEl && window.LunarUI) {
-                        cloudEl.innerHTML = LunarUI.renderWordCloud(this.collectiveWords);
-                    }
-                    const countEl = document.querySelector('.lunar-word-count strong');
-                    if (countEl) countEl.textContent = this.collectiveWords.length;
-                }
-            };
-
-            await _doLoad();
-
-            // Realtime — new words from other users appear instantly
-            if (this._collectiveWordsSub) {
-                try { this._collectiveWordsSub.unsubscribe(); } catch(e) {}
+            if (rows && rows.length > 0) {
+                this.collectiveWords = rows.map(row => ({
+                    word:      row.message,
+                    timestamp: new Date(row.created_at).getTime()
+                }));
             }
-            this._collectiveWordsSub = CommunityDB.subscribeToRoomChat(collectiveRoomId, async () => {
-                await _doLoad();
-            });
-
         } catch (err) {
             console.warn('[LunarRoom] _loadCollectiveWords error:', err);
         }
@@ -1793,15 +1687,7 @@ class LunarRoom {
             clearTimeout(this.saveDebounceTimer);
         }
         if (this._retryCheckTimeout) {
-            clearTimeout(this._retryCheckTimeout);
-        }
-        if (this._presenceSub) {
-            try { this._presenceSub.unsubscribe(); } catch(e) {}
-            this._presenceSub = null;
-        }
-        if (this._collectiveWordsSub) {
-            try { this._collectiveWordsSub.unsubscribe(); } catch(e) {}
-            this._collectiveWordsSub = null;
+            clearTimeout(this._retryCheckTimeout); // ✅ ADDED: Clear retry timeout
         }
         this.domCache = { dynamicContent: null, popup: null };
     }

@@ -508,7 +508,7 @@ const LunarEngine = {
                         <div class="room-meta-inline">
                             <div class="room-energy">
                                 <div class="energy-pulse" style="background: var(--ring-silent);"></div>
-                                <span id="lunarRoomPresence">0 present</span>
+                                <span id="lunarRoomPresence">${Math.floor(Math.random() * 12)} present</span>
                             </div>
                             <button class="join-btn-inline" onclick="LunarEngine.joinLunarRoom()">Join Space</button>
                         </div>
@@ -521,43 +521,6 @@ const LunarEngine = {
 
         // Redraw moon visualization after rendering
         this.updateMoonVisualization();
-
-        // Fetch live presence count for outer card
-        this._refreshOuterCard();
-    },
-
-    // Fetch live participant count for the outer lunar card and subscribe to realtime updates
-    _refreshOuterCard() {
-        if (!window.CommunityDB || !CommunityDB.ready) {
-            const _interval = setInterval(() => {
-                if (!window.CommunityDB?.ready) return;
-                clearInterval(_interval);
-                this._refreshOuterCard();
-            }, 500);
-            return;
-        }
-
-        const room   = this.currentLunarRoom;
-        if (!room) return;
-        const roomId = room.roomId;
-
-        const _doCount = async () => {
-            try {
-                const participants = await CommunityDB.getRoomParticipants(roomId);
-                const el = document.getElementById('lunarRoomPresence');
-                if (el) el.textContent = `${participants.length} present`;
-            } catch(e) {
-                console.warn('[LunarEngine] _refreshOuterCard error:', e);
-            }
-        };
-
-        _doCount();
-
-        // Realtime
-        if (this._outerCardSub) {
-            try { this._outerCardSub.unsubscribe(); } catch(e) {}
-        }
-        this._outerCardSub = CommunityDB.subscribeToPresence(_doCount);
     },
 
     // Render DEV MODE section with all lunar rooms
