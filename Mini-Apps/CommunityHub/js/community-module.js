@@ -109,7 +109,8 @@ const CommunityModule = {
             <!-- New reflection input -->
             <div class="reflection" style="margin-bottom:16px;">
                 <div class="ref-header">
-                    <div class="ref-avatar" style="${avatarStyle}">
+                    <div class="ref-avatar" style="${avatarStyle} cursor:pointer;"
+                         onclick="CommunityModule.viewMember('${user.id}')">
                         ${avatarInner}
                     </div>
                     <div class="ref-meta" style="flex:1;">
@@ -507,7 +508,12 @@ const CommunityModule = {
     },
 
     viewMember(userId) {
-        Core.showToast('Member profiles coming soon');
+        if (!userId) return;
+        if (window.MemberProfileModal) {
+            MemberProfileModal.open(userId);
+        } else {
+            Core.showToast('Member profiles loading...');
+        }
     },
 
     // ============================================================================
