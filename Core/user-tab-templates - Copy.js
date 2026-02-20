@@ -120,12 +120,6 @@ export const profile = (u = {}) => `
       id="profile-birthday" 
       type="date" 
       value="${u.birthday || ''}">
-    <input
-      id="profile-country"
-      type="text"
-      maxlength="60"
-      placeholder="Country"
-      value="${u.country || ''}">
     <button class="btn-link" id="save-profile-btn">Save changes</button>
   </div>`;
 

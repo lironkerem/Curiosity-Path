@@ -138,9 +138,34 @@ const CommunityDB = {
   },
 
   /**
-   * Update current user's profile fields
-   * @param {Object} updates - e.g. { inspiration: 'new text', community_status: 'silent' }
+   * Upload avatar image to Supabase Storage and update profiles.avatar_url.
+   * @param {File} file - Image file from input
+   * @returns {string|null} Public URL on success, null on failure
    */
+  async uploadAvatar(file) {
+    if (!this.ready) return null;
+    try {
+      const ext      = file.name.split('.').pop().toLowerCase() || 'jpg';
+      const path     = `avatars/${this._uid}.${ext}`;
+      const { error: upErr } = await this._sb.storage
+        .from('community-avatars')
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) { console.error('[CommunityDB] uploadAvatar upload:', upErr.message); return null; }
+
+      const { data } = this._sb.storage.from('community-avatars').getPublicUrl(path);
+      const url = data?.publicUrl;
+      if (!url) return null;
+
+      // Bust cache by appending timestamp
+      const publicUrl = `${url}?t=${Date.now()}`;
+
+      const ok = await this.updateProfile({ avatar_url: publicUrl });
+      return ok ? publicUrl : null;
+    } catch (err) {
+      console.error('[CommunityDB] uploadAvatar:', err);
+      return null;
+    }
+  },
   async updateProfile(updates) {
     if (!this.ready) return false;
     const { error } = await this._sb

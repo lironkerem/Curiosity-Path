@@ -144,10 +144,6 @@ const ProfileModule = {
                             <div class="detail-row">
                                 <span class="detail-label">Community Role</span>
                                 <span class="detail-val" style="color: var(--primary);" id="privateRole">Member</span>
-                                <button class="edit-inline-btn"
-                                        onclick="ProfileModule.editRole()"
-                                        title="Edit community role"
-                                        style="background:none;border:none;cursor:pointer;font-size:12px;opacity:0.6;margin-left:6px;">✏️</button>
                             </div>
                             <div class="detail-row">
                                 <span class="detail-label">Status</span>
@@ -391,7 +387,9 @@ const ProfileModule = {
         if (!row) return;
 
         // Badges live in user_progress.payload.badges via GamificationEngine
-        const earned = window.app?.gamification?.state?.badges ?? [];
+        const earned = window.GamificationEngine?.state?.badges
+                    ?? window.GamificationEngine?.state?.gamification?.badges
+                    ?? [];
 
         if (!earned || earned.length === 0) {
             row.innerHTML = '<span style="font-size:12px;color:var(--text-muted);opacity:0.6;">No badges earned yet</span>';
@@ -437,68 +435,7 @@ const ProfileModule = {
     // ============================================================================
 
     editProfile() {
-        // Create a hidden file input and trigger it
-        let input = document.getElementById('_avatarFileInput');
-        if (!input) {
-            input = document.createElement('input');
-            input.id       = '_avatarFileInput';
-            input.type     = 'file';
-            input.accept   = 'image/jpeg,image/png,image/webp,image/gif';
-            input.style.display = 'none';
-            document.body.appendChild(input);
-            input.addEventListener('change', () => {
-                const file = input.files?.[0];
-                if (file) this._uploadAvatar(file);
-                input.value = ''; // reset so same file can be re-selected
-            });
-        }
-        input.click();
-    },
-
-    async _uploadAvatar(file) {
-        // Validate size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            Core.showToast('Image too large — max 5MB');
-            return;
-        }
-
-        // Show preview immediately (optimistic)
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = document.getElementById('profileAvatarImg');
-            const fallback = document.getElementById('profileAvatarFallback');
-            const wrap = document.getElementById('profileAvatar');
-            if (img) { img.src = e.target.result; img.style.display = 'block'; }
-            if (fallback) fallback.style.display = 'none';
-            if (wrap) wrap.style.background = 'transparent';
-        };
-        reader.readAsDataURL(file);
-
-        Core.showToast('Uploading photo...');
-
-        const url = await CommunityDB.uploadAvatar(file);
-        if (url) {
-            if (Core?.state?.currentUser) Core.state.currentUser.avatar_url = url;
-            Core.showToast('✓ Profile photo updated');
-        } else {
-            Core.showToast('Upload failed — please try again');
-            // Revert preview to previous avatar
-            this.updateAvatar(Core.state.currentUser);
-        }
-    },
-
-    async editRole() {
-        const current = Core?.state?.currentUser?.role || '';
-        const newVal = prompt('Enter your community role (e.g. Meditator, Healer, Teacher):', current);
-        if (newVal === null) return;
-
-        const trimmed = newVal.trim().substring(0, 60);
-        const ok = await CommunityDB.updateProfile({ community_role: trimmed || null });
-        if (!ok) { Core.showToast('Could not save — please try again'); return; }
-
-        if (Core?.state?.currentUser) Core.state.currentUser.role = trimmed || 'Member';
-        this.updateRole(Core.state.currentUser);
-        Core.showToast('✓ Role updated');
+        Core.showToast('Edit your profile in the main menu (👤 icon)');
     },
 
     async editInspiration() {
