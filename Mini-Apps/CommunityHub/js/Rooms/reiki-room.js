@@ -243,8 +243,8 @@ class ReikiRoom extends PracticeRoom {
         const todayChakra = this.CHAKRA_SCHEDULE[this.state.currentDay];
         return `
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 12px; color: var(--text-muted);">
-                ${this.state.participants} present
+            <span class="room-participants" style="font-size: 12px; color: var(--text-muted);">
+                ${this.getParticipantText()}
             </span>
             <span style="font-size: 12px; color: var(--text); font-weight: 600;">
                 Daily Chakra: ${todayChakra.name}
