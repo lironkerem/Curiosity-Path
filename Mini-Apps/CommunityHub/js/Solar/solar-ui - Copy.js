@@ -63,10 +63,31 @@ const SolarUIManager = {
       return html;
     },
 
-    // Kept for backwards compatibility — actual live counts come from
-    // BaseSolarRoom._refreshLivePresence() which uses getRoomParticipants + subscribeToPresence.
     getRandomPresenceCount() {
-      return 0;
+      const { min, max } = SOLAR_CONSTANTS.PRESENCE_RANGE;
+      const fallback = Math.floor(Math.random() * (max - min + 1)) + min;
+
+      // Async-refresh from Supabase if a solar room is active
+      if (window.CommunityDB && CommunityDB.ready && window.currentSolarRoom) {
+        const roomId = `${window.currentSolarRoom.config?.name}-solar`;
+        CommunityDB.getRoomPresence(roomId)
+          .then(count => {
+            if (typeof count === 'number') {
+              // Update any live presence badges still in the DOM
+              document.querySelectorAll('.solar-live-count-top span').forEach(el => {
+                el.textContent = `${count} members practicing with you now`;
+              });
+              document.querySelectorAll('.solar-live-badge span').forEach(el => {
+                el.textContent = `${count} gathering now`;
+              });
+            }
+          })
+          .catch(err => {
+            console.warn('[SolarUIManager] getRandomPresenceCount DB error:', err);
+          });
+      }
+
+      return fallback;
     },
 
     formatDate(date) {
@@ -93,7 +114,7 @@ const SolarUIManager = {
           </div>
           <div class="solar-live-count-top">
             <div class="solar-pulse-dot"></div>
-            <span id="solarLiveCountTop">${livingPresenceCount} members practicing with you now</span>
+            <span>${livingPresenceCount} members practicing with you now</span>
           </div>
           <button onclick="SolarUIManager.handleBackToHub()" class="solar-back-hub-btn">
             Leave Practice
@@ -207,12 +228,11 @@ const SolarUIManager = {
           </p>
           <div class="solar-live-badge">
             <div class="solar-pulse-dot"></div>
-            <span id="solarGroupPresenceBadge">${presenceCount} gathering now</span>
+            <span>${presenceCount} gathering now</span>
           </div>
-          <div id="solarGroupAvatars" style="display:flex;gap:6px;justify-content:center;margin:1rem 0;flex-wrap:wrap;"></div>
           <h4 style="color: var(--season-accent); margin: 2rem 0 1rem 0;">Group Practice Includes:</h4>
           <ul class="solar-group-list">
-            <li><span>${itemEmoji}</span> Join <span id="solarGroupJoinCount">${presenceCount}</span> practitioners in live circle</li>
+            <li><span>${itemEmoji}</span> Join ${presenceCount} practitioners in live circle</li>
             <li><span>${itemEmoji}</span> 3-minute guided meditation for seasonal centering</li>
             <li><span>${itemEmoji}</span> Set a private intention for ${seasonName.toLowerCase()}</li>
             <li><span>${itemEmoji}</span> Share one word with the collective field</li>
@@ -312,22 +332,23 @@ const SolarUIManager = {
   },
 
   handleBackToHub() {
-    // Use leaveRoom() for full cleanup (presence, subscriptions, hub restart)
-    if (window.currentSolarRoom && typeof window.currentSolarRoom.leaveRoom === 'function') {
-      window.currentSolarRoom.leaveRoom();
-      return;
-    }
-
-    // Fallback if no active room object
+    // ── Clear Supabase presence ────────────────────────────────────────
     if (window.currentSolarRoom && typeof window.currentSolarRoom._clearPresence === 'function') {
       window.currentSolarRoom._clearPresence();
     }
-    document.body.classList.remove('solar-room-active');
 
+    // Remove solar room background class
+    document.body.classList.remove('solar-room-active');
+    
+    // FIXED: Trigger closing ritual instead of direct navigation
     if (window.Rituals && window.Rituals.showClosing) {
       window.Rituals.showClosing();
-    } else if (window.Core && window.Core.navigateTo) {
-      window.Core.navigateTo('hubView');
+    } else {
+      // Fallback: direct navigation if Rituals not available
+      console.warn('Rituals module not available, navigating directly');
+      if (window.Core && window.Core.navigateTo) {
+        window.Core.navigateTo('hubView');
+      }
     }
   },
 

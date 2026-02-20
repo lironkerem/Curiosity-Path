@@ -402,7 +402,12 @@ const SolarEngine = {
       roomEl.setAttribute('data-room-energy', room.energy);
     }
 
-    // Presence count is kept live by _refreshOuterCard() — no random update here
+    // Update presence count
+    const presenceEl = document.getElementById('solarRoomPresence');
+    if (presenceEl) {
+      const mockCount = SolarUIManager.utils.getRandomPresenceCount();
+      presenceEl.textContent = `${mockCount} present`;
+    }
   },
 
   getCurrentRoom() {
@@ -540,7 +545,7 @@ const SolarEngine = {
             <div class="room-meta-inline">
               <div class="room-energy">
                 <div class="energy-pulse" style="background: var(--ring-guiding);"></div>
-                <span id="solarRoomPresence">0 present</span>
+                <span id="solarRoomPresence">${SolarUIManager.utils.getRandomPresenceCount()} present</span>
               </div>
               <button class="join-btn-inline" onclick="SolarEngine.joinSolarRoom()">Join Space</button>
             </div>
@@ -553,43 +558,6 @@ const SolarEngine = {
 
     // Redraw solar visualization after rendering
     this.updateSolarVisualization();
-
-    // Fetch live presence count for outer card
-    this._refreshOuterCard();
-  },
-
-  // Fetch live participant count for outer solar card and subscribe to realtime updates
-  _refreshOuterCard() {
-    if (!window.CommunityDB || !CommunityDB.ready) {
-      const _interval = setInterval(() => {
-        if (!window.CommunityDB?.ready) return;
-        clearInterval(_interval);
-        this._refreshOuterCard();
-      }, 500);
-      return;
-    }
-
-    const room = this.currentSolarRoom;
-    if (!room) return;
-    const roomId = `${room.season}-solar`;
-
-    const _doCount = async () => {
-      try {
-        const participants = await CommunityDB.getRoomParticipants(roomId);
-        const el = document.getElementById('solarRoomPresence');
-        if (el) el.textContent = `${participants.length} present`;
-      } catch(e) {
-        console.warn('[SolarEngine] _refreshOuterCard error:', e);
-      }
-    };
-
-    _doCount();
-
-    // Realtime
-    if (this._outerCardSub) {
-      try { this._outerCardSub.unsubscribe(); } catch(e) {}
-    }
-    this._outerCardSub = CommunityDB.subscribeToPresence(_doCount);
   },
 
   // Render DEV MODE section with all solar rooms

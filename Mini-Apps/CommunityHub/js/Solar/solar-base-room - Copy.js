@@ -92,14 +92,6 @@ const BaseSolarRoom = {
       clearTimeout(this.saveDebounceTimer);
       this.saveDebounceTimer = null;
     }
-    if (this._presenceSub) {
-      try { this._presenceSub.unsubscribe(); } catch(e) {}
-      this._presenceSub = null;
-    }
-    if (this._collectiveWordsSub) {
-      try { this._collectiveWordsSub.unsubscribe(); } catch(e) {}
-      this._collectiveWordsSub = null;
-    }
   },
 
   // ============================================================================
@@ -226,11 +218,6 @@ const BaseSolarRoom = {
       window.Core.navigateTo('practiceRoomView');
     }
 
-    // Stop hub card subscription while inside a room
-    if (window.PracticeRoom?.stopHubPresence) {
-      PracticeRoom.stopHubPresence();
-    }
-
     // Add solar room background class
     document.body.classList.add('solar-room-active');
 
@@ -242,46 +229,6 @@ const BaseSolarRoom = {
 
     // ── Load collective words from DB ──────────────────────────────────
     this._loadCollectiveWords();
-  },
-
-  /**
-   * Leave the practice room and return to hub
-   */
-  leaveRoom() {
-    try {
-      // ── Supabase presence ──────────────────────────────────────────
-      this._clearPresence();
-
-      // ── Unsubscribe from realtime subscriptions ────────────────────
-      if (this._presenceSub) {
-        try { this._presenceSub.unsubscribe(); } catch(e) {}
-        this._presenceSub = null;
-      }
-      if (this._collectiveWordsSub) {
-        try { this._collectiveWordsSub.unsubscribe(); } catch(e) {}
-        this._collectiveWordsSub = null;
-      }
-
-      // Cleanup
-      this._clearTimer();
-      this._removeEventListeners();
-
-      // Remove solar room background class
-      document.body.classList.remove('solar-room-active');
-
-      window.currentSolarRoom = null;
-
-      // ── Restart shared hub presence subscription ───────────────────
-      if (window.PracticeRoom?.startHubPresence) {
-        PracticeRoom.startHubPresence();
-      }
-
-      if (window.Core && window.Core.navigateTo) {
-        window.Core.navigateTo('hubView');
-      }
-    } catch (error) {
-      console.error('Error leaving solar room:', error);
-    }
   },
 
   /**
@@ -298,6 +245,7 @@ const BaseSolarRoom = {
     window.currentSolarRoom = this;
 
     const daysRemaining = SolarUIManager.utils.calculateDaysRemaining(this.endDate);
+    const presenceCount = SolarUIManager.utils.getRandomPresenceCount();
     const daysText = `${daysRemaining} ${daysRemaining === 1 ? 'day' : 'days'} remaining`;
     const imageUrl = `${SOLAR_CONSTANTS.IMAGE_BASE_URL}${this.config.displayName}.png`;
 
@@ -311,7 +259,7 @@ const BaseSolarRoom = {
         seasonName: this.config.displayName,
         emoji: this.config.emoji,
         daysText,
-        livingPresenceCount: this.getLivingPresenceCount()
+        livingPresenceCount: presenceCount
       })}
       
       <div class="solar-content-wrapper">
@@ -350,7 +298,7 @@ const BaseSolarRoom = {
           ${SolarUIManager.renderers.groupPractice({
             seasonEmoji: this.config.seasonEmoji,
             seasonName: this.config.displayName,
-            presenceCount: this.getLivingPresenceCount(),
+            presenceCount,
             itemEmoji: this.config.itemEmoji,
             sessionTimes: this.config.sessionTimes,
             collectiveFocus: this.config.collectiveFocus,
@@ -363,11 +311,8 @@ const BaseSolarRoom = {
       </div>
     `;
     
-    // Attach event listeners with delegation
+    // ✅ ADDED: Attach event listeners with delegation (Lunar-style)
     this._attachEventListeners(container);
-
-    // Fetch live presence and subscribe to realtime (after render, delayed to let DOM settle)
-    setTimeout(() => this._refreshLivePresence(), 300);
   },
 
   /**
@@ -651,22 +596,17 @@ const BaseSolarRoom = {
   },
 
   /**
-   * Render Step 1: Welcome (uses live presence data)
+   * Render Step 1: Welcome
    */
   _renderCollectiveStep1() {
-    const count     = this.getLivingPresenceCount();
-    const avatarHTML = this._cachedParticipants
-      ? this._buildRealAvatars(this._cachedParticipants)
-      : '';
-
+    const presenceCount = SolarUIManager.utils.getRandomPresenceCount();
+    
     return `
       <div class="solar-popup-section" style="text-align: center;">
-        <div class="solar-live-badge" style="margin-bottom: 1rem;">
+        <div class="solar-live-badge" style="margin-bottom: 2rem;">
           <div class="solar-pulse-dot"></div>
-          <span id="solarCollectivePresenceBadge">${count} practitioners in circle now</span>
+          <span>${presenceCount} practitioners in circle now</span>
         </div>
-
-        ${avatarHTML ? `<div id="solarCollectiveAvatars" style="display:flex;gap:6px;justify-content:center;margin-bottom:2rem;">${avatarHTML}</div>` : ''}
         
         <h3>Welcome to the ${this.config.displayName} Circle</h3>
         <p style="margin: 1.5rem 0;">
@@ -1033,108 +973,6 @@ const BaseSolarRoom = {
   },
 
   /**
-   * Get cached presence count synchronously (returns 0 on first call).
-   * Actual count arrives via _refreshLivePresence().
-   * @returns {number}
-   */
-  getLivingPresenceCount() {
-    return typeof this._cachedPresenceCount === 'number' ? this._cachedPresenceCount : 0;
-  },
-
-  /**
-   * Fetch live participant count + real avatars from Supabase,
-   * update DOM, and subscribe to realtime presence changes.
-   * Called by renderDashboard() (via setTimeout) and on re-entry.
-   * @private
-   */
-  async _refreshLivePresence() {
-    if (!window.CommunityDB || !CommunityDB.ready) return;
-
-    const roomId = this._getSolarRoomId();
-
-    const _doRefresh = async () => {
-      try {
-        const participants = await CommunityDB.getRoomParticipants(roomId);
-        const blocked      = await CommunityDB.getBlockedUsers();
-        const visible      = participants.filter(p => !blocked.has(p.user_id));
-        const count        = visible.length;
-
-        this._cachedPresenceCount = count;
-        this._cachedParticipants  = visible;
-
-        // ── Inner top bar ──────────────────────────────────────────────
-        const topEl = document.getElementById('solarLiveCountTop');
-        if (topEl) topEl.textContent = `${count} members practicing with you now`;
-
-        // ── Group circle badge ─────────────────────────────────────────
-        const badgeEl = document.getElementById('solarGroupPresenceBadge');
-        if (badgeEl) badgeEl.textContent = `${count} gathering now`;
-
-        // ── Group circle join-count in the list ───────────────────────
-        const joinCountEl = document.getElementById('solarGroupJoinCount');
-        if (joinCountEl) joinCountEl.textContent = count;
-
-        // ── Group circle avatars ───────────────────────────────────────
-        const avatarEl = document.getElementById('solarGroupAvatars');
-        if (avatarEl) avatarEl.innerHTML = this._buildRealAvatars(visible);
-
-        // ── Collective step 1 badge (if popup is open) ────────────────
-        const step1BadgeEl = document.getElementById('solarCollectivePresenceBadge');
-        if (step1BadgeEl) step1BadgeEl.textContent = `${count} practitioners in circle now`;
-
-      } catch (err) {
-        console.warn('[BaseSolarRoom] _refreshLivePresence error:', err);
-      }
-    };
-
-    await _doRefresh();
-
-    // Realtime — unsubscribe any previous sub first
-    if (this._presenceSub) {
-      try { this._presenceSub.unsubscribe(); } catch(e) {}
-    }
-    this._presenceSub = CommunityDB.subscribeToPresence(_doRefresh);
-  },
-
-  /**
-   * Build real user avatars from participant data (photo > emoji > initial).
-   * @param {Array} participants
-   * @returns {string} HTML string
-   * @private
-   */
-  _buildRealAvatars(participants) {
-    const MAX = 5;
-    const shown    = participants.slice(0, MAX);
-    const overflow = participants.length - MAX;
-
-    const avatarHTML = shown.map(p => {
-      const profile = p.profiles || {};
-      const name    = profile.name || profile.display_name || '?';
-      const initial = name.charAt(0).toUpperCase();
-      const gradient = window.Core?.getAvatarGradient
-        ? Core.getAvatarGradient(p.user_id)
-        : 'background: var(--season-accent, #f59e0b)';
-
-      let inner;
-      if (profile.avatar_url) {
-        inner = `<img src="${profile.avatar_url}" alt="${initial}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-      } else if (profile.emoji) {
-        inner = `<span style="font-size:18px;">${profile.emoji}</span>`;
-      } else {
-        inner = `<span style="font-size:13px;font-weight:600;">${initial}</span>`;
-      }
-
-      return `<div class="solar-avatar" style="${gradient};width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,0.2);" aria-label="${name}">${inner}</div>`;
-    }).join('');
-
-    const overflowHTML = overflow > 0
-      ? `<div class="solar-avatar" style="background:rgba(255,255,255,0.1);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid rgba(255,255,255,0.2);">+${overflow}</div>`
-      : '';
-
-    return avatarHTML + overflowHTML;
-  },
-
-  /**
    * Update Supabase presence to show user is in this solar room.
    * @private
    */
@@ -1174,42 +1012,22 @@ const BaseSolarRoom = {
 
   /**
    * Load collective words from Supabase for this season.
-   * Subscribes to realtime so new words from other users appear live.
+   * Falls back to mock data if DB unavailable.
+   * Populates this._dbCollectiveWords for use in startCollectiveStep5.
    * @private
    */
   async _loadCollectiveWords() {
     if (!window.CommunityDB || !CommunityDB.ready) return;
     try {
       const collectiveRoomId = `${this._getSolarRoomId()}-collective`;
+      const rows = await CommunityDB.getRoomMessages(collectiveRoomId, 100);
 
-      const _doLoad = async () => {
-        const rows = await CommunityDB.getRoomMessages(collectiveRoomId, 100);
-        if (rows && rows.length > 0) {
-          this._dbCollectiveWords = rows.map(row => ({
-            word:      row.message,
-            timestamp: new Date(row.created_at).getTime()
-          }));
-
-          // Update word cloud if collective step 5 is open
-          const cloudEl = document.getElementById('wordCloud');
-          if (cloudEl) {
-            cloudEl.innerHTML = this._renderWordCloud(this._dbCollectiveWords);
-          }
-          const countEl = document.querySelector('.solar-word-count strong');
-          if (countEl) countEl.textContent = this._dbCollectiveWords.length;
-        }
-      };
-
-      await _doLoad();
-
-      // Realtime — new words from other users appear instantly
-      if (this._collectiveWordsSub) {
-        try { this._collectiveWordsSub.unsubscribe(); } catch(e) {}
+      if (rows && rows.length > 0) {
+        this._dbCollectiveWords = rows.map(row => ({
+          word:      row.message,
+          timestamp: new Date(row.created_at).getTime()
+        }));
       }
-      this._collectiveWordsSub = CommunityDB.subscribeToRoomChat(collectiveRoomId, async () => {
-        await _doLoad();
-      });
-
     } catch (err) {
       console.warn('[BaseSolarRoom] _loadCollectiveWords error:', err);
     }
