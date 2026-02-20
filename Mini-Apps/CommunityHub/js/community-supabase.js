@@ -320,6 +320,18 @@ const CommunityDB = {
     return true;
   },
 
+  /** Update the content of a reflection you own */
+  async updateReflection(reflectionId, newContent) {
+    if (!this.ready) return false;
+    const { error } = await this._sb
+      .from('reflections')
+      .update({ content: newContent })
+      .eq('id', reflectionId)
+      .eq('user_id', this._uid);
+    if (error) { console.error('[CommunityDB] updateReflection:', error.message); return false; }
+    return true;
+  },
+
   /**
    * Subscribe to new reflections being posted.
    * Callback receives the full reflection object (with profile).
@@ -623,6 +635,80 @@ const CommunityDB = {
       .single();
     if (error) { console.error('[CommunityDB] getReflectionCount:', error.message); return null; }
     return data?.appreciation_count ?? null;
+  },
+
+  // ============================================================================
+  // USER APPRECIATIONS — appreciating another member's profile
+  // Table: user_appreciations (user_id uuid, appreciated_user_id uuid, created_at timestamptz)
+  // Primary key: (user_id, appreciated_user_id)
+  // Run this SQL in Supabase once:
+  //   CREATE TABLE IF NOT EXISTS user_appreciations (
+  //     user_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
+  //     appreciated_user_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
+  //     created_at timestamptz DEFAULT now(),
+  //     PRIMARY KEY (user_id, appreciated_user_id)
+  //   );
+  //   ALTER TABLE user_appreciations ENABLE ROW LEVEL SECURITY;
+  //   CREATE POLICY "Users can manage own appreciations"
+  //     ON user_appreciations FOR ALL TO authenticated
+  //     USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+  //   CREATE POLICY "Public read user appreciations"
+  //     ON user_appreciations FOR SELECT TO authenticated
+  //     USING (true);
+  // ============================================================================
+
+  /**
+   * Get the set of user IDs the current user has appreciated.
+   * @returns {Set<string>}
+   */
+  async getMyUserAppreciations() {
+    if (!this.ready) return new Set();
+    const { data, error } = await this._sb
+      .from('user_appreciations')
+      .select('appreciated_user_id')
+      .eq('user_id', this._uid);
+    if (error) { console.error('[CommunityDB] getMyUserAppreciations:', error.message); return new Set(); }
+    return new Set(data.map(r => r.appreciated_user_id));
+  },
+
+  /**
+   * Toggle appreciation for a user profile.
+   * @param {string} targetUserId
+   * @param {boolean} currentlyAppreciated
+   * @returns {{ appreciated: boolean } | null}
+   */
+  async toggleUserAppreciation(targetUserId, currentlyAppreciated) {
+    if (!this.ready) return null;
+    if (currentlyAppreciated) {
+      const { error } = await this._sb
+        .from('user_appreciations')
+        .delete()
+        .eq('user_id', this._uid)
+        .eq('appreciated_user_id', targetUserId);
+      if (error) { console.error('[CommunityDB] removeUserAppreciation:', error.message); return null; }
+      return { appreciated: false };
+    } else {
+      const { error } = await this._sb
+        .from('user_appreciations')
+        .insert({ user_id: this._uid, appreciated_user_id: targetUserId });
+      if (error) { console.error('[CommunityDB] addUserAppreciation:', error.message); return null; }
+      return { appreciated: true };
+    }
+  },
+
+  /**
+   * Get total appreciation count for a user profile.
+   * @param {string} targetUserId
+   * @returns {number}
+   */
+  async getUserAppreciationCount(targetUserId) {
+    if (!this.ready) return 0;
+    const { count, error } = await this._sb
+      .from('user_appreciations')
+      .select('*', { count: 'exact', head: true })
+      .eq('appreciated_user_id', targetUserId);
+    if (error) { console.error('[CommunityDB] getUserAppreciationCount:', error.message); return 0; }
+    return count || 0;
   },
 
   /**

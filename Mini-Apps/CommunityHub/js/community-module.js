@@ -168,6 +168,7 @@ const CommunityModule = {
         const profile     = ref.profiles || {};
         const name        = profile.name  || 'Community Member';
         const emoji       = profile.emoji || '';
+        const avatarUrl   = profile.avatar_url || '';
         const initial     = name.charAt(0).toUpperCase();
         const display     = emoji || initial;
         const gradient    = Core.getAvatarGradient(profile.id || ref.id);
@@ -175,13 +176,20 @@ const CommunityModule = {
         const isOwn       = profile.id === Core?.state?.currentUser?.id;
         const appreciated = this.state.appreciatedReflections.has(ref.id);
 
+        const avatarInner = avatarUrl
+            ? `<img src="${avatarUrl}" alt="${this.escapeHtml(name)}">`
+            : this.escapeHtml(display);
+        const avatarStyle = avatarUrl
+            ? `background:transparent;`
+            : `background:${gradient};`;
+
         return `
             <div class="reflection" data-reflection-id="${ref.id}">
                 <div class="ref-header">
                     <div class="ref-avatar"
-                         style="background: ${gradient}; cursor: pointer;"
+                         style="${avatarStyle} cursor: pointer;"
                          onclick="CommunityModule.viewMember('${profile.id}')">
-                        ${this.escapeHtml(display)}
+                        ${avatarInner}
                     </div>
                     <div class="ref-meta">
                         <div class="ref-author" style="cursor: pointer;"
@@ -191,9 +199,14 @@ const CommunityModule = {
                         <div class="ref-time">${timeStr}</div>
                     </div>
                     ${isOwn ? `
-                        <button onclick="CommunityModule.deleteReflection('${ref.id}')"
-                                style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:20px;line-height:1;padding:0 4px;"
-                                title="Delete reflection">×</button>` : ''}
+                        <div style="margin-left:auto;display:flex;gap:6px;">
+                            <button onclick="CommunityModule.editReflection('${ref.id}')"
+                                    style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:14px;padding:0 4px;"
+                                    title="Edit reflection">✏️</button>
+                            <button onclick="CommunityModule.deleteReflection('${ref.id}')"
+                                    style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:20px;line-height:1;padding:0 4px;"
+                                    title="Delete reflection">×</button>
+                        </div>` : ''}
                 </div>
                 <div class="ref-content">${this.escapeHtml(ref.content)}</div>
                 <div class="ref-actions">
@@ -293,6 +306,77 @@ const CommunityModule = {
             Core.showToast('Reflection removed');
         } else {
             Core.showToast('Could not remove reflection');
+        }
+    },
+
+    editReflection(reflectionId) {
+        const card = document.querySelector(`[data-reflection-id="${reflectionId}"]`);
+        if (!card) return;
+
+        const contentEl = card.querySelector('.ref-content');
+        if (!contentEl) return;
+
+        const original = contentEl.textContent.trim();
+
+        contentEl.innerHTML = `
+            <textarea id="editReflectionInput_${reflectionId}"
+                      maxlength="500"
+                      rows="3"
+                      style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius-md);
+                             background:var(--surface);color:var(--text);resize:vertical;
+                             font-size:14px;line-height:1.6;box-sizing:border-box;"
+            >${this.escapeHtml(original)}</textarea>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+                <span style="font-size:11px;color:var(--text-muted)">
+                    <span id="editCharCount_${reflectionId}">${original.length}</span>/500
+                </span>
+                <div style="display:flex;gap:8px;">
+                    <button onclick="CommunityModule.saveEditReflection('${reflectionId}')"
+                            style="padding:5px 14px;background:var(--accent);color:#fff;border:none;
+                                   border-radius:var(--radius-md);cursor:pointer;font-size:13px;font-weight:600;">
+                        Save
+                    </button>
+                    <button onclick="CommunityModule.cancelEditReflection('${reflectionId}', \`${this.escapeHtml(original).replace(/`/g, '\\`')}\`)"
+                            style="padding:5px 12px;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
+                                   color:var(--neuro-text);border:none;border-radius:var(--radius-md);cursor:pointer;font-size:13px;">
+                        Cancel
+                    </button>
+                </div>
+            </div>`;
+
+        const ta = document.getElementById(`editReflectionInput_${reflectionId}`);
+        const counter = document.getElementById(`editCharCount_${reflectionId}`);
+        if (ta) {
+            ta.addEventListener('input', () => { if (counter) counter.textContent = ta.value.length; });
+            ta.focus();
+            ta.setSelectionRange(ta.value.length, ta.value.length);
+        }
+    },
+
+    cancelEditReflection(reflectionId, original) {
+        const card = document.querySelector(`[data-reflection-id="${reflectionId}"]`);
+        if (!card) return;
+        const contentEl = card.querySelector('.ref-content');
+        if (contentEl) contentEl.textContent = original;
+    },
+
+    async saveEditReflection(reflectionId) {
+        const ta = document.getElementById(`editReflectionInput_${reflectionId}`);
+        if (!ta) return;
+        const newText = ta.value.trim();
+        if (!newText) { Core.showToast('Reflection cannot be empty'); return; }
+        if (newText.length > 500) { Core.showToast('Too long (max 500 characters)'); return; }
+
+        ta.disabled = true;
+        const ok = await CommunityDB.updateReflection(reflectionId, newText);
+        if (ok) {
+            const card = document.querySelector(`[data-reflection-id="${reflectionId}"]`);
+            const contentEl = card?.querySelector('.ref-content');
+            if (contentEl) contentEl.textContent = newText;
+            Core.showToast('✓ Reflection updated');
+        } else {
+            ta.disabled = false;
+            Core.showToast('Could not update — please try again');
         }
     },
 
@@ -402,12 +486,7 @@ const CommunityModule = {
     },
 
     viewMember(userId) {
-        if (!userId) return;
-        if (window.MemberProfileModal) {
-            MemberProfileModal.open(userId);
-        } else {
-            Core.showToast('Member profiles loading...');
-        }
+        Core.showToast('Member profiles coming soon');
     },
 
     // ============================================================================

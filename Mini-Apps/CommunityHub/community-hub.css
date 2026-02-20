@@ -1321,6 +1321,15 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 .ref-action:hover { color: var(--primary); }
 .ref-action.active { color: var(--primary); }
+.ref-action.appreciated { color: var(--primary); font-weight: 700; }
+.ref-action.appreciated span:first-child { transform: scale(1.2); display: inline-block; }
+
+.ref-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
 
 /* COLLECTIVE WAVES */
 

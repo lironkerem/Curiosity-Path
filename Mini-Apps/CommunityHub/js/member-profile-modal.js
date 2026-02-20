@@ -19,10 +19,11 @@ const MemberProfileModal = {
     // ============================================================================
 
     state: {
-        isOpen:          false,
-        currentUserId:   null,
-        reportStep:      null,   // null | 'reason' | 'details'
-        isAppreciated:   false   // whether current user has appreciated this profile
+        isOpen:            false,
+        currentUserId:     null,
+        reportStep:        null,   // null | 'reason' | 'details'
+        isAppreciated:     false,
+        appreciationCount: 0
     },
 
     // ============================================================================
@@ -316,9 +317,14 @@ const MemberProfileModal = {
             // Load appreciate state for this user
             if (!isSelf) {
                 this.state.isAppreciated = false;
+                this.state.appreciationCount = 0;
                 this._updateAppreciateBtn();
-                CommunityDB.getMyAppreciations().then(set => {
+                Promise.all([
+                    CommunityDB.getMyUserAppreciations(),
+                    CommunityDB.getUserAppreciationCount(userId)
+                ]).then(([set, count]) => {
                     this.state.isAppreciated = set.has(userId);
+                    this.state.appreciationCount = count;
                     this._updateAppreciateBtn();
                 }).catch(() => {});
             }
@@ -462,9 +468,12 @@ const MemberProfileModal = {
 
         btn.disabled = true;
         try {
-            const result = await CommunityDB.toggleAppreciation(this.state.currentUserId, this.state.isAppreciated);
+            const result = await CommunityDB.toggleUserAppreciation(this.state.currentUserId, this.state.isAppreciated);
             if (!result) { Core.showToast('Could not update — please try again'); return; }
             this.state.isAppreciated = result.appreciated;
+            // Refresh count
+            const count = await CommunityDB.getUserAppreciationCount(this.state.currentUserId);
+            this.state.appreciationCount = count;
             this._updateAppreciateBtn();
             Core.showToast(result.appreciated ? '🙏 Appreciation sent' : 'Appreciation removed');
         } catch (err) {
@@ -478,13 +487,15 @@ const MemberProfileModal = {
     _updateAppreciateBtn() {
         const btn = document.getElementById('memberModalAppreciateBtn');
         if (!btn) return;
+        const count = this.state.appreciationCount ?? '';
+        const countStr = count !== '' ? ` (${count})` : '';
         if (this.state.isAppreciated) {
-            btn.textContent = '🙏 Appreciated';
+            btn.textContent = `🙏 Appreciated${countStr}`;
             btn.style.background = 'var(--primary,#667eea)';
             btn.style.color = '#fff';
             btn.style.boxShadow = 'inset 2px 2px 5px rgba(0,0,0,0.15)';
         } else {
-            btn.textContent = '🙏 Appreciate';
+            btn.textContent = `🙏 Appreciate${countStr}`;
             btn.style.background = 'var(--neuro-bg,#f0f0f3)';
             btn.style.color = 'var(--neuro-text)';
             btn.style.boxShadow = '3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7)';
