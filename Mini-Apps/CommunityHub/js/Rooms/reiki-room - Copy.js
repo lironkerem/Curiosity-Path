@@ -264,13 +264,8 @@ class ReikiRoom extends PracticeRoom {
             window.scrollTo(0, 0);
         }, 100);
 
-        // Load chat history from Supabase for both channels
+        // PATCHED: load chat history from Supabase for both channels
         this.initializeChat();
-
-        // Wire live participant sidebar
-        setTimeout(() => {
-            this._refreshParticipantSidebar(`${this.roomId}ParticipantListEl`, `${this.roomId}ParticipantCount`);
-        }, 400);
     }
     
     // ═══════════════════════════════════════════════════════════════════════
@@ -418,9 +413,29 @@ class ReikiRoom extends PracticeRoom {
         return `
         <div style="border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; background: var(--background);">
             <div style="font-weight: 600; font-size: 16px; margin-bottom: 16px; text-align: center;">Online Lightworkers</div>
-            <div id="${this.roomId}ParticipantCount" style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px; text-align: center;">${this.state.participants} present</div>
-            <div id="${this.roomId}ParticipantListEl" class="campfire-participants" style="height: 400px; overflow-y: auto;">
-                <div style="color:var(--text-muted);font-size:13px;padding:8px;">Loading...</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px; text-align: center;">${this.state.participants} present</div>
+            <div class="campfire-participants" style="height: 400px; overflow-y: auto;">
+                <div class="campfire-participant">
+                    <div class="campfire-participant-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">L</div>
+                    <div class="campfire-participant-info">
+                        <div class="campfire-participant-name">Luna</div>
+                        <div class="campfire-participant-country">🇨🇦 Canada</div>
+                    </div>
+                </div>
+                <div class="campfire-participant">
+                    <div class="campfire-participant-avatar" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">S</div>
+                    <div class="campfire-participant-info">
+                        <div class="campfire-participant-name">Sara</div>
+                        <div class="campfire-participant-country">🇧🇷 Brazil</div>
+                    </div>
+                </div>
+                <div class="campfire-participant">
+                    <div class="campfire-participant-avatar" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">K</div>
+                    <div class="campfire-participant-info">
+                        <div class="campfire-participant-name">Kai</div>
+                        <div class="campfire-participant-country">🇯🇵 Japan</div>
+                    </div>
+                </div>
             </div>
         </div>`;
     }

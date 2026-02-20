@@ -218,15 +218,12 @@ const Core = {
 
     initializePracticeRooms() {
         let initializedCount = 0;
-        const roomInstances = [];
-
         this.config.ROOM_MODULES.forEach(roomName => {
             try {
                 const room = window[roomName];
                 if (room) {
                     if (typeof room.init === 'function') {
                         room.init();
-                        roomInstances.push(room);
                         console.log(`✓ ${roomName} initialized`);
                         initializedCount++;
                     } else {
@@ -239,13 +236,7 @@ const Core = {
                 console.error(`✗ Failed to initialize ${roomName}:`, error);
             }
         });
-
         console.log(`✓ Initialized ${initializedCount}/${this.config.ROOM_MODULES.length} practice rooms`);
-
-        // Start one shared hub presence subscription for all room cards
-        if (window.PracticeRoom && roomInstances.length) {
-            PracticeRoom.startHubPresence(roomInstances);
-        }
     },
 
     scheduleRoomRendering() {

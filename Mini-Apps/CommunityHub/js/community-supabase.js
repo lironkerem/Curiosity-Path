@@ -204,6 +204,29 @@ const CommunityDB = {
   },
 
   /**
+   * Get members currently inside a specific practice room.
+   * Returns presence rows with profile join, ordered by join time.
+   * @param {string} roomId  e.g. 'campfire', 'silent'
+   * @returns {Array}
+   */
+  async getRoomParticipants(roomId) {
+    if (!this.ready) return [];
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    const { data, error } = await this._sb
+      .from('community_presence')
+      .select(`
+        user_id, status, activity, room_id, last_seen,
+        profiles ( id, name, emoji, avatar_url )
+      `)
+      .eq('room_id', roomId)
+      .neq('status', 'offline')
+      .gte('last_seen', fiveMinutesAgo)
+      .order('last_seen', { ascending: true });
+    if (error) { console.error('[CommunityDB] getRoomParticipants:', error.message); return []; }
+    return data || [];
+  },
+
+  /**
    * Subscribe to presence changes. Callback receives the updated member list.
    * @param {Function} callback  (members: Array) => void
    */

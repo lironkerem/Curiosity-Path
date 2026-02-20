@@ -71,7 +71,7 @@ class PracticeRoom {
     init() {
         console.log(`${this.config.icon} ${this.config.name} Module Loaded`);
         this.updateRoomCard();
-
+        
         // Call custom initialization if defined
         if (this.onInit) this.onInit();
     }
@@ -82,26 +82,24 @@ class PracticeRoom {
      * PATCHED: Updates Supabase presence with room ID after entry.
      */
     enterRoom() {
+        // Check if entry is allowed (for timed rooms)
         if (!this.canEnterRoom()) {
             Core.showToast('Session in progress. Please wait for the next opening.');
             return;
         }
         
-        // Stop shared hub subscription before entering room
-        PracticeRoom.stopHubPresence();
-
         this.createPracticeView();
         Core.navigateTo('practiceRoomView');
         Core.showToast(`${this.config.icon} Entered ${this.config.name}`);
         
         this.setupEventListeners();
+        
+        // Call custom entry logic if defined
         if (this.onEnter) this.onEnter();
-        this._setRoomPresence(this.roomId);
 
-        setTimeout(async () => {
-            await this.fetchRoomParticipants();
-            this.subscribeToRoomParticipants();
-        }, 300);
+        // ── Supabase presence ──────────────────────────────────────────────
+        // Mark user as "in this room" in community_presence
+        this._setRoomPresence(this.roomId);
     }
     
     /**
@@ -110,23 +108,15 @@ class PracticeRoom {
      * PATCHED: Resets Supabase presence back to hub / available.
      */
     leaveRoom() {
+        // ── Supabase presence ──────────────────────────────────────────────
         this._clearRoomPresence();
-
-        // Unsubscribe from room-level presence subscriptions
-        for (const sub of ['_presenceSub', '_sidebarPresenceSub']) {
-            if (this[sub]) {
-                try { this[sub].unsubscribe(); } catch(e) {}
-                this[sub] = null;
-            }
-        }
 
         this.cleanup();
         Core.navigateTo('hubView');
         Core.showToast(`Left ${this.config.name}`);
+        
+        // Call custom leave logic if defined
         if (this.onLeave) this.onLeave();
-
-        // Restart shared hub subscription now that we're back on the hub
-        PracticeRoom.startHubPresence();
     }
 
     /**
@@ -134,23 +124,14 @@ class PracticeRoom {
      * PATCHED: Resets Supabase presence before the ritual.
      */
     gentlyLeave() {
+        // ── Supabase presence ──────────────────────────────────────────────
         this._clearRoomPresence();
 
-        // Unsubscribe from room-level presence subscriptions
-        for (const sub of ['_presenceSub', '_sidebarPresenceSub']) {
-            if (this[sub]) {
-                try { this[sub].unsubscribe(); } catch(e) {}
-                this[sub] = null;
-            }
-        }
-
+        // Cleanup room first
         this.cleanup();
         if (this.onLeave) this.onLeave();
-
-        // Restart shared hub subscription now that we're back on the hub
-        PracticeRoom.startHubPresence();
-
-        // Closing ritual
+        
+        // Then show closing ritual (it will navigate back to hub on complete)
         if (window.Rituals) {
             Rituals.showClosing();
         } else {
@@ -230,179 +211,6 @@ class PracticeRoom {
         }
     }
     
-    // ═══════════════════════════════════════════════════════════════════════
-    // PARTICIPANT TRACKING (LIVE)
-    // ═══════════════════════════════════════════════════════════════════════
-
-    /**
-     * Fetch current participants for this room and update UI.
-     * Call from onEnter() or after createPracticeView().
-     */
-    async fetchRoomParticipants() {
-        if (!window.CommunityDB || !CommunityDB.ready) return;
-        try {
-            const participants = await CommunityDB.getRoomParticipants(this.roomId);
-            const blocked = await CommunityDB.getBlockedUsers();
-            const visible = participants.filter(p => !blocked.has(p.user_id));
-            this.state.participants = visible.length;
-            this._updateParticipantUI(visible);
-            this._updateRoomCardCount(visible.length);
-        } catch (e) {
-            console.error(`[${this.roomId}] fetchRoomParticipants error:`, e);
-        }
-    }
-
-    /**
-     * Subscribe to presence changes and keep participant UI live.
-     * Stored on this._presenceSub for cleanup.
-     */
-    subscribeToRoomParticipants() {
-        if (!window.CommunityDB || !CommunityDB.ready) return;
-        this._presenceSub = CommunityDB.subscribeToPresence(async () => {
-            await this.fetchRoomParticipants();
-        });
-    }
-
-    /**
-     * Update the participant avatars + count in the room header.
-     * @param {Array} participants - Filtered presence rows with profile join
-     */
-    _updateParticipantUI(participants) {
-        const countEl = document.getElementById(`${this.roomId}ParticipantCount`);
-        if (countEl) {
-            const text = this.getParticipantText();
-            countEl.textContent = text;
-        }
-
-        const stackEl = document.querySelector(`#${this.roomId}ParticipantStack`);
-        if (stackEl) {
-            stackEl.innerHTML = this._buildRealAvatars(participants);
-        }
-    }
-
-    /**
-     * Build real user avatar circles from presence rows.
-     * Shows up to 5 avatars + overflow count.
-     * @param {Array} participants
-     * @returns {string} HTML
-     */
-    _buildRealAvatars(participants) {
-        const MAX = 5;
-        const shown = participants.slice(0, MAX);
-        const overflow = participants.length - MAX;
-
-        const avatarHTML = shown.map(p => {
-            const profile = p.profiles || {};
-            const name = profile.name || 'Member';
-            const avatarUrl = profile.avatar_url || '';
-            const emoji = profile.emoji || '';
-            const initial = name.charAt(0).toUpperCase();
-            const gradient = window.Core?.getAvatarGradient
-                ? Core.getAvatarGradient(p.user_id || name)
-                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-
-            const inner = avatarUrl
-                ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
-                : `<span>${emoji || initial}</span>`;
-            const bg = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
-
-            return `<div class="p-avatar" style="${bg}" title="${name}">${inner}</div>`;
-        }).join('');
-
-        const overflowHTML = overflow > 0
-            ? `<div class="p-avatar" style="background:var(--surface);color:var(--text-muted);font-size:11px;">+${overflow}</div>`
-            : '';
-
-        return avatarHTML + overflowHTML;
-    }
-
-    /**
-     * Fetch room participants and render them into a named sidebar list.
-     * Also subscribes to realtime presence changes to keep it live.
-     * @param {string} listId   - DOM id of the .campfire-participants container
-     * @param {string} countId  - DOM id of the count element (optional)
-     */
-    async _refreshParticipantSidebar(listId, countId = null) {
-        if (!window.CommunityDB || !CommunityDB.ready) return;
-        try {
-            const _doRefresh = async () => {
-                const participants = await CommunityDB.getRoomParticipants(this.roomId);
-                const blocked = await CommunityDB.getBlockedUsers();
-                const visible = participants.filter(p => !blocked.has(p.user_id));
-                this.state.participants = visible.length;
-
-                const listEl = document.getElementById(listId);
-                if (listEl) this._renderParticipantList(listEl, visible);
-
-                if (countId) {
-                    const countEl = document.getElementById(countId);
-                    if (countEl) countEl.textContent = `${visible.length} present`;
-                }
-                this._updateRoomCardCount(visible.length);
-            };
-
-            // Initial load
-            await _doRefresh();
-
-            // Realtime — re-render sidebar on any presence change
-            if (this._sidebarPresenceSub) {
-                try { this._sidebarPresenceSub.unsubscribe(); } catch(e) {}
-            }
-            this._sidebarPresenceSub = CommunityDB.subscribeToPresence(async () => {
-                // Only refresh if the sidebar is still in the DOM
-                if (document.getElementById(listId)) {
-                    await _doRefresh();
-                } else {
-                    // DOM is gone — unsubscribe
-                    try { this._sidebarPresenceSub?.unsubscribe(); } catch(e) {}
-                    this._sidebarPresenceSub = null;
-                }
-            });
-
-        } catch(e) {
-            console.error(`[${this.roomId}] _refreshParticipantSidebar error:`, e);
-        }
-    }
-
-    /**
-     * Render real user rows into a participant list container.
-     * @param {HTMLElement} listEl
-     * @param {Array}       participants - Presence rows with profile join
-     */
-    _renderParticipantList(listEl, participants) {
-        if (participants.length === 0) {
-            listEl.innerHTML = `<div style="color:var(--text-muted);font-size:13px;padding:8px;">Just you here 🕯️</div>`;
-            return;
-        }
-        listEl.innerHTML = participants.map(p => {
-            const profile = p.profiles || {};
-            const name = profile.name || 'Member';
-            const avatarUrl = profile.avatar_url || '';
-            const emoji = profile.emoji || '';
-            const initial = name.charAt(0).toUpperCase();
-            const gradient = window.Core?.getAvatarGradient
-                ? Core.getAvatarGradient(p.user_id || name)
-                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-            const inner = avatarUrl
-                ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
-                : `<span style="color:white;font-weight:600;">${emoji || initial}</span>`;
-            const bg = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
-            return `
-            <div class="campfire-participant">
-                <div class="campfire-participant-avatar" style="${bg}display:flex;align-items:center;justify-content:center;">${inner}</div>
-                <div class="campfire-participant-info">
-                    <div class="campfire-participant-name">${name}</div>
-                    <div class="campfire-participant-country">${p.activity || '✨ Available'}</div>
-                </div>
-            </div>`;
-        }).join('');
-    }
-        const card = document.querySelector(`[data-room-id="${this.roomId}"]`);
-        if (!card) return;
-        const el = card.querySelector('.room-participants');
-        if (el) el.textContent = `${count} present`;
-    }
-
     // ═══════════════════════════════════════════════════════════════════════
     // UI CREATION METHODS
     // ═══════════════════════════════════════════════════════════════════════
@@ -543,13 +351,13 @@ class PracticeRoom {
     
     /**
      * Build participant avatars
-     * Renders placeholder initially; fetchRoomParticipants() replaces with real users.
+     * Override this method to customize avatars
      * @returns {string} Avatar HTML
      */
     buildParticipantAvatars() {
         const initials = this.config.name.split(' ').map(w => w[0]).slice(0, 2);
         return `
-        <div class="participant-stack" id="${this.roomId}ParticipantStack">
+        <div class="participant-stack">
             <div class="p-avatar" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">${initials[0] || 'P'}</div>
             <div class="p-avatar" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">${initials[1] || 'R'}</div>
         </div>`;
@@ -859,67 +667,6 @@ class PracticeRoom {
         }
     }
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// STATIC — SHARED HUB PRESENCE SUBSCRIPTION
-// One subscription for all 8 room cards. Started when on the hub,
-// stopped when entering a room.
-// Call PracticeRoom.startHubPresence() from core.js after all rooms init.
-// ═══════════════════════════════════════════════════════════════════════════
-
-PracticeRoom._hubPresenceSub  = null;
-PracticeRoom._hubRooms        = [];  // populated by startHubPresence()
-
-/**
- * Register all room instances and start one shared presence subscription
- * that keeps all hub card counts live.
- * @param {Array} rooms - Array of PracticeRoom instances (optional — uses _hubRooms if omitted)
- */
-PracticeRoom.startHubPresence = async function(rooms) {
-    if (rooms) PracticeRoom._hubRooms = rooms;
-
-    const allRooms = PracticeRoom._hubRooms;
-    if (!allRooms.length) return;
-
-    if (!window.CommunityDB?.ready) {
-        const _interval = setInterval(() => {
-            if (!window.CommunityDB?.ready) return;
-            clearInterval(_interval);
-            PracticeRoom.startHubPresence();
-        }, 500);
-        return;
-    }
-
-    // Stop any existing sub first
-    PracticeRoom.stopHubPresence();
-
-    const _refreshAll = async () => {
-        // Fetch all presence rows once, then distribute counts per room
-        const allPresence = await CommunityDB.getActiveMembers();
-        allRooms.forEach(room => {
-            const count = allPresence.filter(p => p.room_id === room.roomId).length;
-            room.state.participants = count;
-            room._updateRoomCardCount(count);
-        });
-    };
-
-    await _refreshAll();
-
-    PracticeRoom._hubPresenceSub = CommunityDB.subscribeToPresence(_refreshAll);
-    console.log('[PracticeRoom] Shared hub presence subscription started');
-};
-
-/**
- * Stop the shared hub presence subscription.
- * Called before entering any room.
- */
-PracticeRoom.stopHubPresence = function() {
-    if (PracticeRoom._hubPresenceSub) {
-        try { PracticeRoom._hubPresenceSub.unsubscribe(); } catch(e) {}
-        PracticeRoom._hubPresenceSub = null;
-        console.log('[PracticeRoom] Shared hub presence subscription stopped');
-    }
-};
 
 // ═══════════════════════════════════════════════════════════════════════════
 // GLOBAL EXPORT

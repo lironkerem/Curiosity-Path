@@ -39,76 +39,14 @@ class CampfireRoom extends PracticeRoom {
     }
     
     onEnter() {
-        // Load chat history from Supabase and subscribe to realtime.
+        // PATCHED: load chat history from Supabase and subscribe to realtime.
+        // Falls back to localStorage rendering if DB is not available.
         this.loadRoomChatFromDB('main');
-        // Wire real participants in sidebar
-        this._refreshCampfireSidebar();
     }
-
-    /**
-     * Fetch real room participants and render them in the sidebar.
-     * Replaces the hardcoded mock list.
-     */
-    async _refreshCampfireSidebar() {
-        if (!window.CommunityDB || !CommunityDB.ready) return;
-        try {
-            const participants = await CommunityDB.getRoomParticipants(this.roomId);
-            const blocked = await CommunityDB.getBlockedUsers();
-            const visible = participants.filter(p => !blocked.has(p.user_id));
-            this._renderCampfireSidebar(visible);
-        } catch(e) {
-            console.error('[CampfireRoom] _refreshCampfireSidebar error:', e);
-        }
-    }
-
-    /**
-     * Render the sidebar participant list from real presence rows.
-     * @param {Array} participants
-     */
-    _renderCampfireSidebar(participants) {
-        const list = document.getElementById(`${this.roomId}ParticipantsList`);
-        if (!list) return;
-
-        const countEl = document.querySelector(`#${this.roomId}Sidebar .campfire-sidebar-header div div:last-child`);
-        if (countEl) countEl.textContent = `${participants.length} present`;
-
-        if (participants.length === 0) {
-            list.innerHTML = `<div style="color:var(--text-muted);font-size:13px;padding:12px;">Just you here — be the light 🕯️</div>`;
-            return;
-        }
-
-        list.innerHTML = participants.map(p => {
-            const profile = p.profiles || {};
-            const name = profile.name || 'Member';
-            const avatarUrl = profile.avatar_url || '';
-            const emoji = profile.emoji || '';
-            const initial = name.charAt(0).toUpperCase();
-            const gradient = window.Core?.getAvatarGradient
-                ? Core.getAvatarGradient(p.user_id || name)
-                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-
-            const avatarInner = avatarUrl
-                ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
-                : `<span style="color:white;font-weight:600;">${emoji || initial}</span>`;
-            const avatarBg = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
-
-            return `
-            <div class="campfire-participant" style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius-md);margin-bottom:8px;background:var(--background);">
-                <div style="width:40px;height:40px;border-radius:50%;${avatarBg}display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    ${avatarInner}
-                </div>
-                <div>
-                    <div style="font-weight:500;font-size:14px;">${name}</div>
-                    <div style="font-size:11px;color:var(--text-muted);">${p.activity || '✨ Available'}</div>
-                </div>
-            </div>`;
-        }).join('');
-    }
-
-    buildParticipantsList() {
-        // Placeholder — replaced by _renderCampfireSidebar() on enter
-        return `<div style="color:var(--text-muted);font-size:13px;padding:12px;">Loading...</div>`;
-    }
+    
+    // ═══════════════════════════════════════════════════════════════════════
+    // UI CUSTOMIZATION
+    // ═══════════════════════════════════════════════════════════════════════
     
     getHeaderGradient() {
         return 'background: linear-gradient(135deg, rgba(234, 88, 12, 0.1) 0%, rgba(251, 146, 60, 0.05) 100%);';
