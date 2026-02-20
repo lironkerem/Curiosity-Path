@@ -153,10 +153,10 @@ const Core = {
                 birthday:         profile.birthday         || null,
                 country:          profile.country          || null,
                 email:            profile.email            || '',
-                // karma/xp/badges loaded from user_progress.payload by GamificationEngine
-                karma:            window.GamificationEngine?.state?.karma ?? 0,
-                xp:               window.GamificationEngine?.state?.xp    ?? 0,
-                badges:           window.GamificationEngine?.state?.badges ?? []
+                // karma/xp/badges loaded from GamificationEngine (lives at window.app.gamification)
+                karma:            window.app?.gamification?.state?.karma  ?? 0,
+                xp:               window.app?.gamification?.state?.xp     ?? 0,
+                badges:           window.app?.gamification?.state?.badges ?? []
             };
 
             console.log('[Core] User loaded:', this.state.currentUser.name);
