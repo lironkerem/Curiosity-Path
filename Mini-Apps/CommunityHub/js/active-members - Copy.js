@@ -69,22 +69,6 @@ const ActiveMembers = {
                             : '<div style="color:var(--text-muted);font-size:13px;padding:12px">No members online right now.</div>'
                         }
                     </div>
-                    <button onclick="window.WhisperModal?.open()"
-                            style="width:100%;margin-top:12px;padding:12px;
-                                   border-radius:12px;border:none;cursor:pointer;
-                                   font-size:0.88rem;font-weight:600;
-                                   background:var(--neuro-bg,#f0f0f3);
-                                   color:var(--neuro-text);
-                                   box-shadow:3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
-                                   display:flex;align-items:center;justify-content:center;gap:8px;
-                                   position:relative;transition:opacity 0.15s;">
-                        💬 Whispers
-                        <span id="whisperUnreadBadge"
-                              style="display:none;background:var(--primary,#667eea);color:#fff;
-                                     border-radius:99px;font-size:0.7rem;font-weight:700;
-                                     padding:2px 7px;min-width:18px;text-align:center;">
-                        </span>
-                    </button>
                 </section>`;
 
             // Subscribe to live presence changes (retry if CommunityDB not ready yet)
