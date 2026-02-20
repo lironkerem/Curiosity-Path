@@ -67,7 +67,7 @@ const CommunityDB = {
     if (!this.ready) return null;
     const { data, error } = await this._sb
       .from('profiles')
-      .select('id, name, emoji, avatar_url, inspiration, community_status, community_role, total_sessions, total_minutes, gifts_given')
+      .select('id, name, emoji, avatar_url, inspiration, community_status, community_role, total_sessions, total_minutes, gifts_given, birthday, country')
       .eq('id', userId)
       .single();
     if (error) { console.error('[CommunityDB] getProfile:', error.message); return null; }

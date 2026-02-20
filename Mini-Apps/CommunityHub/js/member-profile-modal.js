@@ -70,76 +70,89 @@ const MemberProfileModal = {
                     <!-- Profile content (hidden until loaded) -->
                     <div id="memberModalContent" style="display:none;">
 
-                        <!-- Avatar + name -->
-                        <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:1.5rem;">
-                            <div id="memberModalAvatar"
-                                 style="width:80px;height:80px;border-radius:50%;
-                                        display:flex;align-items:center;justify-content:center;
-                                        font-size:2rem;overflow:hidden;flex-shrink:0;">
+                        <!-- Avatar + status ring + name -->
+                        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:1.2rem;">
+                            <div style="position:relative;width:90px;height:90px;">
+                                <div id="memberModalAvatar"
+                                     style="width:90px;height:90px;border-radius:50%;
+                                            display:flex;align-items:center;justify-content:center;
+                                            font-size:2.2rem;overflow:hidden;flex-shrink:0;">
+                                </div>
+                                <div id="memberModalStatusRing"
+                                     style="position:absolute;top:-7px;left:-7px;
+                                            width:calc(100% + 14px);height:calc(100% + 14px);
+                                            border-radius:50%;border:4px solid var(--ring-available,#6b9b37);
+                                            box-shadow:0 0 0 3px rgba(107,155,55,0.2);
+                                            pointer-events:none;"></div>
                             </div>
-                            <div>
-                                <div id="memberModalName"
-                                     style="font-size:1.2rem;font-weight:700;
-                                            color:var(--neuro-text);text-align:center;"></div>
-                                <div id="memberModalRole"
-                                     style="font-size:0.8rem;color:var(--text-muted);
-                                            text-align:center;margin-top:2px;"></div>
+                            <div style="text-align:center;">
+                                <div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;">
+                                    <div id="memberModalName"
+                                         style="font-size:1.2rem;font-weight:700;color:var(--neuro-text);"></div>
+                                    <div id="memberModalRole"
+                                         style="font-size:0.75rem;font-weight:600;
+                                                color:var(--primary,#667eea);
+                                                background:rgba(102,126,234,0.1);
+                                                border-radius:99px;padding:2px 9px;
+                                                white-space:nowrap;"></div>
+                                </div>
+                                <div id="memberModalLocation"
+                                     style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;
+                                            font-size:0.78rem;color:var(--text-muted);margin-top:5px;">
+                                </div>
                             </div>
                         </div>
 
                         <!-- Inspiration -->
                         <div id="memberModalInspiration"
-                             style="font-size:0.88rem;font-style:italic;
+                             style="font-size:0.85rem;font-style:italic;
                                     color:var(--neuro-text-light,#555);
-                                    text-align:center;margin-bottom:1.5rem;
+                                    text-align:center;margin-bottom:0.8rem;
                                     padding:0 0.5rem;line-height:1.5;">
                         </div>
 
-                        <!-- Level badge -->
-                        <div id="memberModalLevel"
-                             style="text-align:center;font-size:0.82rem;
-                                    color:var(--text-muted);margin-bottom:1rem;">
+                        <!-- Level badge — prominent -->
+                        <div style="text-align:center;margin-bottom:0.8rem;">
+                            <span id="memberModalLevel"
+                                  style="font-size:0.92rem;font-weight:700;
+                                         color:var(--primary,#667eea);
+                                         background:rgba(102,126,234,0.12);
+                                         border-radius:99px;padding:4px 14px;"></span>
                         </div>
 
-                        <!-- Stats row -->
+                        <!-- Stats: XP, Karma, Streak -->
                         <div style="display:flex;justify-content:space-around;
-                                    margin-bottom:1rem;
-                                    padding:1rem;
+                                    margin-bottom:0.8rem;padding:0.8rem 0.5rem;
                                     border-radius:12px;
                                     background:var(--neuro-shadow-light,rgba(0,0,0,0.04));">
                             <div style="text-align:center;">
-                                <div id="memberModalKarma"
-                                     style="font-size:1.3rem;font-weight:700;color:var(--primary,#667eea);">—</div>
-                                <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">Karma</div>
-                            </div>
-                            <div style="text-align:center;">
                                 <div id="memberModalXP"
-                                     style="font-size:1.3rem;font-weight:700;color:var(--primary,#667eea);">—</div>
-                                <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">XP</div>
+                                     style="font-size:1.2rem;font-weight:700;color:var(--primary,#667eea);">—</div>
+                                <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">XP</div>
                             </div>
                             <div style="text-align:center;">
-                                <div id="memberModalSessions"
-                                     style="font-size:1.3rem;font-weight:700;color:var(--primary,#667eea);">—</div>
-                                <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">Sessions</div>
+                                <div id="memberModalKarma"
+                                     style="font-size:1.2rem;font-weight:700;color:var(--primary,#667eea);">—</div>
+                                <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">Karma</div>
                             </div>
                             <div style="text-align:center;">
-                                <div id="memberModalGifts"
-                                     style="font-size:1.3rem;font-weight:700;color:var(--primary,#667eea);">—</div>
-                                <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">Gifts</div>
+                                <div id="memberModalStreak"
+                                     style="font-size:1.2rem;font-weight:700;color:var(--primary,#667eea);">—</div>
+                                <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">🔥 Streak</div>
                             </div>
                         </div>
 
                         <!-- Activity counts -->
                         <div id="memberModalActivity"
-                             style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
-                                    font-size:0.78rem;color:var(--text-muted);
-                                    margin-bottom:1rem;min-height:1.2rem;">
+                             style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;
+                                    font-size:0.76rem;color:var(--text-muted);
+                                    margin-bottom:0.8rem;min-height:1.2rem;">
                         </div>
 
                         <!-- Badges -->
                         <div id="memberModalBadges"
                              style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
-                                    margin-bottom:1.25rem;min-height:1.5rem;">
+                                    margin-bottom:1rem;min-height:1.5rem;">
                         </div>
 
                         <!-- Appreciate button (full width, above other actions) -->
@@ -382,58 +395,93 @@ const MemberProfileModal = {
             }
         }
 
+        // Status ring
+        const ring = document.getElementById('memberModalStatusRing');
+        if (ring) {
+            const colorMap = {
+                online:    { c:'var(--ring-available,#6b9b37)', s:'rgba(107,155,55,0.2)'  },
+                available: { c:'var(--ring-available,#6b9b37)', s:'rgba(107,155,55,0.2)'  },
+                away:      { c:'var(--ring-guiding,#d4a574)',   s:'rgba(212,165,116,0.2)' },
+                silent:    { c:'var(--ring-silent,#6ba3b3)',    s:'rgba(107,163,179,0.2)' },
+                deep:      { c:'var(--ring-deep,#8b7355)',      s:'rgba(139,115,85,0.2)'  },
+                offline:   { c:'var(--ring-offline,#a89279)',   s:'rgba(168,146,121,0.2)' },
+            };
+            const cfg = colorMap[profile.community_status] || colorMap.offline;
+            ring.style.borderColor = cfg.c;
+            ring.style.boxShadow   = `0 0 0 3px ${cfg.s}`;
+        }
+
         // Name
         const nameEl = document.getElementById('memberModalName');
         if (nameEl) nameEl.textContent = profile.name || 'Member';
 
-        // Role
+        // Role pill
         const roleEl = document.getElementById('memberModalRole');
-        if (roleEl) roleEl.textContent = profile.community_role || 'Member';
+        if (roleEl) roleEl.textContent = `👤 ${profile.community_role || 'Member'}`;
+
+        // Birthday + Country
+        const locationEl = document.getElementById('memberModalLocation');
+        if (locationEl) {
+            const parts = [];
+            if (profile.birthday) {
+                try {
+                    const d = new Date(profile.birthday + 'T00:00:00');
+                    parts.push(`🎂 ${d.toLocaleDateString(undefined, { month:'long', day:'numeric' })}`);
+                } catch { parts.push(`🎂 ${profile.birthday}`); }
+            }
+            if (profile.country) {
+                parts.push(`${this._countryFlag(profile.country)} ${profile.country}`);
+            }
+            locationEl.innerHTML = parts.map(p => `<span>${p}</span>`).join('');
+        }
 
         // Inspiration
         const bioEl = document.getElementById('memberModalInspiration');
-        if (bioEl) {
-            bioEl.textContent = profile.inspiration
-                ? `"${profile.inspiration}"`
-                : '';
-        }
+        if (bioEl) bioEl.textContent = profile.inspiration ? `"${profile.inspiration}"` : '';
+    },
 
-        // Stats
-        const sessions = document.getElementById('memberModalSessions');
-        if (sessions) sessions.textContent = (profile.total_sessions || 0).toLocaleString();
-
-        const gifts = document.getElementById('memberModalGifts');
-        if (gifts) gifts.textContent = (profile.gifts_given || 0).toLocaleString();
-
-        // Gamification data loaded separately via _populateGamification
+    _countryFlag(countryName) {
+        const map = {
+            'israel':'IL','united states':'US','usa':'US','us':'US','united kingdom':'GB','uk':'GB',
+            'canada':'CA','australia':'AU','germany':'DE','france':'FR','spain':'ES','italy':'IT',
+            'netherlands':'NL','belgium':'BE','switzerland':'CH','sweden':'SE','norway':'NO',
+            'denmark':'DK','finland':'FI','poland':'PL','portugal':'PT','austria':'AT',
+            'india':'IN','china':'CN','japan':'JP','south korea':'KR','brazil':'BR',
+            'mexico':'MX','argentina':'AR','south africa':'ZA','russia':'RU','ukraine':'UA',
+            'greece':'GR','turkey':'TR','egypt':'EG','new zealand':'NZ','ireland':'IE',
+            'singapore':'SG','thailand':'TH','indonesia':'ID','malaysia':'MY','philippines':'PH',
+        };
+        const code = map[countryName.toLowerCase().trim()];
+        if (!code) return '🌍';
+        return [...code].map(c => String.fromCodePoint(0x1F1E6 + c.charCodeAt(0) - 65)).join('');
     },
 
     _populateGamification(g) {
         const levelTitles = {1:'Seeker',2:'Practitioner',3:'Adept',4:'Healer',5:'Master',
                              6:'Sage',7:'Enlightened',8:'Buddha',9:'Light',10:'Emptiness'};
 
+        // Level — prominent pill
         const level = document.getElementById('memberModalLevel');
-        if (level) {
-            const title = levelTitles[g.level] || 'Seeker';
-            level.textContent = `✦ Level ${g.level} · ${title}`;
-        }
+        if (level) level.textContent = `✦ Level ${g.level} · ${levelTitles[g.level] || 'Seeker'}`;
 
+        // Stats
         const karma = document.getElementById('memberModalKarma');
         if (karma) karma.textContent = (g.karma ?? 0).toLocaleString();
 
         const xp = document.getElementById('memberModalXP');
         if (xp) xp.textContent = (g.xp ?? 0).toLocaleString();
 
-        const sessions = document.getElementById('memberModalSessions');
-        if (sessions) sessions.textContent = (g.totalSessions ?? 0).toLocaleString();
+        const streak = document.getElementById('memberModalStreak');
+        if (streak) streak.textContent = (g.streak ?? 0);
 
         // Activity counts
         const actEl = document.getElementById('memberModalActivity');
         if (actEl) {
             const items = [
-                g.totalTarotSpreads   > 0 ? `🔮 ${g.totalTarotSpreads} readings`      : null,
-                g.totalJournalEntries > 0 ? `📓 ${g.totalJournalEntries} journal entries` : null,
-                g.streak              > 0 ? `🔥 ${g.streak}-day streak`                : null,
+                g.totalMeditations    > 0 ? `🧘 ${g.totalMeditations} meditations`          : null,
+                g.totalTarotSpreads   > 0 ? `🔮 ${g.totalTarotSpreads} readings`             : null,
+                g.totalJournalEntries > 0 ? `📓 ${g.totalJournalEntries} journal entries`    : null,
+                g.streak              > 0 ? `🔥 ${g.streak}-day streak`                      : null,
             ].filter(Boolean);
             actEl.innerHTML = items.map(i => `<span>${i}</span>`).join('');
         }
@@ -442,19 +490,16 @@ const MemberProfileModal = {
         const badgesEl = document.getElementById('memberModalBadges');
         if (badgesEl) {
             const earned = g.badges || [];
-            if (earned.length === 0) {
-                badgesEl.innerHTML = '';
-            } else {
-                const rarityColors = {common:'#9ca3af',uncommon:'#10b981',rare:'#3b82f6',epic:'#a855f7',legendary:'#f59e0b'};
-                badgesEl.innerHTML = [...earned].slice(-8).reverse().map(b => {
-                    const color = rarityColors[b.rarity] || rarityColors.common;
-                    return `<div title="${b.name || 'Badge'}"
-                                 style="width:32px;height:32px;border-radius:50%;
-                                        border:2px solid ${color};
-                                        display:flex;align-items:center;justify-content:center;
-                                        font-size:1.1rem;cursor:default;">${b.icon || '🏅'}</div>`;
-                }).join('');
-            }
+            if (!earned.length) { badgesEl.innerHTML = ''; return; }
+            const rarityColors = {common:'#9ca3af',uncommon:'#10b981',rare:'#3b82f6',epic:'#a855f7',legendary:'#f59e0b'};
+            badgesEl.innerHTML = [...earned].slice(-8).reverse().map(b => {
+                const color = rarityColors[b.rarity] || rarityColors.common;
+                return `<div title="${b.name || 'Badge'}"
+                             style="width:32px;height:32px;border-radius:50%;
+                                    border:2px solid ${color};
+                                    display:flex;align-items:center;justify-content:center;
+                                    font-size:1.1rem;cursor:default;">${b.icon || '🏅'}</div>`;
+            }).join('');
         }
     },
 
