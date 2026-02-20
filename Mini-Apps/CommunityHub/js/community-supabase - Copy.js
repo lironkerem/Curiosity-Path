@@ -114,27 +114,30 @@ const CommunityDB = {
    * falls back to DB query. Returns same shape as getUserProgress.
    */
   getOwnGamificationState() {
-    const g = window.app?.gamification;
-    if (!g) return null;
-
-    // Support both direct properties (g.xp) and nested state object (g.state.xp)
-    const s = g.state ?? g;
-
-    return {
-      xp:                  s.xp    ?? 0,
-      karma:               s.karma ?? 0,
-      level:               s.level ?? 1,
-      badges:              s.badges ?? [],
-      streak:              s.streaks?.current ?? s.streak?.current ?? 0,
-      longestStreak:       s.streaks?.longest ?? 0,
-      totalSessions:       s.stats?.totalSessions    ?? 0,
-      totalMeditations:    s.stats?.totalMeditations ?? 0,
-      totalReadings:       s.stats?.totalReadings    ?? 0,
-      totalTarotSpreads:   s.totalTarotSpreads   ?? 0,
-      totalJournalEntries: s.totalJournalEntries ?? 0,
-      totalWellnessRuns:   s.totalWellnessRuns   ?? 0,
-      totalHappinessViews: s.totalHappinessViews ?? 0,
-    };
+    // Try every known path the main app might expose the engine
+    const eng = window.GamificationEngine
+             ?? window.app?.gamification
+             ?? window.App?.gamification
+             ?? window.ProjectCuriosityApp?.gamification;
+    if (eng?.state) {
+      const s = eng.state;
+      return {
+        xp:             s.xp    ?? 0,
+        karma:          s.karma ?? 0,
+        level:          s.level ?? 1,
+        badges:         s.badges ?? [],
+        streak:         s.streaks?.current ?? s.streak?.current ?? 0,
+        longestStreak:  s.streaks?.longest ?? 0,
+        totalSessions:  s.stats?.totalSessions   ?? 0,
+        totalMeditations: s.stats?.totalMeditations ?? 0,
+        totalReadings:  s.stats?.totalReadings   ?? 0,
+        totalTarotSpreads:   s.totalTarotSpreads   ?? 0,
+        totalJournalEntries: s.totalJournalEntries ?? 0,
+        totalWellnessRuns:   s.totalWellnessRuns   ?? 0,
+        totalHappinessViews: s.totalHappinessViews ?? 0,
+      };
+    }
+    return null; // caller should fall back to getUserProgress(this._uid)
   },
 
   /**
