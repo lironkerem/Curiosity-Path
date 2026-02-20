@@ -356,13 +356,8 @@ const LunarEngine = {
             roomEl.setAttribute('data-room-energy', room.energy);
         }
 
-        // Update presence count (would come from Supabase in production)
-        const presenceEl = document.getElementById('lunarRoomPresence');
-        if (presenceEl) {
-            // TODO: Get real count from Supabase
-            const mockCount = Math.floor(Math.random() * 12); // Temporary
-            presenceEl.textContent = `${mockCount} present`;
-        }
+        // Update presence count — managed by _refreshOuterCard() via Supabase
+        // Do not overwrite here to avoid clobbering live count
     },
 
     getLunarRoomByPhase(phase) {
