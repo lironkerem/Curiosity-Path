@@ -54,21 +54,18 @@ const CommunityModule = {
             // Subscribe to new reflections being posted by others
             this.subscribeToNewReflections();
 
-            // Subscribe to incoming whispers — WhisperModal handles UI + toasts
-            // (WhisperModal has its own internal subscription when open;
-            //  this one fires when the modal is closed so we can still badge + toast)
-            const _initWhisperBadge = () => {
-                if (!window.WhisperModal) return;
-                WhisperModal.refreshUnreadBadge();
+            // Subscribe to incoming whispers (retry if CommunityDB not ready yet)
+            const _whisperCb = (whisper) => {
+                Core.showToast('💬 You have a new whisper');
+                console.log('[Whisper received]', whisper);
+                // TODO: Open whisper panel here
             };
-            if (!window.CommunityDB?.ready) {
+            if (!CommunityDB.subscribeToWhispers(_whisperCb)) {
                 const _wi = setInterval(() => {
                     if (!window.CommunityDB?.ready) return;
                     clearInterval(_wi);
-                    _initWhisperBadge();
+                    CommunityDB.subscribeToWhispers(_whisperCb);
                 }, 300);
-            } else {
-                _initWhisperBadge();
             }
 
             this.renderWaves();
@@ -339,15 +336,14 @@ const CommunityModule = {
     async whisper(recipientId) {
         if (!recipientId) return;
 
-        // Fetch profile so we can open a named thread
-        try {
-            const profile  = await CommunityDB.getProfile(recipientId);
-            const name     = profile?.name       || 'Member';
-            const emoji    = profile?.emoji      || '';
-            const avatarUrl = profile?.avatar_url || '';
-            WhisperModal.openThread(recipientId, name, emoji, avatarUrl);
-        } catch (err) {
-            WhisperModal.openThread(recipientId, 'Member', '', '');
+        const message = prompt('Send a private whisper:');
+        if (!message?.trim()) return;
+
+        const result = await CommunityDB.sendWhisper(recipientId, message.trim());
+        if (result) {
+            Core.showToast('💬 Whisper sent');
+        } else {
+            Core.showToast('Could not send whisper — please try again');
         }
     },
 

@@ -491,6 +491,80 @@ const CommunityDB = {
     await this._sb.from('whispers').update({ read: true }).eq('id', whisperId);
   },
 
+  /** Mark all whispers from a specific sender as read */
+  async markConversationRead(otherUserId) {
+    if (!this.ready) return;
+    await this._sb
+      .from('whispers')
+      .update({ read: true })
+      .eq('recipient_id', this._uid)
+      .eq('sender_id', otherUserId)
+      .eq('read', false);
+  },
+
+  /**
+   * Get whisper inbox — one entry per conversation partner,
+   * showing latest message + unread count.
+   * Returns array sorted by most recent first.
+   */
+  async getWhisperInbox() {
+    if (!this.ready) return [];
+    try {
+      // Fetch all whispers involving current user (latest 200)
+      const { data, error } = await this._sb
+        .from('whispers')
+        .select(`
+          id, message, read, created_at, sender_id, recipient_id,
+          sender:profiles!whispers_sender_id_fkey ( id, name, emoji, avatar_url ),
+          recipient:profiles!whispers_recipient_id_fkey ( id, name, emoji, avatar_url )
+        `)
+        .or(`sender_id.eq.${this._uid},recipient_id.eq.${this._uid}`)
+        .order('created_at', { ascending: false })
+        .limit(200);
+
+      if (error) { console.error('[CommunityDB] getWhisperInbox:', error.message); return []; }
+
+      // Group by conversation partner
+      const conversations = {};
+      for (const w of (data || [])) {
+        const partnerId = w.sender_id === this._uid ? w.recipient_id : w.sender_id;
+        const partner   = w.sender_id === this._uid ? w.recipient : w.sender;
+        if (!conversations[partnerId]) {
+          conversations[partnerId] = {
+            partnerId,
+            partner,
+            lastMessage: w.message,
+            lastAt: w.created_at,
+            unread: 0
+          };
+        }
+        // Count unread messages sent TO me
+        if (w.recipient_id === this._uid && !w.read) {
+          conversations[partnerId].unread++;
+        }
+      }
+
+      return Object.values(conversations).sort((a, b) =>
+        new Date(b.lastAt) - new Date(a.lastAt)
+      );
+    } catch (err) {
+      console.error('[CommunityDB] getWhisperInbox:', err);
+      return [];
+    }
+  },
+
+  /** Count total unread whispers for the current user */
+  async getUnreadWhisperCount() {
+    if (!this.ready) return 0;
+    const { count, error } = await this._sb
+      .from('whispers')
+      .select('id', { count: 'exact', head: true })
+      .eq('recipient_id', this._uid)
+      .eq('read', false);
+    if (error) return 0;
+    return count || 0;
+  },
+
   /**
    * Subscribe to incoming whispers for the current user.
    * Callback receives the raw new whisper row.
