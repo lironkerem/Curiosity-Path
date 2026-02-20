@@ -637,6 +637,33 @@ const CommunityDB = {
     return data?.appreciation_count ?? null;
   },
 
+  /**
+   * Fetch the full user_progress payload for the current user.
+   * Returns raw data arrays: journalEntries, energyEntries, gratitudeEntries, flipEntries.
+   * Only call for the authenticated user — this data is private.
+   */
+  async getOwnFullProgress() {
+    if (!this.ready) return null;
+    try {
+      const { data, error } = await this._sb
+        .from('user_progress')
+        .select('payload')
+        .eq('user_id', this._uid)
+        .single();
+      if (error || !data) return null;
+      const p = typeof data.payload === 'string' ? JSON.parse(data.payload) : data.payload;
+      return {
+        journalEntries:   p.journalEntries   || [],
+        energyEntries:    p.energyEntries    || [],
+        gratitudeEntries: p.gratitudeEntries || [],
+        flipEntries:      p.flipEntries      || [],
+      };
+    } catch (err) {
+      console.error('[CommunityDB] getOwnFullProgress:', err);
+      return null;
+    }
+  },
+
   // ============================================================================
   // USER APPRECIATIONS — appreciating another member's profile
   // Table: user_appreciations (user_id uuid, appreciated_user_id uuid, created_at timestamptz)

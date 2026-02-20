@@ -76,20 +76,11 @@ const ProfileModule = {
                     </div>
 
                     <div class="profile-info">
-                        <!-- Name + Role -->
                         <div class="profile-name-row">
                             <div class="profile-name" id="profileName">Loading...</div>
-                            <div id="profileRoleBadge"
-                                 style="font-size:0.78rem;font-weight:600;
-                                        color:var(--primary,#667eea);
-                                        background:rgba(102,126,234,0.1);
-                                        border-radius:99px;padding:3px 10px;
-                                        white-space:nowrap;">
-                                👤 Member
-                            </div>
+                            <div class="karma-badge" id="karmaBadge">⭐ 0 Karma</div>
                         </div>
 
-                        <!-- Inspiration -->
                         <div class="profile-inspiration">
                             <span id="profileInspiration">"Here to practice with intention."</span>
                             <button class="edit-inspiration-btn"
@@ -99,47 +90,31 @@ const ProfileModule = {
                             </button>
                         </div>
 
-                        <!-- Level — prominent, below inspiration -->
-                        <div id="profileLevelRow"
-                             style="margin:0.6rem 0 0.4rem;display:flex;align-items:center;gap:8px;">
-                            <span id="profileLevelBadge"
-                                  style="font-size:1rem;font-weight:700;
-                                         color:var(--primary,#667eea);
-                                         background:rgba(102,126,234,0.12);
-                                         border-radius:99px;padding:5px 14px;
-                                         letter-spacing:0.02em;">
-                            </span>
+                        <div class="profile-meta">
+                            <span id="profileRole">👤 Member</span>
                         </div>
 
-                        <!-- Birthday + Country -->
-                        <div id="profileLocationRow"
-                             style="display:flex;gap:16px;flex-wrap:wrap;
-                                    font-size:0.82rem;color:var(--text-muted);
-                                    margin-bottom:0.6rem;">
-                            <span id="profileBirthdayDisplay"></span>
-                            <span id="profileCountryDisplay"></span>
-                        </div>
-
-                        <!-- Stats: XP, Karma, Streak, Minutes -->
                         <div class="profile-stats">
                             <div class="p-stat">
-                                <span class="p-stat-num" id="statXP">0</span>
-                                <div class="p-stat-label">XP</div>
+                                <span class="p-stat-num" id="statCircles">0</span>
+                                <div class="p-stat-label">Sessions</div>
+                            </div>
+                            <div class="p-stat">
+                                <span class="p-stat-num" id="statOffered">0</span>
+                                <div class="p-stat-label">Gifts</div>
                             </div>
                             <div class="p-stat">
                                 <span class="p-stat-num" id="statKarma">0</span>
                                 <div class="p-stat-label">Karma</div>
                             </div>
                             <div class="p-stat">
-                                <span class="p-stat-num" id="statStreak">0</span>
-                                <div class="p-stat-label">🔥 Streak</div>
-                            </div>
-                            <div class="p-stat">
-                                <span class="p-stat-num" id="statMinutesStat">0</span>
-                                <div class="p-stat-label">Minutes</div>
+                                <span class="p-stat-num" id="statXP">0</span>
+                                <div class="p-stat-label">XP</div>
                             </div>
                         </div>
-
+                        <div class="profile-level-row" id="profileLevelRow" style="margin:0.5rem 0;font-size:0.85rem;color:var(--text-muted);">
+                            <span id="profileLevelBadge"></span>
+                        </div>
                         <div class="profile-activity-counts" id="profileActivityCounts"
                              style="display:flex;gap:12px;flex-wrap:wrap;font-size:0.78rem;color:var(--text-muted);margin-bottom:0.5rem;">
                         </div>
@@ -157,42 +132,83 @@ const ProfileModule = {
                             <button class="v-btn"
                                     onclick="ProfileModule.toggleProfileView('private')"
                                     aria-pressed="false">
-                                Private View
+                                My Activity
                             </button>
                         </div>
 
                         <div class="private-details" id="privateDetails">
-                            <div class="detail-row">
-                                <span class="detail-label">Total Practice Time</span>
-                                <span class="detail-val" id="statMinutes">0 minutes</span>
+                            <!-- My Activity Cards -->
+                            <div id="myActivityGrid"
+                                 style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;">
+
+                                <div class="activity-card" onclick="ProfileModule.openActivityModal('journal')"
+                                     style="background:var(--neuro-bg,#f0f0f3);border-radius:14px;padding:14px;
+                                            cursor:pointer;text-align:center;
+                                            box-shadow:4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
+                                            transition:transform 0.15s,box-shadow 0.15s;">
+                                    <div style="font-size:1.6rem;margin-bottom:6px;">📓</div>
+                                    <div style="font-weight:700;font-size:0.88rem;color:var(--neuro-text);">Journal</div>
+                                    <div id="activityCount_journal"
+                                         style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">— entries</div>
+                                </div>
+
+                                <div class="activity-card" onclick="ProfileModule.openActivityModal('gratitude')"
+                                     style="background:var(--neuro-bg,#f0f0f3);border-radius:14px;padding:14px;
+                                            cursor:pointer;text-align:center;
+                                            box-shadow:4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
+                                            transition:transform 0.15s,box-shadow 0.15s;">
+                                    <div style="font-size:1.6rem;margin-bottom:6px;">🙏</div>
+                                    <div style="font-weight:700;font-size:0.88rem;color:var(--neuro-text);">Gratitude</div>
+                                    <div id="activityCount_gratitude"
+                                         style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">— entries</div>
+                                </div>
+
+                                <div class="activity-card" onclick="ProfileModule.openActivityModal('energy')"
+                                     style="background:var(--neuro-bg,#f0f0f3);border-radius:14px;padding:14px;
+                                            cursor:pointer;text-align:center;
+                                            box-shadow:4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
+                                            transition:transform 0.15s,box-shadow 0.15s;">
+                                    <div style="font-size:1.6rem;margin-bottom:6px;">⚡</div>
+                                    <div style="font-weight:700;font-size:0.88rem;color:var(--neuro-text);">Energy</div>
+                                    <div id="activityCount_energy"
+                                         style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">— check-ins</div>
+                                </div>
+
+                                <div class="activity-card" onclick="ProfileModule.openActivityModal('flip')"
+                                     style="background:var(--neuro-bg,#f0f0f3);border-radius:14px;padding:14px;
+                                            cursor:pointer;text-align:center;
+                                            box-shadow:4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
+                                            transition:transform 0.15s,box-shadow 0.15s;">
+                                    <div style="font-size:1.6rem;margin-bottom:6px;">🔄</div>
+                                    <div style="font-weight:700;font-size:0.88rem;color:var(--neuro-text);">Flip the Script</div>
+                                    <div id="activityCount_flip"
+                                         style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">— entries</div>
+                                </div>
+
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Community Role</span>
-                                <span class="detail-val" style="color: var(--primary);" id="privateRole">Member</span>
-                                <button class="edit-inline-btn"
-                                        onclick="ProfileModule.editRole()"
-                                        title="Edit community role"
-                                        style="background:none;border:none;cursor:pointer;font-size:12px;opacity:0.6;margin-left:6px;">✏️</button>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Status</span>
-                                <span class="detail-val" id="privateStatus">Available</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Birthday</span>
-                                <span class="detail-val" id="privateBirthday">—</span>
-                                <button class="edit-inline-btn"
-                                        onclick="ProfileModule.editBirthday()"
-                                        title="Edit birthday"
-                                        style="background:none;border:none;cursor:pointer;font-size:12px;opacity:0.6;margin-left:6px;">✏️</button>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Country</span>
-                                <span class="detail-val" id="privateCountry">—</span>
-                                <button class="edit-inline-btn"
-                                        onclick="ProfileModule.editCountry()"
-                                        title="Edit country"
-                                        style="background:none;border:none;cursor:pointer;font-size:12px;opacity:0.6;margin-left:6px;">✏️</button>
+                        </div>
+
+                        <!-- Activity Modal -->
+                        <div id="activityModal"
+                             style="display:none;position:fixed;inset:0;z-index:9999;
+                                    background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);
+                                    align-items:center;justify-content:center;
+                                    opacity:0;transition:opacity 0.25s ease;">
+                            <div id="activityModalInner"
+                                 style="background:var(--neuro-bg,#f0f0f3);
+                                        border-radius:20px;padding:1.5rem;
+                                        max-width:480px;width:92%;max-height:80vh;
+                                        position:relative;display:flex;flex-direction:column;
+                                        box-shadow:8px 8px 20px rgba(0,0,0,0.15),-4px -4px 12px rgba(255,255,255,0.7);
+                                        transform:translateY(16px);transition:transform 0.25s ease;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                                    <div id="activityModalTitle"
+                                         style="font-size:1.1rem;font-weight:700;color:var(--neuro-text);"></div>
+                                    <button onclick="ProfileModule.closeActivityModal()"
+                                            style="background:none;border:none;cursor:pointer;font-size:18px;opacity:0.5;">✕</button>
+                                </div>
+                                <div id="activityModalBody"
+                                     style="overflow-y:auto;flex:1;padding-right:4px;"></div>
                             </div>
                         </div>
                     </div>
@@ -235,7 +251,7 @@ const ProfileModule = {
             this.updateBadges();
             this.updateBirthday(user);
             this.updateCountry(user);
-            this.updateProfileLocationRow(user);
+            this.loadActivityData().catch(() => {});
         } catch (error) {
             console.error('Profile data population error:', error);
         }
@@ -284,32 +300,31 @@ const ProfileModule = {
     // ── Karma ────────────────────────────────────────────────────────────────────
 
     updateKarma(user) {
+        // Get own gamification state — in-memory first, DB fallback
         const g = window.CommunityDB?.getOwnGamificationState?.();
 
-        const karma  = g?.karma  ?? user.karma  ?? 0;
-        const xp     = g?.xp     ?? user.xp     ?? 0;
-        const level  = g?.level  ?? user.level  ?? 1;
-        const streak = g?.streak ?? 0;
+        const karma = g?.karma ?? user.karma ?? 0;
+        const xp    = g?.xp    ?? user.xp    ?? 0;
+        const level = g?.level ?? user.level ?? 1;
 
+        // Karma badge (top right of name row)
+        const karmaBadge = document.getElementById('karmaBadge');
+        if (karmaBadge) karmaBadge.textContent = `⭐ ${karma.toLocaleString()} Karma`;
+
+        // Stat boxes
         const statKarma = document.getElementById('statKarma');
         if (statKarma) statKarma.textContent = karma.toLocaleString();
 
         const statXP = document.getElementById('statXP');
         if (statXP) statXP.textContent = xp.toLocaleString();
 
-        const statStreak = document.getElementById('statStreak');
-        if (statStreak) statStreak.textContent = streak;
-
-        // Minutes stat (top-level stat box)
-        const statMinutesStat = document.getElementById('statMinutesStat');
-        if (statMinutesStat) statMinutesStat.textContent = (user.total_minutes ?? user.minutes ?? 0).toLocaleString();
-
-        // Level badge — prominent
+        // Level badge
         const levelTitles = {1:'Seeker',2:'Practitioner',3:'Adept',4:'Healer',5:'Master',6:'Sage',7:'Enlightened',8:'Buddha',9:'Light',10:'Emptiness'};
         const title = levelTitles[level] || 'Seeker';
         const levelBadge = document.getElementById('profileLevelBadge');
         if (levelBadge) levelBadge.textContent = `✦ Level ${level} · ${title}`;
 
+        // Activity counts
         if (g) this.updateActivityCounts(g);
     },
 
@@ -368,66 +383,19 @@ const ProfileModule = {
     // ── Role / Status ────────────────────────────────────────────────────────────
 
     updateRole(user) {
-        const role   = user.community_role || user.role || 'Member';
+        const role = user.role || 'Member';
         const status = user.status || 'available';
 
-        // Role pill next to name
-        const roleBadge = document.getElementById('profileRoleBadge');
-        if (roleBadge) roleBadge.textContent = `👤 ${role}`;
+        const roleEl = document.getElementById('profileRole');
+        if (roleEl) roleEl.textContent = `👤 ${role}`;
 
-        // Keep private details in sync
         const privateRole = document.getElementById('privateRole');
         if (privateRole) privateRole.textContent = role;
 
         const privateStatus = document.getElementById('privateStatus');
-        if (privateStatus) privateStatus.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-    },
-
-    updateProfileLocationRow(user) {
-        const birthdayEl = document.getElementById('profileBirthdayDisplay');
-        const countryEl  = document.getElementById('profileCountryDisplay');
-
-        if (birthdayEl) {
-            if (user.birthday) {
-                try {
-                    const d = new Date(user.birthday + 'T00:00:00');
-                    const formatted = d.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
-                    birthdayEl.textContent = `🎂 ${formatted}`;
-                } catch {
-                    birthdayEl.textContent = `🎂 ${user.birthday}`;
-                }
-            } else {
-                birthdayEl.textContent = '';
-            }
+        if (privateStatus) {
+            privateStatus.textContent = status.charAt(0).toUpperCase() + status.slice(1);
         }
-
-        if (countryEl) {
-            if (user.country) {
-                // Convert country name to flag emoji via regional indicator letters
-                const flag = this._countryFlag(user.country);
-                countryEl.textContent = `${flag} ${user.country}`;
-            } else {
-                countryEl.textContent = '';
-            }
-        }
-    },
-
-    _countryFlag(countryName) {
-        // Map common country names to ISO 3166-1 alpha-2 codes for flag emoji
-        const map = {
-            'israel':'IL','united states':'US','usa':'US','us':'US','united kingdom':'GB','uk':'GB',
-            'canada':'CA','australia':'AU','germany':'DE','france':'FR','spain':'ES','italy':'IT',
-            'netherlands':'NL','belgium':'BE','switzerland':'CH','sweden':'SE','norway':'NO',
-            'denmark':'DK','finland':'FI','poland':'PL','portugal':'PT','austria':'AT',
-            'india':'IN','china':'CN','japan':'JP','south korea':'KR','brazil':'BR',
-            'mexico':'MX','argentina':'AR','south africa':'ZA','russia':'RU','ukraine':'UA',
-            'greece':'GR','turkey':'TR','egypt':'EG','new zealand':'NZ','ireland':'IE',
-            'singapore':'SG','thailand':'TH','indonesia':'ID','malaysia':'MY','philippines':'PH',
-        };
-        const code = map[countryName.toLowerCase().trim()];
-        if (!code) return '🌍';
-        // Regional indicator symbols: 🇦 = U+1F1E6, offset by char code - 65
-        return [...code].map(c => String.fromCodePoint(0x1F1E6 + c.charCodeAt(0) - 65)).join('');
     },
 
     // ── Birthday ─────────────────────────────────────────────────────────────────
@@ -454,6 +422,152 @@ const ProfileModule = {
         const el = document.getElementById('privateCountry');
         if (!el) return;
         el.textContent = user.country || '—';
+    },
+
+    // ============================================================================
+    // MY ACTIVITY — data loading + modals
+    // ============================================================================
+
+    async loadActivityData() {
+        // Try app state first (already in memory), fall back to DB
+        let data = null;
+        if (window.app?.state?.data) {
+            data = {
+                journalEntries:   window.app.state.data.journalEntries   || [],
+                energyEntries:    window.app.state.data.energyEntries    || [],
+                gratitudeEntries: window.app.state.data.gratitudeEntries || [],
+                flipEntries:      window.app.state.data.flipEntries      || [],
+            };
+        } else if (window.CommunityDB?.ready) {
+            data = await CommunityDB.getOwnFullProgress();
+        }
+
+        if (!data) return;
+        this._activityData = data;
+
+        // Update counts on cards
+        this._setActivityCount('journal',   data.journalEntries.length,   'entries');
+        this._setActivityCount('gratitude', data.gratitudeEntries.length, 'entries');
+        this._setActivityCount('energy',    data.energyEntries.length,    'check-ins');
+        this._setActivityCount('flip',      data.flipEntries.length,      'entries');
+    },
+
+    _setActivityCount(type, count, label) {
+        const el = document.getElementById(`activityCount_${type}`);
+        if (el) el.textContent = count > 0 ? `${count} ${label}` : `No ${label} yet`;
+    },
+
+    async openActivityModal(type) {
+        if (!this._activityData) await this.loadActivityData();
+
+        const configs = {
+            journal:   { title: '📓 Journal Entries',       icon: '📓' },
+            gratitude: { title: '🙏 Gratitude Entries',     icon: '🙏' },
+            energy:    { title: '⚡ Energy Check-ins',       icon: '⚡' },
+            flip:      { title: '🔄 Flip the Script',       icon: '🔄' },
+        };
+
+        const cfg     = configs[type];
+        const entries = this._activityData?.[`${type}Entries`] || [];
+
+        const titleEl = document.getElementById('activityModalTitle');
+        const bodyEl  = document.getElementById('activityModalBody');
+        if (titleEl) titleEl.textContent = cfg.title;
+        if (bodyEl)  bodyEl.innerHTML = entries.length > 0
+            ? entries.map(e => this._renderActivityEntry(type, e)).join('')
+            : `<div style="text-align:center;color:var(--text-muted);padding:2rem;">No entries yet</div>`;
+
+        const modal = document.getElementById('activityModal');
+        const inner = document.getElementById('activityModalInner');
+        if (!modal) return;
+        modal.style.display = 'flex';
+        requestAnimationFrame(() => {
+            modal.style.opacity = '1';
+            inner.style.transform = 'translateY(0)';
+        });
+
+        // Close on backdrop
+        modal.onclick = (e) => { if (e.target === modal) this.closeActivityModal(); };
+
+        // Close on Escape
+        this._activityEscHandler = (e) => { if (e.key === 'Escape') this.closeActivityModal(); };
+        document.addEventListener('keydown', this._activityEscHandler);
+    },
+
+    closeActivityModal() {
+        const modal = document.getElementById('activityModal');
+        const inner = document.getElementById('activityModalInner');
+        if (!modal) return;
+        modal.style.opacity = '0';
+        inner.style.transform = 'translateY(16px)';
+        setTimeout(() => { modal.style.display = 'none'; }, 250);
+        if (this._activityEscHandler) {
+            document.removeEventListener('keydown', this._activityEscHandler);
+        }
+    },
+
+    _renderActivityEntry(type, entry) {
+        const date = this._formatEntryDate(entry.timestamp || entry.date);
+        const base = `border-radius:12px;padding:12px 14px;margin-bottom:10px;
+                      background:var(--surface,rgba(0,0,0,0.03));
+                      border-left:3px solid var(--primary,#667eea);
+                      font-size:0.86rem;line-height:1.6;`;
+
+        switch (type) {
+            case 'journal': {
+                const text = entry.situation || entry.feelings || '';
+                const mood = entry.mood ? `<span style="margin-left:6px;opacity:0.7;">${entry.mood}</span>` : '';
+                return `<div style="${base}">
+                    <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">${date}${mood}</div>
+                    <div style="color:var(--neuro-text);">${this._esc(text)}</div>
+                </div>`;
+            }
+            case 'gratitude': {
+                const items = entry.entries || [];
+                return `<div style="${base}">
+                    <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:6px;">${date}</div>
+                    ${items.map((g, i) => `<div style="margin-bottom:3px;">🙏 ${this._esc(g)}</div>`).join('')}
+                </div>`;
+            }
+            case 'energy': {
+                const level = entry.energy ?? '—';
+                const notes = entry.notes ? `<div style="margin-top:4px;opacity:0.8;">${this._esc(entry.notes)}</div>` : '';
+                const tags  = (entry.moodTags || []).length
+                    ? `<div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:4px;">
+                        ${entry.moodTags.map(t => `<span style="background:rgba(102,126,234,0.12);color:var(--primary);border-radius:99px;padding:2px 8px;font-size:0.72rem;">${this._esc(t)}</span>`).join('')}
+                       </div>` : '';
+                return `<div style="${base}">
+                    <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">${date}</div>
+                    <div style="font-size:1rem;font-weight:700;color:var(--primary);">⚡ Energy: ${level}/10</div>
+                    ${tags}${notes}
+                </div>`;
+            }
+            case 'flip': {
+                const text = entry.situation || entry.original || entry.text || entry.content || '';
+                const reframe = entry.reframe || entry.flipped || '';
+                return `<div style="${base}">
+                    <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">${date}</div>
+                    ${text ? `<div style="color:var(--neuro-text);">📝 ${this._esc(text)}</div>` : ''}
+                    ${reframe ? `<div style="margin-top:6px;color:var(--primary);">✨ ${this._esc(reframe)}</div>` : ''}
+                </div>`;
+            }
+            default: return '';
+        }
+    },
+
+    _formatEntryDate(ts) {
+        if (!ts) return '';
+        try {
+            const d = new Date(typeof ts === 'number' ? ts : ts);
+            return d.toLocaleDateString(undefined, { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+        } catch { return String(ts); }
+    },
+
+    _esc(str) {
+        if (!str || typeof str !== 'string') return '';
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
     },
 
     // ── Badges ───────────────────────────────────────────────────────────────────
@@ -645,7 +759,6 @@ const ProfileModule = {
             if (Core?.state?.currentUser) Core.state.currentUser.birthday = trimmed || null;
             cancel();
             this.updateBirthday(Core.state.currentUser);
-            this.updateProfileLocationRow(Core.state.currentUser);
             Core.showToast('✓ Birthday updated');
         };
 
@@ -708,7 +821,6 @@ const ProfileModule = {
             if (Core?.state?.currentUser) Core.state.currentUser.country = trimmed || null;
             cancel();
             this.updateCountry(Core.state.currentUser);
-            this.updateProfileLocationRow(Core.state.currentUser);
             Core.showToast('✓ Country updated');
         };
 

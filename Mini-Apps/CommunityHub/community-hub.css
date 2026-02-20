@@ -1673,15 +1673,21 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 /* Private Details */
 .private-details {
     display: none;
-    margin-top: 24px;
-    padding: 20px;
-    background: var(--surface);
-    border-radius: var(--radius-md);
-    border: 2px solid var(--border);
-    box-shadow: var(--shadow-inset);
+    margin-top: 16px;
+    padding: 12px 0;
 }
 
 .private-details.visible { display: block; }
+
+.activity-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 6px 6px 14px rgba(0,0,0,0.12),-3px -3px 8px rgba(255,255,255,0.8) !important;
+}
+
+.activity-card:active {
+    transform: translateY(0);
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.08),-1px -1px 4px rgba(255,255,255,0.6) !important;
+}
 
 .detail-row {
     display: flex;
