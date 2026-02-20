@@ -402,7 +402,12 @@ const CommunityModule = {
     },
 
     viewMember(userId) {
-        Core.showToast('Member profiles coming soon');
+        if (!userId) return;
+        if (window.MemberProfileModal) {
+            MemberProfileModal.open(userId);
+        } else {
+            Core.showToast('Member profiles loading...');
+        }
     },
 
     // ============================================================================

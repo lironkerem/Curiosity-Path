@@ -21,7 +21,8 @@ const MemberProfileModal = {
     state: {
         isOpen:          false,
         currentUserId:   null,
-        reportStep:      null   // null | 'reason' | 'details'
+        reportStep:      null,   // null | 'reason' | 'details'
+        isAppreciated:   false   // whether current user has appreciated this profile
     },
 
     // ============================================================================
@@ -139,6 +140,19 @@ const MemberProfileModal = {
                              style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
                                     margin-bottom:1.25rem;min-height:1.5rem;">
                         </div>
+
+                        <!-- Appreciate button (full width, above other actions) -->
+                        <button id="memberModalAppreciateBtn"
+                                onclick="MemberProfileModal.toggleAppreciate()"
+                                style="width:100%;padding:10px;border-radius:12px;border:none;
+                                       cursor:pointer;font-size:0.9rem;font-weight:600;
+                                       margin-bottom:10px;
+                                       background:var(--neuro-bg,#f0f0f3);
+                                       color:var(--neuro-text);
+                                       box-shadow:3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
+                                       transition:all 0.2s;">
+                            🙏 Appreciate
+                        </button>
 
                         <!-- Action buttons -->
                         <div style="display:flex;gap:10px;margin-bottom:1rem;">
@@ -293,9 +307,21 @@ const MemberProfileModal = {
             }
             this._populate(profile);
 
-            // Hide Whisper/Report/Block for own profile
+            // Hide all action buttons for own profile
             const actionsRow = document.querySelector('#memberModalWhisperBtn')?.closest('div[style*="display:flex"]');
             if (actionsRow) actionsRow.style.display = isSelf ? 'none' : 'flex';
+            const appreciateBtn = document.getElementById('memberModalAppreciateBtn');
+            if (appreciateBtn) appreciateBtn.style.display = isSelf ? 'none' : 'block';
+
+            // Load appreciate state for this user
+            if (!isSelf) {
+                this.state.isAppreciated = false;
+                this._updateAppreciateBtn();
+                CommunityDB.getMyAppreciations().then(set => {
+                    this.state.isAppreciated = set.has(userId);
+                    this._updateAppreciateBtn();
+                }).catch(() => {});
+            }
 
             // Fetch gamification data in parallel (non-blocking)
             CommunityDB.getUserProgress(userId).then(g => {
@@ -423,6 +449,45 @@ const MemberProfileModal = {
                                         font-size:1.1rem;cursor:default;">${b.icon || '🏅'}</div>`;
                 }).join('');
             }
+        }
+    },
+
+    // ============================================================================
+    // APPRECIATE
+    // ============================================================================
+
+    async toggleAppreciate() {
+        const btn = document.getElementById('memberModalAppreciateBtn');
+        if (!btn || !this.state.currentUserId) return;
+
+        btn.disabled = true;
+        try {
+            const result = await CommunityDB.toggleAppreciation(this.state.currentUserId, this.state.isAppreciated);
+            if (!result) { Core.showToast('Could not update — please try again'); return; }
+            this.state.isAppreciated = result.appreciated;
+            this._updateAppreciateBtn();
+            Core.showToast(result.appreciated ? '🙏 Appreciation sent' : 'Appreciation removed');
+        } catch (err) {
+            console.error('[MemberProfileModal] toggleAppreciate error:', err);
+            Core.showToast('Could not update — please try again');
+        } finally {
+            btn.disabled = false;
+        }
+    },
+
+    _updateAppreciateBtn() {
+        const btn = document.getElementById('memberModalAppreciateBtn');
+        if (!btn) return;
+        if (this.state.isAppreciated) {
+            btn.textContent = '🙏 Appreciated';
+            btn.style.background = 'var(--primary,#667eea)';
+            btn.style.color = '#fff';
+            btn.style.boxShadow = 'inset 2px 2px 5px rgba(0,0,0,0.15)';
+        } else {
+            btn.textContent = '🙏 Appreciate';
+            btn.style.background = 'var(--neuro-bg,#f0f0f3)';
+            btn.style.color = 'var(--neuro-text)';
+            btn.style.boxShadow = '3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7)';
         }
     },
 
