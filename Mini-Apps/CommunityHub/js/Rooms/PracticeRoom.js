@@ -397,6 +397,12 @@ class PracticeRoom {
             </div>`;
         }).join('');
     }
+
+    /**
+     * Update the participant count on the hub room card (without re-render).
+     * @param {number} count
+     */
+    _updateRoomCardCount(count) {
         const card = document.querySelector(`[data-room-id="${this.roomId}"]`);
         if (!card) return;
         const el = card.querySelector('.room-participants');
