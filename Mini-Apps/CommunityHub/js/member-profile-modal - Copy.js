@@ -259,8 +259,11 @@ const MemberProfileModal = {
         this.init();
 
         if (!userId) return;
+        if (userId === window.CommunityDB?.userId) {
+            Core.showToast('This is your own profile');
+            return;
+        }
 
-        const isSelf = userId === window.CommunityDB?.userId;
         this.state.currentUserId = userId;
         this.state.isOpen = true;
 
@@ -292,10 +295,6 @@ const MemberProfileModal = {
                 return;
             }
             this._populate(profile);
-
-            // Hide Whisper/Report/Block for own profile
-            const actionsRow = document.querySelector('#memberModalWhisperBtn')?.closest('div[style*="display:flex"]');
-            if (actionsRow) actionsRow.style.display = isSelf ? 'none' : 'flex';
 
             // Fetch gamification data in parallel (non-blocking)
             CommunityDB.getUserProgress(userId).then(g => {
