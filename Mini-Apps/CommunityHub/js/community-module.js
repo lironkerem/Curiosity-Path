@@ -216,15 +216,7 @@ const CommunityModule = {
                         </div>
                         <div class="ref-time">${timeStr}</div>
                     </div>
-                    ${isOwn ? `
-                        <div style="margin-left:auto;display:flex;gap:6px;">
-                            <button onclick="CommunityModule.editReflection('${ref.id}')"
-                                    style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:14px;padding:0 4px;"
-                                    title="Edit reflection">✏️</button>
-                            <button onclick="CommunityModule.deleteReflection('${ref.id}')"
-                                    style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:20px;line-height:1;padding:0 4px;"
-                                    title="Delete reflection">×</button>
-                        </div>` : ''}
+                    ${isOwn ? `` : ''}
                 </div>
                 <div class="ref-content">${this.escapeHtml(ref.content)}</div>
                 <div class="ref-actions">
@@ -238,6 +230,17 @@ const CommunityModule = {
                         <span>💬</span>
                         <span>Whisper</span>
                     </button>
+                    ${isOwn ? `
+                    <div style="margin-left:auto;display:flex;gap:4px;">
+                        <button onclick="CommunityModule.editReflection('${ref.id}')"
+                                class="ref-action"
+                                title="Edit reflection"
+                                style="font-size:14px;opacity:0.6;">✏️</button>
+                        <button onclick="CommunityModule.deleteReflection('${ref.id}')"
+                                class="ref-action"
+                                title="Delete reflection"
+                                style="font-size:14px;opacity:0.6;">🗑️</button>
+                    </div>` : ''}
                 </div>
             </div>`;
     },
