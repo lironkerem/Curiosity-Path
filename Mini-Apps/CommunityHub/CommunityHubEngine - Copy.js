@@ -262,7 +262,6 @@ class CommunityHubEngine {
         this.loadScript('/Mini-Apps/CommunityHub/js/profile-module.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/community-module.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/member-profile-modal.js'),
-        this.loadScript('/Mini-Apps/CommunityHub/js/WhisperModal.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/SafetyBar.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/PracticeRoom.js'), // base class needed before mixins
       ]);

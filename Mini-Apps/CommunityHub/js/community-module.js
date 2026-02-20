@@ -71,6 +71,9 @@ const CommunityModule = {
                 _initWhisperBadge();
             }
 
+            // Inject whisper inbox button into hub UI
+            this._injectWhisperButton();
+
             this.renderWaves();
             this.renderMembers();
 
@@ -336,7 +339,68 @@ const CommunityModule = {
     // WHISPERS
     // ============================================================================
 
-    async whisper(recipientId) {
+    /**
+     * Inject the 💬 Whispers button into the hub UI.
+     * Tries known container IDs in priority order.
+     * Falls back to a fixed bottom-right floating button.
+     */
+    _injectWhisperButton() {
+        if (document.getElementById('whisperInboxBtn')) return; // already injected
+
+        const btn = document.createElement('button');
+        btn.id = 'whisperInboxBtn';
+        btn.setAttribute('aria-label', 'Open whisper inbox');
+        btn.onclick = () => window.WhisperModal?.open();
+        btn.innerHTML = `
+            💬 Whispers
+            <span id="whisperUnreadBadge"
+                  style="display:none;position:absolute;top:-5px;right:-5px;
+                         background:var(--primary,#667eea);color:#fff;
+                         border-radius:99px;font-size:0.68rem;font-weight:700;
+                         padding:2px 6px;min-width:18px;text-align:center;
+                         pointer-events:none;">
+            </span>`;
+
+        // Try to place it inside a known hub nav/header container
+        const targets = [
+            'communityHubActions',
+            'hubNavActions',
+            'hubHeaderActions',
+            'profileHeroActions',
+            'communityTopBar',
+            'hubNav',
+        ];
+
+        let placed = false;
+        for (const id of targets) {
+            const el = document.getElementById(id);
+            if (el) {
+                btn.style.cssText = `
+                    position:relative;display:inline-flex;align-items:center;gap:6px;
+                    padding:8px 16px;border-radius:12px;border:none;cursor:pointer;
+                    font-size:0.88rem;font-weight:600;
+                    background:var(--neuro-bg,#f0f0f3);
+                    color:var(--neuro-text);
+                    box-shadow:3px 3px 8px rgba(0,0,0,0.12),-2px -2px 6px rgba(255,255,255,0.7);`;
+                el.appendChild(btn);
+                placed = true;
+                break;
+            }
+        }
+
+        // Fallback: fixed floating button bottom-right
+        if (!placed) {
+            btn.style.cssText = `
+                position:fixed;bottom:24px;right:24px;z-index:8000;
+                display:inline-flex;align-items:center;gap:6px;
+                padding:10px 18px;border-radius:99px;border:none;cursor:pointer;
+                font-size:0.9rem;font-weight:600;
+                background:var(--primary,#667eea);color:#fff;
+                box-shadow:0 4px 16px rgba(102,126,234,0.45);`;
+            document.body.appendChild(btn);
+            console.log('[CommunityModule] Whisper button: no hub nav container found, using floating fallback. Add id="communityHubActions" to your hub nav to place it there.');
+        }
+    },
         if (!recipientId) return;
 
         // Fetch profile so we can open a named thread
