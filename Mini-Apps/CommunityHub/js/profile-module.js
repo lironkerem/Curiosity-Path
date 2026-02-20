@@ -73,6 +73,54 @@ const ProfileModule = {
                                 📷
                             </button>
                         </div>
+
+                        <!-- Status picker -->
+                        <div style="position:relative;">
+                            <button id="statusPickerBtn"
+                                    onclick="ProfileModule.toggleStatusPicker()"
+                                    style="display:flex;align-items:center;gap:6px;
+                                           padding:5px 12px;border-radius:99px;border:none;
+                                           cursor:pointer;font-size:0.78rem;font-weight:600;
+                                           background:var(--neuro-bg,#f0f0f3);
+                                           color:var(--neuro-text);
+                                           box-shadow:2px 2px 6px rgba(0,0,0,0.1),-1px -1px 4px rgba(255,255,255,0.7);
+                                           transition:box-shadow 0.15s;">
+                                <span id="statusPickerDot"
+                                      style="width:9px;height:9px;border-radius:50%;
+                                             background:var(--ring-available,#6b9b37);
+                                             flex-shrink:0;"></span>
+                                <span id="statusPickerLabel">Available</span>
+                                <span style="opacity:0.5;font-size:10px;">▼</span>
+                            </button>
+
+                            <div id="statusPickerDropdown"
+                                 style="display:none;position:absolute;top:calc(100% + 8px);left:50%;
+                                        transform:translateX(-50%);
+                                        background:var(--neuro-bg,#f0f0f3);
+                                        border-radius:14px;padding:6px;
+                                        box-shadow:6px 6px 16px rgba(0,0,0,0.15),-3px -3px 10px rgba(255,255,255,0.7);
+                                        z-index:999;min-width:170px;">
+                                ${[
+                                    {status:'online',   label:'Available',   color:'var(--ring-available,#6b9b37)', icon:'🟢'},
+                                    {status:'away',     label:'Away',        color:'var(--ring-guiding,#d4a574)',   icon:'🟡'},
+                                    {status:'silent',   label:'In Silence',  color:'var(--ring-silent,#6ba3b3)',    icon:'🔵'},
+                                    {status:'deep',     label:'Deep Practice',color:'var(--ring-deep,#8b7355)',    icon:'🟤'},
+                                    {status:'offline',  label:'Offline',     color:'var(--ring-offline,#a89279)',   icon:'⚫'},
+                                ].map(s => `
+                                <button onclick="ProfileModule.setStatus('${s.status}','${s.label}','${s.color}')"
+                                        style="display:flex;align-items:center;gap:10px;width:100%;
+                                               padding:8px 10px;border:none;border-radius:10px;
+                                               background:none;cursor:pointer;font-size:0.82rem;
+                                               color:var(--neuro-text);text-align:left;
+                                               transition:background 0.15s;"
+                                        onmouseover="this.style.background='rgba(0,0,0,0.05)'"
+                                        onmouseout="this.style.background='none'">
+                                    <span style="width:10px;height:10px;border-radius:50%;
+                                                 background:${s.color};flex-shrink:0;"></span>
+                                    ${s.label}
+                                </button>`).join('')}
+                            </div>
+                        </div>
                     </div>
 
                     <div class="profile-info">
@@ -686,14 +734,84 @@ const ProfileModule = {
 
     updateStatusRing(status) {
         const ring = document.getElementById('statusRing');
-        if (!ring) return;
+        const colorMap = {
+            online:    { color: 'var(--ring-available, #6b9b37)', label: 'Available'     },
+            available: { color: 'var(--ring-available, #6b9b37)', label: 'Available'     },
+            away:      { color: 'var(--ring-guiding,   #d4a574)', label: 'Away'          },
+            silent:    { color: 'var(--ring-silent,     #6ba3b3)', label: 'In Silence'   },
+            guiding:   { color: 'var(--ring-guiding,   #d4a574)', label: 'Away'          },
+            deep:      { color: 'var(--ring-deep,       #8b7355)', label: 'Deep Practice'},
+            offline:   { color: 'var(--ring-offline,    #a89279)', label: 'Offline'      },
+        };
+        const cfg = colorMap[status] || colorMap.offline;
+
+        if (ring) {
+            ring.style.borderColor = cfg.color;
+            ring.style.boxShadow   = `0 0 0 4px ${cfg.color.replace('var(', 'color-mix(in srgb, ').replace(')', ' 20%, transparent)')}`;
+        }
+
+        // Keep picker button in sync
+        const dot = document.getElementById('statusPickerDot');
+        const lbl = document.getElementById('statusPickerLabel');
+        if (dot) dot.style.background = cfg.color;
+        if (lbl) lbl.textContent = cfg.label;
+    },
+
+    toggleStatusPicker() {
+        const dropdown = document.getElementById('statusPickerDropdown');
+        if (!dropdown) return;
+        const isOpen = dropdown.style.display !== 'none';
+        dropdown.style.display = isOpen ? 'none' : 'block';
+
+        // Close when clicking outside
+        if (!isOpen) {
+            const close = (e) => {
+                if (!document.getElementById('statusPickerBtn')?.contains(e.target) &&
+                    !dropdown.contains(e.target)) {
+                    dropdown.style.display = 'none';
+                    document.removeEventListener('click', close);
+                }
+            };
+            setTimeout(() => document.addEventListener('click', close), 0);
+        }
+    },
+
+    async setStatus(status, label, color) {
+        // Close dropdown
+        const dropdown = document.getElementById('statusPickerDropdown');
+        if (dropdown) dropdown.style.display = 'none';
+
+        // Activity label per status
+        const activityMap = {
+            online:  '✨ Available',
+            away:    '🌿 Away',
+            silent:  '🤫 In Silence',
+            deep:    '🧘 Deep Practice',
+            offline: '💤 Offline',
+        };
+        const activity = activityMap[status] || '✨ Available';
+
+        // Update UI immediately
+        this.updateStatusRing(status);
+        const dot   = document.getElementById('statusPickerDot');
+        const lbl   = document.getElementById('statusPickerLabel');
+        if (dot) dot.style.background = color;
+        if (lbl) lbl.textContent = label;
+
+        // Update in-memory state
+        if (window.Core?.state?.currentUser) Core.state.currentUser.status = status;
+
+        // Persist to Supabase
         try {
-            const statusRings = window.Core?.config?.statusRings || {};
-            const color = statusRings[status] || statusRings.offline || '#d1d5db';
-            ring.style.borderColor = color;
-            ring.style.boxShadow   = `0 0 0 4px ${color}33`;
-        } catch (error) {
-            console.error('Error updating status ring:', error);
+            const roomId = Core?.state?.currentRoom || null;
+            await Promise.all([
+                CommunityDB.setPresence(status, activity, roomId),
+                CommunityDB.updateProfile({ community_status: status }),
+            ]);
+            Core.showToast(`Status set to ${label}`);
+        } catch (err) {
+            console.error('[ProfileModule] setStatus error:', err);
+            Core.showToast('Could not update status — please try again');
         }
     },
 
