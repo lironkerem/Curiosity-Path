@@ -140,7 +140,7 @@ const ProfileModule = {
                         </div>
 
                         <div class="profile-activity-counts" id="profileActivityCounts"
-                             style="display:flex;gap:12px;flex-wrap:wrap;font-size:0.78rem;color:var(--text-muted);margin-bottom:0.5rem;">
+                             style="display:flex;gap:12px;flex-wrap:wrap;font-size:0.78rem;color:var(--text-muted);margin-top:10px;margin-bottom:0.5rem;">
                         </div>
 
                         <div class="badges-row" id="badgesRow">
@@ -446,26 +446,45 @@ const ProfileModule = {
         el.textContent = user.country || '—';
     },
 
-    updateProfileLocationRow(user) {
+    async updateProfileLocationRow(user) {
+        // If birthday/country not on currentUser, fetch from DB
+        let birthday = user.birthday;
+        let country  = user.country;
+
+        if ((!birthday && !country) && window.CommunityDB?.ready) {
+            try {
+                const profile = await CommunityDB.getMyProfile();
+                if (profile) {
+                    birthday = profile.birthday;
+                    country  = profile.country;
+                    // Cache back onto currentUser for future calls
+                    if (window.Core?.state?.currentUser) {
+                        Core.state.currentUser.birthday = birthday;
+                        Core.state.currentUser.country  = country;
+                    }
+                }
+            } catch (e) {}
+        }
+
         const birthdayEl = document.getElementById('profileBirthdayDisplay');
         const countryEl  = document.getElementById('profileCountryDisplay');
 
         if (birthdayEl) {
-            if (user.birthday) {
+            if (birthday) {
                 try {
-                    const d = new Date(user.birthday + 'T00:00:00');
+                    const d = new Date(birthday + 'T00:00:00');
                     const formatted = d.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
                     birthdayEl.textContent = `🎂 ${formatted}`;
-                } catch { birthdayEl.textContent = `🎂 ${user.birthday}`; }
+                } catch { birthdayEl.textContent = `🎂 ${birthday}`; }
             } else {
                 birthdayEl.textContent = '';
             }
         }
 
         if (countryEl) {
-            if (user.country) {
-                const flag = this._countryFlag(user.country);
-                countryEl.textContent = `${flag} ${user.country}`;
+            if (country) {
+                const flag = this._countryFlag(country);
+                countryEl.textContent = `${flag} ${country}`;
             } else {
                 countryEl.textContent = '';
             }
@@ -913,7 +932,9 @@ const ProfileModule = {
             const privateDetails = document.getElementById('privateDetails');
             const buttons = document.querySelectorAll('.v-btn');
             buttons.forEach(btn => {
-                const isActive = btn.textContent.toLowerCase().includes(view);
+                const isPublicBtn  = btn.textContent.trim() === 'Public View';
+                const isPrivateBtn = btn.textContent.trim() === 'My Activity';
+                const isActive = (view === 'public' && isPublicBtn) || (view === 'private' && isPrivateBtn);
                 btn.classList.toggle('active', isActive);
                 btn.setAttribute('aria-pressed', isActive.toString());
             });
