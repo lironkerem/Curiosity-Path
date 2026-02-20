@@ -550,3 +550,4 @@ const WhisperModal = {
 
 window.WhisperModal = WhisperModal;
 console.log('✓ WhisperModal loaded');
+

@@ -102,7 +102,6 @@ const ActiveMembers = {
             }
 
             this.state.isRendered = true;
-            console.log('✓ Active Members rendered');
 
         } catch (error) {
             console.error('Active Members render error:', error);
@@ -239,7 +238,6 @@ const ActiveMembers = {
     async refresh() {
         this.state.isRendered = false;
         await this.render();
-        console.log('✓ Active Members refreshed');
     },
 
     // ============================================================================

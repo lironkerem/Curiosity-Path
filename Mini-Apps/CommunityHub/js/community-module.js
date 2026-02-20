@@ -131,7 +131,6 @@ const CommunityModule = {
         try {
             container.innerHTML = this.getReflectionsHTML();
             this.setupCharCounter();
-            console.log('✓ Reflections HTML rendered');
         } catch (error) {
             console.error('Reflections HTML render error:', error);
         }
@@ -159,7 +158,6 @@ const CommunityModule = {
                 ? visible.map(r => this.getReflectionHTML(r)).join('')
                 : '<div style="color:var(--text-muted);font-size:13px;padding:16px;text-align:center">Be the first to share a reflection ✨</div>';
 
-            console.log(`✓ Rendered ${visible.length} reflections`);
 
         } catch (error) {
             console.error('renderReflections error:', error);
@@ -393,7 +391,6 @@ const CommunityModule = {
 
     contributeWave(waveId) {
         Core.showToast('Contribution recorded! Start your practice.');
-        console.log('Contribute to wave:', waveId);
     },
 
     // ============================================================================
@@ -402,12 +399,10 @@ const CommunityModule = {
 
     renderMembers() {
         // Presence is handled entirely by active-members.js
-        console.log('✓ Members render delegated to ActiveMembers');
     },
 
     viewMember(userId) {
         Core.showToast('Member profiles coming soon');
-        console.log('View member:', userId);
     },
 
     // ============================================================================
@@ -522,7 +517,6 @@ const CommunityModule = {
             return;
         }
 
-        console.log('Moderator request:', { urgency, message, userId: Core?.state?.currentUser?.id });
         Core.showToast('✓ Request sent. A moderator will reach out shortly.');
         this.closeModeratorModal();
     },
@@ -553,7 +547,6 @@ const CommunityModule = {
             return;
         }
 
-        console.log('Technical issue:', { type, description, device, userId: Core?.state?.currentUser?.id });
         Core.showToast('✓ Issue reported. Our tech team will investigate.');
         this.closeTechnicalModal();
     },
@@ -592,7 +585,6 @@ const CommunityModule = {
 
     registerEvent(eventId) {
         Core.showToast('Registration confirmed! Check your email.');
-        console.log('Register for event:', eventId);
     },
 
     // ============================================================================

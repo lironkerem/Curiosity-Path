@@ -121,6 +121,7 @@ class CommunityHubEngine {
     if (!this.initialized) {
       await this.initializeCommunityHub();
       this.initialized = true;
+        console.log('✅ Community Hub loaded successfully');
     } else {
       // Re-visit: reset Core so it re-renders all sections
       if (window.Core) {
@@ -237,12 +238,10 @@ class CommunityHubEngine {
       appContainer.appendChild(openingOverlay.firstElementChild);
     }
 
-    console.log('✓ Fullscreen room container created');
   }
 
   async initializeCommunityHub() {
     try {
-      console.log('🌟 Loading Community Hub...');
 
       // Stylesheets
       this.loadStylesheet('/Mini-Apps/CommunityHub/community-hub.css');
@@ -329,7 +328,6 @@ class CommunityHubEngine {
         if (window.Rituals) {
           window.Rituals.state.hasSeenOpening = false;
         }
-        console.log('✅ Community Hub loaded successfully');
       } else {
         throw new Error('Core module not found');
       }
@@ -406,4 +404,5 @@ class CommunityHubEngine {
   }
 }
 
+      console.log('🌟 Loading Community Hub...');
 export default CommunityHubEngine;

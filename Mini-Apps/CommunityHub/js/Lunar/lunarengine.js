@@ -99,7 +99,6 @@ const LunarEngine = {
 
     // Initialize lunar engine
     init() {
-        console.log('🌙 Lunar Engine Initialized');
         
         // Check if SunCalc is available
         if (typeof SunCalc === 'undefined') {
@@ -312,17 +311,14 @@ const LunarEngine = {
     // ===== LUNAR PRACTICE ROOM MANAGEMENT =====
     updateLunarRoom() {
         if (!this.currentMoonData) {
-            console.log('⚠️ updateLunarRoom: No moon data available');
             return;
         }
 
         const phase = this.currentMoonData.phase;
-        console.log(`🌙 updateLunarRoom: Current phase = ${phase.toFixed(3)}`);
 
         // Find the appropriate room based on current phase
         const room = this.lunarRooms.find(r => {
             const matches = phase >= r.phaseRange[0] && phase <= r.phaseRange[1];
-            console.log(`  Checking ${r.roomName}: [${r.phaseRange[0]}, ${r.phaseRange[1]}] - ${matches ? 'MATCH' : 'no match'}`);
             return matches;
         }) || this.lunarRooms[0]; // Default to New Moon if edge case
 
@@ -330,7 +326,6 @@ const LunarEngine = {
         const roomChanged = this.currentLunarRoom?.roomId !== room.roomId;
         this.currentLunarRoom = room;
         
-        console.log(`🌙 Current room set to: ${room.roomName} (${room.roomId})`);
         if (roomChanged) {
             console.log(`✨ Lunar room CHANGED to: ${room.roomName} (phase: ${phase.toFixed(3)})`);
         }
@@ -582,7 +577,6 @@ const LunarEngine = {
 
     // DEV MODE: Join any room directly
     devJoinRoom(roomId) {
-        console.log(`🔧 DEV MODE: Joining ${roomId}`);
         
         if (roomId === 'new-moon' && window.NewMoonRoom) {
             window.NewMoonRoom.enterRoom();
@@ -611,4 +605,6 @@ const LunarEngine = {
 };
 
 // Expose globally
+        console.log('🌙 Lunar Engine Initialized');
+        console.log(`🔧 DEV MODE: Joining ${roomId}`);
 window.LunarEngine = LunarEngine;

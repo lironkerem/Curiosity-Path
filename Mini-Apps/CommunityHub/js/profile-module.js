@@ -184,7 +184,6 @@ const ProfileModule = {
         }
         try {
             container.innerHTML = this.getHTML();
-            console.log('✓ Profile HTML rendered');
         } catch (error) {
             console.error('Profile HTML render error:', error);
         }
@@ -211,7 +210,6 @@ const ProfileModule = {
             this.updateBadges();
             this.updateBirthday(user);
             this.updateCountry(user);
-            console.log('✓ Profile data populated');
         } catch (error) {
             console.error('Profile data population error:', error);
         }
@@ -620,14 +618,12 @@ const ProfileModule = {
         const counter = document.getElementById('charCount');
         if (input && counter) {
             input.addEventListener('input', () => { counter.textContent = input.value.length; });
-            console.log('✓ Character counter initialized');
         }
     },
 
     refresh() {
         try {
             this.populateData();
-            console.log('✓ Profile refreshed');
         } catch (error) {
             console.error('Profile refresh error:', error);
         }

@@ -81,7 +81,6 @@ const Core = {
         }
 
         try {
-            console.log('🌟 Community Hub Initializing...');
 
             // 1. Init Supabase data layer
             if (!window.CommunityDB) {
@@ -116,7 +115,6 @@ const Core = {
             this.updatePresenceCount();
 
             this.state.initialized = true;
-            console.log('✅ Community Hub Initialized Successfully');
 
         } catch (error) {
             console.error('❌ Core initialization failed:', error);
@@ -159,7 +157,6 @@ const Core = {
                 badges:           window.app?.gamification?.state?.badges ?? []
             };
 
-            console.log('[Core] User loaded:', this.state.currentUser.name);
 
         } catch (error) {
             console.error('[Core] loadCurrentUser failed:', error);
@@ -192,7 +189,6 @@ const Core = {
             try {
                 if (instance && typeof instance.init === 'function') {
                     instance.init();
-                    console.log(`✓ ${name} initialized`);
                 } else {
                     console.warn(`⚠ ${name} module not found or missing init`);
                 }
@@ -206,7 +202,6 @@ const Core = {
             window.ActiveMembers.render().catch(e =>
                 console.error('✗ ActiveMembers render failed:', e)
             );
-            console.log('✓ ActiveMembers render triggered');
         } else {
             console.warn('⚠ ActiveMembers not found');
         }
@@ -227,7 +222,6 @@ const Core = {
                     if (typeof room.init === 'function') {
                         room.init();
                         roomInstances.push(room);
-                        console.log(`✓ ${roomName} initialized`);
                         initializedCount++;
                     } else {
                         console.warn(`⚠ ${roomName} missing init method`);
@@ -240,7 +234,6 @@ const Core = {
             }
         });
 
-        console.log(`✓ Initialized ${initializedCount}/${this.config.ROOM_MODULES.length} practice rooms`);
 
         // Start one shared hub presence subscription for all room cards
         if (window.PracticeRoom && roomInstances.length) {
@@ -282,7 +275,6 @@ const Core = {
 
         if (roomCards.length > 0) {
             roomsGrid.innerHTML = roomCards.join('');
-            console.log(`✓ Rendered ${roomCards.length} practice room cards`);
         } else {
             console.warn('No room cards to render');
         }
@@ -306,7 +298,6 @@ const Core = {
         if (window.LunarEngine && typeof window.LunarEngine.init === 'function') {
             try {
                 window.LunarEngine.init();
-                console.log('✓ Lunar system initialized');
             } catch (error) {
                 console.error('✗ Lunar initialization failed:', error);
             }
@@ -317,7 +308,6 @@ const Core = {
         if (window.SolarEngine && typeof window.SolarEngine.init === 'function') {
             try {
                 window.SolarEngine.init();
-                console.log('✓ Solar system initialized');
             } catch (error) {
                 console.error('✗ Solar initialization failed:', error);
             }
@@ -390,7 +380,6 @@ const Core = {
             }
         });
 
-        console.log('✓ Event listeners set up');
     },
 
     // ============================================================================
@@ -466,7 +455,6 @@ const Core = {
 
     initializeSafetyModals() {
         if (document.getElementById('reportModal')) {
-            console.log('Safety modals already initialized');
             return;
         }
 
@@ -539,7 +527,6 @@ const Core = {
         `;
 
         document.body.insertAdjacentHTML('beforeend', modalsHTML);
-        console.log('✓ Safety modals initialized');
     },
 
     // ============================================================================
@@ -576,5 +563,6 @@ window.Core = Core;
 if (!Core.config.DEV_MODE) {
     Object.freeze(Core.config);
 }
-
+            console.log('🌟 Community Hub Initializing...');
+            console.log('✅ Community Hub Initialized Successfully');
 console.log('✅ Core.js loaded (v2.0.0 — Supabase integrated)');

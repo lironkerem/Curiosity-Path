@@ -467,7 +467,6 @@ const CommunityDB = {
     if (this._subs[key]) {
       this._subs[key].unsubscribe();
       delete this._subs[key];
-      console.log(`[CommunityDB] Unsubscribed from ${roomId} chat`);
     }
   },
 
@@ -710,7 +709,6 @@ const CommunityDB = {
 
     // Clean up on tab close
     window.addEventListener('beforeunload', () => this._cleanup());
-    console.log('[CommunityDB] Presence heartbeat started');
   },
 
   stopHeartbeat() {
@@ -733,9 +731,8 @@ const CommunityDB = {
   unsubscribeAll() {
     Object.values(this._subs).forEach(sub => { try { sub.unsubscribe(); } catch(e) {} });
     this._subs = {};
-    console.log('[CommunityDB] All subscriptions cleared');
   }
 };
 
-window.CommunityDB = CommunityDB;
 console.log('✅ community-supabase.js loaded');
+window.CommunityDB = CommunityDB;
