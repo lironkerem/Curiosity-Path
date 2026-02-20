@@ -524,37 +524,129 @@ const ProfileModule = {
     },
 
     async editBirthday() {
+        const row = document.getElementById('privateBirthday')?.closest('.detail-row');
+        if (!row || row.querySelector('input')) return; // already editing
+
         const current = Core?.state?.currentUser?.birthday || '';
-        const newVal = prompt('Enter your birthday (YYYY-MM-DD):', current);
-        if (newVal === null) return;
+        const valEl   = document.getElementById('privateBirthday');
+        const editBtn = row.querySelector('.edit-inline-btn');
 
-        const trimmed = newVal.trim();
-        // Basic date format validation
-        if (trimmed && !/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-            Core.showToast('Please use format YYYY-MM-DD');
-            return;
-        }
+        // Hide value + edit button, show inline input
+        if (valEl)   valEl.style.display   = 'none';
+        if (editBtn) editBtn.style.display = 'none';
 
-        const ok = await CommunityDB.updateProfile({ birthday: trimmed || null });
-        if (!ok) { Core.showToast('Could not save — please try again'); return; }
+        const input = document.createElement('input');
+        input.type  = 'date';
+        input.value = current;
+        input.style.cssText = `flex:1;padding:4px 8px;border-radius:8px;
+            border:1px solid rgba(0,0,0,0.15);font-size:0.85rem;
+            background:var(--neuro-bg);color:var(--neuro-text);`;
 
-        if (Core?.state?.currentUser) Core.state.currentUser.birthday = trimmed || null;
-        this.updateBirthday(Core.state.currentUser);
-        Core.showToast('✓ Birthday updated');
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = '✓';
+        saveBtn.style.cssText = `margin-left:6px;padding:4px 8px;border-radius:8px;border:none;
+            cursor:pointer;font-size:0.85rem;font-weight:700;
+            background:var(--primary,#667eea);color:#fff;`;
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = '✕';
+        cancelBtn.style.cssText = `margin-left:4px;padding:4px 8px;border-radius:8px;border:none;
+            cursor:pointer;font-size:0.85rem;opacity:0.6;
+            background:rgba(0,0,0,0.06);color:var(--neuro-text);`;
+
+        const cancel = () => {
+            input.remove(); saveBtn.remove(); cancelBtn.remove();
+            if (valEl)   valEl.style.display   = '';
+            if (editBtn) editBtn.style.display = '';
+        };
+
+        const save = async () => {
+            const trimmed = input.value;
+            if (trimmed && !/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+                Core.showToast('Invalid date'); return;
+            }
+            saveBtn.disabled = true; saveBtn.textContent = '...';
+            const ok = await CommunityDB.updateProfile({ birthday: trimmed || null });
+            if (!ok) { Core.showToast('Could not save — please try again'); saveBtn.disabled = false; saveBtn.textContent = '✓'; return; }
+            if (Core?.state?.currentUser) Core.state.currentUser.birthday = trimmed || null;
+            cancel();
+            this.updateBirthday(Core.state.currentUser);
+            Core.showToast('✓ Birthday updated');
+        };
+
+        saveBtn.onclick  = save;
+        cancelBtn.onclick = cancel;
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') save();
+            if (e.key === 'Escape') cancel();
+        });
+
+        row.appendChild(input);
+        row.appendChild(saveBtn);
+        row.appendChild(cancelBtn);
+        input.focus();
     },
 
     async editCountry() {
+        const row = document.getElementById('privateCountry')?.closest('.detail-row');
+        if (!row || row.querySelector('input')) return; // already editing
+
         const current = Core?.state?.currentUser?.country || '';
-        const newVal = prompt('Enter your country:', current);
-        if (newVal === null) return;
+        const valEl   = document.getElementById('privateCountry');
+        const editBtn = row.querySelector('.edit-inline-btn');
 
-        const trimmed = newVal.trim().substring(0, 60);
-        const ok = await CommunityDB.updateProfile({ country: trimmed || null });
-        if (!ok) { Core.showToast('Could not save — please try again'); return; }
+        if (valEl)   valEl.style.display   = 'none';
+        if (editBtn) editBtn.style.display = 'none';
 
-        if (Core?.state?.currentUser) Core.state.currentUser.country = trimmed || null;
-        this.updateCountry(Core.state.currentUser);
-        Core.showToast('✓ Country updated');
+        const input = document.createElement('input');
+        input.type        = 'text';
+        input.value       = current;
+        input.maxLength   = 60;
+        input.placeholder = 'Your country';
+        input.style.cssText = `flex:1;padding:4px 8px;border-radius:8px;
+            border:1px solid rgba(0,0,0,0.15);font-size:0.85rem;
+            background:var(--neuro-bg);color:var(--neuro-text);`;
+
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = '✓';
+        saveBtn.style.cssText = `margin-left:6px;padding:4px 8px;border-radius:8px;border:none;
+            cursor:pointer;font-size:0.85rem;font-weight:700;
+            background:var(--primary,#667eea);color:#fff;`;
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = '✕';
+        cancelBtn.style.cssText = `margin-left:4px;padding:4px 8px;border-radius:8px;border:none;
+            cursor:pointer;font-size:0.85rem;opacity:0.6;
+            background:rgba(0,0,0,0.06);color:var(--neuro-text);`;
+
+        const cancel = () => {
+            input.remove(); saveBtn.remove(); cancelBtn.remove();
+            if (valEl)   valEl.style.display   = '';
+            if (editBtn) editBtn.style.display = '';
+        };
+
+        const save = async () => {
+            const trimmed = input.value.trim().substring(0, 60);
+            saveBtn.disabled = true; saveBtn.textContent = '...';
+            const ok = await CommunityDB.updateProfile({ country: trimmed || null });
+            if (!ok) { Core.showToast('Could not save — please try again'); saveBtn.disabled = false; saveBtn.textContent = '✓'; return; }
+            if (Core?.state?.currentUser) Core.state.currentUser.country = trimmed || null;
+            cancel();
+            this.updateCountry(Core.state.currentUser);
+            Core.showToast('✓ Country updated');
+        };
+
+        saveBtn.onclick   = save;
+        cancelBtn.onclick = cancel;
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') save();
+            if (e.key === 'Escape') cancel();
+        });
+
+        row.appendChild(input);
+        row.appendChild(saveBtn);
+        row.appendChild(cancelBtn);
+        input.focus();
     },
 
     // ============================================================================
