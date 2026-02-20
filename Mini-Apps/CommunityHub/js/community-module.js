@@ -87,6 +87,18 @@ const CommunityModule = {
     // ============================================================================
 
     getReflectionsHTML() {
+        const user      = Core?.state?.currentUser || {};
+        const avatarUrl = user.avatar_url || '';
+        const emoji     = user.emoji || '';
+        const name      = user.name || 'You';
+        const initial   = name.charAt(0).toUpperCase();
+        const gradient  = Core.getAvatarGradient(user.id || 'me');
+
+        const avatarInner = avatarUrl
+            ? `<img src="${avatarUrl}" alt="${name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+            : (emoji || initial);
+        const avatarStyle = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
+
         return `
         <section class="section">
             <div class="section-header">
@@ -95,25 +107,31 @@ const CommunityModule = {
             </div>
 
             <!-- New reflection input -->
-            <div class="reflection-card">
+            <div class="reflection" style="margin-bottom:16px;">
                 <div class="ref-header">
-                    <div class="ref-avatar" id="myReflectionAvatar"
-                         style="background: ${Core.getAvatarGradient(Core?.state?.currentUser?.id || 'me')};">
-                        ${Core?.state?.currentUser?.emoji || Core?.state?.currentUser?.avatar || 'U'}
+                    <div class="ref-avatar" style="${avatarStyle}">
+                        ${avatarInner}
                     </div>
-                    <div class="ref-info" style="flex:1">
-                        <textarea id="reflectionInput"
-                                  placeholder="Share a reflection with the community..."
-                                  maxlength="500"
-                                  style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface);color:var(--text);resize:vertical;min-height:72px;font-size:14px;"></textarea>
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
-                            <span style="font-size:11px;color:var(--text-muted)"><span id="charCount">0</span>/500</span>
-                            <button onclick="CommunityModule.shareReflection()"
-                                    style="padding:6px 16px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-md);cursor:pointer;font-size:13px;font-weight:600;">
-                                Share
-                            </button>
-                        </div>
+                    <div class="ref-meta" style="flex:1;">
+                        <div class="ref-author">${name}</div>
+                        <div class="ref-time">Write a reflection...</div>
                     </div>
+                </div>
+                <textarea id="reflectionInput"
+                          placeholder="Share a reflection with the community..."
+                          maxlength="500"
+                          style="width:100%;padding:10px 12px;border:1px solid var(--border);
+                                 border-radius:var(--radius-md);background:var(--surface);
+                                 color:var(--text);resize:none;min-height:80px;
+                                 font-size:14px;line-height:1.6;box-sizing:border-box;
+                                 margin-top:4px;"></textarea>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:10px;border-top:2px solid var(--border);">
+                    <span style="font-size:11px;color:var(--text-muted);"><span id="charCount">0</span>/500</span>
+                    <button onclick="CommunityModule.shareReflection()"
+                            style="padding:7px 20px;background:var(--accent);color:#fff;border:none;
+                                   border-radius:var(--radius-md);cursor:pointer;font-size:13px;font-weight:600;">
+                        Share
+                    </button>
                 </div>
             </div>
 
