@@ -794,9 +794,13 @@ const CollectiveField = {
      */
     _broadcastPulse(sendCount) {
         const intensity = Math.max(1 - (sendCount - 1) * 0.2, 0.2);
-        // TODO: wire to Supabase realtime channel
-        // CommunityDB.broadcastPulse({ intensity });
-        console.log(`📡 Pulse broadcast queued (intensity: ${intensity.toFixed(1)})`);
+        // Record pulse in Supabase — triggers realtime for all other users
+        if (window.CollectiveFieldDB) {
+            window.CollectiveFieldDB.recordPulse().catch(err =>
+                console.error('recordPulse failed:', err)
+            );
+        }
+        console.log(`📡 Pulse broadcast (intensity: ${intensity.toFixed(1)})`);
     },
 
     // ============================================================================
@@ -987,8 +991,12 @@ const CollectiveField = {
 
         this._updateWaveStatusLine(); // reset to collective view
 
-        // TODO: persist to Supabase
-        // CommunityDB.logWaveContribution({ minutes: minutesLogged });
+        // Persist to Supabase
+        if (window.CollectiveFieldDB) {
+            window.CollectiveFieldDB.logWaveContribution(minutesLogged, true).catch(err =>
+                console.error('logWaveContribution failed:', err)
+            );
+        }
     },
 
     /**

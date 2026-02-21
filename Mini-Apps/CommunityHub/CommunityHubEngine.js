@@ -263,6 +263,7 @@ class CommunityHubEngine {
         this.loadScript('/Mini-Apps/CommunityHub/js/member-profile-modal.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/WhisperModal.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/SafetyBar.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/collective-field-db.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/PracticeRoom.js'), // base class needed before mixins
       ]);
 
@@ -327,6 +328,10 @@ class CommunityHubEngine {
         window.Core.init();
         if (window.Rituals) {
           window.Rituals.state.hasSeenOpening = false;
+        }
+        // Initialize Collective Field DB (realtime + polling)
+        if (window.CollectiveFieldDB) {
+          await window.CollectiveFieldDB.init();
         }
       } else {
         throw new Error('Core module not found');
