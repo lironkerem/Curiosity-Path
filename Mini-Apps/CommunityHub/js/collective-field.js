@@ -110,12 +110,12 @@ const CollectiveField = {
                 </div>
 
                 <!-- Dynamic field state label -->
-                <div id="fieldStateLabel" style="font-size: 12px; font-style: italic; color: var(--text-muted); margin: 2px 0 6px; text-align: center;">
+                <div id="fieldStateLabel" style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 6px 0 0; text-align: center;">
                     ${fieldLabel}
                 </div>
 
                 <!-- Last sent + recent senders row -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 10px;">
                     <div>
                         <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 3px;">Recent senders</div>
                         <div id="recentSendersStrip" style="display: flex; gap: 4px; align-items: center; min-height: 26px;">
@@ -592,11 +592,15 @@ const CollectiveField = {
      * @param {number} level
      */
     _getFieldLabel(level) {
-        if (level >= 80) return '✨ The field is radiant';
-        if (level >= 60) return '🌿 The field is strong';
-        if (level >= 40) return '🌱 The field is growing';
-        if (level >= 20) return '🕯 The field flickers';
-        return '🌑 The field needs energy';
+        const labels = [
+            { min: 80, text: 'The field is radiant',   svg: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="19.78" y1="4.22" x2="17.66" y2="6.34"/><line x1="6.34" y1="17.66" x2="4.22" y2="19.78"/></svg>` },
+            { min: 60, text: 'The field is strong',    svg: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12h8M12 8v8"/></svg>` },
+            { min: 40, text: 'The field is growing',   svg: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 22V12"/><path d="M12 12C12 7 7 4 3 6"/><path d="M12 12C12 7 17 4 21 6"/></svg>` },
+            { min: 20, text: 'The field is flickering', svg: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2L8 10h4l-2 10 8-12h-4l2-6z"/></svg>` },
+            { min:  0, text: 'The field needs energy', svg: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>` },
+        ];
+        const { text, svg } = labels.find(l => level >= l.min) || labels[labels.length - 1];
+        return `<span style="display:inline-flex;align-items:center;gap:5px;opacity:0.75;">${svg}<span>${text}</span></span>`;
     },
 
     /**
@@ -637,7 +641,7 @@ const CollectiveField = {
 
         // Field state label
         const labelEl = document.getElementById('fieldStateLabel');
-        if (labelEl) labelEl.textContent = this._getFieldLabel(s.energyLevel);
+        if (labelEl) labelEl.innerHTML = this._getFieldLabel(s.energyLevel);
 
         // Last sent
         const lastEl = document.getElementById('lastSentLabel');
