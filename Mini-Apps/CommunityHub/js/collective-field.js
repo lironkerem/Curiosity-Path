@@ -93,7 +93,7 @@ const CollectiveField = {
                     ${this.getEnergyFieldSVG()}
                 </div>
 
-                <div class="collective-title">Energy Field</div>
+                <div class="collective-title">Community Energy</div>
 
                 <div class="collective-count">
                     <span class="count-number" id="presenceCount">${presenceCount}</span>
@@ -102,7 +102,7 @@ const CollectiveField = {
 
                 <div class="breath-indicator">
                     <span class="breath-dot" aria-hidden="true"></span>
-                    <span>Collective breath</span>
+                    <span>Energy flowing to community</span>
                 </div>
 
                 <div class="collective-progress">
@@ -131,7 +131,7 @@ const CollectiveField = {
                         onmouseup="CollectiveField.handleHoldEnd()"
                         ontouchend="CollectiveField.handleHoldEnd()"
                         onmouseleave="CollectiveField.handleHoldCancel()"
-                        aria-label="Hold to send calm energy to the collective field">
+                        aria-label="Hold to send energy to the community">
                     <svg class="hold-ring" viewBox="0 0 36 36" aria-hidden="true">
                         <circle cx="18" cy="18" r="16" fill="none" stroke="currentColor" stroke-width="2" opacity="0.2"/>
                         <circle id="holdRing" cx="18" cy="18" r="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -139,7 +139,7 @@ const CollectiveField = {
                             stroke-linecap="round"
                             transform="rotate(-90 18 18)"/>
                     </svg>
-                    <span id="pulseBtnLabel">Hold to Send</span>
+                    <span id="pulseBtnLabel">Hold to Send Energy</span>
                 </button>
             </div>
         `;
@@ -175,17 +175,32 @@ const CollectiveField = {
                     <span class="count-label">Participants</span>
                 </div>
 
-                <div class="wave-time-block">
-                    <!-- Collective remaining / active session clock -->
-                    <div id="waveClockDisplay" style="font-size: 28px; font-weight: 700; letter-spacing: 1px; color: var(--text-primary); line-height: 1.1;" aria-live="polite">
-                        ${remainingLabel.replace(' to complete the wave', '')}
-                    </div>
-                    <div id="waveClockLabel" style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
-                        to complete the wave
+                <div class="wave-time-block" style="position: relative;">
+
+                    <!-- Session count-up clock (hidden when idle, grows into focus when active) -->
+                    <div id="waveSessionClock" style="
+                        overflow: hidden;
+                        max-height: 0;
+                        opacity: 0;
+                        transition: max-height 0.5s ease, opacity 0.4s ease, margin 0.4s ease;
+                        margin-bottom: 0;
+                    ">
+                        <div id="waveCountUp" style="font-size: 32px; font-weight: 700; letter-spacing: 2px; color: var(--text-primary); line-height: 1;" aria-live="polite">00:00</div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">your silence so far</div>
                     </div>
 
-                    <!-- Personal contribution (hidden while session active) -->
-                    <div id="waveContribBlock" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-subtle, rgba(0,0,0,0.08));">
+                    <!-- Collective time remaining (shrinks + dims when session active) -->
+                    <div id="waveCollectiveTime" style="transition: font-size 0.4s ease, opacity 0.4s ease, margin 0.4s ease;">
+                        <div id="waveClockDisplay" style="font-size: 28px; font-weight: 700; letter-spacing: 1px; color: var(--text-primary); line-height: 1.1;">
+                            ${remainingLabel.replace(' to complete the wave', '')}
+                        </div>
+                        <div id="waveClockLabel" style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+                            to complete the wave
+                        </div>
+                    </div>
+
+                    <!-- Personal contribution (always visible, dims slightly when session active) -->
+                    <div id="waveContribBlock" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-subtle, rgba(0,0,0,0.08)); transition: opacity 0.4s ease;">
                         <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 3px;">Your contribution</div>
                         <div style="display: flex; gap: 12px; align-items: baseline;">
                             <span>
@@ -546,15 +561,18 @@ const CollectiveField = {
             style.id = 'appRippleStyles';
             style.textContent = `
                 @keyframes appRippleExpand {
-                    0%   { transform: translate(-50%, -50%) scale(0); opacity: 0.55; }
-                    100% { transform: translate(-50%, -50%) scale(1);  opacity: 0; }
+                    0%   { transform: translate(-50%, -50%) scale(0); opacity: 0.6; }
+                    20%  { opacity: 0.5; }
+                    100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
                 }
                 .app-wide-ripple {
                     position: fixed;
                     border-radius: 50%;
                     pointer-events: none;
-                    z-index: 9999;
-                    border: 2px solid var(--color-calm, rgba(107, 155, 55, 0.6));
+                    z-index: 99999;
+                    border: 3px solid rgba(107, 155, 55, 0.7);
+                    background: rgba(107, 155, 55, 0.04);
+                    will-change: transform, opacity;
                     animation: appRippleExpand 1.8s cubic-bezier(0.2, 0.6, 0.4, 1) forwards;
                 }
             `;
@@ -689,35 +707,61 @@ const CollectiveField = {
      */
     _updateWaveStatusLine(elapsedMs) {
         const s = this.state;
-        const clockDisplay = document.getElementById('waveClockDisplay');
-        const clockLabel   = document.getElementById('waveClockLabel');
-        const contribBlock = document.getElementById('waveContribBlock');
+        const sessionClock    = document.getElementById('waveSessionClock');
+        const countUp         = document.getElementById('waveCountUp');
+        const collectiveBlock = document.getElementById('waveCollectiveTime');
+        const clockDisplay    = document.getElementById('waveClockDisplay');
+        const contribBlock    = document.getElementById('waveContribBlock');
         if (!clockDisplay) return;
 
+        // Always keep collective time text current
         const remainingMinutes = Math.max(s.WAVE_GOAL_MINUTES - s.waveTotalMinutes, 0);
         const remainingHrs  = Math.floor(remainingMinutes / 60);
         const remainingMins = remainingMinutes % 60;
+        clockDisplay.textContent = remainingHrs > 0
+            ? `${remainingHrs}h ${remainingMins}m`
+            : `${remainingMins}m`;
 
         if (elapsedMs !== undefined && s.isContributing) {
-            // ── Active session: show count-up clock prominently ──
+            // ── Active: count-up expands in, collective shrinks + dims ──
             const givenMins = Math.floor(elapsedMs / 60000);
             const givenSecs = Math.floor((elapsedMs % 60000) / 1000);
-            clockDisplay.textContent = `${String(givenMins).padStart(2, '0')}:${String(givenSecs).padStart(2, '0')}`;
-            clockLabel.textContent   = 'your silence so far';
-            if (contribBlock) contribBlock.style.display = 'none';
-        } else {
-            // ── Idle: show collective time remaining ──
-            clockDisplay.textContent = remainingHrs > 0
-                ? `${remainingHrs}h ${remainingMins}m`
-                : `${remainingMins}m`;
-            clockLabel.textContent = 'to complete the wave';
-            if (contribBlock) contribBlock.style.display = '';
+            if (countUp) countUp.textContent = `${String(givenMins).padStart(2, '0')}:${String(givenSecs).padStart(2, '0')}`;
 
-            // Refresh personal contribution numbers
+            // Expand session clock
+            if (sessionClock) {
+                sessionClock.style.maxHeight   = '60px';
+                sessionClock.style.opacity     = '1';
+                sessionClock.style.marginBottom = '8px';
+            }
+            // Shrink + dim collective time
+            if (collectiveBlock) {
+                collectiveBlock.style.fontSize = '13px';
+                collectiveBlock.style.opacity  = '0.45';
+                collectiveBlock.style.marginTop = '2px';
+            }
+            // Dim contribution block slightly (still visible)
+            if (contribBlock) contribBlock.style.opacity = '0.5';
+
+        } else {
+            // ── Idle: collapse session clock, restore collective to full size ──
+            if (sessionClock) {
+                sessionClock.style.maxHeight    = '0';
+                sessionClock.style.opacity      = '0';
+                sessionClock.style.marginBottom = '0';
+            }
+            if (collectiveBlock) {
+                collectiveBlock.style.fontSize  = '';
+                collectiveBlock.style.opacity   = '1';
+                collectiveBlock.style.marginTop = '';
+            }
+            if (contribBlock) contribBlock.style.opacity = '1';
+
+            // Refresh contribution numbers
             const todayEl   = document.getElementById('userTodayDisplay');
             const allTimeEl = document.getElementById('userAllTimeDisplay');
-            if (todayEl)   todayEl.textContent   = `${s.userTodayMinutes}m`;
-            if (allTimeEl) allTimeEl.textContent  = `${s.userAllTimeMinutes}m`;
+            if (todayEl)   todayEl.textContent  = `${s.userTodayMinutes}m`;
+            if (allTimeEl) allTimeEl.textContent = `${s.userAllTimeMinutes}m`;
         }
     },
 
