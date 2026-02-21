@@ -114,15 +114,13 @@ const CollectiveField = {
                     ${fieldLabel}
                 </div>
 
-                <!-- Last sent + recent senders row -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 10px;">
-                    <div>
-                        <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 3px;">Recent senders</div>
-                        <div id="recentSendersStrip" style="display: flex; gap: 4px; align-items: center; min-height: 26px;">
-                            ${recentSendersHTML}
-                        </div>
+                <!-- Recent senders + last sent stacked -->
+                <div style="margin-top: 10px; margin-bottom: 10px;">
+                    <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">Recent senders</div>
+                    <div id="recentSendersStrip" style="display: flex; gap: 4px; align-items: center; min-height: 26px;">
+                        ${recentSendersHTML}
                     </div>
-                    <span id="lastSentLabel" style="font-size: 11px; color: var(--text-muted); text-align: right; align-self: flex-end;">${lastSentLabel}</span>
+                    <div id="lastSentLabel" style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">${lastSentLabel}</div>
                 </div>
 
                 <!-- Progress bar -->
