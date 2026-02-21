@@ -103,9 +103,10 @@ const CollectiveField = {
 
                 <div class="collective-title">Community Energy</div>
 
+                <!-- Big counter: Pulses Sent Today -->
                 <div class="collective-count">
-                    <span class="count-number" id="presenceCount">${presenceCount}</span>
-                    <span class="count-label">Present Now</span>
+                    <span class="count-number" id="communityPulseCount">${this.state.communityPulseCount}</span>
+                    <span class="count-label">Pulses Sent Today</span>
                 </div>
 
                 <!-- Dynamic field state label -->
@@ -113,6 +114,18 @@ const CollectiveField = {
                     ${fieldLabel}
                 </div>
 
+                <!-- Last sent + recent senders row -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <div>
+                        <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 3px;">Recent senders</div>
+                        <div id="recentSendersStrip" style="display: flex; gap: 4px; align-items: center; min-height: 26px;">
+                            ${recentSendersHTML}
+                        </div>
+                    </div>
+                    <span id="lastSentLabel" style="font-size: 11px; color: var(--text-muted); text-align: right; align-self: flex-end;">${lastSentLabel}</span>
+                </div>
+
+                <!-- Progress bar -->
                 <div class="collective-progress">
                     <div class="progress-bar-wrapper">
                         <div class="progress-bar">
@@ -129,23 +142,6 @@ const CollectiveField = {
                     <div class="progress-stats">
                         <span class="progress-label">Energy Level</span>
                         <span class="progress-value" id="energyValue">${energyLevel}%</span>
-                    </div>
-                </div>
-
-                <!-- Community pulse count + last sent -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin: 6px 0; padding: 6px 0; border-top: 1px solid var(--border-subtle, rgba(0,0,0,0.08)); border-bottom: 1px solid var(--border-subtle, rgba(0,0,0,0.08));">
-                    <span style="font-size: 11px; color: var(--text-muted);">
-                        <span id="communityPulseCount" style="font-weight: 600; color: var(--text-primary);">${this.state.communityPulseCount}</span>
-                        pulses today
-                    </span>
-                    <span id="lastSentLabel" style="font-size: 11px; color: var(--text-muted);">${lastSentLabel}</span>
-                </div>
-
-                <!-- Recent senders strip -->
-                <div style="margin-bottom: 8px;">
-                    <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">Recent senders</div>
-                    <div id="recentSendersStrip" style="display: flex; gap: 4px; align-items: center; min-height: 28px;">
-                        ${recentSendersHTML}
                     </div>
                 </div>
 
@@ -647,7 +643,7 @@ const CollectiveField = {
         const lastEl = document.getElementById('lastSentLabel');
         if (lastEl) lastEl.textContent = this._getLastSentLabel();
 
-        // Community pulse count
+        // Community pulse count (now the main big counter)
         const countEl = document.getElementById('communityPulseCount');
         if (countEl) countEl.textContent = s.communityPulseCount;
 
@@ -699,8 +695,19 @@ const CollectiveField = {
             const style = document.createElement('style');
             style.id = 'appRippleStyles';
             style.textContent = `
-                @keyframes appRippleExpand {
-                    0%   { width: 0px; height: 0px; opacity: 0.7; }
+                @keyframes waterRipple {
+                    0%   { width: 0px; height: 0px; opacity: 0.8; box-shadow: 0 0 0 0 rgba(90,180,160,0.3); }
+                    30%  { opacity: 0.6; box-shadow: 0 0 24px 8px rgba(90,180,160,0.15); }
+                    100% { width: var(--ripple-size); height: var(--ripple-size); opacity: 0; box-shadow: 0 0 0 0 rgba(90,180,160,0); }
+                }
+                @keyframes waterRipple2 {
+                    0%   { width: 0px; height: 0px; opacity: 0; }
+                    15%  { opacity: 0.5; }
+                    100% { width: var(--ripple-size); height: var(--ripple-size); opacity: 0; }
+                }
+                @keyframes waterRipple3 {
+                    0%   { width: 0px; height: 0px; opacity: 0; }
+                    25%  { opacity: 0.3; }
                     100% { width: var(--ripple-size); height: var(--ripple-size); opacity: 0; }
                 }
                 #appRippleOverlay {
@@ -714,11 +721,23 @@ const CollectiveField = {
                     position: absolute;
                     border-radius: 50%;
                     pointer-events: none;
-                    border: 3px solid rgba(107, 155, 55, 0.75);
-                    background: rgba(107, 155, 55, 0.05);
                     transform: translate(-50%, -50%);
                     will-change: width, height, opacity;
-                    animation: appRippleExpand 1.8s cubic-bezier(0.15, 0.5, 0.4, 1) forwards;
+                }
+                .app-wide-ripple.ring-1 {
+                    border: 4px solid rgba(90, 180, 160, 0.85);
+                    background: rgba(90, 180, 160, 0.06);
+                    animation: waterRipple 2.6s cubic-bezier(0.1, 0.4, 0.3, 1) forwards;
+                }
+                .app-wide-ripple.ring-2 {
+                    border: 2.5px solid rgba(90, 180, 160, 0.5);
+                    background: transparent;
+                    animation: waterRipple2 2.6s cubic-bezier(0.1, 0.4, 0.3, 1) 0.3s forwards;
+                }
+                .app-wide-ripple.ring-3 {
+                    border: 1.5px solid rgba(90, 180, 160, 0.3);
+                    background: transparent;
+                    animation: waterRipple3 2.6s cubic-bezier(0.1, 0.4, 0.3, 1) 0.6s forwards;
                 }
             `;
             document.head.appendChild(style);
@@ -745,14 +764,16 @@ const CollectiveField = {
         // Target size: cover the full viewport diagonal
         const size = Math.sqrt(window.innerWidth ** 2 + window.innerHeight ** 2) * 2.2;
 
-        const ripple = document.createElement('div');
-        ripple.className = 'app-wide-ripple';
-        ripple.style.setProperty('--ripple-size', `${size}px`);
-        ripple.style.left = `${originX}px`;
-        ripple.style.top  = `${originY}px`;
-        overlay.appendChild(ripple);
-
-        setTimeout(() => ripple.remove(), 1900);
+        ['ring-1', 'ring-2', 'ring-3'].forEach((cls, i) => {
+            const ripple = document.createElement('div');
+            ripple.className = `app-wide-ripple ${cls}`;
+            ripple.style.setProperty('--ripple-size', `${size}px`);
+            ripple.style.left = `${originX}px`;
+            ripple.style.top  = `${originY}px`;
+            overlay.appendChild(ripple);
+            // Remove after animation (2.6s duration + delay + buffer)
+            setTimeout(() => ripple.remove(), 3400 + i * 300);
+        });
     },
 
     /**
