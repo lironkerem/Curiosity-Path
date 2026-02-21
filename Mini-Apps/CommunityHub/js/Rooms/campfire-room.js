@@ -51,42 +51,8 @@ class CampfireRoom extends PracticeRoom {
             `${this.roomId}SidebarCount`
         );
 
-        // Inject current user avatar into the chat input row
-        setTimeout(() => this._injectSenderAvatar(), 400);
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // SENDER AVATAR — inject current user's avatar beside input
-    // ═══════════════════════════════════════════════════════════════════════
-
-    /**
-     * Render the current user's avatar beside the message input.
-     * Called after DOM is ready.
-     */
-    _injectSenderAvatar() {
-        const wrapper = document.getElementById(`${this.roomId}SenderAvatarWrapper`);
-        if (!wrapper) return;
-
-        const user = window.Core?.state?.currentUser;
-        if (!user) return;
-
-        const name      = user.name || 'Me';
-        const avatarUrl = user.avatar_url || '';
-        const emoji     = user.emoji || '';
-        const initial   = name.charAt(0).toUpperCase();
-        const gradient  = window.Core?.getAvatarGradient
-            ? Core.getAvatarGradient(user.id || name)
-            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-
-        const inner = avatarUrl
-            ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
-            : `<span style="color:white;font-weight:600;font-size:13px;">${emoji || initial}</span>`;
-        const bg = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
-
-        wrapper.innerHTML = `
-            <div style="width:36px;height:36px;border-radius:50%;${bg}display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">
-                ${inner}
-            </div>`;
+        // Inject current user avatar into the chat input row (from ChatMixin)
+        setTimeout(() => this._injectSenderAvatar('main'), 300);
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -109,39 +75,11 @@ class CampfireRoom extends PracticeRoom {
                     Gather Around the Fire
                 </h2>
 
-                <!-- Messages Container -->
-                <div class="campfire-messages" id="${this.roomId}MainMessages"
-                     style="flex: 1; overflow-y: auto; padding: 20px; background: var(--background); border: 2px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 16px;">
-                    <div class="campfire-welcome" style="text-align: center; padding: 40px 20px;">
-                        <div style="font-size: 48px; margin-bottom: 12px;">🔥</div>
-                        <div style="color: var(--text-muted); font-size: 14px; font-style: italic; line-height: 1.6;">
-                            Welcome to the Campfire. Share your journey, insights, and heart.
-                        </div>
-                    </div>
-                </div>
+                <!-- Chat (messages + pinned input from ChatMixin.buildChatContainer) -->
+                ${this.buildChatContainer('main', 'Share from the heart...')}
 
-                <!-- Input Area -->
-                <div class="campfire-input-area" style="background: var(--surface); padding: 16px; border-radius: var(--radius-lg); border: 2px solid var(--border);">
-                    <div style="display: flex; gap: 12px; align-items: center;">
-                        <!-- Current user avatar -->
-                        <div id="${this.roomId}SenderAvatarWrapper">
-                            <div style="width:36px;height:36px;border-radius:50%;background:var(--border);flex-shrink:0;"></div>
-                        </div>
-                        <input type="text"
-                               class="campfire-input"
-                               id="${this.roomId}MainInput"
-                               placeholder="Share from the heart..."
-                               style="flex: 1; padding: 12px; border: 2px solid var(--border); border-radius: var(--radius-md); background: var(--background); font-size: 14px;"
-                               onkeypress="if(event.key==='Enter')CampfireRoom.sendMessage('main')">
-                        <button class="campfire-send"
-                                onclick="CampfireRoom.sendMessage('main')"
-                                style="padding: 12px 24px; background: var(--accent); border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; color: white;">
-                            <span style="font-size: 20px;">→</span>
-                        </button>
-                    </div>
-                    <div class="campfire-hint" style="text-align: center; margin-top: 12px; font-size: 12px; color: var(--text-muted); font-style: italic;">
-                        💫 Speak from the heart · Listen with presence
-                    </div>
+                <div class="campfire-hint" style="text-align: center; margin-top: 8px; font-size: 12px; color: var(--text-muted); font-style: italic;">
+                    💫 Speak from the heart · Listen with presence
                 </div>
             </main>
 

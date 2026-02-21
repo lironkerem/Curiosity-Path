@@ -349,7 +349,7 @@ class DeepWorkRoom extends PracticeRoom {
                             Chat opens during breaks only.
                         </div>
                     </div>
-                    <div>
+                    <div style="margin-top:auto;">
                         <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;text-align:center;">
                             Light conversation during breaks
                         </div>

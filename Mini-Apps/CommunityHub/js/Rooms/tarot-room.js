@@ -200,7 +200,7 @@ class TarotRoom extends PracticeRoom {
             this._pendingDailyRender = true;
         }
 
-        // Load Supabase chat for both channels
+        // Load Supabase chat for both channels + injects sender avatar (via initializeChat)
         this.initializeChat();
 
         // Live participant sidebar
@@ -210,41 +210,6 @@ class TarotRoom extends PracticeRoom {
                 `${this.roomId}ParticipantCount`
             );
         }, 400);
-
-        // Inject user avatar into input rows
-        setTimeout(() => this._injectSenderAvatar(), 500);
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // SENDER AVATAR
-    // ═══════════════════════════════════════════════════════════════════════
-
-    _injectSenderAvatar() {
-        ['daily', 'personal'].forEach(channel => {
-            const wrapper = document.getElementById(`${this.roomId}${channel}SenderAvatar`);
-            if (!wrapper) return;
-
-            const user = window.Core?.state?.currentUser;
-            if (!user) return;
-
-            const name      = user.name || 'Me';
-            const avatarUrl = user.avatar_url || '';
-            const emoji     = user.emoji || '';
-            const initial   = name.charAt(0).toUpperCase();
-            const gradient  = window.Core?.getAvatarGradient
-                ? Core.getAvatarGradient(user.id || name)
-                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-
-            const inner = avatarUrl
-                ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
-                : `<span style="color:white;font-weight:600;font-size:12px;">${emoji || initial}</span>`;
-            const bg = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
-
-            wrapper.innerHTML = `
-                <div style="width:34px;height:34px;border-radius:50%;${bg}display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">
-                    ${inner}
-                </div>`;
-        });
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -404,7 +369,9 @@ class TarotRoom extends PracticeRoom {
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 24px;">
             <div>
                 <h4 style="font-family: var(--serif); font-size: 18px; margin: 0 0 16px 0; text-align: center;">💬 Community Discussion</h4>
-                ${this._buildChatInputWithAvatar('daily', 'Share your thoughts on today\'s card...')}
+                <div style="display:flex;flex-direction:column;height:100%;">
+                    ${this.buildChatContainer('daily', 'Share your thoughts on today\'s card...')}
+                </div>
             </div>
             ${this._buildParticipantList()}
         </div>`;
@@ -422,23 +389,6 @@ class TarotRoom extends PracticeRoom {
                 </button>
             </div>
         </div>`;
-    }
-
-    /**
-     * Build a chat container with the current user's avatar beside the input.
-     * @param {string} channel
-     * @param {string} placeholder
-     */
-    _buildChatInputWithAvatar(channel, placeholder) {
-        // Use ChatMixin's buildChatContainer for the messages area,
-        // then override just the input row to add the avatar slot.
-        const chatContainer = this.buildChatContainer(channel, placeholder);
-        // Wrap and inject avatar slot before the input
-        return chatContainer.replace(
-            `id="${this.roomId}${channel.charAt(0).toUpperCase()+channel.slice(1)}Input"`,
-            // Use ChatMixin's default — avatar injected separately via _injectSenderAvatar
-            `id="${this.roomId}${channel.charAt(0).toUpperCase()+channel.slice(1)}Input"`
-        );
     }
 
     _buildParticipantList() {

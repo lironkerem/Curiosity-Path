@@ -109,14 +109,6 @@ class GuidedRoom extends PracticeRoom {
                     Current Session — ${session ? `${session.emoji} ${session.title}` : 'Loading...'}
                 </h2>
 
-                <!-- View Schedule button (always visible; does not depend on YouTubePlayerMixin) -->
-                <div style="text-align:center; margin-bottom: 16px;">
-                    <button onclick="${this.getClassName()}.showScheduleModal()"
-                            style="padding: 10px 24px; border: 2px solid var(--border); background: var(--surface); border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 14px;">
-                        📅 View Today's Schedule
-                    </button>
-                </div>
-
                 ${this.buildPlayerContainer()}
                 ${this.buildPlayerControls()}
             </main>

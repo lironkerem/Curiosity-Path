@@ -63,16 +63,19 @@ const ChatMixin = {
         const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
         
         const currentUser = window.Core?.state?.currentUser || {};
-        const name = currentUser.name || 'You';
-        const initial = (currentUser.emoji) || name.charAt(0).toUpperCase();
-        const gradient = window.Core?.getAvatarGradient
+        const name      = currentUser.name || 'You';
+        const initial   = (currentUser.emoji) || name.charAt(0).toUpperCase();
+        const avatarUrl = currentUser.avatar_url || '';
+        const gradient  = window.Core?.getAvatarGradient
             ? Core.getAvatarGradient(currentUser.id || name)
             : 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)';
 
         const msgData = {
             name,
             initial,
+            avatarUrl,
             avatarBg: gradient,
+            userId:   currentUser.id || null,
             time,
             text: message,
             country: null,
@@ -108,17 +111,30 @@ const ChatMixin = {
     },
     
     /**
-     * Build message HTML
+     * Build message HTML.
+     * Supports real avatar images (msgData.avatarUrl) as well as gradient+initial fallback.
+     * Names are clickable to open MemberProfileModal when msgData.userId is present.
      * @param {Object} msgData - Message data
      * @returns {string} Message HTML
      */
     buildMessageHTML(msgData) {
+        // Avatar: real image takes priority, fallback to gradient + initial/emoji
+        const avatarInner = msgData.avatarUrl
+            ? `<img src="${msgData.avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${msgData.name}">`
+            : `<span style="color:white;font-size:13px;font-weight:600;line-height:1;">${msgData.initial}</span>`;
+        const avatarBg = msgData.avatarUrl ? 'background:transparent;' : `background:${msgData.avatarBg};`;
+
+        // Name: clickable if we have a userId
+        const nameEl = msgData.userId
+            ? `<span class="campfire-msg-name" style="cursor:pointer;" onclick="if(window.MemberProfileModal)MemberProfileModal.open('${msgData.userId}')">${msgData.name}</span>`
+            : `<span class="campfire-msg-name">${msgData.name}</span>`;
+
         return `
         <div class="campfire-msg">
-            <div class="campfire-msg-avatar" style="background: ${msgData.avatarBg};">${msgData.initial}</div>
+            <div class="campfire-msg-avatar" style="${avatarBg}overflow:hidden;display:flex;align-items:center;justify-content:center;">${avatarInner}</div>
             <div class="campfire-msg-content">
                 <div class="campfire-msg-header">
-                    <span class="campfire-msg-name">${msgData.name}</span>
+                    ${nameEl}
                     ${msgData.country ? `<span class="campfire-msg-country">${msgData.country}</span>` : ''}
                     <span class="campfire-msg-time">${msgData.time}</span>
                 </div>
@@ -154,23 +170,24 @@ const ChatMixin = {
                 const visibleRows = rows.filter(r => !blocked.has(r.profiles?.id));
 
                 visibleRows.forEach(row => {
-                    const profile = row.profiles || {};
-                    const isOwn = profile.id === window.Core?.state?.currentUser?.id;
-                    const name = isOwn ? 'You' : (profile.name || 'Member');
-                    const initial = profile.emoji || name.charAt(0).toUpperCase();
-                    const gradient = window.Core?.getAvatarGradient
+                    const profile   = row.profiles || {};
+                    const isOwn     = profile.id === window.Core?.state?.currentUser?.id;
+                    const name      = isOwn ? (window.Core?.state?.currentUser?.name || 'You') : (profile.name || 'Member');
+                    const avatarUrl = isOwn ? (window.Core?.state?.currentUser?.avatar_url || '') : (profile.avatar_url || '');
+                    const initial   = profile.emoji || name.charAt(0).toUpperCase();
+                    const gradient  = window.Core?.getAvatarGradient
                         ? Core.getAvatarGradient(profile.id || name)
                         : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
                     const time = new Date(row.created_at)
                         .toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
 
                     const msgData = {
-                        name, initial, avatarBg: gradient, time,
-                        text: row.message, country: null
+                        name, initial, avatarUrl, avatarBg: gradient,
+                        userId: profile.id || null,
+                        time, text: row.message, country: null
                     };
 
-                    const msgHTML = this.buildMessageHTML(msgData);
-                    messagesContainer.insertAdjacentHTML('beforeend', msgHTML);
+                    messagesContainer.insertAdjacentHTML('beforeend', this.buildMessageHTML(msgData));
                 });
 
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -186,16 +203,21 @@ const ChatMixin = {
 
                 if (!messagesContainer) return;
 
-                const profile = newMsg.profiles || {};
-                const name = profile.name || 'Member';
-                const initial = profile.emoji || name.charAt(0).toUpperCase();
-                const gradient = window.Core?.getAvatarGradient
+                const profile   = newMsg.profiles || {};
+                const name      = profile.name || 'Member';
+                const avatarUrl = profile.avatar_url || '';
+                const initial   = profile.emoji || name.charAt(0).toUpperCase();
+                const gradient  = window.Core?.getAvatarGradient
                     ? Core.getAvatarGradient(profile.id || name)
                     : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
                 const time = new Date(newMsg.created_at)
                     .toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
 
-                const msgData = { name, initial, avatarBg: gradient, time, text: newMsg.message, country: null };
+                const msgData = {
+                    name, initial, avatarUrl, avatarBg: gradient,
+                    userId: profile.id || null,
+                    time, text: newMsg.message, country: null
+                };
                 messagesContainer.insertAdjacentHTML('beforeend', this.buildMessageHTML(msgData));
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             });
@@ -254,28 +276,41 @@ const ChatMixin = {
     },
     
     /**
-     * Build chat container HTML
+     * Build chat container HTML.
+     * Messages area grows to fill available space; input row is pinned to the bottom.
+     * A sender-avatar slot is included before the input — call _injectSenderAvatar()
+     * from onEnter() to populate it with the current user's real profile image.
      * @param {string} channel
      * @param {string} placeholder
      * @returns {string}
      */
     buildChatContainer(channel = 'main', placeholder = 'Type your message...') {
-        const channelCap = this.capitalize(channel);
-        
+        const channelCap    = this.capitalize(channel);
+        const avatarSlotId  = `${this.roomId}${channelCap}SenderAvatar`;
+
         return `
-        <div class="chat-container" id="${this.roomId}${channelCap}ChatContainer">
-            <div class="chat-messages" id="${this.roomId}${channelCap}Messages">
-                <!-- Messages will be rendered here -->
+        <div class="chat-container" id="${this.roomId}${channelCap}ChatContainer"
+             style="display:flex;flex-direction:column;height:100%;">
+            <div class="chat-messages" id="${this.roomId}${channelCap}Messages"
+                 style="flex:1;overflow-y:auto;min-height:0;">
+                <!-- Messages rendered here -->
             </div>
-            <div class="chat-input-container">
-                <input type="text" 
-                       class="chat-input" 
-                       id="${this.roomId}${channelCap}Input"
-                       placeholder="${placeholder}"
-                       onkeypress="if(event.key==='Enter')${this.getClassName()}.sendMessage('${channel}')">
-                <button class="chat-send" onclick="${this.getClassName()}.sendMessage('${channel}')">
-                    <span style="font-size: 20px;">→</span>
-                </button>
+            <div class="chat-input-container" style="margin-top:auto;padding-top:8px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                    <!-- Current user avatar, populated by _injectSenderAvatar() -->
+                    <div id="${avatarSlotId}" style="flex-shrink:0;">
+                        <div style="width:32px;height:32px;border-radius:50%;background:var(--border);"></div>
+                    </div>
+                    <input type="text"
+                           class="chat-input"
+                           id="${this.roomId}${channelCap}Input"
+                           placeholder="${placeholder}"
+                           onkeypress="if(event.key==='Enter')${this.getClassName()}.sendMessage('${channel}')"
+                           style="flex:1;">
+                    <button class="chat-send" onclick="${this.getClassName()}.sendMessage('${channel}')">
+                        <span style="font-size:20px;">→</span>
+                    </button>
+                </div>
             </div>
         </div>`;
     },
@@ -308,14 +343,51 @@ const ChatMixin = {
     },
     
     /**
+     * Populate the sender-avatar slot(s) built by buildChatContainer with the
+     * current user's real profile image (or emoji/initial fallback).
+     * Called automatically by initializeChat(). Safe to call again if the user
+     * profile loads later.
+     * @param {string|null} channel - If null, injects for all chatChannels
+     */
+    _injectSenderAvatar(channel = null) {
+        const channels = channel ? [channel] : (this.chatChannels || ['main']);
+        const user     = window.Core?.state?.currentUser;
+        if (!user) return;
+
+        const name      = user.name || 'Me';
+        const avatarUrl = user.avatar_url || '';
+        const emoji     = user.emoji || '';
+        const initial   = emoji || name.charAt(0).toUpperCase();
+        const gradient  = window.Core?.getAvatarGradient
+            ? Core.getAvatarGradient(user.id || name)
+            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+
+        const inner = avatarUrl
+            ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
+            : `<span style="color:white;font-weight:600;font-size:12px;">${initial}</span>`;
+        const bg = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
+
+        channels.forEach(ch => {
+            const slotId  = `${this.roomId}${this.capitalize(ch)}SenderAvatar`;
+            const wrapper = document.getElementById(slotId);
+            if (!wrapper) return;
+            wrapper.innerHTML = `
+                <div style="width:32px;height:32px;border-radius:50%;${bg}display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                    ${inner}
+                </div>`;
+        });
+    },
+
+    /**
      * Initialize chat on room entry.
-     * PATCHED: Now loads from Supabase DB instead of localStorage.
-     * Call this from onEnter() for rooms with chat.
+     * Loads history from Supabase for every channel, then injects sender avatar.
      */
     async initializeChat() {
         for (const channel of this.chatChannels) {
             await this.loadRoomChatFromDB(channel);
         }
+        // Defer avatar injection slightly to ensure DOM is ready
+        setTimeout(() => this._injectSenderAvatar(), 200);
     },
 
     /**

@@ -375,20 +375,25 @@ class PracticeRoom {
             return;
         }
         listEl.innerHTML = participants.map(p => {
-            const profile = p.profiles || {};
-            const name = profile.name || 'Member';
+            const profile   = p.profiles || {};
+            const userId    = p.user_id || profile.id || '';
+            const name      = profile.name || 'Member';
             const avatarUrl = profile.avatar_url || '';
-            const emoji = profile.emoji || '';
-            const initial = name.charAt(0).toUpperCase();
-            const gradient = window.Core?.getAvatarGradient
-                ? Core.getAvatarGradient(p.user_id || name)
+            const emoji     = profile.emoji || '';
+            const initial   = name.charAt(0).toUpperCase();
+            const gradient  = window.Core?.getAvatarGradient
+                ? Core.getAvatarGradient(userId || name)
                 : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
             const inner = avatarUrl
                 ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
                 : `<span style="color:white;font-weight:600;">${emoji || initial}</span>`;
-            const bg = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
+            const bg          = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
+            const clickStyle  = userId ? 'cursor:pointer;' : '';
+            const clickAction = userId
+                ? `onclick="if(window.MemberProfileModal)MemberProfileModal.open('${userId}')"`
+                : '';
             return `
-            <div class="campfire-participant">
+            <div class="campfire-participant" ${clickAction} style="${clickStyle}">
                 <div class="campfire-participant-avatar" style="${bg}display:flex;align-items:center;justify-content:center;">${inner}</div>
                 <div class="campfire-participant-info">
                     <div class="campfire-participant-name">${name}</div>
@@ -728,17 +733,33 @@ class PracticeRoom {
         // Update active state for timed rooms
         if (this.roomType === 'timed') {
             const isOpen = this.canEnterRoom();
-            roomCard.style.cursor = isOpen ? 'pointer' : 'not-allowed';
-            roomCard.style.opacity = isOpen ? '1' : '0.6';
-            roomCard.style.border = `3px solid ${isOpen ? '#22c55e' : '#ef4444'}`;
-            roomCard.onclick = isOpen ? () => this.enterRoom() : null;
-            
+            roomCard.style.cursor  = isOpen ? 'pointer' : 'not-allowed';
+            roomCard.style.opacity = isOpen ? '1' : '0.55';
+            roomCard.style.border  = `3px solid ${isOpen ? '#22c55e' : '#ef4444'}`;
+            roomCard.onclick       = isOpen ? () => this.enterRoom() : null;
+
+            // Show/hide "In Session" overlay label
+            let overlay = roomCard.querySelector('.in-session-label');
+            if (!isOpen) {
+                if (!overlay) {
+                    overlay = document.createElement('div');
+                    overlay.className = 'in-session-label';
+                    overlay.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;pointer-events:none;';
+                    overlay.innerHTML = '<span style="background:rgba(239,68,68,0.85);color:white;font-size:11px;font-weight:700;letter-spacing:0.08em;padding:4px 10px;border-radius:4px;text-transform:uppercase;">In Session</span>';
+                    roomCard.appendChild(overlay);
+                }
+            } else {
+                if (overlay) overlay.remove();
+            }
+
             // Update timer display if it exists
             const timerEl = roomCard.querySelector('.room-timer');
             if (timerEl && this.getTimerText) {
                 timerEl.innerHTML = this.getTimerText();
             }
         } else {
+            // Always-open rooms: always green
+            roomCard.style.border = '3px solid #22c55e';
             roomCard.classList.add('active');
         }
         
@@ -751,48 +772,56 @@ class PracticeRoom {
      * @returns {string} Room card HTML
      */
     getRoomCardHTML() {
-        const isOpen = this.canEnterRoom();
-        const borderColor = isOpen ? '#22c55e' : '#ef4444';
-        const cursor = isOpen ? 'pointer' : 'not-allowed';
-        const opacity = isOpen ? '1' : '0.6';
-        // Store bound method on window for onclick access
-        const methodName = `${this.roomId}_enterRoom`;
+        const isOpen      = this.canEnterRoom();
+        const isTimed     = this.roomType === 'timed';
+        // Always-open → always green. Timed → green when open, red when in-session.
+        const borderColor = (!isTimed || isOpen) ? '#22c55e' : '#ef4444';
+        const cursor      = isOpen ? 'pointer' : 'not-allowed';
+        const opacity     = isOpen ? '1' : '0.55';
+        const methodName  = `${this.roomId}_enterRoom`;
         window[methodName] = () => this.enterRoom();
         const clickHandler = isOpen ? `onclick="${methodName}()"` : '';
-        
+
         return `
-        <div class="practice-room ${isOpen ? 'active' : 'in-session'}" 
-             data-room-type="${this.roomType}" 
+        <div class="practice-room ${isOpen ? 'active' : 'in-session'}"
+             data-room-type="${this.roomType}"
              data-room-id="${this.roomId}"
              ${clickHandler}
-             style="cursor: ${cursor}; 
-                    border: 3px solid ${borderColor}; 
+             style="cursor: ${cursor};
+                    border: 3px solid ${borderColor};
                     position: relative;
                     opacity: ${opacity};">
-            
+
             ${this.getDevModeBadge()}
-            
-            <img src="${this.config.imageUrl}" 
-                 alt="${this.config.name}" 
+
+            ${!isOpen && isTimed ? `
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;pointer-events:none;">
+                <span style="background:rgba(239,68,68,0.85);color:white;font-size:11px;font-weight:700;letter-spacing:0.08em;padding:4px 10px;border-radius:4px;text-transform:uppercase;">In Session</span>
+            </div>` : ''}
+
+            <img src="${this.config.imageUrl}"
+                 alt="${this.config.name}"
                  style="width: 100%; height: auto; display: block; margin-bottom: 12px;">
-            
+
             <div class="room-desc" style="text-align: center; margin-bottom: 16px;">
                 ${this.config.description}
             </div>
-            
+
             ${this.buildCardFooter()}
         </div>`;
     }
-    
-    /**
-     * Build room card footer
-     * Override for custom footer content
-     * @returns {string} Footer HTML
-     */
+
     buildCardFooter() {
         if (this.roomType === 'timed' && this.getTimerText) {
+            // View Schedule link wired to showScheduleModal — bottom-left of footer
+            const scheduleLink = this.showScheduleModal
+                ? `<button onclick="event.stopPropagation();${this.getClassName()}.showScheduleModal()"
+                           style="background:none;border:none;padding:0;font-size:11px;color:var(--text-muted);cursor:pointer;text-decoration:underline;text-align:left;">
+                       📅 View Schedule
+                   </button>`
+                : '';
             return `
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
                 <div class="room-participants" style="font-size: 12px; color: var(--text-muted);">
                     ${this.state.participants} present
                 </div>
@@ -800,9 +829,11 @@ class PracticeRoom {
                     ${this.getTimerText()}
                 </div>
             </div>
-            ${this.buildScheduleLink ? this.buildScheduleLink() : ''}`;
+            <div style="margin-top: 4px;">
+                ${scheduleLink}
+            </div>`;
         }
-        
+
         return `
         <div style="text-align: left;">
             <span class="room-participants" style="font-size: 12px; color: var(--text-muted);">
