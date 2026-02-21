@@ -399,6 +399,31 @@ class PracticeRoom {
     }
 
     /**
+     * Build the shared participant sidebar panel HTML used by rooms with a
+     * right-hand "who's here" column (Tarot, Reiki, and any future tabbed rooms).
+     *
+     * Rooms call this instead of defining their own duplicate HTML.
+     *
+     * @param {string} title       - Panel heading text, e.g. "Tarot Students"
+     * @param {string} listId      - DOM id for the scrollable list element
+     * @param {string} countId     - DOM id for the count line element
+     * @param {string} [height]    - CSS height of the list, default "400px"
+     * @returns {string} HTML
+     */
+    buildParticipantSidebarHTML(title, listId, countId, height = '400px') {
+        return `
+        <div style="border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; background: var(--background);">
+            <div style="font-weight: 600; font-size: 16px; margin-bottom: 16px; text-align: center;">${title}</div>
+            <div id="${countId}" style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px; text-align: center;">
+                ${this.state.participants} present
+            </div>
+            <div id="${listId}" class="campfire-participants" style="height: ${height}; overflow-y: auto;">
+                <div style="color:var(--text-muted);font-size:13px;padding:8px;">Loading...</div>
+            </div>
+        </div>`;
+    }
+
+    /**
      * Update the participant count on the hub room card (without re-render).
      * @param {number} count
      */

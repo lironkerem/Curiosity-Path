@@ -1,13 +1,17 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * COMMUNITY CAMPFIRE ROOM (REFACTORED)
+ * COMMUNITY CAMPFIRE ROOM
  * ═══════════════════════════════════════════════════════════════════════════
- * 
+ *
  * @class CampfireRoom
  * @extends PracticeRoom
  * @mixes ChatMixin
- * @version 3.1.0 — PATCHED: Chat loads from Supabase DB with realtime
- * 
+ * @version 3.2.0 — PATCHED:
+ *   - Removed duplicate buildParticipantsList() definition (was silently overriding live version)
+ *   - Chat input now shows current user's real avatar / emoji / initial
+ *   - Sidebar fully driven by live Supabase presence (_renderCampfireSidebar)
+ *   - No hardcoded mock participants
+ *
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
@@ -23,101 +27,80 @@ class CampfireRoom extends PracticeRoom {
             imageUrl: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Campfire.png',
             participants: 12
         });
-        
+
         // Initialize chat with persistence
         this.initChatState(['main']);
         this.chatPersistence = true;
     }
-    
+
     // ═══════════════════════════════════════════════════════════════════════
-    // LIFECYCLE OVERRIDES
+    // LIFECYCLE
     // ═══════════════════════════════════════════════════════════════════════
-    
+
     onInit() {
-        // PATCHED: no longer pre-loading from localStorage.
         // History loads from Supabase in onEnter() after the DOM is ready.
     }
-    
+
     onEnter() {
         // Load chat history from Supabase and subscribe to realtime.
         this.loadRoomChatFromDB('main');
-        // Wire real participants in sidebar
-        this._refreshCampfireSidebar();
+
+        // Wire real participants in sidebar + live updates
+        this._refreshParticipantSidebar(
+            `${this.roomId}ParticipantsList`,
+            `${this.roomId}SidebarCount`
+        );
+
+        // Inject current user avatar into the chat input row
+        setTimeout(() => this._injectSenderAvatar(), 400);
     }
 
-    /**
-     * Fetch real room participants and render them in the sidebar.
-     * Replaces the hardcoded mock list.
-     */
-    async _refreshCampfireSidebar() {
-        if (!window.CommunityDB || !CommunityDB.ready) return;
-        try {
-            const participants = await CommunityDB.getRoomParticipants(this.roomId);
-            const blocked = await CommunityDB.getBlockedUsers();
-            const visible = participants.filter(p => !blocked.has(p.user_id));
-            this._renderCampfireSidebar(visible);
-        } catch(e) {
-            console.error('[CampfireRoom] _refreshCampfireSidebar error:', e);
-        }
-    }
+    // ═══════════════════════════════════════════════════════════════════════
+    // SENDER AVATAR — inject current user's avatar beside input
+    // ═══════════════════════════════════════════════════════════════════════
 
     /**
-     * Render the sidebar participant list from real presence rows.
-     * @param {Array} participants
+     * Render the current user's avatar beside the message input.
+     * Called after DOM is ready.
      */
-    _renderCampfireSidebar(participants) {
-        const list = document.getElementById(`${this.roomId}ParticipantsList`);
-        if (!list) return;
+    _injectSenderAvatar() {
+        const wrapper = document.getElementById(`${this.roomId}SenderAvatarWrapper`);
+        if (!wrapper) return;
 
-        const countEl = document.querySelector(`#${this.roomId}Sidebar .campfire-sidebar-header div div:last-child`);
-        if (countEl) countEl.textContent = `${participants.length} present`;
+        const user = window.Core?.state?.currentUser;
+        if (!user) return;
 
-        if (participants.length === 0) {
-            list.innerHTML = `<div style="color:var(--text-muted);font-size:13px;padding:12px;">Just you here — be the light 🕯️</div>`;
-            return;
-        }
+        const name      = user.name || 'Me';
+        const avatarUrl = user.avatar_url || '';
+        const emoji     = user.emoji || '';
+        const initial   = name.charAt(0).toUpperCase();
+        const gradient  = window.Core?.getAvatarGradient
+            ? Core.getAvatarGradient(user.id || name)
+            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
 
-        list.innerHTML = participants.map(p => {
-            const profile = p.profiles || {};
-            const name = profile.name || 'Member';
-            const avatarUrl = profile.avatar_url || '';
-            const emoji = profile.emoji || '';
-            const initial = name.charAt(0).toUpperCase();
-            const gradient = window.Core?.getAvatarGradient
-                ? Core.getAvatarGradient(p.user_id || name)
-                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        const inner = avatarUrl
+            ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
+            : `<span style="color:white;font-weight:600;font-size:13px;">${emoji || initial}</span>`;
+        const bg = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
 
-            const avatarInner = avatarUrl
-                ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
-                : `<span style="color:white;font-weight:600;">${emoji || initial}</span>`;
-            const avatarBg = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
-
-            return `
-            <div class="campfire-participant" style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius-md);margin-bottom:8px;background:var(--background);">
-                <div style="width:40px;height:40px;border-radius:50%;${avatarBg}display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    ${avatarInner}
-                </div>
-                <div>
-                    <div style="font-weight:500;font-size:14px;">${name}</div>
-                    <div style="font-size:11px;color:var(--text-muted);">${p.activity || '✨ Available'}</div>
-                </div>
+        wrapper.innerHTML = `
+            <div style="width:36px;height:36px;border-radius:50%;${bg}display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">
+                ${inner}
             </div>`;
-        }).join('');
     }
 
-    buildParticipantsList() {
-        // Placeholder — replaced by _renderCampfireSidebar() on enter
-        return `<div style="color:var(--text-muted);font-size:13px;padding:12px;">Loading...</div>`;
-    }
-    
+    // ═══════════════════════════════════════════════════════════════════════
+    // UI
+    // ═══════════════════════════════════════════════════════════════════════
+
     getHeaderGradient() {
         return 'background: linear-gradient(135deg, rgba(234, 88, 12, 0.1) 0%, rgba(251, 146, 60, 0.05) 100%);';
     }
-    
+
     getParticipantText() {
         return `${this.state.participants} around the fire`;
     }
-    
+
     buildBody() {
         return `
         <div class="ps-body" style="display: flex; gap: 0; height: calc(100vh - 200px);">
@@ -125,9 +108,10 @@ class CampfireRoom extends PracticeRoom {
                 <h2 style="font-family: var(--serif); text-align: center; margin-bottom: 20px;">
                     Gather Around the Fire
                 </h2>
-                
+
                 <!-- Messages Container -->
-                <div class="campfire-messages" id="${this.roomId}MainMessages" style="flex: 1; overflow-y: auto; padding: 20px; background: var(--background); border: 2px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 16px;">
+                <div class="campfire-messages" id="${this.roomId}MainMessages"
+                     style="flex: 1; overflow-y: auto; padding: 20px; background: var(--background); border: 2px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 16px;">
                     <div class="campfire-welcome" style="text-align: center; padding: 40px 20px;">
                         <div style="font-size: 48px; margin-bottom: 12px;">🔥</div>
                         <div style="color: var(--text-muted); font-size: 14px; font-style: italic; line-height: 1.6;">
@@ -135,17 +119,21 @@ class CampfireRoom extends PracticeRoom {
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Input Area -->
                 <div class="campfire-input-area" style="background: var(--surface); padding: 16px; border-radius: var(--radius-lg); border: 2px solid var(--border);">
                     <div style="display: flex; gap: 12px; align-items: center;">
-                        <input type="text" 
-                               class="campfire-input" 
+                        <!-- Current user avatar -->
+                        <div id="${this.roomId}SenderAvatarWrapper">
+                            <div style="width:36px;height:36px;border-radius:50%;background:var(--border);flex-shrink:0;"></div>
+                        </div>
+                        <input type="text"
+                               class="campfire-input"
                                id="${this.roomId}MainInput"
                                placeholder="Share from the heart..."
                                style="flex: 1; padding: 12px; border: 2px solid var(--border); border-radius: var(--radius-md); background: var(--background); font-size: 14px;"
                                onkeypress="if(event.key==='Enter')CampfireRoom.sendMessage('main')">
-                        <button class="campfire-send" 
+                        <button class="campfire-send"
                                 onclick="CampfireRoom.sendMessage('main')"
                                 style="padding: 12px 24px; background: var(--accent); border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; color: white;">
                             <span style="font-size: 20px;">→</span>
@@ -158,50 +146,25 @@ class CampfireRoom extends PracticeRoom {
             </main>
 
             <!-- Sidebar -->
-            <aside class="campfire-sidebar-always-visible" id="${this.roomId}Sidebar" 
+            <aside class="campfire-sidebar-always-visible" id="${this.roomId}Sidebar"
                    style="width: 300px; background: var(--surface); border-left: 2px solid var(--border); padding: 20px; overflow-y: auto;">
                 <div class="campfire-sidebar-header" style="margin-bottom: 20px;">
-                    <div>
-                        <div style="font-weight: 600; font-size: 16px;">Around the Fire</div>
-                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
-                            ${this.state.participants} present
-                        </div>
+                    <div style="font-weight: 600; font-size: 16px;">Around the Fire</div>
+                    <div id="${this.roomId}SidebarCount" style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                        Loading...
                     </div>
                 </div>
                 <div class="campfire-participants" id="${this.roomId}ParticipantsList">
-                    ${this.buildParticipantsList()}
+                    <div style="color:var(--text-muted);font-size:13px;padding:12px;">Loading...</div>
                 </div>
             </aside>
         </div>`;
     }
-    
-    buildParticipantsList() {
-        // Sample participants — will be replaced by real presence in a future pass
-        const participants = [
-            { name: 'Alice', country: '🇺🇸 United States', color: '#667eea' },
-            { name: 'Marco', country: '🇮🇹 Italy',         color: '#f093fb' },
-            { name: 'Yuki',  country: '🇯🇵 Japan',          color: '#4facfe' },
-            { name: 'Sofia', country: '🇧🇷 Brazil',         color: '#43e97b' }
-        ];
-        
-        return participants.map(p => `
-            <div class="campfire-participant" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius-md); margin-bottom: 8px; background: var(--background);">
-                <div class="campfire-participant-avatar" 
-                     style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, ${p.color} 0%, ${p.color}dd 100%); display: flex; align-items: center; justify-content: center; font-weight: 600; color: white;">
-                    ${p.name[0]}
-                </div>
-                <div class="campfire-participant-info">
-                    <div class="campfire-participant-name" style="font-weight: 500; font-size: 14px;">${p.name}</div>
-                    <div class="campfire-participant-country" style="font-size: 11px; color: var(--text-muted);">${p.country}</div>
-                </div>
-            </div>
-        `).join('');
-    }
-    
+
     getInstructions() {
         return `
             <p><strong>A warm gathering space for authentic connection.</strong></p>
-            
+
             <h3>Campfire Values:</h3>
             <ul>
                 <li>💫 Share authentically from the heart</li>
@@ -209,7 +172,7 @@ class CampfireRoom extends PracticeRoom {
                 <li>🌟 Inspire and uplift each other</li>
                 <li>🤝 Connect across all borders</li>
             </ul>
-            
+
             <h3>What to Share:</h3>
             <ul>
                 <li>Reflections from your practice</li>
@@ -218,7 +181,7 @@ class CampfireRoom extends PracticeRoom {
                 <li>Questions and curiosity</li>
                 <li>Support and encouragement</li>
             </ul>
-            
+
             <h3>Guidelines:</h3>
             <ul>
                 <li>Be respectful and kind</li>
