@@ -43,6 +43,10 @@ const CollectiveField = {
         // Wave collective totals (will come from Supabase later)
         waveTotalMinutes: 967,    // total minutes contributed by all users today (~67%)
         WAVE_GOAL_MINUTES: 1440,  // 24 hours = 1440 minutes
+
+        // User's personal wave contributions
+        userTodayMinutes: 0,      // minutes contributed today (loaded from Supabase later)
+        userAllTimeMinutes: 0,    // all-time minutes contributed (loaded from Supabase later)
     },
 
     // ============================================================================
@@ -171,11 +175,29 @@ const CollectiveField = {
                     <span class="count-label">Participants</span>
                 </div>
 
-                <div class="time-remaining" id="waveStatusLine">
-                    <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12" aria-hidden="true">
-                        <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2zm0 1.5a.5.5 0 0 1 .5.5v4h3a.5.5 0 0 1 0 1h-3.5a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5z"/>
-                    </svg>
-                    <span id="waveStatusText">${remainingLabel}</span>
+                <div class="wave-time-block">
+                    <!-- Collective remaining / active session clock -->
+                    <div id="waveClockDisplay" style="font-size: 28px; font-weight: 700; letter-spacing: 1px; color: var(--text-primary); line-height: 1.1;" aria-live="polite">
+                        ${remainingLabel.replace(' to complete the wave', '')}
+                    </div>
+                    <div id="waveClockLabel" style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+                        to complete the wave
+                    </div>
+
+                    <!-- Personal contribution (hidden while session active) -->
+                    <div id="waveContribBlock" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-subtle, rgba(0,0,0,0.08));">
+                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 3px;">Your contribution</div>
+                        <div style="display: flex; gap: 12px; align-items: baseline;">
+                            <span>
+                                <span id="userTodayDisplay" style="font-size: 16px; font-weight: 600; color: var(--text-primary);">${this.state.userTodayMinutes}m</span>
+                                <span style="font-size: 10px; color: var(--text-muted); margin-left: 2px;">today</span>
+                            </span>
+                            <span>
+                                <span id="userAllTimeDisplay" style="font-size: 16px; font-weight: 600; color: var(--text-primary);">${this.state.userAllTimeMinutes}m</span>
+                                <span style="font-size: 10px; color: var(--text-muted); margin-left: 2px;">all time</span>
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="collective-progress">
@@ -395,8 +417,11 @@ const CollectiveField = {
         // Add energy to the bar (+5%, cap at 100)
         this._addEnergy(s.ENERGY_PER_PULSE);
 
-        // Ripple SVG animation (intensity dims with repeated sends)
+        // Ripple SVG animation inside the energy card
         this._triggerFieldRipple(s.calmsSentCount);
+
+        // App-wide ripple visible to everyone (local trigger + broadcast)
+        this._triggerAppWideRipple();
 
         // Broadcast to other users (Supabase realtime — wired later)
         this._broadcastPulse(s.calmsSentCount);
@@ -511,6 +536,58 @@ const CollectiveField = {
     },
 
     /**
+     * Trigger a large ripple emanating from the Energy Field card position.
+     * Called locally on fire AND by receiveExternalPulse for all online users.
+     */
+    _triggerAppWideRipple() {
+        // Inject styles once
+        if (!document.getElementById('appRippleStyles')) {
+            const style = document.createElement('style');
+            style.id = 'appRippleStyles';
+            style.textContent = `
+                @keyframes appRippleExpand {
+                    0%   { transform: translate(-50%, -50%) scale(0); opacity: 0.55; }
+                    100% { transform: translate(-50%, -50%) scale(1);  opacity: 0; }
+                }
+                .app-wide-ripple {
+                    position: fixed;
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 9999;
+                    border: 2px solid var(--color-calm, rgba(107, 155, 55, 0.6));
+                    animation: appRippleExpand 1.8s cubic-bezier(0.2, 0.6, 0.4, 1) forwards;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Find the Energy Field card to get the origin point
+        const card = document.querySelector('.energy-card');
+        let originX = window.innerWidth / 2;
+        let originY = window.innerHeight / 2;
+
+        if (card) {
+            const rect = card.getBoundingClientRect();
+            originX = rect.left + rect.width / 2;
+            originY = rect.top + rect.height / 2;
+        }
+
+        // Size the ripple to cover the full viewport diagonal
+        const diagonal = Math.sqrt(window.innerWidth ** 2 + window.innerHeight ** 2);
+        const size = diagonal * 2; // full coverage
+
+        const ripple = document.createElement('div');
+        ripple.className = 'app-wide-ripple';
+        ripple.style.width  = `${size}px`;
+        ripple.style.height = `${size}px`;
+        ripple.style.left   = `${originX}px`;
+        ripple.style.top    = `${originY}px`;
+        document.body.appendChild(ripple);
+
+        setTimeout(() => ripple.remove(), 1900);
+    },
+
+    /**
      * Receive a pulse from another user (called by Supabase realtime — wired later).
      * @param {object} payload - { userId, intensity }
      */
@@ -603,33 +680,44 @@ const CollectiveField = {
     },
 
     /**
-     * Update the status line below the participant count.
-     * Idle: shows collective time remaining.
-     * Active: shows "Xm Ys given · Xh Xm to complete"
+     * Update the wave time block.
+     *
+     * Idle:   clock shows collective time remaining (large), contrib block shows today + all-time
+     * Active: clock shows session count-up (large), contrib block hidden
+     *
      * @param {number} [elapsedMs] - if provided, session is active
      */
     _updateWaveStatusLine(elapsedMs) {
         const s = this.state;
-        const statusText = document.getElementById('waveStatusText');
-        if (!statusText) return;
+        const clockDisplay = document.getElementById('waveClockDisplay');
+        const clockLabel   = document.getElementById('waveClockLabel');
+        const contribBlock = document.getElementById('waveContribBlock');
+        if (!clockDisplay) return;
 
         const remainingMinutes = Math.max(s.WAVE_GOAL_MINUTES - s.waveTotalMinutes, 0);
-        const remainingHrs = Math.floor(remainingMinutes / 60);
+        const remainingHrs  = Math.floor(remainingMinutes / 60);
         const remainingMins = remainingMinutes % 60;
-        const collectiveLabel = remainingHrs > 0
-            ? `${remainingHrs}h ${remainingMins}m to complete the wave`
-            : `${remainingMins}m to complete the wave`;
 
         if (elapsedMs !== undefined && s.isContributing) {
+            // ── Active session: show count-up clock prominently ──
             const givenMins = Math.floor(elapsedMs / 60000);
             const givenSecs = Math.floor((elapsedMs % 60000) / 1000);
-            const givenLabel = givenMins > 0
-                ? `${givenMins}m ${String(givenSecs).padStart(2, '0')}s given`
-                : `${String(givenSecs).padStart(2, '0')}s given`;
-
-            statusText.textContent = `${givenLabel} · ${collectiveLabel}`;
+            clockDisplay.textContent = `${String(givenMins).padStart(2, '0')}:${String(givenSecs).padStart(2, '0')}`;
+            clockLabel.textContent   = 'your silence so far';
+            if (contribBlock) contribBlock.style.display = 'none';
         } else {
-            statusText.textContent = collectiveLabel;
+            // ── Idle: show collective time remaining ──
+            clockDisplay.textContent = remainingHrs > 0
+                ? `${remainingHrs}h ${remainingMins}m`
+                : `${remainingMins}m`;
+            clockLabel.textContent = 'to complete the wave';
+            if (contribBlock) contribBlock.style.display = '';
+
+            // Refresh personal contribution numbers
+            const todayEl   = document.getElementById('userTodayDisplay');
+            const allTimeEl = document.getElementById('userAllTimeDisplay');
+            if (todayEl)   todayEl.textContent   = `${s.userTodayMinutes}m`;
+            if (allTimeEl) allTimeEl.textContent  = `${s.userAllTimeMinutes}m`;
         }
     },
 
@@ -665,8 +753,10 @@ const CollectiveField = {
             return;
         }
 
-        // Log contribution — add to collective total
-        s.waveTotalMinutes = Math.min(s.waveTotalMinutes + minutesLogged, s.WAVE_GOAL_MINUTES);
+        // Log contribution — add to collective total and personal counters
+        s.waveTotalMinutes  = Math.min(s.waveTotalMinutes + minutesLogged, s.WAVE_GOAL_MINUTES);
+        s.userTodayMinutes  = s.userTodayMinutes  + minutesLogged;
+        s.userAllTimeMinutes = s.userAllTimeMinutes + minutesLogged;
         this._updateWaveProgress();
 
         if (label) label.textContent = 'Start Silence';
@@ -830,6 +920,17 @@ const CollectiveField = {
         if (typeof level !== 'number' || level < 0 || level > 100) return;
         this.state.energyLevel = level;
         this._updateEnergyBar(level);
+    },
+
+    /**
+     * Set user's personal contribution totals (called on init from Supabase)
+     * @param {number} todayMinutes
+     * @param {number} allTimeMinutes
+     */
+    updateUserContribution(todayMinutes, allTimeMinutes) {
+        this.state.userTodayMinutes   = todayMinutes   || 0;
+        this.state.userAllTimeMinutes = allTimeMinutes || 0;
+        if (!this.state.isContributing) this._updateWaveStatusLine();
     },
 
     /**
