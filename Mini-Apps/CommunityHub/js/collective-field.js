@@ -47,6 +47,10 @@ const CollectiveField = {
         // User's personal wave contributions
         userTodayMinutes: 0,      // minutes contributed today (loaded from Supabase later)
         userAllTimeMinutes: 0,    // all-time minutes contributed (loaded from Supabase later)
+
+        // Energy card enrichment
+        communityPulseCount: 47,  // total pulses sent today by all users (from Supabase later)
+        recentSenders: [],        // [{ emoji, avatarUrl }] last few senders (from Supabase later)
     },
 
     // ============================================================================
@@ -86,6 +90,10 @@ const CollectiveField = {
         const presenceCount = window.Core?.state?.presenceCount || this.config.DEFAULT_PRESENCE_COUNT;
         const energyLevel = this.state.energyLevel;
 
+        const fieldLabel = this._getFieldLabel(energyLevel);
+        const lastSentLabel = this._getLastSentLabel();
+        const recentSendersHTML = this._getRecentSendersHTML();
+
         return `
             <!-- Collective Energy Field -->
             <div class="collective-card energy-card">
@@ -100,9 +108,9 @@ const CollectiveField = {
                     <span class="count-label">Present Now</span>
                 </div>
 
-                <div class="breath-indicator">
-                    <span class="breath-dot" aria-hidden="true"></span>
-                    <span>Energy flowing to community</span>
+                <!-- Dynamic field state label -->
+                <div id="fieldStateLabel" style="font-size: 12px; font-style: italic; color: var(--text-muted); margin: 2px 0 6px; text-align: center;">
+                    ${fieldLabel}
                 </div>
 
                 <div class="collective-progress">
@@ -121,6 +129,23 @@ const CollectiveField = {
                     <div class="progress-stats">
                         <span class="progress-label">Energy Level</span>
                         <span class="progress-value" id="energyValue">${energyLevel}%</span>
+                    </div>
+                </div>
+
+                <!-- Community pulse count + last sent -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin: 6px 0; padding: 6px 0; border-top: 1px solid var(--border-subtle, rgba(0,0,0,0.08)); border-bottom: 1px solid var(--border-subtle, rgba(0,0,0,0.08));">
+                    <span style="font-size: 11px; color: var(--text-muted);">
+                        <span id="communityPulseCount" style="font-weight: 600; color: var(--text-primary);">${this.state.communityPulseCount}</span>
+                        pulses today
+                    </span>
+                    <span id="lastSentLabel" style="font-size: 11px; color: var(--text-muted);">${lastSentLabel}</span>
+                </div>
+
+                <!-- Recent senders strip -->
+                <div style="margin-bottom: 8px;">
+                    <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">Recent senders</div>
+                    <div id="recentSendersStrip" style="display: flex; gap: 4px; align-items: center; min-height: 28px;">
+                        ${recentSendersHTML}
                     </div>
                 </div>
 
@@ -311,6 +336,12 @@ const CollectiveField = {
             // Start the energy drain watchdog
             this._startEnergyDrainWatchdog();
 
+            // Refresh last-sent label every 60s so it stays accurate
+            this._lastSentRefreshInterval = setInterval(() => {
+                const el = document.getElementById('lastSentLabel');
+                if (el) el.textContent = this._getLastSentLabel();
+            }, 60000);
+
             // If a wave session was in progress, resume the tick display
             if (this.state.isContributing) {
                 this._resumeWaveTick();
@@ -331,6 +362,7 @@ const CollectiveField = {
         if (s.holdInterval)        { clearInterval(s.holdInterval);        s.holdInterval = null; }
         if (s.timerInterval)       { clearInterval(s.timerInterval);       s.timerInterval = null; }
         if (s.energyDrainInterval) { clearInterval(s.energyDrainInterval); s.energyDrainInterval = null; }
+        if (this._lastSentRefreshInterval) { clearInterval(this._lastSentRefreshInterval); this._lastSentRefreshInterval = null; }
         s.isHolding = false;
         // isContributing intentionally preserved — session survives re-render
     },
@@ -441,7 +473,16 @@ const CollectiveField = {
         // Broadcast to other users (Supabase realtime — wired later)
         this._broadcastPulse(s.calmsSentCount);
 
-        this._showToast('Calm sent 🌿');
+        // Increment community pulse count locally
+        s.communityPulseCount++;
+
+        // Add self to recent senders strip
+        this._addSelfToRecentSenders();
+
+        // Refresh all meta elements on the card
+        this._refreshEnergyCardMeta();
+
+        this._showToast('Energy sent ⚡');
         console.log(`✓ Pulse fired (send #${s.calmsSentCount})`);
     },
 
@@ -551,6 +592,104 @@ const CollectiveField = {
     },
 
     /**
+     * Returns an inspiring label based on current energy level
+     * @param {number} level
+     */
+    _getFieldLabel(level) {
+        if (level >= 80) return '✨ The field is radiant';
+        if (level >= 60) return '🌿 The field is strong';
+        if (level >= 40) return '🌱 The field is growing';
+        if (level >= 20) return '🕯 The field flickers';
+        return '🌑 The field needs energy';
+    },
+
+    /**
+     * Returns a human-readable "last sent X ago" label
+     */
+    _getLastSentLabel() {
+        const last = this.state.lastCalmSentAt;
+        if (!last) return 'Not sent yet';
+        const secs = Math.floor((Date.now() - last) / 1000);
+        if (secs < 60)  return `Sent ${secs}s ago`;
+        const mins = Math.floor(secs / 60);
+        if (mins < 60)  return `Sent ${mins}m ago`;
+        const hrs = Math.floor(mins / 60);
+        return `Sent ${hrs}h ago`;
+    },
+
+    /**
+     * Render recent senders as small avatar circles
+     */
+    _getRecentSendersHTML() {
+        const senders = this.state.recentSenders;
+        if (!senders.length) {
+            return '<span style="font-size: 11px; color: var(--text-muted); font-style: italic;">No one yet — be first</span>';
+        }
+        return senders.slice(0, 5).map(s => {
+            if (s.avatarUrl) {
+                return `<img src="${s.avatarUrl}" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;border:1.5px solid var(--border-subtle,rgba(0,0,0,0.1));" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${s.emoji||'🧘'}',style:'font-size:20px;line-height:26px;'}))">`;
+            }
+            return `<span style="font-size:20px;line-height:26px;" title="Recent sender">${s.emoji || '🧘'}</span>`;
+        }).join('');
+    },
+
+    /**
+     * Update all energy card dynamic elements after a pulse fires
+     */
+    _refreshEnergyCardMeta() {
+        const s = this.state;
+
+        // Field state label
+        const labelEl = document.getElementById('fieldStateLabel');
+        if (labelEl) labelEl.textContent = this._getFieldLabel(s.energyLevel);
+
+        // Last sent
+        const lastEl = document.getElementById('lastSentLabel');
+        if (lastEl) lastEl.textContent = this._getLastSentLabel();
+
+        // Community pulse count
+        const countEl = document.getElementById('communityPulseCount');
+        if (countEl) countEl.textContent = s.communityPulseCount;
+
+        // Recent senders strip
+        const strip = document.getElementById('recentSendersStrip');
+        if (strip) strip.innerHTML = this._getRecentSendersHTML();
+    },
+
+    /**
+     * Add current user to the top of recentSenders, cap at 5
+     */
+    _addSelfToRecentSenders() {
+        const user = window.Core?.state?.currentUser;
+        const entry = {
+            emoji: user?.emoji || '🧘',
+            avatarUrl: user?.avatar_url || null,
+        };
+        // Prepend and deduplicate by avatarUrl/emoji
+        this.state.recentSenders = [entry, ...this.state.recentSenders].slice(0, 5);
+    },
+
+    /**
+     * Public: set recent senders from Supabase
+     * @param {Array<{emoji, avatarUrl}>} senders
+     */
+    updateRecentSenders(senders) {
+        this.state.recentSenders = senders || [];
+        const strip = document.getElementById('recentSendersStrip');
+        if (strip) strip.innerHTML = this._getRecentSendersHTML();
+    },
+
+    /**
+     * Public: set community pulse count from Supabase
+     * @param {number} count
+     */
+    updateCommunityPulseCount(count) {
+        this.state.communityPulseCount = count || 0;
+        const el = document.getElementById('communityPulseCount');
+        if (el) el.textContent = this.state.communityPulseCount;
+    },
+
+        /**
      * Trigger a large ripple emanating from the Energy Field card position.
      * Called locally on fire AND by receiveExternalPulse for all online users.
      */
@@ -561,46 +700,57 @@ const CollectiveField = {
             style.id = 'appRippleStyles';
             style.textContent = `
                 @keyframes appRippleExpand {
-                    0%   { transform: translate(-50%, -50%) scale(0); opacity: 0.6; }
-                    20%  { opacity: 0.5; }
-                    100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+                    0%   { width: 0px; height: 0px; opacity: 0.7; }
+                    100% { width: var(--ripple-size); height: var(--ripple-size); opacity: 0; }
                 }
-                .app-wide-ripple {
+                #appRippleOverlay {
                     position: fixed;
-                    border-radius: 50%;
+                    inset: 0;
                     pointer-events: none;
                     z-index: 99999;
-                    border: 3px solid rgba(107, 155, 55, 0.7);
-                    background: rgba(107, 155, 55, 0.04);
-                    will-change: transform, opacity;
-                    animation: appRippleExpand 1.8s cubic-bezier(0.2, 0.6, 0.4, 1) forwards;
+                    overflow: visible;
+                }
+                .app-wide-ripple {
+                    position: absolute;
+                    border-radius: 50%;
+                    pointer-events: none;
+                    border: 3px solid rgba(107, 155, 55, 0.75);
+                    background: rgba(107, 155, 55, 0.05);
+                    transform: translate(-50%, -50%);
+                    will-change: width, height, opacity;
+                    animation: appRippleExpand 1.8s cubic-bezier(0.15, 0.5, 0.4, 1) forwards;
                 }
             `;
             document.head.appendChild(style);
         }
 
-        // Find the Energy Field card to get the origin point
+        // Use a persistent overlay div with no transforms — safe from parent clipping
+        let overlay = document.getElementById('appRippleOverlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'appRippleOverlay';
+            document.body.appendChild(overlay);
+        }
+
+        // Origin: centre of the Energy Field card
         const card = document.querySelector('.energy-card');
         let originX = window.innerWidth / 2;
         let originY = window.innerHeight / 2;
-
         if (card) {
             const rect = card.getBoundingClientRect();
             originX = rect.left + rect.width / 2;
             originY = rect.top + rect.height / 2;
         }
 
-        // Size the ripple to cover the full viewport diagonal
-        const diagonal = Math.sqrt(window.innerWidth ** 2 + window.innerHeight ** 2);
-        const size = diagonal * 2; // full coverage
+        // Target size: cover the full viewport diagonal
+        const size = Math.sqrt(window.innerWidth ** 2 + window.innerHeight ** 2) * 2.2;
 
         const ripple = document.createElement('div');
         ripple.className = 'app-wide-ripple';
-        ripple.style.width  = `${size}px`;
-        ripple.style.height = `${size}px`;
-        ripple.style.left   = `${originX}px`;
-        ripple.style.top    = `${originY}px`;
-        document.body.appendChild(ripple);
+        ripple.style.setProperty('--ripple-size', `${size}px`);
+        ripple.style.left = `${originX}px`;
+        ripple.style.top  = `${originY}px`;
+        overlay.appendChild(ripple);
 
         setTimeout(() => ripple.remove(), 1900);
     },
