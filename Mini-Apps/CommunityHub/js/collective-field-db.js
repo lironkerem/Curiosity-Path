@@ -51,6 +51,7 @@ const CollectiveFieldDB = {
             this.loadFieldState(),
             this.loadRecentSenders(),
             this.loadWaveTotal(),
+            this.loadWaveParticipants(),
             this.loadUserContribution(),
         ]);
     },
@@ -175,6 +176,22 @@ const CollectiveFieldDB = {
     },
 
     /**
+     * Load count of distinct users who contributed ≥1 min today
+     */
+    async loadWaveParticipants() {
+        const { data, error } = await window.CommunitySupabase
+            .from('wave_contributions')
+            .select('user_id')
+            .eq('date', this._todayUTC());
+
+        if (error) { console.error('loadWaveParticipants error:', error); return; }
+
+        // Distinct user count
+        const uniqueUsers = new Set((data || []).map(r => r.user_id)).size;
+        CollectiveField.updateWaveParticipants(uniqueUsers);
+    },
+
+    /**
      * Load the current user's today + all-time wave minutes and push to UI
      */
     async loadUserContribution() {
@@ -231,8 +248,9 @@ const CollectiveFieldDB = {
 
         console.log(`✓ Wave contribution logged: ${minutes}min (completed: ${completed})`);
 
-        // Reload wave total so progress bar reflects the new contribution
+        // Reload wave total + participants so UI reflects the new contribution
         await this.loadWaveTotal();
+        await this.loadWaveParticipants();
     },
 
     // =========================================================================
@@ -285,6 +303,7 @@ const CollectiveFieldDB = {
                 filter: `date=eq.${today}`,
             }, async () => {
                 await this.loadWaveTotal();
+                await this.loadWaveParticipants();
                 console.log('⚡ Wave total updated via realtime');
             })
             .subscribe();

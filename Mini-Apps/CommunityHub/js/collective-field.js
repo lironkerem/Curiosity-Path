@@ -59,7 +59,7 @@ const CollectiveField = {
 
     config: {
         DEFAULT_PRESENCE_COUNT: 127,
-        DEFAULT_WAVE_PARTICIPANTS: 48,
+        DEFAULT_WAVE_PARTICIPANTS: 0,  // populated from DB via updateWaveParticipants()
     },
 
     // ============================================================================
@@ -215,6 +215,9 @@ const CollectiveField = {
                         </div>
                         <div id="waveClockLabel" style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
                             to complete the wave
+                        </div>
+                        <div id="waveMidnightLabel" style="font-size: 10px; color: var(--text-muted); margin-top: 1px; opacity: 0.7;">
+                            resets at midnight UTC
                         </div>
                     </div>
 
@@ -891,13 +894,25 @@ const CollectiveField = {
         const contribBlock    = document.getElementById('waveContribBlock');
         if (!clockDisplay) return;
 
-        // Always keep collective time text current
+        // ── Progress toward 1440 min goal ──
         const remainingMinutes = Math.max(s.WAVE_GOAL_MINUTES - s.waveTotalMinutes, 0);
         const remainingHrs  = Math.floor(remainingMinutes / 60);
         const remainingMins = remainingMinutes % 60;
-        clockDisplay.textContent = remainingHrs > 0
+        const progressText = remainingHrs > 0
             ? `${remainingHrs}h ${remainingMins}m`
             : `${remainingMins}m`;
+
+        // ── Time left until midnight reset (UTC) ──
+        const now = new Date();
+        const midnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
+        const msLeft = midnight - now;
+        const hoursLeft = Math.floor(msLeft / 3600000);
+        const minsLeft  = Math.floor((msLeft % 3600000) / 60000);
+        const midnightText = hoursLeft > 0
+            ? `${hoursLeft}h ${minsLeft}m`
+            : `${minsLeft}m`;
+
+        clockDisplay.textContent = progressText;
 
         if (elapsedMs !== undefined && s.isContributing) {
             // ── Active: count-up expands in, collective shrinks + dims ──
@@ -1156,6 +1171,16 @@ const CollectiveField = {
         this.state.userTodayMinutes   = todayMinutes   || 0;
         this.state.userAllTimeMinutes = allTimeMinutes || 0;
         if (!this.state.isContributing) this._updateWaveStatusLine();
+    },
+
+    /**
+     * Set participant count from DB (users who logged ≥1 min today)
+     * @param {number} count
+     */
+    updateWaveParticipants(count) {
+        this.config.DEFAULT_WAVE_PARTICIPANTS = count || 0;
+        const el = document.getElementById('waveParticipants');
+        if (el) el.textContent = count || 0;
     },
 
     /**
