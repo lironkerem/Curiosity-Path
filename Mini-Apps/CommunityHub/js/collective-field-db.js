@@ -65,7 +65,7 @@ const CollectiveFieldDB = {
      */
     async _ensureTodayRow() {
         const today = this._todayUTC();
-        const { data, error } = await window.supabase
+        const { data, error } = await window.CommunitySupabase
             .from('collective_field')
             .select('id')
             .eq('date', today)
@@ -75,7 +75,7 @@ const CollectiveFieldDB = {
 
         if (!data) {
             // Insert fresh row for today
-            const { error: insertErr } = await window.supabase
+            const { error: insertErr } = await window.CommunitySupabase
                 .from('collective_field')
                 .insert({ date: today, energy_level: 0, pulse_count_today: 0 });
             if (insertErr) throw insertErr;
@@ -91,7 +91,7 @@ const CollectiveFieldDB = {
      * Load today's shared field state and push to UI
      */
     async loadFieldState() {
-        const { data, error } = await window.supabase
+        const { data, error } = await window.CommunitySupabase
             .from('collective_field')
             .select('energy_level, pulse_count_today')
             .eq('date', this._todayUTC())
@@ -107,7 +107,7 @@ const CollectiveFieldDB = {
      * Load the 5 most recent senders and push to UI
      */
     async loadRecentSenders() {
-        const { data, error } = await window.supabase
+        const { data, error } = await window.CommunitySupabase
             .from('collective_pulses')
             .select('user_id, profiles(emoji, avatar_url)')
             .eq('date', this._todayUTC())
@@ -140,14 +140,14 @@ const CollectiveFieldDB = {
         const today = this._todayUTC();
 
         // Atomic increment via RPC — avoids race conditions between concurrent users
-        const { error: rpcErr } = await window.supabase.rpc('increment_field_pulse', {
+        const { error: rpcErr } = await window.CommunitySupabase.rpc('increment_field_pulse', {
             p_date: today,
             p_energy_add: 5,
         });
         if (rpcErr) { console.error('recordPulse RPC error:', rpcErr); return; }
 
         // Log pulse event for recent senders
-        const { error: insertErr } = await window.supabase
+        const { error: insertErr } = await window.CommunitySupabase
             .from('collective_pulses')
             .insert({ user_id: userId, date: today });
         if (insertErr) { console.error('recordPulse insert error:', insertErr); return; }
@@ -163,7 +163,7 @@ const CollectiveFieldDB = {
      * Load today's collective wave total minutes and push to UI
      */
     async loadWaveTotal() {
-        const { data, error } = await window.supabase
+        const { data, error } = await window.CommunitySupabase
             .from('wave_contributions')
             .select('minutes')
             .eq('date', this._todayUTC());
@@ -182,7 +182,7 @@ const CollectiveFieldDB = {
         if (!userId) return;
 
         // Today
-        const { data: todayData, error: todayErr } = await window.supabase
+        const { data: todayData, error: todayErr } = await window.CommunitySupabase
             .from('wave_contributions')
             .select('minutes')
             .eq('user_id', userId)
@@ -191,7 +191,7 @@ const CollectiveFieldDB = {
         if (todayErr) { console.error('loadUserContribution today error:', todayErr); return; }
 
         // All time
-        const { data: allData, error: allErr } = await window.supabase
+        const { data: allData, error: allErr } = await window.CommunitySupabase
             .from('wave_contributions')
             .select('minutes')
             .eq('user_id', userId);
@@ -218,7 +218,7 @@ const CollectiveFieldDB = {
         if (!userId) { console.error('logWaveContribution: no userId'); return; }
         if (minutes < 1) return; // enforced minimum
 
-        const { error } = await window.supabase
+        const { error } = await window.CommunitySupabase
             .from('wave_contributions')
             .insert({
                 user_id:   userId,
@@ -243,7 +243,7 @@ const CollectiveFieldDB = {
         const today = this._todayUTC();
 
         // ── Channel 1: collective_field row changes (energy level, pulse count) ──
-        this._realtimeChannels.field = window.supabase
+        this._realtimeChannels.field = window.CommunitySupabase
             .channel('collective_field_changes')
             .on('postgres_changes', {
                 event:  'UPDATE',
@@ -259,7 +259,7 @@ const CollectiveFieldDB = {
             .subscribe();
 
         // ── Channel 2: collective_pulses inserts (new pulse from any user) ──
-        this._realtimeChannels.pulses = window.supabase
+        this._realtimeChannels.pulses = window.CommunitySupabase
             .channel('collective_pulses_inserts')
             .on('postgres_changes', {
                 event:  'INSERT',
@@ -276,7 +276,7 @@ const CollectiveFieldDB = {
             .subscribe();
 
         // ── Channel 3: wave_contributions inserts (someone logged a session) ──
-        this._realtimeChannels.wave = window.supabase
+        this._realtimeChannels.wave = window.CommunitySupabase
             .channel('wave_contributions_inserts')
             .on('postgres_changes', {
                 event:  'INSERT',
