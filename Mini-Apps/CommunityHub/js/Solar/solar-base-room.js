@@ -1215,7 +1215,7 @@ const BaseSolarRoom = {
     }
   },
 
-  _renderCollectiveWords(words) {
+  _renderWordCloud(words) {
     if (!words || words.length === 0) {
       return '<p style="color: rgba(224,224,255,0.5);">No words yet. Be the first to share.</p>';
     }

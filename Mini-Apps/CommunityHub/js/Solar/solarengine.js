@@ -5,11 +5,11 @@
  */
 
 const SolarEngine = {
-  // User location (can be updated from profile)
+  // User location — resolved from browser geolocation on init, falls back to UTC-neutral coords
   location: {
-    latitude: 32.0853,
-    longitude: 34.7818,
-    name: 'Tel Aviv, Israel'
+    latitude: 31.0,
+    longitude: 0.0,
+    name: 'Default'
   },
 
   // Current solar data
@@ -78,16 +78,39 @@ const SolarEngine = {
 
   // Initialize solar engine
   init() {
+    // Guard against double-initialization
+    if (this._initialized) return;
+    this._initialized = true;
+
     console.log('☀️ Solar Engine Initialized');
-    
+
     // Check if SunCalc is available
     if (typeof SunCalc === 'undefined') {
       console.error('❌ SunCalc library not loaded! Sun visualizations will not work.');
       return;
     }
-    
-    this.updateAll();
-    
+
+    // Resolve user location from browser, then run first update
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          this.location = {
+            latitude:  pos.coords.latitude,
+            longitude: pos.coords.longitude,
+            name:      'Your Location'
+          };
+          this.updateAll();
+        },
+        () => {
+          // Permission denied or unavailable — run with fallback coords
+          this.updateAll();
+        },
+        { timeout: 5000, maximumAge: 3600000 }
+      );
+    } else {
+      this.updateAll();
+    }
+
     // Update every 10 minutes
     setInterval(() => this.updateAll(), SOLAR_CONSTANTS.UPDATE_INTERVAL_MS);
   },
@@ -410,41 +433,63 @@ const SolarEngine = {
   },
 
   // ===== PRACTICE ROOM JOINING =====
-  joinSolarRoom() {
-    if (!this.currentSolarRoom) {
-      if (window.Core) {
-        window.Core.showToast('⚠️ Solar room not ready');
-      }
+
+  // Maps roomId → { file, globalName } for lazy loading
+  _roomFileMap: {
+    'spring-equinox':  { file: 'spring-solar-room.js',  globalName: 'SpringSolarRoom'  },
+    'summer-solstice': { file: 'summer-solar-room.js',  globalName: 'SummerSolarRoom'  },
+    'autumn-equinox':  { file: 'autumn-solar-room.js',  globalName: 'AutumnSolarRoom'  },
+    'winter-solstice': { file: 'winter-solar-room.js',  globalName: 'WinterSolarRoom'  },
+  },
+
+  /**
+   * Load a solar room file on demand, then enter it.
+   * If the global already exists the script is skipped.
+   * @param {string} roomId
+   * @private
+   */
+  _loadAndEnterRoom(roomId) {
+    const meta = this._roomFileMap[roomId];
+    if (!meta) {
+      if (window.Core) window.Core.showToast(`☀️ Unknown room: ${roomId}`);
       return;
     }
 
-    const room = this.currentSolarRoom;
-    
-    // Route to the appropriate season-specific room
-    if (room.roomId === 'spring-equinox' && window.SpringSolarRoom) {
-      window.SpringSolarRoom.enterRoom();
+    const enter = () => {
+      const instance = window[meta.globalName];
+      if (instance) {
+        instance.enterRoom();
+      } else {
+        if (window.Core) window.Core.showToast(`⚠️ ${roomId} failed to initialise`);
+      }
+    };
+
+    // Already loaded — enter immediately
+    if (window[meta.globalName]) {
+      enter();
       return;
     }
-    
-    if (room.roomId === 'summer-solstice' && window.SummerSolarRoom) {
-      window.SummerSolarRoom.enterRoom();
+
+    // Lazy-load the script, then enter
+    const base = '/Mini-Apps/CommunityHub/js/Solar/';
+    const script = document.createElement('script');
+    script.src = base + meta.file;
+    script.onload = () => {
+      // Give the room's init() a tick to complete before entering
+      setTimeout(enter, 50);
+    };
+    script.onerror = () => {
+      if (window.Core) window.Core.showToast(`⚠️ Failed to load ${meta.file}`);
+    };
+    document.body.appendChild(script);
+  },
+
+  joinSolarRoom() {
+    if (!this.currentSolarRoom) {
+      if (window.Core) window.Core.showToast('⚠️ Solar room not ready');
       return;
     }
-    
-    if (room.roomId === 'autumn-equinox' && window.AutumnSolarRoom) {
-      window.AutumnSolarRoom.enterRoom();
-      return;
-    }
-    
-    if (room.roomId === 'winter-solstice' && window.WinterSolarRoom) {
-      window.WinterSolarRoom.enterRoom();
-      return;
-    }
-    
-    // Fallback: If season room not available, show toast
-    if (window.Core) {
-      window.Core.showToast(`☀️ ${room.roomName} opening soon`);
-    }
+    this._loadAndEnterRoom(this.currentSolarRoom.roomId);
   },
 
   // ===== UTILITIES =====
@@ -617,36 +662,10 @@ const SolarEngine = {
     `;
   },
 
-  // FIXED: DEV MODE - Join any room directly (removed checkIfActive call)
+  // DEV MODE: Join any room directly (also lazy-loads)
   devJoinRoom(roomId) {
     console.log(`🔧 DEV MODE: Joining ${roomId}`);
-    
-    // FIXED: Just call enterRoom() directly - don't call checkIfActive()
-    // The enterRoom() method will handle DEV_MODE checking internally
-    
-    if (roomId === 'spring-equinox' && window.SpringSolarRoom) {
-      window.SpringSolarRoom.enterRoom();
-      return;
-    }
-    
-    if (roomId === 'summer-solstice' && window.SummerSolarRoom) {
-      window.SummerSolarRoom.enterRoom();
-      return;
-    }
-    
-    if (roomId === 'autumn-equinox' && window.AutumnSolarRoom) {
-      window.AutumnSolarRoom.enterRoom();
-      return;
-    }
-    
-    if (roomId === 'winter-solstice' && window.WinterSolarRoom) {
-      window.WinterSolarRoom.enterRoom();
-      return;
-    }
-    
-    if (window.Core) {
-      window.Core.showToast(`⚠️ ${roomId} module not loaded`);
-    }
+    this._loadAndEnterRoom(roomId);
   }
 };
 

@@ -293,6 +293,7 @@ class CommunityHubEngine {
       await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-base-room.js');
 
       // GROUP 4b: All rooms + remaining deps in parallel (BaseSolarRoom now guaranteed)
+      // Solar season room files are loaded on-demand when user enters a room
       await Promise.all([
         // Practice rooms
         this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/silent-room.js'),
@@ -310,14 +311,7 @@ class CommunityHubEngine {
         this.loadScript('/Mini-Apps/CommunityHub/js/upcoming-events.js'),
       ]);
 
-      // GROUP 5: Season rooms (depend on base classes from group 4)
-      // Lunar room files are loaded on-demand when user enters a room
-      await Promise.all([
-        this.loadScript('/Mini-Apps/CommunityHub/js/Solar/winter-solar-room.js'),
-        this.loadScript('/Mini-Apps/CommunityHub/js/Solar/spring-solar-room.js'),
-        this.loadScript('/Mini-Apps/CommunityHub/js/Solar/summer-solar-room.js'),
-        this.loadScript('/Mini-Apps/CommunityHub/js/Solar/autumn-solar-room.js'),
-      ]);
+      // GROUP 5: (Solar and Lunar room files are all loaded on-demand — nothing to load here)
 
       // GROUP 6: Engines last (depend on all rooms being registered)
       await Promise.all([
