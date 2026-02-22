@@ -394,43 +394,63 @@ const LunarEngine = {
     },
 
     // ===== PRACTICE ROOM JOINING =====
-    joinLunarRoom() {
-        if (!this.currentLunarRoom) {
-            if (window.Core) {
-                window.Core.showToast('⚠️ Lunar room not ready');
-            }
+
+    // Maps roomId → { file, globalName } for lazy loading
+    _roomFileMap: {
+        'new-moon':    { file: 'newmoon-room.js',    globalName: 'NewMoonRoom'    },
+        'waxing-moon': { file: 'waxingmoon-room.js', globalName: 'WaxingMoonRoom' },
+        'full-moon':   { file: 'fullmoon-room.js',   globalName: 'FullMoonRoom'   },
+        'waning-moon': { file: 'waningmoon-room.js', globalName: 'WaningMoonRoom' },
+    },
+
+    /**
+     * Load a lunar room file on demand, then enter it.
+     * If the global (e.g. window.NewMoonRoom) already exists the script is skipped.
+     * @param {string} roomId
+     * @private
+     */
+    _loadAndEnterRoom(roomId) {
+        const meta = this._roomFileMap[roomId];
+        if (!meta) {
+            if (window.Core) window.Core.showToast(`🌙 Unknown room: ${roomId}`);
             return;
         }
 
-        const room = this.currentLunarRoom;
-        
-        // Route to the appropriate phase-specific room
-        if (room.roomId === 'new-moon' && window.NewMoonRoom) {
-            window.NewMoonRoom.enterRoom();
+        const enter = () => {
+            const instance = window[meta.globalName];
+            if (instance) {
+                instance.enterRoom();
+            } else {
+                if (window.Core) window.Core.showToast(`⚠️ ${roomId} failed to initialise`);
+            }
+        };
+
+        // Already loaded — enter immediately
+        if (window[meta.globalName]) {
+            enter();
             return;
         }
-        
-        if (room.roomId === 'waxing-moon' && window.WaxingMoonRoom) {
-            window.WaxingMoonRoom.enterRoom();
+
+        // Lazy-load the script, then enter
+        const base = '/Mini-Apps/CommunityHub/js/Lunar/';
+        const script = document.createElement('script');
+        script.src = base + meta.file;
+        script.onload = () => {
+            // Give the room's init() a tick to complete before entering
+            setTimeout(enter, 50);
+        };
+        script.onerror = () => {
+            if (window.Core) window.Core.showToast(`⚠️ Failed to load ${meta.file}`);
+        };
+        document.body.appendChild(script);
+    },
+
+    joinLunarRoom() {
+        if (!this.currentLunarRoom) {
+            if (window.Core) window.Core.showToast('⚠️ Lunar room not ready');
             return;
         }
-        
-        if (room.roomId === 'full-moon' && window.FullMoonRoom) {
-            window.FullMoonRoom.enterRoom();
-            return;
-        }
-        
-        if (room.roomId === 'waning-moon' && window.WaningMoonRoom) {
-            window.WaningMoonRoom.enterRoom();
-            return;
-        }
-        
-        // Fallback: If phase room not available, show toast
-        if (window.Core) {
-            window.Core.showToast(`🌙 ${room.roomName} opening soon`);
-        }
-        
-        return;
+        this._loadAndEnterRoom(this.currentLunarRoom.roomId);
     },
 
     // ===== UTILITIES =====
@@ -602,32 +622,10 @@ const LunarEngine = {
         `;
     },
 
-    // DEV MODE: Join any room directly
+    // DEV MODE: Join any room directly (also lazy-loads)
     devJoinRoom(roomId) {
-        
-        if (roomId === 'new-moon' && window.NewMoonRoom) {
-            window.NewMoonRoom.enterRoom();
-            return;
-        }
-        
-        if (roomId === 'waxing-moon' && window.WaxingMoonRoom) {
-            window.WaxingMoonRoom.enterRoom();
-            return;
-        }
-        
-        if (roomId === 'full-moon' && window.FullMoonRoom) {
-            window.FullMoonRoom.enterRoom();
-            return;
-        }
-        
-        if (roomId === 'waning-moon' && window.WaningMoonRoom) {
-            window.WaningMoonRoom.enterRoom();
-            return;
-        }
-        
-        if (window.Core) {
-            window.Core.showToast(`⚠️ ${roomId} module not loaded`);
-        }
+        console.log(`🔧 DEV MODE: Joining ${roomId}`);
+        this._loadAndEnterRoom(roomId);
     }
 };
 

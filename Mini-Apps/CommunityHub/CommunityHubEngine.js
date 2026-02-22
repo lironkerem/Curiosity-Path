@@ -310,16 +310,13 @@ class CommunityHubEngine {
         this.loadScript('/Mini-Apps/CommunityHub/js/upcoming-events.js'),
       ]);
 
-      // GROUP 5: Season rooms + lunar rooms (depend on base classes from group 4)
+      // GROUP 5: Season rooms (depend on base classes from group 4)
+      // Lunar room files are loaded on-demand when user enters a room
       await Promise.all([
         this.loadScript('/Mini-Apps/CommunityHub/js/Solar/winter-solar-room.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/Solar/spring-solar-room.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/Solar/summer-solar-room.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/Solar/autumn-solar-room.js'),
-        this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/newmoon-room.js'),
-        this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/waxingmoon-room.js'),
-        this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/fullmoon-room.js'),
-        this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/waningmoon-room.js'),
       ]);
 
       // GROUP 6: Engines last (depend on all rooms being registered)
