@@ -87,9 +87,11 @@ const LunarConfig = {
                     maxlength="1000"
                     aria-label="${labels.listTitle}"
                 >${this._escapeHtml(releaseList || '')}</textarea>
+                ${labels.listFooter ? `
                 <div class="lunar-popup-highlight" style="margin-top: 1rem;">
                     <p>${labels.listFooter}</p>
                 </div>
+                ` : ''}
             </div>
 
             <div class="lunar-popup-footer">

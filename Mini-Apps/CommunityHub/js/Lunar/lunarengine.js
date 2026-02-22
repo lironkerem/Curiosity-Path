@@ -99,6 +99,7 @@ const LunarEngine = {
 
     // Initialize lunar engine
     init() {
+        console.log('🌙 Lunar Engine Initialized');
         
         // Check if SunCalc is available
         if (typeof SunCalc === 'undefined') {
@@ -577,6 +578,7 @@ const LunarEngine = {
 
     // DEV MODE: Join any room directly
     devJoinRoom(roomId) {
+        console.log(`🔧 DEV MODE: Joining ${roomId}`);
         
         if (roomId === 'new-moon' && window.NewMoonRoom) {
             window.NewMoonRoom.enterRoom();
@@ -605,6 +607,4 @@ const LunarEngine = {
 };
 
 // Expose globally
-        console.log('🌙 Lunar Engine Initialized');
-        console.log(`🔧 DEV MODE: Joining ${roomId}`);
 window.LunarEngine = LunarEngine;

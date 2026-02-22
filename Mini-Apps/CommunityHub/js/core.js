@@ -295,25 +295,34 @@ const Core = {
     },
 
     initializeCelestialSystems() {
-        if (window.LunarEngine && typeof window.LunarEngine.init === 'function') {
-            try {
-                window.LunarEngine.init();
-            } catch (error) {
-                console.error('✗ Lunar initialization failed:', error);
+        const _tryInit = (attemptsLeft) => {
+            if (typeof SunCalc === 'undefined' && attemptsLeft > 0) {
+                setTimeout(() => _tryInit(attemptsLeft - 1), 200);
+                return;
             }
-        } else {
-            console.warn('⚠ LunarEngine not found');
-        }
 
-        if (window.SolarEngine && typeof window.SolarEngine.init === 'function') {
-            try {
-                window.SolarEngine.init();
-            } catch (error) {
-                console.error('✗ Solar initialization failed:', error);
+            if (window.LunarEngine && typeof window.LunarEngine.init === 'function') {
+                try {
+                    window.LunarEngine.init();
+                } catch (error) {
+                    console.error('✗ Lunar initialization failed:', error);
+                }
+            } else {
+                console.warn('⚠ LunarEngine not found');
             }
-        } else {
-            console.warn('⚠ SolarEngine not found');
-        }
+
+            if (window.SolarEngine && typeof window.SolarEngine.init === 'function') {
+                try {
+                    window.SolarEngine.init();
+                } catch (error) {
+                    console.error('✗ Solar initialization failed:', error);
+                }
+            } else {
+                console.warn('⚠ SolarEngine not found');
+            }
+        };
+
+        _tryInit(25); // poll up to 25 × 200ms = 5 seconds
     },
 
     // ============================================================================
