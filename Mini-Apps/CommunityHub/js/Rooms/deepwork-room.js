@@ -51,9 +51,14 @@ class DeepWorkRoom extends PracticeRoom {
     // ═══════════════════════════════════════════════════════════════════════
 
     onEnter() {
+        // Show setup modal first-time, then instructions after it's closed.
+        // If setup already done, show instructions directly.
         if (this.state.showSetup) {
             setTimeout(() => this.showSetupModal(), 300);
+        } else {
+            setTimeout(() => this.showInstructions(), 300);
         }
+
         setTimeout(() => {
             const main = document.querySelector(`#${this.roomId}View .ps-main`);
             if (main) main.scrollTop = 0;
@@ -62,6 +67,14 @@ class DeepWorkRoom extends PracticeRoom {
 
         this._loadBreakChat();
         setTimeout(() => this._injectChatAvatar(), 400);
+
+        // Load active members into sidebar
+        setTimeout(() => {
+            this._refreshParticipantSidebar(
+                `${this.roomId}ParticipantsList`,
+                `${this.roomId}SidebarCount`
+            );
+        }, 350);
     }
 
     onCleanup() {
@@ -158,12 +171,10 @@ class DeepWorkRoom extends PracticeRoom {
         }
         if (chatSend) chatSend.disabled = !isBreak;
 
-        // Auto-open sidebar on break, close on focus
-        const sidebar = document.getElementById(`${this.roomId}Sidebar`);
-        if (sidebar) {
-            sidebar.style.width = isBreak ? '320px' : '0';
-            if (isBreak) setTimeout(() => this._injectChatAvatar(), 50);
-        }
+        // Show/hide chat section — members always visible
+        const chatSection = document.getElementById(`${this.roomId}ChatSection`);
+        if (chatSection) chatSection.style.display = isBreak ? 'flex' : 'none';
+        if (isBreak) setTimeout(() => this._injectChatAvatar(), 50);
 
         Core.showToast(isBreak ? '☕ Break time — chat unlocked!' : `🎯 ${this.getStatusText()}`);
     }
@@ -290,6 +301,12 @@ class DeepWorkRoom extends PracticeRoom {
         <div class="ps-body" style="display:flex;">
             <main class="ps-main" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;">
 
+                <!-- Room image with fallback -->
+                <img src="${this.config.imageUrl}"
+                     alt="${this.config.name}"
+                     onerror="this.style.display='none'"
+                     style="max-width:480px;width:100%;height:auto;margin-bottom:24px;border-radius:var(--radius-lg);">
+
                 <!-- Status buttons -->
                 <div style="display:flex;gap:8px;margin-bottom:30px;">
                     ${['deep-focus','light-focus','break'].map(s => `
@@ -356,38 +373,50 @@ class DeepWorkRoom extends PracticeRoom {
                 </div>
             </main>
 
-            <!-- Chat sidebar — always in DOM, width toggled -->
+            <!-- Sidebar — always visible; chat section enabled only during break -->
             <aside id="${this.roomId}Sidebar"
-                   style="width:${isBreak?'320px':'0'};overflow:hidden;transition:width 0.3s ease;background:var(--surface);border-left:2px solid var(--border);">
+                   style="width:320px;background:var(--surface);border-left:2px solid var(--border);overflow:hidden;">
                 <div style="width:320px;padding:20px;height:100%;display:flex;flex-direction:column;min-height:0;box-sizing:border-box;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-shrink:0;">
-                        <span style="font-weight:600;font-size:16px;">Break Room Chat</span>
-                        <button onclick="${this.getClassName()}.toggleChat()"
-                                style="background:none;border:none;font-size:24px;cursor:pointer;color:var(--text-muted);line-height:1;">×</button>
-                    </div>
-                    <div id="${this.roomId}ChatMessages"
-                         style="flex:1;overflow-y:auto;padding:12px;background:var(--background);border-radius:var(--radius-md);margin-bottom:12px;min-height:0;">
-                        <div style="text-align:center;color:var(--text-muted);font-size:11px;margin:20px 0;font-style:italic;">
-                            ${isBreak ? 'Say hello 👋' : 'Pause the timer to unlock chat.'}
+
+                    <!-- Active Members -->
+                    <div style="flex-shrink:0;margin-bottom:16px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                            <span style="font-weight:600;font-size:15px;">Active Members</span>
+                            <span id="${this.roomId}SidebarCount" style="font-size:11px;color:var(--text-muted);">Loading...</span>
+                        </div>
+                        <div id="${this.roomId}ParticipantsList" class="campfire-participants"
+                             style="max-height:180px;overflow-y:auto;">
+                            <div style="color:var(--text-muted);font-size:13px;padding:8px;">Loading...</div>
                         </div>
                     </div>
-                    <div style="flex-shrink:0;">
-                        <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;text-align:center;">
-                            ${isBreak ? '☕ Chat is open' : 'Pause to unlock chat'}
+
+                    <div style="height:1px;background:var(--border);flex-shrink:0;margin-bottom:16px;"></div>
+
+                    <!-- Break Room Chat — shown only during break -->
+                    <div id="${this.roomId}ChatSection"
+                         style="display:${isBreak?'flex':'none'};flex-direction:column;flex:1;min-height:0;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0;">
+                            <span style="font-weight:600;font-size:15px;">Break Room Chat</span>
                         </div>
-                        <div style="display:flex;align-items:center;gap:6px;">
-                            <div id="${this.roomId}ChatAvatarWrapper" style="flex-shrink:0;">
-                                <div style="width:28px;height:28px;border-radius:50%;background:var(--border);"></div>
+                        <div id="${this.roomId}ChatMessages"
+                             style="flex:1;overflow-y:auto;padding:12px;background:var(--background);border-radius:var(--radius-md);margin-bottom:12px;min-height:0;">
+                            <div style="text-align:center;color:var(--text-muted);font-size:11px;margin:20px 0;font-style:italic;">
+                                Say hello 👋
                             </div>
-                            <input type="text" id="${this.roomId}ChatInput"
-                                   placeholder="${isBreak?'Break chat...':'Pause to chat'}"
-                                   onkeypress="if(event.key==='Enter')${this.getClassName()}.sendChat()"
-                                   ${isBreak?'':'disabled'}
-                                   style="flex:1;min-width:0;padding:10px;border:2px solid var(--border);border-radius:var(--radius-md);background:var(--background);">
-                            <button id="${this.roomId}ChatSendBtn"
-                                    onclick="${this.getClassName()}.sendChat()"
-                                    ${isBreak?'':'disabled'}
-                                    style="flex-shrink:0;padding:10px 12px;background:var(--accent);border:none;border-radius:var(--radius-md);color:white;cursor:pointer;font-size:18px;">↑</button>
+                        </div>
+                        <div style="flex-shrink:0;">
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <div id="${this.roomId}ChatAvatarWrapper" style="flex-shrink:0;">
+                                    <div style="width:28px;height:28px;border-radius:50%;background:var(--border);"></div>
+                                </div>
+                                <input type="text" id="${this.roomId}ChatInput"
+                                       placeholder="Break chat..."
+                                       onkeypress="if(event.key==='Enter')${this.getClassName()}.sendChat()"
+                                       style="flex:1;min-width:0;padding:10px;border:2px solid var(--border);border-radius:var(--radius-md);background:var(--background);">
+                                <button id="${this.roomId}ChatSendBtn"
+                                        onclick="${this.getClassName()}.sendChat()"
+                                        style="flex-shrink:0;padding:10px 12px;background:var(--accent);border:none;border-radius:var(--radius-md);color:white;cursor:pointer;font-size:18px;">↑</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -577,14 +606,18 @@ class DeepWorkRoom extends PracticeRoom {
         }, 100);
 
         Core.showToast('✨ Session set — click Begin!');
+
+        // Show instructions after setup so user knows the room
+        setTimeout(() => this.showInstructions(), 200);
     }
 
     toggleChat() {
-        const sidebar = document.getElementById(`${this.roomId}Sidebar`);
-        if (!sidebar) return;
-        const isOpen = sidebar.style.width !== '0' && sidebar.style.width !== '0px' && sidebar.style.width !== '';
-        sidebar.style.width = isOpen ? '0' : '320px';
-        if (!isOpen) setTimeout(() => this._injectChatAvatar(), 50);
+        const section = document.getElementById(`${this.roomId}ChatSection`);
+        if (!section) return;
+        const isVisible = section.style.display !== 'none';
+        section.style.display = isVisible ? 'none' : 'flex';
+        section.style.flexDirection = 'column';
+        if (!isVisible) setTimeout(() => this._injectChatAvatar(), 50);
     }
 
     toggleDimMode() {
