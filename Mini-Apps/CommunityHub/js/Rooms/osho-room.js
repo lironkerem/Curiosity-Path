@@ -114,13 +114,11 @@ class OshoRoom extends PracticeRoom {
         </div>`;
     }
 
-    buildAdditionalModals() {
-        return this.buildScheduleModal();
-    }
+    buildAdditionalModals() { return ''; }
 
-    buildScheduleModal() {
+    buildHubModals() {
         return `
-        <div class="modal-overlay" id="${this.roomId}ScheduleModal">
+        <div class="modal-overlay" id="${this.roomId}ScheduleModal" style="z-index:200000;">
             <div class="modal-card schedule-modal">
                 <button class="modal-close" onclick="${this.getClassName()}.closeScheduleModal()">×</button>
                 <h2>📅 Upcoming OSHO Sessions</h2>
@@ -175,14 +173,13 @@ class OshoRoom extends PracticeRoom {
 
         let html = '<div class="schedule-list">';
 
-        // Show next 14 sessions (2 full rotations of 7)
         for (let i = 0; i < 14; i++) {
-            const cycleIndex       = currentCycle + i;
-            const meditationIndex  = cycleIndex % this.oshoMeditations.length;
-            const meditation       = this.oshoMeditations[meditationIndex];
-            const cycleStart       = cycleIndex * cycleMs;
-            const timeUntil        = cycleStart - now;
-            const isCurrent        = i === 0;
+            const cycleIndex      = currentCycle + i;
+            const meditationIndex = cycleIndex % this.oshoMeditations.length;
+            const meditation      = this.oshoMeditations[meditationIndex];
+            const cycleStart      = cycleIndex * cycleMs;
+            const timeUntil       = cycleStart - now;
+            const isCurrent       = i === 0;
 
             const hours   = Math.floor(timeUntil / (1000 * 60 * 60));
             const minutes = Math.floor((timeUntil % (1000 * 60 * 60)) / (1000 * 60));

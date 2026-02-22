@@ -112,13 +112,11 @@ class BreathworkRoom extends PracticeRoom {
         </div>`;
     }
 
-    buildAdditionalModals() {
-        return this.buildScheduleModal();
-    }
+    buildAdditionalModals() { return ''; }
 
-    buildScheduleModal() {
+    buildHubModals() {
         return `
-        <div class="modal-overlay" id="${this.roomId}ScheduleModal">
+        <div class="modal-overlay" id="${this.roomId}ScheduleModal" style="z-index:200000;">
             <div class="modal-card schedule-modal">
                 <button class="modal-close" onclick="${this.getClassName()}.closeScheduleModal()">×</button>
                 <h2>📅 Upcoming Breathwork Sessions</h2>

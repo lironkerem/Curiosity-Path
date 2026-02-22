@@ -130,6 +130,12 @@
     <div class="toast" id="toast" role="alert" aria-live="assertive"></div>
 
     <!-- ========================================================================== -->
+    <!-- ========================================================================== -->
+    <!-- PERMANENT HUB MODALS — Always in DOM, above fullscreen container        -->
+    <!-- Populated by PracticeRoom.mountHubModals() at room init time            -->
+    <!-- ========================================================================== -->
+    <div id="roomHubModals" style="position:relative;z-index:200000;"></div>
+
     <!-- FULLSCREEN ROOM CONTAINER (outside main flow for fullscreen rooms) -->
     <!-- ========================================================================== -->
     <div id="communityHubFullscreenContainer" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; background: transparent; display: none; overflow: auto;">

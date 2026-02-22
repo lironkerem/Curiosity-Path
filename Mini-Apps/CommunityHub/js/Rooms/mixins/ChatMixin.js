@@ -126,7 +126,7 @@ const ChatMixin = {
 
         // Name: clickable if we have a userId
         const nameEl = msgData.userId
-            ? `<span class="campfire-msg-name" style="cursor:pointer;" onclick="if(window.MemberProfileModal)MemberProfileModal.open('${msgData.userId}')">${msgData.name}</span>`
+            ? `<span class="campfire-msg-name" style="cursor:pointer;" onclick="openMemberProfileAboveRoom('${msgData.userId}')">${msgData.name}</span>`
             : `<span class="campfire-msg-name">${msgData.name}</span>`;
 
         return `
@@ -296,18 +296,18 @@ const ChatMixin = {
                 <!-- Messages rendered here -->
             </div>
             <div class="chat-input-container" style="margin-top:auto;padding-top:8px;">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
                     <!-- Current user avatar, populated by _injectSenderAvatar() -->
-                    <div id="${avatarSlotId}" style="flex-shrink:0;">
-                        <div style="width:32px;height:32px;border-radius:50%;background:var(--border);"></div>
+                    <div id="${avatarSlotId}" style="flex-shrink:0;width:28px;height:28px;">
+                        <div style="width:28px;height:28px;border-radius:50%;background:var(--border);"></div>
                     </div>
                     <input type="text"
                            class="chat-input"
                            id="${this.roomId}${channelCap}Input"
                            placeholder="${placeholder}"
                            onkeypress="if(event.key==='Enter')${this.getClassName()}.sendMessage('${channel}')"
-                           style="flex:1;">
-                    <button class="chat-send" onclick="${this.getClassName()}.sendMessage('${channel}')">
+                           style="flex:1;min-width:0;width:100%;">
+                    <button class="chat-send" onclick="${this.getClassName()}.sendMessage('${channel}')" style="flex-shrink:0;">
                         <span style="font-size:20px;">→</span>
                     </button>
                 </div>

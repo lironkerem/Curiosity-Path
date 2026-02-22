@@ -71,11 +71,44 @@ class PracticeRoom {
     init() {
         console.log(`${this.config.icon} ${this.config.name} Module Loaded`);
         this.updateRoomCard();
-
+        // Register any hub-accessible modals (e.g. schedule modal) into the
+        // permanent #roomHubModals container so they're available from the card
+        // before the user ever enters the room.
+        this.mountHubModals();
         // Call custom initialization if defined
         if (this.onInit) this.onInit();
     }
     
+    /**
+     * Inject this room's hub-accessible modals into the permanent #roomHubModals
+     * container. Called once at init() so modals exist in the DOM from app load,
+     * regardless of whether the user has entered the room.
+     *
+     * Rooms that need hub-card-accessible modals (e.g. schedule, setup) should
+     * override buildHubModals() to return their modal HTML.
+     */
+    mountHubModals() {
+        const html = this.buildHubModals ? this.buildHubModals() : '';
+        if (!html) return;
+        const container = document.getElementById('roomHubModals');
+        if (!container) return;
+        // Avoid double-injection on hot-reload
+        const existing = document.getElementById(`${this.roomId}HubModalsSlot`);
+        if (existing) existing.remove();
+        const slot = document.createElement('div');
+        slot.id = `${this.roomId}HubModalsSlot`;
+        slot.innerHTML = html;
+        container.appendChild(slot);
+    }
+
+    /**
+     * Override in rooms that expose modals from the hub card (before room entry).
+     * Return HTML string of modal(s). These are permanent — not re-rendered on
+     * room entry, so they must be self-contained and not depend on room DOM.
+     * @returns {string} Modal HTML
+     */
+    buildHubModals() { return ''; }
+
     /**
      * Enter the practice room.
      * Creates view, navigates, sets up listeners.
@@ -387,13 +420,11 @@ class PracticeRoom {
             const inner = avatarUrl
                 ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
                 : `<span style="color:white;font-weight:600;">${emoji || initial}</span>`;
-            const bg          = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
-            const clickStyle  = userId ? 'cursor:pointer;' : '';
-            const clickAction = userId
-                ? `onclick="if(window.MemberProfileModal)MemberProfileModal.open('${userId}')"`
-                : '';
+            const bg         = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
+            const clickStyle = userId ? 'cursor:pointer;' : '';
+            const clickFn    = userId ? `onclick="openMemberProfileAboveRoom('${userId}')"` : '';
             return `
-            <div class="campfire-participant" ${clickAction} style="${clickStyle}">
+            <div class="campfire-participant" ${clickFn} style="${clickStyle}">
                 <div class="campfire-participant-avatar" style="${bg}display:flex;align-items:center;justify-content:center;">${inner}</div>
                 <div class="campfire-participant-info">
                     <div class="campfire-participant-name">${name}</div>
@@ -989,3 +1020,30 @@ PracticeRoom.stopHubPresence = function() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 window.PracticeRoom = PracticeRoom;
+
+/**
+ * Global helper: opens MemberProfileModal and ensures its overlay z-index
+ * is above the fullscreen practice room container (z-index:9999 in index.html).
+ * Used by all participant lists and chat message names inside practice rooms.
+ * @param {string} userId
+ */
+window.openMemberProfileAboveRoom = function(userId) {
+    if (!window.MemberProfileModal || !userId) return;
+    MemberProfileModal.open(userId);
+    // After the modal renders (next frame), patch its overlay z-index
+    requestAnimationFrame(() => {
+        // MemberProfileModal typically appends an overlay to <body>.
+        // Try common class/id patterns; adjust if your implementation differs.
+        const candidates = [
+            document.getElementById('memberProfileModal'),
+            document.getElementById('memberProfileOverlay'),
+            document.querySelector('.member-profile-overlay'),
+            document.querySelector('.member-profile-modal'),
+            document.querySelector('[class*="member"][class*="modal"]'),
+            document.querySelector('[id*="memberProfile"]'),
+        ];
+        candidates.forEach(el => {
+            if (el) el.style.zIndex = '200000';
+        });
+    });
+};
