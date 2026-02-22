@@ -632,6 +632,4 @@ const LunarEngine = {
 };
 
 // Expose globally
-        console.log('🌙 Lunar Engine Initialized');
-        console.log(`🔧 DEV MODE: Joining ${roomId}`);
 window.LunarEngine = LunarEngine;
