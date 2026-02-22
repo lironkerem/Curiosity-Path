@@ -99,6 +99,10 @@ const LunarEngine = {
 
     // Initialize lunar engine
     init() {
+        // Guard against double-initialization
+        if (this._initialized) return;
+        this._initialized = true;
+
         console.log('🌙 Lunar Engine Initialized');
         
         // Check if SunCalc is available
