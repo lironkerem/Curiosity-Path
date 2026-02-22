@@ -585,7 +585,7 @@ const SolarEngine = {
             <div class="celestial-info-title">Solar Position & Seasons</div>
             <div class="solar-info">
               <div class="solar-season-name">${seasonDisplay}</div>
-              <div class="solar-declination">Declination: ${data.declination > 0 ? '+' : ''}${data.declination.toFixed(1)}°</div>
+              <div class="solar-declination">Declination: <span class="decl-value">${data.declination > 0 ? '+' : ''}${data.declination.toFixed(1)}°</span></div>
             </div>
             <div class="next-season">
               Next: ${data.nextSeasonName} (${data.daysToNextSeason} days)

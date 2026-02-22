@@ -2800,17 +2800,34 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 /* Solar Info Styles */
 .solar-info { margin-bottom: 0; }
 
-.solar-declination {
-    font-size: 15px;
-    font-weight: 600;
+.solar-season-name {
+    font-size: 22px;
+    font-weight: 700;
     color: var(--text);
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    font-family: var(--serif);
+}
+
+.solar-declination {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 0;
 }
 
 .decl-value {
     color: var(--neuro-accent);
     font-weight: 700;
-    font-size: 16px;
+    font-size: 14px;
+}
+
+.next-season {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 10px 14px;
+    background: var(--neuro-bg-lightest);
+    border-radius: var(--radius-sm);
+    margin-top: 12px;
 }
 
 /* ===== INTEGRATED CELESTIAL PRACTICE ROOMS ===== */
