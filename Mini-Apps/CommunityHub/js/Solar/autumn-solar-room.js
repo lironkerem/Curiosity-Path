@@ -23,6 +23,13 @@ AutumnSolarRoom.config = {
   endDay: 20,
   floatingEmojis: ['🍂', '🍁', '🌾'],
   wisdom: 'As the autumn sun sets earlier each day, we gather our harvest and give thanks for the abundance we have received.',
+  closure: {
+    title: 'Autumn Completion',
+    intro: 'As the autumn season draws to its close, gather your harvest and give thanks for all that has ripened and been received.',
+    placeholder: 'What have you harvested this season? What are you grateful for? What are you ready to release before the stillness of winter?',
+    buttonText: 'Complete Autumn',
+    closingLine: 'I gather my harvest with gratitude and release what is complete, ready to rest.'
+  },
   modeDescription: 'Individual practices for gratitude, harvest, and preparation',
   collectiveFocus: 'sharing collective gratitude and harvest',
   collectiveNoun: 'harvests of gratitude'

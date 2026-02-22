@@ -123,62 +123,71 @@ const BaseSolarRoom = {
   },
 
   /**
-   * Check if season is currently active
-   * Handles year-spanning seasons (like Winter: Dec 21 - Feb 19)
+   * Check if this season is currently active.
+   * Uses SolarEngine.getSeasonDates() for exact astronomical boundaries —
+   * no hardcoded month/day, zero gaps between seasons, year-spanning handled automatically.
    */
   checkIfActive() {
-    // FIXED: Check for DEV_MODE first
-    if (window.Core && window.Core.config && window.Core.config.DEV_MODE) {
+    // DEV_MODE: force-enable regardless of actual season
+    if (window.Core?.config?.DEV_MODE) {
       this.isActive = true;
       console.log(`🔧 DEV MODE: ${this.config.displayName} room force-enabled`);
       return;
     }
 
-    const now = new Date();
-    const { startMonth, startDay, endMonth, endDay } = this.config;
-    
-    // Check if season spans year boundary (e.g., Winter: Dec to Feb)
-    if (startMonth > endMonth) {
-      this.isActive = (
-        (now.getMonth() === startMonth && now.getDate() >= startDay) ||
-        (now.getMonth() > startMonth) ||
-        (now.getMonth() < endMonth) ||
-        (now.getMonth() === endMonth && now.getDate() <= endDay)
-      );
-    } else {
-      // Standard season within same year
-      this.isActive = (
-        (now.getMonth() === startMonth && now.getDate() >= startDay) ||
-        (now.getMonth() > startMonth && now.getMonth() < endMonth) ||
-        (now.getMonth() === endMonth && now.getDate() <= endDay)
-      );
+    if (!window.SolarEngine) {
+      console.warn(`[${this.config.displayName}] SolarEngine not available for checkIfActive`);
+      this.isActive = false;
+      return;
     }
+
+    const now  = new Date();
+    const year = now.getFullYear();
+
+    // Get exact dates for current and previous year (winter spans year boundary)
+    const dates     = SolarEngine.getSeasonDates(year);
+    const datesPrev = SolarEngine.getSeasonDates(year - 1);
+    const season    = this.config.name; // 'spring' | 'summer' | 'autumn' | 'winter'
+
+    // Check current year
+    const { start, end } = dates[season];
+    if (now >= start && now <= end) {
+      this.isActive = true;
+      return;
+    }
+
+    // Check previous year's range (covers winter spanning Dec→Mar)
+    const prev = datesPrev[season];
+    this.isActive = (now >= prev.start && now <= prev.end);
   },
 
   /**
-   * Calculate start and end dates for current season
-   * Handles year-spanning seasons correctly
+   * Set this.startDate and this.endDate from exact astronomical season dates.
+   * Reads from SolarEngine.getSeasonDates() — no hardcoded config month/day needed.
    */
   calculateDates() {
-    const year = new Date().getFullYear();
-    const now = new Date();
-    
-    this.startDate = new Date(year, this.config.startMonth, this.config.startDay);
-    
-    // Handle year-spanning seasons
-    if (this.config.startMonth > this.config.endMonth) {
-      // If we're in the early months (Jan, Feb), the season started last year
-      if (now.getMonth() < this.config.startMonth) {
-        this.startDate = new Date(year - 1, this.config.startMonth, this.config.startDay);
-        this.endDate = new Date(year, this.config.endMonth, this.config.endDay);
-      } else {
-        // We're in late months (Dec), season ends next year
-        this.endDate = new Date(year + 1, this.config.endMonth, this.config.endDay);
-      }
-    } else {
-      // Normal season
-      this.endDate = new Date(year, this.config.endMonth, this.config.endDay);
+    if (!window.SolarEngine) {
+      console.warn(`[${this.config.displayName}] SolarEngine not available for calculateDates`);
+      return;
     }
+
+    const now    = new Date();
+    const year   = now.getFullYear();
+    const season = this.config.name;
+
+    const dates     = SolarEngine.getSeasonDates(year);
+    const datesPrev = SolarEngine.getSeasonDates(year - 1);
+
+    // Use previous year's range if we're currently in its winter (e.g. Jan/Feb/Mar)
+    const prev = datesPrev[season];
+    if (now >= prev.start && now <= prev.end) {
+      this.startDate = prev.start;
+      this.endDate   = prev.end;
+      return;
+    }
+
+    this.startDate = dates[season].start;
+    this.endDate   = dates[season].end;
   },
 
   /**
@@ -358,7 +367,7 @@ const BaseSolarRoom = {
           })}
         </div>
         
-        ${daysRemaining <= 7 ? SolarUIManager.renderers.closureSection() : ''}
+        ${daysRemaining <= 7 ? SolarUIManager.renderers.closureSection(this.config.closure) : ''}
       </div>
       </div>
     `;

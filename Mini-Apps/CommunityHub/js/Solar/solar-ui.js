@@ -227,15 +227,20 @@ const SolarUIManager = {
       `;
     },
 
-    closureSection() {
+    closureSection(config) {
+      const { title, intro, placeholder, buttonText, closingLine } = config;
       return `
         <div class="solar-closure">
-          <h3>Season Completion</h3>
-          <p>Before the season ends, reflect on your journey through this harvest period.</p>
+          <h3>${title}</h3>
+          <p>${intro}</p>
           <textarea id="closureReflection" class="solar-textarea" 
-            placeholder="What is complete? What are you grateful for? What are you ready to release?"></textarea>
-          <button data-action="submit-closure" class="solar-btn-secondary">
-            Complete Season
+            placeholder="${placeholder}"></textarea>
+          ${closingLine ? `
+          <div class="solar-popup-highlight" style="margin-top: 1rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px;">
+            <p><em>"${closingLine}"</em></p>
+          </div>` : ''}
+          <button data-action="submit-closure" class="solar-btn-secondary" style="margin-top: 1.5rem;">
+            ${buttonText}
           </button>
         </div>
       `;

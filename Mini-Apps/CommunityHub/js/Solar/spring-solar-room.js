@@ -23,6 +23,13 @@ SpringSolarRoom.config = {
   endDay: 20,
   floatingEmojis: ['🌸', '🌱', '🌿'],
   wisdom: 'As the spring sun awakens the earth, we plant our intentions and embrace the season of growth and renewal.',
+  closure: {
+    title: 'Spring Completion',
+    intro: 'As spring comes to fullness, reflect on the seeds you have planted and the growth you have nurtured through this season of renewal.',
+    placeholder: 'What intentions took root? What grew beyond your expectations? What are you ready to bring into the fullness of summer?',
+    buttonText: 'Complete Spring',
+    closingLine: 'I celebrate the growth of this season and step forward into summer with an open heart.'
+  },
   modeDescription: 'Individual practices for renewal, growth, and planting intentions',
   collectiveFocus: 'planting collective intentions for growth',
   collectiveNoun: 'seeds of intention'

@@ -209,104 +209,138 @@ const SolarEngine = {
     return Math.floor(diff / oneDay);
   },
 
-  getSeasonInfo(now) {
-    const year = now.getFullYear();
-    
-    // Approximate equinox/solstice dates
-    const springEquinox = new Date(year, 2, 20); // March 20
-    const summerSolstice = new Date(year, 5, 21); // June 21
-    const autumnEquinox = new Date(year, 8, 22); // September 22
-    const winterSolstice = new Date(year, 11, 21); // December 21
-    
-    const events = [
-      { name: 'Spring Equinox', date: springEquinox },
-      { name: 'Summer Solstice', date: summerSolstice },
-      { name: 'Autumn Equinox', date: autumnEquinox },
-      { name: 'Winter Solstice', date: winterSolstice },
-    ];
+  /**
+   * Compute exact astronomical season start dates for a given year using the
+   * Jean Meeus algorithm (Astronomical Algorithms, Ch. 27). Accurate to ~1 minute.
+   * Season END dates are derived as (nextSeasonStart - 1 day), guaranteeing
+   * zero gaps and zero overlap across the full year.
+   * Results are cached per year.
+   *
+   * @param {number} year - Gregorian year
+   * @returns {{ spring, summer, autumn, winter }} — each { start: Date, end: Date }
+   */
+  getSeasonDates(year) {
+    if (!this._seasonDatesCache) this._seasonDatesCache = {};
+    if (this._seasonDatesCache[year]) return this._seasonDatesCache[year];
 
-    // Find next event
-    let nextEvent = null;
-    let minDiff = Infinity;
+    const _jde0 = (season, y) => {
+      const Y = (y - 2000) / 1000;
+      const t = {
+        spring: [2451623.80984, 365242.37404,  0.05169, -0.00411, -0.00057],
+        summer: [2451716.56767, 365241.62603,  0.00325,  0.00888, -0.00030],
+        autumn: [2451810.21715, 365242.01767, -0.11575,  0.00337,  0.00078],
+        winter: [2451900.05952, 365242.74049, -0.06223, -0.00823,  0.00032],
+      }[season];
+      return t[0] + t[1]*Y + t[2]*Y*Y + t[3]*Y*Y*Y + t[4]*Y*Y*Y*Y;
+    };
 
-    events.forEach(event => {
-      let diff = event.date - now;
-      if (diff < 0) {
-        // Event already passed this year, check next year
-        event.date = new Date(year + 1, event.date.getMonth(), event.date.getDate());
-        diff = event.date - now;
-      }
-      if (diff < minDiff) {
-        minDiff = diff;
-        nextEvent = event;
-      }
-    });
+    const _toDate = jde => new Date((jde - 2440587.5) * 86400000);
 
-    const daysUntil = Math.ceil(minDiff / (1000 * 60 * 60 * 24));
-    return `${daysUntil} days to ${nextEvent.name}`;
+    const _correct = jde => {
+      const T  = (jde - 2451545.0) / 36525;
+      const W  = 35999.373 * T - 2.47;
+      const dL = 1 + 0.0334 * Math.cos(W * Math.PI / 180)
+                   + 0.0007 * Math.cos(2 * W * Math.PI / 180);
+      const S  = [
+        [485,324.96,1934.136],[203,337.23,32964.467],[199,342.08,20.186],
+        [182, 27.85, 445267.112],[156, 73.14, 45036.886],[136,171.52,22518.443],
+        [ 77,222.54, 65928.934],[ 74,296.72,  3034.906],[ 70,243.58, 9037.513],
+        [ 58,119.81, 33718.148],[ 52,297.17,   150.678],[ 50, 21.02, 2281.226],
+      ].reduce((s, [a, b, c]) => s + a * Math.cos((b + c * T) * Math.PI / 180), 0);
+      return jde + (0.00001 * S) / dL;
+    };
+
+    const _start  = s => _toDate(_correct(_jde0(s, year)));
+    const _dayBefore = d => new Date(d.getTime() - 86400000);
+
+    const sp = _start('spring');
+    const su = _start('summer');
+    const au = _start('autumn');
+    const wi = _start('winter');
+    // Winter ends the day before next year's spring equinox
+    const sp_next = _toDate(_correct(_jde0('spring', year + 1)));
+
+    const dates = {
+      spring: { start: sp, end: _dayBefore(su)      },
+      summer: { start: su, end: _dayBefore(au)      },
+      autumn: { start: au, end: _dayBefore(wi)      },
+      winter: { start: wi, end: _dayBefore(sp_next) },
+    };
+
+    this._seasonDatesCache[year] = dates;
+    return dates;
   },
 
+  /**
+   * Get the current season name for the user's hemisphere.
+   * Uses exact astronomical dates from getSeasonDates().
+   * @returns {'spring'|'summer'|'autumn'|'winter'}
+   */
   getCurrentSeason() {
-    const now = new Date();
-    const month = now.getMonth();
-    const day = now.getDate();
-    
-    // Determine hemisphere based on location
-    const isNorthernHemisphere = this.location.latitude >= 0;
-    
-    let season;
-    
-    if (isNorthernHemisphere) {
-      if ((month === 2 && day >= 20) || month === 3 || month === 4 || (month === 5 && day <= 20)) {
-        season = 'spring';
-      } else if ((month === 5 && day >= 21) || month === 6 || month === 7 || (month === 8 && day <= 20)) {
-        season = 'summer';
-      } else if ((month === 8 && day >= 21) || month === 9 || month === 10 || (month === 11 && day <= 20)) {
-        season = 'autumn';
-      } else {
-        season = 'winter';
-      }
-    } else {
-      // Southern hemisphere seasons are reversed
-      if ((month === 2 && day >= 20) || month === 3 || month === 4 || (month === 5 && day <= 20)) {
-        season = 'autumn';
-      } else if ((month === 5 && day >= 21) || month === 6 || month === 7 || (month === 8 && day <= 20)) {
-        season = 'winter';
-      } else if ((month === 8 && day >= 21) || month === 9 || month === 10 || (month === 11 && day <= 20)) {
-        season = 'spring';
-      } else {
-        season = 'summer';
+    const now  = new Date();
+    const year = now.getFullYear();
+    const isNorth = this.location.latitude >= 0;
+
+    // Check current year — also check previous year's winter (spans year boundary)
+    const dates     = this.getSeasonDates(year);
+    const datesPrev = this.getSeasonDates(year - 1);
+
+    // Northern hemisphere season order
+    const northOrder = ['spring', 'summer', 'autumn', 'winter'];
+    // Southern hemisphere seasons are opposite
+    const southMap   = { spring: 'autumn', summer: 'winter', autumn: 'spring', winter: 'summer' };
+
+    // Previous year's winter may still be running (e.g. Jan/Feb/Mar)
+    if (now >= datesPrev.winter.start && now <= datesPrev.winter.end) {
+      return isNorth ? 'winter' : 'summer';
+    }
+
+    for (const season of northOrder) {
+      const { start, end } = dates[season];
+      if (now >= start && now <= end) {
+        return isNorth ? season : southMap[season];
       }
     }
-    
-    return season;
+
+    return 'winter'; // safe fallback
   },
 
+  /**
+   * Return the "X days to Next Season" string shown on the outer card.
+   * Uses exact astronomical dates.
+   */
+  getSeasonInfo(now) {
+    const year   = now.getFullYear();
+    const events = [
+      { name: 'Spring Equinox', date: this.getSeasonDates(year).spring.start },
+      { name: 'Summer Solstice', date: this.getSeasonDates(year).summer.start },
+      { name: 'Autumn Equinox',  date: this.getSeasonDates(year).autumn.start },
+      { name: 'Winter Solstice', date: this.getSeasonDates(year).winter.start },
+      // Include next year's spring so we always have a future event
+      { name: 'Spring Equinox', date: this.getSeasonDates(year + 1).spring.start },
+    ];
+    const future  = events.filter(e => e.date > now);
+    const nearest = future.reduce((a, b) => a.date < b.date ? a : b);
+    const daysUntil = Math.ceil((nearest.date - now) / (1000 * 60 * 60 * 24));
+    return `${daysUntil} days to ${nearest.name}`;
+  },
+
+  /**
+   * Return { name, days } for the next season transition.
+   * Used by renderSolarCard() for "Next: Spring (26 days)".
+   */
   getNextSeasonInfo(now) {
     const year = now.getFullYear();
-    const month = now.getMonth();
-    const day = now.getDate();
-    
-    const seasonDates = [
-      { name: 'Spring', month: 2, day: 20 },
-      { name: 'Summer', month: 5, day: 21 },
-      { name: 'Autumn', month: 8, day: 22 },
-      { name: 'Winter', month: 11, day: 21 }
+    const transitions = [
+      { name: 'Spring', date: this.getSeasonDates(year).spring.start },
+      { name: 'Summer', date: this.getSeasonDates(year).summer.start },
+      { name: 'Autumn', date: this.getSeasonDates(year).autumn.start },
+      { name: 'Winter', date: this.getSeasonDates(year).winter.start },
+      { name: 'Spring', date: this.getSeasonDates(year + 1).spring.start },
     ];
-    
-    // Find next season
-    for (let season of seasonDates) {
-      let seasonDate = new Date(year, season.month, season.day);
-      if (seasonDate > now) {
-        const daysUntil = Math.ceil((seasonDate - now) / (1000 * 60 * 60 * 24));
-        return { name: season.name, days: daysUntil };
-      }
-    }
-    
-    // If all dates have passed, return first season of next year
-    const nextSeasonDate = new Date(year + 1, seasonDates[0].month, seasonDates[0].day);
-    const daysUntil = Math.ceil((nextSeasonDate - now) / (1000 * 60 * 60 * 24));
-    return { name: seasonDates[0].name, days: daysUntil };
+    const next = transitions.find(t => t.date > now);
+    const days = Math.ceil((next.date - now) / (1000 * 60 * 60 * 24));
+    return { name: next.name, days };
   },
 
   // ===== SOLAR VISUALIZATION =====

@@ -23,6 +23,13 @@ SummerSolarRoom.config = {
   endDay: 20,
   floatingEmojis: ['☀️', '🌻', '🌺'],
   wisdom: 'As the summer sun shines at its brightest, we celebrate the fullness of life and embrace our radiant potential.',
+  closure: {
+    title: 'Summer Completion',
+    intro: 'As the peak of summer begins to soften, reflect on the vitality, joy, and radiance you have expressed and embodied this season.',
+    placeholder: 'What did you celebrate? Where did you shine most brightly? What abundance are you grateful for as the light begins to turn?',
+    buttonText: 'Complete Summer',
+    closingLine: 'I honor the fullness of this season and release it with gratitude as the light gently turns.'
+  },
   modeDescription: 'Individual practices for vitality, expansion, and celebration',
   collectiveFocus: 'celebrating collective vitality and abundance',
   collectiveNoun: 'expressions of joy'

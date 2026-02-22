@@ -23,6 +23,13 @@ WinterSolarRoom.config = {
   endDay: 19,
   floatingEmojis: ['❄️', '⛄', '🌨️'],
   wisdom: 'In the quiet stillness of winter, we rest deeply and listen to the wisdom that emerges from silence.',
+  closure: {
+    title: 'Winter Completion',
+    intro: 'As the winter season draws to a close, take a moment to honor the stillness and wisdom you have gathered in the quiet.',
+    placeholder: 'What did you discover in the silence? What wisdom emerged from this period of rest? What are you ready to carry forward into spring?',
+    buttonText: 'Complete Winter',
+    closingLine: 'I honor the wisdom gathered in stillness and carry it gently into the light.'
+  },
   modeDescription: 'Individual practices for rest, contemplation, and inner wisdom',
   collectiveFocus: 'honoring collective rest and inner wisdom',
   collectiveNoun: 'whispers of wisdom'
