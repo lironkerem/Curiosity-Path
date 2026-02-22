@@ -71,10 +71,14 @@ class PracticeRoom {
     init() {
         console.log(`${this.config.icon} ${this.config.name} Module Loaded`);
         this.updateRoomCard();
+        // Register global bless handler for the card button onclick
+        window[`${this.roomId}_blessRoom`] = () => this._blessRoom();
         // Register any hub-accessible modals (e.g. schedule modal) into the
         // permanent #roomHubModals container so they're available from the card
         // before the user ever enters the room.
         this.mountHubModals();
+        // Load initial blessing count onto card
+        this._loadBlessingCount();
         // Call custom initialization if defined
         if (this.onInit) this.onInit();
     }
@@ -118,6 +122,197 @@ class PracticeRoom {
      */
     buildHubModals() { return ''; }
 
+    // ═══════════════════════════════════════════════════════════════════════
+    // BLESSINGS
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /**
+     * Called when user clicks "Bless 🙏" on the room card.
+     * Persists to DB + broadcasts to everyone inside.
+     */
+    async _blessRoom() {
+        if (!window.CommunityDB || !CommunityDB.ready) {
+            Core.showToast('🙏 Blessing sent ✨');
+            return;
+        }
+        const btn = document.getElementById(`${this.roomId}BlessBtn`);
+        if (btn) {
+            btn.style.background = 'rgba(139,92,246,0.3)';
+            btn.style.color      = 'var(--accent)';
+            btn.textContent      = '🙏 Blessed';
+            btn.disabled         = true;
+            setTimeout(() => {
+                btn.style.background = 'rgba(139,92,246,0.12)';
+                btn.style.color      = 'var(--text-muted)';
+                btn.innerHTML        = '🙏 Bless';
+                btn.disabled         = false;
+            }, 3000);
+        }
+
+        const result = await CommunityDB.blessRoom(this.roomId);
+        Core.showToast('🙏 Blessing sent ✨');
+
+        // Also trigger animation locally for the blesser if they're inside
+        if (document.getElementById(`${this.roomId}BlessedCounter`)) {
+            this._showBlessingAnimation();
+            this._refreshBlessingCounter();
+        }
+    }
+
+    /**
+     * Load blessing count from DB and update card badge.
+     */
+    async _loadBlessingCount() {
+        if (!window.CommunityDB || !CommunityDB.ready) return;
+        try {
+            const rows = await CommunityDB.getRoomBlessings(this.roomId);
+            this._updateCardBlessingBadge(rows.length);
+        } catch(e) {}
+    }
+
+    _updateCardBlessingBadge(count) {
+        const btn = document.getElementById(`${this.roomId}BlessBtn`);
+        if (!btn) return;
+        btn.innerHTML = count > 0
+            ? `🙏 Bless <span style="font-size:10px;opacity:0.7;">${count}</span>`
+            : '🙏 Bless';
+    }
+
+    /**
+     * Subscribe to incoming blessings while inside the room.
+     * Called from enterRoom lifecycle.
+     */
+    _subscribeToBlessings() {
+        if (!window.CommunityDB || !CommunityDB.ready) return;
+        CommunityDB.subscribeToBlessings(this.roomId, (payload) => {
+            this._showBlessingAnimation(payload);
+            this._refreshBlessingCounter();
+        });
+    }
+
+    /**
+     * Fetch latest blessings and update the in-room header counter.
+     */
+    async _refreshBlessingCounter() {
+        if (!window.CommunityDB || !CommunityDB.ready) return;
+        try {
+            const rows = await CommunityDB.getRoomBlessings(this.roomId);
+            this._renderBlessingCounter(rows);
+            this._updateCardBlessingBadge(rows.length);
+        } catch(e) {}
+    }
+
+    /**
+     * Render blessing avatars into the header counter element.
+     * @param {Array} rows
+     */
+    _renderBlessingCounter(rows) {
+        const el = document.getElementById(`${this.roomId}BlessedCounter`);
+        if (!el) return;
+
+        if (rows.length === 0) {
+            el.innerHTML = `<span style="font-size:12px;color:var(--text-muted);opacity:0.6;">No blessings yet</span>`;
+            return;
+        }
+
+        const MAX = 5;
+        const shown   = rows.slice(0, MAX);
+        const overflow = rows.length - MAX;
+
+        const avatars = shown.map(row => {
+            const p         = row.profiles || {};
+            const name      = p.name      || 'Member';
+            const avatarUrl = p.avatar_url || '';
+            const emoji     = p.emoji      || '';
+            const initial   = emoji || name.charAt(0).toUpperCase();
+            const gradient  = window.Core?.getAvatarGradient
+                ? Core.getAvatarGradient(row.user_id || name)
+                : 'linear-gradient(135deg,#a78bfa,#7c3aed)';
+            const inner = avatarUrl
+                ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
+                : `<span style="color:white;font-size:9px;font-weight:700;">${initial}</span>`;
+            const bg = avatarUrl ? 'transparent' : gradient;
+            return `<div title="${name}" style="width:22px;height:22px;border-radius:50%;background:${bg};border:2px solid var(--surface);display:flex;align-items:center;justify-content:center;overflow:hidden;margin-left:-6px;flex-shrink:0;">${inner}</div>`;
+        }).join('');
+
+        const overflowBadge = overflow > 0
+            ? `<span style="font-size:10px;color:var(--text-muted);margin-left:4px;">+${overflow}</span>`
+            : '';
+
+        el.innerHTML = `
+            <span style="font-size:11px;color:var(--text-muted);white-space:nowrap;margin-right:4px;">🙏 Blessed by</span>
+            <div style="display:flex;align-items:center;margin-left:6px;">${avatars}</div>
+            ${overflowBadge}`;
+    }
+
+    /**
+     * Full-screen blessing animation — calm floating particles.
+     * Auto-removes after ~3.5 seconds.
+     * @param {Object} [payload] — broadcaster info (optional)
+     */
+    _showBlessingAnimation(payload) {
+        // Don't stack animations
+        if (document.getElementById('blessingAnimationOverlay')) return;
+
+        const overlay = document.createElement('div');
+        overlay.id = 'blessingAnimationOverlay';
+        overlay.style.cssText = `
+            position:fixed;inset:0;pointer-events:none;z-index:999999;
+            display:flex;align-items:center;justify-content:center;
+            overflow:hidden;`;
+
+        // Sender name pill (optional)
+        const senderName = payload?.name ? payload.name : null;
+        const senderHtml = senderName
+            ? `<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+                           background:rgba(0,0,0,0.45);backdrop-filter:blur(8px);
+                           border-radius:40px;padding:10px 24px;
+                           font-size:15px;color:white;font-weight:500;
+                           animation:blessFadeInOut 3.5s ease forwards;white-space:nowrap;">
+                   🙏 ${senderName} sends a blessing
+               </div>`
+            : '';
+
+        // Generate floating particles
+        const SYMBOLS = ['✨','🌸','💜','🌿','⭐','🕊️','💫','🌙'];
+        const particles = Array.from({ length: 28 }, (_, i) => {
+            const sym    = SYMBOLS[i % SYMBOLS.length];
+            const left   = 5 + Math.random() * 90;
+            const delay  = Math.random() * 1.8;
+            const dur    = 2.5 + Math.random() * 1.5;
+            const size   = 14 + Math.random() * 18;
+            const rotate = -30 + Math.random() * 60;
+            return `<div style="position:absolute;bottom:-40px;left:${left}%;
+                                font-size:${size}px;opacity:0;
+                                animation:blessFloat ${dur}s ${delay}s ease-out forwards;
+                                transform:rotate(${rotate}deg);">${sym}</div>`;
+        }).join('');
+
+        overlay.innerHTML = `
+            <style>
+                @keyframes blessFloat {
+                    0%   { transform:translateY(0) scale(0.6);  opacity:0; }
+                    15%  { opacity:1; }
+                    85%  { opacity:0.7; }
+                    100% { transform:translateY(-110vh) scale(1.1); opacity:0; }
+                }
+                @keyframes blessFadeInOut {
+                    0%   { opacity:0; transform:translate(-50%,-50%) scale(0.9); }
+                    15%  { opacity:1; transform:translate(-50%,-50%) scale(1); }
+                    75%  { opacity:1; }
+                    100% { opacity:0; transform:translate(-50%,-50%) scale(1.05); }
+                }
+            </style>
+            ${particles}
+            ${senderHtml}`;
+
+        // Attach to the fullscreen container if inside a room, else body
+        const host = document.getElementById('communityHubFullscreenContainer') || document.body;
+        host.appendChild(overlay);
+
+        setTimeout(() => overlay.remove(), 4000);
+    }
+
     /**
      * Enter the practice room.
      * Creates view, navigates, sets up listeners.
@@ -144,6 +339,12 @@ class PracticeRoom {
             await this.fetchRoomParticipants();
             this.subscribeToRoomParticipants();
         }, 300);
+
+        // Blessings — load counter + subscribe to live broadcasts
+        setTimeout(() => {
+            this._refreshBlessingCounter();
+            this._subscribeToBlessings();
+        }, 400);
     }
     
     /**
@@ -161,6 +362,8 @@ class PracticeRoom {
                 this[sub] = null;
             }
         }
+
+        if (window.CommunityDB) CommunityDB.unsubscribeFromBlessings(this.roomId);
 
         this.cleanup();
         Core.navigateTo('hubView');
@@ -185,6 +388,8 @@ class PracticeRoom {
                 this[sub] = null;
             }
         }
+
+        if (window.CommunityDB) CommunityDB.unsubscribeFromBlessings(this.roomId);
 
         this.cleanup();
         if (this.onLeave) this.onLeave();
@@ -552,12 +757,20 @@ class PracticeRoom {
                          style="max-width: 600px; width: 100%; height: auto; margin: 0; padding: 0; display: block;">
                 </div>
                 
-                <!-- Participants Count -->
-                <div class="ps-participants" style="display: flex; align-items: center; gap: 8px; justify-content: center; margin-top: 16px;">
-                    ${this.buildParticipantAvatars()}
-                    <span style="font-size: 14px; font-weight: 500; letter-spacing: 0.05em;" id="${this.roomId}ParticipantCount">
-                        ${participantText}
-                    </span>
+                <!-- Participants + Blessed counters -->
+                <div style="display:flex;align-items:center;gap:20px;margin-top:16px;flex-wrap:wrap;">
+                    <!-- Online participants (left) -->
+                    <div class="ps-participants" style="display: flex; align-items: center; gap: 8px;">
+                        ${this.buildParticipantAvatars()}
+                        <span style="font-size: 14px; font-weight: 500; letter-spacing: 0.05em;" id="${this.roomId}ParticipantCount">
+                            ${participantText}
+                        </span>
+                    </div>
+                    <!-- Blessed counter (right) -->
+                    <div id="${this.roomId}BlessedCounter"
+                         style="display:flex;align-items:center;gap:4px;opacity:0.85;">
+                        <span style="font-size:12px;color:var(--text-muted);">Loading blessings…</span>
+                    </div>
                 </div>
             </div>
             
@@ -848,6 +1061,19 @@ class PracticeRoom {
             </div>
 
             ${this.buildCardFooter()}
+
+            <!-- Bless button — bottom right, never triggers room entry -->
+            <button id="${this.roomId}BlessBtn"
+                    onclick="event.stopPropagation();${this.roomId}_blessRoom()"
+                    title="Send a blessing to everyone inside"
+                    style="position:absolute;bottom:12px;right:12px;
+                           background:rgba(139,92,246,0.12);border:1.5px solid rgba(139,92,246,0.35);
+                           border-radius:20px;padding:5px 12px;
+                           font-size:12px;color:var(--text-muted);cursor:pointer;
+                           display:flex;align-items:center;gap:5px;
+                           transition:all 0.2s;z-index:3;">
+                🙏 Bless
+            </button>
         </div>`;
     }
 

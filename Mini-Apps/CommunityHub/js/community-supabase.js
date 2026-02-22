@@ -832,6 +832,110 @@ const CommunityDB = {
   },
 
   // ============================================================================
+  // ROOM BLESSINGS
+  // Table: room_blessings (id serial, room_id text, user_id uuid, created_at timestamptz)
+  // One row per user per room (upsert on conflict).
+  //
+  // Run once in Supabase SQL editor:
+  //   CREATE TABLE IF NOT EXISTS room_blessings (
+  //     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  //     room_id text NOT NULL,
+  //     user_id uuid REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  //     created_at timestamptz DEFAULT now(),
+  //     UNIQUE (room_id, user_id)
+  //   );
+  //   ALTER TABLE room_blessings ENABLE ROW LEVEL SECURITY;
+  //   CREATE POLICY "Authenticated users can bless"
+  //     ON room_blessings FOR ALL TO authenticated
+  //     USING (true) WITH CHECK (user_id = auth.uid());
+  // ============================================================================
+
+  /**
+   * Get all blessings for a room, with profile join for avatars.
+   * @param {string} roomId
+   * @returns {Array} rows with { user_id, created_at, profiles: { name, avatar_url, emoji } }
+   */
+  async getRoomBlessings(roomId) {
+    if (!this.ready) return [];
+    const { data, error } = await this._sb
+      .from('room_blessings')
+      .select('user_id, created_at, profiles ( name, avatar_url, emoji )')
+      .eq('room_id', roomId)
+      .order('created_at', { ascending: false });
+    if (error) { console.error('[CommunityDB] getRoomBlessings:', error.message); return []; }
+    return data || [];
+  },
+
+  /**
+   * Bless a room — upserts so each user blesses once (updates timestamp on re-bless).
+   * Then broadcasts the blessing event to all subscribers on that room's channel.
+   * @param {string} roomId
+   * @returns {Object|null} the upserted row
+   */
+  async blessRoom(roomId) {
+    if (!this.ready) return null;
+
+    const { data, error } = await this._sb
+      .from('room_blessings')
+      .upsert(
+        { room_id: roomId, user_id: this._uid },
+        { onConflict: 'room_id,user_id' }
+      )
+      .select('user_id, created_at, profiles ( name, avatar_url, emoji )')
+      .single();
+
+    if (error) { console.error('[CommunityDB] blessRoom:', error.message); return null; }
+
+    // Broadcast to anyone subscribed on this room's bless channel
+    try {
+      await this._sb
+        .channel(`bless-${roomId}`)
+        .send({
+          type: 'broadcast',
+          event: 'blessing',
+          payload: {
+            roomId,
+            userId:    this._uid,
+            name:      data?.profiles?.name      || 'A member',
+            avatarUrl: data?.profiles?.avatar_url || '',
+            emoji:     data?.profiles?.emoji      || '',
+          }
+        });
+    } catch (e) {
+      console.warn('[CommunityDB] blessRoom broadcast failed (non-fatal):', e);
+    }
+
+    return data;
+  },
+
+  /**
+   * Subscribe to blessing broadcasts for a room.
+   * Callback receives { roomId, userId, name, avatarUrl, emoji }.
+   * @param {string} roomId
+   * @param {Function} callback
+   * @returns {RealtimeChannel}
+   */
+  subscribeToBlessings(roomId, callback) {
+    const key = `bless-${roomId}`;
+    if (this._subs[key]) this._subs[key].unsubscribe();
+
+    this._subs[key] = this._sb
+      .channel(key)
+      .on('broadcast', { event: 'blessing' }, ({ payload }) => callback(payload))
+      .subscribe();
+
+    return this._subs[key];
+  },
+
+  unsubscribeFromBlessings(roomId) {
+    const key = `bless-${roomId}`;
+    if (this._subs[key]) {
+      this._subs[key].unsubscribe();
+      delete this._subs[key];
+    }
+  },
+
+  // ============================================================================
   // CLEANUP
   // ============================================================================
 
