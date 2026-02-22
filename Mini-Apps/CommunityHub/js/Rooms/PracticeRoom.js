@@ -84,17 +84,26 @@ class PracticeRoom {
      * container. Called once at init() so modals exist in the DOM from app load,
      * regardless of whether the user has entered the room.
      *
-     * Rooms that need hub-card-accessible modals (e.g. schedule, setup) should
-     * override buildHubModals() to return their modal HTML.
+     * Creates #roomHubModals if it doesn't exist yet (works whether the app
+     * uses a static index.html or a dynamically built DOM via CommunityHubEngine).
      */
     mountHubModals() {
         const html = this.buildHubModals ? this.buildHubModals() : '';
         if (!html) return;
-        const container = document.getElementById('roomHubModals');
-        if (!container) return;
-        // Avoid double-injection on hot-reload
+
+        // Ensure the permanent container exists — create it if needed
+        let container = document.getElementById('roomHubModals');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'roomHubModals';
+            container.style.cssText = 'position:relative;z-index:200000;';
+            document.body.appendChild(container);
+        }
+
+        // Avoid double-injection
         const existing = document.getElementById(`${this.roomId}HubModalsSlot`);
         if (existing) existing.remove();
+
         const slot = document.createElement('div');
         slot.id = `${this.roomId}HubModalsSlot`;
         slot.innerHTML = html;
