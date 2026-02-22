@@ -886,21 +886,39 @@ const CommunityDB = {
 
     if (error) { console.error('[CommunityDB] blessRoom:', error.message); return null; }
 
-    // Broadcast to anyone subscribed on this room's bless channel
+    // Broadcast via the already-subscribed channel if available,
+    // otherwise subscribe, wait for SUBSCRIBED state, then send.
+    const key = `bless-${roomId}`;
+    const payload = {
+      roomId,
+      userId:    this._uid,
+      name:      data?.profiles?.name      || 'A member',
+      avatarUrl: data?.profiles?.avatar_url || '',
+      emoji:     data?.profiles?.emoji      || '',
+    };
+
     try {
-      await this._sb
-        .channel(`bless-${roomId}`)
-        .send({
+      if (this._subs[key]) {
+        // Channel already subscribed — send directly
+        await this._subs[key].send({
           type: 'broadcast',
           event: 'blessing',
-          payload: {
-            roomId,
-            userId:    this._uid,
-            name:      data?.profiles?.name      || 'A member',
-            avatarUrl: data?.profiles?.avatar_url || '',
-            emoji:     data?.profiles?.emoji      || '',
-          }
+          payload,
         });
+      } else {
+        // Subscribe a temporary channel, wait until ready, send, then leave
+        await new Promise((resolve) => {
+          const ch = this._sb
+            .channel(key)
+            .subscribe((status) => {
+              if (status === 'SUBSCRIBED') {
+                ch.send({ type: 'broadcast', event: 'blessing', payload })
+                  .then(() => { ch.unsubscribe(); resolve(); })
+                  .catch(() => { ch.unsubscribe(); resolve(); });
+              }
+            });
+        });
+      }
     } catch (e) {
       console.warn('[CommunityDB] blessRoom broadcast failed (non-fatal):', e);
     }
