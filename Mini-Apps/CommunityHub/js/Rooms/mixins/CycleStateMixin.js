@@ -70,25 +70,35 @@ const CycleStateMixin = {
     calculateCycleState() {
         const now = Date.now();
         const cycleMs = this.config.cycleDuration * 1000;
-        const openMs = this.config.openDuration * 1000;
-        
+        const openMs  = this.config.openDuration  * 1000;
+
         const timeIntoCycle = (now - this.state.cycleStartTime) % cycleMs;
-        
+
+        // Detect cycle boundary: timeIntoCycle wraps back near 0 → new cycle started.
+        // Refresh cycleStartTime and sessions so current/next session titles stay accurate.
+        const currentCycleStart = now - timeIntoCycle;
+        if (currentCycleStart !== this.state.cycleStartTime) {
+            this.state.cycleStartTime = currentCycleStart;
+            if (this.setSessions) this.setSessions(now);
+        }
+
         const isInOpenWindow = timeIntoCycle < openMs;
-        
-        this.state.isOpen = isInOpenWindow;
+
+        this.state.isOpen      = isInOpenWindow;
         this.state.isInSession = !isInOpenWindow;
-        
+
         // Calculate next state transition times
         if (isInOpenWindow) {
             const msUntilClose = openMs - timeIntoCycle;
             this.state.nextSessionStart = now + msUntilClose;
-            this.state.nextOpenTime = now + msUntilClose + (this.config.sessionDuration * 1000);
+            this.state.nextOpenTime     = now + msUntilClose + (this.config.sessionDuration * 1000);
         } else {
+            // Next open window = start of next cycle
             const msUntilNextCycle = cycleMs - timeIntoCycle;
-            this.state.nextOpenTime = now + msUntilNextCycle;
+            this.state.nextOpenTime     = now + msUntilNextCycle;
+            this.state.nextSessionStart = null;
         }
-        
+
         // Auto-start session if user is in room and session begins
         if (this.state.isInSession && !this.state.sessionStarted && this.isUserInRoom()) {
             if (this.startSession) this.startSession();
