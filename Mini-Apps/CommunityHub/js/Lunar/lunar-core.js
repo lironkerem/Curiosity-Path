@@ -202,7 +202,6 @@ class LunarRoom {
             // ✅ DEV_MODE FIX: If not in phase but DEV_MODE is on, use first range as fallback
             if (!activeRange) {
                 if (window.Core?.config?.DEV_MODE) {
-                    console.debug(`DEV MODE: ${this.config.name} using fallback range (phase ${phase.toFixed(3)} outside active range)`);
                     activeRange = this.config.phaseRanges[0];
                 } else {
                     // Not in phase - calculate next occurrence
@@ -228,18 +227,6 @@ class LunarRoom {
                 (activeRange[1] * cycleDuration * LunarRoom.CONSTANTS.MS_PER_DAY)
             );
             
-            // Detailed phase info available in debug console
-            console.debug(`${this.config.name} Phase Calculation:`, {
-                currentPhase: phase.toFixed(3),
-                activeRange: `[${activeRange[0].toFixed(3)}, ${activeRange[1].toFixed(3)}]`,
-                moonAge: age.toFixed(2) + ' days',
-                lastNewMoon: lastNewMoonDate.toLocaleDateString(),
-                phaseStartDate: this.weekStartDate.toLocaleDateString() + ' ' + this.weekStartDate.toLocaleTimeString(),
-                phaseEndDate: this.weekEndDate.toLocaleDateString() + ' ' + this.weekEndDate.toLocaleTimeString(),
-                now: now.toLocaleDateString() + ' ' + now.toLocaleTimeString(),
-                msRemaining: (this.weekEndDate.getTime() - now.getTime()),
-                daysRemaining: this.getDaysRemaining()
-            });
             
         } catch (error) {
             console.error('Error calculating week dates:', error);

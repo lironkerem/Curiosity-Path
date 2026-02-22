@@ -5,11 +5,11 @@
  */
 
 const LunarEngine = {
-    // User location (can be updated from profile)
+    // User location — resolved from browser geolocation on init, falls back to UTC-neutral coords
     location: {
-        latitude: 32.0853,
-        longitude: 34.7818,
-        name: 'Tel Aviv, Israel'
+        latitude: 31.0,
+        longitude: 0.0,
+        name: 'Default'
     },
 
     // Current moon data
@@ -106,8 +106,27 @@ const LunarEngine = {
             console.error('❌ SunCalc library not loaded! Moon visualizations will not work.');
             return;
         }
-        
-        this.updateAll();
+
+        // Resolve user location from browser, then run first update
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    this.location = {
+                        latitude:  pos.coords.latitude,
+                        longitude: pos.coords.longitude,
+                        name:      'Your Location'
+                    };
+                    this.updateAll();
+                },
+                () => {
+                    // Permission denied or unavailable — run with fallback (UTC-neutral coords)
+                    this.updateAll();
+                },
+                { timeout: 5000, maximumAge: 3600000 }
+            );
+        } else {
+            this.updateAll();
+        }
         
         // Update every 10 minutes
         setInterval(() => this.updateAll(), 600000);
@@ -216,17 +235,24 @@ const LunarEngine = {
         // Clear previous moon
         svg.innerHTML = '';
 
+        // Wrap everything in a group so the libration angle rotates the whole moon
+        // SunCalc angle: negative = lit from right (waxing), positive = lit from left (waning)
+        // Convert to degrees and apply as rotation around center
+        const tiltDeg = (angle * 180 / Math.PI) * -1;
+        const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        group.setAttribute('transform', `rotate(${tiltDeg.toFixed(2)}, ${centerX}, ${centerY})`);
+        svg.appendChild(group);
+
         // Create moon circle background (dark side)
         const moonBg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         moonBg.setAttribute('cx', centerX);
         moonBg.setAttribute('cy', centerY);
         moonBg.setAttribute('r', radius);
         moonBg.setAttribute('fill', '#2d3748');
-        svg.appendChild(moonBg);
+        group.appendChild(moonBg);
 
         // Calculate illuminated portion
         const phaseAngle = phase * 2 * Math.PI;
-        const isWaxing = phase < 0.5;
         const offset = Math.cos(phaseAngle) * radius;
 
         // Create illuminated portion
@@ -247,10 +273,10 @@ const LunarEngine = {
 
         moonLight.setAttribute('d', d);
         moonLight.setAttribute('fill', '#f7fafc');
-        svg.appendChild(moonLight);
+        group.appendChild(moonLight);
 
         // Add subtle crater texture
-        this.addMoonCraters(svg, centerX, centerY, radius, phase);
+        this.addMoonCraters(group, centerX, centerY, radius, phase);
     },
 
     addMoonCraters(svg, cx, cy, radius, phase) {
@@ -465,7 +491,7 @@ const LunarEngine = {
                             <div class="moon-phase-name" id="moonPhaseName">${data.phaseName}</div>
                             <div class="moon-illumination" id="moonIllumination">${Math.round(data.fraction * 100)}% illuminated</div>
                             <div class="moon-age" id="moonAge">${data.age.toFixed(1)} days old</div>
-                            ${devMode ? `<div style="color: var(--primary); font-size: 11px; margin-top: 4px;">Phase: ${data.phase.toFixed(3)}</div>` : ''}
+
                         </div>
                         <div class="next-phase" id="nextPhase">
                             Next Full Moon: ${this.formatDate(data.nextFullMoon)} (${Math.ceil((data.nextFullMoon - new Date()) / (1000 * 60 * 60 * 24))} days)
@@ -578,7 +604,6 @@ const LunarEngine = {
 
     // DEV MODE: Join any room directly
     devJoinRoom(roomId) {
-        console.log(`🔧 DEV MODE: Joining ${roomId}`);
         
         if (roomId === 'new-moon' && window.NewMoonRoom) {
             window.NewMoonRoom.enterRoom();
@@ -607,4 +632,6 @@ const LunarEngine = {
 };
 
 // Expose globally
+        console.log('🌙 Lunar Engine Initialized');
+        console.log(`🔧 DEV MODE: Joining ${roomId}`);
 window.LunarEngine = LunarEngine;
