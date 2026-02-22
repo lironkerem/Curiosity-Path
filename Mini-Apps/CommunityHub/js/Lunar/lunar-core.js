@@ -51,6 +51,7 @@ class LunarRoom {
         this.collectiveWords = null;
         this.saveDebounceTimer = null;
         this._retryCheckTimeout = null; // ✅ ADDED: For retrying LunarEngine check
+        this._hasLoggedWaiting = false;   // Ensures "Waiting..." logs only once per room
         this.eventListeners = []; // Track for cleanup
         
         // User data structure with defaults
@@ -139,9 +140,11 @@ class LunarRoom {
         try {
             // Check if LunarEngine is ready (required for both DEV and production)
             if (!window.LunarEngine?.currentMoonData) {
-                // Only log the first time, not on every retry
-                if (!this._retryCheckTimeout) {
+                if (!this._hasLoggedWaiting) {
                     console.log(`⏳ ${this.config.name}: Waiting for LunarEngine...`);
+                    this._hasLoggedWaiting = true;
+                }
+                if (!this._retryCheckTimeout) {
                     this._retryCheckTimeout = setTimeout(() => {
                         this._retryCheckTimeout = null;
                         this.checkIfWeekActive();

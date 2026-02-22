@@ -280,7 +280,13 @@ class CommunityHubEngine {
         this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunar-core.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunar-ui.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunar-config.js'),
+        this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunarengine.js'),
       ]);
+
+      // Initialize LunarEngine now — lunar room configs (Group 5) need currentMoonData ready
+      if (window.LunarEngine && typeof window.LunarEngine.init === 'function') {
+        window.LunarEngine.init();
+      }
 
       // GROUP 4a: Solar base must load sequentially (solar-ui → solar-base-room)
       await this.loadScript('/Mini-Apps/CommunityHub/js/Solar/solar-ui.js');
@@ -297,8 +303,6 @@ class CommunityHubEngine {
         this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/campfire-room.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/tarot-room.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/Rooms/reiki-room.js'),
-        // Lunar engine
-        this.loadScript('/Mini-Apps/CommunityHub/js/Lunar/lunarengine.js'),
         // Dynamic sections
         this.loadScript('/Mini-Apps/CommunityHub/js/active-members.js'),
         this.loadScript('/Mini-Apps/CommunityHub/js/collective-field.js'),
