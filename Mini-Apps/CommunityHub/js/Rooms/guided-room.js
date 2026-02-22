@@ -165,33 +165,61 @@ class GuidedRoom extends PracticeRoom {
         const modal = document.getElementById(`${this.roomId}ScheduleModal`);
         const content = document.getElementById(`${this.roomId}ScheduleContent`);
         if (!modal || !content) return;
-        
-        const now = new Date();
-        const currentHour = now.getHours();
-        
+
+        const now      = Date.now();
+        const cycleMs  = this.config.cycleDuration * 1000;  // 3600000 ms (1 hour)
+        const openMs   = this.config.openDuration  * 1000;  // 900000 ms (15 min)
+
+        // Current cycle index anchored to Unix epoch (same for all users)
+        const currentCycle = Math.floor(now / cycleMs);
+
         let scheduleHTML = '<div class="schedule-list">';
-        
-        // Generate 24-hour schedule
-        for (let i = 0; i < 24; i++) {
-            const hour = i;
-            const meditationIndex = hour % this.meditations.length;
-            const meditation = this.meditations[meditationIndex];
-            const isCurrent = hour === currentHour;
-            const isPast = hour < currentHour;
-            
+
+        // Current session + next 5 = 6 rows
+        for (let i = 0; i < 6; i++) {
+            const cycleIndex      = currentCycle + i;
+            const cycleStartMs    = cycleIndex * cycleMs;           // when this cycle's open window starts
+            const cycleCloseMs    = cycleStartMs + openMs;          // when entry closes (:15)
+            const meditationIndex = cycleIndex % this.meditations.length;
+            const meditation      = this.meditations[meditationIndex];
+
+            const isCurrent = i === 0;
+            const timeIntoCycle = now - cycleStartMs;
+            const isOpen        = isCurrent && timeIntoCycle >= 0 && timeIntoCycle < openMs;
+            const isInSession   = isCurrent && timeIntoCycle >= openMs;
+
+            // Local wall-clock open time (e.g. "3:00 PM")
+            const openDate  = new Date(cycleStartMs);
+            const closeDate = new Date(cycleCloseMs);
+            const openStr   = openDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+            const closeStr  = closeDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+            let badge = '';
+            let rowStyle = 'background: var(--surface);';
+            if (isOpen) {
+                badge    = '<span style="background:#22c55e;color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px;">OPEN NOW</span>';
+                rowStyle = 'background: var(--accent); color: white;';
+            } else if (isInSession) {
+                badge    = '<span style="background:rgba(239,68,68,0.15);color:#ef4444;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px;">IN SESSION</span>';
+            }
+
             scheduleHTML += `
-                <div class="schedule-item ${isCurrent ? 'current' : ''} ${isPast ? 'past' : ''}" 
-                     style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: var(--radius-md); margin-bottom: 8px; ${isCurrent ? 'background: var(--accent); color: white;' : 'background: var(--surface);'}">
-                    <div class="schedule-time" style="font-weight: 600; min-width: 80px;">${this.formatHour(hour)}</div>
-                    <div class="schedule-meditation" style="flex: 1; display: flex; align-items: center; gap: 8px;">
-                        <span class="meditation-emoji" style="font-size: 20px;">${meditation.emoji}</span>
-                        <span class="meditation-title" style="font-size: 14px;">${meditation.title}</span>
+                <div class="schedule-item ${isCurrent ? 'current' : ''}"
+                     style="display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:var(--radius-md);margin-bottom:8px;${rowStyle}">
+                    <div style="display:flex;align-items:center;gap:12px;flex:1;">
+                        <span style="font-size:22px;">${meditation.emoji}</span>
+                        <div>
+                            <div style="font-weight:600;font-size:14px;">${meditation.title}${badge}</div>
+                            <div style="font-size:11px;opacity:0.7;">${meditation.duration}</div>
+                        </div>
                     </div>
-                    <div class="schedule-duration" style="font-size: 12px; opacity: 0.7;">${meditation.duration}</div>
-                </div>
-            `;
+                    <div style="text-align:right;font-size:12px;white-space:nowrap;margin-left:12px;">
+                        <div style="font-weight:600;">${openStr}</div>
+                        <div style="opacity:0.6;">closes ${closeStr}</div>
+                    </div>
+                </div>`;
         }
-        
+
         scheduleHTML += '</div>';
         content.innerHTML = scheduleHTML;
         modal.classList.add('active');
