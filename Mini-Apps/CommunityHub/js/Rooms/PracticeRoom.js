@@ -319,8 +319,7 @@ class PracticeRoom {
      * PATCHED: Updates Supabase presence with room ID after entry.
      */
     enterRoom() {
-        const isAdmin = Core.state?.currentUser?.is_admin === true;
-        if (!isAdmin && !this.canEnterRoom()) {
+        if (!this.canEnterRoom()) {
             Core.showToast('Session in progress. Please wait for the next opening.');
             return;
         }
@@ -346,6 +345,11 @@ class PracticeRoom {
             this._refreshBlessingCounter();
             this._subscribeToBlessings();
         }, 400);
+
+        // Log room entry for admin dashboard stats
+        CommunityDB.logRoomEntry(this.roomId).then(entryId => {
+            this._roomEntryId = entryId;
+        }).catch(() => {});
     }
     
     /**
@@ -355,6 +359,12 @@ class PracticeRoom {
      */
     leaveRoom() {
         this._clearRoomPresence();
+
+        // Log room exit for admin dashboard stats
+        if (this._roomEntryId) {
+            CommunityDB.logRoomExit(this._roomEntryId).catch(() => {});
+            this._roomEntryId = null;
+        }
 
         // Unsubscribe from room-level presence subscriptions
         for (const sub of ['_presenceSub', '_sidebarPresenceSub']) {
@@ -381,6 +391,12 @@ class PracticeRoom {
      */
     gentlyLeave() {
         this._clearRoomPresence();
+
+        // Log room exit for admin dashboard stats
+        if (this._roomEntryId) {
+            CommunityDB.logRoomExit(this._roomEntryId).catch(() => {});
+            this._roomEntryId = null;
+        }
 
         // Unsubscribe from room-level presence subscriptions
         for (const sub of ['_presenceSub', '_sidebarPresenceSub']) {
@@ -986,15 +1002,11 @@ class PracticeRoom {
         
         // Update active state for timed rooms
         if (this.roomType === 'timed') {
-            const isOpen  = this.canEnterRoom();
-            const isAdmin = Core.state?.currentUser?.is_admin === true;
-            const canClick = isOpen || isAdmin;
-            roomCard.style.cursor  = canClick ? 'pointer' : 'not-allowed';
-            roomCard.style.opacity = canClick ? '1' : '0.55';
-            roomCard.style.border  = isAdmin && !isOpen
-                ? '3px solid rgba(139,92,246,0.7)'
-                : `3px solid ${isOpen ? '#22c55e' : '#ef4444'}`;
-            roomCard.onclick       = canClick ? () => this.enterRoom() : null;
+            const isOpen = this.canEnterRoom();
+            roomCard.style.cursor  = isOpen ? 'pointer' : 'not-allowed';
+            roomCard.style.opacity = isOpen ? '1' : '0.55';
+            roomCard.style.border  = `3px solid ${isOpen ? '#22c55e' : '#ef4444'}`;
+            roomCard.onclick       = isOpen ? () => this.enterRoom() : null;
 
             // Show/hide "In Session" overlay label
             let overlay = roomCard.querySelector('.in-session-label');
@@ -1032,17 +1044,13 @@ class PracticeRoom {
     getRoomCardHTML() {
         const isOpen      = this.canEnterRoom();
         const isTimed     = this.roomType === 'timed';
-        const isAdmin     = Core.state?.currentUser?.is_admin === true;
-        const canClick    = isOpen || isAdmin;
-        // Always-open → green. Timed + open → green. Timed + admin override → purple. Timed + closed → red.
-        const borderColor = !isTimed || isOpen ? '#22c55e'
-                          : isAdmin            ? 'rgba(139,92,246,0.7)'
-                          :                      '#ef4444';
-        const cursor      = canClick ? 'pointer' : 'not-allowed';
-        const opacity     = canClick ? '1' : '0.55';
+        // Always-open → always green. Timed → green when open, red when in-session.
+        const borderColor = (!isTimed || isOpen) ? '#22c55e' : '#ef4444';
+        const cursor      = isOpen ? 'pointer' : 'not-allowed';
+        const opacity     = isOpen ? '1' : '0.55';
         const methodName  = `${this.roomId}_enterRoom`;
         window[methodName] = () => this.enterRoom();
-        const clickHandler = canClick ? `onclick="${methodName}()"` : '';
+        const clickHandler = isOpen ? `onclick="${methodName}()"` : '';
 
         return `
         <div class="practice-room ${isOpen ? 'active' : 'in-session'}"
@@ -1152,9 +1160,8 @@ class PracticeRoom {
      * @returns {string} Badge HTML or empty string
      */
     getDevModeBadge() {
-        const isAdmin = Core.state?.currentUser?.is_admin === true;
-        if (isAdmin) {
-            return '<span style="position: absolute; top: 8px; right: 8px; background: rgba(139,92,246,0.85); color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.05em;">ADMIN</span>';
+        if (this.devMode) {
+            return '<span style="position: absolute; top: 8px; right: 8px; background: #ff6b6b; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700;">DEV MODE</span>';
         }
         return '';
     }

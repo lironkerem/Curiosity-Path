@@ -176,6 +176,7 @@ const Core = {
             window.LunarEngine,
             window.SolarEngine,
             window.UpcomingEvents,
+            window.AdminDashboard,
         ];
         modules.forEach(m => {
             if (m && typeof m.injectAdminUI === 'function') {
@@ -194,6 +195,7 @@ const Core = {
             window.LunarEngine,
             window.SolarEngine,
             window.UpcomingEvents,
+            window.AdminDashboard,
         ];
         modules.forEach(m => {
             if (m && typeof m.injectAdminUI === 'function') {

@@ -992,6 +992,222 @@ const CommunityDB = {
     return true;
   },
 
+  // ============================================================================
+  // ADMIN DASHBOARD QUERIES
+  // ============================================================================
+
+  async getAdminNotifications(limit = 50) {
+    if (!this.ready) return [];
+    const { data, error } = await this._sb
+      .from('admin_notifications')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error) { console.error('[CommunityDB] getAdminNotifications:', error.message); return []; }
+    return data || [];
+  },
+
+  async markNotificationRead(id) {
+    if (!this.ready) return false;
+    const { error } = await this._sb
+      .from('admin_notifications')
+      .update({ read: true })
+      .eq('id', id);
+    if (error) { console.error('[CommunityDB] markNotificationRead:', error.message); return false; }
+    return true;
+  },
+
+  async markAllNotificationsRead() {
+    if (!this.ready) return false;
+    const { error } = await this._sb
+      .from('admin_notifications')
+      .update({ read: true })
+      .eq('read', false);
+    if (error) { console.error('[CommunityDB] markAllNotificationsRead:', error.message); return false; }
+    return true;
+  },
+
+  async getUnreadNotificationCount() {
+    if (!this.ready) return 0;
+    const { count, error } = await this._sb
+      .from('admin_notifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('read', false);
+    if (error) { console.error('[CommunityDB] getUnreadNotificationCount:', error.message); return 0; }
+    return count || 0;
+  },
+
+  async getAdminMemberStats() {
+    if (!this.ready) return {};
+    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const fiveMinsAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+
+    const [totalRes, newRes, onlineRes] = await Promise.all([
+      this._sb.from('profiles').select('*', { count: 'exact', head: true }),
+      this._sb.from('profiles').select('*', { count: 'exact', head: true }).gte('updated_at', oneWeekAgo),
+      this._sb.from('community_presence').select('*', { count: 'exact', head: true })
+        .neq('status', 'offline').gte('last_seen', fiveMinsAgo),
+    ]);
+
+    return {
+      total:     totalRes.count  || 0,
+      newThisWeek: newRes.count  || 0,
+      onlineNow: onlineRes.count || 0,
+    };
+  },
+
+  async getAdminEngagementStats() {
+    if (!this.ready) return {};
+    const todayStart = new Date();
+    todayStart.setUTCHours(0, 0, 0, 0);
+    const todayISO = todayStart.toISOString();
+
+    const [reflToday, reflTotal, whispToday, apprToday] = await Promise.all([
+      this._sb.from('community_reflections').select('*', { count: 'exact', head: true }).gte('created_at', todayISO),
+      this._sb.from('community_reflections').select('*', { count: 'exact', head: true }),
+      this._sb.from('community_whispers').select('*', { count: 'exact', head: true }).gte('created_at', todayISO),
+      this._sb.from('community_appreciations').select('*', { count: 'exact', head: true }).gte('created_at', todayISO),
+    ]);
+
+    return {
+      reflectionsToday: reflToday.count  || 0,
+      reflectionsTotal: reflTotal.count  || 0,
+      whispersToday:    whispToday.count || 0,
+      appreciationsToday: apprToday.count || 0,
+    };
+  },
+
+  async getLeaderboard() {
+    if (!this.ready) return { xp: [], karma: [] };
+    const { data, error } = await this._sb
+      .from('user_progress')
+      .select('user_id, payload, profiles(name, emoji, avatar_url)')
+      .order('payload->xp', { ascending: false })
+      .limit(5);
+    if (error) { console.error('[CommunityDB] getLeaderboard:', error.message); return { xp: [], karma: [] }; }
+
+    const sorted = (data || []).filter(r => r.profiles);
+    const byXP    = [...sorted].sort((a, b) => (b.payload?.xp    || 0) - (a.payload?.xp    || 0)).slice(0, 3);
+    const byKarma = [...sorted].sort((a, b) => (b.payload?.karma || 0) - (a.payload?.karma || 0)).slice(0, 3);
+
+    return { xp: byXP, karma: byKarma };
+  },
+
+  async getRoomUsageToday() {
+    if (!this.ready) return [];
+    const todayStart = new Date();
+    todayStart.setUTCHours(0, 0, 0, 0);
+
+    const { data, error } = await this._sb
+      .from('room_entries')
+      .select('room_id, duration_seconds')
+      .gte('entered_at', todayStart.toISOString());
+    if (error) { console.error('[CommunityDB] getRoomUsageToday:', error.message); return []; }
+
+    // Aggregate by room
+    const map = {};
+    (data || []).forEach(row => {
+      if (!map[row.room_id]) map[row.room_id] = { room_id: row.room_id, entries: 0, totalSeconds: 0 };
+      map[row.room_id].entries++;
+      map[row.room_id].totalSeconds += row.duration_seconds || 0;
+    });
+
+    return Object.values(map).sort((a, b) => b.entries - a.entries);
+  },
+
+  async getPushSubscriptionCount() {
+    if (!this.ready) return 0;
+    const { count, error } = await this._sb
+      .from('push_subscriptions')
+      .select('*', { count: 'exact', head: true });
+    if (error) { console.error('[CommunityDB] getPushSubscriptionCount:', error.message); return 0; }
+    return count || 0;
+  },
+
+  async getRetentionSignals() {
+    if (!this.ready) return { quietMembers: [], streakMembers: [] };
+    const oneWeekAgo  = new Date(Date.now() - 7  * 24 * 60 * 60 * 1000).toISOString();
+    const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
+    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+
+    const [activeLastWeek, activeTwoWeeks, recentlyActive] = await Promise.all([
+      this._sb.from('community_presence').select('user_id, profiles(name, emoji)')
+        .gte('last_seen', oneWeekAgo).neq('status', 'offline'),
+      this._sb.from('community_presence').select('user_id')
+        .gte('last_seen', twoWeeksAgo).lt('last_seen', oneWeekAgo),
+      this._sb.from('community_presence').select('user_id, profiles(name, emoji)')
+        .gte('last_seen', threeDaysAgo),
+    ]);
+
+    const lastWeekIds = new Set((activeLastWeek.data || []).map(r => r.user_id));
+    const twoWeekIds  = new Set((activeTwoWeeks.data  || []).map(r => r.user_id));
+
+    // Quiet: active 2 weeks ago but not last week
+    const quietMembers = [...twoWeekIds]
+      .filter(id => !lastWeekIds.has(id))
+      .slice(0, 5);
+
+    // Streak: active last 3 days continuously
+    const streakMembers = (recentlyActive.data || [])
+      .filter(r => r.profiles)
+      .slice(0, 5)
+      .map(r => ({ user_id: r.user_id, name: r.profiles?.name, emoji: r.profiles?.emoji }));
+
+    return { quietMembers, streakMembers };
+  },
+
+  async getSafetyStats() {
+    if (!this.ready) return {};
+    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+    const [reportsWeek, blockedTotal, notifUnread] = await Promise.all([
+      this._sb.from('admin_notifications').select('*', { count: 'exact', head: true })
+        .eq('type', 'report').gte('created_at', oneWeekAgo),
+      this._sb.from('blocked_users').select('*', { count: 'exact', head: true }),
+      this._sb.from('admin_notifications').select('*', { count: 'exact', head: true }).eq('read', false),
+    ]);
+
+    return {
+      reportsThisWeek: reportsWeek.count  || 0,
+      blockedTotal:    blockedTotal.count  || 0,
+      unreadNotifs:    notifUnread.count   || 0,
+    };
+  },
+
+  async getRecentReflectionsAdmin(limit = 5) {
+    if (!this.ready) return [];
+    const { data, error } = await this._sb
+      .from('community_reflections')
+      .select('id, content, created_at, profiles(id, name, emoji, avatar_url)')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error) { console.error('[CommunityDB] getRecentReflectionsAdmin:', error.message); return []; }
+    return data || [];
+  },
+
+  async logRoomEntry(roomId) {
+    if (!this.ready) return null;
+    const { data, error } = await this._sb
+      .from('room_entries')
+      .insert({ user_id: this._uid, room_id: roomId })
+      .select('id')
+      .single();
+    if (error) { console.error('[CommunityDB] logRoomEntry:', error.message); return null; }
+    return data?.id || null;
+  },
+
+  async logRoomExit(entryId) {
+    if (!entryId || !this.ready) return;
+    const { data: entry } = await this._sb
+      .from('room_entries').select('entered_at').eq('id', entryId).single();
+    if (!entry) return;
+    const seconds = Math.round((Date.now() - new Date(entry.entered_at).getTime()) / 1000);
+    await this._sb.from('room_entries')
+      .update({ left_at: new Date().toISOString(), duration_seconds: seconds })
+      .eq('id', entryId);
+  },
+
+
 };
 
 console.log('✅ community-supabase.js loaded');
