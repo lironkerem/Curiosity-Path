@@ -38,32 +38,45 @@ const AdminDashboard = {
         const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
         if (!isAdmin) return;
 
-        // Find hub header or top bar to inject into
-        const target = document.querySelector('.hub-header, .community-header, #communityHubHeader, .section-header')
-                    || document.querySelector('.hub-controls, #hubControls')
+        // Inject as a static section at the bottom of the hub, after upcomingEventsContainer
+        const anchor = document.getElementById('upcomingEventsContainer')
+                    || document.querySelector('.sanctuary-content')
                     || document.body;
 
         const badge = document.createElement('div');
         badge.id = 'adminDashBadge';
+        badge.style.cssText = 'padding: 0 0 32px;';
         badge.innerHTML = `
-            <button onclick="AdminDashboard.openDashboard()"
-                    title="Admin Dashboard"
-                    style="position:fixed;top:16px;right:16px;z-index:9000;
-                           width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;
-                           background:rgba(139,92,246,0.9);color:#fff;
-                           font-size:18px;display:flex;align-items:center;justify-content:center;
-                           box-shadow:0 4px 16px rgba(139,92,246,0.4);
-                           transition:transform 0.15s,box-shadow 0.15s;"
-                    onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 6px 20px rgba(139,92,246,0.6)'"
-                    onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 16px rgba(139,92,246,0.4)'">
-                🛡️
-                <span id="adminDashUnreadBadge"
-                      style="display:none;position:absolute;top:-4px;right:-4px;
-                             background:#ef4444;color:#fff;border-radius:99px;
-                             font-size:10px;font-weight:700;padding:2px 5px;
-                             min-width:16px;text-align:center;border:2px solid #fff;
-                             animation:adminPulse 1.5s infinite;">0</span>
-            </button>`;
+            <section class="section">
+                <div class="section-header">
+                    <div class="section-title">🛡️ Admin Tools</div>
+                    <div style="font-size:12px;color:var(--text-muted);">
+                        <span id="adminDashUnreadBadge"
+                              style="display:none;background:#ef4444;color:#fff;border-radius:99px;
+                                     font-size:10px;font-weight:700;padding:2px 8px;margin-right:6px;
+                                     animation:adminPulse 1.5s infinite;">0 new</span>
+                        Community management
+                    </div>
+                </div>
+                <button onclick="AdminDashboard.openDashboard()"
+                        style="width:100%;padding:14px;border-radius:14px;border:none;cursor:pointer;
+                               font-size:0.92rem;font-weight:700;letter-spacing:0.3px;
+                               background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.9);
+                               border:1.5px solid rgba(139,92,246,0.25);
+                               display:flex;align-items:center;justify-content:center;gap:10px;
+                               transition:background 0.15s,box-shadow 0.15s;"
+                        onmouseover="this.style.background='rgba(139,92,246,0.18)';this.style.boxShadow='0 4px 16px rgba(139,92,246,0.2)'"
+                        onmouseout="this.style.background='rgba(139,92,246,0.1)';this.style.boxShadow='none'">
+                    🛡️ Open Admin Dashboard
+                </button>
+            </section>`;
+
+        // Insert after upcomingEventsContainer if found, else append
+        if (anchor.id === 'upcomingEventsContainer') {
+            anchor.insertAdjacentElement('afterend', badge);
+        } else {
+            anchor.appendChild(badge);
+        }
 
         // Inject pulse animation
         if (!document.getElementById('adminDashStyles')) {
@@ -338,39 +351,63 @@ const AdminDashboard = {
     },
 
     async _renderMembers(el) {
-        const [stats, members] = await Promise.all([
+        const [stats, activeMembers, allProfiles] = await Promise.all([
             CommunityDB.getAdminMemberStats(),
             CommunityDB.getActiveMembers(),
+            CommunityDB._sb.from('profiles').select('id, name, emoji, avatar_url, community_status')
+                .order('name').then(r => r.data || []),
         ]);
+
+        // Build a map of active presence rows by user_id
+        const presenceMap = {};
+        activeMembers.forEach(m => { presenceMap[m.user_id] = m; });
+
+        const renderMember = (p, presence) => {
+            const status   = presence?.status || 'offline';
+            const activity = presence?.activity || '💤 Offline';
+            const dot      = status === 'online' ? '#22c55e' : status === 'away' ? '#f59e0b' : '#aaa';
+            return `
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;
+                            margin-bottom:4px;background:rgba(255,255,255,0.5);cursor:pointer;"
+                     onclick="MemberProfileModal?.open('${p.id}')">
+                    <div style="width:32px;height:32px;border-radius:50%;
+                                background:${Core.getAvatarGradient(p.id)};
+                                display:flex;align-items:center;justify-content:center;
+                                font-size:0.9rem;color:#fff;flex-shrink:0;overflow:hidden;">
+                        ${p.avatar_url
+                            ? `<img src="${p.avatar_url}" style="width:100%;height:100%;object-fit:cover;">`
+                            : (p.emoji || (p.name || '?').charAt(0))}
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:0.85rem;font-weight:600;">${this._esc(p.name || 'Member')}</div>
+                        <div style="font-size:0.75rem;color:var(--text-muted,#888);">${this._esc(activity)}</div>
+                    </div>
+                    <span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;background:${dot};"></span>
+                </div>`;
+        };
+
+        // Split into online/away and offline
+        const activeList  = activeMembers;
+        const activeIds   = new Set(activeMembers.map(m => m.user_id));
+        const offlineList = allProfiles.filter(p => !activeIds.has(p.id));
 
         el.innerHTML = `
             <div class="admin-stat-grid" style="margin-bottom:16px;">
                 ${this._statCard(stats.total || 0, 'Total Members')}
                 ${this._statCard(stats.onlineNow || 0, 'Online Now')}
                 ${this._statCard(stats.newThisWeek || 0, 'New This Week')}
+                ${this._statCard(offlineList.length, 'Offline')}
             </div>
+
             <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
-                        color:var(--text-muted,#888);margin-bottom:8px;">Online Members</div>
-            ${members.length ? members.map(m => {
-                const p = m.profiles || {};
-                return `
-                <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;
-                            margin-bottom:4px;background:rgba(255,255,255,0.5);cursor:pointer;"
-                     onclick="MemberProfileModal?.open('${m.user_id}')">
-                    <div style="width:32px;height:32px;border-radius:50%;
-                                background:${Core.getAvatarGradient(m.user_id)};
-                                display:flex;align-items:center;justify-content:center;
-                                font-size:0.9rem;color:#fff;flex-shrink:0;">
-                        ${p.emoji || (p.name || '?').charAt(0)}
-                    </div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="font-size:0.85rem;font-weight:600;">${this._esc(p.name || 'Member')}</div>
-                        <div style="font-size:0.75rem;color:var(--text-muted,#888);">${this._esc(m.activity || '')}</div>
-                    </div>
-                    <span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;
-                                 background:${m.status === 'online' ? '#22c55e' : '#f59e0b'};"></span>
-                </div>`;
-            }).join('') : '<div style="color:var(--text-muted,#888);font-size:0.83rem;">No members online.</div>'}`;
+                        color:var(--text-muted,#888);margin-bottom:8px;">🟢 Online & Away</div>
+            ${activeList.length
+                ? activeList.map(m => renderMember(m.profiles || { id: m.user_id, name: 'Member' }, m)).join('')
+                : '<div style="color:var(--text-muted,#888);font-size:0.83rem;margin-bottom:12px;">No members online.</div>'}
+
+            <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+                        color:var(--text-muted,#888);margin:12px 0 8px;">⚫ Offline (${offlineList.length})</div>
+            ${offlineList.map(p => renderMember(p, null)).join('')}`;
     },
 
     async _renderEngagement(el) {
