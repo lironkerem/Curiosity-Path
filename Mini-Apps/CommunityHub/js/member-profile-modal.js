@@ -1007,6 +1007,7 @@ const MemberProfileModal = {
             await this._adminPushNotify(this.state.currentUserId, '🎁 Gift from Aanandoham!', `You received +${amount} XP!`);
             Core.showToast(`✓ Sent ${amount} XP`);
             this._closeAdminSubs();
+            if (this.state.currentUserId === CommunityDB.userId) await this._refreshMainProfileStats();
         } catch (err) {
             console.error('[AdminPanel] sendXP error:', err);
             Core.showToast('❌ Could not send XP');
@@ -1033,6 +1034,7 @@ const MemberProfileModal = {
             await this._adminPushNotify(this.state.currentUserId, '🎁 Gift from Aanandoham!', `You received +${amount} Karma!`);
             Core.showToast(`✓ Sent ${amount} Karma`);
             this._closeAdminSubs();
+            if (this.state.currentUserId === CommunityDB.userId) await this._refreshMainProfileStats();
         } catch (err) {
             console.error('[AdminPanel] sendKarma error:', err);
             Core.showToast('❌ Could not send Karma');
@@ -1175,6 +1177,33 @@ const MemberProfileModal = {
     },
 
     // --- Push notification helper ---
+    // Refresh main profile hero stats if we just modified our own gamification
+    async _refreshMainProfileStats() {
+        try {
+            const g = await CommunityDB.getUserProgress(CommunityDB.userId);
+            if (!g) return;
+            // Update in-memory gamification state so main app stays in sync
+            if (window.app?.gamification?.state) {
+                if (g.xp    !== undefined) window.app.gamification.state.xp    = g.xp;
+                if (g.karma !== undefined) window.app.gamification.state.karma = g.karma;
+            }
+            // Update Core.state too
+            if (window.Core?.state?.currentUser) {
+                if (g.xp    !== undefined) Core.state.currentUser.xp    = g.xp;
+                if (g.karma !== undefined) Core.state.currentUser.karma = g.karma;
+            }
+            // Update profile hero DOM elements directly
+            const xpEl    = document.getElementById('statXP');
+            const karmaEl = document.getElementById('statKarma');
+            if (xpEl    && g.xp    !== undefined) xpEl.textContent    = g.xp;
+            if (karmaEl && g.karma !== undefined) karmaEl.textContent = g.karma;
+            // Also re-render the member modal stats if still open
+            this._populateGamification(g);
+        } catch (e) {
+            console.warn('[AdminPanel] _refreshMainProfileStats:', e);
+        }
+    },
+
     async _adminPushNotify(userId, title, body) {
         try {
             const { data: subs } = await CommunityDB._sb
