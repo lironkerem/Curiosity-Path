@@ -71,11 +71,15 @@ const AdminDashboard = {
                 </button>
             </section>`;
 
-        // Insert after upcomingEventsContainer if found, else append
-        if (anchor.id === 'upcomingEventsContainer') {
-            anchor.insertAdjacentElement('afterend', badge);
-        } else {
+        // Always insert after upcomingEventsContainer
+        const upcoming = document.getElementById('upcomingEventsContainer');
+        if (upcoming) {
+            upcoming.insertAdjacentElement('afterend', badge);
+        } else if (anchor.id !== anchor.id) { // fallback
             anchor.appendChild(badge);
+        } else {
+            document.querySelector('.sanctuary-content')?.appendChild(badge)
+            || document.body.appendChild(badge);
         }
 
         // Inject pulse animation
@@ -444,7 +448,12 @@ const AdminDashboard = {
 
         const lunarRoom = lunar?.currentLunarRoom;
         const lunarData = lunar?.currentMoonData;
-        const solarRoom = solar?._currentRoom;
+
+        // SolarEngine exposes getCurrentSeason() and solarRooms[]
+        const solarSeason = solar?.getCurrentSeason?.() || null;
+        const solarRoom   = solarSeason
+            ? solar?.solarRooms?.find(r => r.season === solarSeason)
+            : null;
 
         el.innerHTML = `
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -457,7 +466,8 @@ const AdminDashboard = {
                 </div>
                 <div style="background:rgba(251,191,36,0.08);border-radius:12px;padding:14px;border:1px solid rgba(251,191,36,0.2);">
                     <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted,#888);margin-bottom:6px;">☀️ Solar</div>
-                    <div style="font-size:0.9rem;font-weight:600;">${solar?._currentSeason || 'Loading...'}</div>
+                    <div style="font-size:0.9rem;font-weight:600;">${solarRoom?.roomName || solarSeason || 'Loading...'}</div>
+                    <div style="font-size:0.78rem;color:var(--text-muted,#888);margin-top:2px;">Season: ${solarSeason || '—'}</div>
                     <div style="font-size:0.78rem;margin-top:6px;">Active room: <strong>${solarRoom?.roomName || '—'}</strong></div>
                 </div>
             </div>`;

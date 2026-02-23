@@ -1063,10 +1063,10 @@ const CommunityDB = {
     const todayISO = todayStart.toISOString();
 
     const [reflToday, reflTotal, whispToday, apprToday] = await Promise.all([
-      this._sb.from('community_reflections').select('*', { count: 'exact', head: true }).gte('created_at', todayISO),
-      this._sb.from('community_reflections').select('*', { count: 'exact', head: true }),
-      this._sb.from('community_whispers').select('*', { count: 'exact', head: true }).gte('created_at', todayISO),
-      this._sb.from('community_appreciations').select('*', { count: 'exact', head: true }).gte('created_at', todayISO),
+      this._sb.from('reflections').select('*', { count: 'exact', head: true }).gte('created_at', todayISO),
+      this._sb.from('reflections').select('*', { count: 'exact', head: true }),
+      this._sb.from('whispers').select('*', { count: 'exact', head: true }).gte('created_at', todayISO),
+      this._sb.from('appreciations').select('*', { count: 'exact', head: true }).gte('created_at', todayISO),
     ]);
 
     return {
@@ -1079,16 +1079,27 @@ const CommunityDB = {
 
   async getLeaderboard() {
     if (!this.ready) return { xp: [], karma: [] };
-    const { data, error } = await this._sb
+    // user_progress has no direct FK to profiles — fetch separately and join in JS
+    const { data: progress, error } = await this._sb
       .from('user_progress')
-      .select('user_id, payload, profiles(name, emoji, avatar_url)')
-      .order('payload->xp', { ascending: false })
-      .limit(5);
+      .select('user_id, payload')
+      .limit(50);
     if (error) { console.error('[CommunityDB] getLeaderboard:', error.message); return { xp: [], karma: [] }; }
 
-    const sorted = (data || []).filter(r => r.profiles);
-    const byXP    = [...sorted].sort((a, b) => (b.payload?.xp    || 0) - (a.payload?.xp    || 0)).slice(0, 3);
-    const byKarma = [...sorted].sort((a, b) => (b.payload?.karma || 0) - (a.payload?.karma || 0)).slice(0, 3);
+    // Fetch profiles for all user_ids
+    const userIds = (progress || []).map(r => r.user_id);
+    if (!userIds.length) return { xp: [], karma: [] };
+    const { data: profiles } = await this._sb
+      .from('profiles').select('id, name, emoji, avatar_url').in('id', userIds);
+    const profileMap = {};
+    (profiles || []).forEach(p => { profileMap[p.id] = p; });
+
+    const enriched = (progress || [])
+      .filter(r => profileMap[r.user_id])
+      .map(r => ({ ...r, profiles: profileMap[r.user_id] }));
+
+    const byXP    = [...enriched].sort((a, b) => (b.payload?.xp    || 0) - (a.payload?.xp    || 0)).slice(0, 3);
+    const byKarma = [...enriched].sort((a, b) => (b.payload?.karma || 0) - (a.payload?.karma || 0)).slice(0, 3);
 
     return { xp: byXP, karma: byKarma };
   },
@@ -1177,11 +1188,17 @@ const CommunityDB = {
   async getRecentReflectionsAdmin(limit = 5) {
     if (!this.ready) return [];
     const { data, error } = await this._sb
-      .from('community_reflections')
-      .select('id, content, created_at, profiles(id, name, emoji, avatar_url)')
+      .from('reflections')
+      .select('id, content, created_at, user_id, profiles!reflections_user_id_fkey(id, name, emoji, avatar_url)')
       .order('created_at', { ascending: false })
       .limit(limit);
-    if (error) { console.error('[CommunityDB] getRecentReflectionsAdmin:', error.message); return []; }
+    if (error) {
+      console.error('[CommunityDB] getRecentReflectionsAdmin:', error.message);
+      // Fallback: fetch without join
+      const { data: plain } = await this._sb.from('reflections')
+        .select('id, content, created_at, author_id').order('created_at', { ascending: false }).limit(limit);
+      return plain || [];
+    }
     return data || [];
   },
 
