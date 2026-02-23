@@ -126,7 +126,6 @@ const AdminDashboard = {
             document.head.appendChild(style);
         }
 
-        document.body.appendChild(badge);
         this._startBadgePoll();
     },
 
