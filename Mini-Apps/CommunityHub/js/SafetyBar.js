@@ -232,11 +232,27 @@ const SafetyBar = {
                         <span style="font-size: 12px; color: #666;">24/7 hotlines and emergency support</span>
                     </button>
 
-                    <button onclick="SafetyBar.showModeratorContact()" 
-                            style="width: 100%; padding: 16px; margin-bottom: 12px; text-align: left; background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius-md); cursor: pointer; font-size: 14px;">
-                        <strong>👥 Contact Moderator</strong><br>
-                        <span style="font-size: 12px; color: var(--text-muted);">Get help from community support</span>
-                    </button>
+                    <div style="margin-bottom: 12px; border: 2px solid var(--border); border-radius: var(--radius-md); overflow: hidden;">
+                        <button onclick="SafetyBar.toggleHelpMePanel()"
+                                style="width: 100%; padding: 16px; text-align: left; background: var(--surface); border: none; cursor: pointer; font-size: 14px;">
+                            <strong>🆘 Help Me</strong><br>
+                            <span style="font-size: 12px; color: var(--text-muted);">Send a quick message directly to the admin</span>
+                        </button>
+                        <div id="helpMePanel" style="display:none; padding: 12px 16px 16px; background: var(--surface); border-top: 1px solid var(--border);">
+                            <textarea id="helpMeText"
+                                      placeholder="What's happening? We're here..."
+                                      rows="3"
+                                      style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);
+                                             background:var(--season-mood);font-size:13px;resize:none;
+                                             box-sizing:border-box;margin-bottom:10px;"></textarea>
+                            <button onclick="SafetyBar.submitHelpMe()"
+                                    style="width:100%;padding:10px;border:none;border-radius:8px;cursor:pointer;
+                                           font-size:13px;font-weight:700;
+                                           background:var(--text);color:var(--season-mood);">
+                                Send to Admin
+                            </button>
+                        </div>
+                    </div>
 
                     <button onclick="SafetyBar.showTechnicalSupport()" 
                             style="width: 100%; padding: 16px; margin-bottom: 12px; text-align: left; background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius-md); cursor: pointer; font-size: 14px;">
@@ -508,13 +524,29 @@ const SafetyBar = {
     // ============================================================================
     
     /**
-     * Submit a report
+     * Submit a report — delegates to Community module AND notifies admins
      */
-    submitReport() {
+    async submitReport() {
+        const reason  = document.getElementById('reportReason')?.value;
+        const details = document.getElementById('reportDetails')?.value?.trim();
+
+        if (!reason) { Core.showToast('Please select a reason'); return; }
+
+        // Delegate to Community module for existing DB report logic
         if (window.Community && typeof window.Community.submitReport === 'function') {
             window.Community.submitReport();
-        } else {
-            console.error('Community.submitReport not available');
+        }
+
+        // Also write to admin_notifications + push notify
+        try {
+            await SafetyBar._writeAdminNotification('report', {
+                reason,
+                details,
+                room: SafetyBar._getCurrentRoom(),
+            });
+            await SafetyBar._pushAdmins('⚠️ New Report', `${SafetyBar._senderName()} reported: ${reason}${details ? ' — ' + details.substring(0, 60) : ''}`);
+        } catch (err) {
+            console.error('submitReport admin notify error:', err);
         }
     },
 
@@ -530,25 +562,144 @@ const SafetyBar = {
     },
 
     /**
-     * Submit moderator request
+     * Toggle the Help Me inline panel
      */
-    submitModeratorRequest() {
-        if (window.Community && typeof window.Community.submitModeratorRequest === 'function') {
-            window.Community.submitModeratorRequest();
-        } else {
-            console.error('Community.submitModeratorRequest not available');
+    toggleHelpMePanel() {
+        const panel = document.getElementById('helpMePanel');
+        if (panel) panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    },
+
+    /**
+     * Submit a Help Me request — writes to admin_notifications + push notifies admins
+     */
+    async submitHelpMe() {
+        const text = document.getElementById('helpMeText')?.value?.trim();
+        if (!text) { Core.showToast('Please write a short message'); return; }
+
+        const btn = document.querySelector('#helpMePanel button');
+        if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+
+        try {
+            await SafetyBar._writeAdminNotification('help', {
+                message: text,
+                room: SafetyBar._getCurrentRoom(),
+            });
+            await SafetyBar._pushAdmins('🆘 Help Request', `${SafetyBar._senderName()} needs help: "${text.substring(0, 80)}"`);
+            Core.showToast('✓ Your message was sent to the admin');
+            document.getElementById('helpMeText').value = '';
+            document.getElementById('helpMePanel').style.display = 'none';
+            SafetyBar.closeModal('help');
+        } catch (err) {
+            console.error('submitHelpMe error:', err);
+            Core.showToast('❌ Could not send — please try again');
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = 'Send to Admin'; }
         }
     },
 
     /**
-     * Submit technical issue
+     * Submit technical issue — delegates to Community module AND notifies admins
      */
-    submitTechnicalIssue() {
+    async submitTechnicalIssue() {
+        const type        = document.getElementById('technicalType')?.value;
+        const description = document.getElementById('technicalDescription')?.value?.trim();
+        const device      = document.getElementById('technicalDevice')?.value?.trim();
+
+        // Delegate to Community module if available
         if (window.Community && typeof window.Community.submitTechnicalIssue === 'function') {
             window.Community.submitTechnicalIssue();
-        } else {
-            console.error('Community.submitTechnicalIssue not available');
         }
+
+        // Also write to admin_notifications + push notify
+        try {
+            await SafetyBar._writeAdminNotification('technical', {
+                issueType:   type,
+                description,
+                device,
+                room: SafetyBar._getCurrentRoom(),
+            });
+            await SafetyBar._pushAdmins('🔧 Technical Issue', `${SafetyBar._senderName()}: ${type || 'issue'}${description ? ' — ' + description.substring(0, 60) : ''}`);
+        } catch (err) {
+            console.error('submitTechnicalIssue admin notify error:', err);
+        }
+    },
+
+    // ============================================================================
+    // ADMIN NOTIFICATION HELPERS
+    // ============================================================================
+
+    /**
+     * Write a notification record to admin_notifications table
+     */
+    async _writeAdminNotification(type, payload) {
+        if (!window.CommunityDB?.ready) return;
+        const { error } = await CommunityDB._sb
+            .from('admin_notifications')
+            .insert({
+                type,
+                from_user_id: CommunityDB.userId || null,
+                payload: {
+                    ...payload,
+                    sender_name: SafetyBar._senderName(),
+                    timestamp:   new Date().toISOString(),
+                },
+            });
+        if (error) console.error('[SafetyBar] _writeAdminNotification:', error.message);
+    },
+
+    /**
+     * Push notify all admin users
+     */
+    async _pushAdmins(title, body) {
+        if (!window.CommunityDB?.ready) return;
+        try {
+            // Get all admin user IDs
+            const { data: admins } = await CommunityDB._sb
+                .from('profiles')
+                .select('id')
+                .eq('is_admin', true);
+
+            if (!admins?.length) return;
+
+            // Get push subscriptions for all admins
+            const adminIds = admins.map(a => a.id);
+            const { data: subs } = await CommunityDB._sb
+                .from('push_subscriptions')
+                .select('subscription')
+                .in('user_id', adminIds);
+
+            if (!subs?.length) return;
+
+            await Promise.allSettled(subs.map(s =>
+                fetch('/api/send', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({
+                        sub:     s.subscription,
+                        payload: { title, body, icon: '/icons/icon-192x192.png', data: { url: '/' } }
+                    })
+                }).catch(() => {})
+            ));
+        } catch (err) {
+            console.error('[SafetyBar] _pushAdmins error:', err);
+        }
+    },
+
+    /**
+     * Get current room name from URL or active room state
+     */
+    _getCurrentRoom() {
+        // Try to get from active practice room
+        const roomTitle = document.querySelector('.room-title, .room-name-inline, #roomTitle');
+        if (roomTitle) return roomTitle.textContent?.trim() || 'Unknown Room';
+        return 'Community Hub';
+    },
+
+    /**
+     * Get sender display name
+     */
+    _senderName() {
+        return window.Core?.state?.currentUser?.name || 'A member';
     },
 
     // ============================================================================
