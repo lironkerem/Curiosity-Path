@@ -648,6 +648,23 @@ const LunarEngine = {
     adminJoinRoom(roomId) {
         console.log(`🛡️ ADMIN: Joining ${roomId}`);
         this._loadAndEnterRoom(roomId);
+    },
+
+    injectAdminUI() {
+        const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
+        const container = document.getElementById('lunarContainer');
+        if (!container) return;
+        // Admin section is rendered inside the card — re-render card if needed
+        const existing = container.querySelector('#lunarAdminPanel');
+        if (!existing && isAdmin) {
+            // Card already rendered without admin panel — append it
+            const card = container.querySelector('.celestial-card-full');
+            if (card) {
+                const div = document.createElement('div');
+                div.innerHTML = this.renderAdminSection();
+                card.appendChild(div.firstElementChild);
+            }
+        }
     }
 };
 

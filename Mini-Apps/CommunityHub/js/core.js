@@ -94,6 +94,9 @@ const Core = {
             // 2. Load real user profile (replaces all hardcoded data)
             await this.loadCurrentUser();
 
+            // 2b. Inject admin UI into already-rendered modules
+            this._injectAdminUIAll();
+
             // 3. Go online and start heartbeat
             await CommunityDB.setPresence('online', '✨ Available', null);
             CommunityDB.startHeartbeat(60000);
@@ -150,7 +153,6 @@ const Core = {
                 birthday:         profile.birthday         || null,
                 country:          profile.country          || null,
                 email:            profile.email            || '',
-                is_admin:         profile.is_admin          === true,
                 // karma/xp/badges loaded from GamificationEngine (lives at window.app.gamification)
                 karma:            window.app?.gamification?.state?.karma  ?? 0,
                 xp:               window.app?.gamification?.state?.xp     ?? 0,
@@ -161,6 +163,24 @@ const Core = {
         } catch (error) {
             console.error('[Core] loadCurrentUser failed:', error);
         }
+    },
+
+    /**
+     * Call injectAdminUI() on all modules that support it.
+     * Runs after loadCurrentUser() so is_admin is guaranteed to be set.
+     */
+    _injectAdminUIAll() {
+        const modules = [
+            window.CollectiveField,
+            window.LunarEngine,
+            window.SolarEngine,
+            window.UpcomingEvents,
+        ];
+        modules.forEach(m => {
+            if (m && typeof m.injectAdminUI === 'function') {
+                try { m.injectAdminUI(); } catch(e) { console.warn('injectAdminUI failed:', e); }
+            }
+        });
     },
 
     /**

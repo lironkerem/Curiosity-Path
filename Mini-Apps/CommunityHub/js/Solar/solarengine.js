@@ -718,6 +718,21 @@ const SolarEngine = {
   adminJoinRoom(roomId) {
     console.log(`🛡️ ADMIN: Joining ${roomId}`);
     this._loadAndEnterRoom(roomId);
+  },
+
+  injectAdminUI() {
+    const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
+    const container = document.getElementById('solarContainer');
+    if (!container) return;
+    const existing = container.querySelector('#solarAdminPanel');
+    if (!existing && isAdmin) {
+      const card = container.querySelector('.celestial-card-full');
+      if (card) {
+        const div = document.createElement('div');
+        div.innerHTML = this.renderAdminSection();
+        card.appendChild(div.firstElementChild);
+      }
+    }
   }
 };
 

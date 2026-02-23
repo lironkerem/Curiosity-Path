@@ -258,9 +258,17 @@ const CollectiveField = {
                             </div>
                         </div>
                     </div>
-                    <div class="progress-stats">
+                    <div class="progress-stats" style="display:flex;align-items:center;">
                         <span class="progress-label">Wave Building</span>
                         <span class="progress-value" id="waveProgressValue">${progress}%</span>
+                        <span id="adminWaveBtn" style="display:none;margin-left:8px;">
+                            <button onclick="CollectiveField.adminAddWaveMinutes()"
+                                    title="Admin: Add 60 minutes to Wave"
+                                    style="width:22px;height:22px;border-radius:50%;border:none;
+                                           cursor:pointer;font-size:13px;font-weight:700;line-height:1;
+                                           background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);
+                                           display:inline-flex;align-items:center;justify-content:center;">+</button>
+                        </span>
                     </div>
                 </div>
 
@@ -1054,6 +1062,11 @@ const CollectiveField = {
         if (value) {
             value.textContent = `${progress}%`;
         }
+
+        const adminWaveBtn = document.getElementById('adminWaveBtn');
+        if (adminWaveBtn) {
+            adminWaveBtn.style.display = window.Core?.state?.currentUser?.is_admin === true ? 'inline' : 'none';
+        }
     },
 
 
@@ -1196,6 +1209,32 @@ const CollectiveField = {
         } catch (err) {
             console.error('adminAddEnergy error:', err);
             window.Core?.showToast('❌ Could not add energy');
+        }
+    },
+
+    /**
+     * Inject admin UI after Core.loadCurrentUser() completes.
+     * Called by core.js after user is confirmed admin.
+     */
+    injectAdminUI() {
+        const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
+        const energyBtn = document.getElementById('adminEnergyBtn');
+        const waveBtn   = document.getElementById('adminWaveBtn');
+        if (energyBtn) energyBtn.style.display = isAdmin ? 'inline' : 'none';
+        if (waveBtn)   waveBtn.style.display   = isAdmin ? 'inline' : 'none';
+    },
+
+    /**
+     * Admin: add +60 minutes to the calm wave
+     */
+    async adminAddWaveMinutes() {
+        if (!window.Core?.state?.currentUser?.is_admin) return;
+        try {
+            await window.CollectiveFieldDB.logWaveContribution(60, false);
+            window.Core?.showToast('🛡️ +60 min added to Wave');
+        } catch (err) {
+            console.error('adminAddWaveMinutes error:', err);
+            window.Core?.showToast('❌ Could not add wave minutes');
         }
     },
 

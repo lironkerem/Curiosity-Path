@@ -204,13 +204,7 @@ const UpcomingEvents = {
                 <div class="section-title">Upcoming Events</div>
                 <div style="display:flex;align-items:center;gap:12px;">
                     <div style="font-size: 12px; color: var(--text-muted);">Group classes & private sessions</div>
-                    ${window.Core?.state?.currentUser?.is_admin === true ? `
-                    <button onclick="UpcomingEvents.openAdminModal()"
-                            style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:99px;border:none;
-                                   cursor:pointer;background:rgba(139,92,246,0.12);color:rgba(139,92,246,0.9);
-                                   text-transform:uppercase;letter-spacing:0.5px;">
-                        🛡️ Update Flyers
-                    </button>` : ''}
+                    <!-- Admin button injected by injectAdminUI() after Core loads user -->
                 </div>
             </div>
             
@@ -502,6 +496,23 @@ const UpcomingEvents = {
     /**
      * Render upcoming events into container
      */
+    injectAdminUI() {
+        const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
+        // Look for existing button
+        const existing = document.getElementById('upcomingAdminBtn');
+        if (existing) { existing.style.display = isAdmin ? 'inline-block' : 'none'; return; }
+        if (!isAdmin) return;
+        // Inject button into section header
+        const header = document.querySelector('#upcomingEventsContainer .section-header > div:last-child');
+        if (!header) return;
+        const btn = document.createElement('button');
+        btn.id = 'upcomingAdminBtn';
+        btn.onclick = () => UpcomingEvents.openAdminModal();
+        btn.style.cssText = 'font-size:11px;font-weight:700;padding:4px 12px;border-radius:99px;border:none;cursor:pointer;background:rgba(139,92,246,0.12);color:rgba(139,92,246,0.9);text-transform:uppercase;letter-spacing:0.5px;';
+        btn.textContent = '🛡️ Update Flyers';
+        header.appendChild(btn);
+    },
+
     async render() {
         if (this.state.isInitialized) {
             console.warn('UpcomingEvents already initialized');
