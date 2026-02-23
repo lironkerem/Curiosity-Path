@@ -71,15 +71,15 @@ const AdminDashboard = {
                 </button>
             </section>`;
 
-        // Always insert after upcomingEventsContainer
+        // Insert inside .sanctuary-content, after upcomingEventsContainer
+        const sanctuaryContent = document.querySelector('.sanctuary-content');
         const upcoming = document.getElementById('upcomingEventsContainer');
-        if (upcoming) {
+        if (sanctuaryContent && upcoming) {
             upcoming.insertAdjacentElement('afterend', badge);
-        } else if (anchor.id !== anchor.id) { // fallback
-            anchor.appendChild(badge);
+        } else if (sanctuaryContent) {
+            sanctuaryContent.appendChild(badge);
         } else {
-            document.querySelector('.sanctuary-content')?.appendChild(badge)
-            || document.body.appendChild(badge);
+            document.body.appendChild(badge);
         }
 
         // Inject pulse animation
