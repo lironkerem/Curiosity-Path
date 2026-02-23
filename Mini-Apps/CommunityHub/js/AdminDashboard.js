@@ -221,6 +221,9 @@ const AdminDashboard = {
                 <!-- Retention -->
                 ${this._sectionShell('retention', '📈 Retention Signals')}
 
+                <!-- Bulk Actions -->
+                ${this._sectionShell('bulk', '⚡ Bulk Actions')}
+
             </div>`;
 
         document.body.appendChild(overlay);
@@ -272,7 +275,7 @@ const AdminDashboard = {
         if (sub) sub.textContent = `Last updated: ${now.toLocaleTimeString()}`;
 
         // Load all open sections + notifications always
-        const sections = ['notifications','members','engagement','collective','celestial','safety','leaderboard','rooms','reflections','retention'];
+        const sections = ['notifications','members','engagement','collective','celestial','safety','leaderboard','rooms','reflections','retention','bulk'];
         for (const id of sections) {
             const body = document.getElementById(`adminSec_${id}`);
             if (body && (body.style.display !== 'none' || id === 'notifications')) {
@@ -298,6 +301,7 @@ const AdminDashboard = {
                 case 'rooms':         await this._renderRooms(el);         break;
                 case 'reflections':   await this._renderReflections(el);   break;
                 case 'retention':     await this._renderRetention(el);     break;
+                case 'bulk':          await this._renderBulk(el);           break;
             }
         } catch (err) {
             el.innerHTML = `<div style="color:#ef4444;font-size:0.83rem;padding:8px;">Failed to load: ${err.message}</div>`;
@@ -610,6 +614,362 @@ const AdminDashboard = {
                         : '<div style="color:var(--text-muted,#888);font-size:0.83rem;">No data yet.</div>'}
                 </div>
             </div>`;
+    },
+
+    // =========================================================================
+    // BULK ACTIONS
+    // =========================================================================
+
+    async _renderBulk(el) {
+        // Fetch all profiles for the member selector
+        const { data: members } = await CommunityDB._sb
+            .from('profiles')
+            .select('id, name, emoji, avatar_url, community_role')
+            .order('name');
+
+        // Store members on instance for use by action handlers
+        this._bulkMembers = members || [];
+        this._bulkSelected = new Set();
+
+        el.innerHTML = `
+            <div style="margin-bottom:16px;">
+
+                <!-- Member selector -->
+                <div style="margin-bottom:12px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                        <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;
+                                    letter-spacing:0.5px;color:var(--text-muted,#888);">Select Members</div>
+                        <div style="display:flex;gap:8px;">
+                            <button onclick="AdminDashboard._bulkSelectAll()"
+                                    style="padding:4px 10px;border-radius:99px;border:1px solid rgba(139,92,246,0.3);
+                                           background:rgba(139,92,246,0.08);color:rgba(139,92,246,0.9);
+                                           font-size:0.75rem;font-weight:600;cursor:pointer;">All</button>
+                            <button onclick="AdminDashboard._bulkSelectNone()"
+                                    style="padding:4px 10px;border-radius:99px;border:1px solid rgba(0,0,0,0.1);
+                                           background:none;color:var(--text-muted,#888);
+                                           font-size:0.75rem;font-weight:600;cursor:pointer;">None</button>
+                        </div>
+                    </div>
+
+                    <!-- Search -->
+                    <input id="bulkMemberSearch" type="text" placeholder="Search members..."
+                           oninput="AdminDashboard._bulkFilterMembers(this.value)"
+                           style="width:100%;padding:8px 12px;border-radius:10px;
+                                  border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);
+                                  color:var(--neuro-text);font-size:0.85rem;box-sizing:border-box;margin-bottom:8px;">
+
+                    <!-- Member list -->
+                    <div id="bulkMemberList"
+                         style="max-height:220px;overflow-y:auto;border-radius:12px;
+                                border:1px solid rgba(0,0,0,0.07);background:var(--surface,#fff);padding:6px;">
+                        ${this._bulkMembers.map(m => `
+                            <label id="bulkRow_${m.id}"
+                                   style="display:flex;align-items:center;gap:10px;padding:8px 10px;
+                                          border-radius:8px;cursor:pointer;transition:background 0.1s;"
+                                   onmouseover="this.style.background='rgba(139,92,246,0.06)'"
+                                   onmouseout="this.style.background='none'">
+                                <input type="checkbox" value="${m.id}"
+                                       onchange="AdminDashboard._bulkToggle('${m.id}', this.checked)"
+                                       style="width:16px;height:16px;cursor:pointer;accent-color:rgba(139,92,246,0.9);">
+                                <span style="font-size:1.1rem;">${m.emoji || '👤'}</span>
+                                <span style="font-size:0.85rem;font-weight:600;color:var(--neuro-text);">${this._esc(m.name || 'Member')}</span>
+                                <span style="font-size:0.75rem;color:var(--text-muted,#888);margin-left:auto;">${this._esc(m.community_role || 'Member')}</span>
+                            </label>`).join('')}
+                    </div>
+
+                    <!-- Selected count -->
+                    <div id="bulkSelectedCount"
+                         style="font-size:0.78rem;color:var(--text-muted,#888);margin-top:6px;text-align:right;">
+                        0 members selected
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div style="border-top:1px solid rgba(0,0,0,0.07);margin:16px 0;"></div>
+
+                <!-- Action tabs -->
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;" id="bulkTabBar">
+                    ${[['xp','🎁 XP'],['karma','🌀 Karma'],['badge','🏅 Badge'],['unlock','🔓 Unlock'],['message','💬 Message']]
+                        .map(([id,label],i) => `
+                        <button onclick="AdminDashboard._bulkShowTab('${id}')"
+                                id="bulkTab_${id}"
+                                style="padding:6px 14px;border-radius:99px;border:none;cursor:pointer;
+                                       font-size:0.8rem;font-weight:600;transition:all 0.15s;
+                                       ${i===0
+                                         ? 'background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);'
+                                         : 'background:rgba(0,0,0,0.05);color:var(--text-muted,#888);'}">
+                            ${label}
+                        </button>`).join('')}
+                </div>
+
+                <!-- XP panel -->
+                <div id="bulkPanel_xp">
+                    <div style="font-size:0.82rem;color:var(--text-muted,#888);margin-bottom:8px;">
+                        Send XP to all selected members
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <input id="bulkXpAmount" type="number" min="1" value="100" placeholder="XP amount"
+                               style="flex:1;padding:8px 12px;border-radius:10px;
+                                      border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);
+                                      color:var(--neuro-text);font-size:0.88rem;">
+                        <button onclick="AdminDashboard._bulkSendXP()"
+                                style="padding:8px 18px;border-radius:10px;border:none;cursor:pointer;
+                                       font-size:0.88rem;font-weight:700;
+                                       background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);">
+                            Send XP
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Karma panel -->
+                <div id="bulkPanel_karma" style="display:none;">
+                    <div style="font-size:0.82rem;color:var(--text-muted,#888);margin-bottom:8px;">
+                        Send Karma to all selected members
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <input id="bulkKarmaAmount" type="number" min="1" value="10" placeholder="Karma amount"
+                               style="flex:1;padding:8px 12px;border-radius:10px;
+                                      border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);
+                                      color:var(--neuro-text);font-size:0.88rem;">
+                        <button onclick="AdminDashboard._bulkSendKarma()"
+                                style="padding:8px 18px;border-radius:10px;border:none;cursor:pointer;
+                                       font-size:0.88rem;font-weight:700;
+                                       background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);">
+                            Send Karma
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Badge panel -->
+                <div id="bulkPanel_badge" style="display:none;">
+                    <div style="font-size:0.82rem;color:var(--text-muted,#888);margin-bottom:8px;">
+                        Send a badge to all selected members
+                    </div>
+                    <select id="bulkBadgeSelect"
+                            style="width:100%;padding:8px 12px;border-radius:10px;margin-bottom:10px;
+                                   border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);
+                                   color:var(--neuro-text);font-size:0.88rem;">
+                        <option value="first_step">🌱 First Step</option>
+                        <option value="triple_threat">🎪 Triple Threat</option>
+                        <option value="moon_walker">🌙 Moon Walker</option>
+                        <option value="sun_keeper">☀️ Sun Keeper</option>
+                        <option value="energy_master">⚡ Energy Master</option>
+                        <option value="wave_rider">🌊 Wave Rider</option>
+                        <option value="community_heart">💜 Community Heart</option>
+                        <option value="deep_diver">🔱 Deep Diver</option>
+                    </select>
+                    <button onclick="AdminDashboard._bulkSendBadge()"
+                            style="width:100%;padding:8px 18px;border-radius:10px;border:none;cursor:pointer;
+                                   font-size:0.88rem;font-weight:700;
+                                   background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);">
+                        Send Badge
+                    </button>
+                </div>
+
+                <!-- Unlock panel -->
+                <div id="bulkPanel_unlock" style="display:none;">
+                    <div style="font-size:0.82rem;color:var(--text-muted,#888);margin-bottom:8px;">
+                        Unlock a feature for all selected members
+                    </div>
+                    <select id="bulkUnlockSelect"
+                            style="width:100%;padding:8px 12px;border-radius:10px;margin-bottom:10px;
+                                   border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);
+                                   color:var(--neuro-text);font-size:0.88rem;">
+                        <option value="premium_rooms">Premium Rooms</option>
+                        <option value="extended_history">Extended History</option>
+                        <option value="custom_themes">Custom Themes</option>
+                        <option value="advanced_analytics">Advanced Analytics</option>
+                        <option value="priority_support">Priority Support</option>
+                    </select>
+                    <button onclick="AdminDashboard._bulkSendUnlock()"
+                            style="width:100%;padding:8px 18px;border-radius:10px;border:none;cursor:pointer;
+                                   font-size:0.88rem;font-weight:700;
+                                   background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);">
+                        Unlock Feature
+                    </button>
+                </div>
+
+                <!-- Message panel -->
+                <div id="bulkPanel_message" style="display:none;">
+                    <div style="font-size:0.82rem;color:var(--text-muted,#888);margin-bottom:8px;">
+                        Broadcast a message to all selected members — appears in their Whispers inbox
+                    </div>
+                    <textarea id="bulkMessageText" placeholder="Write your message..."
+                              rows="4"
+                              style="width:100%;padding:10px 12px;border-radius:10px;
+                                     border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);
+                                     color:var(--neuro-text);font-size:0.88rem;
+                                     resize:vertical;box-sizing:border-box;margin-bottom:10px;"></textarea>
+                    <button onclick="AdminDashboard._bulkSendMessage()"
+                            style="width:100%;padding:8px 18px;border-radius:10px;border:none;cursor:pointer;
+                                   font-size:0.88rem;font-weight:700;
+                                   background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);">
+                        Send Message
+                    </button>
+                </div>
+
+            </div>`;
+    },
+
+    // ── Bulk helpers ──────────────────────────────────────────────────────────
+
+    _bulkToggle(userId, checked) {
+        if (checked) this._bulkSelected.add(userId);
+        else         this._bulkSelected.delete(userId);
+        this._bulkUpdateCount();
+    },
+
+    _bulkSelectAll() {
+        this._bulkMembers.forEach(m => {
+            this._bulkSelected.add(m.id);
+            const cb = document.querySelector(`#bulkRow_${m.id} input[type=checkbox]`);
+            if (cb) cb.checked = true;
+        });
+        this._bulkUpdateCount();
+    },
+
+    _bulkSelectNone() {
+        this._bulkSelected.clear();
+        document.querySelectorAll('#bulkMemberList input[type=checkbox]').forEach(cb => cb.checked = false);
+        this._bulkUpdateCount();
+    },
+
+    _bulkUpdateCount() {
+        const el = document.getElementById('bulkSelectedCount');
+        if (el) el.textContent = `${this._bulkSelected.size} member${this._bulkSelected.size !== 1 ? 's' : ''} selected`;
+    },
+
+    _bulkFilterMembers(query) {
+        const q = query.toLowerCase();
+        document.querySelectorAll('#bulkMemberList label').forEach(row => {
+            const name = row.querySelector('span:nth-child(3)')?.textContent?.toLowerCase() || '';
+            row.style.display = name.includes(q) ? '' : 'none';
+        });
+    },
+
+    _bulkShowTab(tab) {
+        ['xp','karma','badge','unlock','message'].forEach(id => {
+            const panel = document.getElementById(`bulkPanel_${id}`);
+            const btn   = document.getElementById(`bulkTab_${id}`);
+            if (!panel || !btn) return;
+            const active = id === tab;
+            panel.style.display = active ? 'block' : 'none';
+            btn.style.background = active ? 'rgba(139,92,246,0.15)' : 'rgba(0,0,0,0.05)';
+            btn.style.color      = active ? 'rgba(139,92,246,0.9)'  : 'var(--text-muted,#888)';
+        });
+    },
+
+    _bulkGuard() {
+        if (this._bulkSelected.size === 0) {
+            Core.showToast('Select at least one member first');
+            return false;
+        }
+        return true;
+    },
+
+    async _bulkSendXP() {
+        if (!this._bulkGuard()) return;
+        const amount = parseInt(document.getElementById('bulkXpAmount')?.value, 10);
+        if (!amount || amount < 1) { Core.showToast('Enter a valid XP amount'); return; }
+        const ids = [...this._bulkSelected];
+        Core.showToast(`Sending ${amount} XP to ${ids.length} members...`);
+        let ok = 0;
+        for (const uid of ids) {
+            const { error } = await CommunityDB._sb.rpc('update_user_gamification', {
+                target_user_id: uid, xp_delta: amount, karma_delta: 0
+            });
+            if (!error) {
+                ok++;
+                // push notify each recipient
+                window.MemberProfileModal?._adminPushNotify?.(uid, '🎁 Gift from Aanandoham!', `You received +${amount} XP!`);
+            }
+        }
+        Core.showToast(`✓ Sent ${amount} XP to ${ok}/${ids.length} members`);
+    },
+
+    async _bulkSendKarma() {
+        if (!this._bulkGuard()) return;
+        const amount = parseInt(document.getElementById('bulkKarmaAmount')?.value, 10);
+        if (!amount || amount < 1) { Core.showToast('Enter a valid Karma amount'); return; }
+        const ids = [...this._bulkSelected];
+        Core.showToast(`Sending ${amount} Karma to ${ids.length} members...`);
+        let ok = 0;
+        for (const uid of ids) {
+            const { error } = await CommunityDB._sb.rpc('update_user_gamification', {
+                target_user_id: uid, xp_delta: 0, karma_delta: amount
+            });
+            if (!error) {
+                ok++;
+                window.MemberProfileModal?._adminPushNotify?.(uid, '🎁 Gift from Aanandoham!', `You received +${amount} Karma!`);
+            }
+        }
+        Core.showToast(`✓ Sent ${amount} Karma to ${ok}/${ids.length} members`);
+    },
+
+    async _bulkSendBadge() {
+        if (!this._bulkGuard()) return;
+        const badgeId = document.getElementById('bulkBadgeSelect')?.value;
+        const badgeLabel = document.getElementById('bulkBadgeSelect')?.options[document.getElementById('bulkBadgeSelect').selectedIndex]?.text || badgeId;
+        if (!badgeId) { Core.showToast('Select a badge'); return; }
+        const ids = [...this._bulkSelected];
+        Core.showToast(`Sending badge to ${ids.length} members...`);
+        let ok = 0;
+        for (const uid of ids) {
+            // Fetch current badges then append
+            const progress = await CommunityDB.getUserProgress(uid);
+            const badges = progress?.badges || [];
+            if (!badges.find(b => (b.id || b) === badgeId)) {
+                badges.push({ id: badgeId, earnedAt: new Date().toISOString() });
+            }
+            const { error } = await CommunityDB._sb
+                .from('user_progress')
+                .update({ payload: { ...progress, badges } })
+                .eq('user_id', uid);
+            if (!error) {
+                ok++;
+                window.MemberProfileModal?._adminPushNotify?.(uid, '🏅 New Badge!', `You earned the ${badgeLabel} badge!`);
+            }
+        }
+        Core.showToast(`✓ Sent badge to ${ok}/${ids.length} members`);
+    },
+
+    async _bulkSendUnlock() {
+        if (!this._bulkGuard()) return;
+        const feature = document.getElementById('bulkUnlockSelect')?.value;
+        const featureLabel = document.getElementById('bulkUnlockSelect')?.options[document.getElementById('bulkUnlockSelect').selectedIndex]?.text || feature;
+        if (!feature) { Core.showToast('Select a feature'); return; }
+        const ids = [...this._bulkSelected];
+        Core.showToast(`Unlocking ${featureLabel} for ${ids.length} members...`);
+        let ok = 0;
+        for (const uid of ids) {
+            const { error } = await CommunityDB._sb.rpc('update_user_gamification', {
+                target_user_id: uid, xp_delta: 0, karma_delta: 0, unlock_feature: feature
+            });
+            if (!error) {
+                ok++;
+                window.MemberProfileModal?._adminPushNotify?.(uid, '🔓 Feature Unlocked!', `${featureLabel} has been unlocked for you!`);
+            }
+        }
+        Core.showToast(`✓ Unlocked ${featureLabel} for ${ok}/${ids.length} members`);
+    },
+
+    async _bulkSendMessage() {
+        if (!this._bulkGuard()) return;
+        const message = document.getElementById('bulkMessageText')?.value?.trim();
+        if (!message) { Core.showToast('Write a message first'); return; }
+        const ids = [...this._bulkSelected];
+        Core.showToast(`Broadcasting to ${ids.length} members...`);
+        const result = await CommunityDB.broadcastMessage(ids, message);
+        if (result.sent > 0) {
+            // Push notify all recipients
+            for (const uid of ids) {
+                window.MemberProfileModal?._adminPushNotify?.(uid, '💬 Message from Aanandoham', message.substring(0, 80));
+            }
+            document.getElementById('bulkMessageText').value = '';
+            Core.showToast(`✓ Message sent to ${result.sent}/${ids.length} members`);
+        } else {
+            Core.showToast('❌ Failed to send messages');
+        }
     },
 
     // =========================================================================

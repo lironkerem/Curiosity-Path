@@ -1213,6 +1213,22 @@ const CommunityDB = {
     return data?.id || null;
   },
 
+  async broadcastMessage(userIds, message) {
+    if (!this.ready || !userIds?.length) return { sent: 0, failed: 0 };
+    const rows = userIds.map(recipient_id => ({
+      sender_id:    this._uid,
+      recipient_id,
+      message,
+    }));
+    // Batch insert all whispers in one request
+    const { data, error } = await this._sb
+      .from('whispers')
+      .insert(rows)
+      .select('id');
+    if (error) { console.error('[CommunityDB] broadcastMessage:', error.message); return { sent: 0, failed: userIds.length }; }
+    return { sent: data?.length || 0, failed: userIds.length - (data?.length || 0) };
+  },
+
   async logRoomExit(entryId) {
     if (!entryId || !this.ready) return;
     const { data: entry } = await this._sb
