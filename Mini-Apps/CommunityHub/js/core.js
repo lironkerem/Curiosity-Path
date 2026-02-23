@@ -146,7 +146,7 @@ const Core = {
                 bio:              profile.inspiration      || 'Here to practice with intention.',
                 status:           ['online','away','offline'].includes(profile.community_status)
                                     ? profile.community_status : 'online',
-                role:             profile.community_role   || 'Member',
+                role:             profile.is_admin === true ? 'Admin' : (profile.community_role || 'Member'),
                 minutes:          profile.total_minutes    || 0,
                 circles:          profile.total_sessions   || 0,
                 offered:          profile.gifts_given      || 0,
