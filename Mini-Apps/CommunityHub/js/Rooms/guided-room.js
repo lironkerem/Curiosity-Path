@@ -26,10 +26,6 @@ class GuidedRoom extends PracticeRoom {
             openDuration: 15 * 60,       // 15 minutes open window
             sessionDuration: 45 * 60     // 45 minutes session
         });
-        
-        // Dev mode for testing
-        this.devMode = true;
-        
         // Initialize mixins
         this.initPlayerState();
         this.initCycleState();

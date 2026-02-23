@@ -118,7 +118,8 @@ const CycleStateMixin = {
      * @returns {boolean}
      */
     canEnterRoom() {
-        return this.devMode || this.state.isOpen;
+        const isAdmin = Core.state?.currentUser?.is_admin === true;
+        return isAdmin || this.state.isOpen;
     },
     
     /**

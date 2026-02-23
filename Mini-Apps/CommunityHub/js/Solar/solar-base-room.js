@@ -128,10 +128,11 @@ const BaseSolarRoom = {
    * no hardcoded month/day, zero gaps between seasons, year-spanning handled automatically.
    */
   checkIfActive() {
-    // DEV_MODE: force-enable regardless of actual season
-    if (window.Core?.config?.DEV_MODE) {
+    // ADMIN: force-enable regardless of actual season
+    const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
+    if (isAdmin) {
       this.isActive = true;
-      console.log(`🔧 DEV MODE: ${this.config.displayName} room force-enabled`);
+      console.log(`🛡️ ADMIN: ${this.config.displayName} room force-enabled`);
       return;
     }
 
@@ -218,16 +219,15 @@ const BaseSolarRoom = {
    * Enter the practice room
    */
   enterRoom() {
-    // FIXED: In DEV_MODE, always allow entry
-    const devMode = window.Core && window.Core.config && window.Core.config.DEV_MODE;
-    
-    if (!this.isActive && !devMode) {
+    const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
+
+    if (!this.isActive && !isAdmin) {
       SolarUIManager.showToast(`${this.config.emoji} ${this.config.displayName} room opens during ${this.config.displayName.toLowerCase()} season`);
       return;
     }
 
-    // FIXED: Force dates calculation even in DEV_MODE
-    if (devMode && !this.startDate) {
+    // Force dates calculation if not yet set (admin entering out-of-season)
+    if (!this.startDate) {
       this.calculateDates();
     }
 

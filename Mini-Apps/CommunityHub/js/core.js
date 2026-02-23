@@ -43,7 +43,6 @@ const Core = {
     // ============================================================================
     
     config: {
-        DEV_MODE: true,
         ROOM_MODULES: [
             'SilentRoom',
             'CampfireRoom',
@@ -569,9 +568,6 @@ const Core = {
 
 window.Core = Core;
 
-if (!Core.config.DEV_MODE) {
-    Object.freeze(Core.config);
-}
             console.log('🌟 Community Hub Initializing...');
             console.log('✅ Community Hub Initialized Successfully');
 console.log('✅ Core.js loaded (v2.0.0 — Supabase integrated)');

@@ -26,10 +26,6 @@ class BreathworkRoom extends PracticeRoom {
             openDuration: 10 * 60,       // 10 minutes open window
             sessionDuration: 80 * 60     // 80 minutes session
         });
-        
-        // Dev mode for testing
-        this.devMode = true;
-        
         // Initialize mixins
         this.initPlayerState();
         this.initCycleState();

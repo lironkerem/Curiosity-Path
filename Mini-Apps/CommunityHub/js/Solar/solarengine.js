@@ -563,7 +563,7 @@ const SolarEngine = {
 
     const room = this.currentSolarRoom;
     const data = this.currentSolarData;
-    const devMode = window.Core && window.Core.config && window.Core.config.DEV_MODE;
+    const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
     
     // Capitalize season name
     const seasonDisplay = data.currentSeason.charAt(0).toUpperCase() + data.currentSeason.slice(1);
@@ -626,7 +626,7 @@ const SolarEngine = {
           </div>
         </div>
 
-        ${devMode ? this.renderDevModeSection() : ''}
+        ${isAdmin ? this.renderAdminSection() : ''}
       </div>
     `;
 
@@ -672,33 +672,51 @@ const SolarEngine = {
   },
 
   // Render DEV MODE section with all solar rooms
-  renderDevModeSection() {
+  renderAdminSection() {
+    const panelId = 'solarAdminPanel';
+    const toggleId = 'solarAdminToggle';
     return `
-      <div style="margin-top: 24px; padding: 20px; background: var(--surface); border-radius: var(--radius-lg); border: 2px dashed var(--primary);">
-        <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); margin-bottom: 16px;">
-          🔧 DEV MODE: All Solar Rooms
+      <div style="margin-top: 24px; border-radius: var(--radius-lg); border: 2px dashed rgba(139,92,246,0.5); overflow: hidden;">
+        <!-- Collapsible header -->
+        <div onclick="
+                const p = document.getElementById('${panelId}');
+                const t = document.getElementById('${toggleId}');
+                const open = p.style.display !== 'none';
+                p.style.display = open ? 'none' : 'block';
+                t.textContent = open ? '▶' : '▼';
+              "
+             style="display: flex; align-items: center; justify-content: space-between;
+                    padding: 14px 20px; cursor: pointer; background: var(--surface);
+                    user-select: none;">
+          <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: rgba(139,92,246,0.9);">
+            🛡️ ADMIN: Enter Any Solar Room
+          </span>
+          <span id="${toggleId}" style="font-size: 11px; color: rgba(139,92,246,0.7);">▶</span>
         </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
-          ${this.solarRooms.map(room => `
-            <button 
-              onclick="SolarEngine.devJoinRoom('${room.roomId}')"
-              style="padding: 12px; background: var(--season-mood); border: 1px solid var(--border); border-radius: var(--radius-md); cursor: pointer; text-align: left; transition: all 0.2s;"
-              onmouseover="this.style.background='var(--border)'"
-              onmouseout="this.style.background='var(--season-mood)'"
-            >
-              <div style="font-size: 24px; margin-bottom: 4px;">${room.icon}</div>
-              <div style="font-size: 13px; font-weight: 600; color: var(--text);">${room.roomName}</div>
-              <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px; text-transform: capitalize;">${room.season}</div>
-            </button>
-          `).join('')}
+        <!-- Collapsible body (collapsed by default) -->
+        <div id="${panelId}" style="padding: 16px 20px; background: var(--surface); border-top: 1px solid rgba(139,92,246,0.2); display: none;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+            ${this.solarRooms.map(room => `
+              <button
+                onclick="SolarEngine.adminJoinRoom('${room.roomId}')"
+                style="padding: 12px; background: var(--season-mood); border: 1px solid var(--border); border-radius: var(--radius-md); cursor: pointer; text-align: left; transition: all 0.2s;"
+                onmouseover="this.style.background='var(--border)'"
+                onmouseout="this.style.background='var(--season-mood)'"
+              >
+                <div style="font-size: 24px; margin-bottom: 4px;">${room.icon}</div>
+                <div style="font-size: 13px; font-weight: 600; color: var(--text);">${room.roomName}</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px; text-transform: capitalize;">${room.season}</div>
+              </button>
+            `).join('')}
+          </div>
         </div>
       </div>
     `;
   },
 
-  // DEV MODE: Join any room directly (also lazy-loads)
-  devJoinRoom(roomId) {
-    console.log(`🔧 DEV MODE: Joining ${roomId}`);
+  // ADMIN: Join any solar room directly (also lazy-loads)
+  adminJoinRoom(roomId) {
+    console.log(`🛡️ ADMIN: Joining ${roomId}`);
     this._loadAndEnterRoom(roomId);
   }
 };

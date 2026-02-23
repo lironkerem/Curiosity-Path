@@ -153,9 +153,10 @@ class LunarRoom {
                 return;
             }
 
-            // DEV MODE: Always active, but still calculate dates properly
-            if (window.Core?.config?.DEV_MODE) {
-                console.log(`🔧 DEV MODE: ${this.config.name} force-enabled (phase: ${window.LunarEngine.currentMoonData.phase.toFixed(3)})`);
+            // ADMIN MODE: Always active regardless of phase
+            const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
+            if (isAdmin) {
+                console.log(`🛡️ ADMIN: ${this.config.name} force-enabled (phase: ${window.LunarEngine.currentMoonData.phase.toFixed(3)})`);
                 this.isActive = true;
                 this.calculateWeekDates();
                 this.loadUserWeekData();
@@ -202,9 +203,10 @@ class LunarRoom {
                 phase >= range[0] && phase <= range[1] // ✅ FIXED: Changed < to <=
             );
             
-            // ✅ DEV_MODE FIX: If not in phase but DEV_MODE is on, use first range as fallback
+            // ADMIN FIX: If not in phase but admin, use first range as fallback
             if (!activeRange) {
-                if (window.Core?.config?.DEV_MODE) {
+                const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
+                if (isAdmin) {
                     activeRange = this.config.phaseRanges[0];
                 } else {
                     // Not in phase - calculate next occurrence
@@ -465,7 +467,8 @@ class LunarRoom {
      */
     enterRoom() {
         try {
-            if (!this.isActive) {
+            const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
+            if (!this.isActive && !isAdmin) {
                 if (window.Core) {
                     window.Core.showToast(
                         `${this.config.emoji} ${this.config.name} room opens during the ${this.config.name} phase`
