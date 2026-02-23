@@ -559,11 +559,8 @@ const MemberProfileModal = {
             const adminSection = document.getElementById('memberModalAdminSection');
             const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
             if (adminSection) {
-                adminSection.style.display = isAdmin ? 'block' : 'none';
-                // Pre-select current role (hide Change Role button when viewing own profile)
-                const roleSubBtn = document.querySelector('button[onclick*="_openAdminSub(\'role\')"]');
-                if (roleSubBtn) roleSubBtn.style.display = isSelf ? 'none' : 'inline-block';
-                if (isAdmin && profile.community_role) {
+                adminSection.style.display = (isAdmin && !isSelf) ? 'block' : 'none';
+                if (isAdmin && !isSelf && profile.community_role) {
                     const roleSelect = document.getElementById('adminRoleSelect');
                     if (roleSelect) roleSelect.value = profile.community_role;
                 }
