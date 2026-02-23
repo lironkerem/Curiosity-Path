@@ -262,6 +262,234 @@ const MemberProfileModal = {
                             </div>
                         </div>
 
+                        <!-- Admin Panel (injected by JS if admin) -->
+                        <div id="memberModalAdminSection" style="display:none;margin-top:1rem;">
+                            <!-- Collapsible header -->
+                            <div onclick="MemberProfileModal._toggleAdminPanel()"
+                                 style="display:flex;align-items:center;justify-content:space-between;
+                                        padding:10px 14px;border-radius:12px;cursor:pointer;
+                                        background:rgba(139,92,246,0.08);
+                                        border:2px dashed rgba(139,92,246,0.4);
+                                        user-select:none;">
+                                <span style="font-size:0.78rem;font-weight:700;text-transform:uppercase;
+                                             letter-spacing:1px;color:rgba(139,92,246,0.9);">
+                                    🛡️ Admin Controls
+                                </span>
+                                <span id="memberModalAdminToggle"
+                                      style="font-size:0.75rem;color:rgba(139,92,246,0.7);">▶</span>
+                            </div>
+
+                            <!-- Collapsible body -->
+                            <div id="memberModalAdminBody" style="display:none;margin-top:10px;">
+
+                                <!-- Action buttons grid -->
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+                                    <button onclick="MemberProfileModal._openAdminSub('role')"
+                                            style="padding:9px 6px;border-radius:10px;border:none;cursor:pointer;
+                                                   font-size:0.82rem;font-weight:600;
+                                                   background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.95);">
+                                        👤 Change Role
+                                    </button>
+                                    <button onclick="MemberProfileModal._openAdminSub('xp')"
+                                            style="padding:9px 6px;border-radius:10px;border:none;cursor:pointer;
+                                                   font-size:0.82rem;font-weight:600;
+                                                   background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.95);">
+                                        ⭐ Send XP
+                                    </button>
+                                    <button onclick="MemberProfileModal._openAdminSub('karma')"
+                                            style="padding:9px 6px;border-radius:10px;border:none;cursor:pointer;
+                                                   font-size:0.82rem;font-weight:600;
+                                                   background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.95);">
+                                        🌀 Send Karma
+                                    </button>
+                                    <button onclick="MemberProfileModal._openAdminSub('badge')"
+                                            style="padding:9px 6px;border-radius:10px;border:none;cursor:pointer;
+                                                   font-size:0.82rem;font-weight:600;
+                                                   background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.95);">
+                                        🎖️ Send Badge
+                                    </button>
+                                    <button onclick="MemberProfileModal._openAdminSub('premium')"
+                                            style="padding:9px 6px;border-radius:10px;border:none;cursor:pointer;
+                                                   font-size:0.82rem;font-weight:600;
+                                                   background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.95);">
+                                        🔓 Unlock Premium
+                                    </button>
+                                    <button onclick="MemberProfileModal._openAdminSub('message')"
+                                            style="padding:9px 6px;border-radius:10px;border:none;cursor:pointer;
+                                                   font-size:0.82rem;font-weight:600;
+                                                   background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.95);">
+                                        📩 Send Message
+                                    </button>
+                                </div>
+
+                                <!-- Sub-panel: Change Role -->
+                                <div id="adminSubRole" style="display:none;" class="admin-sub-panel">
+                                    <select id="adminRoleSelect"
+                                            style="width:100%;padding:9px;border-radius:10px;
+                                                   border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
+                                                   margin-bottom:8px;background:var(--neuro-bg);color:var(--neuro-text);">
+                                        <option value="Member">Member</option>
+                                        <option value="Moderator">Moderator</option>
+                                        <option value="Guide">Guide</option>
+                                        <option value="Elder">Elder</option>
+                                        <option value="Admin">Admin</option>
+                                    </select>
+                                    <div style="display:flex;gap:8px;">
+                                        <button onclick="MemberProfileModal._adminChangeRole()"
+                                                style="flex:1;padding:8px;border-radius:10px;border:none;cursor:pointer;
+                                                       font-size:0.88rem;font-weight:600;
+                                                       background:rgba(139,92,246,0.85);color:#fff;">
+                                            Save Role
+                                        </button>
+                                        <button onclick="MemberProfileModal._closeAdminSubs()"
+                                                style="padding:8px 14px;border-radius:10px;border:none;cursor:pointer;
+                                                       font-size:0.88rem;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
+                                                       color:var(--neuro-text);">Cancel</button>
+                                    </div>
+                                </div>
+
+                                <!-- Sub-panel: Send XP -->
+                                <div id="adminSubXp" style="display:none;" class="admin-sub-panel">
+                                    <input type="number" id="adminXpAmount" min="1" value="100" placeholder="XP amount"
+                                           style="width:100%;padding:9px;border-radius:10px;box-sizing:border-box;
+                                                  border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
+                                                  margin-bottom:8px;background:var(--neuro-bg);color:var(--neuro-text);">
+                                    <div style="display:flex;gap:8px;">
+                                        <button onclick="MemberProfileModal._adminSendXP()"
+                                                style="flex:1;padding:8px;border-radius:10px;border:none;cursor:pointer;
+                                                       font-size:0.88rem;font-weight:600;
+                                                       background:rgba(139,92,246,0.85);color:#fff;">
+                                            Send XP
+                                        </button>
+                                        <button onclick="MemberProfileModal._closeAdminSubs()"
+                                                style="padding:8px 14px;border-radius:10px;border:none;cursor:pointer;
+                                                       font-size:0.88rem;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
+                                                       color:var(--neuro-text);">Cancel</button>
+                                    </div>
+                                </div>
+
+                                <!-- Sub-panel: Send Karma -->
+                                <div id="adminSubKarma" style="display:none;" class="admin-sub-panel">
+                                    <input type="number" id="adminKarmaAmount" min="1" value="50" placeholder="Karma amount"
+                                           style="width:100%;padding:9px;border-radius:10px;box-sizing:border-box;
+                                                  border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
+                                                  margin-bottom:8px;background:var(--neuro-bg);color:var(--neuro-text);">
+                                    <div style="display:flex;gap:8px;">
+                                        <button onclick="MemberProfileModal._adminSendKarma()"
+                                                style="flex:1;padding:8px;border-radius:10px;border:none;cursor:pointer;
+                                                       font-size:0.88rem;font-weight:600;
+                                                       background:rgba(139,92,246,0.85);color:#fff;">
+                                            Send Karma
+                                        </button>
+                                        <button onclick="MemberProfileModal._closeAdminSubs()"
+                                                style="padding:8px 14px;border-radius:10px;border:none;cursor:pointer;
+                                                       font-size:0.88rem;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
+                                                       color:var(--neuro-text);">Cancel</button>
+                                    </div>
+                                </div>
+
+                                <!-- Sub-panel: Send Badge -->
+                                <div id="adminSubBadge" style="display:none;" class="admin-sub-panel">
+                                    <select id="adminBadgeSelect"
+                                            style="width:100%;padding:9px;border-radius:10px;
+                                                   border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
+                                                   margin-bottom:8px;background:var(--neuro-bg);color:var(--neuro-text);">
+                                        <option value="early_supporter" data-icon="🌟" data-rarity="epic" data-xp="100" data-desc="Joined during early access">🌟 Early Supporter</option>
+                                        <option value="vip_member" data-icon="👑" data-rarity="legendary" data-xp="150" data-desc="VIP community member">👑 VIP Member</option>
+                                        <option value="beta_tester" data-icon="🧪" data-rarity="rare" data-xp="100" data-desc="Helped test new features">🧪 Beta Tester</option>
+                                        <option value="spiritual_guide" data-icon="🕉️" data-rarity="epic" data-xp="150" data-desc="Community mentor and guide">🕉️ Spiritual Guide</option>
+                                        <option value="community_hero" data-icon="🦸" data-rarity="legendary" data-xp="200" data-desc="Outstanding community contribution">🦸 Community Hero</option>
+                                    </select>
+                                    <div style="display:flex;gap:8px;">
+                                        <button onclick="MemberProfileModal._adminSendBadge()"
+                                                style="flex:1;padding:8px;border-radius:10px;border:none;cursor:pointer;
+                                                       font-size:0.88rem;font-weight:600;
+                                                       background:rgba(139,92,246,0.85);color:#fff;">
+                                            Award Badge
+                                        </button>
+                                        <button onclick="MemberProfileModal._closeAdminSubs()"
+                                                style="padding:8px 14px;border-radius:10px;border:none;cursor:pointer;
+                                                       font-size:0.88rem;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
+                                                       color:var(--neuro-text);">Cancel</button>
+                                    </div>
+                                </div>
+
+                                <!-- Sub-panel: Unlock Premium -->
+                                <div id="adminSubPremium" style="display:none;" class="admin-sub-panel">
+                                    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;
+                                                max-height:160px;overflow-y:auto;padding:4px 0;">
+                                        <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;">
+                                            <input type="checkbox" value="advance_tarot_spreads"> Advanced Tarot Spreads
+                                        </label>
+                                        <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;">
+                                            <input type="checkbox" value="tarot_vision_ai"> Tarot Vision AI
+                                        </label>
+                                        <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;">
+                                            <input type="checkbox" value="shadow_alchemy_lab"> Shadow Alchemy Lab
+                                        </label>
+                                        <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;">
+                                            <input type="checkbox" value="advanced_meditations"> Advanced Meditations
+                                        </label>
+                                        <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;">
+                                            <input type="checkbox" value="luxury_blush_champagne_skin"> Blush Champagne Skin
+                                        </label>
+                                        <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;">
+                                            <input type="checkbox" value="luxury_champagne_gold_skin"> Champagne Gold Skin
+                                        </label>
+                                        <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;">
+                                            <input type="checkbox" value="luxury_marble_bronze_skin"> Marble Bronze Skin
+                                        </label>
+                                        <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;">
+                                            <input type="checkbox" value="royal_indigo_skin"> Royal Indigo Skin
+                                        </label>
+                                        <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;">
+                                            <input type="checkbox" value="earth_luxury_skin"> Earth Luxury Skin
+                                        </label>
+                                    </div>
+                                    <div style="display:flex;gap:8px;">
+                                        <button onclick="MemberProfileModal._adminUnlockPremium()"
+                                                style="flex:1;padding:8px;border-radius:10px;border:none;cursor:pointer;
+                                                       font-size:0.88rem;font-weight:600;
+                                                       background:rgba(139,92,246,0.85);color:#fff;">
+                                            Unlock Selected
+                                        </button>
+                                        <button onclick="MemberProfileModal._closeAdminSubs()"
+                                                style="padding:8px 14px;border-radius:10px;border:none;cursor:pointer;
+                                                       font-size:0.88rem;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
+                                                       color:var(--neuro-text);">Cancel</button>
+                                    </div>
+                                </div>
+
+                                <!-- Sub-panel: Send Message -->
+                                <div id="adminSubMessage" style="display:none;" class="admin-sub-panel">
+                                    <input type="text" id="adminMessageTitle" placeholder="Message title"
+                                           maxlength="100"
+                                           style="width:100%;padding:9px;border-radius:10px;box-sizing:border-box;
+                                                  border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
+                                                  margin-bottom:8px;background:var(--neuro-bg);color:var(--neuro-text);">
+                                    <textarea id="adminMessageContent" placeholder="Write your message..." rows="3"
+                                              maxlength="1000"
+                                              style="width:100%;padding:9px;border-radius:10px;box-sizing:border-box;
+                                                     border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
+                                                     resize:none;margin-bottom:8px;
+                                                     background:var(--neuro-bg);color:var(--neuro-text);"></textarea>
+                                    <div style="display:flex;gap:8px;">
+                                        <button onclick="MemberProfileModal._adminSendMessage()"
+                                                style="flex:1;padding:8px;border-radius:10px;border:none;cursor:pointer;
+                                                       font-size:0.88rem;font-weight:600;
+                                                       background:rgba(139,92,246,0.85);color:#fff;">
+                                            Send Message
+                                        </button>
+                                        <button onclick="MemberProfileModal._closeAdminSubs()"
+                                                style="padding:8px 14px;border-radius:10px;border:none;cursor:pointer;
+                                                       font-size:0.88rem;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
+                                                       color:var(--neuro-text);">Cancel</button>
+                                    </div>
+                                </div>
+
+                            </div><!-- /adminBody -->
+                        </div><!-- /adminSection -->
+
                     </div><!-- /memberModalContent -->
                 </div><!-- /inner -->
             </div><!-- /modal -->`;
@@ -326,6 +554,23 @@ const MemberProfileModal = {
             if (actionsRow) actionsRow.style.display = isSelf ? 'none' : 'flex';
             const appreciateBtn = document.getElementById('memberModalAppreciateBtn');
             if (appreciateBtn) appreciateBtn.style.display = isSelf ? 'none' : 'block';
+
+            // Show admin section if current user is admin (not for own profile)
+            const adminSection = document.getElementById('memberModalAdminSection');
+            const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
+            if (adminSection) {
+                adminSection.style.display = (isAdmin && !isSelf) ? 'block' : 'none';
+                if (isAdmin && !isSelf && profile.community_role) {
+                    const roleSelect = document.getElementById('adminRoleSelect');
+                    if (roleSelect) roleSelect.value = profile.community_role;
+                }
+                // Reset to collapsed
+                const body = document.getElementById('memberModalAdminBody');
+                const toggle = document.getElementById('memberModalAdminToggle');
+                if (body) body.style.display = 'none';
+                if (toggle) toggle.textContent = '▶';
+                this._closeAdminSubs();
+            }
 
             // Load appreciate state for this user
             if (!isSelf) {
@@ -679,6 +924,273 @@ const MemberProfileModal = {
         if (sel) sel.value = '';
         const det = document.getElementById('memberModalReportDetails');
         if (det) det.value = '';
+        this._closeAdminSubs();
+    },
+
+    // ============================================================================
+    // ADMIN PANEL
+    // ============================================================================
+
+    _toggleAdminPanel() {
+        const body   = document.getElementById('memberModalAdminBody');
+        const toggle = document.getElementById('memberModalAdminToggle');
+        if (!body) return;
+        const open = body.style.display !== 'none';
+        body.style.display   = open ? 'none' : 'block';
+        toggle.textContent   = open ? '▶' : '▼';
+        if (open) this._closeAdminSubs();
+    },
+
+    _openAdminSub(name) {
+        this._closeAdminSubs();
+        const el = document.getElementById(`adminSub${name.charAt(0).toUpperCase() + name.slice(1)}`);
+        if (el) el.style.display = 'block';
+    },
+
+    _closeAdminSubs() {
+        ['adminSubRole','adminSubXp','adminSubKarma','adminSubBadge','adminSubPremium','adminSubMessage']
+            .forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+    },
+
+    // --- Change Role ---
+    async _adminChangeRole() {
+        const select = document.getElementById('adminRoleSelect');
+        const role   = select?.value;
+        if (!role || !this.state.currentUserId) return;
+
+        const btn = document.querySelector('#adminSubRole button');
+        if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+
+        try {
+            const { error } = await CommunityDB.supabase
+                .from('profiles')
+                .update({ community_role: role })
+                .eq('id', this.state.currentUserId);
+
+            if (error) throw error;
+
+            // Refresh role pill in modal
+            const roleEl = document.getElementById('memberModalRole');
+            if (roleEl) roleEl.textContent = `👤 ${role}`;
+
+            Core.showToast(`✓ Role changed to ${role}`);
+            this._closeAdminSubs();
+        } catch (err) {
+            console.error('[AdminPanel] changeRole error:', err);
+            Core.showToast('❌ Could not change role');
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = 'Save Role'; }
+        }
+    },
+
+    // --- Send XP ---
+    async _adminSendXP() {
+        const amount = parseInt(document.getElementById('adminXpAmount')?.value, 10);
+        if (!amount || amount < 1) { Core.showToast('Enter a valid XP amount'); return; }
+
+        const btn = document.querySelector('#adminSubXp button');
+        if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+
+        try {
+            const { error } = await CommunityDB.supabase.rpc('update_user_gamification', {
+                target_user_id: this.state.currentUserId,
+                xp_delta:    amount,
+                karma_delta: 0
+            });
+            if (error) throw error;
+            await this._adminPushNotify(this.state.currentUserId, '🎁 Gift from Aanandoham!', `You received +${amount} XP!`);
+            Core.showToast(`✓ Sent ${amount} XP`);
+            this._closeAdminSubs();
+        } catch (err) {
+            console.error('[AdminPanel] sendXP error:', err);
+            Core.showToast('❌ Could not send XP');
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = 'Send XP'; }
+        }
+    },
+
+    // --- Send Karma ---
+    async _adminSendKarma() {
+        const amount = parseInt(document.getElementById('adminKarmaAmount')?.value, 10);
+        if (!amount || amount < 1) { Core.showToast('Enter a valid Karma amount'); return; }
+
+        const btn = document.querySelector('#adminSubKarma button');
+        if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+
+        try {
+            const { error } = await CommunityDB.supabase.rpc('update_user_gamification', {
+                target_user_id: this.state.currentUserId,
+                xp_delta:    0,
+                karma_delta: amount
+            });
+            if (error) throw error;
+            await this._adminPushNotify(this.state.currentUserId, '🎁 Gift from Aanandoham!', `You received +${amount} Karma!`);
+            Core.showToast(`✓ Sent ${amount} Karma`);
+            this._closeAdminSubs();
+        } catch (err) {
+            console.error('[AdminPanel] sendKarma error:', err);
+            Core.showToast('❌ Could not send Karma');
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = 'Send Karma'; }
+        }
+    },
+
+    // --- Send Badge ---
+    async _adminSendBadge() {
+        const select = document.getElementById('adminBadgeSelect');
+        const opt    = select?.selectedOptions[0];
+        if (!opt) return;
+
+        const badge = {
+            id:          opt.value,
+            name:        opt.textContent.replace(/^.+? /, '').trim(),
+            icon:        opt.dataset.icon  || '🏅',
+            rarity:      opt.dataset.rarity || 'common',
+            xp:          parseInt(opt.dataset.xp, 10) || 0,
+            description: opt.dataset.desc  || '',
+        };
+
+        const btn = document.querySelector('#adminSubBadge button');
+        if (btn) { btn.disabled = true; btn.textContent = 'Awarding...'; }
+
+        try {
+            const { data: prog } = await CommunityDB.supabase
+                .from('user_progress')
+                .select('payload')
+                .eq('user_id', this.state.currentUserId)
+                .single();
+
+            const payload = prog?.payload || {};
+            const badges  = payload.badges || [];
+
+            if (badges.find(b => b.id === badge.id)) {
+                Core.showToast('⚠️ Member already has this badge');
+                return;
+            }
+
+            badges.push({ ...badge, date: new Date().toISOString(), unlocked: true });
+
+            const { error } = await CommunityDB.supabase
+                .from('user_progress')
+                .update({ payload: { ...payload, badges }, updated_at: new Date().toISOString() })
+                .eq('user_id', this.state.currentUserId);
+
+            if (error) throw error;
+            await this._adminPushNotify(this.state.currentUserId, '🎖️ New Badge Earned!', `You received the ${badge.name} badge!`);
+            Core.showToast(`✓ Awarded ${badge.icon} ${badge.name}`);
+            this._closeAdminSubs();
+        } catch (err) {
+            console.error('[AdminPanel] sendBadge error:', err);
+            Core.showToast('❌ Could not award badge');
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = 'Award Badge'; }
+        }
+    },
+
+    // --- Unlock Premium ---
+    async _adminUnlockPremium() {
+        const checked = [...document.querySelectorAll('#adminSubPremium input[type=checkbox]:checked')]
+            .map(cb => cb.value);
+
+        if (!checked.length) { Core.showToast('Select at least one feature'); return; }
+
+        const btn = document.querySelector('#adminSubPremium button');
+        if (btn) { btn.disabled = true; btn.textContent = 'Unlocking...'; }
+
+        try {
+            for (const feature of checked) {
+                const { error } = await CommunityDB.supabase.rpc('update_user_gamification', {
+                    target_user_id: this.state.currentUserId,
+                    xp_delta:       0,
+                    karma_delta:    0,
+                    unlock_feature: feature
+                });
+                if (error) throw error;
+            }
+            const names = checked.map(f => f.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())).join(', ');
+            await this._adminPushNotify(this.state.currentUserId, '🔓 New Features Unlocked!', `Admin unlocked: ${names}`);
+            Core.showToast(`✓ Unlocked ${checked.length} feature(s)`);
+            this._closeAdminSubs();
+        } catch (err) {
+            console.error('[AdminPanel] unlockPremium error:', err);
+            Core.showToast('❌ Could not unlock features');
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = 'Unlock Selected'; }
+        }
+    },
+
+    // --- Send Message ---
+    async _adminSendMessage() {
+        const title   = document.getElementById('adminMessageTitle')?.value.trim();
+        const content = document.getElementById('adminMessageContent')?.value.trim();
+
+        if (!title)   { Core.showToast('Please enter a message title'); return; }
+        if (!content) { Core.showToast('Please enter a message'); return; }
+
+        const btn = document.querySelector('#adminSubMessage button');
+        if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+
+        try {
+            const { data: prog } = await CommunityDB.supabase
+                .from('user_progress')
+                .select('payload')
+                .eq('user_id', this.state.currentUserId)
+                .single();
+
+            const payload  = prog?.payload || {};
+            const messages = payload.adminMessages || [];
+
+            messages.push({
+                id:      Date.now() + Math.random(),
+                title,
+                content,
+                date:    new Date().toISOString(),
+                read:    false
+            });
+
+            const { error } = await CommunityDB.supabase
+                .from('user_progress')
+                .update({ payload: { ...payload, adminMessages: messages }, updated_at: new Date().toISOString() })
+                .eq('user_id', this.state.currentUserId);
+
+            if (error) throw error;
+            const preview = content.length > 80 ? content.substring(0, 80) + '...' : content;
+            await this._adminPushNotify(this.state.currentUserId, `💬 ${title}`, preview);
+            Core.showToast('✓ Message sent');
+            this._closeAdminSubs();
+            document.getElementById('adminMessageTitle').value   = '';
+            document.getElementById('adminMessageContent').value = '';
+        } catch (err) {
+            console.error('[AdminPanel] sendMessage error:', err);
+            Core.showToast('❌ Could not send message');
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = 'Send Message'; }
+        }
+    },
+
+    // --- Push notification helper ---
+    async _adminPushNotify(userId, title, body) {
+        try {
+            const { data: subs } = await CommunityDB.supabase
+                .from('push_subscriptions')
+                .select('subscription')
+                .eq('user_id', userId);
+
+            if (!subs?.length) return;
+
+            await Promise.allSettled(subs.map(s =>
+                fetch('/api/send', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ sub: s.subscription, payload: { title, body, icon: '/icons/icon-192x192.png', data: { url: '/' } } })
+                }).catch(() => {})
+            ));
+        } catch (err) {
+            console.error('[AdminPanel] push notify error:', err);
+        }
     },
 
     _escape(str) {
