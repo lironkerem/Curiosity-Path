@@ -193,6 +193,7 @@ const CommunityModule = {
         const gradient    = Core.getAvatarGradient(profile.id || ref.id);
         const timeStr     = this.formatRelativeTime(ref.created_at);
         const isOwn       = profile.id === Core?.state?.currentUser?.id;
+        const isAdmin     = window.Core?.state?.currentUser?.is_admin === true;
         const appreciated = this.state.appreciatedReflections.has(ref.id);
 
         const avatarInner = avatarUrl
@@ -241,7 +242,13 @@ const CommunityModule = {
                                 class="ref-action"
                                 title="Delete reflection"
                                 style="font-size:14px;opacity:0.6;">🗑️</button>
-                    </div>` : ''}
+                    </div>` : (isAdmin ? `
+                    <div style="margin-left:auto;display:flex;gap:4px;">
+                        <button onclick="CommunityModule.deleteReflection('${ref.id}')"
+                                class="ref-action"
+                                title="Delete reflection (Admin)"
+                                style="font-size:14px;opacity:0.6;color:rgba(139,92,246,0.8);">🛡️🗑️</button>
+                    </div>` : '')}
                 </div>
             </div>`;
     },

@@ -966,7 +966,32 @@ const CommunityDB = {
   unsubscribeAll() {
     Object.values(this._subs).forEach(sub => { try { sub.unsubscribe(); } catch(e) {} });
     this._subs = {};
-  }
+  },
+
+  // ============================================================================
+  // APP SETTINGS
+  // ============================================================================
+
+  async getAppSettings(key) {
+    if (!this.ready) return null;
+    const { data, error } = await this._sb
+      .from('app_settings')
+      .select('value')
+      .eq('key', key)
+      .single();
+    if (error) { console.error('[CommunityDB] getAppSettings:', error.message); return null; }
+    return data?.value ?? null;
+  },
+
+  async saveAppSettings(key, value) {
+    if (!this.ready) return false;
+    const { error } = await this._sb
+      .from('app_settings')
+      .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+    if (error) { console.error('[CommunityDB] saveAppSettings:', error.message); return false; }
+    return true;
+  },
+
 };
 
 console.log('✅ community-supabase.js loaded');

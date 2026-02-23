@@ -965,7 +965,7 @@ const MemberProfileModal = {
         if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
 
         try {
-            const { error } = await CommunityDB.supabase
+            const { error } = await CommunityDB._sb
                 .from('profiles')
                 .update({ community_role: role })
                 .eq('id', this.state.currentUserId);
@@ -995,7 +995,7 @@ const MemberProfileModal = {
         if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
 
         try {
-            const { error } = await CommunityDB.supabase.rpc('update_user_gamification', {
+            const { error } = await CommunityDB._sb.rpc('update_user_gamification', {
                 target_user_id: this.state.currentUserId,
                 xp_delta:    amount,
                 karma_delta: 0
@@ -1021,7 +1021,7 @@ const MemberProfileModal = {
         if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
 
         try {
-            const { error } = await CommunityDB.supabase.rpc('update_user_gamification', {
+            const { error } = await CommunityDB._sb.rpc('update_user_gamification', {
                 target_user_id: this.state.currentUserId,
                 xp_delta:    0,
                 karma_delta: amount
@@ -1057,7 +1057,7 @@ const MemberProfileModal = {
         if (btn) { btn.disabled = true; btn.textContent = 'Awarding...'; }
 
         try {
-            const { data: prog } = await CommunityDB.supabase
+            const { data: prog } = await CommunityDB._sb
                 .from('user_progress')
                 .select('payload')
                 .eq('user_id', this.state.currentUserId)
@@ -1073,7 +1073,7 @@ const MemberProfileModal = {
 
             badges.push({ ...badge, date: new Date().toISOString(), unlocked: true });
 
-            const { error } = await CommunityDB.supabase
+            const { error } = await CommunityDB._sb
                 .from('user_progress')
                 .update({ payload: { ...payload, badges }, updated_at: new Date().toISOString() })
                 .eq('user_id', this.state.currentUserId);
@@ -1102,7 +1102,7 @@ const MemberProfileModal = {
 
         try {
             for (const feature of checked) {
-                const { error } = await CommunityDB.supabase.rpc('update_user_gamification', {
+                const { error } = await CommunityDB._sb.rpc('update_user_gamification', {
                     target_user_id: this.state.currentUserId,
                     xp_delta:       0,
                     karma_delta:    0,
@@ -1134,7 +1134,7 @@ const MemberProfileModal = {
         if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
 
         try {
-            const { data: prog } = await CommunityDB.supabase
+            const { data: prog } = await CommunityDB._sb
                 .from('user_progress')
                 .select('payload')
                 .eq('user_id', this.state.currentUserId)
@@ -1151,7 +1151,7 @@ const MemberProfileModal = {
                 read:    false
             });
 
-            const { error } = await CommunityDB.supabase
+            const { error } = await CommunityDB._sb
                 .from('user_progress')
                 .update({ payload: { ...payload, adminMessages: messages }, updated_at: new Date().toISOString() })
                 .eq('user_id', this.state.currentUserId);
@@ -1174,7 +1174,7 @@ const MemberProfileModal = {
     // --- Push notification helper ---
     async _adminPushNotify(userId, title, body) {
         try {
-            const { data: subs } = await CommunityDB.supabase
+            const { data: subs } = await CommunityDB._sb
                 .from('push_subscriptions')
                 .select('subscription')
                 .eq('user_id', userId);

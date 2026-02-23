@@ -150,6 +150,7 @@ const Core = {
                 birthday:         profile.birthday         || null,
                 country:          profile.country          || null,
                 email:            profile.email            || '',
+                is_admin:         profile.is_admin          === true,
                 // karma/xp/badges loaded from GamificationEngine (lives at window.app.gamification)
                 karma:            window.app?.gamification?.state?.karma  ?? 0,
                 xp:               window.app?.gamification?.state?.xp     ?? 0,

@@ -85,6 +85,111 @@ const UpcomingEvents = {
     },
 
     // ============================================================================
+    // FLYER CATALOG — pre-made text for each flyer image
+    // ============================================================================
+
+    flyerCatalog: {
+        'Sessions1.jpg': {
+            title: 'Private Tarot Spread',
+            subtitle: 'Personal reading tailored to your questions',
+            info: 'A one-on-one deep dive into your personal journey. Bring your questions about love, career, or life path. Receive guidance and clarity through the cards.',
+            type: '🎴 In-Person or Online',
+        },
+        'Sessions2.jpg': {
+            title: 'Private Reiki Healing Session',
+            subtitle: 'Energy healing for balance and wellness',
+            info: 'Experience deep relaxation and energetic clearing. Reiki helps release blockages, reduce stress, and restore your natural state of wellbeing.',
+            type: '✨ In-Person or Online',
+        },
+        'Sessions3.jpg': {
+            title: 'Classic Meditation Masterclass',
+            subtitle: 'Foundational techniques for daily practice',
+            info: 'Master the essential meditation techniques used for thousands of years. Learn breath control, mindfulness, and deep relaxation methods.',
+            type: '🧘 Online Zoom Class',
+        },
+        'Sessions4.jpg': {
+            title: 'Tarot Masterclass',
+            subtitle: 'Learn to read the cards with confidence',
+            info: 'Discover the ancient wisdom of tarot through interactive lessons. Suitable for beginners and intermediate practitioners.',
+            type: '🎴 Online Zoom Class',
+        },
+        'Sessions5.jpg': {
+            title: 'Spiritual Guidance Session',
+            subtitle: 'Navigate your path with clarity',
+            info: 'A personal session exploring your spiritual journey, helping you find direction and deeper meaning in your everyday life.',
+            type: '🌟 In-Person or Online',
+        },
+        'Sessions6.jpg': {
+            title: 'Chakra Balancing Session',
+            subtitle: 'Restore your energetic centres',
+            info: 'A focused energy session working through your seven chakras to release blockages and restore natural flow and vitality.',
+            type: '✨ In-Person or Online',
+        },
+        'Sessions7.jpg': {
+            title: 'Intuitive Oracle Reading',
+            subtitle: 'Receive messages from your higher self',
+            info: 'An intuitive oracle card session offering guidance, reflection, and clarity for your current life chapter.',
+            type: '🔮 In-Person or Online',
+        },
+        'Sessions8.jpg': {
+            title: 'Sound Healing Session',
+            subtitle: 'Healing through vibration and resonance',
+            info: 'Experience the transformative power of sound healing. Tibetan bowls and vocal toning guide you into deep relaxation and restoration.',
+            type: '🎵 In-Person',
+        },
+        'Sessions9.jpg': {
+            title: 'Breathwork Journey',
+            subtitle: 'Release, heal and expand through breath',
+            info: 'A guided breathwork session using conscious connected breathing to access deeper states, release stored emotions, and expand awareness.',
+            type: '🌬️ In-Person or Online',
+        },
+        'Workshop1.jpg': {
+            title: 'Tarot Foundations Workshop',
+            subtitle: 'Your complete introduction to the cards',
+            info: 'A full-day immersive workshop covering all 78 cards, spreads, and intuitive reading techniques. Perfect for beginners.',
+            type: '🎴 Workshop',
+        },
+        'Workshop2.jpg': {
+            title: 'Meditation & Mindfulness Workshop',
+            subtitle: 'Build a lasting daily practice',
+            info: 'An experiential workshop covering multiple meditation styles, breath techniques, and practical tools to establish a consistent practice.',
+            type: '🧘 Workshop',
+        },
+        'Workshop3.jpg': {
+            title: 'Energy Healing Workshop',
+            subtitle: 'Learn to sense and work with energy',
+            info: 'Hands-on training in energy healing fundamentals. Learn to sense the aura, work with chakras, and perform basic energy clearing.',
+            type: '✨ Workshop',
+        },
+        'Workshop4.jpg': {
+            title: 'Spiritual Awakening Workshop',
+            subtitle: 'Deepen your connection to your true self',
+            info: 'A transformative day exploring consciousness, inner knowing, and practical tools for living an awakened, purposeful life.',
+            type: '🌟 Workshop',
+        },
+        'Workshop5.jpg': {
+            title: 'Shadow Work Intensive',
+            subtitle: 'Embrace and integrate your whole self',
+            info: 'A guided deep-dive into shadow work using journaling, archetypes, and somatic tools to integrate hidden aspects of yourself.',
+            type: '🌑 Workshop',
+        },
+        'Workshop6.jpg': {
+            title: 'Manifestation & Law of Attraction',
+            subtitle: 'Align your energy with your desires',
+            info: 'Learn the principles of conscious creation. Practical tools for visualization, intention setting, and energetic alignment.',
+            type: '🌠 Workshop',
+        },
+    },
+
+    // Base URL for flyer images
+    _flyerBase: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/CTA/',
+
+    // Admin modal state
+    _adminModal: null,
+    _adminActiveTab: 'classes', // 'classes' | 'sessions'
+    _adminDraft: { classes: null, sessions: null },
+
+    // ============================================================================
     // HTML GENERATION
     // ============================================================================
     
@@ -97,7 +202,16 @@ const UpcomingEvents = {
         <section class="section">
             <div class="section-header">
                 <div class="section-title">Upcoming Events</div>
-                <div style="font-size: 12px; color: var(--text-muted);">Group classes & private sessions</div>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="font-size: 12px; color: var(--text-muted);">Group classes & private sessions</div>
+                    ${window.Core?.state?.currentUser?.is_admin === true ? `
+                    <button onclick="UpcomingEvents.openAdminModal()"
+                            style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:99px;border:none;
+                                   cursor:pointer;background:rgba(139,92,246,0.12);color:rgba(139,92,246,0.9);
+                                   text-transform:uppercase;letter-spacing:0.5px;">
+                        🛡️ Update Flyers
+                    </button>` : ''}
+                </div>
             </div>
             
             <div class="events-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
@@ -388,7 +502,7 @@ const UpcomingEvents = {
     /**
      * Render upcoming events into container
      */
-    render() {
+    async render() {
         if (this.state.isInitialized) {
             console.warn('UpcomingEvents already initialized');
             return;
@@ -401,6 +515,13 @@ const UpcomingEvents = {
         }
 
         try {
+            // Load saved config from Supabase if available
+            if (window.CommunityDB?.ready) {
+                const saved = await CommunityDB.getAppSettings('upcoming_events');
+                if (saved?.classes) this.classes[0] = { ...this.classes[0], ...saved.classes };
+                if (saved?.sessions) this.sessions[0] = { ...this.sessions[0], ...saved.sessions };
+            }
+
             container.innerHTML = this.getHTML();
             
             // Start rotation after render
@@ -411,6 +532,213 @@ const UpcomingEvents = {
             
         } catch (error) {
             console.error('UpcomingEvents render error:', error);
+        }
+    },
+
+    // ============================================================================
+    // ADMIN MODAL
+    // ============================================================================
+
+    openAdminModal() {
+        if (document.getElementById('eventsAdminModal')) return;
+
+        // Init drafts from current data
+        this._adminDraft = {
+            classes:  { ...this.classes[0] },
+            sessions: { ...this.sessions[0] },
+        };
+        this._adminActiveTab = 'classes';
+
+        const modal = document.createElement('div');
+        modal.id = 'eventsAdminModal';
+        modal.style.cssText = `position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.6);
+            backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;`;
+        modal.innerHTML = this._getAdminModalHTML();
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+
+        // Close on backdrop
+        modal.addEventListener('click', e => { if (e.target === modal) this.closeAdminModal(); });
+
+        this._renderAdminTab('classes');
+    },
+
+    closeAdminModal() {
+        const modal = document.getElementById('eventsAdminModal');
+        if (modal) modal.remove();
+        document.body.style.overflow = '';
+    },
+
+    _getAdminModalHTML() {
+        return `
+        <div style="background:var(--neuro-bg,#f0f0f3);border-radius:20px;padding:24px;
+                    max-width:560px;width:94%;max-height:90vh;overflow-y:auto;position:relative;
+                    box-shadow:8px 8px 20px rgba(0,0,0,0.2);">
+            <button onclick="UpcomingEvents.closeAdminModal()"
+                    style="position:absolute;top:14px;right:16px;background:none;border:none;
+                           cursor:pointer;font-size:18px;opacity:0.5;">✕</button>
+
+            <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+                        color:rgba(139,92,246,0.9);margin-bottom:16px;">🛡️ Update Flyers</div>
+
+            <!-- Tabs -->
+            <div style="display:flex;gap:8px;margin-bottom:20px;">
+                <button id="adminTabClasses" onclick="UpcomingEvents._switchAdminTab('classes')"
+                        style="flex:1;padding:9px;border-radius:10px;border:none;cursor:pointer;
+                               font-size:0.88rem;font-weight:600;
+                               background:rgba(139,92,246,0.85);color:#fff;">
+                    Left Card (Classes)
+                </button>
+                <button id="adminTabSessions" onclick="UpcomingEvents._switchAdminTab('sessions')"
+                        style="flex:1;padding:9px;border-radius:10px;border:none;cursor:pointer;
+                               font-size:0.88rem;font-weight:600;
+                               background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.9);">
+                    Right Card (Sessions)
+                </button>
+            </div>
+
+            <!-- Tab content injected here -->
+            <div id="adminTabContent"></div>
+
+            <!-- Save -->
+            <div style="display:flex;gap:10px;margin-top:20px;">
+                <button onclick="UpcomingEvents._adminSave()"
+                        style="flex:1;padding:11px;border-radius:12px;border:none;cursor:pointer;
+                               font-size:0.92rem;font-weight:700;
+                               background:rgba(139,92,246,0.85);color:#fff;">
+                    Save & Publish
+                </button>
+                <button onclick="UpcomingEvents.closeAdminModal()"
+                        style="padding:11px 18px;border-radius:12px;border:none;cursor:pointer;
+                               font-size:0.92rem;background:rgba(0,0,0,0.06);color:var(--neuro-text);">
+                    Cancel
+                </button>
+            </div>
+        </div>`;
+    },
+
+    _switchAdminTab(tab) {
+        this._adminActiveTab = tab;
+        const cBtn = document.getElementById('adminTabClasses');
+        const sBtn = document.getElementById('adminTabSessions');
+        if (cBtn) { cBtn.style.background = tab === 'classes' ? 'rgba(139,92,246,0.85)' : 'rgba(139,92,246,0.1)'; cBtn.style.color = tab === 'classes' ? '#fff' : 'rgba(139,92,246,0.9)'; }
+        if (sBtn) { sBtn.style.background = tab === 'sessions' ? 'rgba(139,92,246,0.85)' : 'rgba(139,92,246,0.1)'; sBtn.style.color = tab === 'sessions' ? '#fff' : 'rgba(139,92,246,0.9)'; }
+        this._renderAdminTab(tab);
+    },
+
+    _renderAdminTab(tab) {
+        const container = document.getElementById('adminTabContent');
+        if (!container) return;
+        const draft = this._adminDraft[tab];
+        const sessions = ['Sessions1.jpg','Sessions2.jpg','Sessions3.jpg','Sessions4.jpg',
+                          'Sessions5.jpg','Sessions6.jpg','Sessions7.jpg','Sessions8.jpg','Sessions9.jpg'];
+        const workshops = ['Workshop1.jpg','Workshop2.jpg','Workshop3.jpg',
+                           'Workshop4.jpg','Workshop5.jpg','Workshop6.jpg'];
+
+        const flyerGrid = (folder, files) => files.map(f => {
+            const url = this._flyerBase + folder + '/' + f;
+            const selected = draft.image === url;
+            return `<div onclick="UpcomingEvents._selectFlyer('${tab}','${url}','${f}')"
+                         style="cursor:pointer;border-radius:8px;overflow:hidden;
+                                border:3px solid ${selected ? 'rgba(139,92,246,0.8)' : 'transparent'};
+                                transition:border 0.15s;">
+                        <img src="${url}" style="width:100%;height:90px;object-fit:cover;display:block;">
+                        <div style="font-size:10px;text-align:center;padding:2px;color:var(--text-muted);">${f}</div>
+                    </div>`;
+        }).join('');
+
+        container.innerHTML = `
+            <div style="margin-bottom:14px;">
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+                            color:var(--text-muted);margin-bottom:8px;">Sessions</div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+                    ${flyerGrid('Sessions', sessions)}
+                </div>
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+                            color:var(--text-muted);margin:14px 0 8px;">Workshops</div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+                    ${flyerGrid('Workshops', workshops)}
+                </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <input id="adminField_title" placeholder="Title" value="${this.escapeHtml(draft.title||'')}"
+                       style="padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);
+                              font-size:0.88rem;background:var(--neuro-bg);color:var(--neuro-text);width:100%;box-sizing:border-box;">
+                <input id="adminField_subtitle" placeholder="Subtitle" value="${this.escapeHtml(draft.subtitle||'')}"
+                       style="padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);
+                              font-size:0.88rem;background:var(--neuro-bg);color:var(--neuro-text);width:100%;box-sizing:border-box;">
+                <textarea id="adminField_info" placeholder="Description" rows="3"
+                          style="padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);
+                                 font-size:0.88rem;background:var(--neuro-bg);color:var(--neuro-text);
+                                 width:100%;box-sizing:border-box;resize:vertical;">${this.escapeHtml(draft.info||'')}</textarea>
+                <input id="adminField_type" placeholder="Type (e.g. 🎴 Online Zoom Class)" value="${this.escapeHtml(draft.type||'')}"
+                       style="padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);
+                              font-size:0.88rem;background:var(--neuro-bg);color:var(--neuro-text);width:100%;box-sizing:border-box;">
+                <input id="adminField_datetime" placeholder="Date & Time (e.g. Monday, 10:00 AM GMT+2)" value="${this.escapeHtml(draft.datetime||'')}"
+                       style="padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);
+                              font-size:0.88rem;background:var(--neuro-bg);color:var(--neuro-text);width:100%;box-sizing:border-box;">
+            </div>
+        `;
+    },
+
+    _selectFlyer(tab, url, filename) {
+        const meta = this.flyerCatalog[filename] || {};
+        this._adminDraft[tab] = {
+            ...this._adminDraft[tab],
+            image:    url,
+            title:    meta.title    || this._adminDraft[tab].title,
+            subtitle: meta.subtitle || this._adminDraft[tab].subtitle,
+            info:     meta.info     || this._adminDraft[tab].info,
+            type:     meta.type     || this._adminDraft[tab].type,
+        };
+        this._renderAdminTab(tab);
+    },
+
+    _readAdminFields(tab) {
+        const g = id => document.getElementById(id)?.value?.trim() || '';
+        this._adminDraft[tab] = {
+            ...this._adminDraft[tab],
+            title:    g('adminField_title'),
+            subtitle: g('adminField_subtitle'),
+            info:     g('adminField_info'),
+            type:     g('adminField_type'),
+            datetime: g('adminField_datetime'),
+        };
+    },
+
+    async _adminSave() {
+        const saveBtn = document.querySelector('#eventsAdminModal button[onclick*="_adminSave"]');
+        if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; }
+
+        // Capture current tab fields before saving
+        this._readAdminFields(this._adminActiveTab);
+
+        try {
+            const ok = await CommunityDB.saveAppSettings('upcoming_events', {
+                classes:  this._adminDraft.classes,
+                sessions: this._adminDraft.sessions,
+            });
+            if (!ok) throw new Error('saveAppSettings returned false');
+
+            // Apply to live cards immediately
+            const cd = this._adminDraft.classes;
+            const sd = this._adminDraft.sessions;
+            if (cd) {
+                Object.assign(this.classes[0], cd);
+                this.updateCard(this.classes[0], 'classesImage', 'classesContent', '.classes-card', 'Register via WhatsApp', this.state.classIndex);
+            }
+            if (sd) {
+                Object.assign(this.sessions[0], sd);
+                this.updateCard(this.sessions[0], 'sessionsImage', 'sessionsContent', '.sessions-card', 'Book via WhatsApp', this.state.sessionIndex);
+            }
+
+            Core.showToast('✓ Flyers updated for all users');
+            this.closeAdminModal();
+        } catch (err) {
+            console.error('_adminSave error:', err);
+            Core.showToast('❌ Could not save — please try again');
+            if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save & Publish'; }
         }
     },
 

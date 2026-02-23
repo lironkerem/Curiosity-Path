@@ -137,9 +137,17 @@ const CollectiveField = {
                             </div>
                         </div>
                     </div>
-                    <div class="progress-stats">
+                    <div class="progress-stats" style="display:flex;align-items:center;">
                         <span class="progress-label">Energy Level</span>
                         <span class="progress-value" id="energyValue">${energyLevel}%</span>
+                        <span id="adminEnergyBtn" style="display:none;margin-left:8px;">
+                            <button onclick="CollectiveField.adminAddEnergy()"
+                                    title="Admin: Add Energy"
+                                    style="width:22px;height:22px;border-radius:50%;border:none;
+                                           cursor:pointer;font-size:13px;font-weight:700;line-height:1;
+                                           background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);
+                                           display:inline-flex;align-items:center;justify-content:center;">+</button>
+                        </span>
                     </div>
                 </div>
 
@@ -553,6 +561,12 @@ const CollectiveField = {
         }
         if (value) {
             value.textContent = `${level}%`;
+        }
+
+        // Show admin + button if admin
+        const adminBtn = document.getElementById('adminEnergyBtn');
+        if (adminBtn) {
+            adminBtn.style.display = window.Core?.state?.currentUser?.is_admin === true ? 'inline' : 'none';
         }
     },
 
@@ -1160,6 +1174,29 @@ const CollectiveField = {
         if (typeof level !== 'number' || level < 0 || level > 100) return;
         this.state.energyLevel = level;
         this._updateEnergyBar(level);
+    },
+
+    /**
+     * Admin: manually add +10 energy to the collective field
+     */
+    async adminAddEnergy() {
+        const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
+        if (!isAdmin) return;
+
+        const today = new Date().toISOString().slice(0, 10);
+        try {
+            const { error } = await window.CommunitySupabase.rpc('increment_field_pulse', {
+                p_date:       today,
+                p_energy_add: 10,
+            });
+            if (error) throw error;
+            // Reload so bar reflects DB truth
+            await window.CollectiveFieldDB.loadFieldState();
+            window.Core?.showToast('🛡️ +10 Energy added');
+        } catch (err) {
+            console.error('adminAddEnergy error:', err);
+            window.Core?.showToast('❌ Could not add energy');
+        }
     },
 
     /**
