@@ -187,9 +187,7 @@ const ProfileModule = {
                             </div>
                         </div>
 
-                        <div class="profile-activity-counts" id="profileActivityCounts"
-                             style="display:flex;gap:12px;flex-wrap:wrap;font-size:0.78rem;color:var(--text-muted);margin-top:10px;margin-bottom:0.5rem;">
-                        </div>
+
 
                         <div class="badges-row" id="badgesRow">
                             <!-- Populated dynamically from GamificationEngine -->
@@ -394,7 +392,6 @@ const ProfileModule = {
         const levelBadge = document.getElementById('profileLevelBadge');
         if (levelBadge) levelBadge.textContent = `✦ Level ${level} · ${title}`;
 
-        if (g) this.updateActivityCounts(g);
     },
 
     async loadCommunityStats() {
@@ -435,18 +432,6 @@ const ProfileModule = {
         } catch (e) {
             console.warn('[ProfileModule] loadCommunityStats error:', e);
         }
-    },
-
-    updateActivityCounts(g) {
-        const el = document.getElementById('profileActivityCounts');
-        if (!el) return;
-        const items = [
-            g.totalSessions    > 0 ? `🧘 ${g.totalSessions} meditations`   : null,
-            g.totalTarotSpreads > 0 ? `🔮 ${g.totalTarotSpreads} readings`  : null,
-            g.totalJournalEntries > 0 ? `📓 ${g.totalJournalEntries} journal entries` : null,
-            g.streak           > 0 ? `🔥 ${g.streak}-day streak`            : null,
-        ].filter(Boolean);
-        el.innerHTML = items.map(i => `<span>${i}</span>`).join('');
     },
 
     // ── Bio ──────────────────────────────────────────────────────────────────────
