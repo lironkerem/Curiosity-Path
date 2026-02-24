@@ -55,7 +55,7 @@ const ProfileModule = {
 
     getHTML() {
         return `
-        <header class="profile-hero" style="border-radius:20px 20px 0 0;overflow:hidden;">
+        <header class="profile-hero">
             <div class="profile-container">
                 <div class="profile-content">
                     <div class="profile-avatar-section">
@@ -167,7 +167,7 @@ const ProfileModule = {
                             <span id="profileCountryDisplay"></span>
                         </div>
 
-                        <!-- Stats: XP, Karma, Blessings, Favourite Room -->
+                        <!-- Stats: XP, Karma, Minutes -->
                         <div class="profile-stats">
                             <div class="p-stat">
                                 <span class="p-stat-num" id="statXP">0</span>
@@ -178,12 +178,12 @@ const ProfileModule = {
                                 <div class="p-stat-label">Karma</div>
                             </div>
                             <div class="p-stat">
-                                <span class="p-stat-num" id="statBlessings">0</span>
-                                <div class="p-stat-label">🙏 Blessings</div>
+                                <span class="p-stat-num" id="statStreak">0</span>
+                                <div class="p-stat-label">🔥 Streak</div>
                             </div>
                             <div class="p-stat">
-                                <span class="p-stat-num" id="statFavRoom">—</span>
-                                <div class="p-stat-label">Fav Room</div>
+                                <span class="p-stat-num" id="statMinutesStat">0</span>
+                                <div class="p-stat-label">Minutes</div>
                             </div>
                         </div>
 
@@ -325,7 +325,6 @@ const ProfileModule = {
             this.updateCountry(user);
             this.updateProfileLocationRow(user);
             this.loadActivityData().catch(() => {});
-            this.loadCommunityStats().catch(() => {});
         } catch (error) {
             console.error('Profile data population error:', error);
         }
@@ -387,7 +386,11 @@ const ProfileModule = {
         const statXP = document.getElementById('statXP');
         if (statXP) statXP.textContent = xp.toLocaleString();
 
-        // Blessings + Favourite Room loaded separately via loadCommunityStats()
+        const statStreak = document.getElementById('statStreak');
+        if (statStreak) statStreak.textContent = streak;
+
+        const statMinutesStat = document.getElementById('statMinutesStat');
+        if (statMinutesStat) statMinutesStat.textContent = (user.total_minutes ?? user.minutes ?? 0).toLocaleString();
 
         const levelTitles = {1:'Seeker',2:'Practitioner',3:'Adept',4:'Healer',5:'Master',6:'Sage',7:'Enlightened',8:'Buddha',9:'Light',10:'Emptiness'};
         const title = levelTitles[level] || 'Seeker';
@@ -395,46 +398,6 @@ const ProfileModule = {
         if (levelBadge) levelBadge.textContent = `✦ Level ${level} · ${title}`;
 
         if (g) this.updateActivityCounts(g);
-    },
-
-    async loadCommunityStats() {
-        if (!window.CommunityDB?.ready) return;
-        try {
-            const userId = window.Core?.state?.currentUser?.id;
-            if (!userId) return;
-
-            // ── Blessings sent ────────────────────────────────────────────────
-            // room_blessings has one row per user per room — count rows for this user
-            const { count: blessingCount, error: bErr } = await CommunityDB._sb
-                .from('room_blessings')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', userId);
-            const statBlessings = document.getElementById('statBlessings');
-            if (statBlessings) statBlessings.textContent = (!bErr && blessingCount != null)
-                ? blessingCount.toLocaleString()
-                : '0';
-
-            // ── Favourite room (most visited via room_entries) ────────────────
-            const { data: entries, error: rErr } = await CommunityDB._sb
-                .from('room_entries')
-                .select('room_id')
-                .eq('user_id', userId);
-
-            const statFavRoom = document.getElementById('statFavRoom');
-            if (!rErr && entries && entries.length > 0) {
-                // Count entries per room
-                const counts = {};
-                entries.forEach(e => { counts[e.room_id] = (counts[e.room_id] || 0) + 1; });
-                const favRoomId = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
-                // Prettify room ID (e.g. "silent-room" → "Silent Room")
-                const pretty = favRoomId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-                if (statFavRoom) statFavRoom.textContent = pretty;
-            } else {
-                if (statFavRoom) statFavRoom.textContent = '—';
-            }
-        } catch (e) {
-            console.warn('[ProfileModule] loadCommunityStats error:', e);
-        }
     },
 
     updateActivityCounts(g) {
@@ -459,10 +422,22 @@ const ProfileModule = {
     },
 
     // ── Stats ────────────────────────────────────────────────────────────────────
-    // NOTE: XP, Karma, Blessings, FavRoom are handled by updateKarma() and loadCommunityStats()
-    // This method is retained for any legacy stat elements outside the main stats row.
+
     updateStats(user) {
-        // No-op: all active stats are populated via updateKarma() and loadCommunityStats()
+        const sessions = document.getElementById('statCircles');
+        if (sessions) {
+            sessions.textContent = (user.circles ?? 0).toLocaleString();
+        }
+
+        const gifts = document.getElementById('statOffered');
+        if (gifts) {
+            gifts.textContent = (user.offered ?? 0).toLocaleString();
+        }
+
+        const minutes = document.getElementById('statMinutes');
+        if (minutes) {
+            this.formatMinutes(user.minutes ?? 0, minutes);
+        }
     },
 
     formatMinutes(totalMinutes, el) {
@@ -747,21 +722,10 @@ const ProfileModule = {
             const name    = b.name  || (typeof b === 'string' ? b : 'Badge');
             const rarity  = b.rarity || 'common';
             const rarityColors = { common:'#9ca3af', uncommon:'#10b981', rare:'#3b82f6', epic:'#a855f7', legendary:'#f59e0b' };
-            const rarityLabels = { common:'Common', uncommon:'Uncommon', rare:'Rare', epic:'Epic', legendary:'Legendary' };
             const color   = rarityColors[rarity] || rarityColors.common;
-            return `<div title="${name} · ${rarityLabels[rarity] || 'Common'}"
-                        style="display:flex;flex-direction:column;align-items:center;justify-content:center;
-                               width:52px;height:60px;border-radius:12px;
-                               background:var(--neuro-bg,#f0f0f3);
-                               box-shadow:3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
-                               border-bottom:3px solid ${color};
-                               cursor:default;transition:transform 0.15s,box-shadow 0.15s;
-                               position:relative;overflow:hidden;"
-                        onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='4px 4px 12px rgba(0,0,0,0.15),-2px -2px 8px rgba(255,255,255,0.8)'"
-                        onmouseout="this.style.transform='';this.style.boxShadow='3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7)'">
-                        <div style="position:absolute;top:0;left:0;right:0;height:3px;
-                                    background:${color};opacity:0.3;border-radius:12px 12px 0 0;"></div>
-                        <span style="font-size:1.5rem;line-height:1;">${icon}</span>
+            return `<div class="badge" style="border-color:${color};" title="${name}">
+                        ${icon}
+                        <div class="badge-tooltip">${name}</div>
                     </div>`;
         }).join('');
     },
@@ -919,10 +883,7 @@ const ProfileModule = {
         const ok = await CommunityDB.updateProfile({ community_role: trimmed || null });
         if (!ok) { Core.showToast('Could not save — please try again'); return; }
 
-        if (Core?.state?.currentUser) {
-            Core.state.currentUser.community_role = trimmed || 'Member';
-            Core.state.currentUser.role = trimmed || 'Member'; // keep both in sync
-        }
+        if (Core?.state?.currentUser) Core.state.currentUser.role = trimmed || 'Member';
         this.updateRole(Core.state.currentUser);
         Core.showToast('✓ Role updated');
     },
