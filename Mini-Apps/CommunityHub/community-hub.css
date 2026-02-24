@@ -2993,6 +2993,11 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     background: var(--neuro-bg) !important;
 }
 
+/* Lunar rooms need dark base so starfield is visible when scrolling past viewport */
+#communityHubFullscreenContainer:has(.lunar-room-bg) {
+    background: #0a0a1a !important;
+}
+
 /* Reset body background when practice room is active */
 
 /* Room renders directly into fullscreen container */
@@ -3005,6 +3010,11 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+/* Lunar rooms provide their own starfield background — let it show through */
+#communityHubFullscreenContainer #dynamicRoomContent:has(.lunar-room-bg) {
+    background: #0a0a1a;
 }
 
 /* SOLAR PRACTICE ROOMS | Season-specific visual styles and CSS custom properties */
