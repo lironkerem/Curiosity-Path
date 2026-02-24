@@ -186,8 +186,8 @@ const UpcomingEvents = {
 
     // Admin modal state
     _adminModal: null,
-    _adminActiveTab: 'classes', // 'classes' | 'sessions'
-    _adminDraft: { classes: null, sessions: null },
+    _adminActiveTab: 'classes0',
+    _adminDraft: { classes0: null, classes1: null, sessions0: null, sessions1: null },
 
     // ============================================================================
     // HTML GENERATION
@@ -570,8 +570,13 @@ const UpcomingEvents = {
             // Load saved config from Supabase if available
             if (window.CommunityDB?.ready) {
                 const saved = await CommunityDB.getAppSettings('upcoming_events');
-                if (saved?.classes) this.classes[0] = { ...this.classes[0], ...saved.classes };
-                if (saved?.sessions) this.sessions[0] = { ...this.sessions[0], ...saved.sessions };
+                if (saved?.classes0)  this.classes[0]  = { ...this.classes[0],  ...saved.classes0 };
+                if (saved?.classes1)  this.classes[1]  = { ...this.classes[1],  ...saved.classes1 };
+                if (saved?.sessions0) this.sessions[0] = { ...this.sessions[0], ...saved.sessions0 };
+                if (saved?.sessions1) this.sessions[1] = { ...this.sessions[1], ...saved.sessions1 };
+                // backwards compat: old saves used 'classes'/'sessions' keys for slot 0
+                if (!saved?.classes0  && saved?.classes)  this.classes[0]  = { ...this.classes[0],  ...saved.classes };
+                if (!saved?.sessions0 && saved?.sessions) this.sessions[0] = { ...this.sessions[0], ...saved.sessions };
             }
 
             container.innerHTML = this.getHTML();
@@ -594,12 +599,14 @@ const UpcomingEvents = {
     openAdminModal() {
         if (document.getElementById('eventsAdminModal')) return;
 
-        // Init drafts from current data
+        // Init drafts from current data — 4 slots total
         this._adminDraft = {
-            classes:  { ...this.classes[0] },
-            sessions: { ...this.sessions[0] },
+            classes0:  { ...this.classes[0] },
+            classes1:  { ...this.classes[1] },
+            sessions0: { ...this.sessions[0] },
+            sessions1: { ...this.sessions[1] },
         };
-        this._adminActiveTab = 'classes';
+        this._adminActiveTab = 'classes0';
 
         const modal = document.createElement('div');
         modal.id = 'eventsAdminModal';
@@ -609,10 +616,8 @@ const UpcomingEvents = {
         document.body.appendChild(modal);
         document.body.style.overflow = 'hidden';
 
-        // Close on backdrop
         modal.addEventListener('click', e => { if (e.target === modal) this.closeAdminModal(); });
-
-        this._renderAdminTab('classes');
+        this._renderAdminTab('classes0');
     },
 
     closeAdminModal() {
@@ -622,6 +627,12 @@ const UpcomingEvents = {
     },
 
     _getAdminModalHTML() {
+        const tabs = [
+            { id: 'classes0',  label: '◀ Left Flyer 1' },
+            { id: 'classes1',  label: '◀ Left Flyer 2' },
+            { id: 'sessions0', label: 'Right Flyer 1 ▶' },
+            { id: 'sessions1', label: 'Right Flyer 2 ▶' },
+        ];
         return `
         <div style="background:var(--neuro-bg,#f0f0f3);border-radius:20px;padding:24px;
                     max-width:560px;width:94%;max-height:90vh;overflow-y:auto;position:relative;
@@ -633,20 +644,15 @@ const UpcomingEvents = {
             <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
                         color:rgba(139,92,246,0.9);margin-bottom:16px;">🛡️ Update Flyers</div>
 
-            <!-- Tabs -->
-            <div style="display:flex;gap:8px;margin-bottom:20px;">
-                <button id="adminTabClasses" onclick="UpcomingEvents._switchAdminTab('classes')"
-                        style="flex:1;padding:9px;border-radius:10px;border:none;cursor:pointer;
-                               font-size:0.88rem;font-weight:600;
-                               background:rgba(139,92,246,0.85);color:#fff;">
-                    Left Card (Classes)
-                </button>
-                <button id="adminTabSessions" onclick="UpcomingEvents._switchAdminTab('sessions')"
-                        style="flex:1;padding:9px;border-radius:10px;border:none;cursor:pointer;
-                               font-size:0.88rem;font-weight:600;
-                               background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.9);">
-                    Right Card (Sessions)
-                </button>
+            <!-- 4 tabs in a 2x2 grid -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;">
+                ${tabs.map((t, i) => `
+                <button id="adminTab_${t.id}" onclick="UpcomingEvents._switchAdminTab('${t.id}')"
+                        style="padding:9px;border-radius:10px;border:none;cursor:pointer;
+                               font-size:0.82rem;font-weight:600;
+                               ${i === 0 ? 'background:rgba(139,92,246,0.85);color:#fff;' : 'background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.9);'}">
+                    ${t.label}
+                </button>`).join('')}
             </div>
 
             <!-- Tab content injected here -->
@@ -670,11 +676,17 @@ const UpcomingEvents = {
     },
 
     _switchAdminTab(tab) {
+        // Save current tab's fields before switching
+        this._readAdminFields(this._adminActiveTab);
         this._adminActiveTab = tab;
-        const cBtn = document.getElementById('adminTabClasses');
-        const sBtn = document.getElementById('adminTabSessions');
-        if (cBtn) { cBtn.style.background = tab === 'classes' ? 'rgba(139,92,246,0.85)' : 'rgba(139,92,246,0.1)'; cBtn.style.color = tab === 'classes' ? '#fff' : 'rgba(139,92,246,0.9)'; }
-        if (sBtn) { sBtn.style.background = tab === 'sessions' ? 'rgba(139,92,246,0.85)' : 'rgba(139,92,246,0.1)'; sBtn.style.color = tab === 'sessions' ? '#fff' : 'rgba(139,92,246,0.9)'; }
+        const tabs = ['classes0','classes1','sessions0','sessions1'];
+        tabs.forEach(id => {
+            const btn = document.getElementById(`adminTab_${id}`);
+            if (!btn) return;
+            const active = id === tab;
+            btn.style.background = active ? 'rgba(139,92,246,0.85)' : 'rgba(139,92,246,0.1)';
+            btn.style.color      = active ? '#fff' : 'rgba(139,92,246,0.9)';
+        });
         this._renderAdminTab(tab);
     },
 
@@ -699,7 +711,11 @@ const UpcomingEvents = {
                     </div>`;
         }).join('');
 
+        const labels = { classes0:'Left Card — Flyer 1', classes1:'Left Card — Flyer 2', sessions0:'Right Card — Flyer 1', sessions1:'Right Card — Flyer 2' };
+
         container.innerHTML = `
+            <div style="font-size:0.78rem;font-weight:700;color:rgba(139,92,246,0.8);margin-bottom:12px;
+                        text-transform:uppercase;letter-spacing:0.5px;">Editing: ${labels[tab]}</div>
             <div style="margin-bottom:14px;">
                 <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
                             color:var(--text-muted);margin-bottom:8px;">Sessions</div>
@@ -749,6 +765,7 @@ const UpcomingEvents = {
 
     _readAdminFields(tab) {
         const g = id => document.getElementById(id)?.value?.trim() || '';
+        if (!document.getElementById('adminField_title')) return; // panel not rendered
         this._adminDraft[tab] = {
             ...this._adminDraft[tab],
             title:    g('adminField_title'),
@@ -768,22 +785,22 @@ const UpcomingEvents = {
 
         try {
             const ok = await CommunityDB.saveAppSettings('upcoming_events', {
-                classes:  this._adminDraft.classes,
-                sessions: this._adminDraft.sessions,
+                classes0:  this._adminDraft.classes0,
+                classes1:  this._adminDraft.classes1,
+                sessions0: this._adminDraft.sessions0,
+                sessions1: this._adminDraft.sessions1,
             });
             if (!ok) throw new Error('saveAppSettings returned false');
 
-            // Apply to live cards immediately
-            const cd = this._adminDraft.classes;
-            const sd = this._adminDraft.sessions;
-            if (cd) {
-                Object.assign(this.classes[0], cd);
-                this.updateCard(this.classes[0], 'classesImage', 'classesContent', '.classes-card', 'Register via WhatsApp', this.state.classIndex);
-            }
-            if (sd) {
-                Object.assign(this.sessions[0], sd);
-                this.updateCard(this.sessions[0], 'sessionsImage', 'sessionsContent', '.sessions-card', 'Book via WhatsApp', this.state.sessionIndex);
-            }
+            // Apply to live data arrays immediately
+            Object.assign(this.classes[0],  this._adminDraft.classes0);
+            Object.assign(this.classes[1],  this._adminDraft.classes1);
+            Object.assign(this.sessions[0], this._adminDraft.sessions0);
+            Object.assign(this.sessions[1], this._adminDraft.sessions1);
+
+            // Re-render whichever card is currently visible
+            this.updateCard(this.classes[this.state.classIndex],   'classesImage',  'classesContent',  '.classes-card',  'Register via WhatsApp', this.state.classIndex);
+            this.updateCard(this.sessions[this.state.sessionIndex], 'sessionsImage', 'sessionsContent', '.sessions-card', 'Book via WhatsApp',      this.state.sessionIndex);
 
             Core.showToast('✓ Flyers updated for all users');
             this.closeAdminModal();
