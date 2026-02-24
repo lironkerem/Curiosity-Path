@@ -488,6 +488,7 @@ class LunarRoom {
 
             window.currentLunarRoom = this;
             this.renderRoomDashboard();
+            window.scrollTo(0, 0);
 
             // ── Supabase presence ──────────────────────────────────────────
             this._setPresence();

@@ -89,8 +89,8 @@ const LunarUI = {
                         <span id="lunarLiveCountTop">${livingPresenceCount} members practicing with you now</span>
                     </div>
 
-                    <button data-action="back-to-hub" class="lunar-back-hub-btn" aria-label="Leave practice and return to hub">
-                        Gently Leave
+                    <button data-action="back-to-hub" class="${cssPrefix}-back-hub-btn lunar-back-hub-btn" aria-label="Leave practice and return to hub">
+                        Leave Practice
                     </button>
                 </div>
             `;
@@ -384,6 +384,10 @@ const LunarUI = {
                 padding: 2rem 1rem;
             }
 
+            .practice-room-container .back-to-hub-btn {
+                display: none;
+            }
+
             /* ===== STARFIELDS ===== */
             .lunar-starfield {
                 position: fixed;
@@ -411,8 +415,11 @@ const LunarUI = {
 
             /* ===== TOP BAR (matches Solar style) ===== */
             .lunar-top-bar {
-                position: relative;
-                z-index: 10;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 200;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
