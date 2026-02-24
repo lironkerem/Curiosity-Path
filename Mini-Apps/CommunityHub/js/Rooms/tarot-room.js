@@ -328,15 +328,15 @@ class TarotRoom extends PracticeRoom {
                 <div style="width: 100%;">
 
                     <!-- Tab Navigation -->
-                    <div style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 2px solid var(--border);">
+                    <div style="display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 2px solid var(--border); flex-wrap: wrap;">
                         <button id="${this.roomId}TabDaily"
                                 onclick="${this.getClassName()}.switchTab('daily')"
-                                style="padding: 12px 24px; background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%); color: white; border: none; border-bottom: 3px solid #8b5cf6; cursor: pointer; font-weight: 600; font-size: 16px; border-radius: 8px 8px 0 0;">
+                                style="padding: 10px 16px; background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%); color: white; border: none; border-bottom: 3px solid #8b5cf6; cursor: pointer; font-weight: 600; font-size: 14px; border-radius: 8px 8px 0 0; white-space: nowrap;">
                             🌅 Daily Collective Card
                         </button>
                         <button id="${this.roomId}TabPersonal"
                                 onclick="${this.getClassName()}.switchTab('personal')"
-                                style="padding: 12px 24px; background: transparent; color: var(--text); border: none; border-bottom: 3px solid transparent; cursor: pointer; font-weight: 600; font-size: 16px; border-radius: 8px 8px 0 0;">
+                                style="padding: 10px 16px; background: transparent; color: var(--text); border: none; border-bottom: 3px solid transparent; cursor: pointer; font-weight: 600; font-size: 14px; border-radius: 8px 8px 0 0; white-space: nowrap;">
                             ✨ Personal Card Draw
                         </button>
                     </div>
@@ -366,7 +366,7 @@ class TarotRoom extends PracticeRoom {
         </div>
 
         <!-- Community Chat + Participants -->
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 24px;">
+        <div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(200px, 1fr); gap: 16px; background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 24px;" class="tarot-daily-grid">
             <div>
                 <h4 style="font-family: var(--serif); font-size: 18px; margin: 0 0 16px 0; text-align: center;">💬 Community Discussion</h4>
                 <div style="display:flex;flex-direction:column;height:100%;">

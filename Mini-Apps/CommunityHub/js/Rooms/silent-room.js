@@ -94,7 +94,7 @@ class SilentRoom extends PracticeRoom {
             <button class="ps-leave"
                     onclick="${this.getClassName()}.toggleDimMode()"
                     id="${this.roomId}DimModeBtn"
-                    style="margin: 0; padding: 12px 24px; white-space: nowrap; min-width: 120px;">
+                    style="margin: 0; padding: 10px 16px; white-space: nowrap;">
                 🌙 Dim
             </button>`;
     }

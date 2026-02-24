@@ -287,7 +287,7 @@ class DeepWorkRoom extends PracticeRoom {
             ${this.buildSoundButton()}
             <button class="ps-leave" onclick="${this.getClassName()}.toggleDimMode()"
                     id="${this.roomId}DimModeBtn"
-                    style="margin:0;padding:12px 24px;white-space:nowrap;min-width:120px;">
+                    style="margin:0;padding:10px 16px;white-space:nowrap;">
                 🌙 Dim
             </button>`;
     }
@@ -299,7 +299,7 @@ class DeepWorkRoom extends PracticeRoom {
         return `
         ${this.buildSoundSettings()}
         <div class="ps-body" style="display:flex;">
-            <main class="ps-main" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;">
+            <main class="ps-main" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;">
 
                 <!-- Room image with fallback -->
                 <img src="${this.config.imageUrl}"
@@ -308,7 +308,7 @@ class DeepWorkRoom extends PracticeRoom {
                      style="max-width:480px;width:100%;height:auto;margin-bottom:24px;border-radius:var(--radius-lg);">
 
                 <!-- Status buttons -->
-                <div style="display:flex;gap:8px;margin-bottom:30px;">
+                <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;justify-content:center;">
                     ${['deep-focus','light-focus','break'].map(s => `
                     <button class="dw-status-btn" data-status="${s}"
                             onclick="${this.getClassName()}.changeStatus('${s}')"
@@ -321,21 +321,21 @@ class DeepWorkRoom extends PracticeRoom {
                 </div>
 
                 <!-- Intention -->
-                <div style="text-align:center;max-width:600px;margin-bottom:30px;margin-top:60px;">
+                <div style="text-align:center;max-width:600px;margin-bottom:20px;margin-top:16px;">
                     ${this.state.currentIntention ? `
                     <div style="margin-bottom:16px;">
                         <span id="categoryBadge" style="padding:10px 20px;background:${cat.gradient};border:2px solid ${cat.border};border-radius:var(--radius-lg);font-size:15px;font-weight:700;letter-spacing:0.05em;">
                             ${cat.icon} ${cat.label}
                         </span>
                     </div>` : ''}
-                    <div id="currentIntention" style="font-size:28px;font-weight:700;letter-spacing:0.02em;line-height:1.4;opacity:0.9;">
+                    <div id="currentIntention" style="font-size:clamp(1.1rem,4vw,1.75rem);font-weight:700;letter-spacing:0.02em;line-height:1.4;opacity:0.9;">
                         ${this.state.currentIntention || 'Set your intention to begin'}
                     </div>
                 </div>
 
                 <!-- Timer ring -->
-                <div style="position:relative;width:400px;height:400px;margin-bottom:20px;">
-                    <svg width="400" height="400" viewBox="0 0 400 400"
+                <div style="position:relative;width:min(400px,85vw);height:min(400px,85vw);margin-bottom:20px;">
+                    <svg width="100%" height="100%" viewBox="0 0 400 400"
                          style="transform:rotate(-90deg);position:absolute;top:0;left:0;z-index:2;">
                         <circle cx="200" cy="200" r="180" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
                         <circle cx="200" cy="200" r="180" fill="none" stroke="url(#dwGrad)"
@@ -350,7 +350,7 @@ class DeepWorkRoom extends PracticeRoom {
                         </defs>
                     </svg>
                     <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:3;">
-                        <div id="${this.roomId}TimerDisplay" style="font-size:84px;font-weight:200;letter-spacing:0.05em;margin-bottom:8px;">
+                        <div id="${this.roomId}TimerDisplay" style="font-size:clamp(2.5rem,14vw,5.25rem);font-weight:200;letter-spacing:0.05em;margin-bottom:8px;">
                             ${this.formatTime(this.state.timeLeft)}
                         </div>
                         <div id="currentStatus" style="font-size:16px;text-transform:uppercase;letter-spacing:0.2em;opacity:0.6;">
@@ -375,8 +375,9 @@ class DeepWorkRoom extends PracticeRoom {
 
             <!-- Sidebar — always visible; chat section enabled only during break -->
             <aside id="${this.roomId}Sidebar"
-                   style="width:320px;background:var(--surface);border-left:2px solid var(--border);overflow:hidden;">
-                <div style="width:320px;padding:20px;height:100%;display:flex;flex-direction:column;min-height:0;box-sizing:border-box;">
+                   class="dw-sidebar"
+                   style="background:var(--surface);border-left:2px solid var(--border);overflow:hidden;">
+                <div style="padding:20px;height:100%;display:flex;flex-direction:column;min-height:0;box-sizing:border-box;">
 
                     <!-- Active Members -->
                     <div style="flex-shrink:0;margin-bottom:16px;">

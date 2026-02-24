@@ -765,8 +765,8 @@ class PracticeRoom {
         window[`${this.roomId}_gentlyLeave`] = () => this.gentlyLeave();
         
         return `
-        <header class="ps-header" style="padding: 12px 16px; ${gradientStyle}">
-            <div class="ps-info" style="display: flex; flex-direction: column; align-items: flex-start; width: 100%;">
+        <header class="ps-header" style="padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; ${gradientStyle}">
+            <div class="ps-info" style="display: flex; flex-direction: column; align-items: flex-start; flex: 1; min-width: 0;">
                 <!-- Room Image -->
                 <div style="width: 100%; display: flex; justify-content: flex-start; margin: 0; padding: 0;">
                     <img src="${this.config.imageUrl}" 
@@ -792,11 +792,11 @@ class PracticeRoom {
             </div>
             
             <!-- Control Buttons -->
-            <div style="display: flex; gap: 12px; position: relative; margin: 0; padding: 0; flex-wrap: nowrap;">
+            <div style="display: flex; gap: 8px; position: relative; margin: 0; padding: 0; flex-wrap: wrap; justify-content: flex-end; align-items: center;">
                 ${this.buildAdditionalHeaderButtons ? this.buildAdditionalHeaderButtons() : ''}
                 ${this.buildSafetyDropdown()}
                 <button class="ps-leave" onclick="window['${this.roomId}_gentlyLeave']()" 
-                        style="margin: 0; padding: 12px 24px; white-space: nowrap; min-width: 150px;">
+                        style="margin: 0; padding: 10px 16px; white-space: nowrap;">
                     Gently Leave
                 </button>
             </div>
@@ -818,7 +818,7 @@ class PracticeRoom {
         <div style="position: relative; margin: 0; padding: 0;" id="${this.roomId}SafetyDropdownContainer">
             <button class="ps-leave" 
                     onclick="${toggleMethod}(event)" 
-                    style="display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); white-space: nowrap; min-width: 120px; padding: 12px 24px;">
+                    style="display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); white-space: nowrap; padding: 10px 16px;">
                 🛡️ Safety
                 <span style="font-size: 12px;">▼</span>
             </button>

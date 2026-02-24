@@ -700,6 +700,9 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
  * COMMUNITY CAMPFIRE STYLES - UPDATED
  * ═══════════════════════════════════════════════════════════════════════════ */
 
+/* Deep Work sidebar */
+.dw-sidebar { width: 320px; flex-shrink: 0; }
+
 /* Main Layout */
 #campfireView .ps-body {
     display: flex;
@@ -946,7 +949,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 @media (max-width: 640px) {
-#campfireView .ps-body { flex-direction: column; }
+.campfire-body { flex-direction: column; }
     
     .campfire-sidebar-always-visible {
         width: 100%;
@@ -955,7 +958,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
         border-top: 2px solid var(--border);
     }
     
-.campfire-main { height: calc(100vh - 280px); }
+.campfire-main { min-height: 300px; }
     
     .campfire-messages {
         padding: 12px;
@@ -3884,15 +3887,38 @@ body.solar-room-active[data-season] {
     transform: none;
   }
 
+  /* ===== PRACTICE ROOM CONTAINER ===== */
+  #communityHubFullscreenContainer .practice-room-container {
+    padding: 0;
+  }
+
+  .back-to-hub-btn {
+    margin: 12px 14px !important;
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
+  /* Allow rooms with tall content to scroll on mobile */
+  .ps-body {
+    overflow: auto;
+  }
+
+  /* Tarot/Reiki main area scrolls independently */
+  .tarot-main {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   /* ===== PRACTICE SPACE HEADER ===== */
   .ps-header {
-    padding: 14px 16px;
+    padding: 12px 14px;
     flex-wrap: wrap;
     gap: 10px;
+    align-items: flex-start;
   }
 
   .ps-leave {
-    padding: 6px 14px;
+    padding: 8px 14px;
     font-size: 13px;
   }
 
@@ -3900,6 +3926,12 @@ body.solar-room-active[data-season] {
   .ps-main {
     padding: 20px 16px;
     align-items: center;
+  }
+
+  /* Session/meditation title heading (guided, breathwork, osho rooms) */
+  .ps-main > h2 {
+    font-size: clamp(1rem, 4vw, 1.4rem) !important;
+    margin: 12px 0 !important;
   }
 
   /* ===== TIMER DISPLAY ===== */
@@ -3985,7 +4017,7 @@ body.solar-room-active[data-season] {
   }
 
   /* ===== CAMPFIRE LAYOUT ===== */
-  #campfireView .ps-body {
+  .campfire-body {
     flex-direction: column;
     height: auto;
   }
@@ -4191,6 +4223,39 @@ body.solar-room-active[data-season] {
   .view-toggle {
     width: 100%;
     justify-content: center;
+  }
+
+
+  /* ===== TAROT & REIKI GRIDS ===== */
+  .tarot-daily-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .chakra-practice-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* ===== DEEP WORK ROOM ===== */
+  .dw-sidebar {
+    display: none; /* FAB provides chat access on mobile */
+  }
+
+  /* ===== YOUTUBE PLAYER (Breathwork, Guided, OSHO) ===== */
+  iframe[src*="youtube"] {
+    max-width: 100%;
+    width: 100% !important;
+    height: auto;
+    aspect-ratio: 16/9;
+  }
+
+  .yt-player-container,
+  .player-container,
+  #guidedPlayerContainer,
+  #breathworkPlayerContainer,
+  #oshoPlayerContainer {
+    width: 100% !important;
+    max-width: 100%;
   }
 
 } /* end @media (max-width: 767px) */

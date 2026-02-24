@@ -229,36 +229,36 @@ class ReikiRoom extends PracticeRoom {
 
         return `
             <!-- Image Carousel -->
-            <div style="position: relative; text-align: center; margin-bottom: 32px; display: flex; align-items: center; justify-content: center; gap: 16px;">
+            <div style="position: relative; text-align: center; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: nowrap;">
                 <button onclick="${onPrev}"
-                        style="background: var(--surface); border: 2px solid var(--border); border-radius: 50%; width: 48px; height: 48px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center;">‹</button>
+                        style="background: var(--surface); border: 2px solid var(--border); border-radius: 50%; width: 40px; height: 40px; flex-shrink: 0; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center;">‹</button>
                 <img src="${currentImage}"
                      alt="${chakra.name}"
-                     style="max-width: 500px; width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                     style="max-width: min(500px, calc(100% - 100px)); width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                 <button onclick="${onNext}"
-                        style="background: var(--surface); border: 2px solid var(--border); border-radius: 50%; width: 48px; height: 48px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center;">›</button>
+                        style="background: var(--surface); border: 2px solid var(--border); border-radius: 50%; width: 40px; height: 40px; flex-shrink: 0; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center;">›</button>
             </div>
 
             <!-- Inquiry -->
-            <div style="margin-bottom: 40px; padding: 32px; background: linear-gradient(135deg, rgba(139,92,246,0.05) 0%, rgba(167,139,250,0.02) 100%); border: 2px solid var(--border); border-radius: var(--radius-lg); text-align: center;">
-                <h4 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: var(--accent);">💭 ${inquiryLabel} Inquiry</h4>
-                <p style="margin: 0; font-style: italic; line-height: 1.8; font-size: 20px; font-family: var(--serif); color: var(--text);">"${chakra.inquiry}"</p>
+            <div style="margin-bottom: 24px; padding: 20px; background: linear-gradient(135deg, rgba(139,92,246,0.05) 0%, rgba(167,139,250,0.02) 100%); border: 2px solid var(--border); border-radius: var(--radius-lg); text-align: center;">
+                <h4 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 600; color: var(--accent);">💭 ${inquiryLabel} Inquiry</h4>
+                <p style="margin: 0; font-style: italic; line-height: 1.7; font-size: clamp(15px, 3.5vw, 20px); font-family: var(--serif); color: var(--text);">"${chakra.inquiry}"</p>
             </div>
 
             <!-- Practice Guide -->
-            <div style="padding: 32px; background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius-lg);">
-                <h4 style="margin: 0 0 24px 0; font-size: 20px; font-weight: 600; text-align: center;">🧘 Practice Guide</h4>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; max-width: 1000px; margin: 0 auto;">
-                    <div style="border: 2px solid var(--border); border-radius: var(--radius-md); padding: 24px; background: var(--background);">
-                        <h5 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; text-align: center; color: var(--accent);">Option 1</h5>
-                        <ol style="margin: 0; padding-left: 20px; line-height: 2; font-size: 15px;">
-                            ${chakra.practice.map(p => `<li style="margin-bottom:12px;">${p}</li>`).join('')}
+            <div style="padding: 20px; background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius-lg);">
+                <h4 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; text-align: center;">🧘 Practice Guide</h4>
+                <div class="chakra-practice-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 1000px; margin: 0 auto;">
+                    <div style="border: 2px solid var(--border); border-radius: var(--radius-md); padding: 16px; background: var(--background);">
+                        <h5 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600; text-align: center; color: var(--accent);">Option 1</h5>
+                        <ol style="margin: 0; padding-left: 20px; line-height: 1.8; font-size: 14px;">
+                            ${chakra.practice.map(p => `<li style="margin-bottom:8px;">${p}</li>`).join('')}
                         </ol>
                     </div>
-                    <div style="border: 2px solid var(--border); border-radius: var(--radius-md); padding: 24px; background: var(--background);">
-                        <h5 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; text-align: center; color: var(--accent);">Option 2</h5>
-                        <ol style="margin: 0; padding-left: 20px; line-height: 2; font-size: 15px;">
-                            ${chakra.practice2.map(p => `<li style="margin-bottom:12px;">${p}</li>`).join('')}
+                    <div style="border: 2px solid var(--border); border-radius: var(--radius-md); padding: 16px; background: var(--background);">
+                        <h5 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600; text-align: center; color: var(--accent);">Option 2</h5>
+                        <ol style="margin: 0; padding-left: 20px; line-height: 1.8; font-size: 14px;">
+                            ${chakra.practice2.map(p => `<li style="margin-bottom:8px;">${p}</li>`).join('')}
                         </ol>
                     </div>
                 </div>
@@ -339,15 +339,15 @@ class ReikiRoom extends PracticeRoom {
                 <div style="width: 100%;">
 
                     <!-- Tab Navigation -->
-                    <div style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 2px solid var(--border);">
+                    <div style="display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 2px solid var(--border); flex-wrap: wrap;">
                         <button id="${this.roomId}TabDaily"
                                 onclick="${this.getClassName()}.switchTab('daily')"
-                                style="padding: 12px 24px; background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%); color: white; border: none; border-bottom: 3px solid #8b5cf6; cursor: pointer; font-weight: 600; font-size: 16px; border-radius: 8px 8px 0 0;">
+                                style="padding: 10px 16px; background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%); color: white; border: none; border-bottom: 3px solid #8b5cf6; cursor: pointer; font-weight: 600; font-size: 14px; border-radius: 8px 8px 0 0; white-space: nowrap;">
                             🌅 Today's Collective Focus
                         </button>
                         <button id="${this.roomId}TabPersonal"
                                 onclick="${this.getClassName()}.switchTab('personal')"
-                                style="padding: 12px 24px; background: transparent; color: var(--text); border: none; border-bottom: 3px solid transparent; cursor: pointer; font-weight: 600; font-size: 16px; border-radius: 8px 8px 0 0;">
+                                style="padding: 10px 16px; background: transparent; color: var(--text); border: none; border-bottom: 3px solid transparent; cursor: pointer; font-weight: 600; font-size: 14px; border-radius: 8px 8px 0 0; white-space: nowrap;">
                             ✨ Personal Energy Session
                         </button>
                     </div>
@@ -390,7 +390,7 @@ class ReikiRoom extends PracticeRoom {
         </div>
 
         <!-- Community Chat + Participants -->
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 24px;">
+        <div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(200px, 1fr); gap: 16px; background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 24px;" class="tarot-daily-grid">
             <div>
                 <h4 style="font-family: var(--serif); font-size: 18px; margin: 0 0 8px 0; text-align: center;">💬 Community Discussion</h4>
                 <div style="display:flex;flex-direction:column;height:100%;">

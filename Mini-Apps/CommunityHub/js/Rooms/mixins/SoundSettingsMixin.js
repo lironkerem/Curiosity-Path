@@ -239,7 +239,7 @@ const SoundSettingsMixin = {
         return `
         <button class="ps-leave" 
                 onclick="${this.getClassName()}.toggleSoundSettings()" 
-                style="background: var(--surface); color: var(--text); margin: 0; padding: 12px 24px; white-space: nowrap; min-width: 120px;">
+                style="background: var(--surface); color: var(--text); margin: 0; padding: 10px 16px; white-space: nowrap;">
             🔔 Sound
         </button>`;
     },

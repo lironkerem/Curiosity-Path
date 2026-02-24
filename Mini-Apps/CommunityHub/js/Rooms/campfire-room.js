@@ -69,8 +69,8 @@ class CampfireRoom extends PracticeRoom {
 
     buildBody() {
         return `
-        <div class="ps-body" style="display: flex; gap: 0; height: calc(100vh - 200px);">
-            <main class="campfire-main" style="flex: 1; display: flex; flex-direction: column; padding: 20px;">
+        <div class="ps-body campfire-body" style="display: flex; gap: 0; min-height: 0; flex: 1;">
+            <main class="campfire-main" style="flex: 1; display: flex; flex-direction: column; padding: 20px; min-width: 0;">
                 <h2 style="font-family: var(--serif); text-align: center; margin-bottom: 20px;">
                     Gather Around the Fire
                 </h2>
@@ -84,8 +84,7 @@ class CampfireRoom extends PracticeRoom {
             </main>
 
             <!-- Sidebar -->
-            <aside class="campfire-sidebar-always-visible" id="${this.roomId}Sidebar"
-                   style="width: 300px; background: var(--surface); border-left: 2px solid var(--border); padding: 20px; overflow-y: auto;">
+            <aside class="campfire-sidebar-always-visible" id="${this.roomId}Sidebar">
                 <div class="campfire-sidebar-header" style="margin-bottom: 20px;">
                     <div style="font-weight: 600; font-size: 16px;">Around the Fire</div>
                     <div id="${this.roomId}SidebarCount" style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">

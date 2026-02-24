@@ -180,9 +180,9 @@ const TimerMixin = {
      */
     buildTimerContainer() {
         return `
-        <div style="position: relative; width: 400px; height: 400px; margin-bottom: 40px;">
+        <div style="position: relative; width: min(400px, 85vw); height: min(400px, 85vw); margin-bottom: 40px;">
             <!-- Timer Ring SVG -->
-            <svg width="400" height="400" viewBox="0 0 400 400" style="transform: rotate(-90deg); position: absolute; top: 0; left: 0; z-index: 2;">
+            <svg width="100%" height="100%" viewBox="0 0 400 400" style="transform: rotate(-90deg); position: absolute; top: 0; left: 0; z-index: 2;">
                 <circle cx="200" cy="200" r="180" fill="none" stroke="rgba(255, 255, 255, 0.1)" stroke-width="8"/>
                 <circle cx="200" cy="200" r="180" fill="none" stroke="url(#timerGradient)" stroke-width="8" stroke-linecap="round" stroke-dasharray="1131" stroke-dashoffset="0" id="${this.roomId}TimerRing"/>
                 <defs>
@@ -195,7 +195,7 @@ const TimerMixin = {
             
             <!-- Timer Display -->
             <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 3;">
-                <div id="${this.roomId}TimerDisplay" style="font-size: 84px; font-weight: 200; letter-spacing: 0.05em; margin-bottom: 8px;">${this.formatTime(this.state.timeLeft)}</div>
+                <div id="${this.roomId}TimerDisplay" style="font-size: clamp(2.5rem, 14vw, 5.25rem); font-weight: 200; letter-spacing: 0.05em; margin-bottom: 8px;">${this.formatTime(this.state.timeLeft)}</div>
                 <div style="font-size: 16px; text-transform: uppercase; letter-spacing: 0.2em; opacity: 0.6;">in silence</div>
             </div>
         </div>`;
