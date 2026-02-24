@@ -377,8 +377,6 @@ class PracticeRoom {
         if (window.CommunityDB) CommunityDB.unsubscribeFromBlessings(this.roomId);
 
         this.cleanup();
-
-        // Hide fullscreen container and restore body scroll handled by Core.navigateTo
         Core.navigateTo('hubView');
         Core.showToast(`Left ${this.config.name}`);
         if (this.onLeave) this.onLeave();
@@ -416,7 +414,7 @@ class PracticeRoom {
         // Restart shared hub subscription now that we're back on the hub
         PracticeRoom.startHubPresence();
 
-        // Closing ritual handles container hide + body scroll restore
+        // Closing ritual
         if (window.Rituals) {
             Rituals.showClosing();
         } else {

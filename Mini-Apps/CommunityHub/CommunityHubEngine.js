@@ -202,7 +202,7 @@ class CommunityHubEngine {
       </div>
 
       <!-- Room renders directly here -->
-      <div id="dynamicRoomContent" style="display: flex; flex-direction: column; flex: 1; height: 100%; min-height: 0; overflow: hidden;"></div>
+      <div id="dynamicRoomContent" style="display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;"></div>
     `;
 
     document.body.appendChild(container);

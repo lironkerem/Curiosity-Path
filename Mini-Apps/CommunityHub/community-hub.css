@@ -3005,7 +3005,8 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     flex: 1;
     height: 100%;
     min-height: 0;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* SOLAR PRACTICE ROOMS | Season-specific visual styles and CSS custom properties */
@@ -3882,16 +3883,7 @@ body.solar-room-active[data-season] {
     transform: none;
   }
 
-  /* Allow rooms with tall content to scroll on mobile */
-  .ps-body {
-    overflow: auto;
-  }
-
-  /* Tarot/Reiki main area scrolls independently */
-  .tarot-main {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
+  /* Allow rooms with tall content to scroll on mobile - handled by #dynamicRoomContent */
 
   /* ===== PRACTICE SPACE HEADER ===== */
   .ps-header {

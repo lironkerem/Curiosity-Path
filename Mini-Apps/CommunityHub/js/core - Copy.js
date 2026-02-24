@@ -378,7 +378,6 @@ const Core = {
             if (viewId === 'hubView') {
                 if (fullscreenContainer) fullscreenContainer.style.display = 'none';
                 if (hubTab) hubTab.style.display = 'block';
-                document.body.style.overflow = ''; // restore body scroll
 
                 const views = document.querySelectorAll('#hubView');
                 views.forEach(view => view.classList.add('active'));
@@ -387,12 +386,18 @@ const Core = {
 
             } else if (viewId === 'practiceRoomView') {
                 if (fullscreenContainer) {
-                    fullscreenContainer.style.display = 'flex';
+                    fullscreenContainer.style.display = 'block';
 
                     const openingOverlay = fullscreenContainer.querySelector('#openingOverlay');
                     const closingOverlay = fullscreenContainer.querySelector('#closingOverlay');
                     if (openingOverlay) openingOverlay.classList.remove('active');
                     if (closingOverlay) closingOverlay.classList.remove('active');
+
+                    const practiceView = fullscreenContainer.querySelector('#practiceRoomView');
+                    if (practiceView) {
+                        practiceView.style.display = 'block';
+                        practiceView.classList.add('active');
+                    }
                 }
 
                 if (hubTab) {
@@ -401,7 +406,6 @@ const Core = {
                     console.error('[Core] Hub tab not found!');
                 }
 
-                document.body.style.overflow = 'hidden'; // lock body scroll
                 this.state.currentView = 'practiceRoomView';
 
             } else {

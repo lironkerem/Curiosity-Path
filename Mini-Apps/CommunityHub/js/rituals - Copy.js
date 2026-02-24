@@ -272,7 +272,6 @@ const Rituals = {
         try {
             overlay.classList.remove('active');
             document.body.classList.remove('ritual-active');
-            document.body.style.overflow = ''; // restore body scroll
             if (container) {
                 container.style.display = 'none';
             }
@@ -338,39 +337,45 @@ const Rituals = {
      * @returns {Object|null} Object with room name and module, or null
      */
     findActiveRoom() {
-        // Check if there's a currentSolarRoom or currentLunarRoom
-        if (window.currentSolarRoom) {
-            return { name: 'CurrentSolarRoom', module: window.currentSolarRoom };
+        // FIRST: Check if practiceRoomView is active (used by Solar/Lunar rooms)
+        const practiceRoomView = document.getElementById('practiceRoomView');
+        if (practiceRoomView && practiceRoomView.classList.contains('active')) {
+            // Check if there's a currentSolarRoom or currentLunarRoom
+            if (window.currentSolarRoom) {
+                return { 
+                    name: 'CurrentSolarRoom', 
+                    module: window.currentSolarRoom 
+                };
+            }
+            
+            if (window.currentLunarRoom) {
+                return { 
+                    name: 'CurrentLunarRoom', 
+                    module: window.currentLunarRoom 
+                };
+            }
         }
-        if (window.currentLunarRoom) {
-            return { name: 'CurrentLunarRoom', module: window.currentLunarRoom };
-        }
-
-        // Check individual room modules
+        
+        // SECOND: Check individual room views
         for (const roomName of this.config.ROOM_MODULES) {
             try {
                 const room = window[roomName];
+                
                 if (!room) continue;
-
-                // A practice room is active if dynamicRoomContent has content
-                // and the room's roomId matches what's rendered
-                if (room.roomId) {
-                    const header = document.querySelector(`.ps-header`);
-                    const dynamicContent = document.getElementById('dynamicRoomContent');
-                    if (header && dynamicContent && dynamicContent.children.length > 0) {
-                        // Check if this specific room rendered it
-                        if (document.getElementById(`${room.roomId}ParticipantStack`) ||
-                            document.getElementById(`${room.roomId}View`) ||
-                            document.getElementById(`${room.roomId}TimerDisplay`)) {
-                            return { name: roomName, module: room };
-                        }
-                    }
+                
+                // Check if this room's view is active
+                const viewId = this.getRoomViewId(room, roomName);
+                const view = document.getElementById(viewId);
+                
+                if (view && view.classList.contains('active')) {
+                    return { name: roomName, module: room };
                 }
+                
             } catch (error) {
                 console.error(`Error checking room ${roomName}:`, error);
             }
         }
-
+        
         return null;
     },
 
