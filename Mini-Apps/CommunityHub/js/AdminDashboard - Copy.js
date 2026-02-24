@@ -58,13 +58,17 @@ const AdminDashboard = {
                         Community management
                     </div>
                 </div>
-                <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/AdminDashboard.png"
-                     onclick="AdminDashboard.openDashboard()"
-                     alt="Open Admin Dashboard"
-                     style="width:100%;border-radius:14px;cursor:pointer;display:block;
-                            transition:opacity 0.15s,transform 0.15s;box-shadow:0 4px 16px rgba(0,0,0,0.1);"
-                     onmouseover="this.style.opacity='0.9';this.style.transform='scale(1.01)'"
-                     onmouseout="this.style.opacity='1';this.style.transform='scale(1)'">
+                <button onclick="AdminDashboard.openDashboard()"
+                        style="width:100%;padding:14px;border-radius:14px;border:none;cursor:pointer;
+                               font-size:0.92rem;font-weight:700;letter-spacing:0.3px;
+                               background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.9);
+                               border:1.5px solid rgba(139,92,246,0.25);
+                               display:flex;align-items:center;justify-content:center;gap:10px;
+                               transition:background 0.15s,box-shadow 0.15s;"
+                        onmouseover="this.style.background='rgba(139,92,246,0.18)';this.style.boxShadow='0 4px 16px rgba(139,92,246,0.2)'"
+                        onmouseout="this.style.background='rgba(139,92,246,0.1)';this.style.boxShadow='none'">
+                    🛡️ Open Admin Dashboard
+                </button>
             </section>`;
 
         // Insert inside .sanctuary-content, after upcomingEventsContainer
@@ -196,6 +200,12 @@ const AdminDashboard = {
                 <!-- Engagement -->
                 ${this._sectionShell('engagement', '📊 Community Engagement')}
 
+                <!-- Collective Field -->
+                ${this._sectionShell('collective', '⚡ Collective Field')}
+
+                <!-- Celestial -->
+                ${this._sectionShell('celestial', '🌙☀️ Celestial Status')}
+
                 <!-- Safety -->
                 ${this._sectionShell('safety', '🛡️ Safety & Stats')}
 
@@ -204,6 +214,9 @@ const AdminDashboard = {
 
                 <!-- Room Usage -->
                 ${this._sectionShell('rooms', '⏰ Room Usage Today')}
+
+                <!-- Recent Reflections -->
+                ${this._sectionShell('reflections', '💬 Recent Reflections')}
 
                 <!-- Retention -->
                 ${this._sectionShell('retention', '📈 Retention Signals')}
@@ -262,7 +275,7 @@ const AdminDashboard = {
         if (sub) sub.textContent = `Last updated: ${now.toLocaleTimeString()}`;
 
         // Load all open sections + notifications always
-        const sections = ['notifications','members','engagement','safety','leaderboard','rooms','retention','bulk'];
+        const sections = ['notifications','members','engagement','collective','celestial','safety','leaderboard','rooms','reflections','retention','bulk'];
         for (const id of sections) {
             const body = document.getElementById(`adminSec_${id}`);
             if (body && (body.style.display !== 'none' || id === 'notifications')) {
@@ -281,9 +294,12 @@ const AdminDashboard = {
                 case 'notifications': await this._renderNotifications(el); break;
                 case 'members':       await this._renderMembers(el);       break;
                 case 'engagement':    await this._renderEngagement(el);    break;
+                case 'collective':    await this._renderCollective(el);    break;
+                case 'celestial':     await this._renderCelestial(el);     break;
                 case 'safety':        await this._renderSafety(el);        break;
                 case 'leaderboard':   await this._renderLeaderboard(el);   break;
                 case 'rooms':         await this._renderRooms(el);         break;
+                case 'reflections':   await this._renderReflections(el);   break;
                 case 'retention':     await this._renderRetention(el);     break;
                 case 'bulk':          await this._renderBulk(el);           break;
             }
@@ -412,7 +428,53 @@ const AdminDashboard = {
             </div>`;
     },
 
+    async _renderCollective(el) {
+        const s = window.CollectiveField?.state;
+        if (!s) { el.innerHTML = '<div style="color:var(--text-muted,#888);font-size:0.83rem;">Collective Field not loaded.</div>'; return; }
 
+        const waveGoal = s.WAVE_GOAL_MINUTES || 1440;
+        const wavePct  = Math.round(((s.waveTotalMinutes || 0) / waveGoal) * 100);
+
+        el.innerHTML = `
+            <div class="admin-stat-grid">
+                ${this._statCard((s.energyLevel || 0) + '%', 'Energy Level')}
+                ${this._statCard(s.communityPulseCount || 0, 'Pulses Today')}
+                ${this._statCard((s.waveTotalMinutes || 0) + ' min', 'Wave Minutes')}
+                ${this._statCard(wavePct + '%', 'Wave Progress')}
+                ${this._statCard(s.DEFAULT_WAVE_PARTICIPANTS || 0, 'Wave Participants')}
+            </div>`;
+    },
+
+    async _renderCelestial(el) {
+        const lunar = window.LunarEngine;
+        const solar = window.SolarEngine;
+
+        const lunarRoom = lunar?.currentLunarRoom;
+        const lunarData = lunar?.currentMoonData;
+
+        // SolarEngine exposes getCurrentSeason() and solarRooms[]
+        const solarSeason = solar?.getCurrentSeason?.() || null;
+        const solarRoom   = solarSeason
+            ? solar?.solarRooms?.find(r => r.season === solarSeason)
+            : null;
+
+        el.innerHTML = `
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div style="background:rgba(139,92,246,0.06);border-radius:12px;padding:14px;border:1px solid rgba(139,92,246,0.12);">
+                    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted,#888);margin-bottom:6px;">🌙 Lunar</div>
+                    <div style="font-size:0.9rem;font-weight:600;">${lunarData?.phaseName || 'Loading...'}</div>
+                    <div style="font-size:0.78rem;color:var(--text-muted,#888);margin-top:2px;">${lunarData ? Math.round(lunarData.fraction * 100) + '% illuminated' : ''}</div>
+                    <div style="font-size:0.78rem;margin-top:6px;">Active room: <strong>${lunarRoom?.roomName || '—'}</strong></div>
+                    ${lunarData?.nextFullMoon ? `<div style="font-size:0.72rem;color:var(--text-muted,#888);margin-top:4px;">Next full moon: ${Math.ceil((lunarData.nextFullMoon - new Date()) / (1000*60*60*24))} days</div>` : ''}
+                </div>
+                <div style="background:rgba(251,191,36,0.08);border-radius:12px;padding:14px;border:1px solid rgba(251,191,36,0.2);">
+                    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted,#888);margin-bottom:6px;">☀️ Solar</div>
+                    <div style="font-size:0.9rem;font-weight:600;">${solarRoom?.roomName || solarSeason || 'Loading...'}</div>
+                    <div style="font-size:0.78rem;color:var(--text-muted,#888);margin-top:2px;">Season: ${solarSeason || '—'}</div>
+                    <div style="font-size:0.78rem;margin-top:6px;">Active room: <strong>${solarRoom?.roomName || '—'}</strong></div>
+                </div>
+            </div>`;
+    },
 
     async _renderSafety(el) {
         const [safety, pushCount] = await Promise.all([
@@ -488,6 +550,34 @@ const AdminDashboard = {
             </table>`;
     },
 
+    async _renderReflections(el) {
+        const reflections = await CommunityDB.getRecentReflectionsAdmin(5);
+
+        if (!reflections.length) {
+            el.innerHTML = '<div style="color:var(--text-muted,#888);font-size:0.83rem;">No reflections yet.</div>';
+            return;
+        }
+
+        el.innerHTML = reflections.map(r => `
+            <div class="admin-refl-row">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                    <span style="font-size:0.82rem;font-weight:600;">
+                        ${r.profiles?.emoji || ''} ${this._esc(r.profiles?.name || 'Member')}
+                    </span>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="font-size:0.72rem;color:var(--text-muted,#888);">${this._timeAgo(r.created_at)}</span>
+                        <button onclick="AdminDashboard._deleteReflection('${r.id}', this)"
+                                style="padding:2px 8px;border-radius:6px;border:none;cursor:pointer;
+                                       font-size:0.72rem;background:rgba(239,68,68,0.1);color:#ef4444;">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                </div>
+                <div style="font-size:0.83rem;color:var(--neuro-text,#333);line-height:1.5;">
+                    ${this._esc(r.content)}
+                </div>
+            </div>`).join('');
+    },
 
     async _renderRetention(el) {
         const signals = await CommunityDB.getRetentionSignals();
