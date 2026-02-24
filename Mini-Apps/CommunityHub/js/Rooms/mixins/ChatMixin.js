@@ -290,9 +290,9 @@ const ChatMixin = {
 
         return `
         <div class="chat-container" id="${this.roomId}${channelCap}ChatContainer"
-             style="display:flex;flex-direction:column;height:100%;">
+             style="display:flex;flex-direction:column;flex:1;min-height:300px;">
             <div class="chat-messages" id="${this.roomId}${channelCap}Messages"
-                 style="flex:1;overflow-y:auto;min-height:0;">
+                 style="flex:1;min-height:100px;">
                 <!-- Messages rendered here -->
             </div>
             <div class="chat-input-container" style="margin-top:auto;padding-top:8px;">

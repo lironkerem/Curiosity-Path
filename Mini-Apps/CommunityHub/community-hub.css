@@ -714,7 +714,6 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
 }
 
 /* Messages Container */
@@ -875,8 +874,8 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     border: 2px solid var(--border);
     border-radius: var(--radius-lg);
     margin: 16px 16px 16px 0;
-    height: calc(100vh - 112px);
-    overflow: hidden;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
 }
 
 .campfire-sidebar-header {
@@ -2114,7 +2113,6 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 .ps-body { 
     flex: 1; 
     display: flex; 
-    overflow: hidden;
     background: var(--neuro-bg);
 }
 
