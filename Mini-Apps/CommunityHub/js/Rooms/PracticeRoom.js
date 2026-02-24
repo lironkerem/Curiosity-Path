@@ -139,12 +139,12 @@ class PracticeRoom {
         if (btn) {
             btn.style.background = 'rgba(139,92,246,0.3)';
             btn.style.color      = 'var(--accent)';
-            btn.textContent      = '🙏 Blessed';
+            btn.innerHTML        = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;opacity:0.8;"><path d="M9 2C9 2 4 5 4 10C4 13.3 6.7 16 10 16L10.5 17H13.5L14 16C17.3 16 20 13.3 20 10C20 5 15 2 15 2C15 2 13.5 4 12 4C10.5 4 9 2 9 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10.5 17L9.5 20H14.5L13.5 17" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9.5 20H14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="10" r="2" stroke="currentColor" stroke-width="1.5"/></svg> Blessed';
             btn.disabled         = true;
             setTimeout(() => {
                 btn.style.background = 'rgba(139,92,246,0.12)';
                 btn.style.color      = 'var(--text-muted)';
-                btn.innerHTML        = '🙏 Bless';
+                btn.innerHTML        = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;opacity:0.8;"><path d="M9 2C9 2 4 5 4 10C4 13.3 6.7 16 10 16L10.5 17H13.5L14 16C17.3 16 20 13.3 20 10C20 5 15 2 15 2C15 2 13.5 4 12 4C10.5 4 9 2 9 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10.5 17L9.5 20H14.5L13.5 17" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9.5 20H14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="10" r="2" stroke="currentColor" stroke-width="1.5"/></svg> Bless';
                 btn.disabled         = false;
             }, 3000);
         }
@@ -174,8 +174,8 @@ class PracticeRoom {
         const btn = document.getElementById(`${this.roomId}BlessBtn`);
         if (!btn) return;
         btn.innerHTML = count > 0
-            ? `🙏 Bless <span style="font-size:10px;opacity:0.7;">${count}</span>`
-            : '🙏 Bless';
+            ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;opacity:0.8;"><path d="M9 2C9 2 4 5 4 10C4 13.3 6.7 16 10 16L10.5 17H13.5L14 16C17.3 16 20 13.3 20 10C20 5 15 2 15 2C15 2 13.5 4 12 4C10.5 4 9 2 9 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10.5 17L9.5 20H14.5L13.5 17" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9.5 20H14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="10" r="2" stroke="currentColor" stroke-width="1.5"/></svg> Bless <span style="font-size:10px;opacity:0.7;">${count}</span>`
+            : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;opacity:0.8;"><path d="M9 2C9 2 4 5 4 10C4 13.3 6.7 16 10 16L10.5 17H13.5L14 16C17.3 16 20 13.3 20 10C20 5 15 2 15 2C15 2 13.5 4 12 4C10.5 4 9 2 9 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10.5 17L9.5 20H14.5L13.5 17" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9.5 20H14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="10" r="2" stroke="currentColor" stroke-width="1.5"/></svg> Bless';
     }
 
     /**
@@ -1100,17 +1100,18 @@ class PracticeRoom {
 
             ${this.buildCardFooter()}
 
-            <!-- Bless button — bottom right, never triggers room entry -->
+            <!-- Bless button — bottom center, never triggers room entry -->
             <button id="${this.roomId}BlessBtn"
                     onclick="event.stopPropagation();${this.roomId}_blessRoom()"
                     title="Send a blessing to everyone inside"
-                    style="position:absolute;bottom:12px;right:12px;
+                    style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
                            background:rgba(139,92,246,0.12);border:1.5px solid rgba(139,92,246,0.35);
-                           border-radius:20px;padding:5px 12px;
+                           border-radius:20px;padding:5px 14px;
                            font-size:12px;color:var(--text-muted);cursor:pointer;
-                           display:flex;align-items:center;gap:5px;
+                           display:flex;align-items:center;gap:6px;white-space:nowrap;
                            transition:all 0.2s;z-index:3;">
-                🙏 Bless
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;opacity:0.8;"><path d="M9 2C9 2 4 5 4 10C4 13.3 6.7 16 10 16L10.5 17H13.5L14 16C17.3 16 20 13.3 20 10C20 5 15 2 15 2C15 2 13.5 4 12 4C10.5 4 9 2 9 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10.5 17L9.5 20H14.5L13.5 17" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9.5 20H14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="10" r="2" stroke="currentColor" stroke-width="1.5"/></svg>
+                Bless
             </button>
         </div>`;
     }
