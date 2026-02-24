@@ -120,7 +120,7 @@ const MemberProfileModal = {
                                          border-radius:99px;padding:4px 14px;"></span>
                         </div>
 
-                        <!-- Stats: XP, Karma, Blessings, Fav Room -->
+                        <!-- Stats: XP, Karma, Streak -->
                         <div style="display:flex;justify-content:space-around;
                                     margin-bottom:0.8rem;padding:0.8rem 0.5rem;
                                     border-radius:12px;
@@ -136,21 +136,23 @@ const MemberProfileModal = {
                                 <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">Karma</div>
                             </div>
                             <div style="text-align:center;">
-                                <div id="memberModalBlessings"
+                                <div id="memberModalStreak"
                                      style="font-size:1.2rem;font-weight:700;color:var(--primary,#667eea);">—</div>
-                                <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">🙏 Blessings</div>
+                                <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">🔥 Streak</div>
                             </div>
-                            <div style="text-align:center;">
-                                <div id="memberModalFavRoom"
-                                     style="font-size:0.82rem;font-weight:700;color:var(--primary,#667eea);">—</div>
-                                <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">Fav Room</div>
-                            </div>
+                        </div>
+
+                        <!-- Activity counts -->
+                        <div id="memberModalActivity"
+                             style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;
+                                    font-size:0.76rem;color:var(--text-muted);
+                                    margin-bottom:0.8rem;min-height:1.2rem;">
                         </div>
 
                         <!-- Badges -->
                         <div id="memberModalBadges"
                              style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
-                                    margin-top:1.2rem;margin-bottom:1rem;min-height:1.5rem;">
+                                    margin-bottom:1rem;min-height:1.5rem;">
                         </div>
 
                         <!-- Appreciate button (full width, above other actions) -->
@@ -588,11 +590,10 @@ const MemberProfileModal = {
                 }).catch(() => {});
             }
 
-            // Fetch gamification + community stats in parallel (non-blocking)
+            // Fetch gamification data in parallel (non-blocking)
             CommunityDB.getUserProgress(userId).then(g => {
                 if (g) this._populateGamification(g);
             }).catch(() => {});
-            this._loadMemberCommunityStats(userId).catch(() => {});
 
             loading.style.display = 'none';
             content.style.display = 'block';
@@ -718,64 +719,35 @@ const MemberProfileModal = {
         const xp = document.getElementById('memberModalXP');
         if (xp) xp.textContent = (g.xp ?? 0).toLocaleString();
 
-        // Badges — card style with rarity color accent (matches main profile)
+        const streak = document.getElementById('memberModalStreak');
+        if (streak) streak.textContent = (g.streak ?? 0);
+
+        // Activity counts
+        const actEl = document.getElementById('memberModalActivity');
+        if (actEl) {
+            const items = [
+                g.totalMeditations    > 0 ? `🧘 ${g.totalMeditations} meditations`          : null,
+                g.totalTarotSpreads   > 0 ? `🔮 ${g.totalTarotSpreads} readings`             : null,
+                g.totalJournalEntries > 0 ? `📓 ${g.totalJournalEntries} journal entries`    : null,
+                g.streak              > 0 ? `🔥 ${g.streak}-day streak`                      : null,
+            ].filter(Boolean);
+            actEl.innerHTML = items.map(i => `<span>${i}</span>`).join('');
+        }
+
+        // Badges
         const badgesEl = document.getElementById('memberModalBadges');
         if (badgesEl) {
             const earned = g.badges || [];
             if (!earned.length) { badgesEl.innerHTML = ''; return; }
-            const rarityColors  = { common:'#9ca3af', uncommon:'#10b981', rare:'#3b82f6', epic:'#a855f7', legendary:'#f59e0b' };
-            const rarityLabels  = { common:'Common', uncommon:'Uncommon', rare:'Rare', epic:'Epic', legendary:'Legendary' };
+            const rarityColors = {common:'#9ca3af',uncommon:'#10b981',rare:'#3b82f6',epic:'#a855f7',legendary:'#f59e0b'};
             badgesEl.innerHTML = [...earned].slice(-8).reverse().map(b => {
                 const color = rarityColors[b.rarity] || rarityColors.common;
-                const label = rarityLabels[b.rarity] || 'Common';
-                return `<div title="${b.name || 'Badge'} · ${label}"
-                             style="display:flex;flex-direction:column;align-items:center;justify-content:center;
-                                    width:52px;height:60px;border-radius:12px;
-                                    background:var(--neuro-bg,#f0f0f3);
-                                    box-shadow:3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
-                                    border-bottom:3px solid ${color};
-                                    cursor:default;transition:transform 0.15s,box-shadow 0.15s;
-                                    position:relative;overflow:hidden;"
-                             onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='4px 4px 12px rgba(0,0,0,0.15),-2px -2px 8px rgba(255,255,255,0.8)'"
-                             onmouseout="this.style.transform='';this.style.boxShadow='3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7)'">
-                             <div style="position:absolute;top:0;left:0;right:0;height:3px;
-                                         background:${color};opacity:0.3;border-radius:12px 12px 0 0;"></div>
-                             <span style="font-size:1.5rem;line-height:1;">${b.icon || '🏅'}</span>
-                         </div>`;
+                return `<div title="${b.name || 'Badge'}"
+                             style="width:32px;height:32px;border-radius:50%;
+                                    border:2px solid ${color};
+                                    display:flex;align-items:center;justify-content:center;
+                                    font-size:1.1rem;cursor:default;">${b.icon || '🏅'}</div>`;
             }).join('');
-        }
-    },
-
-    // Loads blessings count + favourite room for a member from Supabase
-    async _loadMemberCommunityStats(userId) {
-        if (!window.CommunityDB?.ready) return;
-        try {
-            // Blessings sent
-            const { count: blessingCount, error: bErr } = await CommunityDB._sb
-                .from('room_blessings')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', userId);
-            const blessingsEl = document.getElementById('memberModalBlessings');
-            if (blessingsEl) blessingsEl.textContent = (!bErr && blessingCount != null)
-                ? blessingCount.toLocaleString() : '0';
-
-            // Favourite room
-            const { data: entries, error: rErr } = await CommunityDB._sb
-                .from('room_entries')
-                .select('room_id')
-                .eq('user_id', userId);
-            const favRoomEl = document.getElementById('memberModalFavRoom');
-            if (!rErr && entries?.length > 0) {
-                const counts = {};
-                entries.forEach(e => { counts[e.room_id] = (counts[e.room_id] || 0) + 1; });
-                const favRoomId = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
-                const pretty = favRoomId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-                if (favRoomEl) favRoomEl.textContent = pretty;
-            } else {
-                if (favRoomEl) favRoomEl.textContent = '—';
-            }
-        } catch (e) {
-            console.warn('[MemberProfileModal] _loadMemberCommunityStats error:', e);
         }
     },
 
@@ -1208,36 +1180,25 @@ const MemberProfileModal = {
     // Refresh main profile hero stats if we just modified our own gamification
     async _refreshMainProfileStats() {
         try {
-            // Step 1: Force reload app.state.data from cloud so stale in-memory
-            // values don't overwrite the admin-set values on next saveState()
-            if (window.app?.state?.loadData) {
-                await window.app.state.loadData();
-            }
-
-            // Step 2: Reload GamificationEngine.state from the freshly loaded app.state.data
-            if (window.app?.gamification?.reloadFromDatabase) {
-                await window.app.gamification.reloadFromDatabase();
-            }
-
-            // Step 3: Read the now-correct in-memory state
-            const g = window.app?.gamification?.state;
+            const g = await CommunityDB.getUserProgress(CommunityDB.userId);
             if (!g) return;
-
-            // Step 4: Sync Core.state so the rest of the app is consistent
+            // Update in-memory gamification state so main app stays in sync
+            if (window.app?.gamification?.state) {
+                if (g.xp    !== undefined) window.app.gamification.state.xp    = g.xp;
+                if (g.karma !== undefined) window.app.gamification.state.karma = g.karma;
+            }
+            // Update Core.state too
             if (window.Core?.state?.currentUser) {
                 if (g.xp    !== undefined) Core.state.currentUser.xp    = g.xp;
                 if (g.karma !== undefined) Core.state.currentUser.karma = g.karma;
             }
-
-            // Step 5: Update profile hero DOM elements
+            // Update profile hero DOM elements directly
             const xpEl    = document.getElementById('statXP');
             const karmaEl = document.getElementById('statKarma');
-            if (xpEl    && g.xp    !== undefined) xpEl.textContent    = g.xp.toLocaleString();
-            if (karmaEl && g.karma !== undefined) karmaEl.textContent = g.karma.toLocaleString();
-
-            // Step 6: Re-render the modal stats if still open
+            if (xpEl    && g.xp    !== undefined) xpEl.textContent    = g.xp;
+            if (karmaEl && g.karma !== undefined) karmaEl.textContent = g.karma;
+            // Also re-render the member modal stats if still open
             this._populateGamification(g);
-
         } catch (e) {
             console.warn('[AdminPanel] _refreshMainProfileStats:', e);
         }

@@ -189,7 +189,7 @@ const ProfileModule = {
 
 
 
-                        <div class="badges-row" id="badgesRow">
+                        <div class="badges-row" id="badgesRow" style="margin-top:1.2rem;">
                             <!-- Populated dynamically from GamificationEngine -->
                         </div>
 
