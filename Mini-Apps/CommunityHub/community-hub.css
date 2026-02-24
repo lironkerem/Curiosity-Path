@@ -971,8 +971,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 /* Dimmed mode */
 .practice-space.dimmed { filter: brightness(0.6); }
 
-#dynamicRoomContent.dimmed,
-#practiceRoomView.dimmed {
+#dynamicRoomContent.dimmed {
     filter: brightness(0.3);
     transition: filter 0.5s ease;
 }
@@ -2998,21 +2997,15 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 /* Reset body background when practice room is active */
 
-/* Ensure the practice room view has proper background */
-#communityHubFullscreenContainer #practiceRoomView {
-    background: var(--neuro-bg) !important;
-    height: 100vh;
+/* Room renders directly into fullscreen container */
+#communityHubFullscreenContainer #dynamicRoomContent {
+    background: var(--neuro-bg);
     display: flex;
     flex-direction: column;
-}
-
-#communityHubFullscreenContainer .practice-room-container {
-    min-height: 100vh;
-    width: 100%;
-    background: var(--neuro-bg) !important;
-    position: relative;
-    overflow-x: hidden;
-    padding: 2rem 1rem;
+    flex: 1;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
 }
 
 /* SOLAR PRACTICE ROOMS | Season-specific visual styles and CSS custom properties */
@@ -3887,17 +3880,6 @@ body.solar-room-active[data-season] {
     padding: 10px 16px;
     opacity: 1;
     transform: none;
-  }
-
-  /* ===== PRACTICE ROOM CONTAINER ===== */
-  #communityHubFullscreenContainer .practice-room-container {
-    padding: 0;
-  }
-
-  .back-to-hub-btn {
-    margin: 12px 14px !important;
-    padding: 8px 14px;
-    font-size: 13px;
   }
 
   /* Allow rooms with tall content to scroll on mobile */
