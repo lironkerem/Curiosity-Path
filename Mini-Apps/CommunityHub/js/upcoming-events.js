@@ -80,7 +80,7 @@ const UpcomingEvents = {
     // ============================================================================
     
     config: {
-        ROTATION_INTERVAL: 8000, // 8 seconds
+        ROTATION_INTERVAL: 15000, // 15 seconds
         FADE_DURATION: 500 // 0.5 seconds
     },
 
@@ -90,94 +90,94 @@ const UpcomingEvents = {
 
     flyerCatalog: {
         'Sessions1.jpg': {
-            title: 'Private Tarot Spread',
-            subtitle: 'Personal reading tailored to your questions',
-            info: 'A one-on-one deep dive into your personal journey. Bring your questions about love, career, or life path. Receive guidance and clarity through the cards.',
+            title: '1 on 1 Private Tarot Reading',
+            subtitle: 'A deeply personal reading just for you',
+            info: 'Sit down one-on-one for an intimate tarot session tailored entirely to your questions and journey. Whether you seek clarity on love, career, purpose, or personal growth — the cards will meet you exactly where you are.',
             type: '🎴 In-Person or Online',
         },
         'Sessions2.jpg': {
-            title: 'Private Reiki Healing Session',
-            subtitle: 'Energy healing for balance and wellness',
-            info: 'Experience deep relaxation and energetic clearing. Reiki helps release blockages, reduce stress, and restore your natural state of wellbeing.',
+            title: '1 on 1 Reiki Healing Session',
+            subtitle: 'Deep energetic healing, tailored to you',
+            info: 'A private Reiki session focused entirely on your energetic field. Release blockages, restore balance, and return to a natural state of ease and wholeness. Each session is intuitive and adapted to what your body and energy most need.',
             type: '✨ In-Person or Online',
         },
         'Sessions3.jpg': {
-            title: 'Classic Meditation Masterclass',
-            subtitle: 'Foundational techniques for daily practice',
-            info: 'Master the essential meditation techniques used for thousands of years. Learn breath control, mindfulness, and deep relaxation methods.',
+            title: 'Classic Meditation Class',
+            subtitle: 'Timeless techniques for a calm, clear mind',
+            info: 'Learn the foundational meditation practices that have been used for thousands of years. Covering breath awareness, body scanning, and silent sitting — this class gives you practical tools you can return to every day.',
             type: '🧘 Online Zoom Class',
         },
         'Sessions4.jpg': {
             title: 'Tarot Masterclass',
-            subtitle: 'Learn to read the cards with confidence',
-            info: 'Discover the ancient wisdom of tarot through interactive lessons. Suitable for beginners and intermediate practitioners.',
+            subtitle: 'Read the cards with depth and confidence',
+            info: 'An immersive class exploring the full language of tarot — from Major Arcana archetypes to Minor Arcana nuance. Develop your intuition, learn how to construct meaningful spreads, and find your own voice as a reader.',
             type: '🎴 Online Zoom Class',
         },
         'Sessions5.jpg': {
-            title: 'Spiritual Guidance Session',
-            subtitle: 'Navigate your path with clarity',
-            info: 'A personal session exploring your spiritual journey, helping you find direction and deeper meaning in your everyday life.',
-            type: '🌟 In-Person or Online',
+            title: 'OSHO Active Meditations',
+            subtitle: 'Move, release, and arrive in stillness',
+            info: 'OSHO Active Meditations use dynamic movement, breath, and sound to shake loose tension and mental noise — before arriving at deep inner silence. Suitable for all levels, no experience required.',
+            type: '🌀 In-Person or Online',
         },
         'Sessions6.jpg': {
-            title: 'Chakra Balancing Session',
-            subtitle: 'Restore your energetic centres',
-            info: 'A focused energy session working through your seven chakras to release blockages and restore natural flow and vitality.',
-            type: '✨ In-Person or Online',
+            title: 'Guided Visualization Session',
+            subtitle: 'Journey inward through the power of the mind',
+            info: 'A deeply relaxing guided session using vivid inner imagery to access clarity, healing, and inspiration. Ideal for stress relief, goal alignment, and connecting with your deeper wisdom.',
+            type: '🌟 In-Person or Online',
         },
         'Sessions7.jpg': {
-            title: 'Intuitive Oracle Reading',
-            subtitle: 'Receive messages from your higher self',
-            info: 'An intuitive oracle card session offering guidance, reflection, and clarity for your current life chapter.',
-            type: '🔮 In-Person or Online',
+            title: 'E.F.T. Healing Session',
+            subtitle: 'Tap into freedom from stress and old patterns',
+            info: 'Emotional Freedom Technique (EFT) combines gentle tapping on acupressure points with focused intention to release emotional blocks, reduce anxiety, and shift limiting beliefs held in the body.',
+            type: '🤲 In-Person or Online',
         },
         'Sessions8.jpg': {
-            title: 'Sound Healing Session',
-            subtitle: 'Healing through vibration and resonance',
-            info: 'Experience the transformative power of sound healing. Tibetan bowls and vocal toning guide you into deep relaxation and restoration.',
-            type: '🎵 In-Person',
+            title: 'Sivananda Yoga Class',
+            subtitle: 'Classical yoga for body, breath, and spirit',
+            info: 'A traditional Sivananda yoga class integrating asana, pranayama, relaxation, and mantra. Rooted in the classical five-point system, this class nourishes the whole being — body, mind, and soul.',
+            type: '🕉️ In-Person',
         },
         'Sessions9.jpg': {
-            title: 'Breathwork Journey',
-            subtitle: 'Release, heal and expand through breath',
-            info: 'A guided breathwork session using conscious connected breathing to access deeper states, release stored emotions, and expand awareness.',
-            type: '🌬️ In-Person or Online',
+            title: 'Divine Intimacy Lecture',
+            subtitle: 'Explore the sacred relationship with the self',
+            info: 'A reflective lecture-style session exploring the deeper dimensions of intimacy — with yourself, with life, and with the divine. Drawing from mystical traditions, this talk invites you into a more tender and conscious way of being.',
+            type: '💫 In-Person or Online',
         },
-        'Workshop1.jpg': {
-            title: 'Tarot Foundations Workshop',
+        'Workshops1.jpg': {
+            title: 'Tarot Workshop',
             subtitle: 'Your complete introduction to the cards',
-            info: 'A full-day immersive workshop covering all 78 cards, spreads, and intuitive reading techniques. Perfect for beginners.',
+            info: 'A full immersive workshop covering the 78-card system, major and minor arcana, spreads, and intuitive reading practice. You will leave with the confidence and foundation to read for yourself and others.',
             type: '🎴 Workshop',
         },
-        'Workshop2.jpg': {
-            title: 'Meditation & Mindfulness Workshop',
-            subtitle: 'Build a lasting daily practice',
-            info: 'An experiential workshop covering multiple meditation styles, breath techniques, and practical tools to establish a consistent practice.',
-            type: '🧘 Workshop',
-        },
-        'Workshop3.jpg': {
-            title: 'Energy Healing Workshop',
-            subtitle: 'Learn to sense and work with energy',
-            info: 'Hands-on training in energy healing fundamentals. Learn to sense the aura, work with chakras, and perform basic energy clearing.',
+        'Workshops2.jpg': {
+            title: 'Reiki Course',
+            subtitle: 'Learn to channel healing energy',
+            info: 'A comprehensive Reiki training covering the history, principles, hand positions, and attunement process. Whether you are a complete beginner or looking to deepen your practice, this course opens the door to self-healing and healing others.',
             type: '✨ Workshop',
         },
-        'Workshop4.jpg': {
-            title: 'Spiritual Awakening Workshop',
-            subtitle: 'Deepen your connection to your true self',
-            info: 'A transformative day exploring consciousness, inner knowing, and practical tools for living an awakened, purposeful life.',
-            type: '🌟 Workshop',
+        'Workshops3.jpg': {
+            title: 'Meditation Workshop',
+            subtitle: 'Build a practice that transforms your life',
+            info: 'An experiential workshop exploring multiple meditation styles — from breath-focused techniques to body awareness and mantra-based practice. You will leave with a personalised toolkit and the understanding to maintain a consistent daily practice.',
+            type: '🧘 Workshop',
         },
-        'Workshop5.jpg': {
-            title: 'Shadow Work Intensive',
-            subtitle: 'Embrace and integrate your whole self',
-            info: 'A guided deep-dive into shadow work using journaling, archetypes, and somatic tools to integrate hidden aspects of yourself.',
-            type: '🌑 Workshop',
+        'Workshops4.jpg': {
+            title: 'Rainbow Light-body Workshop',
+            subtitle: 'Activate and align your energetic body',
+            info: 'A profound workshop working with the subtle energy body, chakra system, and light-body activation. Through guided practices, visualization, and energy work, participants explore the luminous nature of their own being.',
+            type: '🌈 Workshop',
         },
-        'Workshop6.jpg': {
-            title: 'Manifestation & Law of Attraction',
-            subtitle: 'Align your energy with your desires',
-            info: 'Learn the principles of conscious creation. Practical tools for visualization, intention setting, and energetic alignment.',
-            type: '🌠 Workshop',
+        'Workshops5.jpg': {
+            title: 'OSHO Camp (3 Days)',
+            subtitle: 'Three days of immersive meditation and awakening',
+            info: 'A transformative 3-day residential camp using OSHO Active and silent meditations to strip away conditioning and awaken presence. Each day deepens your practice through movement, music, silence, and community.',
+            type: '🌀 3-Day Retreat',
+        },
+        'Workshops6.jpg': {
+            title: 'OSHO Camp (4 Days)',
+            subtitle: 'Four days of deep immersion and inner freedom',
+            info: 'An extended 4-day OSHO residential camp offering a deeper dive into the full spectrum of OSHO meditations. More time means more depth — more silence, more breakthroughs, and more space to simply be.',
+            type: '🌀 4-Day Retreat',
         },
     },
 
@@ -263,12 +263,58 @@ const UpcomingEvents = {
             <img src="${this.escapeHtml(data.image)}" 
                  alt="${this.escapeHtml(data.title)}" 
                  id="${imageId}"
-                 style="width: 100%; height: 100%; object-fit: contain; transition: opacity ${this.config.FADE_DURATION}ms ease;">
+                 onclick="UpcomingEvents.openLightbox(this.src)"
+                 style="width: 100%; height: 100%; object-fit: contain; transition: opacity ${this.config.FADE_DURATION}ms ease;
+                        cursor: zoom-in;">
             <div class="flyer-indicator" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px;">
                 ${dots}
             </div>
         </div>
         `;
+    },
+
+    openLightbox(src) {
+        if (document.getElementById('flyerLightbox')) return;
+        const lb = document.createElement('div');
+        lb.id = 'flyerLightbox';
+        lb.style.cssText = `position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.92);
+            display:flex;align-items:center;justify-content:center;
+            cursor:zoom-out;opacity:0;transition:opacity 0.25s ease;`;
+        lb.innerHTML = `
+            <img src="${src}" style="max-width:94vw;max-height:94vh;object-fit:contain;
+                border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.6);
+                transform:scale(0.95);transition:transform 0.25s ease;">
+            <button onclick="UpcomingEvents.closeLightbox()"
+                    style="position:absolute;top:18px;right:22px;background:none;border:none;
+                           cursor:pointer;font-size:28px;color:#fff;opacity:0.7;line-height:1;">✕</button>`;
+        document.body.appendChild(lb);
+        document.body.style.overflow = 'hidden';
+
+        // Animate in
+        requestAnimationFrame(() => {
+            lb.style.opacity = '1';
+            lb.querySelector('img').style.transform = 'scale(1)';
+        });
+
+        // Close on backdrop click
+        lb.addEventListener('click', e => { if (e.target === lb) this.closeLightbox(); });
+
+        // Close on Escape
+        this._lightboxEsc = (e) => { if (e.key === 'Escape') this.closeLightbox(); };
+        document.addEventListener('keydown', this._lightboxEsc);
+    },
+
+    closeLightbox() {
+        const lb = document.getElementById('flyerLightbox');
+        if (!lb) return;
+        lb.style.opacity = '0';
+        setTimeout(() => {
+            lb.remove();
+            document.body.style.overflow = '';
+        }, 250);
+        if (this._lightboxEsc) {
+            document.removeEventListener('keydown', this._lightboxEsc);
+        }
     },
 
     /**
@@ -340,24 +386,19 @@ const UpcomingEvents = {
         // Clear any existing intervals
         this.destroy();
 
-        // Start rotation timers
+        // Left card starts immediately
         this.state.classInterval = setInterval(() => {
-            try {
-                this.rotateClasses();
-            } catch (error) {
-                console.error('Classes rotation error:', error);
-            }
+            try { this.rotateClasses(); } catch (error) { console.error('Classes rotation error:', error); }
         }, this.config.ROTATION_INTERVAL);
 
-        this.state.sessionInterval = setInterval(() => {
-            try {
-                this.rotateSessions();
-            } catch (error) {
-                console.error('Sessions rotation error:', error);
-            }
-        }, this.config.ROTATION_INTERVAL);
+        // Right card starts offset by half the interval so they never change together
+        this._staggerTimeout = setTimeout(() => {
+            this.state.sessionInterval = setInterval(() => {
+                try { this.rotateSessions(); } catch (error) { console.error('Sessions rotation error:', error); }
+            }, this.config.ROTATION_INTERVAL);
+        }, this.config.ROTATION_INTERVAL / 2);
 
-        console.log('✓ UpcomingEvents rotation initialized');
+        console.log('✓ UpcomingEvents rotation initialized (staggered)');
     },
 
     /**
@@ -643,8 +684,8 @@ const UpcomingEvents = {
         const draft = this._adminDraft[tab];
         const sessions = ['Sessions1.jpg','Sessions2.jpg','Sessions3.jpg','Sessions4.jpg',
                           'Sessions5.jpg','Sessions6.jpg','Sessions7.jpg','Sessions8.jpg','Sessions9.jpg'];
-        const workshops = ['Workshop1.jpg','Workshop2.jpg','Workshop3.jpg',
-                           'Workshop4.jpg','Workshop5.jpg','Workshop6.jpg'];
+        const workshops = ['Workshops1.jpg','Workshops2.jpg','Workshops3.jpg',
+                           'Workshops4.jpg','Workshops5.jpg','Workshops6.jpg'];
 
         const flyerGrid = (folder, files) => files.map(f => {
             const url = this._flyerBase + folder + '/' + f;
@@ -757,16 +798,18 @@ const UpcomingEvents = {
      * Clean up intervals and reset state
      */
     destroy() {
+        if (this._staggerTimeout) {
+            clearTimeout(this._staggerTimeout);
+            this._staggerTimeout = null;
+        }
         if (this.state.classInterval) {
             clearInterval(this.state.classInterval);
             this.state.classInterval = null;
         }
-        
         if (this.state.sessionInterval) {
             clearInterval(this.state.sessionInterval);
             this.state.sessionInterval = null;
         }
-        
         this.state.isInitialized = false;
         console.log('✓ UpcomingEvents destroyed');
     }
