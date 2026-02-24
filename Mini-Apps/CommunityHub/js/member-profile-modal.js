@@ -514,7 +514,7 @@ const MemberProfileModal = {
 
         if (!userId) return;
 
-        const isSelf = userId === window.CommunityDB?.userId;
+        const isSelf = userId === window.Core?.state?.currentUser?.id;
         this.state.currentUserId = userId;
         this.state.isOpen = true;
 
@@ -1035,7 +1035,7 @@ const MemberProfileModal = {
             await this._adminPushNotify(this.state.currentUserId, '🎁 Gift from Aanandoham!', `You received +${amount} XP!`);
             Core.showToast(`✓ Sent ${amount} XP`);
             this._closeAdminSubs();
-            if (this.state.currentUserId === CommunityDB.userId) await this._refreshMainProfileStats();
+            if (this.state.currentUserId === window.Core?.state?.currentUser?.id) await this._refreshMainProfileStats();
         } catch (err) {
             console.error('[AdminPanel] sendXP error:', err);
             Core.showToast('❌ Could not send XP');
@@ -1062,7 +1062,7 @@ const MemberProfileModal = {
             await this._adminPushNotify(this.state.currentUserId, '🎁 Gift from Aanandoham!', `You received +${amount} Karma!`);
             Core.showToast(`✓ Sent ${amount} Karma`);
             this._closeAdminSubs();
-            if (this.state.currentUserId === CommunityDB.userId) await this._refreshMainProfileStats();
+            if (this.state.currentUserId === window.Core?.state?.currentUser?.id) await this._refreshMainProfileStats();
         } catch (err) {
             console.error('[AdminPanel] sendKarma error:', err);
             Core.showToast('❌ Could not send Karma');
@@ -1208,34 +1208,41 @@ const MemberProfileModal = {
     // Refresh main profile hero stats if we just modified our own gamification
     async _refreshMainProfileStats() {
         try {
-            // Step 1: Force reload app.state.data from cloud so stale in-memory
-            // values don't overwrite the admin-set values on next saveState()
-            if (window.app?.state?.loadData) {
-                await window.app.state.loadData();
+            const myId = window.Core?.state?.currentUser?.id;
+            if (!myId) return;
+
+            // Fetch fresh values directly from Supabase — same source that shows
+            // correct values in the member card
+            const g = await CommunityDB.getUserProgress(myId);
+            if (!g) return;
+
+            // 1. Sync Core.state so the rest of the app reads correct values
+            if (window.Core?.state?.currentUser) {
+                if (g.xp    !== undefined) Core.state.currentUser.xp    = g.xp;
+                if (g.karma !== undefined) Core.state.currentUser.karma = g.karma;
+                if (g.level !== undefined) Core.state.currentUser.level = g.level;
             }
 
-            // Step 2: Reload GamificationEngine.state from the freshly loaded app.state.data
+            // 2. Sync GamificationEngine in-memory state if accessible,
+            //    so the next saveState() doesn't overwrite our values
+            if (window.app?.gamification?.state) {
+                if (g.xp    !== undefined) window.app.gamification.state.xp    = g.xp;
+                if (g.karma !== undefined) window.app.gamification.state.karma = g.karma;
+                if (g.level !== undefined) window.app.gamification.state.level = g.level;
+            }
+
+            // 3. Try full reload if available (resets engine from fresh DB data)
             if (window.app?.gamification?.reloadFromDatabase) {
                 await window.app.gamification.reloadFromDatabase();
             }
 
-            // Step 3: Read the now-correct in-memory state
-            const g = window.app?.gamification?.state;
-            if (!g) return;
-
-            // Step 4: Sync Core.state so the rest of the app is consistent
-            if (window.Core?.state?.currentUser) {
-                if (g.xp    !== undefined) Core.state.currentUser.xp    = g.xp;
-                if (g.karma !== undefined) Core.state.currentUser.karma = g.karma;
-            }
-
-            // Step 5: Update profile hero DOM elements
+            // 4. Update profile hero DOM elements directly
             const xpEl    = document.getElementById('statXP');
             const karmaEl = document.getElementById('statKarma');
             if (xpEl    && g.xp    !== undefined) xpEl.textContent    = g.xp.toLocaleString();
             if (karmaEl && g.karma !== undefined) karmaEl.textContent = g.karma.toLocaleString();
 
-            // Step 6: Re-render the modal stats if still open
+            // 5. Re-render the modal stats
             this._populateGamification(g);
 
         } catch (e) {
