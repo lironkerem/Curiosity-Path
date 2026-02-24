@@ -114,12 +114,23 @@ const CycleStateMixin = {
     },
     
     /**
-     * Override canEnterRoom for timed rooms
+     * Override canEnterRoom for timed rooms.
+     * Admins can always enter regardless of cycle state.
      * @returns {boolean}
      */
     canEnterRoom() {
         const isAdmin = Core.state?.currentUser?.is_admin === true;
         return isAdmin || this.state.isOpen;
+    },
+
+    /**
+     * Raw cycle window check — no admin bypass.
+     * Used by PracticeRoom._isWithinOpenWindow() for visual card state only
+     * (border color, opacity, In Session badge).
+     * @returns {boolean}
+     */
+    _checkCycleWindow() {
+        return this.state.isOpen;
     },
     
     /**

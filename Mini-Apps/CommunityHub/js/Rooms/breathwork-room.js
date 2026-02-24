@@ -109,8 +109,12 @@ class BreathworkRoom extends PracticeRoom {
         </div>`;
     }
     
-    buildAdditionalModals() {
+    buildHubModals() {
         return this.buildScheduleModal();
+    }
+
+    buildAdditionalModals() {
+        return ''; // Modal is now mounted at init via buildHubModals()
     }
     
     buildScheduleModal() {

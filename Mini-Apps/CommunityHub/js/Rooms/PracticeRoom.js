@@ -431,6 +431,22 @@ class PracticeRoom {
     canEnterRoom() {
         return true; // Always-open rooms always return true
     }
+
+    /**
+     * Check if the room is within its real open window — ignores admin bypass.
+     * Used purely for visual card state (border color, opacity, In Session badge).
+     * Always-open rooms are always visually open.
+     * Timed rooms delegate to CycleStateMixin._checkCycleWindow() if available,
+     * otherwise fall back to true.
+     * @returns {boolean}
+     */
+    _isWithinOpenWindow() {
+        if (this.roomType !== 'timed') return true;
+        if (typeof this._checkCycleWindow === 'function') {
+            return this._checkCycleWindow();
+        }
+        return true; // Fallback: no cycle mixin, treat as open
+    }
     
     /**
      * Cleanup room resources
@@ -1004,15 +1020,16 @@ class PracticeRoom {
         
         // Update active state for timed rooms
         if (this.roomType === 'timed') {
-            const isOpen = this.canEnterRoom();
-            roomCard.style.cursor  = isOpen ? 'pointer' : 'not-allowed';
-            roomCard.style.opacity = isOpen ? '1' : '0.55';
-            roomCard.style.border  = `3px solid ${isOpen ? '#22c55e' : '#ef4444'}`;
-            roomCard.onclick       = isOpen ? () => this.enterRoom() : null;
+            const canEnter       = this.canEnterRoom();
+            const isVisuallyOpen = this._isWithinOpenWindow();
+            roomCard.style.cursor  = canEnter ? 'pointer' : 'not-allowed';
+            roomCard.style.opacity = isVisuallyOpen ? '1' : '0.55';
+            roomCard.style.border  = `3px solid ${isVisuallyOpen ? '#22c55e' : '#ef4444'}`;
+            roomCard.onclick       = canEnter ? () => this.enterRoom() : null;
 
             // Show/hide "In Session" overlay label
             let overlay = roomCard.querySelector('.in-session-label');
-            if (!isOpen) {
+            if (!isVisuallyOpen) {
                 if (!overlay) {
                     overlay = document.createElement('div');
                     overlay.className = 'in-session-label';
@@ -1044,18 +1061,20 @@ class PracticeRoom {
      * @returns {string} Room card HTML
      */
     getRoomCardHTML() {
-        const isOpen      = this.canEnterRoom();
+        const canEnter    = this.canEnterRoom();
         const isTimed     = this.roomType === 'timed';
-        // Always-open → always green. Timed → green when open, red when in-session.
-        const borderColor = (!isTimed || isOpen) ? '#22c55e' : '#ef4444';
-        const cursor      = isOpen ? 'pointer' : 'not-allowed';
-        const opacity     = isOpen ? '1' : '0.55';
+        // Visual state is based on real session timing, regardless of admin access.
+        // For timed rooms, check the actual cycle window (not admin bypass).
+        const isVisuallyOpen = !isTimed || this._isWithinOpenWindow();
+        const borderColor = isVisuallyOpen ? '#22c55e' : '#ef4444';
+        const cursor      = canEnter ? 'pointer' : 'not-allowed';
+        const opacity     = isVisuallyOpen ? '1' : '0.55';
         const methodName  = `${this.roomId}_enterRoom`;
         window[methodName] = () => this.enterRoom();
-        const clickHandler = isOpen ? `onclick="${methodName}()"` : '';
+        const clickHandler = canEnter ? `onclick="${methodName}()"` : '';
 
         return `
-        <div class="practice-room ${isOpen ? 'active' : 'in-session'}"
+        <div class="practice-room ${isVisuallyOpen ? 'active' : 'in-session'}"
              data-room-type="${this.roomType}"
              data-room-id="${this.roomId}"
              ${clickHandler}
@@ -1066,7 +1085,7 @@ class PracticeRoom {
 
             ${this.getDevModeBadge()}
 
-            ${!isOpen && isTimed ? `
+            ${!isVisuallyOpen && isTimed ? `
             <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;pointer-events:none;">
                 <span style="background:rgba(239,68,68,0.85);color:white;font-size:11px;font-weight:700;letter-spacing:0.08em;padding:4px 10px;border-radius:4px;text-transform:uppercase;">In Session</span>
             </div>` : ''}
@@ -1162,10 +1181,7 @@ class PracticeRoom {
      * @returns {string} Badge HTML or empty string
      */
     getDevModeBadge() {
-        if (this.devMode) {
-            return '<span style="position: absolute; top: 8px; right: 8px; background: #ff6b6b; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700;">DEV MODE</span>';
-        }
-        return '';
+        return ''; // Admin mode is invisible — no badge shown
     }
     
     /**
