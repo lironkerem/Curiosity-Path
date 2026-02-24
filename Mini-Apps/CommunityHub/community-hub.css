@@ -1723,9 +1723,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     margin-bottom: 40px;
 }
 
-@media (max-width: 768px) {
-.collective-grid { grid-template-columns: 1fr; }
-}
+/* Keep 2 columns on all screen sizes — override in 767px block below */
 
 .collective-card {
     background: var(--surface);
@@ -2283,9 +2281,11 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 @media (max-width: 768px) {
     .active-members-grid {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-        gap: 12px;
-        padding: 16px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        padding: 14px;
+        max-height: calc(3 * 110px); /* ~3 rows */
+        overflow-y: auto;
     }
 }
 
@@ -3848,12 +3848,64 @@ body.solar-room-active[data-season] {
     text-align: center;
   }
 
+  /* Inspiration — smaller on mobile */
+  .profile-inspiration {
+    font-size: 0.78rem;
+    text-align: center;
+  }
+
+  /* Level badge — centered */
+  #profileLevelRow {
+    justify-content: center;
+  }
+
+  /* Birthday + Country — centered */
+  #profileLocationRow {
+    justify-content: center;
+  }
+
+  /* Stats — single line, no wrap, tighter */
   .profile-stats {
-    gap: 20px;
+    flex-wrap: nowrap;
+    gap: 0;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .p-stat {
+    flex: 1;
+    min-width: 0;
   }
 
   .p-stat-num {
-    font-size: clamp(1.25rem, 5vw, 1.75rem);
+    font-size: clamp(0.95rem, 3.5vw, 1.2rem);
+    white-space: nowrap;
+  }
+
+  .p-stat-label {
+    font-size: 9px;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+
+  /* ===== ACTIVE MEMBERS ===== */
+  .member-card-mini {
+    padding: 10px 4px;
+  }
+
+  .member-mini-avatar {
+    width: 42px;
+    height: 42px;
+    font-size: 17px;
+    margin-bottom: 6px;
+  }
+
+  .member-mini-name {
+    font-size: 11px;
+  }
+
+  .member-mini-info {
+    font-size: 9px;
   }
 
   /* ===== PRESENCE WIDGET ===== */
@@ -3929,23 +3981,56 @@ body.solar-room-active[data-season] {
   }
 
   /* ===== COLLECTIVE CARDS ===== */
-  .collective-card {
-    padding: 20px 16px;
+  .collective-grid {
+    grid-template-columns: 1fr 1fr; /* side-by-side on mobile */
+    gap: 10px;
+    margin-bottom: 20px;
   }
 
-  .count-number {
-    font-size: clamp(2rem, 10vw, 3rem);
+  .collective-card {
+    padding: 14px 10px;
   }
 
   .collective-icon {
-    width: 56px;
-    height: 56px;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 10px;
+  }
+
+  .collective-title {
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  .count-number {
+    font-size: clamp(1.4rem, 7vw, 2rem);
+  }
+
+  .count-label {
+    font-size: 9px;
+    letter-spacing: 0.5px;
+  }
+
+  .collective-action-btn {
+    padding: 10px 8px;
+    font-size: 11px;
+    gap: 6px;
+  }
+
+  .collective-action-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .breath-indicator,
+  .time-remaining {
+    font-size: 10px;
+    padding: 4px 8px;
     margin-bottom: 12px;
   }
 
-  .collective-grid {
-    gap: 16px;
-    margin-bottom: 24px;
+  .collective-progress {
+    margin-bottom: 12px;
   }
 
   /* ===== PRESENCE SANCTUARY ===== */
@@ -4040,7 +4125,7 @@ body.solar-room-active[data-season] {
     padding: 24px 16px;
   }
 
-  /* ===== MEMBER MODAL ===== */
+  /* ===== MEMBER PROFILE MODAL ===== */
   .member-card {
     padding: 24px 20px;
     max-width: 95vw;
@@ -4052,16 +4137,188 @@ body.solar-room-active[data-season] {
 
   .modal-overlay {
     padding: 12px;
+    align-items: flex-end !important;
   }
 
-  /* ===== REFLECTIONS ===== */
+  /* Modal inner — compact, scrollable, never taller than screen */
+  #memberProfileModalInner {
+    max-width: 100% !important;
+    width: 100% !important;
+    max-height: 88vh !important;
+    overflow-y: auto !important;
+    border-radius: 20px 20px 12px 12px !important;
+    padding: 1.25rem !important;
+  }
+
+  /* Smaller avatar */
+  #memberModalAvatar {
+    width: 68px !important;
+    height: 68px !important;
+    font-size: 1.7rem !important;
+  }
+
+  #memberModalStatusRing {
+    width: calc(100% + 10px) !important;
+    height: calc(100% + 10px) !important;
+    top: -5px !important;
+    left: -5px !important;
+  }
+
+  /* Smaller name + stats */
+  #memberModalName {
+    font-size: 1rem !important;
+  }
+
+  #memberModalXP,
+  #memberModalKarma,
+  #memberModalBlessings {
+    font-size: 1rem !important;
+  }
+
+  #memberModalFavRoom {
+    font-size: 0.72rem !important;
+  }
+
+  /* Smaller badges */
+  #memberModalBadges .badge,
+  #memberModalBadges [style*="border-radius"] {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 15px !important;
+  }
+
+  /* Admin panel — scrollable, never overflows */
+  #memberModalAdminPanel {
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+
+  /* ===== COMMUNITY REFLECTIONS ===== */
   .reflection {
-    padding: 16px;
+    padding: 12px;
+    margin-bottom: 12px;
   }
 
+  .ref-header {
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .ref-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .ref-author {
+    font-size: 13px;
+  }
+
+  .ref-time {
+    font-size: 11px;
+  }
+
+  .ref-content {
+    font-size: 13px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+  }
+
+  /* Actions: Appreciate + Whisper left, Edit/Delete right, single row */
   .ref-actions {
-    gap: 14px;
-    flex-wrap: wrap;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: nowrap;
+    padding-top: 8px;
+  }
+
+  .ref-action {
+    font-size: 11px;
+    gap: 3px;
+    padding: 4px 6px;
+    white-space: nowrap;
+  }
+
+  /* Hide verbose label, keep emoji + count only */
+  .ref-action .appreciation-count {
+    display: none;
+  }
+
+  /* Edit/Delete stay pinned right */
+  .ref-actions > div[style*="margin-left:auto"],
+  .ref-actions > div[style*="margin-left: auto"] {
+    margin-left: auto !important;
+    display: flex;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ===== UPCOMING EVENTS ===== */
+
+  /* Single column, full width — !important overrides inline style in JS */
+  .events-grid,
+  div.events-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .event-card {
+    border-radius: var(--radius-lg);
+  }
+
+  /* Bigger image on mobile — override inline height:450px */
+  .event-flyer {
+    height: 220px !important;
+  }
+
+  /* Tighter content padding */
+  .event-content {
+    padding: 14px !important;
+  }
+
+  /* Smaller type label */
+  .event-type {
+    font-size: 10px;
+    margin-bottom: 6px;
+  }
+
+  /* Compact heading */
+  .event-heading {
+    font-size: 15px !important;
+    margin-bottom: 4px;
+  }
+
+  /* Compact subtitle */
+  .event-subheading {
+    font-size: 12px !important;
+    margin-bottom: 8px;
+  }
+
+  /* Compact info block */
+  .event-info,
+  [class="event-info"],
+  div[style*="event-info"] {
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 10px !important;
+    padding: 8px 10px !important;
+  }
+
+  /* Compact datetime */
+  .event-datetime {
+    font-size: 11px !important;
+    margin-bottom: 10px !important;
+    padding: 8px 10px;
+  }
+
+  /* Button — full width, smaller */
+  .event-btn {
+    padding: 11px 16px !important;
+    font-size: 13px !important;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   /* ===== SOLAR TOP BAR ===== */
@@ -4250,10 +4507,6 @@ body.solar-room-active[data-season] {
 
   .timer-display {
     font-size: clamp(2rem, 12vw, 3.5rem);
-  }
-
-  .count-number {
-    font-size: clamp(1.75rem, 9vw, 2.5rem);
   }
 
   .campfire-sidebar-always-visible {

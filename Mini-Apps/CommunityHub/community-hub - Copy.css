@@ -2993,6 +2993,11 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     background: var(--neuro-bg) !important;
 }
 
+/* Lunar rooms need dark base so starfield is visible when scrolling past viewport */
+#communityHubFullscreenContainer:has(.lunar-room-bg) {
+    background: #0a0a1a !important;
+}
+
 /* Reset body background when practice room is active */
 
 /* Room renders directly into fullscreen container */
@@ -3005,6 +3010,11 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+/* Lunar rooms provide their own starfield background — let it show through */
+#communityHubFullscreenContainer #dynamicRoomContent:has(.lunar-room-bg) {
+    background: #0a0a1a;
 }
 
 /* SOLAR PRACTICE ROOMS | Season-specific visual styles and CSS custom properties */
@@ -3135,15 +3145,12 @@ body.solar-room-active[data-season] {
 
 /* TOP NAVIGATION BAR */
 .solar-top-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  position: relative;
+  z-index: 10;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding: 2rem;
-  z-index: 100;
   pointer-events: none;
 }
 
@@ -3218,7 +3225,7 @@ body.solar-room-active[data-season] {
 .solar-content-wrapper {
   max-width: 900px;
   margin: 0 auto;
-  padding: 8rem 2rem 4rem 2rem;
+  padding: 2rem 2rem 4rem 2rem;
   position: relative;
   z-index: 2;
 }
