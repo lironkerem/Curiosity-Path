@@ -3001,7 +3001,9 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 /* Ensure the practice room view has proper background */
 #communityHubFullscreenContainer #practiceRoomView {
     background: var(--neuro-bg) !important;
-    min-height: 100vh;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 #communityHubFullscreenContainer .practice-room-container {

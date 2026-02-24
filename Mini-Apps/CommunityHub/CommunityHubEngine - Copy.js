@@ -202,15 +202,15 @@ class CommunityHubEngine {
       </div>
 
       <!-- Practice Room View (fullscreen) -->
-      <div id="practiceRoomView" class="view" style="height: 100vh; padding: 0; margin: 0; display: none; flex-direction: column;">
-          <div class="practice-room-container" style="padding: 0; margin: 0; display: flex; flex-direction: column; flex: 1; height: 100%; overflow: hidden;">
+      <div id="practiceRoomView" class="view" style="min-height: 100vh; padding: 0; margin: 0; display: none;">
+          <div class="practice-room-container" style="padding: 0; margin: 0;">
               <button class="back-to-hub-btn" 
                       data-action="back-to-hub" 
                       aria-label="Back to hub"
-                      style="margin: 12px 20px; flex-shrink: 0;">
+                      style="margin: 20px;">
                   ← Back to Hub
               </button>
-              <div id="dynamicRoomContent" style="display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden;"></div>
+              <div id="dynamicRoomContent"></div>
           </div>
       </div>
     `;
