@@ -585,27 +585,52 @@ const ProfileModule = {
     // ============================================================================
 
     async loadActivityData() {
-        // Try app state first (already in memory), fall back to DB
+        // Wait for AppState to finish loading from cloud/localStorage
+        if (window.app?.state?.ready) {
+            try { await window.app.state.ready; } catch (e) {}
+        }
+
         let data = null;
-        if (window.app?.state?.data) {
+
+        // Read from app.state.data — the authoritative source for all entry types
+        const appData = window.app?.state?.data;
+        if (appData) {
             data = {
-                journalEntries:   window.app.state.data.journalEntries   || [],
-                energyEntries:    window.app.state.data.energyEntries    || [],
-                gratitudeEntries: window.app.state.data.gratitudeEntries || [],
-                flipEntries:      window.app.state.data.flipEntries      || [],
+                journalEntries:   appData.journalEntries   || [],
+                energyEntries:    appData.energyEntries    || [],
+                gratitudeEntries: appData.gratitudeEntries || [],
+                flipEntries:      appData.flipEntries      || [],
             };
-        } else if (window.CommunityDB?.ready) {
-            data = await CommunityDB.getOwnFullProgress();
+        }
+
+        // Fallback: if all arrays empty, fetch directly from user_progress.payload
+        // (handles edge case where ProfileModule loads before app.state is populated)
+        if (!data || Object.values(data).every(arr => arr.length === 0)) {
+            try {
+                if (window.CommunityDB?.ready) {
+                    const payload = await CommunityDB.getOwnFullProgress();
+                    if (payload) {
+                        data = {
+                            journalEntries:   payload.journalEntries   || [],
+                            energyEntries:    payload.energyEntries    || [],
+                            gratitudeEntries: payload.gratitudeEntries || [],
+                            flipEntries:      payload.flipEntries      || [],
+                        };
+                    }
+                }
+            } catch (e) {
+                console.warn("[ProfileModule] loadActivityData fallback failed:", e);
+            }
         }
 
         if (!data) return;
         this._activityData = data;
 
         // Update counts on cards
-        this._setActivityCount('journal',   data.journalEntries.length,   'entries');
-        this._setActivityCount('gratitude', data.gratitudeEntries.length, 'entries');
-        this._setActivityCount('energy',    data.energyEntries.length,    'check-ins');
-        this._setActivityCount('flip',      data.flipEntries.length,      'entries');
+        this._setActivityCount("journal",   data.journalEntries.length,   "entries");
+        this._setActivityCount("gratitude", data.gratitudeEntries.length, "entries");
+        this._setActivityCount("energy",    data.energyEntries.length,    "check-ins");
+        this._setActivityCount("flip",      data.flipEntries.length,      "entries");
     },
 
     _setActivityCount(type, count, label) {
