@@ -96,7 +96,7 @@ const SolarUIManager = {
             <span id="solarLiveCountTop">${livingPresenceCount} members practicing with you now</span>
           </div>
           <button onclick="SolarUIManager.handleBackToHub()" class="solar-back-hub-btn">
-            Gently Leave
+            Leave Practice
           </button>
         </div>
       `;

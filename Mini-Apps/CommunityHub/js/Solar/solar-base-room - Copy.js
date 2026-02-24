@@ -244,6 +244,7 @@ const BaseSolarRoom = {
     document.body.classList.add('solar-room-active');
 
     this.renderDashboard();
+    window.scrollTo(0, 0);
 
     // ── Supabase presence ──────────────────────────────────────────────
     this._setPresence();
