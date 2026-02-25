@@ -5159,3 +5159,417 @@ body.solar-room-active[data-season] {
     .ps-main   { padding: 28px; }
 
 } /* end tablet */
+
+/* =========================================================
+   LUNAR ROOMS — MOBILE PATCH
+   Targets both the outer celestial card and the inner room
+   Add this at the bottom of community-hub.css
+   ========================================================= */
+
+/* ── OUTER CARD: base improvements (all sizes) ── */
+
+/* Outer card: tighter padding */
+.celestial-card-full.lunar-card {
+    padding: 20px 20px;
+}
+
+/* Practice room section inside the card */
+.celestial-practice-room {
+    margin-top: 16px;
+}
+
+/* ── OUTER CARD: mobile ── */
+@media (max-width: 767px) {
+
+    .celestial-card-full.lunar-card {
+        padding: 16px;
+        border-radius: var(--radius-lg);
+    }
+
+    /* Stack moon visual + info + times vertically */
+    .celestial-content-horizontal {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        text-align: center;
+    }
+
+    /* Moon SVG — smaller on mobile */
+    .celestial-visual-section #moonSvg {
+        width: 80px;
+        height: 80px;
+    }
+
+    .moon-phase-name { font-size: 16px; }
+    .moon-illumination { font-size: 13px; }
+    .moon-age { font-size: 12px; }
+    .next-phase { font-size: 11px; margin-top: 8px; }
+
+    /* Times section: horizontal row on mobile */
+    .celestial-times-section {
+        flex-direction: row !important;
+        justify-content: center !important;
+        gap: 24px !important;
+        min-width: auto !important;
+    }
+
+    .celestial-time {
+        align-items: center;
+        text-align: center;
+    }
+
+    .time-value { font-size: 14px; }
+    .time-label { font-size: 10px; }
+
+    /* Practice room inline section — stack vertically */
+    .room-content-inline {
+        flex-direction: column !important;
+        gap: 12px !important;
+        align-items: stretch !important;
+    }
+
+    .room-header-inline {
+        min-width: 0 !important;
+        flex: 1;
+    }
+
+    .room-name-inline { font-size: 15px; }
+    .room-desc-inline { font-size: 12px; }
+
+    .room-meta-inline {
+        width: 100% !important;
+        justify-content: space-between !important;
+    }
+
+    /* Join button — full width */
+    .join-btn-inline {
+        flex: 1;
+        text-align: center;
+        padding: 10px 16px !important;
+        font-size: 13px !important;
+    }
+}
+
+/* ── INNER ROOM: injected via LunarUI.injectStyles() ──
+   These override the inline-injected CSS from lunar-ui.js          */
+
+/* Top bar: prevent overflow, proper stacking on mobile */
+@media (max-width: 767px) {
+
+    .lunar-top-bar {
+        padding: 0.75rem 1rem !important;
+        gap: 0.5rem !important;
+        position: relative;
+    }
+
+    .lunar-phase-left {
+        gap: 0.75rem !important;
+    }
+
+    .lunar-moon-icon-large {
+        font-size: 1.75rem !important;
+    }
+
+    .lunar-phase-info h2 {
+        font-size: 1rem !important;
+    }
+
+    .lunar-phase-info p {
+        font-size: 0.78rem !important;
+        margin-top: 0.2rem !important;
+    }
+
+    /* Live count: shrink text */
+    .lunar-live-count-top {
+        padding: 0.4rem 0.75rem !important;
+        font-size: 0.78rem !important;
+        white-space: nowrap;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    .lunar-live-count-top span {
+        font-size: 0.78rem !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Back button: smaller, stays top-right */
+    .lunar-back-hub-btn {
+        padding: 0.45rem 0.85rem !important;
+        font-size: 0.78rem !important;
+        position: absolute !important;
+        top: 0.75rem !important;
+        right: 0.75rem !important;
+    }
+
+    /* Content wrapper: no huge top padding on mobile */
+    .lunar-content-wrapper {
+        padding-top: 1.5rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        padding-bottom: 2rem !important;
+    }
+
+    /* Moon visual: smaller on mobile */
+    .lunar-moon-glow {
+        width: 140px !important;
+        height: 140px !important;
+    }
+
+    .lunar-moon-sphere {
+        width: 110px !important;
+        height: 110px !important;
+    }
+
+    .lunar-moon-visual {
+        margin: 1.5rem 0 !important;
+    }
+
+    /* Intro card image */
+    .lunar-intro-image {
+        max-width: 240px !important;
+    }
+
+    .lunar-intro-card p {
+        font-size: 0.95rem !important;
+    }
+
+    /* Mode toggle: full width buttons */
+    .lunar-mode-toggle {
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+        margin: 1rem 0 !important;
+    }
+
+    .lunar-mode-btn {
+        width: 100% !important;
+        padding: 0.75rem 1rem !important;
+        font-size: 0.9rem !important;
+        justify-content: center !important;
+    }
+
+    /* Mode description */
+    .lunar-mode-description h3 {
+        font-size: 1.3rem !important;
+    }
+
+    .lunar-mode-description p {
+        font-size: 0.95rem !important;
+    }
+
+    /* Section title */
+    .lunar-section-title {
+        font-size: 1.3rem !important;
+    }
+
+    /* Practices grid: single column */
+    .lunar-practices-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+        margin-top: 1rem !important;
+    }
+
+    .lunar-practice-card {
+        padding: 1.25rem !important;
+    }
+
+    .lunar-practice-info h4 {
+        font-size: 1rem !important;
+    }
+
+    .lunar-practice-info p {
+        font-size: 0.875rem !important;
+    }
+
+    /* Wisdom text */
+    .lunar-wisdom-text {
+        font-size: 1rem !important;
+        padding: 1rem 1.25rem !important;
+    }
+
+    /* Saved inputs */
+    .lunar-saved-inputs {
+        padding: 1.25rem !important;
+    }
+
+    .lunar-saved-inputs h3 {
+        font-size: 1.2rem !important;
+    }
+
+    .lunar-saved-item {
+        padding: 1rem !important;
+    }
+
+    .lunar-saved-text {
+        font-size: 0.95rem !important;
+    }
+
+    /* Group intro */
+    .lunar-group-intro {
+        padding: 1.5rem 1rem !important;
+    }
+
+    .lunar-group-intro h3 {
+        font-size: 1.4rem !important;
+    }
+
+    .lunar-group-intro p {
+        font-size: 0.95rem !important;
+    }
+
+    .lunar-join-circle-btn {
+        padding: 0.9rem 1.75rem !important;
+        font-size: 0.95rem !important;
+    }
+
+    /* Closure */
+    .lunar-closure-section {
+        padding: 1.5rem 1rem !important;
+        margin: 1.5rem 0 !important;
+    }
+
+    .lunar-closure-section h3 {
+        font-size: 1.3rem !important;
+    }
+
+    /* Popup: slide up from bottom on mobile */
+    .lunar-practice-popup {
+        padding: 0 !important;
+        align-items: flex-end !important;
+    }
+
+    .lunar-popup-content {
+        max-width: 100% !important;
+        width: 100% !important;
+        max-height: 92vh !important;
+        border-radius: 24px 24px 0 0 !important;
+        margin: 0 !important;
+    }
+
+    .lunar-popup-header {
+        padding: 1.25rem 1.25rem 1rem !important;
+        gap: 0.75rem !important;
+    }
+
+    .lunar-popup-icon svg {
+        width: 32px !important;
+        height: 32px !important;
+    }
+
+    .lunar-popup-title h2 {
+        font-size: 1.3rem !important;
+    }
+
+    .lunar-popup-subtitle {
+        font-size: 0.875rem !important;
+    }
+
+    .lunar-popup-body {
+        padding: 1.25rem !important;
+    }
+
+    .lunar-popup-section h3 {
+        font-size: 1.2rem !important;
+    }
+
+    .lunar-popup-section p,
+    .lunar-popup-section li {
+        font-size: 0.9rem !important;
+        line-height: 1.65 !important;
+    }
+
+    .lunar-popup-footer {
+        margin-top: 1.25rem !important;
+        padding-top: 1rem !important;
+    }
+
+    /* Textarea */
+    .lunar-textarea-large {
+        font-size: 0.95rem !important;
+        padding: 1rem !important;
+        min-height: 90px !important;
+        margin: 0.75rem 0 !important;
+    }
+
+    /* Affirmation buttons */
+    .lunar-affirmation-btn {
+        font-size: 0.875rem !important;
+        padding: 0.625rem !important;
+    }
+
+    /* Timer */
+    .lunar-timer-display {
+        font-size: 2.5rem !important;
+    }
+
+    /* Word cloud */
+    .lunar-word-cloud {
+        padding: 1.5rem 1rem !important;
+        min-height: 180px !important;
+    }
+
+} /* end @media (max-width: 767px) */
+
+/* ── Extra small phones (< 380px) ── */
+@media (max-width: 380px) {
+
+    .celestial-card-full.lunar-card { padding: 12px; }
+
+    .lunar-content-wrapper {
+        padding-top: 1rem !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+
+    .lunar-popup-title h2 { font-size: 1.1rem !important; }
+    .lunar-popup-body    { padding: 1rem !important; }
+
+    .celestial-times-section {
+        gap: 16px !important;
+    }
+
+} /* end @media (max-width: 380px) */
+
+/* ── Tablet (768–1024px): tighten outer card ── */
+@media (min-width: 768px) and (max-width: 1024px) {
+
+    .celestial-card-full.lunar-card {
+        padding: 20px 24px;
+    }
+
+    .celestial-content-horizontal {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+        text-align: center;
+    }
+
+    .celestial-times-section {
+        flex-direction: row !important;
+        justify-content: center !important;
+        gap: 32px !important;
+    }
+
+    .celestial-time { align-items: center; }
+
+    .room-content-inline {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    .room-meta-inline {
+        width: 100% !important;
+        justify-content: space-between !important;
+    }
+
+    .join-btn-inline { flex: 1; text-align: center; }
+
+    .lunar-content-wrapper {
+        padding-top: 2.5rem !important;
+    }
+
+    .lunar-practices-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+} /* end tablet */
