@@ -1100,15 +1100,15 @@ class PracticeRoom {
 
             ${this.buildCardFooter()}
 
-            <!-- Bless button — bottom center, never triggers room entry -->
+            <!-- Bless button — bottom right, never triggers room entry -->
             <button id="${this.roomId}BlessBtn"
                     onclick="event.stopPropagation();${this.roomId}_blessRoom()"
                     title="Send a blessing to everyone inside"
-                    style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
-                           background:rgba(139,92,246,0.12);border:1.5px solid rgba(139,92,246,0.35);
-                           border-radius:20px;padding:5px 14px;
-                           font-size:12px;color:var(--text-muted);cursor:pointer;
-                           display:flex;align-items:center;gap:6px;white-space:nowrap;
+                    style="position:absolute;bottom:10px;right:10px;
+                           background:rgba(139,92,246,0.10);border:1px solid rgba(139,92,246,0.30);
+                           border-radius:16px;padding:3px 10px;
+                           font-size:11px;color:var(--text-muted);cursor:pointer;
+                           display:flex;align-items:center;gap:4px;white-space:nowrap;
                            transition:all 0.2s;z-index:3;">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;opacity:0.8;"><path d="M9 2C9 2 4 5 4 10C4 13.3 6.7 16 10 16L10.5 17H13.5L14 16C17.3 16 20 13.3 20 10C20 5 15 2 15 2C15 2 13.5 4 12 4C10.5 4 9 2 9 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10.5 17L9.5 20H14.5L13.5 17" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9.5 20H14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="10" r="2" stroke="currentColor" stroke-width="1.5"/></svg>
                 Bless

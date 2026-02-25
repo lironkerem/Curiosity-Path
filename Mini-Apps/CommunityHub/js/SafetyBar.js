@@ -11,8 +11,9 @@
  * - Technical issue reporting
  * - Community guidelines display
  * 
- * @version 1.1.0 — PATCHED:
- *   - Added openModal() public method (classList.add 'active')
+ * @version 1.2.0 — PATCHED:
+ *   - Added openModal() public method with re-injection guard fix
+ *   - injectModals() resets stale guard when modals are missing from DOM
  *   - Added CommunityModule shim so dropdown items correctly open modals
  */
 
@@ -42,9 +43,14 @@ const SafetyBar = {
      * Prevents duplicate modal injection
      */
     injectModals() {
+        // If guard says injected but the modal is gone (e.g. dynamicContent was wiped),
+        // reset so we re-inject correctly.
+        if (this.state.modalsInjected && !document.getElementById('reportModal')) {
+            this.state.modalsInjected = false;
+        }
+
         // Prevent duplicate injection
         if (this.state.modalsInjected || document.getElementById('reportModal')) {
-            console.log('SafetyBar modals already injected');
             return;
         }
 
@@ -461,11 +467,12 @@ const SafetyBar = {
     },
 
     /**
-     * Open a specific modal by type
+     * Open a specific modal by type.
+     * Ensures modals are injected (handles re-injection after DOM wipe).
      * @param {string} type - Modal type (crisis, report, block, help, moderator, technical, guidelines)
      */
     openModal(type) {
-        this.injectModals(); // ensure modals are in DOM
+        this.injectModals();
         const modal = document.getElementById(`${type}Modal`);
         if (modal) {
             modal.classList.add('active');
@@ -743,11 +750,9 @@ window.SafetyBar = SafetyBar;
 // COMMUNITYMODULE SHIM
 // ============================================================================
 // PracticeRoom.buildSafetyDropdown() calls CommunityModule.showReportModal()
-// etc., but those methods either don't exist or don't trigger the SafetyBar
-// modals (which use classList.add('active')).
-// This shim creates / patches CommunityModule so every dropdown item correctly
-// opens its SafetyBar modal.  Existing methods on a real CommunityModule are
-// never overwritten.
+// etc., but those methods either don't exist or don't trigger SafetyBar modals
+// (which require classList.add('active')). This shim wires every dropdown call
+// to SafetyBar.openModal(). Existing CommunityModule methods are never replaced.
 
 (function () {
     const shim = {
@@ -758,9 +763,7 @@ window.SafetyBar = SafetyBar;
         showModeratorModal:  () => SafetyBar.openModal('moderator'),
         showTechnicalModal:  () => SafetyBar.openModal('technical'),
         showGuidelinesModal: () => SafetyBar.openModal('guidelines'),
-
-        muteChat: () => window.Core?.showToast?.('Chat muted'),
-
+        muteChat:            () => window.Core?.showToast?.('Chat muted'),
         closeReportModal:     () => SafetyBar.closeModal('report'),
         closeBlockModal:      () => SafetyBar.closeModal('block'),
         closeHelpModal:       () => SafetyBar.closeModal('help'),
@@ -771,7 +774,6 @@ window.SafetyBar = SafetyBar;
     };
 
     if (window.CommunityModule) {
-        // Patch only missing methods — never overwrite existing ones
         Object.keys(shim).forEach(method => {
             if (typeof window.CommunityModule[method] !== 'function') {
                 window.CommunityModule[method] = shim[method];
