@@ -328,7 +328,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 @media (max-width: 768px) {
-.rooms-grid { grid-template-columns: 1fr; }
+.rooms-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 .practice-room {
@@ -3943,13 +3943,13 @@ body.solar-room-active[data-season] {
 
   /* ===== PRACTICE ROOMS GRID ===== */
   .rooms-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
     margin-bottom: 20px;
   }
 
   .practice-room {
-    padding: 18px;
+    padding: 14px 12px;
   }
 
   .join-btn {
