@@ -4870,9 +4870,11 @@ body.solar-room-active[data-season] {
     [id$="ParticipantCount"]    { font-size: 12px !important; }
     [id$="BlessedCounter"] span { font-size: 10px !important; }
 
+    /* Safety dropdown — position:fixed + coords set by toggleSafetyDropdown() JS.
+       Only constrain width so it doesn't overflow viewport edges.               */
     [id$="SafetyDropdown"] {
-        right: 0 !important; left: auto !important;
-        min-width: 170px !important; max-width: 85vw !important; font-size: 13px !important;
+        max-width: 85vw !important;
+        font-size: 13px !important;
     }
     [id$="SafetyDropdown"] button { padding: 10px 14px !important; font-size: 13px !important; }
 

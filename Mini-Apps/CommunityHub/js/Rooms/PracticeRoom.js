@@ -972,15 +972,36 @@ class PracticeRoom {
     }
     
     /**
-     * Toggle safety dropdown visibility
+     * Toggle safety dropdown visibility.
+     * On mobile, renders as position:fixed using the button's screen coords
+     * so overflow:hidden on ancestor containers cannot clip it.
      * @param {Event} event - Click event
      */
     toggleSafetyDropdown(event) {
         if (event) event.stopPropagation();
-        const dropdown = document.getElementById(`${this.roomId}SafetyDropdown`);
-        if (dropdown) {
-            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        const dropdown  = document.getElementById(`${this.roomId}SafetyDropdown`);
+        const container = document.getElementById(`${this.roomId}SafetyDropdownContainer`);
+        if (!dropdown) return;
+
+        const isOpen = dropdown.style.display === 'block';
+
+        if (isOpen) {
+            dropdown.style.display = 'none';
+            return;
         }
+
+        // Position with fixed coords on all viewports so overflow:hidden never clips it
+        if (container) {
+            const rect = container.getBoundingClientRect();
+            dropdown.style.position   = 'fixed';
+            dropdown.style.top        = `${rect.bottom + 6}px`;
+            dropdown.style.right      = `${window.innerWidth - rect.right}px`;
+            dropdown.style.left       = 'auto';
+            dropdown.style.zIndex     = '2147483640';
+            dropdown.style.marginTop  = '0';
+        }
+
+        dropdown.style.display = 'block';
     }
     
     /**
