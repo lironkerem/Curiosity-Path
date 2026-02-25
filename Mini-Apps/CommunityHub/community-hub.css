@@ -5573,3 +5573,473 @@ body.solar-room-active[data-season] {
     }
 
 } /* end tablet */
+
+/* =========================================================
+   SOLAR ROOMS — MOBILE PATCH
+   Targets both the outer celestial card and all 4 inner rooms.
+   Add this at the bottom of community-hub.css, after the
+   existing lunar-mobile-patch block.
+   ========================================================= */
+
+/* ── OUTER CARD: base improvements (all sizes) ── */
+
+.celestial-card-full.solar-card {
+    padding: 20px 20px;
+}
+
+/* ── OUTER CARD: mobile ── */
+@media (max-width: 767px) {
+
+    .celestial-card-full.solar-card {
+        padding: 16px;
+        border-radius: var(--radius-lg);
+    }
+
+    /* Solar SVG arc — shrink on mobile */
+    #solarVisual svg,
+    #solarSvg {
+        width: 100% !important;
+        max-width: 220px;
+        height: auto !important;
+    }
+
+    .solar-visual {
+        justify-content: center;
+    }
+
+    .solar-season-name { font-size: 16px; }
+    .solar-declination { font-size: 13px; }
+    .next-season       { font-size: 11px; margin-top: 8px; }
+
+} /* end outer card mobile */
+
+/* ── OUTER CARD: tablet ── */
+@media (min-width: 768px) and (max-width: 1024px) {
+
+    .celestial-card-full.solar-card {
+        padding: 20px 24px;
+    }
+
+    #solarVisual svg,
+    #solarSvg {
+        width: 100% !important;
+        max-width: 260px;
+        height: auto !important;
+    }
+
+} /* end outer card tablet */
+
+
+/* ═══════════════════════════════════════════════════════
+   INNER ROOM — MOBILE  (max-width: 767px)
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+    /* ── Top bar ──
+       Base style is 3-col grid (1fr auto 1fr).
+       Collapse to 2-col on mobile; live count spans full row below. */
+    .solar-top-bar {
+        grid-template-columns: 1fr auto !important;
+        padding: 0.75rem 1rem !important;
+        gap: 0.5rem !important;
+    }
+
+    .solar-live-count-top {
+        grid-column: 1 / -1 !important;
+        justify-content: center !important;
+        justify-self: stretch !important;
+        padding: 0.375rem 0.75rem !important;
+        font-size: 0.8rem !important;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .solar-live-count-top span {
+        font-size: 0.8rem !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .solar-sun-icon {
+        font-size: 1.75rem !important;
+    }
+
+    .solar-phase-info h2 {
+        font-size: 1rem !important;
+    }
+
+    .solar-phase-info p {
+        font-size: 0.78rem !important;
+        margin-top: 0.15rem !important;
+    }
+
+    .solar-back-hub-btn {
+        padding: 0.45rem 0.85rem !important;
+        font-size: 0.78rem !important;
+        justify-self: end;
+    }
+
+    /* ── Content wrapper ── */
+    .solar-content-wrapper {
+        padding: 1.25rem 1rem 2.5rem !important;
+    }
+
+    /* ── Sun visual ── */
+    .solar-sun-visual {
+        margin-bottom: 1.5rem !important;
+    }
+
+    .solar-sun-glow {
+        width: 100px !important;
+        height: 100px !important;
+    }
+
+    /* ── Intro card ── */
+    .solar-intro-card {
+        padding: 1.25rem !important;
+        margin-bottom: 1.5rem !important;
+        border-radius: 14px !important;
+    }
+
+    .solar-season-img {
+        max-width: 220px !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .solar-intro-card p {
+        font-size: 0.95rem !important;
+        line-height: 1.65 !important;
+    }
+
+    /* ── Mode toggle: 2-col → 1-col ── */
+    .solar-mode-toggle {
+        grid-template-columns: 1fr !important;
+        gap: 0.625rem !important;
+        margin-bottom: 1.25rem !important;
+    }
+
+    .solar-mode-btn {
+        padding: 0.75rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* ── Mode description ── */
+    .solar-mode-description {
+        margin-bottom: 1.25rem !important;
+    }
+
+    .solar-mode-description h3 {
+        font-size: 1.2rem !important;
+    }
+
+    .solar-mode-description p {
+        font-size: 0.9rem !important;
+    }
+
+    /* ── Practices grid: 2-col → 1-col ── */
+    .solar-practices-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.875rem !important;
+        margin-bottom: 1.5rem !important;
+        max-width: 100% !important;
+    }
+
+    .solar-practice-card {
+        padding: 1.1rem !important;
+    }
+
+    .solar-practice-title {
+        font-size: 1.05rem !important;
+        margin-bottom: 0.375rem !important;
+    }
+
+    .solar-practice-desc {
+        font-size: 0.875rem !important;
+    }
+
+    .solar-practice-icon {
+        width: 40px !important;
+        height: 40px !important;
+        margin-bottom: 0.75rem !important;
+        border-radius: 10px !important;
+    }
+
+    .solar-practice-icon svg {
+        width: 20px !important;
+        height: 20px !important;
+    }
+
+    /* ── Saved inputs ── */
+    .solar-saved-inputs {
+        padding: 1.25rem !important;
+        border-radius: 14px !important;
+    }
+
+    .solar-saved-inputs h3 {
+        font-size: 1.2rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .solar-input-display {
+        padding: 1rem !important;
+        border-radius: 10px !important;
+    }
+
+    .solar-input-display h4 {
+        font-size: 0.9rem !important;
+    }
+
+    .solar-input-display p {
+        font-size: 0.9rem !important;
+    }
+
+    /* ── Group practice ── */
+    .solar-group-container {
+        padding: 1.5rem 1rem !important;
+        border-radius: 16px !important;
+    }
+
+    .solar-group-emoji {
+        font-size: 2rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    .solar-group-title {
+        font-size: 1.3rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    .solar-group-desc {
+        font-size: 0.9rem !important;
+        line-height: 1.6 !important;
+        margin-bottom: 1.25rem !important;
+    }
+
+    .solar-live-badge {
+        padding: 0.75rem 1rem !important;
+        margin-bottom: 1.25rem !important;
+        border-radius: 10px !important;
+    }
+
+    .solar-live-badge span {
+        font-size: 0.875rem !important;
+    }
+
+    .solar-group-list {
+        font-size: 0.875rem !important;
+        max-width: 100% !important;
+        margin-bottom: 1.25rem !important;
+        padding-left: 0 !important;
+    }
+
+    .solar-group-list li {
+        margin-bottom: 0.5rem !important;
+        padding-left: 1.25rem !important;
+        font-size: 0.875rem !important;
+    }
+
+    .solar-btn-primary {
+        padding: 0.875rem 1.5rem !important;
+        font-size: 1rem !important;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .solar-group-note {
+        font-size: 0.8rem !important;
+        margin-top: 1rem !important;
+    }
+
+    /* ── Closure section ── */
+    .solar-closure {
+        padding: 1.25rem !important;
+        margin: 1.5rem 0 1rem !important;
+        border-radius: 14px !important;
+    }
+
+    .solar-closure h3 {
+        font-size: 1.2rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    .solar-closure p {
+        font-size: 0.9rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .solar-textarea {
+        font-size: 0.9rem !important;
+        padding: 0.75rem !important;
+        min-height: 80px !important;
+        border-radius: 10px !important;
+    }
+
+    .solar-btn-secondary {
+        padding: 0.75rem 1.25rem !important;
+        font-size: 0.9rem !important;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* ── Popup: slide up from bottom (sheet) ── */
+    .solar-popup-overlay {
+        padding: 0 !important;
+        align-items: flex-end !important;
+    }
+
+    .solar-popup-content {
+        max-width: 100% !important;
+        width: 100% !important;
+        max-height: 92vh !important;
+        border-radius: 24px 24px 0 0 !important;
+        margin: 0 !important;
+    }
+
+    .solar-popup-header {
+        padding: 1.25rem 1.25rem 0.875rem !important;
+    }
+
+    .solar-popup-header h2 {
+        font-size: 1.2rem !important;
+    }
+
+    .solar-popup-close {
+        font-size: 1.5rem !important;
+        width: 28px !important;
+        height: 28px !important;
+    }
+
+    .solar-popup-body {
+        padding: 1.25rem !important;
+    }
+
+    .solar-popup-section {
+        margin-bottom: 1.25rem !important;
+    }
+
+    .solar-popup-section h3 {
+        font-size: 1.1rem !important;
+        margin-bottom: 0.625rem !important;
+    }
+
+    .solar-popup-section p,
+    .solar-popup-section li {
+        font-size: 0.9rem !important;
+        line-height: 1.6 !important;
+    }
+
+    .solar-popup-highlight {
+        padding: 0.75rem 1rem !important;
+        border-radius: 8px !important;
+        margin: 0.875rem 0 !important;
+    }
+
+    .solar-popup-footer {
+        padding: 1rem 1.25rem !important;
+    }
+
+    .solar-popup-btn {
+        padding: 0.875rem !important;
+        font-size: 0.95rem !important;
+    }
+
+    /* Affirmation buttons inside popup */
+    .solar-affirmation-btn {
+        font-size: 0.875rem !important;
+        padding: 0.625rem !important;
+    }
+
+    /* ── Inactive room ── */
+    .solar-inactive {
+        padding: 1.25rem !important;
+    }
+
+    .solar-inactive-title {
+        font-size: clamp(1.5rem, 7vw, 2.5rem) !important;
+    }
+
+    .solar-inactive-subtitle {
+        font-size: 1rem !important;
+    }
+
+    .solar-inactive-card {
+        padding: 1.5rem 1rem !important;
+        border-radius: 14px !important;
+    }
+
+    .solar-inactive-card h2 {
+        font-size: 1.2rem !important;
+    }
+
+    .solar-inactive-card p {
+        font-size: 0.9rem !important;
+    }
+
+    .solar-inactive-sun {
+        width: 80px !important;
+        height: 80px !important;
+    }
+
+} /* end @media (max-width: 767px) */
+
+
+/* ═══════════════════════════════════════════════════════
+   INNER ROOM — EXTRA SMALL (max-width: 380px)
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 380px) {
+
+    .solar-content-wrapper {
+        padding: 1rem 0.75rem 2rem !important;
+    }
+
+    .solar-sun-glow {
+        width: 80px !important;
+        height: 80px !important;
+    }
+
+    .solar-intro-card {
+        padding: 1rem !important;
+    }
+
+    .solar-season-img {
+        max-width: 180px !important;
+    }
+
+    .solar-popup-header h2  { font-size: 1.05rem !important; }
+    .solar-popup-body       { padding: 1rem !important; }
+    .solar-group-title      { font-size: 1.1rem !important; }
+
+} /* end @media (max-width: 380px) */
+
+
+/* ═══════════════════════════════════════════════════════
+   INNER ROOM — TABLET (768px – 1024px)
+   ═══════════════════════════════════════════════════════ */
+@media (min-width: 768px) and (max-width: 1024px) {
+
+    .solar-top-bar {
+        padding: 1.25rem 1.5rem !important;
+        grid-template-columns: 1fr auto 1fr !important;
+    }
+
+    .solar-content-wrapper {
+        padding: 1.5rem 1.5rem 3rem !important;
+    }
+
+    .solar-sun-glow {
+        width: 130px !important;
+        height: 130px !important;
+    }
+
+    /* Keep 2-col practices grid on tablet */
+    .solar-practices-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        max-width: 100% !important;
+    }
+
+    .solar-popup-content {
+        max-width: 640px !important;
+    }
+
+} /* end tablet */
