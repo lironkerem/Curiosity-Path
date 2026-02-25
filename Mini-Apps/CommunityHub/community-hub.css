@@ -4478,15 +4478,15 @@ body.solar-room-active[data-season] {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 6px;
-    max-width: 200px;
+    max-width: 148px;
     margin-left: auto;
     margin-right: auto;
   }
 
   .badge {
-    width: 44px;
-    height: 44px;
-    font-size: 18px;
+    width: 30px;
+    height: 30px;
+    font-size: 13px;
   }
 
   /* ===== VIEW TOGGLE ===== */
