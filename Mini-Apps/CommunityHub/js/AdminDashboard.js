@@ -118,6 +118,26 @@ const AdminDashboard = {
                 .admin-table th { text-align:left;padding:6px 8px;color:var(--text-muted,#888);font-weight:600;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px; }
                 .admin-table td { padding:8px;border-top:1px solid rgba(0,0,0,0.06); }
                 .admin-refl-row { padding:10px 12px;border-radius:10px;margin-bottom:6px;background:rgba(255,255,255,0.5);border:1px solid rgba(0,0,0,0.06); }
+
+                @media (max-width: 767px) {
+                    .admin-stat-grid { grid-template-columns:repeat(2,1fr) !important; gap:7px; }
+                    .admin-stat-card { padding:9px 8px; border-radius:10px; }
+                    .admin-stat-value { font-size:1.05rem; }
+                    .admin-stat-label { font-size:0.63rem; }
+                    .admin-section-header { padding:8px 10px; }
+                    .admin-section-body { padding:6px 2px 2px; }
+                    .admin-notif-row { padding:7px 8px; gap:7px; }
+                    .admin-table { font-size:0.72rem; }
+                    .admin-table th { font-size:0.62rem; padding:4px 5px; }
+                    .admin-table td { padding:5px 6px; }
+                    .admin-refl-row { padding:7px 8px; }
+                    /* Overlay header */
+                    #adminDashOverlay > div:first-child { padding:10px 14px !important; }
+                    #adminDashOverlay > div:first-child span[style*="font-size:1.4rem"] { font-size:1rem !important; }
+                    #adminDashOverlay > div:first-child div[style*="font-size:1rem"] { font-size:0.85rem !important; }
+                    /* Content area */
+                    #adminDashOverlay > div:last-child { padding:14px 12px 48px !important; }
+                }
             `;
             document.head.appendChild(style);
         }
