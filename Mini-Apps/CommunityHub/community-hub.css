@@ -4005,28 +4005,30 @@ body.solar-room-active[data-season] {
 
   /* ===== COLLECTIVE CARDS ===== */
   .collective-grid {
-    grid-template-columns: 1fr 1fr; /* side-by-side on mobile */
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
     margin-bottom: 20px;
   }
 
   .collective-card {
-    padding: 14px 10px;
+    padding: 16px 10px 14px;
+    border-radius: var(--radius-lg);
   }
 
   .collective-icon {
-    width: 44px;
-    height: 44px;
-    margin-bottom: 10px;
-  }
-
-  .collective-title {
-    font-size: 13px;
+    width: 36px;
+    height: 36px;
     margin-bottom: 8px;
   }
 
+  .collective-title {
+    font-size: 12px;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
   .count-number {
-    font-size: clamp(1.4rem, 7vw, 2rem);
+    font-size: clamp(1.6rem, 8vw, 2.2rem);
   }
 
   .count-label {
