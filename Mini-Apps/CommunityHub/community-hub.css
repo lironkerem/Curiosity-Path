@@ -4605,19 +4605,23 @@ body.solar-room-active[data-season] {
 }
 
 /* =========================================================
-   COMMUNITY HUB — MOBILE PATCH (consolidated)
+   COMMUNITY HUB — MOBILE PATCH (consolidated v2)
    Covers all 8 practice rooms — responsive fixes for:
      · Header image, buttons (2-btn & 4-btn rooms, single line)
+     · Header button glass effect removed — clean professional look
      · Participant stack / blessed counter
      · YouTube player (Guided, Breathwork, OSHO)
      · Timer ring + controls (Silent Room)
      · Sound settings panel
-     · Schedule modals (Guided, Breathwork, OSHO)
+     · View Schedule modal — mobile-optimised
+     · Instructions popup — fits mobile screen
      · Campfire chat + sidebar
      · SafetyBar modals — compact fonts & layout
      · Deep Work: setup modal, status buttons, chat
      · Tarot & Reiki: tabs, fonts, practice grid, chat
+     · Tarot & Reiki participants — horizontal bar above chat
    Paste this block at the very bottom of community-hub.css.
+   See companion safety-bar-fix.js for the SafetyBar render fix.
    ========================================================= */
 
 
@@ -4655,186 +4659,188 @@ body.solar-room-active[data-season] {
     flex-shrink: 0;
 }
 
-/* ── Participant stack ── */
-.participant-stack {
-    display: flex;
-    align-items: center;
+/* ── FIX 4: Kill glassmorphism on Safety button ──────────
+   buildSafetyDropdown() injects inline backdrop-filter + rgba-white
+   styles on the Safety button that clash with the neomorphic theme
+   and create a glowing ring artifact. Force everything back to the
+   same clean look as every other ps-leave button.                   */
+[id$="SafetyDropdownContainer"] > button,
+[id$="SafetyDropdownContainer"] button.ps-leave {
+    background:             var(--surface)  !important;
+    backdrop-filter:        none            !important;
+    -webkit-backdrop-filter: none           !important;
+    border:                 2px solid var(--border) !important;
+    color:                  var(--text-muted) !important;
+    box-shadow:             var(--shadow-raised) !important;
 }
+
+/* Uniform hover for every control button in the header strip */
+.ps-header > div:last-child > button:hover,
+.ps-header > div:last-child > div > button:hover {
+    border-color:            var(--neuro-error, #c76b5b) !important;
+    color:                   var(--neuro-error, #c76b5b) !important;
+    background:              var(--surface)              !important;
+    backdrop-filter:         none                        !important;
+    -webkit-backdrop-filter: none                        !important;
+}
+
+/* Remove browser focus ring */
+.ps-header button:focus { outline: none; }
+
+/* ── Participant stack ── */
+.participant-stack { display: flex; align-items: center; }
 
 .p-avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
+    width: 28px; height: 28px; border-radius: 50%;
     border: 2px solid var(--surface);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 700;
-    color: white;
-    flex-shrink: 0;
-    margin-left: -6px;
-    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: white;
+    flex-shrink: 0; margin-left: -6px; overflow: hidden;
 }
-
 .p-avatar:first-child { margin-left: 0; }
 
 /* ── YouTube player: always fluid ── */
-.guided-player-container {
-    width: 100%;
-    max-width: 100%;
-}
+.guided-player-container { width: 100%; max-width: 100%; }
 
 .guided-player-container iframe,
 [id$="-youtube-player"] iframe,
 [id$="-youtube-player"] {
-    width: 100% !important;
-    max-width: 100% !important;
-    aspect-ratio: 16 / 9;
-    height: auto !important;
+    width: 100% !important; max-width: 100% !important;
+    aspect-ratio: 16 / 9;  height: auto !important;
 }
 
-.session-info    { padding: 20px; }
-.session-emoji   { font-size: clamp(32px, 10vw, 64px); margin-bottom: 12px; }
-.session-title   { font-size: clamp(14px, 4vw, 22px); }
-.session-duration{ font-size: clamp(13px, 3.5vw, 18px); }
+.session-info     { padding: 20px; }
+.session-emoji    { font-size: clamp(32px, 10vw, 64px); margin-bottom: 12px; }
+.session-title    { font-size: clamp(14px, 4vw, 22px); }
+.session-duration { font-size: clamp(13px, 3.5vw, 18px); }
 
 /* ── Timer display ── */
 #silentTimerDisplay,
-[id$="TimerDisplay"] {
-    font-size: clamp(2.25rem, 13vw, 5.25rem) !important;
-}
+[id$="TimerDisplay"] { font-size: clamp(2.25rem, 13vw, 5.25rem) !important; }
 
-.timer-controls {
-    justify-content: center;
-    flex-wrap: wrap;
-}
+.timer-controls { justify-content: center; flex-wrap: wrap; }
 
 .t-btn {
-    padding: 12px 20px;
-    font-size: 14px;
+    padding: 12px 20px; font-size: 14px;
     border-radius: var(--radius-full);
     border: 2px solid var(--border);
-    background: var(--surface);
-    cursor: pointer;
-    font-weight: 600;
-    white-space: nowrap;
+    background: var(--surface); cursor: pointer;
+    font-weight: 600; white-space: nowrap;
     transition: all var(--transition-fast);
 }
+.t-btn.primary { background: var(--text); color: var(--neuro-bg-lightest); border-color: var(--text); }
 
-.t-btn.primary {
-    background: var(--text);
-    color: var(--neuro-bg-lightest);
-    border-color: var(--text);
-}
-
-/* ── Schedule modal ── */
+/* ── FIX 1: Schedule modal — base ── */
 .schedule-modal {
-    max-height: 85vh;
-    overflow-y: auto;
+    max-height: 85vh; overflow-y: auto;
     width: min(560px, 94vw);
 }
-
-.schedule-modal h2 {
-    font-size: clamp(15px, 4vw, 20px);
-}
+.schedule-modal h2   { font-size: clamp(15px, 4vw, 20px); margin-top: 0; }
+.schedule-item       { flex-wrap: wrap; gap: 6px; }
 
 /* ── Chat input row ── */
-.chat-input-container {
-    width: 100%;
-    box-sizing: border-box;
-}
-
+.chat-input-container      { width: 100%; box-sizing: border-box; }
 .chat-input-container input,
-.chat-input {
-    min-width: 0;
-    flex: 1;
-    font-size: 14px;
-}
+.chat-input                { min-width: 0; flex: 1; font-size: 14px; }
 
 .chat-send {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: var(--ring-available);
-    color: white;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    width: 42px; height: 42px; border-radius: 50%;
+    background: var(--ring-available); color: white;
+    border: none; cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
     transition: all var(--transition-fast);
 }
 
 /* ── PS-MAIN headings ── */
-.ps-main h2 {
-    font-size: clamp(1rem, 4.5vw, 1.5rem);
-    line-height: 1.3;
-    word-break: break-word;
-}
+.ps-main h2 { font-size: clamp(1rem, 4.5vw, 1.5rem); line-height: 1.3; word-break: break-word; }
 
-/* ── Modal card: constrained, scrollable ── */
+/* ── FIX 2: Modal card — constrained & scrollable ── */
 .modal-card {
-    width: min(560px, 94vw);
-    max-height: 85vh;
-    overflow-y: auto;
-    box-sizing: border-box;
+    width: min(560px, 94vw); max-height: 85vh;
+    overflow-y: auto; box-sizing: border-box;
 }
 
 /* Safety modal cards */
-#crisisModal .modal-card,
-#reportModal .modal-card,
-#blockModal .modal-card,
-#helpModal .modal-card,
-#moderatorModal .modal-card,
-#technicalModal .modal-card,
+#crisisModal .modal-card, #reportModal .modal-card,
+#blockModal .modal-card,  #helpModal .modal-card,
+#moderatorModal .modal-card, #technicalModal .modal-card,
 #guidelinesModal .modal-card {
-    width: min(520px, 94vw);
-    max-height: 88vh;
-    overflow-y: auto;
-    box-sizing: border-box;
+    width: min(520px, 94vw); max-height: 88vh;
+    overflow-y: auto; box-sizing: border-box;
 }
 
-/* ── Deep Work status buttons: single row, no wrap ── */
-.dw-status-btn {
-    white-space: nowrap;
-    flex-shrink: 0;
-}
+/* ── Deep Work status buttons: single row ── */
+.dw-status-btn { white-space: nowrap; flex-shrink: 0; }
 
 /* ── Tarot & Reiki tab bar ── */
 .tarot-main > div > div[style*="border-bottom"] {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    display: flex !important; flex-wrap: nowrap !important;
+    overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
 }
-
-.tarot-main > div > div[style*="border-bottom"]::-webkit-scrollbar {
-    display: none;
-}
+.tarot-main > div > div[style*="border-bottom"]::-webkit-scrollbar { display: none; }
 
 [id$="TabDaily"],
 [id$="TabPersonal"] {
-    flex: 1 1 0;
-    min-width: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: center;
+    flex: 1 1 0; min-width: 0;
+    white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis; text-align: center;
 }
 
 /* Chakra practice grid: 2-col by default */
-.chakra-practice-grid {
-    grid-template-columns: 1fr 1fr;
-}
+.chakra-practice-grid { grid-template-columns: 1fr 1fr; }
 
-/* Tarot/Reiki chat+participants grid: 2-col by default */
+/* ── FIX 3: Tarot/Reiki participants — horizontal bar above chat ──────
+   Stack the grid as a flex-column so the members bar sits above chat.
+   The members list itself becomes a horizontal scroll strip.            */
 .tarot-daily-grid {
-    grid-template-columns: minmax(0, 2fr) minmax(180px, 1fr);
+    display: flex !important;
+    flex-direction: column !important;
     gap: 12px;
 }
+
+/* Members panel above chat */
+.tarot-daily-grid > div:last-child {
+    order: -1;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    background: var(--background);
+    box-sizing: border-box;
+}
+
+.tarot-daily-grid > div:last-child > div:first-child {
+    font-size: 13px; margin-bottom: 8px; text-align: left !important;
+}
+
+/* Participant list: horizontal scroll strip */
+.tarot-daily-grid > div:last-child .campfire-participants,
+.tarot-daily-grid > div:last-child [id$="ParticipantListEl"] {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    height: auto !important;
+    max-height: none !important;
+    gap: 8px;
+    padding: 4px 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+.tarot-daily-grid > div:last-child .campfire-participants::-webkit-scrollbar,
+.tarot-daily-grid > div:last-child [id$="ParticipantListEl"]::-webkit-scrollbar { display: none; }
+
+/* Compact participant chips */
+.tarot-daily-grid .campfire-participant {
+    flex-direction: column; align-items: center;
+    gap: 3px; padding: 6px 8px;
+    min-width: 54px; margin-bottom: 0; flex-shrink: 0;
+}
+.tarot-daily-grid .campfire-participant-name {
+    font-size: 10px; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; max-width: 52px;
+}
+.tarot-daily-grid .campfire-participant-country { display: none; }
 
 
 /* ═══════════════════════════════════════════════════════
@@ -4843,467 +4849,257 @@ body.solar-room-active[data-season] {
 @media (max-width: 767px) {
 
     /* ── Header ── */
-    .ps-header {
-        padding: 10px 12px;
-        gap: 8px;
-        align-items: flex-start;
-    }
+    .ps-header { padding: 10px 12px; gap: 8px; align-items: flex-start; }
+    .ps-header img[alt] { max-height: 120px; width: 100%; }
+    .ps-info { width: 100%; min-width: 0; }
 
-    .ps-header img[alt] {
-        max-height: 120px;
-        width: 100%;
-    }
-
-    .ps-info {
-        width: 100%;
-        min-width: 0;
-    }
-
-    /* Button strip: scrollable single row */
     .ps-header > div:last-child {
-        width: 100%;
-        justify-content: flex-end;
+        width: 100%; justify-content: flex-end;
         flex-wrap: nowrap !important;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        gap: 6px !important;
+        overflow-x: auto; -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; gap: 6px !important;
     }
-
     .ps-header > div:last-child::-webkit-scrollbar { display: none; }
 
     .ps-leave,
     .ps-header > div:last-child > button,
     .ps-header > div:last-child > div > button {
-        padding: 6px 9px !important;
-        font-size: 11px !important;
+        padding: 6px 9px !important; font-size: 11px !important;
     }
 
-    [id$="ParticipantCount"] { font-size: 12px !important; }
+    [id$="ParticipantCount"]    { font-size: 12px !important; }
     [id$="BlessedCounter"] span { font-size: 10px !important; }
 
-    /* Safety dropdown */
     [id$="SafetyDropdown"] {
-        right: 0 !important;
-        left: auto !important;
-        min-width: 170px !important;
-        max-width: 85vw !important;
-        font-size: 13px !important;
+        right: 0 !important; left: auto !important;
+        min-width: 170px !important; max-width: 85vw !important; font-size: 13px !important;
     }
-
-    [id$="SafetyDropdown"] button {
-        padding: 10px 14px !important;
-        font-size: 13px !important;
-    }
+    [id$="SafetyDropdown"] button { padding: 10px 14px !important; font-size: 13px !important; }
 
     /* ── PS-MAIN ── */
-    .ps-main {
-        padding: 14px 12px;
-    }
-
-    .ps-main h2,
-    .ps-main > h2 {
-        font-size: clamp(0.95rem, 4vw, 1.2rem) !important;
-        margin: 10px 0 !important;
-    }
+    .ps-main { padding: 14px 12px; }
+    .ps-main h2, .ps-main > h2 { font-size: clamp(0.95rem, 4vw, 1.2rem) !important; margin: 10px 0 !important; }
 
     /* ── YouTube player ── */
-    .guided-player-container {
-        margin-bottom: 16px;
-        border-radius: var(--radius-md);
-    }
-
+    .guided-player-container { margin-bottom: 16px; border-radius: var(--radius-md); }
     .session-info     { padding: 16px; }
     .session-emoji    { font-size: 36px; margin-bottom: 8px; }
     .session-title    { font-size: 15px; margin-bottom: 8px; }
     .session-duration { font-size: 13px; margin-bottom: 12px; }
     .session-starts   { font-size: 12px; }
-
-    .guided-controls  { gap: 12px; margin-bottom: 24px; }
-    .control-buttons  { gap: 10px; }
-    .control-btn      { width: 44px; height: 44px; }
+    .guided-controls     { gap: 12px; margin-bottom: 24px; }
+    .control-buttons     { gap: 10px; }
+    .control-btn         { width: 44px; height: 44px; }
     .control-btn.primary { width: 56px; height: 56px; }
-    .time-display     { font-size: 13px; }
+    .time-display        { font-size: 13px; }
 
     /* ── Timer (Silent) ── */
-    .ps-main > div[style*="min(400px"] {
-        margin-bottom: 24px !important;
-    }
-
+    .ps-main > div[style*="min(400px"] { margin-bottom: 24px !important; }
     .timer-controls { gap: 6px; }
-
-    .t-btn {
-        padding: 10px 16px;
-        font-size: 13px;
-    }
+    .t-btn { padding: 10px 16px; font-size: 13px; }
 
     .gratitude-container {
-        position: relative !important;
-        bottom: auto !important;
-        opacity: 1 !important;
-        pointer-events: all !important;
-        margin-top: 20px;
+        position: relative !important; bottom: auto !important;
+        opacity: 1 !important; pointer-events: all !important; margin-top: 20px;
     }
 
     [id$="RotatingAffirmation"] {
         font-size: clamp(14px, 4.5vw, 18px) !important;
-        margin-bottom: 20px !important;
-        padding: 0 8px;
+        margin-bottom: 20px !important; padding: 0 8px;
     }
 
-    /* Sound settings panel: fixed bottom sheet */
     [id$="SoundSettings"].sound-settings {
-        position: fixed;
-        top: auto;
-        bottom: 72px;
-        left: 10px;
-        right: 10px;
-        max-width: none;
-        width: auto;
+        position: fixed; top: auto; bottom: 72px;
+        left: 10px; right: 10px; max-width: none; width: auto;
     }
 
     /* ── Campfire ── */
-    .campfire-body {
-        flex-direction: column;
-        height: auto;
-        min-height: 0;
-    }
+    .campfire-body { flex-direction: column; height: auto; min-height: 0; }
 
     .campfire-sidebar-always-visible {
-        width: 100%;
-        height: 140px;
-        min-height: 140px;
-        flex-direction: row;
-        align-items: center;
-        padding: 0 12px;
-        margin: 0;
+        width: 100%; height: 140px; min-height: 140px;
+        flex-direction: row; align-items: center;
+        padding: 0 12px; margin: 0;
         border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-        border-right: none;
-        border-bottom: 2px solid var(--border);
-        overflow-x: auto;
-        overflow-y: hidden;
-        order: -1;
+        border-right: none; border-bottom: 2px solid var(--border);
+        overflow-x: auto; overflow-y: hidden; order: -1;
     }
 
     .campfire-sidebar-header {
-        white-space: nowrap;
-        flex-shrink: 0;
-        border-bottom: none;
-        border-right: 1px solid var(--border);
+        white-space: nowrap; flex-shrink: 0;
+        border-bottom: none; border-right: 1px solid var(--border);
         padding: 12px 16px 12px 8px;
-        margin-right: 8px;
-        margin-bottom: 0;
+        margin-right: 8px; margin-bottom: 0;
     }
 
     .campfire-participants {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        padding: 8px 0;
-        gap: 8px;
-        flex: 1;
+        display: flex; flex-direction: row; flex-wrap: nowrap;
+        overflow-x: auto; padding: 8px 0; gap: 8px; flex: 1;
     }
 
     .campfire-participant {
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-        padding: 8px;
-        min-width: 60px;
-        margin-bottom: 0;
+        flex-direction: column; align-items: center;
+        gap: 4px; padding: 8px; min-width: 60px; margin-bottom: 0;
     }
-
-    .campfire-participant-info  { text-align: center; }
-
-    .campfire-participant-name {
-        font-size: 10px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 56px;
-    }
-
+    .campfire-participant-info    { text-align: center; }
+    .campfire-participant-name    { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 56px; }
     .campfire-participant-country { display: none; }
 
-    .campfire-main {
-        min-height: 0;
-        flex: 1;
-        padding: 12px;
-    }
+    .campfire-main { min-height: 0; flex: 1; padding: 12px; }
 
     #campfireView h2[style*="font-family"] {
-        font-size: clamp(1rem, 4.5vw, 1.3rem) !important;
-        margin-bottom: 12px !important;
+        font-size: clamp(1rem, 4.5vw, 1.3rem) !important; margin-bottom: 12px !important;
     }
 
-    .chat-messages {
-        max-height: 40vh;
-        min-height: 160px;
-        overflow-y: auto;
-        padding: 12px;
-        gap: 10px;
-    }
+    .chat-messages { max-height: 40vh; min-height: 160px; overflow-y: auto; padding: 12px; gap: 10px; }
+    .chat-input-container       { padding: 10px 0 0; }
+    .chat-input-container > div { gap: 6px; }
+    .campfire-hint              { font-size: 11px; margin-top: 6px; }
 
-    .chat-input-container          { padding: 10px 0 0; }
-    .chat-input-container > div    { gap: 6px; }
-    .campfire-hint                 { font-size: 11px; margin-top: 6px; }
-
-    /* ── Schedule modal ── */
+    /* ── FIX 1: Schedule modal — mobile ── */
     .schedule-modal {
-        width: 94vw;
-        max-height: 80vh;
-        padding: 20px 14px;
+        width: 96vw !important; max-height: 78vh !important;
+        padding: 18px 12px !important;
+        border-radius: 20px 20px 0 0 !important;
+    }
+    .schedule-modal h2 { font-size: 15px !important; margin-bottom: 12px !important; }
+
+    .schedule-item {
+        flex-wrap: nowrap !important;
+        padding: 9px !important;
+        margin-bottom: 5px !important;
     }
 
-    .schedule-modal h2 { font-size: 15px; margin-bottom: 12px; }
-
-    .schedule-list > div {
-        padding: 10px !important;
-        margin-bottom: 6px !important;
-    }
-
+    .schedule-list > div { padding: 9px !important; margin-bottom: 5px !important; }
     .schedule-list [style*="font-size:24px"],
-    .schedule-list [style*="font-size:22px"] { font-size: 18px !important; }
+    .schedule-list [style*="font-size:22px"] { font-size: 17px !important; }
     .schedule-list [style*="font-size:14px"] { font-size: 12px !important; }
     .schedule-list [style*="font-size:11px"],
     .schedule-list [style*="font-size:12px"] { font-size: 10px !important; }
 
-    /* ── Instructions / generic modal ── */
-    .modal-card {
-        padding: 24px 16px;
-        max-height: 82vh;
+    /* time column — don't overflow */
+    .schedule-item > div:last-child {
+        font-size: 11px !important;
+        white-space: nowrap;
+        margin-left: 6px !important;
+        flex-shrink: 0;
     }
 
-    .modal-card h2 { font-size: clamp(1rem, 4vw, 1.3rem); }
-
-    /* ── All modals: slide up from bottom ── */
-    .modal-overlay {
-        align-items: flex-end !important;
-        padding: 0 !important;
-    }
+    /* ── FIX 2: All modals — slide up from bottom on mobile ── */
+    .modal-overlay { align-items: flex-end !important; padding: 0 !important; }
 
     .modal-overlay .modal-card {
         border-radius: 20px 20px 0 0 !important;
         margin: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
+        width: 100% !important; max-width: 100% !important;
+        max-height: 82vh !important;
+        padding: 24px 16px !important;
+        overflow-y: auto;
     }
 
+    /* Instructions popup */
+    [id$="InstructionsModal"] .modal-card { max-height: 80vh !important; }
+    [id$="InstructionsModal"] h2  { font-size: 16px !important; margin-bottom: 12px !important; }
+    [id$="InstructionsModal"] h3  { font-size: 14px !important; margin-top: 14px !important; margin-bottom: 6px !important; }
+    [id$="InstructionsModal"] p,
+    [id$="InstructionsModal"] li  { font-size: 13px !important; line-height: 1.5 !important; }
+    [id$="InstructionsModal"] ul  { padding-left: 18px !important; }
+    [id$="InstructionsModal"] li  { margin-bottom: 5px !important; }
+
+    .modal-card h2 { font-size: clamp(1rem, 4vw, 1.3rem); }
+
     /* ── SafetyBar modals ── */
-    #crisisModal .modal-card,
-    #reportModal .modal-card,
-    #blockModal .modal-card,
-    #helpModal .modal-card,
-    #moderatorModal .modal-card,
-    #technicalModal .modal-card,
-    #guidelinesModal .modal-card {
-        padding: 20px 14px !important;
-        max-height: 82vh !important;
-    }
+    #crisisModal .modal-card, #reportModal .modal-card,
+    #blockModal .modal-card,  #helpModal .modal-card,
+    #moderatorModal .modal-card, #technicalModal .modal-card,
+    #guidelinesModal .modal-card { padding: 20px 14px !important; max-height: 82vh !important; }
 
     #crisisModal h2, #reportModal h2, #blockModal h2,
     #helpModal h2, #moderatorModal h2, #technicalModal h2,
-    #guidelinesModal h2 {
-        font-size: 17px !important;
-        margin-bottom: 14px !important;
-    }
+    #guidelinesModal h2 { font-size: 17px !important; margin-bottom: 14px !important; }
 
-    #crisisModal .modal-content,
-    #reportModal .modal-content,
-    #blockModal .modal-content,
-    #helpModal .modal-content,
-    #moderatorModal .modal-content,
-    #technicalModal .modal-content,
-    #guidelinesModal .modal-content {
-        font-size: 13px !important;
-        line-height: 1.5 !important;
-    }
+    #crisisModal .modal-content, #reportModal .modal-content,
+    #blockModal .modal-content,  #helpModal .modal-content,
+    #moderatorModal .modal-content, #technicalModal .modal-content,
+    #guidelinesModal .modal-content { font-size: 13px !important; line-height: 1.5 !important; }
 
     #crisisModal ul, #guidelinesModal ul,
-    #guidelinesModal h3 {
-        font-size: 13px !important;
-        margin-top: 12px !important;
-        margin-bottom: 6px !important;
-    }
+    #guidelinesModal h3 { font-size: 13px !important; margin-top: 12px !important; margin-bottom: 6px !important; }
 
     #reportReason, #reportDetails, #blockUsername,
     #moderatorUrgency, #moderatorMessage,
     #technicalType, #technicalDescription, #technicalDevice {
-        font-size: 13px !important;
-        padding: 9px 10px !important;
+        font-size: 13px !important; padding: 9px 10px !important;
     }
 
-    #helpModal .modal-content button[style*="width: 100%"] {
-        padding: 12px !important;
-        font-size: 13px !important;
-    }
-
+    #helpModal .modal-content button[style*="width: 100%"]        { padding: 12px !important; font-size: 13px !important; }
     #helpModal .modal-content button[style*="width: 100%"] strong { font-size: 13px !important; }
     #helpModal .modal-content button[style*="width: 100%"] span   { font-size: 11px !important; }
-    #helpMeText                                                    { font-size: 13px !important; padding: 8px !important; }
+    #helpMeText { font-size: 13px !important; padding: 8px !important; }
 
     #reportModal button, #blockModal button,
     #moderatorModal button, #technicalModal button {
-        padding: 10px 12px !important;
-        font-size: 13px !important;
+        padding: 10px 12px !important; font-size: 13px !important;
     }
 
-    #crisisModal div[style*="background: #fee"] {
-        padding: 12px !important;
-        font-size: 12px !important;
-    }
+    #crisisModal div[style*="background: #fee"] { padding: 12px !important; font-size: 12px !important; }
 
     /* ── Deep Work: setup modal ── */
-    [id$="SetupModal"] .modal-card {
-        padding: 16px 14px !important;
-        max-height: 88vh !important;
-    }
+    [id$="SetupModal"] .modal-card { padding: 16px 14px !important; max-height: 88vh !important; }
+    [id$="SetupModal"] h2          { font-size: 17px !important; margin-bottom: 4px !important; }
+    [id$="SetupModal"] label       { font-size: 13px !important; margin-bottom: 6px !important; }
 
-    [id$="SetupModal"] h2 {
-        font-size: 17px !important;
-        margin-bottom: 4px !important;
-    }
-
-    [id$="CategoryTiles"] {
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 6px !important;
-    }
-
-    [id$="CategoryTiles"] > div {
-        padding: 8px 4px !important;
-        font-size: 11px !important;
-    }
-
-    [id$="DurationTiles"] {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 6px !important;
-    }
-
-    [id$="DurationTiles"] > div {
-        padding: 9px !important;
-        font-size: 13px !important;
-    }
-
-    [id$="IntentionInput"] {
-        font-size: 13px !important;
-        padding: 10px !important;
-    }
-
-    [id$="SetupModal"] label {
-        font-size: 13px !important;
-        margin-bottom: 6px !important;
-    }
+    [id$="CategoryTiles"]          { grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; }
+    [id$="CategoryTiles"] > div    { padding: 8px 4px !important; font-size: 11px !important; }
+    [id$="DurationTiles"]          { grid-template-columns: repeat(2, 1fr) !important; gap: 6px !important; }
+    [id$="DurationTiles"] > div    { padding: 9px !important; font-size: 13px !important; }
+    [id$="IntentionInput"]         { font-size: 13px !important; padding: 10px !important; }
 
     /* ── Deep Work: status buttons ── */
     .ps-main > div:has(.dw-status-btn) {
-        flex-wrap: nowrap !important;
-        gap: 6px !important;
-        margin-bottom: 14px !important;
-        width: 100%;
-        justify-content: center;
+        flex-wrap: nowrap !important; gap: 6px !important;
+        margin-bottom: 14px !important; width: 100%; justify-content: center;
     }
-
-    .dw-status-btn {
-        padding: 8px 10px !important;
-        font-size: 12px !important;
-        flex: 1 1 0;
-        text-align: center;
-    }
+    .dw-status-btn { padding: 8px 10px !important; font-size: 12px !important; flex: 1 1 0; text-align: center; }
 
     /* ── Deep Work: sidebar + chat ── */
-    .dw-sidebar { display: none !important; }
-
-    [id$="ChatSection"] {
-        min-height: 0;
-        max-height: 50vh;
-    }
-
-    [id$="ChatMessages"] {
-        max-height: 30vh !important;
-        min-height: 80px;
-        overflow-y: auto;
-    }
-
-    [id$="ChatInput"]   { font-size: 13px !important; padding: 8px !important; }
-    [id$="ChatSendBtn"] { padding: 8px 10px !important; font-size: 15px !important; }
-
-    /* ── Deep Work: timer controls ── */
-    #currentIntention {
-        font-size: clamp(1rem, 4vw, 1.4rem) !important;
-        margin-bottom: 12px !important;
-    }
-
-    #categoryBadge {
-        font-size: 13px !important;
-        padding: 6px 12px !important;
-    }
+    .dw-sidebar      { display: none !important; }
+    [id$="ChatSection"] { min-height: 0; max-height: 50vh; }
+    [id$="ChatMessages"] { max-height: 30vh !important; min-height: 80px; overflow-y: auto; }
+    [id$="ChatInput"]    { font-size: 13px !important; padding: 8px !important; }
+    [id$="ChatSendBtn"]  { padding: 8px 10px !important; font-size: 15px !important; }
+    #currentIntention    { font-size: clamp(1rem, 4vw, 1.4rem) !important; margin-bottom: 12px !important; }
+    #categoryBadge       { font-size: 13px !important; padding: 6px 12px !important; }
 
     /* ── Tarot & Reiki ── */
-    .tarot-main { padding: 14px 10px !important; }
-
+    .tarot-main    { padding: 14px 10px !important; }
     [id$="TabDaily"],
-    [id$="TabPersonal"] {
-        padding: 8px 10px !important;
-        font-size: 12px !important;
-    }
+    [id$="TabPersonal"] { padding: 8px 10px !important; font-size: 12px !important; }
+    .tarot-main h3 { font-size: clamp(1rem, 4vw, 1.3rem) !important; margin-bottom: 12px !important; }
+    .tarot-main h4 { font-size: clamp(0.9rem, 3.5vw, 1.1rem) !important; margin-bottom: 8px !important; }
 
-    .tarot-main h3 {
-        font-size: clamp(1rem, 4vw, 1.3rem) !important;
-        margin-bottom: 12px !important;
-    }
+    .tarot-main div[style*="padding: 32px"] { padding: 16px !important; }
 
-    .tarot-main h4 {
-        font-size: clamp(0.9rem, 3.5vw, 1.1rem) !important;
-        margin-bottom: 8px !important;
-    }
-
-    /* Section card padding */
-    .tarot-main div[style*="padding: 32px"] {
-        padding: 16px !important;
-    }
-
-    /* Chakra image carousel buttons */
     [id$="DailyTab"] button[style*="border-radius: 50%"],
     [id$="PersonalSession"] button[style*="border-radius: 50%"] {
-        width: 32px !important;
-        height: 32px !important;
-        font-size: 16px !important;
+        width: 32px !important; height: 32px !important; font-size: 16px !important;
     }
 
-    /* Chakra image */
     [id$="DailyTab"] img,
-    [id$="PersonalSession"] img {
-        max-width: calc(100% - 72px) !important;
-    }
+    [id$="PersonalSession"] img { max-width: calc(100% - 72px) !important; }
 
-    /* Inquiry box */
-    [id$="DailyTab"] div[style*="padding: 20px"] {
-        padding: 12px !important;
-        margin-bottom: 12px !important;
-    }
+    [id$="DailyTab"] div[style*="padding: 20px"] { padding: 12px !important; margin-bottom: 12px !important; }
 
-    /* Practice guide: single column */
-    .chakra-practice-grid {
-        grid-template-columns: 1fr !important;
-        gap: 10px !important;
-    }
+    .chakra-practice-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+    .chakra-practice-grid > div { padding: 12px !important; }
+    .chakra-practice-grid h5    { font-size: 12px !important; margin-bottom: 8px !important; }
+    .chakra-practice-grid ol    { font-size: 13px !important; line-height: 1.6 !important; padding-left: 16px !important; }
+    .chakra-practice-grid li    { margin-bottom: 5px !important; }
 
-    .chakra-practice-grid > div  { padding: 12px !important; }
-    .chakra-practice-grid h5     { font-size: 12px !important; margin-bottom: 8px !important; }
-    .chakra-practice-grid ol     { font-size: 13px !important; line-height: 1.6 !important; padding-left: 16px !important; }
-    .chakra-practice-grid li     { margin-bottom: 5px !important; }
+    /* Members bar mobile */
+    .tarot-daily-grid > div:last-child { padding: 8px 10px; }
+    .tarot-daily-grid .chat-messages   { max-height: 200px !important; min-height: 80px !important; }
 
-    /* Chat + participants: stack vertically */
-    .tarot-daily-grid {
-        grid-template-columns: 1fr !important;
-        gap: 12px !important;
-    }
-
-    .tarot-daily-grid [style*="height: 400px"] { height: 160px !important; }
-    .tarot-daily-grid .chat-messages           { max-height: 200px !important; min-height: 80px !important; }
-
-    /* Personal session tab */
     [id$="PersonalTab"] div[style*="padding: 32px"] { padding: 16px !important; }
     [id$="PersonalFocus"]                           { font-size: 13px !important; padding: 9px !important; }
     [id$="DrawBtn"]                                 { padding: 12px 20px !important; font-size: 14px !important; width: 100% !important; }
@@ -5320,14 +5116,11 @@ body.solar-room-active[data-season] {
    ═══════════════════════════════════════════════════════ */
 @media (max-width: 380px) {
 
-    .ps-header img[alt]   { max-height: 90px; }
+    .ps-header img[alt] { max-height: 90px; }
 
     .ps-leave,
     .ps-header > div:last-child > button,
-    .ps-header > div:last-child > div > button {
-        padding: 5px 7px !important;
-        font-size: 10px !important;
-    }
+    .ps-header > div:last-child > div > button { padding: 5px 7px !important; font-size: 10px !important; }
 
     .session-emoji { font-size: 28px; }
     .session-title { font-size: 13px; }
@@ -5336,16 +5129,15 @@ body.solar-room-active[data-season] {
     .campfire-participant             { min-width: 50px; }
     .campfire-participant-name        { max-width: 46px; font-size: 9px; }
 
-    .t-btn             { padding: 8px 12px; font-size: 12px; }
-    .control-btn       { width: 38px; height: 38px; }
+    .t-btn               { padding: 8px 12px; font-size: 12px; }
+    .control-btn         { width: 38px; height: 38px; }
     .control-btn.primary { width: 50px; height: 50px; }
 
-    .dw-status-btn     { padding: 6px 8px !important; font-size: 11px !important; }
+    .dw-status-btn { padding: 6px 8px !important; font-size: 11px !important; }
 
     [id$="TabDaily"],
-    [id$="TabPersonal"] { padding: 7px 8px !important; font-size: 11px !important; }
+    [id$="TabPersonal"]   { padding: 7px 8px !important; font-size: 11px !important; }
 
-    /* Category tiles: 2×3 on very small screens */
     [id$="CategoryTiles"] { grid-template-columns: repeat(2, 1fr) !important; }
 
     .modal-overlay .modal-card { padding: 16px 10px !important; }
@@ -5361,7 +5153,6 @@ body.solar-room-active[data-season] {
     .ps-header img[alt]              { max-height: 160px; }
     .guided-player-container         { max-width: 100%; }
     .campfire-sidebar-always-visible { width: 200px; }
-
     .ps-header { padding: 16px 24px; }
     .ps-main   { padding: 28px; }
 

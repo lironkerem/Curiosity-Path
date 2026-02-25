@@ -11,9 +11,7 @@
  * - Technical issue reporting
  * - Community guidelines display
  * 
- * @version 1.1.0 — PATCHED:
- *   - Added openModal() public method (classList.add 'active')
- *   - Added CommunityModule shim so dropdown items correctly open modals
+ * @version 1.0.0
  */
 
 const SafetyBar = {
@@ -461,20 +459,6 @@ const SafetyBar = {
     },
 
     /**
-     * Open a specific modal by type
-     * @param {string} type - Modal type (crisis, report, block, help, moderator, technical, guidelines)
-     */
-    openModal(type) {
-        this.injectModals(); // ensure modals are in DOM
-        const modal = document.getElementById(`${type}Modal`);
-        if (modal) {
-            modal.classList.add('active');
-        } else {
-            console.warn(`[SafetyBar] openModal: #${type}Modal not found`);
-        }
-    },
-
-    /**
      * Close a specific modal
      * @param {string} type - Modal type (crisis, report, block, etc.)
      */
@@ -738,48 +722,3 @@ const SafetyBar = {
 // ============================================================================
 
 window.SafetyBar = SafetyBar;
-
-// ============================================================================
-// COMMUNITYMODULE SHIM
-// ============================================================================
-// PracticeRoom.buildSafetyDropdown() calls CommunityModule.showReportModal()
-// etc., but those methods either don't exist or don't trigger the SafetyBar
-// modals (which use classList.add('active')).
-// This shim creates / patches CommunityModule so every dropdown item correctly
-// opens its SafetyBar modal.  Existing methods on a real CommunityModule are
-// never overwritten.
-
-(function () {
-    const shim = {
-        showReportModal:     () => SafetyBar.openModal('report'),
-        showBlockModal:      () => SafetyBar.openModal('block'),
-        showHelpModal:       () => SafetyBar.openModal('help'),
-        showCrisisModal:     () => SafetyBar.openModal('crisis'),
-        showModeratorModal:  () => SafetyBar.openModal('moderator'),
-        showTechnicalModal:  () => SafetyBar.openModal('technical'),
-        showGuidelinesModal: () => SafetyBar.openModal('guidelines'),
-
-        muteChat: () => window.Core?.showToast?.('Chat muted'),
-
-        closeReportModal:     () => SafetyBar.closeModal('report'),
-        closeBlockModal:      () => SafetyBar.closeModal('block'),
-        closeHelpModal:       () => SafetyBar.closeModal('help'),
-        closeCrisisModal:     () => SafetyBar.closeModal('crisis'),
-        closeModeratorModal:  () => SafetyBar.closeModal('moderator'),
-        closeTechnicalModal:  () => SafetyBar.closeModal('technical'),
-        closeGuidelinesModal: () => SafetyBar.closeModal('guidelines'),
-    };
-
-    if (window.CommunityModule) {
-        // Patch only missing methods — never overwrite existing ones
-        Object.keys(shim).forEach(method => {
-            if (typeof window.CommunityModule[method] !== 'function') {
-                window.CommunityModule[method] = shim[method];
-            }
-        });
-        console.log('🛡️ SafetyBar: patched missing methods on CommunityModule');
-    } else {
-        window.CommunityModule = shim;
-        console.log('🛡️ SafetyBar: CommunityModule created as safety shim');
-    }
-})();
