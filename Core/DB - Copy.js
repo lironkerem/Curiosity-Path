@@ -138,7 +138,6 @@ export async function fetchProgress(forceRefresh = false) {
       const { data, error } = await supabase
         .from('user_progress')
         .select('payload')
-        .eq('user_id', session.user.id)
         .single();
 
       if (error) {
