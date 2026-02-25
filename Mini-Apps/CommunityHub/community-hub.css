@@ -2281,10 +2281,12 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 @media (max-width: 768px) {
     .active-members-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        padding: 10px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        padding: 12px;
+        max-height: 280px;
+        overflow-y: auto;
     }
 }
 
@@ -3890,28 +3892,28 @@ body.solar-room-active[data-season] {
 
   /* ===== ACTIVE MEMBERS ===== */
   .member-card-mini {
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
-    text-align: left;
-    padding: 8px 10px;
-    gap: 10px;
+    text-align: center;
+    padding: 8px 4px;
+    gap: 0;
   }
 
   .member-mini-avatar {
-    width: 38px;
-    height: 38px;
-    font-size: 15px;
-    margin-bottom: 0;
-    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    font-size: 13px;
+    margin-bottom: 5px;
+    flex-shrink: unset;
   }
 
   .member-mini-name {
-    font-size: 13px;
+    font-size: 11px;
     margin-bottom: 1px;
   }
 
   .member-mini-info {
-    font-size: 11px;
+    font-size: 9px;
   }
 
   /* ===== PRESENCE WIDGET ===== */
