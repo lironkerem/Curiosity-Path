@@ -1026,12 +1026,16 @@ const MemberProfileModal = {
         if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
 
         try {
-            const ok = await CommunityDB.adminUpdateGamification(this.state.currentUserId, { xpDelta: amount });
-            if (!ok) throw new Error('Save failed');
+            const { error } = await CommunityDB._sb.rpc('update_user_gamification', {
+                target_user_id: this.state.currentUserId,
+                xp_delta:    amount,
+                karma_delta: 0
+            });
+            if (error) throw error;
             await this._adminPushNotify(this.state.currentUserId, '🎁 Gift from Aanandoham!', `You received +${amount} XP!`);
             Core.showToast(`✓ Sent ${amount} XP`);
             this._closeAdminSubs();
-            await this._refreshMainProfileStats();
+            if (this.state.currentUserId === window.Core?.state?.currentUser?.id) await this._refreshMainProfileStats();
         } catch (err) {
             console.error('[AdminPanel] sendXP error:', err);
             Core.showToast('❌ Could not send XP');
@@ -1049,12 +1053,16 @@ const MemberProfileModal = {
         if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
 
         try {
-            const ok = await CommunityDB.adminUpdateGamification(this.state.currentUserId, { karmaDelta: amount });
-            if (!ok) throw new Error('Save failed');
+            const { error } = await CommunityDB._sb.rpc('update_user_gamification', {
+                target_user_id: this.state.currentUserId,
+                xp_delta:    0,
+                karma_delta: amount
+            });
+            if (error) throw error;
             await this._adminPushNotify(this.state.currentUserId, '🎁 Gift from Aanandoham!', `You received +${amount} Karma!`);
             Core.showToast(`✓ Sent ${amount} Karma`);
             this._closeAdminSubs();
-            await this._refreshMainProfileStats();
+            if (this.state.currentUserId === window.Core?.state?.currentUser?.id) await this._refreshMainProfileStats();
         } catch (err) {
             console.error('[AdminPanel] sendKarma error:', err);
             Core.showToast('❌ Could not send Karma');
@@ -1127,14 +1135,18 @@ const MemberProfileModal = {
 
         try {
             for (const feature of checked) {
-                const ok = await CommunityDB.adminUpdateGamification(this.state.currentUserId, { unlockFeature: feature });
-                if (!ok) throw new Error(`Failed to unlock: ${feature}`);
+                const { error } = await CommunityDB._sb.rpc('update_user_gamification', {
+                    target_user_id: this.state.currentUserId,
+                    xp_delta:       0,
+                    karma_delta:    0,
+                    unlock_feature: feature
+                });
+                if (error) throw error;
             }
             const names = checked.map(f => f.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())).join(', ');
             await this._adminPushNotify(this.state.currentUserId, '🔓 New Features Unlocked!', `Admin unlocked: ${names}`);
             Core.showToast(`✓ Unlocked ${checked.length} feature(s)`);
             this._closeAdminSubs();
-            await this._refreshMainProfileStats();
         } catch (err) {
             console.error('[AdminPanel] unlockPremium error:', err);
             Core.showToast('❌ Could not unlock features');

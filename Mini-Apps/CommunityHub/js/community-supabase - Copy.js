@@ -1229,58 +1229,6 @@ const CommunityDB = {
     return { sent: data?.length || 0, failed: userIds.length - (data?.length || 0) };
   },
 
-  // ============================================================================
-  // ADMIN — GAMIFICATION UPDATES
-  // Directly reads and updates user_progress payload (no RPC needed).
-  // Requires an RLS policy allowing admins to read/update other users' rows.
-  // ============================================================================
-
-  /**
-   * Admin: add XP and/or Karma to any user, and/or unlock a feature.
-   * @param {string} targetUserId
-   * @param {object} opts
-   * @param {number} [opts.xpDelta=0]
-   * @param {number} [opts.karmaDelta=0]
-   * @param {string|null} [opts.unlockFeature=null]
-   * @returns {Promise<boolean>}
-   */
-  async adminUpdateGamification(targetUserId, { xpDelta = 0, karmaDelta = 0, unlockFeature = null } = {}) {
-    if (!this.ready) return false;
-    try {
-      // 1. Read current payload
-      const { data, error: readErr } = await this._sb
-        .from('user_progress')
-        .select('payload')
-        .eq('user_id', targetUserId)
-        .single();
-      if (readErr || !data) throw new Error(readErr?.message || 'User progress not found');
-
-      // 2. Mutate in JS
-      const p = typeof data.payload === 'string' ? JSON.parse(data.payload) : { ...data.payload };
-      p.xp    = (p.xp    ?? 0) + xpDelta;
-      p.karma = (p.karma ?? 0) + karmaDelta;
-      if (unlockFeature) {
-        p.unlockedFeatures = p.unlockedFeatures || [];
-        if (!p.unlockedFeatures.includes(unlockFeature)) {
-          p.unlockedFeatures.push(unlockFeature);
-        }
-      }
-
-      // 3. Write back
-      const { error: saveErr } = await this._sb
-        .from('user_progress')
-        .update({ payload: p, updated_at: new Date().toISOString() })
-        .eq('user_id', targetUserId);
-      if (saveErr) throw new Error(saveErr.message);
-
-      console.log(`[CommunityDB] adminUpdateGamification: user=${targetUserId} xp+=${xpDelta} karma+=${karmaDelta} feature=${unlockFeature}`);
-      return true;
-    } catch (err) {
-      console.error('[CommunityDB] adminUpdateGamification:', err);
-      return false;
-    }
-  },
-
   async logRoomExit(entryId) {
     if (!entryId || !this.ready) return;
     const { data: entry } = await this._sb
