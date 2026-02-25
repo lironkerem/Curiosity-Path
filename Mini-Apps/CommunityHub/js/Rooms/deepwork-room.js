@@ -121,7 +121,7 @@ class DeepWorkRoom extends PracticeRoom {
         if (this.state.timerRunning) return;
         this.state.timerRunning = true;
         const btn = document.getElementById(`${this.roomId}TimerBtn`);
-        if (btn) btn.textContent = 'Pause';
+        if (btn) btn.textContent = 'Break';
 
         this.timerInterval = setInterval(() => {
             this.state.timeLeft--;
@@ -301,12 +301,6 @@ class DeepWorkRoom extends PracticeRoom {
         <div class="ps-body" style="display:flex;">
             <main class="ps-main" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;">
 
-                <!-- Room image with fallback -->
-                <img src="${this.config.imageUrl}"
-                     alt="${this.config.name}"
-                     onerror="this.style.display='none'"
-                     style="max-width:480px;width:100%;height:auto;margin-bottom:24px;border-radius:var(--radius-lg);">
-
                 <!-- Status buttons -->
                 <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;justify-content:center;">
                     ${['deep-focus','light-focus','break'].map(s => `
@@ -366,7 +360,7 @@ class DeepWorkRoom extends PracticeRoom {
                     <button onclick="${this.getClassName()}.toggleTimer()"
                             id="${this.roomId}TimerBtn"
                             style="padding:12px 32px;background:var(--accent);border:none;border-radius:var(--radius-md);color:white;cursor:pointer;font-weight:600;font-size:16px;">
-                        ${this.state.timerRunning ? 'Pause' : 'Begin'}
+                        ${this.state.timerRunning ? 'Break' : 'Begin'}
                     </button>
                     <button onclick="${this.getClassName()}.adjustTime(5)"
                             style="padding:12px 20px;border:2px solid var(--border);border-radius:var(--radius-md);background:var(--surface);cursor:pointer;font-weight:600;">+5m</button>
@@ -613,12 +607,44 @@ class DeepWorkRoom extends PracticeRoom {
     }
 
     toggleChat() {
+        const sidebar = document.getElementById(`${this.roomId}Sidebar`);
         const section = document.getElementById(`${this.roomId}ChatSection`);
         if (!section) return;
+
         const isVisible = section.style.display !== 'none';
-        section.style.display = isVisible ? 'none' : 'flex';
-        section.style.flexDirection = 'column';
-        if (!isVisible) setTimeout(() => this._injectChatAvatar(), 50);
+
+        if (isVisible) {
+            // Hide chat; on mobile also re-hide sidebar
+            section.style.display = 'none';
+            if (sidebar && window.innerWidth <= 767) sidebar.style.display = 'none';
+        } else {
+            // Ensure sidebar is visible (mobile CSS hides it via patch)
+            if (sidebar) {
+                sidebar.style.display = 'block';
+                sidebar.style.removeProperty('display'); // let it use its own style
+                // On mobile, show as a fixed overlay panel
+                if (window.innerWidth <= 767) {
+                    sidebar.style.cssText = `
+                        display: block !important;
+                        position: fixed;
+                        bottom: 100px;
+                        right: 16px;
+                        width: min(340px, calc(100vw - 32px));
+                        max-height: 60vh;
+                        background: var(--surface);
+                        border: 2px solid var(--border);
+                        border-radius: var(--radius-lg);
+                        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                        z-index: 199999;
+                        overflow: hidden;
+                    `;
+                }
+            }
+            // Show the chat section (only visible during break, but allow manual open)
+            section.style.display = 'flex';
+            section.style.flexDirection = 'column';
+            setTimeout(() => this._injectChatAvatar(), 50);
+        }
     }
 
     toggleDimMode() {
