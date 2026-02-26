@@ -511,9 +511,9 @@ const Core = {
                     <button class="modal-close" onclick="CommunityModule.closeReportModal()">×</button>
                     <h2>⚠️ Report Issue</h2>
                     <div class="modal-content">
-                        <p class="modal-desc modal-desc--muted">Help us maintain a safe space. Your report is confidential.</p>
-                        <label class="modal-label">Reason:</label>
-                        <select id="reportReason" class="modal-field">
+                        <p style="margin-bottom: 16px; color: var(--text-muted);">Help us maintain a safe space. Your report is confidential.</p>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Reason:</label>
+                        <select id="reportReason" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); color: var(--text); margin-bottom: 16px;">
                             <option value="">Select a reason...</option>
                             <option value="harassment">Harassment or bullying</option>
                             <option value="inappropriate">Inappropriate content</option>
@@ -521,11 +521,11 @@ const Core = {
                             <option value="safety">Safety concern</option>
                             <option value="other">Other</option>
                         </select>
-                        <label class="modal-label">Details (optional):</label>
-                        <textarea id="reportDetails" rows="4" placeholder="Please provide any additional context..." class="modal-field modal-field--textarea"></textarea>
-                        <div class="modal-btn-row">
-                            <button onclick="CommunityModule.closeReportModal()" class="modal-btn-cancel">Cancel</button>
-                            <button onclick="CommunityModule.submitReport()" class="modal-btn-submit">Submit Report</button>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Details (optional):</label>
+                        <textarea id="reportDetails" rows="4" placeholder="Please provide any additional context..." style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); color: var(--text); resize: vertical; margin-bottom: 16px;"></textarea>
+                        <div style="display: flex; gap: 12px;">
+                            <button onclick="CommunityModule.closeReportModal()" style="flex: 1; padding: 12px; border: 1px solid var(--border); background: var(--surface); border-radius: var(--radius-md); cursor: pointer; font-weight: 600;">Cancel</button>
+                            <button onclick="CommunityModule.submitReport()" style="flex: 1; padding: 12px; background: var(--accent); color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600;">Submit Report</button>
                         </div>
                     </div>
                 </div>
@@ -537,12 +537,12 @@ const Core = {
                     <button class="modal-close" onclick="CommunityModule.closeBlockModal()">×</button>
                     <h2>🚫 Block User</h2>
                     <div class="modal-content">
-                        <p class="modal-desc modal-desc--muted">Blocking will hide all messages from this user.</p>
-                        <label class="modal-label">Username:</label>
-                        <input type="text" id="blockUsername" placeholder="Enter username to block" class="modal-field" />
-                        <div class="modal-btn-row">
-                            <button onclick="CommunityModule.closeBlockModal()" class="modal-btn-cancel">Cancel</button>
-                            <button onclick="CommunityModule.confirmBlock()" class="modal-btn-danger">Block User</button>
+                        <p style="margin-bottom: 16px; color: var(--text-muted);">Blocking will hide all messages from this user.</p>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Username:</label>
+                        <input type="text" id="blockUsername" placeholder="Enter username to block" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); color: var(--text); margin-bottom: 16px;" />
+                        <div style="display: flex; gap: 12px;">
+                            <button onclick="CommunityModule.closeBlockModal()" style="flex: 1; padding: 12px; border: 1px solid var(--border); background: var(--surface); border-radius: var(--radius-md); cursor: pointer; font-weight: 600;">Cancel</button>
+                            <button onclick="CommunityModule.confirmBlock()" style="flex: 1; padding: 12px; background: #e74c3c; color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600;">Block User</button>
                         </div>
                     </div>
                 </div>
@@ -554,19 +554,19 @@ const Core = {
                     <button class="modal-close" onclick="CommunityModule.closeHelpModal()">×</button>
                     <h2>🆘 Get Help</h2>
                     <div class="modal-content">
-                        <p class="modal-desc">If you're experiencing a crisis or need immediate support:</p>
-                        <div class="modal-resource-card">
-                            <h3 class="modal-resource-title">Crisis Resources</h3>
-                            <p class="modal-resource-p"><strong>988 Suicide & Crisis Lifeline:</strong> Call or text 988</p>
-                            <p class="modal-resource-p"><strong>Crisis Text Line:</strong> Text HOME to 741741</p>
-                            <p class="modal-resource-p"><strong>International:</strong> <a href="https://findahelpline.com" target="_blank" class="modal-link">findahelpline.com</a></p>
+                        <p style="margin-bottom: 16px;">If you're experiencing a crisis or need immediate support:</p>
+                        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; margin-bottom: 16px;">
+                            <h3 style="margin-top: 0; font-size: 16px;">Crisis Resources</h3>
+                            <p style="margin: 8px 0;"><strong>988 Suicide & Crisis Lifeline:</strong> Call or text 988</p>
+                            <p style="margin: 8px 0;"><strong>Crisis Text Line:</strong> Text HOME to 741741</p>
+                            <p style="margin: 8px 0;"><strong>International:</strong> <a href="https://findahelpline.com" target="_blank" style="color: var(--accent);">findahelpline.com</a></p>
                         </div>
-                        <div class="modal-resource-card">
-                            <h3 class="modal-resource-title">Community Support</h3>
-                            <p class="modal-resource-p">Contact our moderators for non-emergency concerns</p>
-                            <p class="modal-resource-p"><strong>Email:</strong> support@community.example.com</p>
+                        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; margin-bottom: 16px;">
+                            <h3 style="margin-top: 0; font-size: 16px;">Community Support</h3>
+                            <p style="margin: 8px 0;">Contact our moderators for non-emergency concerns</p>
+                            <p style="margin: 8px 0;"><strong>Email:</strong> support@community.example.com</p>
                         </div>
-                        <button onclick="CommunityModule.closeHelpModal()" class="modal-btn-close">Close</button>
+                        <button onclick="CommunityModule.closeHelpModal()" style="width: 100%; padding: 12px; border: 1px solid var(--border); background: var(--surface); border-radius: var(--radius-md); cursor: pointer; font-weight: 600;">Close</button>
                     </div>
                 </div>
             </div>

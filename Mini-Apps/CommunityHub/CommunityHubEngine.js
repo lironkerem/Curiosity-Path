@@ -19,11 +19,11 @@ class CommunityHubEngine {
     // Only build the HTML on first load - don't wipe it on re-visits
     if (!this.initialized) {
       tab.innerHTML = `
-      <div class="community-hub-wrapper">
+      <div style="background:var(--neuro-bg);padding:1.5rem;min-height:100vh; position: relative;">
         <div class="universal-content">
 
           <header class="main-header project-curiosity"
-                  style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavShadow.png');
+                  style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavCommunity.png');
                          --header-title:'';
                          --header-tag:'A space for mindful practice and togetherness'">
             <h1>Community Hub</h1>
@@ -31,7 +31,7 @@ class CommunityHubEngine {
             <span class="header-sub"></span>
           </header>
 
-          <div class="card card--padded">
+          <div class="card" style="padding:2rem">
             <!-- Season Flash Notification -->
             <div class="season-flash" id="seasonFlash" aria-live="polite"></div>
 
@@ -68,7 +68,7 @@ class CommunityHubEngine {
                     <section class="section" aria-labelledby="practiceSpacesTitle">
                         <div class="section-header">
                             <div class="section-title" id="practiceSpacesTitle">Practice Spaces</div>
-                            <div class="section-subtitle">Choose your practice</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Choose your practice</div>
                         </div>
                         <div class="rooms-grid" id="roomsGrid">
                             <!-- Rooms dynamically rendered by core.js -->
@@ -79,7 +79,7 @@ class CommunityHubEngine {
                     <section class="section" aria-labelledby="celestialCyclesTitle">
                         <div class="section-header">
                             <div class="section-title" id="celestialCyclesTitle">Celestial Cycles</div>
-                            <div class="section-subtitle">Practice with nature's rhythms</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Practice with nature's rhythms</div>
                         </div>
                         
                         <!-- Lunar Phases -->
@@ -202,7 +202,7 @@ class CommunityHubEngine {
       </div>
 
       <!-- Room renders directly here -->
-      <div id="dynamicRoomContent"></div>
+      <div id="dynamicRoomContent" style="display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;"></div>
     `;
 
     document.body.appendChild(container);
@@ -328,10 +328,10 @@ class CommunityHubEngine {
       const main = document.getElementById('community-hub-main-content');
       if (main) {
         main.innerHTML = `
-          <div class="card card--error">
-            <h3>Failed to Load</h3>
-            <p>Please refresh the page and try again.</p>
-            <p class="card--error__detail">${err.message}</p>
+          <div class="card" style="text-align:center;padding:var(--spacing-xl)">
+            <h3 style="color:var(--neuro-text)">Failed to Load</h3>
+            <p style="color:var(--neuro-text-light)">Please refresh the page and try again.</p>
+            <p style="color:var(--neuro-text-lighter);font-size:0.9rem;margin-top:1rem">${err.message}</p>
           </div>
         `;
       }

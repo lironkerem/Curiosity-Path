@@ -45,20 +45,24 @@ const AdminDashboard = {
 
         const badge = document.createElement('div');
         badge.id = 'adminDashBadge';
-        badge.className = 'admin-dash-badge-wrap';
+        badge.style.cssText = 'padding: 0 0 32px;';
         badge.innerHTML = `
             <section class="section">
                 <div class="section-header">
                     <div class="section-title">🛡️ Admin Tools</div>
-                    <div class="section-subtitle">
-                        <span id="adminDashUnreadBadge" class="admin-dash-unread-badge">0 new</span>
+                    <div style="font-size:12px;color:var(--text-muted);">
+                        <span id="adminDashUnreadBadge"
+                              style="display:none;background:#ef4444;color:#fff;border-radius:99px;
+                                     font-size:10px;font-weight:700;padding:2px 8px;margin-right:6px;
+                                     animation:adminPulse 1.5s infinite;">0 new</span>
                         Community management
                     </div>
                 </div>
                 <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/AdminDashboard.png"
                      onclick="AdminDashboard.openDashboard()"
                      alt="Open Admin Dashboard"
-                     class="admin-dash-img"
+                     style="width:100%;border-radius:14px;cursor:pointer;display:block;
+                            transition:opacity 0.15s,transform 0.15s;box-shadow:0 4px 16px rgba(0,0,0,0.1);"
                      onmouseover="this.style.opacity='0.9';this.style.transform='scale(1.01)'"
                      onmouseout="this.style.opacity='1';this.style.transform='scale(1)'">
             </section>`;
@@ -168,30 +172,40 @@ const AdminDashboard = {
 
         const overlay = document.createElement('div');
         overlay.id = 'adminDashOverlay';
-        overlay.className = 'admin-dash-overlay';
+        overlay.style.cssText = `
+            position:fixed;inset:0;z-index:99999;
+            background:var(--neuro-bg,#f0f0f3);
+            overflow-y:auto;font-family:var(--font-body,sans-serif);`;
 
         overlay.innerHTML = `
             <!-- Header -->
-            <div class="admin-dash-header">
-                <div class="admin-dash-header-left">
-                    <span class="admin-dash-header-icon">🛡️</span>
+            <div style="position:sticky;top:0;z-index:10;
+                        background:rgba(139,92,246,0.92);backdrop-filter:blur(12px);
+                        padding:16px 20px;display:flex;align-items:center;justify-content:space-between;
+                        box-shadow:0 2px 20px rgba(139,92,246,0.3);">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:1.4rem;">🛡️</span>
                     <div>
-                        <div class="admin-dash-title">Admin Dashboard</div>
-                        <div id="adminDashSubtitle" class="admin-dash-subtitle">Loading...</div>
+                        <div style="font-size:1rem;font-weight:700;color:#fff;letter-spacing:0.5px;">Admin Dashboard</div>
+                        <div id="adminDashSubtitle" style="font-size:0.72rem;color:rgba(255,255,255,0.7);">Loading...</div>
                     </div>
                 </div>
-                <div class="admin-dash-header-right">
-                    <button onclick="AdminDashboard.refreshAll()" class="admin-dash-refresh-btn">
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <button onclick="AdminDashboard.refreshAll()"
+                            style="padding:6px 14px;border-radius:99px;border:1px solid rgba(255,255,255,0.3);
+                                   background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:0.82rem;">
                         ↻ Refresh
                     </button>
-                    <button onclick="AdminDashboard.closeDashboard()" class="admin-dash-close-btn">
+                    <button onclick="AdminDashboard.closeDashboard()"
+                            style="width:32px;height:32px;border-radius:50%;border:none;
+                                   background:rgba(255,255,255,0.2);color:#fff;cursor:pointer;font-size:1.1rem;">
                         ✕
                     </button>
                 </div>
             </div>
 
             <!-- Content -->
-            <div class="admin-dash-content">
+            <div style="max-width:900px;margin:0 auto;padding:20px 16px 60px;">
 
                 <!-- Notifications -->
                 ${this._sectionShell('notifications', '📬 Notifications', true)}
@@ -235,13 +249,13 @@ const AdminDashboard = {
     _sectionShell(id, title, startOpen = false) {
         const open = startOpen;
         return `
-        <div class="admin-sec-shell">
+        <div style="margin-bottom:12px;">
             <div class="admin-section-header" onclick="AdminDashboard.toggleSection('${id}')">
-                <span class="admin-sec-title">${title}</span>
-                <span id="adminSecToggle_${id}" class="admin-sec-toggle">${open ? '▼' : '▶'}</span>
+                <span style="font-size:0.92rem;font-weight:700;color:var(--neuro-text,#333);">${title}</span>
+                <span id="adminSecToggle_${id}" style="font-size:0.8rem;color:rgba(139,92,246,0.7);">${open ? '▼' : '▶'}</span>
             </div>
             <div id="adminSec_${id}" class="admin-section-body" style="display:${open ? 'block' : 'none'};">
-                <div id="adminSecContent_${id}" class="admin-sec-loading">
+                <div id="adminSecContent_${id}" style="color:var(--text-muted,#888);font-size:0.83rem;padding:8px;">
                     Loading...
                 </div>
             </div>
@@ -280,7 +294,7 @@ const AdminDashboard = {
     async _loadSection(id) {
         const el = document.getElementById(`adminSecContent_${id}`);
         if (!el) return;
-        el.innerHTML = '<div class="admin-sec-loading">Loading...</div>';
+        el.innerHTML = '<div style="color:var(--text-muted,#888);font-size:0.83rem;padding:8px;">Loading...</div>';
 
         try {
             switch (id) {
@@ -294,7 +308,7 @@ const AdminDashboard = {
                 case 'bulk':          await this._renderBulk(el);           break;
             }
         } catch (err) {
-            el.innerHTML = `<div class="admin-sec-error">Failed to load: ${err.message}</div>`;
+            el.innerHTML = `<div style="color:#ef4444;font-size:0.83rem;padding:8px;">Failed to load: ${err.message}</div>`;
         }
     },
 
@@ -305,7 +319,7 @@ const AdminDashboard = {
     async _renderNotifications(el) {
         const notifs = await CommunityDB.getAdminNotifications(30);
         if (!notifs.length) {
-            el.innerHTML = '<div class="admin-sec-loading">No notifications yet.</div>';
+            el.innerHTML = '<div style="color:var(--text-muted,#888);padding:8px;font-size:0.83rem;">No notifications yet.</div>';
             return;
         }
 
@@ -313,30 +327,35 @@ const AdminDashboard = {
         const unread   = notifs.filter(n => !n.read).length;
 
         el.innerHTML = `
-            <div class="admin-notif-header">
-                <span class="admin-notif-count">${unread} unread of ${notifs.length}</span>
-                <button onclick="AdminDashboard._markAllRead()" class="admin-notif-mark-btn">Mark all read</button>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <span style="font-size:0.82rem;color:var(--text-muted,#888);">${unread} unread of ${notifs.length}</span>
+                <button onclick="AdminDashboard._markAllRead()"
+                        style="padding:4px 12px;border-radius:99px;border:1px solid rgba(139,92,246,0.3);
+                               background:rgba(139,92,246,0.08);color:rgba(139,92,246,0.9);
+                               font-size:0.78rem;cursor:pointer;">Mark all read</button>
             </div>
             ${notifs.map(n => `
                 <div class="admin-notif-row ${n.read ? '' : 'unread'}" id="adminNotif_${n.id}">
-                    <span class="admin-notif-icon">${typeIcon[n.type] || '📋'}</span>
-                    <div class="admin-notif-body">
-                        <div class="admin-notif-meta">
-                            <span class="admin-notif-type">${n.type}</span>
-                            <span class="admin-notif-time">${this._timeAgo(n.created_at)}</span>
+                    <span style="font-size:1.2rem;flex-shrink:0;">${typeIcon[n.type] || '📋'}</span>
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                            <span style="font-size:0.82rem;font-weight:600;text-transform:capitalize;">${n.type}</span>
+                            <span style="font-size:0.72rem;color:var(--text-muted,#888);">${this._timeAgo(n.created_at)}</span>
                         </div>
-                        <div class="admin-notif-from">
+                        <div style="font-size:0.82rem;color:var(--text-muted,#888);">
                             From: <strong>${n.payload?.sender_name || 'Unknown'}</strong>
                             ${n.payload?.room ? `· ${n.payload.room}` : ''}
                         </div>
-                        ${n.payload?.message  ? `<div class="admin-notif-text admin-notif-text--italic">"${this._esc(n.payload.message)}"</div>` : ''}
-                        ${n.payload?.reason   ? `<div class="admin-notif-text">Reason: ${this._esc(n.payload.reason)}</div>` : ''}
-                        ${n.payload?.details  ? `<div class="admin-notif-text admin-notif-text--muted">${this._esc(n.payload.details)}</div>` : ''}
-                        ${n.payload?.issueType ? `<div class="admin-notif-text">Type: ${this._esc(n.payload.issueType)}</div>` : ''}
-                        ${n.payload?.description ? `<div class="admin-notif-text admin-notif-text--muted">${this._esc(n.payload.description)}</div>` : ''}
+                        ${n.payload?.message  ? `<div style="font-size:0.82rem;margin-top:4px;font-style:italic;">"${this._esc(n.payload.message)}"</div>` : ''}
+                        ${n.payload?.reason   ? `<div style="font-size:0.82rem;margin-top:4px;">Reason: ${this._esc(n.payload.reason)}</div>` : ''}
+                        ${n.payload?.details  ? `<div style="font-size:0.82rem;color:var(--text-muted,#888);">${this._esc(n.payload.details)}</div>` : ''}
+                        ${n.payload?.issueType ? `<div style="font-size:0.82rem;margin-top:4px;">Type: ${this._esc(n.payload.issueType)}</div>` : ''}
+                        ${n.payload?.description ? `<div style="font-size:0.82rem;color:var(--text-muted,#888);">${this._esc(n.payload.description)}</div>` : ''}
                     </div>
                     ${!n.read ? `
-                    <button onclick="AdminDashboard._markRead(${n.id})" class="admin-notif-read-btn">
+                    <button onclick="AdminDashboard._markRead(${n.id})"
+                            style="flex-shrink:0;padding:3px 8px;border-radius:6px;border:none;cursor:pointer;
+                                   font-size:0.72rem;background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.8);">
                         ✓ Read
                     </button>` : ''}
                 </div>`).join('')}`;
@@ -359,17 +378,22 @@ const AdminDashboard = {
             const activity = presence?.activity || '💤 Offline';
             const dot      = status === 'online' ? '#22c55e' : status === 'away' ? '#f59e0b' : '#aaa';
             return `
-                <div class="admin-member-row" onclick="MemberProfileModal?.open('${p.id}')">
-                    <div class="admin-member-avatar" style="background:${Core.getAvatarGradient(p.id)};">
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;
+                            margin-bottom:4px;background:rgba(255,255,255,0.5);cursor:pointer;"
+                     onclick="MemberProfileModal?.open('${p.id}')">
+                    <div style="width:32px;height:32px;border-radius:50%;
+                                background:${Core.getAvatarGradient(p.id)};
+                                display:flex;align-items:center;justify-content:center;
+                                font-size:0.9rem;color:#fff;flex-shrink:0;overflow:hidden;">
                         ${p.avatar_url
-                            ? `<img src="${p.avatar_url}" class="admin-member-avatar-img">`
+                            ? `<img src="${p.avatar_url}" style="width:100%;height:100%;object-fit:cover;">`
                             : (p.emoji || (p.name || '?').charAt(0))}
                     </div>
-                    <div class="admin-member-info">
-                        <div class="admin-member-name">${this._esc(p.name || 'Member')}</div>
-                        <div class="admin-member-activity">${this._esc(activity)}</div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:0.85rem;font-weight:600;">${this._esc(p.name || 'Member')}</div>
+                        <div style="font-size:0.75rem;color:var(--text-muted,#888);">${this._esc(activity)}</div>
                     </div>
-                    <span class="admin-member-dot" style="background:${dot};"></span>
+                    <span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;background:${dot};"></span>
                 </div>`;
         };
 
@@ -379,19 +403,21 @@ const AdminDashboard = {
         const offlineList = allProfiles.filter(p => !activeIds.has(p.id));
 
         el.innerHTML = `
-            <div class="admin-stat-grid admin-stat-grid--mb">
+            <div class="admin-stat-grid" style="margin-bottom:16px;">
                 ${this._statCard(stats.total || 0, 'Total Members')}
                 ${this._statCard(stats.onlineNow || 0, 'Online Now')}
                 ${this._statCard(stats.newThisWeek || 0, 'New This Week')}
                 ${this._statCard(offlineList.length, 'Offline')}
             </div>
 
-            <div class="admin-section-label">🟢 Online & Away</div>
+            <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+                        color:var(--text-muted,#888);margin-bottom:8px;">🟢 Online & Away</div>
             ${activeList.length
                 ? activeList.map(m => renderMember(m.profiles || { id: m.user_id, name: 'Member' }, m)).join('')
-                : '<div class="admin-empty">No members online.</div>'}
+                : '<div style="color:var(--text-muted,#888);font-size:0.83rem;margin-bottom:12px;">No members online.</div>'}
 
-            <div class="admin-section-label admin-section-label--mt">⚫ Offline (${offlineList.length})</div>
+            <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+                        color:var(--text-muted,#888);margin:12px 0 8px;">⚫ Offline (${offlineList.length})</div>
             ${offlineList.map(p => renderMember(p, null)).join('')}`;
     },
 
@@ -428,22 +454,25 @@ const AdminDashboard = {
 
         const renderList = (list, key) => list.length
             ? list.map((r, i) => `
-                <div class="admin-lb-row">
-                    <span class="admin-lb-medal">${['🥇','🥈','🥉'][i] || '·'}</span>
-                    <span class="admin-lb-emoji">${r.profiles?.emoji || ''}</span>
-                    <span class="admin-lb-name">${this._esc(r.profiles?.name || 'Member')}</span>
-                    <span class="admin-lb-value">${r.payload?.[key] || 0}</span>
+                <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;
+                            margin-bottom:4px;background:rgba(255,255,255,0.5);">
+                    <span style="font-size:1rem;">${['🥇','🥈','🥉'][i] || '·'}</span>
+                    <span style="font-size:0.9rem;">${r.profiles?.emoji || ''}</span>
+                    <span style="flex:1;font-size:0.85rem;font-weight:600;">${this._esc(r.profiles?.name || 'Member')}</span>
+                    <span style="font-size:0.85rem;font-weight:700;color:rgba(139,92,246,0.9);">${r.payload?.[key] || 0}</span>
                 </div>`).join('')
-            : '<div class="admin-empty">No data yet.</div>';
+            : '<div style="color:var(--text-muted,#888);font-size:0.83rem;">No data yet.</div>';
 
         el.innerHTML = `
-            <div class="admin-2col-grid">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                 <div>
-                    <div class="admin-section-label">⭐ Top XP</div>
+                    <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+                                color:var(--text-muted,#888);margin-bottom:8px;">⭐ Top XP</div>
                     ${renderList(lb.xp, 'xp')}
                 </div>
                 <div>
-                    <div class="admin-section-label">🌀 Top Karma</div>
+                    <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+                                color:var(--text-muted,#888);margin-bottom:8px;">🌀 Top Karma</div>
                     ${renderList(lb.karma, 'karma')}
                 </div>
             </div>`;
@@ -453,7 +482,7 @@ const AdminDashboard = {
         const rooms = await CommunityDB.getRoomUsageToday();
 
         if (!rooms.length) {
-            el.innerHTML = '<div class="admin-empty">No room entries logged today yet.</div>';
+            el.innerHTML = '<div style="color:var(--text-muted,#888);font-size:0.83rem;">No room entries logged today yet.</div>';
             return;
         }
 
@@ -470,7 +499,7 @@ const AdminDashboard = {
                     ${rooms.map(r => {
                         const avg = r.entries > 0 ? Math.round(r.totalSeconds / r.entries) : 0;
                         return `<tr>
-                            <td class="admin-table-bold">${this._formatRoomId(r.room_id)}</td>
+                            <td style="font-weight:600;">${this._formatRoomId(r.room_id)}</td>
                             <td>${r.entries}</td>
                             <td>${this._formatDuration(avg)}</td>
                         </tr>`;
@@ -484,27 +513,35 @@ const AdminDashboard = {
         const signals = await CommunityDB.getRetentionSignals();
 
         el.innerHTML = `
-            <div class="admin-2col-grid">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                 <div>
-                    <div class="admin-section-label">😶 Going Quiet</div>
-                    <div class="admin-section-sublabel">Active last week, not this week</div>
+                    <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+                                color:var(--text-muted,#888);margin-bottom:8px;">😶 Going Quiet</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted,#888);margin-bottom:8px;">Active last week, not this week</div>
                     ${signals.quietMembers?.length
                         ? signals.quietMembers.map(id => `
-                            <div class="admin-quiet-row" onclick="MemberProfileModal?.open('${id}')">
+                            <div style="padding:6px 10px;border-radius:8px;margin-bottom:4px;
+                                        background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.12);
+                                        font-size:0.83rem;cursor:pointer;"
+                                 onclick="MemberProfileModal?.open('${id}')">
                                 ${id.substring(0, 8)}...
                             </div>`).join('')
-                        : '<div class="admin-empty">None — great retention! 🎉</div>'}
+                        : '<div style="color:var(--text-muted,#888);font-size:0.83rem;">None — great retention! 🎉</div>'}
                 </div>
                 <div>
-                    <div class="admin-section-label">🔥 Consistent</div>
-                    <div class="admin-section-sublabel">Active last 3 days</div>
+                    <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+                                color:var(--text-muted,#888);margin-bottom:8px;">🔥 Consistent</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted,#888);margin-bottom:8px;">Active last 3 days</div>
                     ${signals.streakMembers?.length
                         ? signals.streakMembers.map(m => `
-                            <div class="admin-streak-row" onclick="MemberProfileModal?.open('${m.user_id}')">
+                            <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;
+                                        margin-bottom:4px;background:rgba(34,197,94,0.06);
+                                        border:1px solid rgba(34,197,94,0.15);cursor:pointer;"
+                                 onclick="MemberProfileModal?.open('${m.user_id}')">
                                 <span>${m.emoji || '🧘'}</span>
-                                <span class="admin-streak-name">${this._esc(m.name || 'Member')}</span>
+                                <span style="font-size:0.83rem;font-weight:600;">${this._esc(m.name || 'Member')}</span>
                             </div>`).join('')
-                        : '<div class="admin-empty">No data yet.</div>'}
+                        : '<div style="color:var(--text-muted,#888);font-size:0.83rem;">No data yet.</div>'}
                 </div>
             </div>`;
     },
@@ -525,82 +562,123 @@ const AdminDashboard = {
         this._bulkSelected = new Set();
 
         el.innerHTML = `
-            <div class="admin-bulk-wrap">
+            <div style="margin-bottom:16px;">
 
                 <!-- Member selector -->
-                <div class="admin-bulk-selector">
-                    <div class="admin-bulk-header">
-                        <div class="admin-section-label">Select Members</div>
-                        <div class="admin-bulk-btn-group">
-                            <button onclick="AdminDashboard._bulkSelectAll()" class="admin-bulk-pill-btn admin-bulk-pill-btn--active">All</button>
-                            <button onclick="AdminDashboard._bulkSelectNone()" class="admin-bulk-pill-btn">None</button>
+                <div style="margin-bottom:12px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                        <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;
+                                    letter-spacing:0.5px;color:var(--text-muted,#888);">Select Members</div>
+                        <div style="display:flex;gap:8px;">
+                            <button onclick="AdminDashboard._bulkSelectAll()"
+                                    style="padding:4px 10px;border-radius:99px;border:1px solid rgba(139,92,246,0.3);
+                                           background:rgba(139,92,246,0.08);color:rgba(139,92,246,0.9);
+                                           font-size:0.75rem;font-weight:600;cursor:pointer;">All</button>
+                            <button onclick="AdminDashboard._bulkSelectNone()"
+                                    style="padding:4px 10px;border-radius:99px;border:1px solid rgba(0,0,0,0.1);
+                                           background:none;color:var(--text-muted,#888);
+                                           font-size:0.75rem;font-weight:600;cursor:pointer;">None</button>
                         </div>
                     </div>
 
                     <!-- Search -->
                     <input id="bulkMemberSearch" type="text" placeholder="Search members..."
                            oninput="AdminDashboard._bulkFilterMembers(this.value)"
-                           class="admin-bulk-input admin-bulk-input--mb">
+                           style="width:100%;padding:8px 12px;border-radius:10px;
+                                  border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);
+                                  color:var(--neuro-text);font-size:0.85rem;box-sizing:border-box;margin-bottom:8px;">
 
                     <!-- Member list -->
-                    <div id="bulkMemberList" class="admin-bulk-list">
+                    <div id="bulkMemberList"
+                         style="max-height:220px;overflow-y:auto;border-radius:12px;
+                                border:1px solid rgba(0,0,0,0.07);background:var(--surface,#fff);padding:6px;">
                         ${this._bulkMembers.map(m => `
-                            <label id="bulkRow_${m.id}" class="admin-bulk-row"
+                            <label id="bulkRow_${m.id}"
+                                   style="display:flex;align-items:center;gap:10px;padding:8px 10px;
+                                          border-radius:8px;cursor:pointer;transition:background 0.1s;"
                                    onmouseover="this.style.background='rgba(139,92,246,0.06)'"
                                    onmouseout="this.style.background='none'">
                                 <input type="checkbox" value="${m.id}"
                                        onchange="AdminDashboard._bulkToggle('${m.id}', this.checked)"
-                                       class="admin-bulk-checkbox">
-                                <span class="admin-bulk-name-emoji">${m.emoji || '👤'}</span>
-                                <span class="admin-bulk-member-name">${this._esc(m.name || 'Member')}</span>
-                                <span class="admin-bulk-member-role">${this._esc(m.community_role || 'Member')}</span>
+                                       style="width:16px;height:16px;cursor:pointer;accent-color:rgba(139,92,246,0.9);">
+                                <span style="font-size:1.1rem;">${m.emoji || '👤'}</span>
+                                <span style="font-size:0.85rem;font-weight:600;color:var(--neuro-text);">${this._esc(m.name || 'Member')}</span>
+                                <span style="font-size:0.75rem;color:var(--text-muted,#888);margin-left:auto;">${this._esc(m.community_role || 'Member')}</span>
                             </label>`).join('')}
                     </div>
 
                     <!-- Selected count -->
-                    <div id="bulkSelectedCount" class="admin-bulk-count">
+                    <div id="bulkSelectedCount"
+                         style="font-size:0.78rem;color:var(--text-muted,#888);margin-top:6px;text-align:right;">
                         0 members selected
                     </div>
                 </div>
 
                 <!-- Divider -->
-                <div class="admin-bulk-divider"></div>
+                <div style="border-top:1px solid rgba(0,0,0,0.07);margin:16px 0;"></div>
 
                 <!-- Action tabs -->
-                <div class="admin-bulk-tabs" id="bulkTabBar">
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;" id="bulkTabBar">
                     ${[['xp','🎁 XP'],['karma','🌀 Karma'],['badge','🏅 Badge'],['unlock','🔓 Unlock'],['message','💬 Message']]
                         .map(([id,label],i) => `
                         <button onclick="AdminDashboard._bulkShowTab('${id}')"
                                 id="bulkTab_${id}"
-                                class="admin-bulk-tab ${i===0 ? 'admin-bulk-tab--active' : ''}">
+                                style="padding:6px 14px;border-radius:99px;border:none;cursor:pointer;
+                                       font-size:0.8rem;font-weight:600;transition:all 0.15s;
+                                       ${i===0
+                                         ? 'background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);'
+                                         : 'background:rgba(0,0,0,0.05);color:var(--text-muted,#888);'}">
                             ${label}
                         </button>`).join('')}
                 </div>
 
                 <!-- XP panel -->
                 <div id="bulkPanel_xp">
-                    <div class="admin-bulk-panel-desc">Send XP to all selected members</div>
-                    <div class="admin-bulk-action-row">
+                    <div style="font-size:0.82rem;color:var(--text-muted,#888);margin-bottom:8px;">
+                        Send XP to all selected members
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;">
                         <input id="bulkXpAmount" type="number" min="1" value="100" placeholder="XP amount"
-                               class="admin-bulk-input admin-bulk-input--flex">
-                        <button onclick="AdminDashboard._bulkSendXP()" class="admin-bulk-action-btn">Send XP</button>
+                               style="flex:1;padding:8px 12px;border-radius:10px;
+                                      border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);
+                                      color:var(--neuro-text);font-size:0.88rem;">
+                        <button onclick="AdminDashboard._bulkSendXP()"
+                                style="padding:8px 18px;border-radius:10px;border:none;cursor:pointer;
+                                       font-size:0.88rem;font-weight:700;
+                                       background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);">
+                            Send XP
+                        </button>
                     </div>
                 </div>
 
                 <!-- Karma panel -->
                 <div id="bulkPanel_karma" style="display:none;">
-                    <div class="admin-bulk-panel-desc">Send Karma to all selected members</div>
-                    <div class="admin-bulk-action-row">
+                    <div style="font-size:0.82rem;color:var(--text-muted,#888);margin-bottom:8px;">
+                        Send Karma to all selected members
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;">
                         <input id="bulkKarmaAmount" type="number" min="1" value="10" placeholder="Karma amount"
-                               class="admin-bulk-input admin-bulk-input--flex">
-                        <button onclick="AdminDashboard._bulkSendKarma()" class="admin-bulk-action-btn">Send Karma</button>
+                               style="flex:1;padding:8px 12px;border-radius:10px;
+                                      border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);
+                                      color:var(--neuro-text);font-size:0.88rem;">
+                        <button onclick="AdminDashboard._bulkSendKarma()"
+                                style="padding:8px 18px;border-radius:10px;border:none;cursor:pointer;
+                                       font-size:0.88rem;font-weight:700;
+                                       background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);">
+                            Send Karma
+                        </button>
                     </div>
                 </div>
 
                 <!-- Badge panel -->
                 <div id="bulkPanel_badge" style="display:none;">
-                    <div class="admin-bulk-panel-desc">Send a badge to all selected members</div>
-                    <select id="bulkBadgeSelect" class="admin-bulk-select">
+                    <div style="font-size:0.82rem;color:var(--text-muted,#888);margin-bottom:8px;">
+                        Send a badge to all selected members
+                    </div>
+                    <select id="bulkBadgeSelect"
+                            style="width:100%;padding:8px 12px;border-radius:10px;margin-bottom:10px;
+                                   border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);
+                                   color:var(--neuro-text);font-size:0.88rem;">
                         <option value="first_step">🌱 First Step</option>
                         <option value="triple_threat">🎪 Triple Threat</option>
                         <option value="moon_walker">🌙 Moon Walker</option>
@@ -610,28 +688,54 @@ const AdminDashboard = {
                         <option value="community_heart">💜 Community Heart</option>
                         <option value="deep_diver">🔱 Deep Diver</option>
                     </select>
-                    <button onclick="AdminDashboard._bulkSendBadge()" class="admin-bulk-action-btn admin-bulk-action-btn--full">Send Badge</button>
+                    <button onclick="AdminDashboard._bulkSendBadge()"
+                            style="width:100%;padding:8px 18px;border-radius:10px;border:none;cursor:pointer;
+                                   font-size:0.88rem;font-weight:700;
+                                   background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);">
+                        Send Badge
+                    </button>
                 </div>
 
                 <!-- Unlock panel -->
                 <div id="bulkPanel_unlock" style="display:none;">
-                    <div class="admin-bulk-panel-desc">Unlock a feature for all selected members</div>
-                    <select id="bulkUnlockSelect" class="admin-bulk-select">
+                    <div style="font-size:0.82rem;color:var(--text-muted,#888);margin-bottom:8px;">
+                        Unlock a feature for all selected members
+                    </div>
+                    <select id="bulkUnlockSelect"
+                            style="width:100%;padding:8px 12px;border-radius:10px;margin-bottom:10px;
+                                   border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);
+                                   color:var(--neuro-text);font-size:0.88rem;">
                         <option value="premium_rooms">Premium Rooms</option>
                         <option value="extended_history">Extended History</option>
                         <option value="custom_themes">Custom Themes</option>
                         <option value="advanced_analytics">Advanced Analytics</option>
                         <option value="priority_support">Priority Support</option>
                     </select>
-                    <button onclick="AdminDashboard._bulkSendUnlock()" class="admin-bulk-action-btn admin-bulk-action-btn--full">Unlock Feature</button>
+                    <button onclick="AdminDashboard._bulkSendUnlock()"
+                            style="width:100%;padding:8px 18px;border-radius:10px;border:none;cursor:pointer;
+                                   font-size:0.88rem;font-weight:700;
+                                   background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);">
+                        Unlock Feature
+                    </button>
                 </div>
 
                 <!-- Message panel -->
                 <div id="bulkPanel_message" style="display:none;">
-                    <div class="admin-bulk-panel-desc">Broadcast a message to all selected members — appears in their Whispers inbox</div>
+                    <div style="font-size:0.82rem;color:var(--text-muted,#888);margin-bottom:8px;">
+                        Broadcast a message to all selected members — appears in their Whispers inbox
+                    </div>
                     <textarea id="bulkMessageText" placeholder="Write your message..."
-                              rows="4" class="admin-bulk-textarea"></textarea>
-                    <button onclick="AdminDashboard._bulkSendMessage()" class="admin-bulk-action-btn admin-bulk-action-btn--full">Send Message</button>
+                              rows="4"
+                              style="width:100%;padding:10px 12px;border-radius:10px;
+                                     border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);
+                                     color:var(--neuro-text);font-size:0.88rem;
+                                     resize:vertical;box-sizing:border-box;margin-bottom:10px;"></textarea>
+                    <button onclick="AdminDashboard._bulkSendMessage()"
+                            style="width:100%;padding:8px 18px;border-radius:10px;border:none;cursor:pointer;
+                                   font-size:0.88rem;font-weight:700;
+                                   background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);">
+                        Send Message
+                    </button>
                 </div>
 
             </div>`;
@@ -680,7 +784,8 @@ const AdminDashboard = {
             if (!panel || !btn) return;
             const active = id === tab;
             panel.style.display = active ? 'block' : 'none';
-            btn.classList.toggle('admin-bulk-tab--active', active);
+            btn.style.background = active ? 'rgba(139,92,246,0.15)' : 'rgba(0,0,0,0.05)';
+            btn.style.color      = active ? 'rgba(139,92,246,0.9)'  : 'var(--text-muted,#888)';
         });
     },
 

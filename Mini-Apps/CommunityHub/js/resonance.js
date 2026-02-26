@@ -54,7 +54,7 @@ const Resonance = {
             <section class="section" id="resonanceContent">
                 <div class="section-header">
                     <div class="section-title">Resonance</div>
-                    <div class="section-subtitle">Community energy field</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">Community energy field</div>
                 </div>
                 <div class="resonance-container">
                     <!-- Resonance visualization will go here -->

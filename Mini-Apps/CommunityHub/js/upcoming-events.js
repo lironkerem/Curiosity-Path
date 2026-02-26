@@ -202,13 +202,13 @@ const UpcomingEvents = {
         <section class="section">
             <div class="section-header">
                 <div class="section-title">Upcoming Events</div>
-                <div class="ue-header-row">
-                    <div class="section-subtitle">Group classes & private sessions</div>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="font-size: 12px; color: var(--text-muted);">Group classes & private sessions</div>
                     <!-- Admin button injected by injectAdminUI() after Core loads user -->
                 </div>
             </div>
             
-            <div class="ue-grid">
+            <div class="events-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
                 ${this.getClassesCardHTML()}
                 ${this.getSessionsCardHTML()}
             </div>
@@ -223,7 +223,7 @@ const UpcomingEvents = {
     getClassesCardHTML() {
         const data = this.classes[0];
         return `
-        <div class="event-card classes-card">
+        <div class="event-card classes-card" style="position: relative; overflow: hidden;">
             ${this.getFlyerHTML(data, 'classesImage', this.classes.length)}
             ${this.getContentHTML(data, 'classesContent', 'Register via WhatsApp')}
         </div>
@@ -237,7 +237,7 @@ const UpcomingEvents = {
     getSessionsCardHTML() {
         const data = this.sessions[0];
         return `
-        <div class="event-card sessions-card">
+        <div class="event-card sessions-card" style="position: relative; overflow: hidden;">
             ${this.getFlyerHTML(data, 'sessionsImage', this.sessions.length)}
             ${this.getContentHTML(data, 'sessionsContent', 'Book via WhatsApp')}
         </div>
@@ -253,20 +253,20 @@ const UpcomingEvents = {
      */
     getFlyerHTML(data, imageId, totalItems) {
         const dots = Array.from({ length: totalItems }, (_, i) => 
-            `<span class="dot ue-dot ${i === 0 ? 'active' : ''}" 
+            `<span class="dot ${i === 0 ? 'active' : ''}" 
                    data-index="${i}" 
-                   style="opacity: ${i === 0 ? '1' : '0.5'};"></span>`
+                   style="width: 8px; height: 8px; border-radius: 50%; background: white; opacity: ${i === 0 ? '1' : '0.5'};"></span>`
         ).join('');
 
         return `
-        <div class="event-flyer">
+        <div class="event-flyer" style="position: relative; height: 450px; overflow: hidden; background: var(--surface);">
             <img src="${this.escapeHtml(data.image)}" 
                  alt="${this.escapeHtml(data.title)}" 
                  id="${imageId}"
                  onclick="UpcomingEvents.openLightbox(this.src)"
-                 class="ue-flyer-img-main"
-                 style="transition: opacity ${this.config.FADE_DURATION}ms ease;">
-            <div class="flyer-indicator">
+                 style="width: 100%; height: 100%; object-fit: contain; transition: opacity ${this.config.FADE_DURATION}ms ease;
+                        cursor: zoom-in;">
+            <div class="flyer-indicator" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px;">
                 ${dots}
             </div>
         </div>
@@ -281,8 +281,12 @@ const UpcomingEvents = {
             display:flex;align-items:center;justify-content:center;
             cursor:zoom-out;opacity:0;transition:opacity 0.25s ease;`;
         lb.innerHTML = `
-            <img src="${src}" class="ue-lightbox-img">
-            <button onclick="UpcomingEvents.closeLightbox()" class="ue-lightbox-close">✕</button>`;
+            <img src="${src}" style="max-width:94vw;max-height:94vh;object-fit:contain;
+                border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.6);
+                transform:scale(0.95);transition:transform 0.25s ease;">
+            <button onclick="UpcomingEvents.closeLightbox()"
+                    style="position:absolute;top:18px;right:22px;background:none;border:none;
+                           cursor:pointer;font-size:28px;color:#fff;opacity:0.7;line-height:1;">✕</button>`;
         document.body.appendChild(lb);
         document.body.style.overflow = 'hidden';
 
@@ -322,20 +326,20 @@ const UpcomingEvents = {
      */
     getContentHTML(data, contentId, ctaText) {
         return `
-        <div class="event-content" id="${contentId}">
-            <div class="event-type">
+        <div class="event-content" id="${contentId}" style="padding: 20px;">
+            <div class="event-type" style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
                 ${this.escapeHtml(data.type)}
             </div>
-            <h3 class="event-heading">
+            <h3 class="event-heading" style="font-family: var(--serif); font-size: 20px; margin-bottom: 4px;">
                 ${this.escapeHtml(data.title)}
             </h3>
-            <div class="event-subheading">
+            <div class="event-subheading" style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">
                 ${this.escapeHtml(data.subtitle)}
             </div>
-            <div class="event-info">
+            <div class="event-info" style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; padding: 12px; background: var(--surface); border-radius: var(--radius-sm); border-left: 3px solid var(--accent);">
                 ${this.escapeHtml(data.info)}
             </div>
-            <div class="event-datetime">
+            <div class="event-datetime" style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
                 📅 ${this.escapeHtml(data.datetime)}
             </div>
             ${this.getButtonHTML(data.whatsapp, ctaText)}
@@ -351,8 +355,21 @@ const UpcomingEvents = {
      */
     getButtonHTML(url, text) {
         return `
-        <button class="event-btn"
-                onclick="UpcomingEvents.openWhatsApp('${this.escapeHtml(url)}')">
+        <button class="event-btn" 
+                onclick="UpcomingEvents.openWhatsApp('${this.escapeHtml(url)}')" 
+                style="width: 100%;
+                       padding: 14px 24px;
+                       background: var(--primary);
+                       color: var(--season-mood);
+                       border: none;
+                       border-radius: var(--radius-md);
+                       font-size: 15px;
+                       font-weight: 700;
+                       cursor: pointer;
+                       transition: all var(--transition-normal);
+                       box-shadow: var(--shadow-raised);
+                       text-transform: uppercase;
+                       letter-spacing: 0.5px;">
             ${this.escapeHtml(text)}
         </button>
         `;
@@ -617,17 +634,23 @@ const UpcomingEvents = {
             { id: 'sessions1', label: 'Right Flyer 2 ▶' },
         ];
         return `
-        <div class="ue-admin-card">
-            <button onclick="UpcomingEvents.closeAdminModal()" class="ue-admin-close">✕</button>
+        <div style="background:var(--neuro-bg,#f0f0f3);border-radius:20px;padding:24px;
+                    max-width:560px;width:94%;max-height:90vh;overflow-y:auto;position:relative;
+                    box-shadow:8px 8px 20px rgba(0,0,0,0.2);">
+            <button onclick="UpcomingEvents.closeAdminModal()"
+                    style="position:absolute;top:14px;right:16px;background:none;border:none;
+                           cursor:pointer;font-size:18px;opacity:0.5;">✕</button>
 
-            <div class="ue-admin-label">🛡️ Update Flyers</div>
+            <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+                        color:rgba(139,92,246,0.9);margin-bottom:16px;">🛡️ Update Flyers</div>
 
             <!-- 4 tabs in a 2x2 grid -->
-            <div class="ue-admin-tabs">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;">
                 ${tabs.map((t, i) => `
                 <button id="adminTab_${t.id}" onclick="UpcomingEvents._switchAdminTab('${t.id}')"
-                        class="ue-admin-tab"
-                        style="${i === 0 ? 'background:rgba(139,92,246,0.85);color:#fff;' : 'background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.9);'}">
+                        style="padding:9px;border-radius:10px;border:none;cursor:pointer;
+                               font-size:0.82rem;font-weight:600;
+                               ${i === 0 ? 'background:rgba(139,92,246,0.85);color:#fff;' : 'background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.9);'}">
                     ${t.label}
                 </button>`).join('')}
             </div>
@@ -636,9 +659,18 @@ const UpcomingEvents = {
             <div id="adminTabContent"></div>
 
             <!-- Save -->
-            <div class="ue-admin-btns">
-                <button onclick="UpcomingEvents._adminSave()" class="ue-admin-save">Save & Publish</button>
-                <button onclick="UpcomingEvents.closeAdminModal()" class="ue-admin-cancel">Cancel</button>
+            <div style="display:flex;gap:10px;margin-top:20px;">
+                <button onclick="UpcomingEvents._adminSave()"
+                        style="flex:1;padding:11px;border-radius:12px;border:none;cursor:pointer;
+                               font-size:0.92rem;font-weight:700;
+                               background:rgba(139,92,246,0.85);color:#fff;">
+                    Save & Publish
+                </button>
+                <button onclick="UpcomingEvents.closeAdminModal()"
+                        style="padding:11px 18px;border-radius:12px;border:none;cursor:pointer;
+                               font-size:0.92rem;background:rgba(0,0,0,0.06);color:var(--neuro-text);">
+                    Cancel
+                </button>
             </div>
         </div>`;
     },
@@ -671,39 +703,49 @@ const UpcomingEvents = {
             const url = this._flyerBase + folder + '/' + f;
             const selected = draft.image === url;
             return `<div onclick="UpcomingEvents._selectFlyer('${tab}','${url}','${f}')"
-                         class="ue-flyer-thumb"
-                         style="border:3px solid ${selected ? 'rgba(139,92,246,0.8)' : 'transparent'};">
-                        <img src="${url}" class="ue-flyer-img">
-                        <div class="ue-flyer-name">${f}</div>
+                         style="cursor:pointer;border-radius:8px;overflow:hidden;
+                                border:3px solid ${selected ? 'rgba(139,92,246,0.8)' : 'transparent'};
+                                transition:border 0.15s;">
+                        <img src="${url}" style="width:100%;height:90px;object-fit:cover;display:block;">
+                        <div style="font-size:10px;text-align:center;padding:2px;color:var(--text-muted);">${f}</div>
                     </div>`;
         }).join('');
 
         const labels = { classes0:'Left Card — Flyer 1', classes1:'Left Card — Flyer 2', sessions0:'Right Card — Flyer 1', sessions1:'Right Card — Flyer 2' };
 
         container.innerHTML = `
-            <div class="ue-edit-label">Editing: ${labels[tab]}</div>
-            <div class="ue-grid-section">
-                <div class="ue-grid-heading">Sessions</div>
-                <div class="ue-flyer-grid">
+            <div style="font-size:0.78rem;font-weight:700;color:rgba(139,92,246,0.8);margin-bottom:12px;
+                        text-transform:uppercase;letter-spacing:0.5px;">Editing: ${labels[tab]}</div>
+            <div style="margin-bottom:14px;">
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+                            color:var(--text-muted);margin-bottom:8px;">Sessions</div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
                     ${flyerGrid('Sessions', sessions)}
                 </div>
-                <div class="ue-grid-heading ue-grid-heading--mt">Workshops</div>
-                <div class="ue-flyer-grid">
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+                            color:var(--text-muted);margin:14px 0 8px;">Workshops</div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
                     ${flyerGrid('Workshops', workshops)}
                 </div>
             </div>
 
-            <div class="ue-fields">
+            <div style="display:flex;flex-direction:column;gap:10px;">
                 <input id="adminField_title" placeholder="Title" value="${this.escapeHtml(draft.title||'')}"
-                       class="ue-admin-field">
+                       style="padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);
+                              font-size:0.88rem;background:var(--neuro-bg);color:var(--neuro-text);width:100%;box-sizing:border-box;">
                 <input id="adminField_subtitle" placeholder="Subtitle" value="${this.escapeHtml(draft.subtitle||'')}"
-                       class="ue-admin-field">
+                       style="padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);
+                              font-size:0.88rem;background:var(--neuro-bg);color:var(--neuro-text);width:100%;box-sizing:border-box;">
                 <textarea id="adminField_info" placeholder="Description" rows="3"
-                          class="ue-admin-field ue-admin-field--textarea">${this.escapeHtml(draft.info||'')}</textarea>
+                          style="padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);
+                                 font-size:0.88rem;background:var(--neuro-bg);color:var(--neuro-text);
+                                 width:100%;box-sizing:border-box;resize:vertical;">${this.escapeHtml(draft.info||'')}</textarea>
                 <input id="adminField_type" placeholder="Type (e.g. 🎴 Online Zoom Class)" value="${this.escapeHtml(draft.type||'')}"
-                       class="ue-admin-field">
+                       style="padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);
+                              font-size:0.88rem;background:var(--neuro-bg);color:var(--neuro-text);width:100%;box-sizing:border-box;">
                 <input id="adminField_datetime" placeholder="Date & Time (e.g. Monday, 10:00 AM GMT+2)" value="${this.escapeHtml(draft.datetime||'')}"
-                       class="ue-admin-field">
+                       style="padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);
+                              font-size:0.88rem;background:var(--neuro-bg);color:var(--neuro-text);width:100%;box-sizing:border-box;">
             </div>
         `;
     },
