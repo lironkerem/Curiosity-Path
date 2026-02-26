@@ -75,30 +75,6 @@
     --neuro-accent-a20: rgba(107, 155, 55, 0.20);
     --neuro-accent-a30: rgba(107, 155, 55, 0.30);
     --neuro-warning-a10: rgba(212, 164, 116, 0.10);
-
-    /* Solar room shared neutrals & utilities */
-    --solar-bg-dark: rgba(0, 0, 0, 0.3);
-    --solar-bg-darker: rgba(0, 0, 0, 0.2);
-    --solar-text-primary: rgba(224, 224, 255, 0.9);
-    --solar-text-secondary: rgba(224, 224, 255, 0.7);
-    --solar-text-muted: rgba(224, 224, 255, 0.5);
-    --solar-border-light: rgba(255, 255, 255, 0.1);
-    --solar-border-medium: rgba(255, 255, 255, 0.15);
-    --solar-border-accent: rgba(212, 165, 116, 0.3);
-    --solar-glow-warm: rgba(244, 164, 96, 0.6);
-    --solar-glow-soft: rgba(212, 165, 116, 0.4);
-    --solar-success: #4ade80;
-
-    /* Solar season defaults (Autumn) — overridden per season below */
-    --season-accent: #d4a574;
-    --season-accent-light: #f4a460;
-    --season-accent-dark: #a67c52;
-    --season-bg-start: #3a1f0f;
-    --season-bg-mid1: #5a3520;
-    --season-bg-mid2: #4a2615;
-    --season-bg-mid3: #6a4530;
-    --season-bg-end: #3a1f0f;
-    --season-sun-glow: rgba(212, 165, 116, 0.4);
 }
 
 /* ===== COMMUNITY HUB SCOPED STYLES ===== */
@@ -130,7 +106,6 @@
 /* RITUAL OVERLAYS */
 .ritual-overlay {
     display: none; align-items: center; justify-content: center;
-    position: fixed; inset: 0;
     z-index: 999; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
 }
 .ritual-overlay.opening { position: fixed; inset: 0; z-index: 2147483646; }
@@ -250,6 +225,25 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     50% { box-shadow: 0 0 0 8px rgba(107, 155, 55, 0); }
 }
 
+.edit-avatar {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 36px;
+    height: 36px;
+    background: var(--neuro-bg-lightest);
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    box-shadow: var(--shadow-raised);
+    transition: transform var(--transition-fast);
+}
+
+.edit-avatar:hover { transform: scale(1.1); }
 
 .profile-info { flex: 1; }
 
@@ -343,6 +337,9 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     letter-spacing: 1px;
 }
 
+@keyframes pulse-send {
+    0%, 100% { transform: scale(1); }
+}
 
 /* SECTION */
 .section { margin-bottom: 48px; }
@@ -531,7 +528,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     min-height: calc(100vh - 80px); /* Subtract header height */
 }
 
-/* Practice Space Body */
+.ps-main { position: relative; }
 
 /* Guided Meditation Styles */
 
@@ -662,6 +659,10 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     50% { transform: scale(1.15); }
     100% { transform: scale(1); }
 }
+
+.status-btn,
+
+.status-btn:hover,
 
 .sound-option {
     display: flex;
@@ -1119,7 +1120,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 .gratitude-container.visible { 
     opacity: 1; 
-    pointer-events: auto; 
+    pointer-events: all; 
 }
 
 /* CHAT SIDEBAR */
@@ -1160,7 +1161,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     font-weight: 600;
     font-size: 16px;
     box-shadow: var(--shadow-raised-lg);
-    pointer-events: auto;
+    pointer-events: all;
 }
 
 .ps-header {
@@ -1951,7 +1952,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     50% { transform: scale(1.05); }
 }
 
-/* Presence Sanctuary (backward compatibility) */
+/* Keep old styles for backward compatibility */
 .presence-sanctuary {
     background: var(--surface);
     border: 2px solid var(--border);
@@ -1961,6 +1962,29 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     text-align: center;
     position: relative;
     box-shadow: var(--shadow-raised);
+}
+
+.breath-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-bottom: 32px;
+}
+
+.breath-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--ring-available);
+    border-radius: 50%;
+    animation: breatheScale 4s infinite;
+}
+
+@keyframes breatheScale {
+    0%, 100% { transform: scale(1); opacity: 0.4; }
+    50% { transform: scale(1.5); opacity: 1; }
 }
 
 /* Section Header */
@@ -2611,6 +2635,27 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 #moonSvg { filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)); }
 
+.moon-info { margin-bottom: 20px; }
+
+.moon-phase-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+}
+
+.moon-illumination {
+    font-size: 16px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.moon-age {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
 /* Solar Visual */
 .solar-visual {
     display: flex;
@@ -2619,6 +2664,15 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 #solarSvg { filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1)); }
+
+.solar-info { margin-bottom: 20px; }
+
+.solar-declination {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+}
 
 /* Celestial Times */
 .celestial-times {
@@ -2888,8 +2942,37 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 /* SOLAR PRACTICE ROOMS | Season-specific visual styles and CSS custom properties */
+/* SOLAR-ROOMS.CSS
+ * Unified styles for all seasonal solar practice rooms
+ * Uses CSS custom properties for season-specific theming
+ */
 
-/* CSS CUSTOM PROPERTIES (THEME VARIABLES) — solar additions */
+/* CSS CUSTOM PROPERTIES (THEME VARIABLES) */
+:root {
+  /* Shared neutrals & utilities */
+  --solar-bg-dark: rgba(0, 0, 0, 0.3);
+  --solar-bg-darker: rgba(0, 0, 0, 0.2);
+  --solar-text-primary: rgba(224, 224, 255, 0.9);
+  --solar-text-secondary: rgba(224, 224, 255, 0.7);
+  --solar-text-muted: rgba(224, 224, 255, 0.5);
+  --solar-border-light: rgba(255, 255, 255, 0.1);
+  --solar-border-medium: rgba(255, 255, 255, 0.15);
+  --solar-border-accent: rgba(212, 165, 116, 0.3);
+  --solar-glow-warm: rgba(244, 164, 96, 0.6);
+  --solar-glow-soft: rgba(212, 165, 116, 0.4);
+  --solar-success: #4ade80;
+  
+  /* Default theme (Autumn) - overridden by season */
+  --season-accent: #d4a574;
+  --season-accent-light: #f4a460;
+  --season-accent-dark: #a67c52;
+  --season-bg-start: #3a1f0f;
+  --season-bg-mid1: #5a3520;
+  --season-bg-mid2: #4a2615;
+  --season-bg-mid3: #6a4530;
+  --season-bg-end: #3a1f0f;
+  --season-sun-glow: rgba(212, 165, 116, 0.4);
+}
 
 /* SEASON-SPECIFIC THEME OVERRIDES | (scoped to Solar Rooms only) */
 body.solar-room-active[data-season="winter"] {
@@ -3663,7 +3746,7 @@ body.solar-room-active[data-season] {
    Follows mobile-styles.css convention: max-width 767px
    ========================================================= */
 
-
+ /* end  /* end  /* end 
 
 /* ===== WAXING MOON - Growing, light gray ===== */
 .waxingmoon-moon-sphere {
@@ -3935,7 +4018,7 @@ body.solar-room-active[data-season] {
 
 
 /* ═══════════════════════════════════════════════════════
-   tablet */
+    /* end  /* end  /* end tablet */
 
 /* =========================================================
    LUNAR ROOMS — MOBILE PATCH
@@ -3962,6 +4045,7 @@ body.solar-room-active[data-season] {
    These override the inline-injected CSS from lunar-ui.js          */
 
 /* Top bar: prevent overflow, proper stacking on mobile */
+ /* end  /* end  /* end tablet */
 
 /* =========================================================
    SOLAR ROOMS — MOBILE PATCH
@@ -3986,6 +4070,7 @@ body.solar-room-active[data-season] {
 /* ═══════════════════════════════════════════════════════
    INNER ROOM — MOBILE  (max-width: 767px)
    ═══════════════════════════════════════════════════════ */
+ /* end  /* end  /* end tablet */
 
 
 /* =========================================================
@@ -4059,9 +4144,11 @@ body.solar-room-active[data-season] {
     padding: 28px;
   }
 
-  .ps-header img[alt]              { max-height: 160px; }
-  .guided-player-container         { max-width: 100%; }
-  .campfire-sidebar-always-visible { width: 200px; }
+.ps-header img[alt]              { max-height: 160px; }
+    .guided-player-container         { max-width: 100%; }
+    .campfire-sidebar-always-visible { width: 200px; }
+    .ps-header { padding: 16px 24px; }
+    .ps-main   { padding: 28px; }
 
 .celestial-card-full.lunar-card {
         padding: 20px 24px;
@@ -4149,8 +4236,15 @@ body.solar-room-active[data-season] {
 
 .profile-stats { justify-content: center; }
 
-/* rooms-grid, presence-widget, campfire-sidebar and ps-sidebar are
-   fully specified in the detailed subsections below */
+.rooms-grid { grid-template-columns: 1fr; }
+
+.campfire-sidebar-always-visible { width: 240px; }
+    
+.campfire-messages { padding: 16px; }
+
+.presence-widget { padding: 24px; }
+    
+.ps-sidebar { width: 100%; }
 
 .profile-meta { justify-content: center; }
 
@@ -4199,6 +4293,17 @@ body.solar-room-active[data-season] {
 .room-meta-inline {
         width: 100%;
         justify-content: space-between;
+    }
+
+.solar-practices-grid { grid-template-columns: 1fr; }
+    .whatsapp-float {
+        left: 10px;
+        padding: 14px 10px;
+    }
+.whatsapp-float span { font-size: 12px; }
+    .whatsapp-float img {
+        width: 24px;
+        height: 24px;
     }
 
 /* ===== LAYOUT ===== */
@@ -4890,6 +4995,30 @@ body.solar-room-active[data-season] {
     max-width: 100%;
   }
 
+.presence-count {
+    font-size: clamp(1.75rem, 9vw, 2.5rem);
+  }
+
+  .timer-display {
+    font-size: clamp(2rem, 12vw, 3.5rem);
+  }
+
+  .campfire-sidebar-always-visible {
+    height: 150px;
+  }
+
+  .ritual-card {
+    padding: 20px 14px;
+  }
+
+  .member-card {
+    padding: 20px 14px;
+  }
+
+  .profile-name {
+    font-size: clamp(1.25rem, 7vw, 1.75rem);
+  }
+
 /* ── Header ── */
     .ps-header { padding: 10px 12px; gap: 8px; align-items: flex-start; }
     .ps-header img[alt] { max-height: 120px; width: 100%; }
@@ -4944,7 +5073,7 @@ body.solar-room-active[data-season] {
 
     .gratitude-container {
         position: relative !important; bottom: auto !important;
-        opacity: 1 !important; pointer-events: auto !important; margin-top: 20px;
+        opacity: 1 !important; pointer-events: all !important; margin-top: 20px;
     }
 
     [id$="RotatingAffirmation"] {
@@ -5152,6 +5281,31 @@ body.solar-room-active[data-season] {
     [id$="PersonalCardContainer"] p,
     [id$="PersonalCardContainer"] div[style*="font-style: italic"] { font-size: 13px !important; line-height: 1.5 !important; }
 
+.ps-header img[alt] { max-height: 90px; }
+
+    .ps-leave,
+    .ps-header > div:last-child > button,
+    .ps-header > div:last-child > div > button { padding: 5px 7px !important; font-size: 10px !important; }
+
+    .session-emoji { font-size: 28px; }
+    .session-title { font-size: 13px; }
+
+    .campfire-sidebar-always-visible { height: 120px; min-height: 120px; }
+    .campfire-participant             { min-width: 50px; }
+    .campfire-participant-name        { max-width: 46px; font-size: 9px; }
+
+    .t-btn               { padding: 8px 12px; font-size: 12px; }
+    .control-btn         { width: 38px; height: 38px; }
+    .control-btn.primary { width: 50px; height: 50px; }
+
+    .dw-status-btn { padding: 6px 8px !important; font-size: 11px !important; }
+
+    [id$="TabDaily"],
+    [id$="TabPersonal"]   { padding: 7px 8px !important; font-size: 11px !important; }
+
+    [id$="CategoryTiles"] { grid-template-columns: repeat(2, 1fr) !important; }
+
+    .modal-overlay .modal-card { padding: 16px 10px !important; }
 
 .celestial-card-full.lunar-card {
         padding: 16px;
@@ -5877,84 +6031,209 @@ body.solar-room-active[data-season] {
     .solar-popup-body       { padding: 1rem !important; }
     .solar-group-title      { font-size: 1.1rem !important; }
 
+.campfire-body { flex-direction: column; }
+    
+    .campfire-sidebar-always-visible {
+        width: 100%;
+        height: 200px;
+        border-left: none;
+        border-top: 2px solid var(--border);
+    }
+    
+.campfire-main { min-height: 300px; }
+    
+    .campfire-messages {
+        padding: 12px;
+        gap: 16px;
+    }
+    
+.campfire-input-area { padding: 16px 16px 24px 16px; }
+
 }
 
 
 /* ─────────────────────────────────────────────────────────
    M4. MAX-WIDTH: 380px  (Extra Small Phones)
-   Only overrides that need to be tighter than M3.
    ───────────────────────────────────────────────────────── */
 
 @media (max-width: 380px) {
 
-  /* Layout */
-  .sanctuary-content { padding: 0 12px 20px; }
-  .profile-container { padding: 0 12px; }
+.presence-count {
+    font-size: clamp(1.75rem, 9vw, 2.5rem);
+  }
 
-  /* Profile */
-  .profile-name { font-size: clamp(1.1rem, 6.5vw, 1.5rem); }
-  .profile-avatar-wrap { width: 120px; height: 120px; }
-  .profile-avatar { font-size: 48px; }
+  .timer-display {
+    font-size: clamp(2rem, 12vw, 3.5rem);
+  }
 
-  /* Presence */
-  .presence-count { font-size: clamp(1.6rem, 9vw, 2.2rem); }
-  .presence-widget { padding: 16px; }
+  .campfire-sidebar-always-visible {
+    height: 150px;
+  }
 
-  /* Practice rooms */
-  .practice-room { padding: 14px; }
+  .ritual-card {
+    padding: 20px 14px;
+  }
 
-  /* Timer */
-  .timer-display { font-size: clamp(1.75rem, 12vw, 3rem); }
-  .t-btn               { padding: 8px 10px; font-size: 11px; }
-  .control-btn         { width: 36px; height: 36px; }
-  .control-btn.primary { width: 48px; height: 48px; }
+  .member-card {
+    padding: 20px 14px;
+  }
 
-  /* Ritual */
-  .ritual-card { padding: 18px 12px; max-width: 95vw; }
-  .ritual-candle { width: 80px; height: 80px; margin-bottom: 16px; }
-  .ritual-candle::before { width: 80px; height: 80px; }
-  .ritual-candle::after  { width: 56px; height: 56px; }
-  .ritual-candle svg { width: 44px; height: 60px; }
-  .ritual-text { font-size: 16px; }
+  .profile-name {
+    font-size: clamp(1.25rem, 7vw, 1.75rem);
+  }
 
-  /* Campfire */
-  .campfire-sidebar-always-visible { height: 110px; min-height: 110px; }
-  .campfire-participant { min-width: 46px; }
-  .campfire-participant-name { max-width: 42px; font-size: 8px; }
+.sanctuary-content {
+    padding: 0 20px 32px;
+  }
 
-  /* Member modal */
-  .member-card { padding: 16px 12px; }
+  .rooms-grid {
+    grid-template-columns: 1fr; /* single column on tablet too */
+  }
 
-  /* Celestial */
-  .celestial-card-full.lunar-card { padding: 12px; }
-  .celestial-card-full.solar-card { padding: 12px; }
-  .celestial-times-section { gap: 12px !important; }
-  .lunar-content-wrapper { padding: 1rem 0.625rem 1.5rem !important; }
-  .lunar-popup-title h2  { font-size: 1rem !important; }
+  .collective-grid {
+    gap: 16px;
+  }
 
-  /* Solar */
-  .solar-sun-glow { width: 72px !important; height: 72px !important; }
-  .solar-content-wrapper { padding: 0.75rem 0.625rem 1.5rem !important; }
-  .solar-intro-card { padding: 0.875rem !important; }
-  .solar-season-img { max-width: 160px !important; }
-  .solar-inactive-title { font-size: clamp(1.3rem, 7vw, 2rem) !important; }
-  .solar-inactive-card { padding: 1.25rem 0.875rem !important; }
+  .campfire-sidebar-always-visible {
+    width: 260px;
+  }
 
-  /* Practice space header buttons */
-  .ps-header img[alt] { max-height: 80px; }
-  .ps-leave,
-  .ps-header > div:last-child > button,
-  .ps-header > div:last-child > div > button { padding: 5px 6px !important; font-size: 10px !important; }
+  .ps-header {
+    padding: 16px 24px;
+  }
 
-  /* Deep Work */
-  .dw-status-btn { padding: 5px 7px !important; font-size: 10px !important; }
+  .ps-main {
+    padding: 28px;
+  }
 
-  /* Tarot/Reiki tabs */
-  [id$="TabDaily"],
-  [id$="TabPersonal"] { padding: 6px 7px !important; font-size: 10px !important; }
-  [id$="CategoryTiles"] { grid-template-columns: repeat(2, 1fr) !important; }
+.ps-header img[alt] { max-height: 90px; }
 
-  /* Modals */
-  .modal-overlay .modal-card { padding: 14px 10px !important; }
+    .ps-leave,
+    .ps-header > div:last-child > button,
+    .ps-header > div:last-child > div > button { padding: 5px 7px !important; font-size: 10px !important; }
+
+    .session-emoji { font-size: 28px; }
+    .session-title { font-size: 13px; }
+
+    .campfire-sidebar-always-visible { height: 120px; min-height: 120px; }
+    .campfire-participant             { min-width: 50px; }
+    .campfire-participant-name        { max-width: 46px; font-size: 9px; }
+
+    .t-btn               { padding: 8px 12px; font-size: 12px; }
+    .control-btn         { width: 38px; height: 38px; }
+    .control-btn.primary { width: 50px; height: 50px; }
+
+    .dw-status-btn { padding: 6px 8px !important; font-size: 11px !important; }
+
+    [id$="TabDaily"],
+    [id$="TabPersonal"]   { padding: 7px 8px !important; font-size: 11px !important; }
+
+    [id$="CategoryTiles"] { grid-template-columns: repeat(2, 1fr) !important; }
+
+    .modal-overlay .modal-card { padding: 16px 10px !important; }
+
+.ps-header img[alt]              { max-height: 160px; }
+    .guided-player-container         { max-width: 100%; }
+    .campfire-sidebar-always-visible { width: 200px; }
+    .ps-header { padding: 16px 24px; }
+    .ps-main   { padding: 28px; }
+
+.celestial-card-full.lunar-card { padding: 12px; }
+
+    .lunar-content-wrapper {
+        padding-top: 1rem !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+
+    .lunar-popup-title h2 { font-size: 1.1rem !important; }
+    .lunar-popup-body    { padding: 1rem !important; }
+
+    .celestial-times-section {
+        gap: 16px !important;
+    }
+
+.celestial-card-full.lunar-card {
+        padding: 20px 24px;
+    }
+
+    .celestial-content-horizontal {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+        text-align: center;
+    }
+
+    .celestial-times-section {
+        flex-direction: row !important;
+        justify-content: center !important;
+        gap: 32px !important;
+    }
+
+    .celestial-time { align-items: center; }
+
+    .room-content-inline {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    .room-meta-inline {
+        width: 100% !important;
+        justify-content: space-between !important;
+    }
+
+    .join-btn-inline { flex: 1; text-align: center; }
+
+    .lunar-content-wrapper {
+        padding-top: 2.5rem !important;
+    }
+
+    .lunar-practices-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+.solar-content-wrapper {
+        padding: 1rem 0.75rem 2rem !important;
+    }
+
+    .solar-sun-glow {
+        width: 80px !important;
+        height: 80px !important;
+    }
+
+    .solar-intro-card {
+        padding: 1rem !important;
+    }
+
+    .solar-season-img {
+        max-width: 180px !important;
+    }
+
+    .solar-popup-header h2  { font-size: 1.05rem !important; }
+    .solar-popup-body       { padding: 1rem !important; }
+    .solar-group-title      { font-size: 1.1rem !important; }
+
+.solar-top-bar {
+        padding: 1.25rem 1.5rem !important;
+        grid-template-columns: 1fr auto 1fr !important;
+    }
+
+    .solar-content-wrapper {
+        padding: 1.5rem 1.5rem 3rem !important;
+    }
+
+    .solar-sun-glow {
+        width: 130px !important;
+        height: 130px !important;
+    }
+
+    /* Keep 2-col practices grid on tablet */
+    .solar-practices-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        max-width: 100% !important;
+    }
+
+    .solar-popup-content {
+        max-width: 640px !important;
+    }
 
 }

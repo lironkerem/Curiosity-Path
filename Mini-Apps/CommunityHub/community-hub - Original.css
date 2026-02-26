@@ -1,45 +1,5 @@
 /* =========================================================
    COMMUNITY HUB
-   Aligned with Digital Curiosity Earth-Luxury Design System
-   ========================================================= */
-
-
-/* ==========================================================
-   TABLE OF CONTENTS
-   1.  ROOT VARIABLES
-   2.  BASE LAYOUT & SCOPED STYLES
-   3.  GLOBAL VIEWS & ANIMATIONS
-   4.  RITUAL OVERLAYS
-   5.  PROFILE HEADER
-   6.  PRESENCE WIDGET
-   7.  SECTION UTILITIES
-   8.  PRACTICE ROOMS GRID
-   9.  PRACTICE SPACE (ROOM VIEW)
-   10. GUIDED MEDITATION PLAYER
-   11. CAMPFIRE (Community Chat)
-   12. SOUND SETTINGS PANEL
-   13. CHAT SIDEBAR
-   14. REFLECTIONS FEED
-   15. COLLECTIVE WAVES & CARDS
-   16. MEMBERS GRID & MODAL
-   17. SAFETY FAB & SAFETY BAR
-   18. TOAST NOTIFICATION
-   19. UPCOMING EVENTS
-   20. CELESTIAL WIDGETS (Lunar & Solar Cards)
-   21. SOLAR PRACTICE ROOMS
-   22. LUNAR PHASE STYLES
-   23. UTILITY CLASSES & SHARED INTERACTIONS
-   ──────────────────────────────────────────────────────────
-   MOBILE SECTION
-   M1. @media (max-width: 1024px)   — Tablet Max
-   M2. @media (min-width: 768px) and (max-width: 1024px) — Tablet Range
-   M3. @media (max-width: 768px)    — Mobile (all breakpoints merged)
-   M4. @media (max-width: 380px)    — Extra Small Phones
-   ========================================================== */
-
-
-/* =========================================================
-   COMMUNITY HUB
    ========================================================= */
 
 /* COMMUNITY HUB STYLES | Aligned with Digital Curiosity Earth-Luxury Design System */
@@ -75,30 +35,6 @@
     --neuro-accent-a20: rgba(107, 155, 55, 0.20);
     --neuro-accent-a30: rgba(107, 155, 55, 0.30);
     --neuro-warning-a10: rgba(212, 164, 116, 0.10);
-
-    /* Solar room shared neutrals & utilities */
-    --solar-bg-dark: rgba(0, 0, 0, 0.3);
-    --solar-bg-darker: rgba(0, 0, 0, 0.2);
-    --solar-text-primary: rgba(224, 224, 255, 0.9);
-    --solar-text-secondary: rgba(224, 224, 255, 0.7);
-    --solar-text-muted: rgba(224, 224, 255, 0.5);
-    --solar-border-light: rgba(255, 255, 255, 0.1);
-    --solar-border-medium: rgba(255, 255, 255, 0.15);
-    --solar-border-accent: rgba(212, 165, 116, 0.3);
-    --solar-glow-warm: rgba(244, 164, 96, 0.6);
-    --solar-glow-soft: rgba(212, 165, 116, 0.4);
-    --solar-success: #4ade80;
-
-    /* Solar season defaults (Autumn) — overridden per season below */
-    --season-accent: #d4a574;
-    --season-accent-light: #f4a460;
-    --season-accent-dark: #a67c52;
-    --season-bg-start: #3a1f0f;
-    --season-bg-mid1: #5a3520;
-    --season-bg-mid2: #4a2615;
-    --season-bg-mid3: #6a4530;
-    --season-bg-end: #3a1f0f;
-    --season-sun-glow: rgba(212, 165, 116, 0.4);
 }
 
 /* ===== COMMUNITY HUB SCOPED STYLES ===== */
@@ -130,7 +66,6 @@
 /* RITUAL OVERLAYS */
 .ritual-overlay {
     display: none; align-items: center; justify-content: center;
-    position: fixed; inset: 0;
     z-index: 999; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
 }
 .ritual-overlay.opening { position: fixed; inset: 0; z-index: 2147483646; }
@@ -250,6 +185,25 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     50% { box-shadow: 0 0 0 8px rgba(107, 155, 55, 0); }
 }
 
+.edit-avatar {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 36px;
+    height: 36px;
+    background: var(--neuro-bg-lightest);
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    box-shadow: var(--shadow-raised);
+    transition: transform var(--transition-fast);
+}
+
+.edit-avatar:hover { transform: scale(1.1); }
 
 .profile-info { flex: 1; }
 
@@ -261,6 +215,9 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     flex-wrap: wrap;
 }
 
+@media (max-width: 768px) {
+    .profile-name-row { justify-content: center; }
+}
 
 .profile-name {
     font-size: 32px;
@@ -288,6 +245,9 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     flex-wrap: wrap;
 }
 
+@media (max-width: 768px) {
+    .profile-stats { justify-content: center; }
+}
 
 .stat-label {
     font-size: 12px;
@@ -343,6 +303,9 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     letter-spacing: 1px;
 }
 
+@keyframes pulse-send {
+    0%, 100% { transform: scale(1); }
+}
 
 /* SECTION */
 .section { margin-bottom: 48px; }
@@ -364,6 +327,9 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     margin-bottom: 32px;
 }
 
+@media (max-width: 768px) {
+.rooms-grid { grid-template-columns: 1fr; }
+}
 
 .practice-room {
     background: var(--surface);
@@ -531,7 +497,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     min-height: calc(100vh - 80px); /* Subtract header height */
 }
 
-/* Practice Space Body */
+.ps-main { position: relative; }
 
 /* Guided Meditation Styles */
 
@@ -662,6 +628,10 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     50% { transform: scale(1.15); }
     100% { transform: scale(1); }
 }
+
+.status-btn,
+
+.status-btn:hover,
 
 .sound-option {
     display: flex;
@@ -967,7 +937,35 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+.campfire-sidebar-always-visible { width: 280px; }
+}
 
+@media (max-width: 768px) {
+.campfire-sidebar-always-visible { width: 240px; }
+    
+.campfire-messages { padding: 16px; }
+}
+
+@media (max-width: 640px) {
+.campfire-body { flex-direction: column; }
+    
+    .campfire-sidebar-always-visible {
+        width: 100%;
+        height: 200px;
+        border-left: none;
+        border-top: 2px solid var(--border);
+    }
+    
+.campfire-main { min-height: 300px; }
+    
+    .campfire-messages {
+        padding: 12px;
+        gap: 16px;
+    }
+    
+.campfire-input-area { padding: 16px 16px 24px 16px; }
+}
 
 /* Dimmed mode */
 .practice-space.dimmed { filter: brightness(0.6); }
@@ -1119,7 +1117,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 .gratitude-container.visible { 
     opacity: 1; 
-    pointer-events: auto; 
+    pointer-events: all; 
 }
 
 /* CHAT SIDEBAR */
@@ -1160,7 +1158,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     font-weight: 600;
     font-size: 16px;
     box-shadow: var(--shadow-raised-lg);
-    pointer-events: auto;
+    pointer-events: all;
 }
 
 .ps-header {
@@ -1547,7 +1545,12 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 .toast.show { transform: translateX(-50%) translateY(0); }
 
 /* RESPONSIVE */
-
+@media (max-width: 768px) {
+    
+.presence-widget { padding: 24px; }
+    
+.ps-sidebar { width: 100%; }
+}
 
 /* END OF COMMUNITY HUB STYLES | Additional CSS for missing elements */
 
@@ -1561,6 +1564,9 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     flex-wrap: wrap;
 }
 
+@media (max-width: 768px) {
+    .profile-meta { justify-content: center; }
+}
 
 /* Profile Stats (p-stat format) */
 .p-stat { text-align: center; }
@@ -1590,6 +1596,9 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     margin-bottom: 20px;
 }
 
+@media (max-width: 768px) {
+    .badges-row { justify-content: center; }
+}
 
 .badge {
     width: 44px;
@@ -1639,6 +1648,9 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     box-shadow: var(--shadow-inset-sm);
 }
 
+@media (max-width: 768px) {
+    .view-toggle { margin: 24px auto 0; }
+}
 
 .v-btn {
     padding: 5px 14px;
@@ -1951,7 +1963,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     50% { transform: scale(1.05); }
 }
 
-/* Presence Sanctuary (backward compatibility) */
+/* Keep old styles for backward compatibility */
 .presence-sanctuary {
     background: var(--surface);
     border: 2px solid var(--border);
@@ -1961,6 +1973,29 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     text-align: center;
     position: relative;
     box-shadow: var(--shadow-raised);
+}
+
+.breath-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-bottom: 32px;
+}
+
+.breath-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--ring-available);
+    border-radius: 50%;
+    animation: breatheScale 4s infinite;
+}
+
+@keyframes breatheScale {
+    0%, 100% { transform: scale(1); opacity: 0.4; }
+    50% { transform: scale(1.5); opacity: 1; }
 }
 
 /* Section Header */
@@ -2244,6 +2279,31 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     box-shadow: var(--shadow-raised);
 }
 
+@media (max-width: 768px) {
+    .active-members-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        padding: 12px;
+        max-height: 280px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
+    }
+
+    .active-members-grid::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .active-members-grid::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .active-members-grid::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 99px;
+    }
+}
 
 .member-card-mini {
     display: flex;
@@ -2331,6 +2391,14 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     align-items: flex-start;
 }
 
+@media (max-width: 768px) {
+    .profile-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 12px;
+    }
+}
 
 .profile-avatar-section {
     display: flex;
@@ -2438,6 +2506,9 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     gap: 24px;
 }
 
+@media (max-width: 768px) {
+.events-grid { grid-template-columns: 1fr; }
+}
 
 .event-card {
     background: var(--surface);
@@ -2562,6 +2633,13 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     align-items: center;
 }
 
+@media (max-width: 1024px) {
+    .celestial-content-horizontal {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        text-align: center;
+    }
+}
 
 .celestial-visual-section {
     display: flex;
@@ -2590,9 +2668,19 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     min-width: 180px;
 }
 
+@media (max-width: 1024px) {
+    .celestial-times-section {
+        flex-direction: row;
+        justify-content: space-around;
+        min-width: auto;
+        width: 100%;
+    }
+}
 
 /* Keep old celestial widget styles for backward compatibility */
 
+@media (max-width: 768px) {
+}
 
 .celestial-card {
     background: var(--neuro-bg-lightest);
@@ -2611,6 +2699,27 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 #moonSvg { filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)); }
 
+.moon-info { margin-bottom: 20px; }
+
+.moon-phase-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+}
+
+.moon-illumination {
+    font-size: 16px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.moon-age {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
 /* Solar Visual */
 .solar-visual {
     display: flex;
@@ -2619,6 +2728,15 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 #solarSvg { filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1)); }
+
+.solar-info { margin-bottom: 20px; }
+
+.solar-declination {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+}
 
 /* Celestial Times */
 .celestial-times {
@@ -2641,6 +2759,12 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 .celestial-time:last-child { margin-bottom: 0; }
 
+@media (max-width: 1024px) {
+    .celestial-time {
+        align-items: center;
+        text-align: center;
+    }
+}
 
 .time-label {
     font-size: 10px;
@@ -2745,6 +2869,12 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     flex-wrap: wrap;
 }
 
+@media (max-width: 768px) {
+    .room-content-inline {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
 
 .room-header-inline {
     display: flex;
@@ -2789,6 +2919,12 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     flex-wrap: wrap;
 }
 
+@media (max-width: 768px) {
+    .room-meta-inline {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
 
 .join-btn-inline {
     padding: 10px 24px;
@@ -2848,7 +2984,18 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
         transform: rotate(180deg);
     }
     
-
+@media (max-width: 768px) {
+    .solar-practices-grid { grid-template-columns: 1fr; }
+    .whatsapp-float {
+        left: 10px;
+        padding: 14px 10px;
+    }
+.whatsapp-float span { font-size: 12px; }
+    .whatsapp-float img {
+        width: 24px;
+        height: 24px;
+    }
+}
 
 /* ===== PRACTICE ROOM BACKGROUND FIX ===== */
 /* Override for fullscreen practice room container - uses main app variables */
@@ -2888,8 +3035,37 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 /* SOLAR PRACTICE ROOMS | Season-specific visual styles and CSS custom properties */
+/* SOLAR-ROOMS.CSS
+ * Unified styles for all seasonal solar practice rooms
+ * Uses CSS custom properties for season-specific theming
+ */
 
-/* CSS CUSTOM PROPERTIES (THEME VARIABLES) — solar additions */
+/* CSS CUSTOM PROPERTIES (THEME VARIABLES) */
+:root {
+  /* Shared neutrals & utilities */
+  --solar-bg-dark: rgba(0, 0, 0, 0.3);
+  --solar-bg-darker: rgba(0, 0, 0, 0.2);
+  --solar-text-primary: rgba(224, 224, 255, 0.9);
+  --solar-text-secondary: rgba(224, 224, 255, 0.7);
+  --solar-text-muted: rgba(224, 224, 255, 0.5);
+  --solar-border-light: rgba(255, 255, 255, 0.1);
+  --solar-border-medium: rgba(255, 255, 255, 0.15);
+  --solar-border-accent: rgba(212, 165, 116, 0.3);
+  --solar-glow-warm: rgba(244, 164, 96, 0.6);
+  --solar-glow-soft: rgba(212, 165, 116, 0.4);
+  --solar-success: #4ade80;
+  
+  /* Default theme (Autumn) - overridden by season */
+  --season-accent: #d4a574;
+  --season-accent-light: #f4a460;
+  --season-accent-dark: #a67c52;
+  --season-bg-start: #3a1f0f;
+  --season-bg-mid1: #5a3520;
+  --season-bg-mid2: #4a2615;
+  --season-bg-mid3: #6a4530;
+  --season-bg-end: #3a1f0f;
+  --season-sun-glow: rgba(212, 165, 116, 0.4);
+}
 
 /* SEASON-SPECIFIC THEME OVERRIDES | (scoped to Solar Rooms only) */
 body.solar-room-active[data-season="winter"] {
@@ -3663,545 +3839,9 @@ body.solar-room-active[data-season] {
    Follows mobile-styles.css convention: max-width 767px
    ========================================================= */
 
+@media (max-width: 767px) {
 
-
-/* ===== WAXING MOON - Growing, light gray ===== */
-.waxingmoon-moon-sphere {
-    background: radial-gradient(circle at 30% 30%, #c8c8e0 0%, #a8a8c0 50%, #7878a0 100%);
-    box-shadow: 
-        0 0 28px rgba(180, 180, 200, 0.35),
-        0 0 55px rgba(150, 150, 170, 0.18),
-        inset -7px -7px 18px rgba(0, 0, 0, 0.25),
-        inset 9px 9px 22px rgba(255, 255, 255, 0.45);
-}
-
-/* ===== FULL MOON - Bright, illuminated ===== */
-.fullmoon-moon-sphere {
-    background: radial-gradient(circle at 30% 30%, #f0f0ff 0%, #d0d0e0 50%, #a0a0b0 100%);
-    box-shadow: 
-        0 0 30px rgba(240, 240, 255, 0.4),
-        0 0 60px rgba(200, 200, 220, 0.2),
-        inset -8px -8px 20px rgba(0, 0, 0, 0.2),
-        inset 10px 10px 25px rgba(255, 255, 255, 0.6);
-}
-
-/* ===== WANING MOON - Diminishing, muted ===== */
-.waningmoon-moon-sphere {
-    background: radial-gradient(circle at 30% 30%, #8a8aa0 0%, #5a5a70 50%, #3a3a50 100%);
-    box-shadow: 
-        0 0 25px rgba(140, 140, 160, 0.3),
-        0 0 50px rgba(100, 100, 120, 0.15),
-        inset -6px -6px 18px rgba(0, 0, 0, 0.3),
-        inset 8px 8px 20px rgba(255, 255, 255, 0.4);
-}
-
-/* =========================================================
-   COMMUNITY HUB — MOBILE PATCH (consolidated v2)
-   Covers all 8 practice rooms — responsive fixes for:
-     · Header image, buttons (2-btn & 4-btn rooms, single line)
-     · Header button glass effect removed — clean professional look
-     · Participant stack / blessed counter
-     · YouTube player (Guided, Breathwork, OSHO)
-     · Timer ring + controls (Silent Room)
-     · Sound settings panel
-     · View Schedule modal — mobile-optimised
-     · Instructions popup — fits mobile screen
-     · Campfire chat + sidebar
-     · SafetyBar modals — compact fonts & layout
-     · Deep Work: setup modal, status buttons, chat
-     · Tarot & Reiki: tabs, fonts, practice grid, chat
-     · Tarot & Reiki participants — horizontal bar above chat
-   Paste this block at the very bottom of community-hub.css.
-   See companion safety-bar-fix.js for the SafetyBar render fix.
-   ========================================================= */
-
-
-/* ═══════════════════════════════════════════════════════
-   BASE RULES  (apply at all screen sizes)
-   ═══════════════════════════════════════════════════════ */
-
-/* ── Header image ── */
-.ps-header img[alt] {
-    max-height: 200px;
-    object-fit: cover;
-    object-position: center;
-    border-radius: var(--radius-md);
-}
-
-/* ── Header button strip: single row, no wrap, smaller ── */
-.ps-leave,
-.ps-header > div:last-child > button,
-.ps-header > div:last-child > div > button {
-    padding: 7px 12px !important;
-    font-size: 12px !important;
-    white-space: nowrap;
-    line-height: 1.2;
-}
-
-.ps-header > div:last-child {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    gap: 6px !important;
-    align-items: center !important;
-    flex-shrink: 0;
-}
-
-[id$="SafetyDropdownContainer"] {
-    flex-shrink: 0;
-}
-
-/* ── FIX 4: Kill glassmorphism on Safety button ──────────
-   buildSafetyDropdown() injects inline backdrop-filter + rgba-white
-   styles on the Safety button that clash with the neomorphic theme
-   and create a glowing ring artifact. Force everything back to the
-   same clean look as every other ps-leave button.                   */
-[id$="SafetyDropdownContainer"] > button,
-[id$="SafetyDropdownContainer"] button.ps-leave {
-    background:             var(--surface)  !important;
-    backdrop-filter:        none            !important;
-    -webkit-backdrop-filter: none           !important;
-    border:                 2px solid var(--border) !important;
-    color:                  var(--text-muted) !important;
-    box-shadow:             var(--shadow-raised) !important;
-}
-
-/* Uniform hover for every control button in the header strip */
-.ps-header > div:last-child > button:hover,
-.ps-header > div:last-child > div > button:hover {
-    border-color:            var(--neuro-error, #c76b5b) !important;
-    color:                   var(--neuro-error, #c76b5b) !important;
-    background:              var(--surface)              !important;
-    backdrop-filter:         none                        !important;
-    -webkit-backdrop-filter: none                        !important;
-}
-
-/* Remove browser focus ring */
-.ps-header button:focus { outline: none; }
-
-/* ── Participant stack ── */
-.participant-stack { display: flex; align-items: center; }
-
-.p-avatar {
-    width: 28px; height: 28px; border-radius: 50%;
-    border: 2px solid var(--surface);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700; color: white;
-    flex-shrink: 0; margin-left: -6px; overflow: hidden;
-}
-.p-avatar:first-child { margin-left: 0; }
-
-/* ── YouTube player: always fluid ── */
-.guided-player-container { width: 100%; max-width: 100%; }
-
-.guided-player-container iframe,
-[id$="-youtube-player"] iframe,
-[id$="-youtube-player"] {
-    width: 100% !important; max-width: 100% !important;
-    aspect-ratio: 16 / 9;  height: auto !important;
-}
-
-.session-info     { padding: 20px; }
-.session-emoji    { font-size: clamp(32px, 10vw, 64px); margin-bottom: 12px; }
-.session-title    { font-size: clamp(14px, 4vw, 22px); }
-.session-duration { font-size: clamp(13px, 3.5vw, 18px); }
-
-/* ── Timer display ── */
-#silentTimerDisplay,
-[id$="TimerDisplay"] { font-size: clamp(2.25rem, 13vw, 5.25rem) !important; }
-
-.timer-controls { justify-content: center; flex-wrap: wrap; }
-
-.t-btn {
-    padding: 12px 20px; font-size: 14px;
-    border-radius: var(--radius-full);
-    border: 2px solid var(--border);
-    background: var(--surface); cursor: pointer;
-    font-weight: 600; white-space: nowrap;
-    transition: all var(--transition-fast);
-}
-.t-btn.primary { background: var(--text); color: var(--neuro-bg-lightest); border-color: var(--text); }
-
-/* ── FIX 1: Schedule modal — base ── */
-.schedule-modal {
-    max-height: 85vh; overflow-y: auto;
-    width: min(560px, 94vw);
-}
-.schedule-modal h2   { font-size: clamp(15px, 4vw, 20px); margin-top: 0; }
-.schedule-item       { flex-wrap: wrap; gap: 6px; }
-
-/* ── Chat input row ── */
-.chat-input-container      { width: 100%; box-sizing: border-box; }
-.chat-input-container input,
-.chat-input                { min-width: 0; flex: 1; font-size: 14px; }
-
-.chat-send {
-    width: 42px; height: 42px; border-radius: 50%;
-    background: var(--ring-available); color: white;
-    border: none; cursor: pointer; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    transition: all var(--transition-fast);
-}
-
-/* ── PS-MAIN headings ── */
-.ps-main h2 { font-size: clamp(1rem, 4.5vw, 1.5rem); line-height: 1.3; word-break: break-word; }
-
-/* ── FIX 2: Modal card — constrained & scrollable ── */
-.modal-card {
-    width: min(560px, 94vw); max-height: 85vh;
-    overflow-y: auto; box-sizing: border-box;
-}
-
-/* Safety modal cards */
-#crisisModal .modal-card, #reportModal .modal-card,
-#blockModal .modal-card,  #helpModal .modal-card,
-#moderatorModal .modal-card, #technicalModal .modal-card,
-#guidelinesModal .modal-card {
-    width: min(520px, 94vw); max-height: 88vh;
-    overflow-y: auto; box-sizing: border-box;
-}
-
-/* ── Deep Work status buttons: single row ── */
-.dw-status-btn { white-space: nowrap; flex-shrink: 0; }
-
-/* ── Tarot & Reiki tab bar ── */
-.tarot-main > div > div[style*="border-bottom"] {
-    display: flex !important; flex-wrap: nowrap !important;
-    overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
-}
-.tarot-main > div > div[style*="border-bottom"]::-webkit-scrollbar { display: none; }
-
-[id$="TabDaily"],
-[id$="TabPersonal"] {
-    flex: 1 1 0; min-width: 0;
-    white-space: nowrap; overflow: hidden;
-    text-overflow: ellipsis; text-align: center;
-}
-
-/* Chakra practice grid: 2-col by default */
-.chakra-practice-grid { grid-template-columns: 1fr 1fr; }
-
-/* ── FIX 3: Tarot/Reiki participants — horizontal bar above chat ──────
-   Stack the grid as a flex-column so the members bar sits above chat.
-   The members list itself becomes a horizontal scroll strip.            */
-.tarot-daily-grid {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px;
-}
-
-/* Members panel above chat */
-.tarot-daily-grid > div:last-child {
-    order: -1;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 10px 14px;
-    background: var(--background);
-    box-sizing: border-box;
-}
-
-.tarot-daily-grid > div:last-child > div:first-child {
-    font-size: 13px; margin-bottom: 8px; text-align: left !important;
-}
-
-/* Participant list: horizontal scroll strip */
-.tarot-daily-grid > div:last-child .campfire-participants,
-.tarot-daily-grid > div:last-child [id$="ParticipantListEl"] {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    height: auto !important;
-    max-height: none !important;
-    gap: 8px;
-    padding: 4px 0;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-}
-.tarot-daily-grid > div:last-child .campfire-participants::-webkit-scrollbar,
-.tarot-daily-grid > div:last-child [id$="ParticipantListEl"]::-webkit-scrollbar { display: none; }
-
-/* Compact participant chips */
-.tarot-daily-grid .campfire-participant {
-    flex-direction: column; align-items: center;
-    gap: 3px; padding: 6px 8px;
-    min-width: 54px; margin-bottom: 0; flex-shrink: 0;
-}
-.tarot-daily-grid .campfire-participant-name {
-    font-size: 10px; white-space: nowrap;
-    overflow: hidden; text-overflow: ellipsis; max-width: 52px;
-}
-.tarot-daily-grid .campfire-participant-country { display: none; }
-
-
-/* ═══════════════════════════════════════════════════════
-   tablet */
-
-/* =========================================================
-   LUNAR ROOMS — MOBILE PATCH
-   Targets both the outer celestial card and the inner room
-   Add this at the bottom of community-hub.css
-   ========================================================= */
-
-/* ── OUTER CARD: base improvements (all sizes) ── */
-
-/* Outer card: tighter padding */
-.celestial-card-full.lunar-card {
-    padding: 20px 20px;
-}
-
-/* Practice room section inside the card */
-.celestial-practice-room {
-    margin-top: 16px;
-}
-
-/* ── OUTER CARD: mobile ── */
-
-
-/* ── INNER ROOM: injected via LunarUI.injectStyles() ──
-   These override the inline-injected CSS from lunar-ui.js          */
-
-/* Top bar: prevent overflow, proper stacking on mobile */
-
-/* =========================================================
-   SOLAR ROOMS — MOBILE PATCH
-   Targets both the outer celestial card and all 4 inner rooms.
-   Add this at the bottom of community-hub.css, after the
-   existing lunar-mobile-patch block.
-   ========================================================= */
-
-/* ── OUTER CARD: base improvements (all sizes) ── */
-
-.celestial-card-full.solar-card {
-    padding: 20px 20px;
-}
-
-/* ── OUTER CARD: mobile ── */
- /* end outer card mobile */
-
-/* ── OUTER CARD: tablet ── */
- /* end outer card tablet */
-
-
-/* ═══════════════════════════════════════════════════════
-   INNER ROOM — MOBILE  (max-width: 767px)
-   ═══════════════════════════════════════════════════════ */
-
-
-/* =========================================================
-   ███╗   ███╗ ██████╗ ██████╗ ██╗██╗     ███████╗
-   ████╗ ████║██╔═══██╗██╔══██╗██║██║     ██╔════╝
-   ██╔████╔██║██║   ██║██████╔╝██║██║     █████╗
-   ██║╚██╔╝██║██║   ██║██╔══██╗██║██║     ██╔══╝
-   ██║ ╚═╝ ██║╚██████╔╝██████╔╝██║███████╗███████╗
-   ╚═╝     ╚═╝ ╚═════╝ ╚═════╝ ╚═╝╚══════╝╚══════╝
-   MOBILE SECTION — All responsive overrides consolidated here.
-   Desktop styles above. All @media queries below.
-   ========================================================= */
-
-
-/* ─────────────────────────────────────────────────────────
-   M1. MAX-WIDTH: 1024px  (Tablet — wider end)
-   ───────────────────────────────────────────────────────── */
-
-@media (max-width: 1024px) {
-
-.campfire-sidebar-always-visible { width: 280px; }
-
-.celestial-content-horizontal {
-        grid-template-columns: 1fr;
-        gap: 24px;
-        text-align: center;
-    }
-
-.celestial-times-section {
-        flex-direction: row;
-        justify-content: space-around;
-        min-width: auto;
-        width: 100%;
-    }
-
-.celestial-time {
-        align-items: center;
-        text-align: center;
-    }
-
-}
-
-
-/* ─────────────────────────────────────────────────────────
-   M2. 768px – 1024px  (Tablet Range)
-   ───────────────────────────────────────────────────────── */
-
-@media (min-width: 768px) and (max-width: 1024px) {
-
-.sanctuary-content {
-    padding: 0 20px 32px;
-  }
-
-  .rooms-grid {
-    grid-template-columns: 1fr; /* single column on tablet too */
-  }
-
-  .collective-grid {
-    gap: 16px;
-  }
-
-  .campfire-sidebar-always-visible {
-    width: 260px;
-  }
-
-  .ps-header {
-    padding: 16px 24px;
-  }
-
-  .ps-main {
-    padding: 28px;
-  }
-
-  .ps-header img[alt]              { max-height: 160px; }
-  .guided-player-container         { max-width: 100%; }
-  .campfire-sidebar-always-visible { width: 200px; }
-
-.celestial-card-full.lunar-card {
-        padding: 20px 24px;
-    }
-
-    .celestial-content-horizontal {
-        grid-template-columns: 1fr !important;
-        gap: 16px !important;
-        text-align: center;
-    }
-
-    .celestial-times-section {
-        flex-direction: row !important;
-        justify-content: center !important;
-        gap: 32px !important;
-    }
-
-    .celestial-time { align-items: center; }
-
-    .room-content-inline {
-        flex-direction: column !important;
-        gap: 12px !important;
-    }
-
-    .room-meta-inline {
-        width: 100% !important;
-        justify-content: space-between !important;
-    }
-
-    .join-btn-inline { flex: 1; text-align: center; }
-
-    .lunar-content-wrapper {
-        padding-top: 2.5rem !important;
-    }
-
-    .lunar-practices-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-    }
-
-.celestial-card-full.solar-card {
-        padding: 20px 24px;
-    }
-
-    #solarVisual svg,
-    #solarSvg {
-        width: 100% !important;
-        max-width: 260px;
-        height: auto !important;
-    }
-
-.solar-top-bar {
-        padding: 1.25rem 1.5rem !important;
-        grid-template-columns: 1fr auto 1fr !important;
-    }
-
-    .solar-content-wrapper {
-        padding: 1.5rem 1.5rem 3rem !important;
-    }
-
-    .solar-sun-glow {
-        width: 130px !important;
-        height: 130px !important;
-    }
-
-    /* Keep 2-col practices grid on tablet */
-    .solar-practices-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        max-width: 100% !important;
-    }
-
-    .solar-popup-content {
-        max-width: 640px !important;
-    }
-
-}
-
-
-/* ─────────────────────────────────────────────────────────
-   M3. MAX-WIDTH: 768px  (Mobile — all breakpoints merged)
-   ───────────────────────────────────────────────────────── */
-
-@media (max-width: 768px) {
-
-.profile-name-row { justify-content: center; }
-
-.profile-stats { justify-content: center; }
-
-/* rooms-grid, presence-widget, campfire-sidebar and ps-sidebar are
-   fully specified in the detailed subsections below */
-
-.profile-meta { justify-content: center; }
-
-.badges-row { justify-content: center; }
-
-.view-toggle { margin: 24px auto 0; }
-
-.active-members-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 8px;
-        padding: 12px;
-        max-height: 280px;
-        overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: var(--border) transparent;
-    }
-
-    .active-members-grid::-webkit-scrollbar {
-        width: 4px;
-    }
-
-    .active-members-grid::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .active-members-grid::-webkit-scrollbar-thumb {
-        background: var(--border);
-        border-radius: 99px;
-    }
-
-.profile-content {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 12px;
-    }
-
-.events-grid { grid-template-columns: 1fr; }
-
-.room-content-inline {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-.room-meta-inline {
-        width: 100%;
-        justify-content: space-between;
-    }
-
-/* ===== LAYOUT ===== */
+  /* ===== LAYOUT ===== */
   #community-hub-tab {
     padding-bottom: 140px; /* clear mobile bottom bar */
   }
@@ -4890,7 +4530,359 @@ body.solar-room-active[data-season] {
     max-width: 100%;
   }
 
-/* ── Header ── */
+} /* end @media (max-width: 767px) */
+
+/* ===== VERY SMALL SCREENS (Under 380px) ===== */
+@media (max-width: 380px) {
+
+  .presence-count {
+    font-size: clamp(1.75rem, 9vw, 2.5rem);
+  }
+
+  .timer-display {
+    font-size: clamp(2rem, 12vw, 3.5rem);
+  }
+
+  .campfire-sidebar-always-visible {
+    height: 150px;
+  }
+
+  .ritual-card {
+    padding: 20px 14px;
+  }
+
+  .member-card {
+    padding: 20px 14px;
+  }
+
+  .profile-name {
+    font-size: clamp(1.25rem, 7vw, 1.75rem);
+  }
+
+} /* end @media (max-width: 380px) */
+
+/* ===== TABLET (768px - 1024px) ===== */
+@media (min-width: 768px) and (max-width: 1024px) {
+
+  .sanctuary-content {
+    padding: 0 20px 32px;
+  }
+
+  .rooms-grid {
+    grid-template-columns: 1fr; /* single column on tablet too */
+  }
+
+  .collective-grid {
+    gap: 16px;
+  }
+
+  .campfire-sidebar-always-visible {
+    width: 260px;
+  }
+
+  .ps-header {
+    padding: 16px 24px;
+  }
+
+  .ps-main {
+    padding: 28px;
+  }
+
+} /* end @media tablet */
+
+/* =========================================================
+   LUNAR PHASE STYLES | Moon sphere visual overrides per phase */
+/**
+ * LUNAR-STYLES.CSS
+ * Phase-specific visual overrides
+ * These are automatically injected by each room but can be customized here
+ */
+
+/* ===== NEW MOON - Dark, introspective ===== */
+.newmoon-moon-sphere {
+    background: radial-gradient(circle at 30% 30%, #2a2a3a 0%, #1a1a2a 50%, #0a0a1a 100%);
+    box-shadow: 
+        0 0 20px rgba(100, 100, 120, 0.2),
+        0 0 40px rgba(80, 80, 100, 0.1),
+        inset -5px -5px 15px rgba(255, 255, 255, 0.05),
+        inset 10px 10px 20px rgba(0, 0, 0, 0.6);
+}
+
+/* ===== WAXING MOON - Growing, light gray ===== */
+.waxingmoon-moon-sphere {
+    background: radial-gradient(circle at 30% 30%, #c8c8e0 0%, #a8a8c0 50%, #7878a0 100%);
+    box-shadow: 
+        0 0 28px rgba(180, 180, 200, 0.35),
+        0 0 55px rgba(150, 150, 170, 0.18),
+        inset -7px -7px 18px rgba(0, 0, 0, 0.25),
+        inset 9px 9px 22px rgba(255, 255, 255, 0.45);
+}
+
+/* ===== FULL MOON - Bright, illuminated ===== */
+.fullmoon-moon-sphere {
+    background: radial-gradient(circle at 30% 30%, #f0f0ff 0%, #d0d0e0 50%, #a0a0b0 100%);
+    box-shadow: 
+        0 0 30px rgba(240, 240, 255, 0.4),
+        0 0 60px rgba(200, 200, 220, 0.2),
+        inset -8px -8px 20px rgba(0, 0, 0, 0.2),
+        inset 10px 10px 25px rgba(255, 255, 255, 0.6);
+}
+
+/* ===== WANING MOON - Diminishing, muted ===== */
+.waningmoon-moon-sphere {
+    background: radial-gradient(circle at 30% 30%, #8a8aa0 0%, #5a5a70 50%, #3a3a50 100%);
+    box-shadow: 
+        0 0 25px rgba(140, 140, 160, 0.3),
+        0 0 50px rgba(100, 100, 120, 0.15),
+        inset -6px -6px 18px rgba(0, 0, 0, 0.3),
+        inset 8px 8px 20px rgba(255, 255, 255, 0.4);
+}
+
+/* =========================================================
+   COMMUNITY HUB — MOBILE PATCH (consolidated v2)
+   Covers all 8 practice rooms — responsive fixes for:
+     · Header image, buttons (2-btn & 4-btn rooms, single line)
+     · Header button glass effect removed — clean professional look
+     · Participant stack / blessed counter
+     · YouTube player (Guided, Breathwork, OSHO)
+     · Timer ring + controls (Silent Room)
+     · Sound settings panel
+     · View Schedule modal — mobile-optimised
+     · Instructions popup — fits mobile screen
+     · Campfire chat + sidebar
+     · SafetyBar modals — compact fonts & layout
+     · Deep Work: setup modal, status buttons, chat
+     · Tarot & Reiki: tabs, fonts, practice grid, chat
+     · Tarot & Reiki participants — horizontal bar above chat
+   Paste this block at the very bottom of community-hub.css.
+   See companion safety-bar-fix.js for the SafetyBar render fix.
+   ========================================================= */
+
+
+/* ═══════════════════════════════════════════════════════
+   BASE RULES  (apply at all screen sizes)
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Header image ── */
+.ps-header img[alt] {
+    max-height: 200px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: var(--radius-md);
+}
+
+/* ── Header button strip: single row, no wrap, smaller ── */
+.ps-leave,
+.ps-header > div:last-child > button,
+.ps-header > div:last-child > div > button {
+    padding: 7px 12px !important;
+    font-size: 12px !important;
+    white-space: nowrap;
+    line-height: 1.2;
+}
+
+.ps-header > div:last-child {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    align-items: center !important;
+    flex-shrink: 0;
+}
+
+[id$="SafetyDropdownContainer"] {
+    flex-shrink: 0;
+}
+
+/* ── FIX 4: Kill glassmorphism on Safety button ──────────
+   buildSafetyDropdown() injects inline backdrop-filter + rgba-white
+   styles on the Safety button that clash with the neomorphic theme
+   and create a glowing ring artifact. Force everything back to the
+   same clean look as every other ps-leave button.                   */
+[id$="SafetyDropdownContainer"] > button,
+[id$="SafetyDropdownContainer"] button.ps-leave {
+    background:             var(--surface)  !important;
+    backdrop-filter:        none            !important;
+    -webkit-backdrop-filter: none           !important;
+    border:                 2px solid var(--border) !important;
+    color:                  var(--text-muted) !important;
+    box-shadow:             var(--shadow-raised) !important;
+}
+
+/* Uniform hover for every control button in the header strip */
+.ps-header > div:last-child > button:hover,
+.ps-header > div:last-child > div > button:hover {
+    border-color:            var(--neuro-error, #c76b5b) !important;
+    color:                   var(--neuro-error, #c76b5b) !important;
+    background:              var(--surface)              !important;
+    backdrop-filter:         none                        !important;
+    -webkit-backdrop-filter: none                        !important;
+}
+
+/* Remove browser focus ring */
+.ps-header button:focus { outline: none; }
+
+/* ── Participant stack ── */
+.participant-stack { display: flex; align-items: center; }
+
+.p-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: white;
+    flex-shrink: 0; margin-left: -6px; overflow: hidden;
+}
+.p-avatar:first-child { margin-left: 0; }
+
+/* ── YouTube player: always fluid ── */
+.guided-player-container { width: 100%; max-width: 100%; }
+
+.guided-player-container iframe,
+[id$="-youtube-player"] iframe,
+[id$="-youtube-player"] {
+    width: 100% !important; max-width: 100% !important;
+    aspect-ratio: 16 / 9;  height: auto !important;
+}
+
+.session-info     { padding: 20px; }
+.session-emoji    { font-size: clamp(32px, 10vw, 64px); margin-bottom: 12px; }
+.session-title    { font-size: clamp(14px, 4vw, 22px); }
+.session-duration { font-size: clamp(13px, 3.5vw, 18px); }
+
+/* ── Timer display ── */
+#silentTimerDisplay,
+[id$="TimerDisplay"] { font-size: clamp(2.25rem, 13vw, 5.25rem) !important; }
+
+.timer-controls { justify-content: center; flex-wrap: wrap; }
+
+.t-btn {
+    padding: 12px 20px; font-size: 14px;
+    border-radius: var(--radius-full);
+    border: 2px solid var(--border);
+    background: var(--surface); cursor: pointer;
+    font-weight: 600; white-space: nowrap;
+    transition: all var(--transition-fast);
+}
+.t-btn.primary { background: var(--text); color: var(--neuro-bg-lightest); border-color: var(--text); }
+
+/* ── FIX 1: Schedule modal — base ── */
+.schedule-modal {
+    max-height: 85vh; overflow-y: auto;
+    width: min(560px, 94vw);
+}
+.schedule-modal h2   { font-size: clamp(15px, 4vw, 20px); margin-top: 0; }
+.schedule-item       { flex-wrap: wrap; gap: 6px; }
+
+/* ── Chat input row ── */
+.chat-input-container      { width: 100%; box-sizing: border-box; }
+.chat-input-container input,
+.chat-input                { min-width: 0; flex: 1; font-size: 14px; }
+
+.chat-send {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: var(--ring-available); color: white;
+    border: none; cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+/* ── PS-MAIN headings ── */
+.ps-main h2 { font-size: clamp(1rem, 4.5vw, 1.5rem); line-height: 1.3; word-break: break-word; }
+
+/* ── FIX 2: Modal card — constrained & scrollable ── */
+.modal-card {
+    width: min(560px, 94vw); max-height: 85vh;
+    overflow-y: auto; box-sizing: border-box;
+}
+
+/* Safety modal cards */
+#crisisModal .modal-card, #reportModal .modal-card,
+#blockModal .modal-card,  #helpModal .modal-card,
+#moderatorModal .modal-card, #technicalModal .modal-card,
+#guidelinesModal .modal-card {
+    width: min(520px, 94vw); max-height: 88vh;
+    overflow-y: auto; box-sizing: border-box;
+}
+
+/* ── Deep Work status buttons: single row ── */
+.dw-status-btn { white-space: nowrap; flex-shrink: 0; }
+
+/* ── Tarot & Reiki tab bar ── */
+.tarot-main > div > div[style*="border-bottom"] {
+    display: flex !important; flex-wrap: nowrap !important;
+    overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+.tarot-main > div > div[style*="border-bottom"]::-webkit-scrollbar { display: none; }
+
+[id$="TabDaily"],
+[id$="TabPersonal"] {
+    flex: 1 1 0; min-width: 0;
+    white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis; text-align: center;
+}
+
+/* Chakra practice grid: 2-col by default */
+.chakra-practice-grid { grid-template-columns: 1fr 1fr; }
+
+/* ── FIX 3: Tarot/Reiki participants — horizontal bar above chat ──────
+   Stack the grid as a flex-column so the members bar sits above chat.
+   The members list itself becomes a horizontal scroll strip.            */
+.tarot-daily-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px;
+}
+
+/* Members panel above chat */
+.tarot-daily-grid > div:last-child {
+    order: -1;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    background: var(--background);
+    box-sizing: border-box;
+}
+
+.tarot-daily-grid > div:last-child > div:first-child {
+    font-size: 13px; margin-bottom: 8px; text-align: left !important;
+}
+
+/* Participant list: horizontal scroll strip */
+.tarot-daily-grid > div:last-child .campfire-participants,
+.tarot-daily-grid > div:last-child [id$="ParticipantListEl"] {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    height: auto !important;
+    max-height: none !important;
+    gap: 8px;
+    padding: 4px 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+.tarot-daily-grid > div:last-child .campfire-participants::-webkit-scrollbar,
+.tarot-daily-grid > div:last-child [id$="ParticipantListEl"]::-webkit-scrollbar { display: none; }
+
+/* Compact participant chips */
+.tarot-daily-grid .campfire-participant {
+    flex-direction: column; align-items: center;
+    gap: 3px; padding: 6px 8px;
+    min-width: 54px; margin-bottom: 0; flex-shrink: 0;
+}
+.tarot-daily-grid .campfire-participant-name {
+    font-size: 10px; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; max-width: 52px;
+}
+.tarot-daily-grid .campfire-participant-country { display: none; }
+
+
+/* ═══════════════════════════════════════════════════════
+   @media (max-width: 767px)  — MOBILE
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+    /* ── Header ── */
     .ps-header { padding: 10px 12px; gap: 8px; align-items: flex-start; }
     .ps-header img[alt] { max-height: 120px; width: 100%; }
     .ps-info { width: 100%; min-width: 0; }
@@ -4944,7 +4936,7 @@ body.solar-room-active[data-season] {
 
     .gratitude-container {
         position: relative !important; bottom: auto !important;
-        opacity: 1 !important; pointer-events: auto !important; margin-top: 20px;
+        opacity: 1 !important; pointer-events: all !important; margin-top: 20px;
     }
 
     [id$="RotatingAffirmation"] {
@@ -5152,8 +5144,78 @@ body.solar-room-active[data-season] {
     [id$="PersonalCardContainer"] p,
     [id$="PersonalCardContainer"] div[style*="font-style: italic"] { font-size: 13px !important; line-height: 1.5 !important; }
 
+} /* end @media (max-width: 767px) */
 
+
+/* ═══════════════════════════════════════════════════════
+   @media (max-width: 380px)  — EXTRA SMALL PHONES
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 380px) {
+
+    .ps-header img[alt] { max-height: 90px; }
+
+    .ps-leave,
+    .ps-header > div:last-child > button,
+    .ps-header > div:last-child > div > button { padding: 5px 7px !important; font-size: 10px !important; }
+
+    .session-emoji { font-size: 28px; }
+    .session-title { font-size: 13px; }
+
+    .campfire-sidebar-always-visible { height: 120px; min-height: 120px; }
+    .campfire-participant             { min-width: 50px; }
+    .campfire-participant-name        { max-width: 46px; font-size: 9px; }
+
+    .t-btn               { padding: 8px 12px; font-size: 12px; }
+    .control-btn         { width: 38px; height: 38px; }
+    .control-btn.primary { width: 50px; height: 50px; }
+
+    .dw-status-btn { padding: 6px 8px !important; font-size: 11px !important; }
+
+    [id$="TabDaily"],
+    [id$="TabPersonal"]   { padding: 7px 8px !important; font-size: 11px !important; }
+
+    [id$="CategoryTiles"] { grid-template-columns: repeat(2, 1fr) !important; }
+
+    .modal-overlay .modal-card { padding: 16px 10px !important; }
+
+} /* end @media (max-width: 380px) */
+
+
+/* ═══════════════════════════════════════════════════════
+   @media (min-width: 768px) and (max-width: 1024px) — TABLET
+   ═══════════════════════════════════════════════════════ */
+@media (min-width: 768px) and (max-width: 1024px) {
+
+    .ps-header img[alt]              { max-height: 160px; }
+    .guided-player-container         { max-width: 100%; }
+    .campfire-sidebar-always-visible { width: 200px; }
+    .ps-header { padding: 16px 24px; }
+    .ps-main   { padding: 28px; }
+
+} /* end tablet */
+
+/* =========================================================
+   LUNAR ROOMS — MOBILE PATCH
+   Targets both the outer celestial card and the inner room
+   Add this at the bottom of community-hub.css
+   ========================================================= */
+
+/* ── OUTER CARD: base improvements (all sizes) ── */
+
+/* Outer card: tighter padding */
 .celestial-card-full.lunar-card {
+    padding: 20px 20px;
+}
+
+/* Practice room section inside the card */
+.celestial-practice-room {
+    margin-top: 16px;
+}
+
+/* ── OUTER CARD: mobile ── */
+@media (max-width: 767px) {
+
+    .celestial-card-full.lunar-card {
         padding: 16px;
         border-radius: var(--radius-lg);
     }
@@ -5219,8 +5281,15 @@ body.solar-room-active[data-season] {
         padding: 10px 16px !important;
         font-size: 13px !important;
     }
+}
 
-.lunar-top-bar {
+/* ── INNER ROOM: injected via LunarUI.injectStyles() ──
+   These override the inline-injected CSS from lunar-ui.js          */
+
+/* Top bar: prevent overflow, proper stacking on mobile */
+@media (max-width: 767px) {
+
+    .lunar-top-bar {
         padding: 0.75rem 1rem !important;
         gap: 0.5rem !important;
         position: relative;
@@ -5474,7 +5543,12 @@ body.solar-room-active[data-season] {
         min-height: 180px !important;
     }
 
-.celestial-card-full.lunar-card { padding: 12px; }
+} /* end @media (max-width: 767px) */
+
+/* ── Extra small phones (< 380px) ── */
+@media (max-width: 380px) {
+
+    .celestial-card-full.lunar-card { padding: 12px; }
 
     .lunar-content-wrapper {
         padding-top: 1rem !important;
@@ -5489,7 +5563,68 @@ body.solar-room-active[data-season] {
         gap: 16px !important;
     }
 
+} /* end @media (max-width: 380px) */
+
+/* ── Tablet (768–1024px): tighten outer card ── */
+@media (min-width: 768px) and (max-width: 1024px) {
+
+    .celestial-card-full.lunar-card {
+        padding: 20px 24px;
+    }
+
+    .celestial-content-horizontal {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+        text-align: center;
+    }
+
+    .celestial-times-section {
+        flex-direction: row !important;
+        justify-content: center !important;
+        gap: 32px !important;
+    }
+
+    .celestial-time { align-items: center; }
+
+    .room-content-inline {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    .room-meta-inline {
+        width: 100% !important;
+        justify-content: space-between !important;
+    }
+
+    .join-btn-inline { flex: 1; text-align: center; }
+
+    .lunar-content-wrapper {
+        padding-top: 2.5rem !important;
+    }
+
+    .lunar-practices-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+} /* end tablet */
+
+/* =========================================================
+   SOLAR ROOMS — MOBILE PATCH
+   Targets both the outer celestial card and all 4 inner rooms.
+   Add this at the bottom of community-hub.css, after the
+   existing lunar-mobile-patch block.
+   ========================================================= */
+
+/* ── OUTER CARD: base improvements (all sizes) ── */
+
 .celestial-card-full.solar-card {
+    padding: 20px 20px;
+}
+
+/* ── OUTER CARD: mobile ── */
+@media (max-width: 767px) {
+
+    .celestial-card-full.solar-card {
         padding: 16px;
         border-radius: var(--radius-lg);
     }
@@ -5510,7 +5645,31 @@ body.solar-room-active[data-season] {
     .solar-declination { font-size: 13px; }
     .next-season       { font-size: 11px; margin-top: 8px; }
 
-/* ── Top bar ──
+} /* end outer card mobile */
+
+/* ── OUTER CARD: tablet ── */
+@media (min-width: 768px) and (max-width: 1024px) {
+
+    .celestial-card-full.solar-card {
+        padding: 20px 24px;
+    }
+
+    #solarVisual svg,
+    #solarSvg {
+        width: 100% !important;
+        max-width: 260px;
+        height: auto !important;
+    }
+
+} /* end outer card tablet */
+
+
+/* ═══════════════════════════════════════════════════════
+   INNER ROOM — MOBILE  (max-width: 767px)
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+    /* ── Top bar ──
        Base style is 3-col grid (1fr auto 1fr).
        Collapse to 2-col on mobile; live count spans full row below. */
     .solar-top-bar {
@@ -5856,7 +6015,15 @@ body.solar-room-active[data-season] {
         height: 80px !important;
     }
 
-.solar-content-wrapper {
+} /* end @media (max-width: 767px) */
+
+
+/* ═══════════════════════════════════════════════════════
+   INNER ROOM — EXTRA SMALL (max-width: 380px)
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 380px) {
+
+    .solar-content-wrapper {
         padding: 1rem 0.75rem 2rem !important;
     }
 
@@ -5877,84 +6044,36 @@ body.solar-room-active[data-season] {
     .solar-popup-body       { padding: 1rem !important; }
     .solar-group-title      { font-size: 1.1rem !important; }
 
-}
+} /* end @media (max-width: 380px) */
 
 
-/* ─────────────────────────────────────────────────────────
-   M4. MAX-WIDTH: 380px  (Extra Small Phones)
-   Only overrides that need to be tighter than M3.
-   ───────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   INNER ROOM — TABLET (768px – 1024px)
+   ═══════════════════════════════════════════════════════ */
+@media (min-width: 768px) and (max-width: 1024px) {
 
-@media (max-width: 380px) {
+    .solar-top-bar {
+        padding: 1.25rem 1.5rem !important;
+        grid-template-columns: 1fr auto 1fr !important;
+    }
 
-  /* Layout */
-  .sanctuary-content { padding: 0 12px 20px; }
-  .profile-container { padding: 0 12px; }
+    .solar-content-wrapper {
+        padding: 1.5rem 1.5rem 3rem !important;
+    }
 
-  /* Profile */
-  .profile-name { font-size: clamp(1.1rem, 6.5vw, 1.5rem); }
-  .profile-avatar-wrap { width: 120px; height: 120px; }
-  .profile-avatar { font-size: 48px; }
+    .solar-sun-glow {
+        width: 130px !important;
+        height: 130px !important;
+    }
 
-  /* Presence */
-  .presence-count { font-size: clamp(1.6rem, 9vw, 2.2rem); }
-  .presence-widget { padding: 16px; }
+    /* Keep 2-col practices grid on tablet */
+    .solar-practices-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        max-width: 100% !important;
+    }
 
-  /* Practice rooms */
-  .practice-room { padding: 14px; }
+    .solar-popup-content {
+        max-width: 640px !important;
+    }
 
-  /* Timer */
-  .timer-display { font-size: clamp(1.75rem, 12vw, 3rem); }
-  .t-btn               { padding: 8px 10px; font-size: 11px; }
-  .control-btn         { width: 36px; height: 36px; }
-  .control-btn.primary { width: 48px; height: 48px; }
-
-  /* Ritual */
-  .ritual-card { padding: 18px 12px; max-width: 95vw; }
-  .ritual-candle { width: 80px; height: 80px; margin-bottom: 16px; }
-  .ritual-candle::before { width: 80px; height: 80px; }
-  .ritual-candle::after  { width: 56px; height: 56px; }
-  .ritual-candle svg { width: 44px; height: 60px; }
-  .ritual-text { font-size: 16px; }
-
-  /* Campfire */
-  .campfire-sidebar-always-visible { height: 110px; min-height: 110px; }
-  .campfire-participant { min-width: 46px; }
-  .campfire-participant-name { max-width: 42px; font-size: 8px; }
-
-  /* Member modal */
-  .member-card { padding: 16px 12px; }
-
-  /* Celestial */
-  .celestial-card-full.lunar-card { padding: 12px; }
-  .celestial-card-full.solar-card { padding: 12px; }
-  .celestial-times-section { gap: 12px !important; }
-  .lunar-content-wrapper { padding: 1rem 0.625rem 1.5rem !important; }
-  .lunar-popup-title h2  { font-size: 1rem !important; }
-
-  /* Solar */
-  .solar-sun-glow { width: 72px !important; height: 72px !important; }
-  .solar-content-wrapper { padding: 0.75rem 0.625rem 1.5rem !important; }
-  .solar-intro-card { padding: 0.875rem !important; }
-  .solar-season-img { max-width: 160px !important; }
-  .solar-inactive-title { font-size: clamp(1.3rem, 7vw, 2rem) !important; }
-  .solar-inactive-card { padding: 1.25rem 0.875rem !important; }
-
-  /* Practice space header buttons */
-  .ps-header img[alt] { max-height: 80px; }
-  .ps-leave,
-  .ps-header > div:last-child > button,
-  .ps-header > div:last-child > div > button { padding: 5px 6px !important; font-size: 10px !important; }
-
-  /* Deep Work */
-  .dw-status-btn { padding: 5px 7px !important; font-size: 10px !important; }
-
-  /* Tarot/Reiki tabs */
-  [id$="TabDaily"],
-  [id$="TabPersonal"] { padding: 6px 7px !important; font-size: 10px !important; }
-  [id$="CategoryTiles"] { grid-template-columns: repeat(2, 1fr) !important; }
-
-  /* Modals */
-  .modal-overlay .modal-card { padding: 14px 10px !important; }
-
-}
+} /* end tablet */
