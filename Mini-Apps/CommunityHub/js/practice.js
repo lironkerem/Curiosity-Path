@@ -112,7 +112,7 @@ const Practice = {
                         return this._buildChatMsgHTML(m, isOwn);
                     }).join('');
                 } else {
-                    container.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:12px;margin:20px 0;font-style:italic">Chat disappears when the room closes</div>';
+                    container.innerHTML = '<div class="chat-ephemeral-notice">Chat disappears when the room closes</div>';
                 }
                 container.scrollTop = container.scrollHeight;
             }
@@ -168,9 +168,9 @@ const Practice = {
         const time    = new Date(msgRow.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         return `
             <div class="chat-msg ${isOwn ? 'own' : ''}">
-                ${!isOwn ? `<div style="font-size:11px;color:var(--text-muted);margin-bottom:2px">${this.escapeHtml(emoji)} ${this.escapeHtml(name)}</div>` : ''}
+                ${!isOwn ? `<div class="chat-msg-sender">${this.escapeHtml(emoji)} ${this.escapeHtml(name)}</div>` : ''}
                 <div>${this.escapeHtml(msgRow.message)}</div>
-                <div style="font-size:10px;color:var(--text-muted);margin-top:4px;text-align:${isOwn ? 'right' : 'left'}">${time}</div>
+                <div class="chat-msg-time ${isOwn ? 'chat-msg-time--own' : ''}">${time}</div>
             </div>`;
     },
 
@@ -482,7 +482,7 @@ const Practice = {
                 msg.className = 'chat-msg own';
                 msg.innerHTML = `
                     <div>${this.escapeHtml(text)}</div>
-                    <div style="font-size:10px;color:var(--text-muted);margin-top:4px;text-align:right">${time}</div>`;
+                    <div class="chat-msg-time chat-msg-time--own">${time}</div>`;
                 messagesContainer.appendChild(msg);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
@@ -597,7 +597,7 @@ const Practice = {
 
             const chatMessages = document.getElementById('chatMessages');
             if (chatMessages) {
-                chatMessages.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:12px;margin:20px 0;font-style:italic">Chat disappears when the room closes</div>';
+                chatMessages.innerHTML = '<div class="chat-ephemeral-notice">Chat disappears when the room closes</div>';
             }
 
             const sidebar = document.getElementById('psSidebar');

@@ -92,30 +92,23 @@ const SafetyBar = {
         return `
     <!-- Crisis Resources Modal -->
     <div class="modal-overlay" id="crisisModal" onclick="SafetyBar.handleOverlayClick(event, 'crisis')">
-        <div class="modal-card" style="max-width: 500px;">
+        <div class="modal-card modal-card--md">
             <button class="modal-close" onclick="SafetyBar.closeModal('crisis')" aria-label="Close crisis resources">×</button>
-            <div class="modal-content" style="text-align: left;">
-                <h2 style="font-family: var(--serif); margin-top: 0; margin-bottom: 20px; text-align: center;">🆘 Crisis Resources</h2>
-                
-                <div style="line-height: 1.8; color: var(--text); font-size: 14px;">
-                    <p style="margin-bottom: 20px;"><strong>If you're in crisis, please reach out immediately.</strong></p>
-                    
-                    <div style="background: #fee; border-left: 4px solid #c33; padding: 16px; margin-bottom: 20px; border-radius: var(--radius-md);">
+            <div class="modal-content modal-content--left">
+                <h2 class="sb-modal-h2">🆘 Crisis Resources</h2>
+                <div class="sb-modal-body">
+                    <p class="sb-form-group"><strong>If you're in crisis, please reach out immediately.</strong></p>
+                    <div class="sb-emergency-alert">
                         <strong>🚨 Emergency:</strong> Call 911 (US) or your local emergency number
                     </div>
-
-                    <h3 style="font-size: 16px; margin-top: 20px; margin-bottom: 10px;">24/7 Hotlines:</h3>
-                    <ul style="padding-left: 20px;">
-                        <li style="margin-bottom: 12px;"><strong>National Suicide Prevention Lifeline:</strong><br>988 or 1-800-273-8255</li>
-                        <li style="margin-bottom: 12px;"><strong>Crisis Text Line:</strong><br>Text HOME to 741741</li>
-                        <li style="margin-bottom: 12px;"><strong>SAMHSA National Helpline:</strong><br>1-800-662-4357</li>
+                    <h3 class="sb-section-h3">24/7 Hotlines:</h3>
+                    <ul class="sb-list">
+                        <li class="sb-list-item--wide"><strong>National Suicide Prevention Lifeline:</strong><br>988 or 1-800-273-8255</li>
+                        <li class="sb-list-item--wide"><strong>Crisis Text Line:</strong><br>Text HOME to 741741</li>
+                        <li class="sb-list-item--wide"><strong>SAMHSA National Helpline:</strong><br>1-800-662-4357</li>
                     </ul>
                 </div>
-
-                <button onclick="SafetyBar.closeModal('crisis')" 
-                        style="width: 100%; padding: 12px 24px; border: 2px solid var(--border); background: var(--surface); border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 14px; margin-top: 16px;">
-                    Close
-                </button>
+                <button onclick="SafetyBar.closeModal('crisis')" class="sb-btn-close">Close</button>
             </div>
         </div>
     </div>
@@ -130,14 +123,13 @@ const SafetyBar = {
         return `
     <!-- Report Space Modal -->
     <div class="modal-overlay" id="reportModal" onclick="SafetyBar.handleOverlayClick(event, 'report')">
-        <div class="modal-card" style="max-width: 500px;">
+        <div class="modal-card modal-card--md">
             <button class="modal-close" onclick="SafetyBar.closeModal('report')" aria-label="Close report modal">×</button>
-            <div class="modal-content" style="text-align: left;">
-                <h2 style="font-family: var(--serif); margin-top: 0; margin-bottom: 20px; text-align: center;">⚠️ Report Issue</h2>
-                
-                <div style="margin-bottom: 20px;">
-                    <label for="reportReason" style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px;">What happened?</label>
-                    <select id="reportReason" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-size: 14px;">
+            <div class="modal-content modal-content--left">
+                <h2 class="sb-modal-h2">⚠️ Report Issue</h2>
+                <div class="sb-form-group">
+                    <label for="reportReason" class="sb-label">What happened?</label>
+                    <select id="reportReason" class="sb-field">
                         <option value="">Select a reason...</option>
                         <option value="harassment">Harassment or bullying</option>
                         <option value="spam">Spam or advertising</option>
@@ -146,28 +138,19 @@ const SafetyBar = {
                         <option value="other">Other</option>
                     </select>
                 </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label for="reportDetails" style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px;">Details (optional)</label>
-                    <textarea id="reportDetails" 
-                              placeholder="Please provide any additional context..." 
-                              style="width: 100%; min-height: 100px; padding: 12px; border: 2px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-size: 14px; resize: vertical;">
+                <div class="sb-form-group">
+                    <label for="reportDetails" class="sb-label">Details (optional)</label>
+                    <textarea id="reportDetails"
+                              placeholder="Please provide any additional context..."
+                              class="sb-field sb-field--textarea">
                     </textarea>
                 </div>
-
-                <div style="padding: 16px; background: var(--season-mood); border-radius: var(--radius-md); margin-bottom: 20px; font-size: 13px; line-height: 1.6;">
+                <div class="sb-note">
                     Reports are reviewed within 24 hours. Serious violations are addressed immediately.
                 </div>
-
-                <div style="display: flex; gap: 12px;">
-                    <button onclick="SafetyBar.closeModal('report')" 
-                            style="flex: 1; padding: 12px 24px; border: 2px solid var(--border); background: var(--surface); border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 14px;">
-                        Cancel
-                    </button>
-                    <button onclick="SafetyBar.submitReport()" 
-                            style="flex: 1; padding: 12px 24px; border: none; background: var(--text); color: var(--season-mood); border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 14px;">
-                        Submit Report
-                    </button>
+                <div class="sb-btn-row">
+                    <button onclick="SafetyBar.closeModal('report')" class="sb-btn-cancel">Cancel</button>
+                    <button onclick="SafetyBar.submitReport()" class="sb-btn-primary">Submit Report</button>
                 </div>
             </div>
         </div>
@@ -183,34 +166,24 @@ const SafetyBar = {
         return `
     <!-- Block User Modal -->
     <div class="modal-overlay" id="blockModal" onclick="SafetyBar.handleOverlayClick(event, 'block')">
-        <div class="modal-card" style="max-width: 450px;">
+        <div class="modal-card modal-card--sm">
             <button class="modal-close" onclick="SafetyBar.closeModal('block')" aria-label="Close block modal">×</button>
-            <div class="modal-content" style="text-align: left;">
-                <h2 style="font-family: var(--serif); margin-top: 0; margin-bottom: 20px; text-align: center;">🚫 Block User</h2>
-                
-                <p style="margin-bottom: 20px; line-height: 1.6;">Blocked users won't be able to see your messages or interact with you.</p>
-
-                <div style="margin-bottom: 20px;">
-                    <label for="blockUsername" style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px;">Username to block</label>
-                    <input type="text" 
-                           id="blockUsername" 
-                           placeholder="Enter username..." 
-                           style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-size: 14px;">
+            <div class="modal-content modal-content--left">
+                <h2 class="sb-modal-h2">🚫 Block User</h2>
+                <p class="sb-form-group sb-body-text">Blocked users won't be able to see your messages or interact with you.</p>
+                <div class="sb-form-group">
+                    <label for="blockUsername" class="sb-label">Username to block</label>
+                    <input type="text"
+                           id="blockUsername"
+                           placeholder="Enter username..."
+                           class="sb-field">
                 </div>
-
-                <div style="padding: 16px; background: var(--season-mood); border-radius: var(--radius-md); margin-bottom: 20px; font-size: 13px; line-height: 1.6;">
+                <div class="sb-note">
                     <strong>Note:</strong> You can unblock users anytime from your settings.
                 </div>
-
-                <div style="display: flex; gap: 12px;">
-                    <button onclick="SafetyBar.closeModal('block')" 
-                            style="flex: 1; padding: 12px 24px; border: 2px solid var(--border); background: var(--surface); border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 14px;">
-                        Cancel
-                    </button>
-                    <button onclick="SafetyBar.confirmBlock()" 
-                            style="flex: 1; padding: 12px 24px; border: none; background: var(--text); color: var(--season-mood); border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 14px;">
-                        Block User
-                    </button>
+                <div class="sb-btn-row">
+                    <button onclick="SafetyBar.closeModal('block')" class="sb-btn-cancel">Cancel</button>
+                    <button onclick="SafetyBar.confirmBlock()" class="sb-btn-primary">Block User</button>
                 </div>
             </div>
         </div>
@@ -226,59 +199,41 @@ const SafetyBar = {
         return `
     <!-- Help Modal -->
     <div class="modal-overlay" id="helpModal" onclick="SafetyBar.handleOverlayClick(event, 'help')">
-        <div class="modal-card" style="max-width: 500px;">
+        <div class="modal-card modal-card--md">
             <button class="modal-close" onclick="SafetyBar.closeModal('help')" aria-label="Close help modal">×</button>
-            <div class="modal-content" style="text-align: left;">
-                <h2 style="font-family: var(--serif); margin-top: 0; margin-bottom: 20px; text-align: center;">💬 Get Help</h2>
-                
-                <div style="line-height: 1.6; font-size: 14px;">
-                    <p style="margin-bottom: 16px;">Choose the support you need:</p>
-                    
-                    <button onclick="SafetyBar.showCrisisResources()" 
-                            style="width: 100%; padding: 16px; margin-bottom: 12px; text-align: left; background: #fee; border: 2px solid #c33; border-radius: var(--radius-md); cursor: pointer; font-size: 14px;">
+            <div class="modal-content modal-content--left">
+                <h2 class="sb-modal-h2">💬 Get Help</h2>
+                <div class="sb-modal-body">
+                    <p class="sb-help-intro">Choose the support you need:</p>
+                    <button onclick="SafetyBar.showCrisisResources()" class="sb-help-btn-crisis">
                         <strong>🆘 Crisis Resources</strong><br>
-                        <span style="font-size: 12px; color: #666;">24/7 hotlines and emergency support</span>
+                        <span class="sb-help-subtitle--crisis">24/7 hotlines and emergency support</span>
                     </button>
-
-                    <div style="margin-bottom: 12px; border: 2px solid var(--border); border-radius: var(--radius-md); overflow: hidden;">
-                        <button onclick="SafetyBar.toggleHelpMePanel()"
-                                style="width: 100%; padding: 16px; text-align: left; background: var(--surface); border: none; cursor: pointer; font-size: 14px;">
+                    <div class="sb-help-panel-wrap">
+                        <button onclick="SafetyBar.toggleHelpMePanel()" class="sb-help-toggle-btn">
                             <strong>🆘 Help Me</strong><br>
-                            <span style="font-size: 12px; color: var(--text-muted);">Send a quick message directly to the admin</span>
+                            <span class="sb-help-subtitle">Send a quick message directly to the admin</span>
                         </button>
-                        <div id="helpMePanel" style="display:none; padding: 12px 16px 16px; background: var(--surface); border-top: 1px solid var(--border);">
+                        <div id="helpMePanel" class="sb-help-panel" style="display:none;">
                             <textarea id="helpMeText"
                                       placeholder="What's happening? We're here..."
                                       rows="3"
-                                      style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);
-                                             background:var(--season-mood);font-size:13px;resize:none;
-                                             box-sizing:border-box;margin-bottom:10px;"></textarea>
-                            <button onclick="SafetyBar.submitHelpMe()"
-                                    style="width:100%;padding:10px;border:none;border-radius:8px;cursor:pointer;
-                                           font-size:13px;font-weight:700;
-                                           background:var(--text);color:var(--season-mood);">
+                                      class="sb-help-textarea"></textarea>
+                            <button onclick="SafetyBar.submitHelpMe()" class="sb-help-send-btn">
                                 Send to Admin
                             </button>
                         </div>
                     </div>
-
-                    <button onclick="SafetyBar.showTechnicalSupport()" 
-                            style="width: 100%; padding: 16px; margin-bottom: 12px; text-align: left; background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius-md); cursor: pointer; font-size: 14px;">
+                    <button onclick="SafetyBar.showTechnicalSupport()" class="sb-help-btn">
                         <strong>🔧 Technical Issue</strong><br>
-                        <span style="font-size: 12px; color: var(--text-muted);">Report bugs or problems</span>
+                        <span class="sb-help-subtitle">Report bugs or problems</span>
                     </button>
-
-                    <button onclick="SafetyBar.showGuidelines()" 
-                            style="width: 100%; padding: 16px; text-align: left; background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius-md); cursor: pointer; font-size: 14px;">
+                    <button onclick="SafetyBar.showGuidelines()" class="sb-help-btn">
                         <strong>📜 Community Guidelines</strong><br>
-                        <span style="font-size: 12px; color: var(--text-muted);">Learn about our values and rules</span>
+                        <span class="sb-help-subtitle">Learn about our values and rules</span>
                     </button>
                 </div>
-
-                <button onclick="SafetyBar.closeModal('help')" 
-                        style="width: 100%; padding: 12px 24px; border: 2px solid var(--border); background: var(--surface); border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 14px; margin-top: 16px;">
-                    Close
-                </button>
+                <button onclick="SafetyBar.closeModal('help')" class="sb-btn-close">Close</button>
             </div>
         </div>
     </div>
@@ -293,42 +248,32 @@ const SafetyBar = {
         return `
     <!-- Moderator Contact Modal -->
     <div class="modal-overlay" id="moderatorModal" onclick="SafetyBar.handleOverlayClick(event, 'moderator')">
-        <div class="modal-card" style="max-width: 500px;">
+        <div class="modal-card modal-card--md">
             <button class="modal-close" onclick="SafetyBar.closeModal('moderator')" aria-label="Close moderator contact">×</button>
-            <div class="modal-content" style="text-align: left;">
-                <h2 style="font-family: var(--serif); margin-top: 0; margin-bottom: 20px; text-align: center;">👥 Contact Moderator</h2>
-                
-                <div style="margin-bottom: 20px;">
-                    <label for="moderatorUrgency" style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px;">Urgency Level</label>
-                    <select id="moderatorUrgency" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-size: 14px;">
+            <div class="modal-content modal-content--left">
+                <h2 class="sb-modal-h2">👥 Contact Moderator</h2>
+                <div class="sb-form-group">
+                    <label for="moderatorUrgency" class="sb-label">Urgency Level</label>
+                    <select id="moderatorUrgency" class="sb-field">
                         <option value="low">Low - General question</option>
                         <option value="medium">Medium - Needs attention</option>
                         <option value="high">High - Urgent matter</option>
                         <option value="immediate">Immediate - Safety concern</option>
                     </select>
                 </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label for="moderatorMessage" style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px;">How can we help?</label>
-                    <textarea id="moderatorMessage" 
-                              placeholder="Describe your situation..." 
-                              style="width: 100%; min-height: 120px; padding: 12px; border: 2px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-size: 14px; resize: vertical;">
+                <div class="sb-form-group">
+                    <label for="moderatorMessage" class="sb-label">How can we help?</label>
+                    <textarea id="moderatorMessage"
+                              placeholder="Describe your situation..."
+                              class="sb-field sb-field--textarea sb-field--tall">
                     </textarea>
                 </div>
-
-                <div style="padding: 16px; background: var(--season-mood); border-radius: var(--radius-md); margin-bottom: 20px; font-size: 13px; line-height: 1.6;">
+                <div class="sb-note">
                     <strong>Available 24/7</strong> - A moderator will respond based on your urgency level. For immediate safety concerns, select "Immediate" above.
                 </div>
-
-                <div style="display: flex; gap: 12px;">
-                    <button onclick="SafetyBar.closeModal('moderator')" 
-                            style="flex: 1; padding: 12px 24px; border: 2px solid var(--border); background: var(--surface); border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 14px;">
-                        Cancel
-                    </button>
-                    <button onclick="SafetyBar.submitModeratorRequest()" 
-                            style="flex: 1; padding: 12px 24px; border: none; background: var(--text); color: var(--season-mood); border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 14px;">
-                        Send Request
-                    </button>
+                <div class="sb-btn-row">
+                    <button onclick="SafetyBar.closeModal('moderator')" class="sb-btn-cancel">Cancel</button>
+                    <button onclick="SafetyBar.submitModeratorRequest()" class="sb-btn-primary">Send Request</button>
                 </div>
             </div>
         </div>
@@ -344,14 +289,13 @@ const SafetyBar = {
         return `
     <!-- Technical Issue Modal -->
     <div class="modal-overlay" id="technicalModal" onclick="SafetyBar.handleOverlayClick(event, 'technical')">
-        <div class="modal-card" style="max-width: 500px;">
+        <div class="modal-card modal-card--md">
             <button class="modal-close" onclick="SafetyBar.closeModal('technical')" aria-label="Close technical issue modal">×</button>
-            <div class="modal-content" style="text-align: left;">
-                <h2 style="font-family: var(--serif); margin-top: 0; margin-bottom: 20px; text-align: center;">🔧 Report Technical Issue</h2>
-                
-                <div style="margin-bottom: 20px;">
-                    <label for="technicalType" style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px;">Issue Type</label>
-                    <select id="technicalType" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-size: 14px;">
+            <div class="modal-content modal-content--left">
+                <h2 class="sb-modal-h2">🔧 Report Technical Issue</h2>
+                <div class="sb-form-group">
+                    <label for="technicalType" class="sb-label">Issue Type</label>
+                    <select id="technicalType" class="sb-field">
                         <option value="">Select issue type...</option>
                         <option value="audio">Audio/Sound not working</option>
                         <option value="timer">Timer malfunction</option>
@@ -361,32 +305,23 @@ const SafetyBar = {
                         <option value="other">Other</option>
                     </select>
                 </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label for="technicalDescription" style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px;">Description</label>
-                    <textarea id="technicalDescription" 
-                              placeholder="What happened? What were you trying to do?" 
-                              style="width: 100%; min-height: 100px; padding: 12px; border: 2px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-size: 14px; resize: vertical;">
+                <div class="sb-form-group">
+                    <label for="technicalDescription" class="sb-label">Description</label>
+                    <textarea id="technicalDescription"
+                              placeholder="What happened? What were you trying to do?"
+                              class="sb-field sb-field--textarea">
                     </textarea>
                 </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label for="technicalDevice" style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px;">Browser & Device</label>
-                    <input type="text" 
-                           id="technicalDevice" 
-                           placeholder="e.g., Chrome on Mac, Firefox on Windows" 
-                           style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-size: 14px;">
+                <div class="sb-form-group">
+                    <label for="technicalDevice" class="sb-label">Browser & Device</label>
+                    <input type="text"
+                           id="technicalDevice"
+                           placeholder="e.g., Chrome on Mac, Firefox on Windows"
+                           class="sb-field">
                 </div>
-
-                <div style="display: flex; gap: 12px;">
-                    <button onclick="SafetyBar.closeModal('technical')" 
-                            style="flex: 1; padding: 12px 24px; border: 2px solid var(--border); background: var(--surface); border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 14px;">
-                        Cancel
-                    </button>
-                    <button onclick="SafetyBar.submitTechnicalIssue()" 
-                            style="flex: 1; padding: 12px 24px; border: none; background: var(--text); color: var(--season-mood); border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 14px;">
-                        Submit Issue
-                    </button>
+                <div class="sb-btn-row">
+                    <button onclick="SafetyBar.closeModal('technical')" class="sb-btn-cancel">Cancel</button>
+                    <button onclick="SafetyBar.submitTechnicalIssue()" class="sb-btn-primary">Submit Issue</button>
                 </div>
             </div>
         </div>
@@ -402,49 +337,40 @@ const SafetyBar = {
         return `
     <!-- Community Guidelines Modal -->
     <div class="modal-overlay" id="guidelinesModal" onclick="SafetyBar.handleOverlayClick(event, 'guidelines')">
-        <div class="modal-card" style="max-width: 600px;">
+        <div class="modal-card modal-card--lg">
             <button class="modal-close" onclick="SafetyBar.closeModal('guidelines')" aria-label="Close guidelines">×</button>
-            <div class="modal-content" style="text-align: left;">
-                <h2 style="font-family: var(--serif); margin-top: 0; margin-bottom: 20px; text-align: center;">📜 Community Guidelines</h2>
-                
-                <div style="line-height: 1.8; color: var(--text); font-size: 14px;">
-                    <p style="margin-bottom: 20px;"><strong>Welcome to our mindful community.</strong> These guidelines help us create a safe, supportive space for everyone.</p>
-                    
-                    <h3 style="font-size: 16px; margin-top: 20px; margin-bottom: 10px;">✨ Our Core Values</h3>
-                    <ul style="padding-left: 20px;">
-                        <li style="margin-bottom: 8px;"><strong>Kindness:</strong> Treat all members with compassion and respect</li>
-                        <li style="margin-bottom: 8px;"><strong>Presence:</strong> Be fully here, authentic and engaged</li>
-                        <li style="margin-bottom: 8px;"><strong>Non-judgment:</strong> Honor each person's unique journey</li>
-                        <li style="margin-bottom: 8px;"><strong>Confidentiality:</strong> What's shared in spaces stays in spaces</li>
+            <div class="modal-content modal-content--left">
+                <h2 class="sb-modal-h2">📜 Community Guidelines</h2>
+                <div class="sb-modal-body">
+                    <p class="sb-form-group"><strong>Welcome to our mindful community.</strong> These guidelines help us create a safe, supportive space for everyone.</p>
+                    <h3 class="sb-section-h3">✨ Our Core Values</h3>
+                    <ul class="sb-list">
+                        <li class="sb-list-item"><strong>Kindness:</strong> Treat all members with compassion and respect</li>
+                        <li class="sb-list-item"><strong>Presence:</strong> Be fully here, authentic and engaged</li>
+                        <li class="sb-list-item"><strong>Non-judgment:</strong> Honor each person's unique journey</li>
+                        <li class="sb-list-item"><strong>Confidentiality:</strong> What's shared in spaces stays in spaces</li>
                     </ul>
-
-                    <h3 style="font-size: 16px; margin-top: 20px; margin-bottom: 10px;">🕊️ Expected Behavior</h3>
-                    <ul style="padding-left: 20px;">
-                        <li style="margin-bottom: 8px;">Use respectful, inclusive language</li>
-                        <li style="margin-bottom: 8px;">Honor the intention of each space (silence in silent rooms)</li>
-                        <li style="margin-bottom: 8px;">Support others without giving unsolicited advice</li>
-                        <li style="margin-bottom: 8px;">Respect boundaries and consent</li>
-                        <li style="margin-bottom: 8px;">Report concerns to moderators</li>
+                    <h3 class="sb-section-h3">🕊️ Expected Behavior</h3>
+                    <ul class="sb-list">
+                        <li class="sb-list-item">Use respectful, inclusive language</li>
+                        <li class="sb-list-item">Honor the intention of each space (silence in silent rooms)</li>
+                        <li class="sb-list-item">Support others without giving unsolicited advice</li>
+                        <li class="sb-list-item">Respect boundaries and consent</li>
+                        <li class="sb-list-item">Report concerns to moderators</li>
                     </ul>
-
-                    <h3 style="font-size: 16px; margin-top: 20px; margin-bottom: 10px;">🚫 Not Permitted</h3>
-                    <ul style="padding-left: 20px;">
-                        <li style="margin-bottom: 8px;">Harassment, bullying, or hate speech</li>
-                        <li style="margin-bottom: 8px;">Spam or commercial solicitation</li>
-                        <li style="margin-bottom: 8px;">Sharing others' personal information</li>
-                        <li style="margin-bottom: 8px;">Impersonation or deception</li>
-                        <li style="margin-bottom: 8px;">Inappropriate or explicit content</li>
+                    <h3 class="sb-section-h3">🚫 Not Permitted</h3>
+                    <ul class="sb-list">
+                        <li class="sb-list-item">Harassment, bullying, or hate speech</li>
+                        <li class="sb-list-item">Spam or commercial solicitation</li>
+                        <li class="sb-list-item">Sharing others' personal information</li>
+                        <li class="sb-list-item">Impersonation or deception</li>
+                        <li class="sb-list-item">Inappropriate or explicit content</li>
                     </ul>
-
-                    <p style="margin-top: 20px; padding: 16px; background: var(--season-mood); border-radius: var(--radius-md); font-size: 13px;">
+                    <p class="sb-guidelines-note">
                         <strong>Questions?</strong> Contact our moderators anytime. Violations may result in warnings, temporary suspension, or permanent removal.
                     </p>
                 </div>
-
-                <button onclick="SafetyBar.closeModal('guidelines')" 
-                        style="width: 100%; padding: 12px 24px; border: 2px solid var(--border); background: var(--surface); border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 14px; margin-top: 16px;">
-                    Close
-                </button>
+                <button onclick="SafetyBar.closeModal('guidelines')" class="sb-btn-close">Close</button>
             </div>
         </div>
     </div>

@@ -73,7 +73,7 @@ const CollectiveField = {
         return `
         <div class="section-header">
             <div class="section-title">Collective Field</div>
-            <div style="font-size: 12px; color: var(--text-muted);">Real-time resonance</div>
+            <div class="section-subtitle">Real-time resonance</div>
         </div>
 
         <div class="collective-grid">
@@ -110,17 +110,17 @@ const CollectiveField = {
                 </div>
 
                 <!-- Dynamic field state label -->
-                <div id="fieldStateLabel" style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 6px 0 0; text-align: center;">
+                <div id="fieldStateLabel" class="cf-field-state-label">
                     ${fieldLabel}
                 </div>
 
                 <!-- Recent senders + last sent stacked -->
-                <div style="margin-top: 10px; margin-bottom: 10px;">
-                    <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">Recent senders</div>
-                    <div id="recentSendersStrip" style="display: flex; gap: 4px; align-items: center; min-height: 26px;">
+                <div class="cf-senders-block">
+                    <div class="cf-senders-label">Recent senders</div>
+                    <div id="recentSendersStrip" class="cf-senders-strip">
                         ${recentSendersHTML}
                     </div>
-                    <div id="lastSentLabel" style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">${lastSentLabel}</div>
+                    <div id="lastSentLabel" class="cf-last-sent-label">${lastSentLabel}</div>
                 </div>
 
                 <!-- Progress bar -->
@@ -137,16 +137,13 @@ const CollectiveField = {
                             </div>
                         </div>
                     </div>
-                    <div class="progress-stats" style="display:flex;align-items:center;">
+                    <div class="progress-stats">
                         <span class="progress-label">Energy Level</span>
                         <span class="progress-value" id="energyValue">${energyLevel}%</span>
-                        <span id="adminEnergyBtn" style="display:none;margin-left:8px;">
+                        <span id="adminEnergyBtn" class="cf-admin-btn-wrap">
                             <button onclick="CollectiveField.adminAddEnergy()"
                                     title="Admin: Add Energy"
-                                    style="width:22px;height:22px;border-radius:50%;border:none;
-                                           cursor:pointer;font-size:13px;font-weight:700;line-height:1;
-                                           background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);
-                                           display:inline-flex;align-items:center;justify-content:center;">+</button>
+                                    class="cf-admin-btn">+</button>
                         </span>
                     </div>
                 </div>
@@ -190,9 +187,9 @@ const CollectiveField = {
         return `
             <!-- 24-Hour Calm Wave -->
             <div class="collective-card wave-card-new">
-                <div class="collective-icon" style="position: relative;">
+                <div class="collective-icon cf-icon-relative">
                     ${this.getCalmWaveSVG()}
-                    <div id="waveRippleStage" style="position: absolute; inset: 0; pointer-events: none; overflow: hidden;"></div>
+                    <div id="waveRippleStage" class="cf-ripple-stage"></div>
                 </div>
 
                 <div class="collective-title">24h Calm Wave</div>
@@ -202,7 +199,7 @@ const CollectiveField = {
                     <span class="count-label">Participants</span>
                 </div>
 
-                <div class="wave-time-block" style="position: relative;">
+                <div class="wave-time-block cf-time-block-relative">
 
                     <!-- Session count-up clock (hidden when idle, grows into focus when active) -->
                     <div id="waveSessionClock" style="
@@ -212,34 +209,34 @@ const CollectiveField = {
                         transition: max-height 0.5s ease, opacity 0.4s ease, margin 0.4s ease;
                         margin-bottom: 0;
                     ">
-                        <div id="waveCountUp" style="font-size: 32px; font-weight: 700; letter-spacing: 2px; color: var(--text-primary); line-height: 1;" aria-live="polite">00:00</div>
-                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">your silence so far</div>
+                        <div id="waveCountUp" class="cf-count-up" aria-live="polite">00:00</div>
+                        <div class="cf-silence-label">your silence so far</div>
                     </div>
 
                     <!-- Collective time remaining (shrinks + dims when session active) -->
                     <div id="waveCollectiveTime" style="transition: font-size 0.4s ease, opacity 0.4s ease, margin 0.4s ease;">
-                        <div id="waveClockDisplay" style="font-size: 28px; font-weight: 700; letter-spacing: 1px; color: var(--text-primary); line-height: 1.1;">
+                        <div id="waveClockDisplay" class="cf-clock-display">
                             ${remainingLabel.replace(' to complete the wave', '')}
                         </div>
-                        <div id="waveClockLabel" style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+                        <div id="waveClockLabel" class="cf-clock-label">
                             to complete the wave
                         </div>
-                        <div id="waveMidnightLabel" style="font-size: 10px; color: var(--text-muted); margin-top: 1px; opacity: 0.7;">
+                        <div id="waveMidnightLabel" class="cf-midnight-label">
                             resets at midnight UTC
                         </div>
                     </div>
 
                     <!-- Personal contribution (always visible, dims slightly when session active) -->
                     <div id="waveContribBlock" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-subtle, rgba(0,0,0,0.08)); transition: opacity 0.4s ease;">
-                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 3px;">Your contribution</div>
-                        <div style="display: flex; gap: 12px; align-items: baseline;">
+                        <div class="cf-contrib-label">Your contribution</div>
+                        <div class="cf-contrib-row">
                             <span>
-                                <span id="userTodayDisplay" style="font-size: 16px; font-weight: 600; color: var(--text-primary);">${this.state.userTodayMinutes}m</span>
-                                <span style="font-size: 10px; color: var(--text-muted); margin-left: 2px;">today</span>
+                                <span id="userTodayDisplay" class="cf-contrib-value">${this.state.userTodayMinutes}m</span>
+                                <span class="cf-contrib-unit">today</span>
                             </span>
                             <span>
-                                <span id="userAllTimeDisplay" style="font-size: 16px; font-weight: 600; color: var(--text-primary);">${this.state.userAllTimeMinutes}m</span>
-                                <span style="font-size: 10px; color: var(--text-muted); margin-left: 2px;">all time</span>
+                                <span id="userAllTimeDisplay" class="cf-contrib-value">${this.state.userAllTimeMinutes}m</span>
+                                <span class="cf-contrib-unit">all time</span>
                             </span>
                         </div>
                     </div>
@@ -258,16 +255,13 @@ const CollectiveField = {
                             </div>
                         </div>
                     </div>
-                    <div class="progress-stats" style="display:flex;align-items:center;">
+                    <div class="progress-stats">
                         <span class="progress-label">Wave Building</span>
                         <span class="progress-value" id="waveProgressValue">${progress}%</span>
-                        <span id="adminWaveBtn" style="display:none;margin-left:8px;">
+                        <span id="adminWaveBtn" class="cf-admin-btn-wrap">
                             <button onclick="CollectiveField.adminAddWaveMinutes()"
                                     title="Admin: Add 60 minutes to Wave"
-                                    style="width:22px;height:22px;border-radius:50%;border:none;
-                                           cursor:pointer;font-size:13px;font-weight:700;line-height:1;
-                                           background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);
-                                           display:inline-flex;align-items:center;justify-content:center;">+</button>
+                                    class="cf-admin-btn">+</button>
                         </span>
                     </div>
                 </div>
@@ -623,7 +617,7 @@ const CollectiveField = {
             { min:  0, text: 'The field needs energy', svg: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>` },
         ];
         const { text, svg } = labels.find(l => level >= l.min) || labels[labels.length - 1];
-        return `<span style="display:inline-flex;align-items:center;gap:5px;opacity:0.75;">${svg}<span>${text}</span></span>`;
+        return `<span class="cf-sender-icon">${svg}<span>${text}</span></span>`;
     },
 
     /**
@@ -646,13 +640,13 @@ const CollectiveField = {
     _getRecentSendersHTML() {
         const senders = this.state.recentSenders;
         if (!senders.length) {
-            return '<span style="font-size: 11px; color: var(--text-muted); font-style: italic;">No one yet — be first</span>';
+            return '<span class="cf-no-senders">No one yet — be first</span>';
         }
         return senders.slice(0, 5).map(s => {
             if (s.avatarUrl) {
-                return `<img src="${s.avatarUrl}" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;border:1.5px solid var(--border-subtle,rgba(0,0,0,0.1));" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${s.emoji||'🧘'}',style:'font-size:20px;line-height:26px;'}))">`;
+                return `<img src="${s.avatarUrl}" alt="" class="cf-sender-avatar" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${s.emoji||'🧘'}',className:'cf-sender-emoji'}))">`;
             }
-            return `<span style="font-size:20px;line-height:26px;" title="Recent sender">${s.emoji || '🧘'}</span>`;
+            return `<span class="cf-sender-emoji" title="Recent sender">${s.emoji || '🧘'}</span>`;
         }).join('');
     },
 

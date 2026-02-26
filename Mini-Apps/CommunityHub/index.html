@@ -16,12 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.min.js" defer></script>
 
-    <!-- Inline Critical Styles -->
-    <style>
-        #dynamicRoomContent {
-            width: 100%;
-        }
-    </style>
+
 </head>
 <body>
     <!-- Season Flash Notification -->
@@ -60,7 +55,7 @@
             <section class="section" aria-labelledby="practiceSpacesTitle">
                 <div class="section-header">
                     <div class="section-title" id="practiceSpacesTitle">Practice Spaces</div>
-                    <div style="font-size: 12px; color: var(--text-muted);">Choose your practice</div>
+                    <div class="section-subtitle">Choose your practice</div>
                 </div>
                 <div class="rooms-grid" id="roomsGrid">
                     <!-- Rooms dynamically rendered by core.js -->
@@ -71,7 +66,7 @@
             <section class="section" aria-labelledby="celestialCyclesTitle">
                 <div class="section-header">
                     <div class="section-title" id="celestialCyclesTitle">Celestial Cycles</div>
-                    <div style="font-size: 12px; color: var(--text-muted);">Practice with nature's rhythms</div>
+                    <div class="section-subtitle">Practice with nature's rhythms</div>
                 </div>
                 
                 <!-- Lunar Phases -->
@@ -101,11 +96,11 @@
     <!-- PERMANENT HUB MODALS — Always in DOM, above fullscreen container        -->
     <!-- Populated by PracticeRoom.mountHubModals() at room init time            -->
     <!-- ========================================================================== -->
-    <div id="roomHubModals" style="position:relative;z-index:200000;"></div>
+    <div id="roomHubModals"></div>
 
     <!-- FULLSCREEN ROOM CONTAINER (outside main flow for fullscreen rooms) -->
     <!-- ========================================================================== -->
-    <div id="communityHubFullscreenContainer" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; background: transparent; display: none; overflow: auto;">
+    <div id="communityHubFullscreenContainer">
         <!-- Ritual Overlays -->
         <div class="ritual-overlay opening" id="openingOverlay" role="dialog" aria-labelledby="openingRitualText">
             <div class="ritual-card">
@@ -128,7 +123,7 @@
         </div>
 
         <!-- Room renders directly here -->
-        <div id="dynamicRoomContent" style="display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;"></div>
+        <div id="dynamicRoomContent"></div>
     </div>
 
     <!-- ========================================================================== -->

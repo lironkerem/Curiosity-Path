@@ -44,7 +44,7 @@ const ActiveMembers = {
                 <section class="section">
                     <div class="section-header">
                         <div class="section-title">Active Members</div>
-                        <div style="font-size: 12px; color: var(--text-muted);">Loading...</div>
+                        <div class="section-subtitle">Loading...</div>
                     </div>
                 </section>`;
 
@@ -61,28 +61,18 @@ const ActiveMembers = {
                 <section class="section">
                     <div class="section-header">
                         <div class="section-title">Active Members</div>
-                        <div style="font-size: 12px; color: var(--text-muted);">${onlineCount} online</div>
+                        <div class="section-subtitle">${onlineCount} online</div>
                     </div>
                     <div class="active-members-grid">
                         ${visible.length > 0
                             ? visible.map(m => this.getMemberCardHTML(m)).join('')
-                            : '<div style="color:var(--text-muted);font-size:13px;padding:12px">No members online right now.</div>'
+                            : '<div class="members-empty-state">No members online right now.</div>'
                         }
                     </div>
                     <button onclick="window.WhisperModal?.open()"
-                            style="width:100%;margin-top:12px;padding:12px;
-                                   border-radius:12px;border:none;cursor:pointer;
-                                   font-size:0.88rem;font-weight:600;
-                                   background:var(--neuro-bg,#f0f0f3);
-                                   color:var(--neuro-text);
-                                   box-shadow:3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
-                                   display:flex;align-items:center;justify-content:center;gap:8px;
-                                   position:relative;transition:opacity 0.15s;">
+                            class="whisper-btn">
                         💬 Whispers
-                        <span id="whisperUnreadBadge"
-                              style="display:none;background:var(--primary,#667eea);color:#fff;
-                                     border-radius:99px;font-size:0.7rem;font-weight:700;
-                                     padding:2px 7px;min-width:18px;text-align:center;">
+                        <span id="whisperUnreadBadge" class="whisper-unread-badge">
                         </span>
                     </button>
                 </section>`;
@@ -109,7 +99,7 @@ const ActiveMembers = {
                 container.innerHTML = `
                     <section class="section">
                         <div class="section-header"><div class="section-title">Active Members</div></div>
-                        <div style="color:var(--text-muted);font-size:13px;padding:12px">Could not load members.</div>
+                        <div class="members-empty-state">Could not load members.</div>
                     </section>`;
             }
         }
@@ -129,7 +119,7 @@ const ActiveMembers = {
 
         grid.innerHTML = members.length > 0
             ? members.map(m => this.getMemberCardHTML(m)).join('')
-            : '<div style="color:var(--text-muted);font-size:13px;padding:12px">No members online right now.</div>';
+            : '<div class="members-empty-state">No members online right now.</div>';
     },
 
     // ============================================================================
@@ -155,7 +145,7 @@ const ActiveMembers = {
         const gradient   = Core.getAvatarGradient(userId || name);
 
         const avatarInner = avatarUrl
-            ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" alt="${this.escapeHtml(name)}">`
+            ? `<img src="${avatarUrl}" class="member-avatar-img" alt="${this.escapeHtml(name)}">`
             : `<span>${this.escapeHtml(emoji || initial)}</span>`;
         const avatarStyle = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
 

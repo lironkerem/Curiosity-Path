@@ -36,34 +36,19 @@ const MemberProfileModal = {
         const shell = document.createElement('div');
         shell.innerHTML = `
             <div id="memberProfileModal"
-                 class="modal-overlay"
+                 class="mpm-overlay"
                  role="dialog"
                  aria-modal="true"
-                 aria-labelledby="memberModalName"
-                 style="display:none;position:fixed;inset:0;z-index:9999;
-                        background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);
-                        display:flex;align-items:center;justify-content:center;
-                        opacity:0;transition:opacity 0.25s ease;">
-                <div id="memberProfileModalInner"
-                     style="background:var(--neuro-bg,#f0f0f3);
-                            border-radius:20px;
-                            padding:2rem;
-                            max-width:380px;
-                            width:90%;
-                            position:relative;
-                            box-shadow:8px 8px 20px rgba(0,0,0,0.15),-4px -4px 12px rgba(255,255,255,0.7);
-                            transform:translateY(16px);
-                            transition:transform 0.25s ease;">
+                 aria-labelledby="memberModalName">
+                <div id="memberProfileModalInner" class="mpm-inner">
 
                     <!-- Close button -->
                     <button onclick="MemberProfileModal.close()"
                             aria-label="Close"
-                            style="position:absolute;top:14px;right:16px;
-                                   background:none;border:none;cursor:pointer;
-                                   font-size:18px;opacity:0.5;line-height:1;">✕</button>
+                            class="mpm-close">✕</button>
 
                     <!-- Loading state -->
-                    <div id="memberModalLoading" style="text-align:center;padding:2rem;color:var(--text-muted);">
+                    <div id="memberModalLoading" class="mpm-loading">
                         Loading...
                     </div>
 
@@ -71,162 +56,97 @@ const MemberProfileModal = {
                     <div id="memberModalContent" style="display:none;">
 
                         <!-- Avatar + status ring + name -->
-                        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:1.2rem;">
-                            <div style="position:relative;width:90px;height:90px;">
-                                <div id="memberModalAvatar"
-                                     style="width:90px;height:90px;border-radius:50%;
-                                            display:flex;align-items:center;justify-content:center;
-                                            font-size:2.2rem;overflow:hidden;flex-shrink:0;">
-                                </div>
-                                <div id="memberModalStatusRing"
-                                     style="position:absolute;top:-7px;left:-7px;
-                                            width:calc(100% + 14px);height:calc(100% + 14px);
-                                            border-radius:50%;border:4px solid var(--ring-available,#6b9b37);
-                                            box-shadow:0 0 0 3px rgba(107,155,55,0.2);
-                                            pointer-events:none;"></div>
+                        <div class="mpm-avatar-section">
+                            <div class="mpm-avatar-wrap">
+                                <div id="memberModalAvatar" class="mpm-avatar"></div>
+                                <div id="memberModalStatusRing" class="mpm-status-ring"></div>
                             </div>
-                            <div style="text-align:center;">
-                                <div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;">
-                                    <div id="memberModalName"
-                                         style="font-size:1.2rem;font-weight:700;color:var(--neuro-text);"></div>
-                                    <div id="memberModalRole"
-                                         style="font-size:0.75rem;font-weight:600;
-                                                color:var(--primary,#667eea);
-                                                background:rgba(102,126,234,0.1);
-                                                border-radius:99px;padding:2px 9px;
-                                                white-space:nowrap;"></div>
+                            <div class="mpm-identity">
+                                <div class="mpm-name-row">
+                                    <div id="memberModalName" class="mpm-name"></div>
+                                    <div id="memberModalRole" class="mpm-role-pill"></div>
                                 </div>
-                                <div id="memberModalLocation"
-                                     style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;
-                                            font-size:0.78rem;color:var(--text-muted);margin-top:5px;">
-                                </div>
+                                <div id="memberModalLocation" class="mpm-location"></div>
                             </div>
                         </div>
 
                         <!-- Inspiration -->
-                        <div id="memberModalInspiration"
-                             style="font-size:0.85rem;font-style:italic;
-                                    color:var(--neuro-text-light,#555);
-                                    text-align:center;margin-bottom:0.8rem;
-                                    padding:0 0.5rem;line-height:1.5;">
-                        </div>
+                        <div id="memberModalInspiration" class="mpm-inspiration"></div>
 
                         <!-- Level badge — prominent -->
-                        <div style="text-align:center;margin-bottom:0.8rem;">
-                            <span id="memberModalLevel"
-                                  style="font-size:0.92rem;font-weight:700;
-                                         color:var(--primary,#667eea);
-                                         background:rgba(102,126,234,0.12);
-                                         border-radius:99px;padding:4px 14px;"></span>
+                        <div class="mpm-level-wrap">
+                            <span id="memberModalLevel" class="mpm-level"></span>
                         </div>
 
                         <!-- Stats: XP, Karma, Blessings, Fav Room -->
-                        <div style="display:flex;justify-content:space-around;
-                                    margin-bottom:0.8rem;padding:0.8rem 0.5rem;
-                                    border-radius:12px;
-                                    background:var(--neuro-shadow-light,rgba(0,0,0,0.04));">
-                            <div style="text-align:center;">
-                                <div id="memberModalXP"
-                                     style="font-size:1.2rem;font-weight:700;color:var(--primary,#667eea);">—</div>
-                                <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">XP</div>
+                        <div class="mpm-stats">
+                            <div class="mpm-stat">
+                                <div id="memberModalXP" class="mpm-stat-value">—</div>
+                                <div class="mpm-stat-label">XP</div>
                             </div>
-                            <div style="text-align:center;">
-                                <div id="memberModalKarma"
-                                     style="font-size:1.2rem;font-weight:700;color:var(--primary,#667eea);">—</div>
-                                <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">Karma</div>
+                            <div class="mpm-stat">
+                                <div id="memberModalKarma" class="mpm-stat-value">—</div>
+                                <div class="mpm-stat-label">Karma</div>
                             </div>
-                            <div style="text-align:center;">
-                                <div id="memberModalBlessings"
-                                     style="font-size:1.2rem;font-weight:700;color:var(--primary,#667eea);">—</div>
-                                <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">🙏 Blessings</div>
+                            <div class="mpm-stat">
+                                <div id="memberModalBlessings" class="mpm-stat-value">—</div>
+                                <div class="mpm-stat-label">🙏 Blessings</div>
                             </div>
-                            <div style="text-align:center;">
-                                <div id="memberModalFavRoom"
-                                     style="font-size:0.82rem;font-weight:700;color:var(--primary,#667eea);">—</div>
-                                <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">Fav Room</div>
+                            <div class="mpm-stat">
+                                <div id="memberModalFavRoom" class="mpm-stat-value mpm-stat-value--sm">—</div>
+                                <div class="mpm-stat-label">Fav Room</div>
                             </div>
                         </div>
 
                         <!-- Badges -->
-                        <div id="memberModalBadges"
-                             style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
-                                    margin-top:1.2rem;margin-bottom:1rem;min-height:1.5rem;">
-                        </div>
+                        <div id="memberModalBadges" class="mpm-badges"></div>
 
                         <!-- Appreciate button (full width, above other actions) -->
                         <button id="memberModalAppreciateBtn"
                                 onclick="MemberProfileModal.toggleAppreciate()"
-                                style="width:100%;padding:10px;border-radius:12px;border:none;
-                                       cursor:pointer;font-size:0.9rem;font-weight:600;
-                                       margin-bottom:10px;
-                                       background:var(--neuro-bg,#f0f0f3);
-                                       color:var(--neuro-text);
-                                       box-shadow:3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
-                                       transition:all 0.2s;">
+                                class="mpm-appreciate-btn">
                             🙏 Appreciate
                         </button>
 
                         <!-- Action buttons -->
-                        <div style="display:flex;gap:10px;margin-bottom:1rem;">
+                        <div class="mpm-actions">
                             <button id="memberModalWhisperBtn"
                                     onclick="MemberProfileModal.startWhisper()"
-                                    style="flex:1;padding:10px;border-radius:12px;border:none;
-                                           cursor:pointer;font-size:0.9rem;font-weight:600;
-                                           background:var(--primary,#667eea);color:#fff;">
+                                    class="mpm-action-primary">
                                 💬 Whisper
                             </button>
                             <button onclick="MemberProfileModal.startReport()"
-                                    style="padding:10px 14px;border-radius:12px;border:none;
-                                           cursor:pointer;font-size:0.9rem;
-                                           background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
-                                           color:var(--neuro-text);">
+                                    class="mpm-action-secondary">
                                 🚩 Report
                             </button>
                             <button onclick="MemberProfileModal.startBlock()"
-                                    style="padding:10px 14px;border-radius:12px;border:none;
-                                           cursor:pointer;font-size:0.9rem;
-                                           background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
-                                           color:var(--neuro-text);">
+                                    class="mpm-action-secondary">
                                 🚫 Block
                             </button>
                         </div>
 
                         <!-- Whisper input (hidden by default) -->
-                        <div id="memberModalWhisperPanel" style="display:none;margin-top:0.5rem;">
+                        <div id="memberModalWhisperPanel" class="mpm-panel" style="display:none;">
                             <textarea id="memberModalWhisperText"
                                       placeholder="Write a private message..."
                                       maxlength="500"
                                       rows="3"
-                                      style="width:100%;padding:10px;border-radius:10px;
-                                             border:1px solid rgba(0,0,0,0.12);
-                                             font-size:0.88rem;resize:none;
-                                             background:var(--neuro-bg);
-                                             color:var(--neuro-text);
-                                             box-sizing:border-box;"></textarea>
-                            <div style="display:flex;gap:8px;margin-top:8px;">
+                                      class="mpm-panel-textarea"></textarea>
+                            <div class="mpm-panel-btns">
                                 <button onclick="MemberProfileModal.sendWhisper()"
-                                        style="flex:1;padding:8px;border-radius:10px;border:none;
-                                               cursor:pointer;font-size:0.88rem;font-weight:600;
-                                               background:var(--primary,#667eea);color:#fff;">
+                                        class="mpm-panel-btn-primary">
                                     Send
                                 </button>
                                 <button onclick="MemberProfileModal.cancelWhisper()"
-                                        style="padding:8px 14px;border-radius:10px;border:none;
-                                               cursor:pointer;font-size:0.88rem;
-                                               background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
-                                               color:var(--neuro-text);">
+                                        class="mpm-panel-btn-cancel">
                                     Cancel
                                 </button>
                             </div>
                         </div>
 
                         <!-- Report panel (hidden by default) -->
-                        <div id="memberModalReportPanel" style="display:none;margin-top:0.5rem;">
-                            <select id="memberModalReportReason"
-                                    style="width:100%;padding:10px;border-radius:10px;
-                                           border:1px solid rgba(0,0,0,0.12);
-                                           font-size:0.88rem;margin-bottom:8px;
-                                           background:var(--neuro-bg);color:var(--neuro-text);">
+                        <div id="memberModalReportPanel" class="mpm-panel" style="display:none;">
+                            <select id="memberModalReportReason" class="mpm-panel-select">
                                 <option value="">Select a reason...</option>
                                 <option value="harassment">Harassment</option>
                                 <option value="spam">Spam</option>
@@ -238,223 +158,106 @@ const MemberProfileModal = {
                                       placeholder="Additional details (optional)"
                                       maxlength="300"
                                       rows="2"
-                                      style="width:100%;padding:10px;border-radius:10px;
-                                             border:1px solid rgba(0,0,0,0.12);
-                                             font-size:0.88rem;resize:none;
-                                             background:var(--neuro-bg);color:var(--neuro-text);
-                                             box-sizing:border-box;"></textarea>
-                            <div style="display:flex;gap:8px;margin-top:8px;">
+                                      class="mpm-panel-textarea"></textarea>
+                            <div class="mpm-panel-btns">
                                 <button onclick="MemberProfileModal.submitReport()"
-                                        style="flex:1;padding:8px;border-radius:10px;border:none;
-                                               cursor:pointer;font-size:0.88rem;font-weight:600;
-                                               background:#ef4444;color:#fff;">
+                                        class="mpm-panel-btn-danger">
                                     Submit Report
                                 </button>
                                 <button onclick="MemberProfileModal.cancelReport()"
-                                        style="padding:8px 14px;border-radius:10px;border:none;
-                                               cursor:pointer;font-size:0.88rem;
-                                               background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
-                                               color:var(--neuro-text);">
+                                        class="mpm-panel-btn-cancel">
                                     Cancel
                                 </button>
                             </div>
                         </div>
 
                         <!-- Admin Panel (injected by JS if admin) -->
-                        <div id="memberModalAdminSection" style="display:none;margin-top:1rem;">
+                        <div id="memberModalAdminSection" class="mpm-admin-section" style="display:none;">
                             <!-- Collapsible header -->
-                            <div onclick="MemberProfileModal._toggleAdminPanel()"
-                                 style="display:flex;align-items:center;justify-content:space-between;
-                                        padding:10px 14px;border-radius:12px;cursor:pointer;
-                                        background:rgba(139,92,246,0.08);
-                                        border:2px dashed rgba(139,92,246,0.4);
-                                        user-select:none;">
-                                <span style="font-size:0.78rem;font-weight:700;text-transform:uppercase;
-                                             letter-spacing:1px;color:rgba(139,92,246,0.9);">
-                                    🛡️ Admin Controls
-                                </span>
-                                <span id="memberModalAdminToggle"
-                                      style="font-size:0.75rem;color:rgba(139,92,246,0.7);">▶</span>
+                            <div onclick="MemberProfileModal._toggleAdminPanel()" class="mpm-admin-header">
+                                <span class="mpm-admin-label">🛡️ Admin Controls</span>
+                                <span id="memberModalAdminToggle" class="mpm-admin-toggle">▶</span>
                             </div>
 
                             <!-- Collapsible body -->
-                            <div id="memberModalAdminBody" style="display:none;margin-top:10px;">
+                            <div id="memberModalAdminBody" class="mpm-admin-body" style="display:none;">
 
                                 <!-- Action buttons grid -->
-                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-                                    <button onclick="MemberProfileModal._openAdminSub('role')"
-                                            style="padding:9px 6px;border-radius:10px;border:none;cursor:pointer;
-                                                   font-size:0.82rem;font-weight:600;
-                                                   background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.95);">
-                                        👤 Change Role
-                                    </button>
-                                    <button onclick="MemberProfileModal._openAdminSub('xp')"
-                                            style="padding:9px 6px;border-radius:10px;border:none;cursor:pointer;
-                                                   font-size:0.82rem;font-weight:600;
-                                                   background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.95);">
-                                        ⭐ Send XP
-                                    </button>
-                                    <button onclick="MemberProfileModal._openAdminSub('karma')"
-                                            style="padding:9px 6px;border-radius:10px;border:none;cursor:pointer;
-                                                   font-size:0.82rem;font-weight:600;
-                                                   background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.95);">
-                                        🌀 Send Karma
-                                    </button>
-                                    <button onclick="MemberProfileModal._openAdminSub('badge')"
-                                            style="padding:9px 6px;border-radius:10px;border:none;cursor:pointer;
-                                                   font-size:0.82rem;font-weight:600;
-                                                   background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.95);">
-                                        🎖️ Send Badge
-                                    </button>
-                                    <button onclick="MemberProfileModal._openAdminSub('premium')"
-                                            style="padding:9px 6px;border-radius:10px;border:none;cursor:pointer;
-                                                   font-size:0.82rem;font-weight:600;
-                                                   background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.95);">
-                                        🔓 Unlock Premium
-                                    </button>
-                                    <button onclick="MemberProfileModal._openAdminSub('message')"
-                                            style="padding:9px 6px;border-radius:10px;border:none;cursor:pointer;
-                                                   font-size:0.82rem;font-weight:600;
-                                                   background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.95);">
-                                        📩 Send Message
-                                    </button>
+                                <div class="mpm-admin-grid">
+                                    <button onclick="MemberProfileModal._openAdminSub('role')" class="mpm-admin-grid-btn">👤 Change Role</button>
+                                    <button onclick="MemberProfileModal._openAdminSub('xp')" class="mpm-admin-grid-btn">⭐ Send XP</button>
+                                    <button onclick="MemberProfileModal._openAdminSub('karma')" class="mpm-admin-grid-btn">🌀 Send Karma</button>
+                                    <button onclick="MemberProfileModal._openAdminSub('badge')" class="mpm-admin-grid-btn">🎖️ Send Badge</button>
+                                    <button onclick="MemberProfileModal._openAdminSub('premium')" class="mpm-admin-grid-btn">🔓 Unlock Premium</button>
+                                    <button onclick="MemberProfileModal._openAdminSub('message')" class="mpm-admin-grid-btn">📩 Send Message</button>
                                 </div>
 
                                 <!-- Sub-panel: Change Role -->
                                 <div id="adminSubRole" style="display:none;" class="admin-sub-panel">
-                                    <select id="adminRoleSelect"
-                                            style="width:100%;padding:9px;border-radius:10px;
-                                                   border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
-                                                   margin-bottom:8px;background:var(--neuro-bg);color:var(--neuro-text);">
+                                    <select id="adminRoleSelect" class="mpm-admin-field mpm-admin-field--mb">
                                         <option value="Member">Member</option>
                                         <option value="Moderator">Moderator</option>
                                         <option value="Guide">Guide</option>
                                         <option value="Elder">Elder</option>
                                         <option value="Admin">Admin</option>
                                     </select>
-                                    <div style="display:flex;gap:8px;">
-                                        <button onclick="MemberProfileModal._adminChangeRole()"
-                                                style="flex:1;padding:8px;border-radius:10px;border:none;cursor:pointer;
-                                                       font-size:0.88rem;font-weight:600;
-                                                       background:rgba(139,92,246,0.85);color:#fff;">
-                                            Save Role
-                                        </button>
-                                        <button onclick="MemberProfileModal._closeAdminSubs()"
-                                                style="padding:8px 14px;border-radius:10px;border:none;cursor:pointer;
-                                                       font-size:0.88rem;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
-                                                       color:var(--neuro-text);">Cancel</button>
+                                    <div class="mpm-admin-btns">
+                                        <button onclick="MemberProfileModal._adminChangeRole()" class="mpm-admin-save-btn">Save Role</button>
+                                        <button onclick="MemberProfileModal._closeAdminSubs()" class="mpm-admin-cancel-btn">Cancel</button>
                                     </div>
                                 </div>
 
                                 <!-- Sub-panel: Send XP -->
                                 <div id="adminSubXp" style="display:none;" class="admin-sub-panel">
                                     <input type="number" id="adminXpAmount" min="1" value="100" placeholder="XP amount"
-                                           style="width:100%;padding:9px;border-radius:10px;box-sizing:border-box;
-                                                  border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
-                                                  margin-bottom:8px;background:var(--neuro-bg);color:var(--neuro-text);">
-                                    <div style="display:flex;gap:8px;">
-                                        <button onclick="MemberProfileModal._adminSendXP()"
-                                                style="flex:1;padding:8px;border-radius:10px;border:none;cursor:pointer;
-                                                       font-size:0.88rem;font-weight:600;
-                                                       background:rgba(139,92,246,0.85);color:#fff;">
-                                            Send XP
-                                        </button>
-                                        <button onclick="MemberProfileModal._closeAdminSubs()"
-                                                style="padding:8px 14px;border-radius:10px;border:none;cursor:pointer;
-                                                       font-size:0.88rem;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
-                                                       color:var(--neuro-text);">Cancel</button>
+                                           class="mpm-admin-field mpm-admin-field--mb">
+                                    <div class="mpm-admin-btns">
+                                        <button onclick="MemberProfileModal._adminSendXP()" class="mpm-admin-save-btn">Send XP</button>
+                                        <button onclick="MemberProfileModal._closeAdminSubs()" class="mpm-admin-cancel-btn">Cancel</button>
                                     </div>
                                 </div>
 
                                 <!-- Sub-panel: Send Karma -->
                                 <div id="adminSubKarma" style="display:none;" class="admin-sub-panel">
                                     <input type="number" id="adminKarmaAmount" min="1" value="50" placeholder="Karma amount"
-                                           style="width:100%;padding:9px;border-radius:10px;box-sizing:border-box;
-                                                  border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
-                                                  margin-bottom:8px;background:var(--neuro-bg);color:var(--neuro-text);">
-                                    <div style="display:flex;gap:8px;">
-                                        <button onclick="MemberProfileModal._adminSendKarma()"
-                                                style="flex:1;padding:8px;border-radius:10px;border:none;cursor:pointer;
-                                                       font-size:0.88rem;font-weight:600;
-                                                       background:rgba(139,92,246,0.85);color:#fff;">
-                                            Send Karma
-                                        </button>
-                                        <button onclick="MemberProfileModal._closeAdminSubs()"
-                                                style="padding:8px 14px;border-radius:10px;border:none;cursor:pointer;
-                                                       font-size:0.88rem;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
-                                                       color:var(--neuro-text);">Cancel</button>
+                                           class="mpm-admin-field mpm-admin-field--mb">
+                                    <div class="mpm-admin-btns">
+                                        <button onclick="MemberProfileModal._adminSendKarma()" class="mpm-admin-save-btn">Send Karma</button>
+                                        <button onclick="MemberProfileModal._closeAdminSubs()" class="mpm-admin-cancel-btn">Cancel</button>
                                     </div>
                                 </div>
 
                                 <!-- Sub-panel: Send Badge -->
                                 <div id="adminSubBadge" style="display:none;" class="admin-sub-panel">
-                                    <select id="adminBadgeSelect"
-                                            style="width:100%;padding:9px;border-radius:10px;
-                                                   border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
-                                                   margin-bottom:8px;background:var(--neuro-bg);color:var(--neuro-text);">
+                                    <select id="adminBadgeSelect" class="mpm-admin-field mpm-admin-field--mb">
                                         <option value="early_supporter" data-icon="🌟" data-rarity="epic" data-xp="100" data-desc="Joined during early access">🌟 Early Supporter</option>
                                         <option value="vip_member" data-icon="👑" data-rarity="legendary" data-xp="150" data-desc="VIP community member">👑 VIP Member</option>
                                         <option value="beta_tester" data-icon="🧪" data-rarity="rare" data-xp="100" data-desc="Helped test new features">🧪 Beta Tester</option>
                                         <option value="spiritual_guide" data-icon="🕉️" data-rarity="epic" data-xp="150" data-desc="Community mentor and guide">🕉️ Spiritual Guide</option>
                                         <option value="community_hero" data-icon="🦸" data-rarity="legendary" data-xp="200" data-desc="Outstanding community contribution">🦸 Community Hero</option>
                                     </select>
-                                    <div style="display:flex;gap:8px;">
-                                        <button onclick="MemberProfileModal._adminSendBadge()"
-                                                style="flex:1;padding:8px;border-radius:10px;border:none;cursor:pointer;
-                                                       font-size:0.88rem;font-weight:600;
-                                                       background:rgba(139,92,246,0.85);color:#fff;">
-                                            Award Badge
-                                        </button>
-                                        <button onclick="MemberProfileModal._closeAdminSubs()"
-                                                style="padding:8px 14px;border-radius:10px;border:none;cursor:pointer;
-                                                       font-size:0.88rem;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
-                                                       color:var(--neuro-text);">Cancel</button>
+                                    <div class="mpm-admin-btns">
+                                        <button onclick="MemberProfileModal._adminSendBadge()" class="mpm-admin-save-btn">Award Badge</button>
+                                        <button onclick="MemberProfileModal._closeAdminSubs()" class="mpm-admin-cancel-btn">Cancel</button>
                                     </div>
                                 </div>
 
                                 <!-- Sub-panel: Unlock Premium -->
                                 <div id="adminSubPremium" style="display:none;" class="admin-sub-panel">
-                                    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;
-                                                max-height:160px;overflow-y:auto;padding:4px 0;">
-                                        <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;">
-                                            <input type="checkbox" value="advance_tarot_spreads"> Advanced Tarot Spreads
-                                        </label>
-                                        <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;">
-                                            <input type="checkbox" value="tarot_vision_ai"> Tarot Vision AI
-                                        </label>
-                                        <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;">
-                                            <input type="checkbox" value="shadow_alchemy_lab"> Shadow Alchemy Lab
-                                        </label>
-                                        <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;">
-                                            <input type="checkbox" value="advanced_meditations"> Advanced Meditations
-                                        </label>
-                                        <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;">
-                                            <input type="checkbox" value="luxury_blush_champagne_skin"> Blush Champagne Skin
-                                        </label>
-                                        <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;">
-                                            <input type="checkbox" value="luxury_champagne_gold_skin"> Champagne Gold Skin
-                                        </label>
-                                        <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;">
-                                            <input type="checkbox" value="luxury_marble_bronze_skin"> Marble Bronze Skin
-                                        </label>
-                                        <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;">
-                                            <input type="checkbox" value="royal_indigo_skin"> Royal Indigo Skin
-                                        </label>
-                                        <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;">
-                                            <input type="checkbox" value="earth_luxury_skin"> Earth Luxury Skin
-                                        </label>
+                                    <div class="mpm-admin-premium-list">
+                                        <label class="mpm-admin-premium-label"><input type="checkbox" value="advance_tarot_spreads"> Advanced Tarot Spreads</label>
+                                        <label class="mpm-admin-premium-label"><input type="checkbox" value="tarot_vision_ai"> Tarot Vision AI</label>
+                                        <label class="mpm-admin-premium-label"><input type="checkbox" value="shadow_alchemy_lab"> Shadow Alchemy Lab</label>
+                                        <label class="mpm-admin-premium-label"><input type="checkbox" value="advanced_meditations"> Advanced Meditations</label>
+                                        <label class="mpm-admin-premium-label"><input type="checkbox" value="luxury_blush_champagne_skin"> Blush Champagne Skin</label>
+                                        <label class="mpm-admin-premium-label"><input type="checkbox" value="luxury_champagne_gold_skin"> Champagne Gold Skin</label>
+                                        <label class="mpm-admin-premium-label"><input type="checkbox" value="luxury_marble_bronze_skin"> Marble Bronze Skin</label>
+                                        <label class="mpm-admin-premium-label"><input type="checkbox" value="royal_indigo_skin"> Royal Indigo Skin</label>
+                                        <label class="mpm-admin-premium-label"><input type="checkbox" value="earth_luxury_skin"> Earth Luxury Skin</label>
                                     </div>
-                                    <div style="display:flex;gap:8px;">
-                                        <button onclick="MemberProfileModal._adminUnlockPremium()"
-                                                style="flex:1;padding:8px;border-radius:10px;border:none;cursor:pointer;
-                                                       font-size:0.88rem;font-weight:600;
-                                                       background:rgba(139,92,246,0.85);color:#fff;">
-                                            Unlock Selected
-                                        </button>
-                                        <button onclick="MemberProfileModal._closeAdminSubs()"
-                                                style="padding:8px 14px;border-radius:10px;border:none;cursor:pointer;
-                                                       font-size:0.88rem;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
-                                                       color:var(--neuro-text);">Cancel</button>
+                                    <div class="mpm-admin-btns">
+                                        <button onclick="MemberProfileModal._adminUnlockPremium()" class="mpm-admin-save-btn">Unlock Selected</button>
+                                        <button onclick="MemberProfileModal._closeAdminSubs()" class="mpm-admin-cancel-btn">Cancel</button>
                                     </div>
                                 </div>
 
@@ -462,26 +265,13 @@ const MemberProfileModal = {
                                 <div id="adminSubMessage" style="display:none;" class="admin-sub-panel">
                                     <input type="text" id="adminMessageTitle" placeholder="Message title"
                                            maxlength="100"
-                                           style="width:100%;padding:9px;border-radius:10px;box-sizing:border-box;
-                                                  border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
-                                                  margin-bottom:8px;background:var(--neuro-bg);color:var(--neuro-text);">
+                                           class="mpm-admin-field mpm-admin-field--mb">
                                     <textarea id="adminMessageContent" placeholder="Write your message..." rows="3"
                                               maxlength="1000"
-                                              style="width:100%;padding:9px;border-radius:10px;box-sizing:border-box;
-                                                     border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
-                                                     resize:none;margin-bottom:8px;
-                                                     background:var(--neuro-bg);color:var(--neuro-text);"></textarea>
-                                    <div style="display:flex;gap:8px;">
-                                        <button onclick="MemberProfileModal._adminSendMessage()"
-                                                style="flex:1;padding:8px;border-radius:10px;border:none;cursor:pointer;
-                                                       font-size:0.88rem;font-weight:600;
-                                                       background:rgba(139,92,246,0.85);color:#fff;">
-                                            Send Message
-                                        </button>
-                                        <button onclick="MemberProfileModal._closeAdminSubs()"
-                                                style="padding:8px 14px;border-radius:10px;border:none;cursor:pointer;
-                                                       font-size:0.88rem;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
-                                                       color:var(--neuro-text);">Cancel</button>
+                                              class="mpm-admin-field mpm-admin-field--mb mpm-admin-field--textarea"></textarea>
+                                    <div class="mpm-admin-btns">
+                                        <button onclick="MemberProfileModal._adminSendMessage()" class="mpm-admin-save-btn">Send Message</button>
+                                        <button onclick="MemberProfileModal._closeAdminSubs()" class="mpm-admin-cancel-btn">Cancel</button>
                                     </div>
                                 </div>
 
@@ -631,7 +421,7 @@ const MemberProfileModal = {
             if (profile.avatar_url) {
                 avatarEl.style.background = 'transparent';
                 avatarEl.innerHTML = `<img src="${profile.avatar_url}"
-                    style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+                    class="member-avatar-img"
                     alt="${this._escape(profile.name)}">`;
             } else {
                 const gradient = window.Core?.getAvatarGradient
@@ -729,18 +519,12 @@ const MemberProfileModal = {
                 const color = rarityColors[b.rarity] || rarityColors.common;
                 const label = rarityLabels[b.rarity] || 'Common';
                 return `<div title="${b.name || 'Badge'} · ${label}"
-                             style="display:flex;flex-direction:column;align-items:center;justify-content:center;
-                                    width:52px;height:60px;border-radius:12px;
-                                    background:var(--neuro-bg,#f0f0f3);
-                                    box-shadow:3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
-                                    border-bottom:3px solid ${color};
-                                    cursor:default;transition:transform 0.15s,box-shadow 0.15s;
-                                    position:relative;overflow:hidden;"
+                             class="mpm-badge-card"
+                             style="border-bottom:3px solid ${color};"
                              onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='4px 4px 12px rgba(0,0,0,0.15),-2px -2px 8px rgba(255,255,255,0.8)'"
-                             onmouseout="this.style.transform='';this.style.boxShadow='3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7)'">
-                             <div style="position:absolute;top:0;left:0;right:0;height:3px;
-                                         background:${color};opacity:0.3;border-radius:12px 12px 0 0;"></div>
-                             <span style="font-size:1.5rem;line-height:1;">${b.icon || '🏅'}</span>
+                             onmouseout="this.style.transform='';this.style.boxShadow=''">
+                             <div class="mpm-badge-accent-bar" style="background:${color};"></div>
+                             <span class="mpm-badge-icon">${b.icon || '🏅'}</span>
                          </div>`;
             }).join('');
         }

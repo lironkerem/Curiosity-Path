@@ -55,14 +55,14 @@ const ProfileModule = {
 
     getHTML() {
         return `
-        <header class="profile-hero" style="border-radius:20px 20px 0 0;overflow:hidden;">
+        <header class="profile-hero prof-hero-header">
             <div class="profile-container">
                 <div class="profile-content">
                     <div class="profile-avatar-section">
                         <div class="profile-avatar-wrap">
                             <div class="profile-avatar" id="profileAvatar" aria-label="Profile avatar">
                                 <img id="profileAvatarImg"
-                                     style="display:none;width:100%;height:100%;object-fit:cover;border-radius:inherit;"
+                                     class="prof-avatar-img"
                                      alt="Profile photo">
                                 <span id="profileAvatarFallback">?</span>
                             </div>
@@ -75,48 +75,28 @@ const ProfileModule = {
                         </div>
 
                         <!-- Status picker -->
-                        <div style="position:relative;">
+                        <div class="prof-status-wrap">
                             <button id="statusPickerBtn"
                                     onclick="ProfileModule.toggleStatusPicker()"
-                                    style="display:flex;align-items:center;gap:6px;
-                                           padding:5px 12px;border-radius:99px;border:none;
-                                           cursor:pointer;font-size:0.78rem;font-weight:600;
-                                           background:var(--neuro-bg,#f0f0f3);
-                                           color:var(--neuro-text);
-                                           box-shadow:2px 2px 6px rgba(0,0,0,0.1),-1px -1px 4px rgba(255,255,255,0.7);
-                                           transition:box-shadow 0.15s;">
-                                <span id="statusPickerDot"
-                                      style="width:9px;height:9px;border-radius:50%;
-                                             background:var(--ring-available,#6b9b37);
-                                             flex-shrink:0;"></span>
+                                    class="prof-status-btn">
+                                <span id="statusPickerDot" class="prof-status-dot"></span>
                                 <span id="statusPickerLabel">Available</span>
-                                <span style="opacity:0.5;font-size:10px;">▼</span>
+                                <span class="prof-status-chevron">▼</span>
                             </button>
 
-                            <div id="statusPickerDropdown"
-                                 style="display:none;position:absolute;top:calc(100% + 8px);left:50%;
-                                        transform:translateX(-50%);
-                                        background:var(--neuro-bg,#f0f0f3);
-                                        border-radius:14px;padding:6px;
-                                        box-shadow:6px 6px 16px rgba(0,0,0,0.15),-3px -3px 10px rgba(255,255,255,0.7);
-                                        z-index:999;min-width:170px;">
+                            <div id="statusPickerDropdown" class="prof-status-dropdown" style="display:none;">
                                 ${[
-                                    {status:'online',   label:'Available',   color:'var(--ring-available,#6b9b37)', icon:'🟢'},
-                                    {status:'away',     label:'Away',        color:'var(--ring-guiding,#d4a574)',   icon:'🟡'},
-                                    {status:'silent',   label:'In Silence',  color:'var(--ring-silent,#6ba3b3)',    icon:'🔵'},
-                                    {status:'deep',     label:'Deep Practice',color:'var(--ring-deep,#8b7355)',    icon:'🟤'},
-                                    {status:'offline',  label:'Offline',     color:'var(--ring-offline,#a89279)',   icon:'⚫'},
+                                    {status:'online',   label:'Available',    color:'var(--ring-available,#6b9b37)', icon:'🟢'},
+                                    {status:'away',     label:'Away',         color:'var(--ring-guiding,#d4a574)',   icon:'🟡'},
+                                    {status:'silent',   label:'In Silence',   color:'var(--ring-silent,#6ba3b3)',    icon:'🔵'},
+                                    {status:'deep',     label:'Deep Practice',color:'var(--ring-deep,#8b7355)',      icon:'🟤'},
+                                    {status:'offline',  label:'Offline',      color:'var(--ring-offline,#a89279)',   icon:'⚫'},
                                 ].map(s => `
                                 <button onclick="ProfileModule.setStatus('${s.status}','${s.label}','${s.color}')"
-                                        style="display:flex;align-items:center;gap:10px;width:100%;
-                                               padding:8px 10px;border:none;border-radius:10px;
-                                               background:none;cursor:pointer;font-size:0.82rem;
-                                               color:var(--neuro-text);text-align:left;
-                                               transition:background 0.15s;"
+                                        class="prof-status-option"
                                         onmouseover="this.style.background='rgba(0,0,0,0.05)'"
                                         onmouseout="this.style.background='none'">
-                                    <span style="width:10px;height:10px;border-radius:50%;
-                                                 background:${s.color};flex-shrink:0;"></span>
+                                    <span class="prof-status-option-dot" style="background:${s.color};"></span>
                                     ${s.label}
                                 </button>`).join('')}
                             </div>
@@ -127,14 +107,7 @@ const ProfileModule = {
                         <!-- Name + Role pill -->
                         <div class="profile-name-row">
                             <div class="profile-name" id="profileName">Loading...</div>
-                            <div id="profileRoleBadge"
-                                 style="font-size:0.78rem;font-weight:600;
-                                        color:var(--primary,#667eea);
-                                        background:rgba(102,126,234,0.1);
-                                        border-radius:99px;padding:3px 10px;
-                                        white-space:nowrap;">
-                                👤 Member
-                            </div>
+                            <div id="profileRoleBadge" class="prof-role-pill">👤 Member</div>
                         </div>
 
                         <!-- Inspiration -->
@@ -148,21 +121,12 @@ const ProfileModule = {
                         </div>
 
                         <!-- Level — prominent, below inspiration -->
-                        <div id="profileLevelRow"
-                             style="margin:0.6rem 0 0.4rem;display:flex;align-items:center;">
-                            <span id="profileLevelBadge"
-                                  style="font-size:1rem;font-weight:700;
-                                         color:var(--primary,#667eea);
-                                         background:rgba(102,126,234,0.12);
-                                         border-radius:99px;padding:5px 14px;">
-                            </span>
+                        <div id="profileLevelRow" class="prof-level-row">
+                            <span id="profileLevelBadge" class="prof-level-badge"></span>
                         </div>
 
                         <!-- Birthday + Country inline -->
-                        <div id="profileLocationRow"
-                             style="display:flex;gap:16px;flex-wrap:wrap;
-                                    font-size:0.82rem;color:var(--text-muted);
-                                    margin-bottom:0.6rem;">
+                        <div id="profileLocationRow" class="prof-location-row">
                             <span id="profileBirthdayDisplay"></span>
                             <span id="profileCountryDisplay"></span>
                         </div>
@@ -189,7 +153,7 @@ const ProfileModule = {
 
 
 
-                        <div class="badges-row" id="badgesRow" style="margin-top:1.2rem;">
+                        <div class="badges-row prof-badges-row" id="badgesRow">
                             <!-- Populated dynamically from GamificationEngine -->
                         </div>
 
@@ -208,77 +172,43 @@ const ProfileModule = {
 
                         <div class="private-details" id="privateDetails">
                             <!-- My Activity Cards -->
-                            <div id="myActivityGrid"
-                                 style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;">
+                            <div id="myActivityGrid" class="prof-activity-grid">
 
-                                <div class="activity-card" onclick="ProfileModule.openActivityModal('journal')"
-                                     style="background:var(--neuro-bg,#f0f0f3);border-radius:14px;padding:14px;
-                                            cursor:pointer;text-align:center;
-                                            box-shadow:4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
-                                            transition:transform 0.15s,box-shadow 0.15s;">
-                                    <div style="font-size:1.6rem;margin-bottom:6px;">📓</div>
-                                    <div style="font-weight:700;font-size:0.88rem;color:var(--neuro-text);">Journal</div>
-                                    <div id="activityCount_journal"
-                                         style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">— entries</div>
+                                <div class="activity-card" onclick="ProfileModule.openActivityModal('journal')">
+                                    <div class="prof-activity-icon">📓</div>
+                                    <div class="prof-activity-title">Journal</div>
+                                    <div id="activityCount_journal" class="prof-activity-count">— entries</div>
                                 </div>
 
-                                <div class="activity-card" onclick="ProfileModule.openActivityModal('gratitude')"
-                                     style="background:var(--neuro-bg,#f0f0f3);border-radius:14px;padding:14px;
-                                            cursor:pointer;text-align:center;
-                                            box-shadow:4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
-                                            transition:transform 0.15s,box-shadow 0.15s;">
-                                    <div style="font-size:1.6rem;margin-bottom:6px;">🙏</div>
-                                    <div style="font-weight:700;font-size:0.88rem;color:var(--neuro-text);">Gratitude</div>
-                                    <div id="activityCount_gratitude"
-                                         style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">— entries</div>
+                                <div class="activity-card" onclick="ProfileModule.openActivityModal('gratitude')">
+                                    <div class="prof-activity-icon">🙏</div>
+                                    <div class="prof-activity-title">Gratitude</div>
+                                    <div id="activityCount_gratitude" class="prof-activity-count">— entries</div>
                                 </div>
 
-                                <div class="activity-card" onclick="ProfileModule.openActivityModal('energy')"
-                                     style="background:var(--neuro-bg,#f0f0f3);border-radius:14px;padding:14px;
-                                            cursor:pointer;text-align:center;
-                                            box-shadow:4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
-                                            transition:transform 0.15s,box-shadow 0.15s;">
-                                    <div style="font-size:1.6rem;margin-bottom:6px;">⚡</div>
-                                    <div style="font-weight:700;font-size:0.88rem;color:var(--neuro-text);">Energy</div>
-                                    <div id="activityCount_energy"
-                                         style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">— check-ins</div>
+                                <div class="activity-card" onclick="ProfileModule.openActivityModal('energy')">
+                                    <div class="prof-activity-icon">⚡</div>
+                                    <div class="prof-activity-title">Energy</div>
+                                    <div id="activityCount_energy" class="prof-activity-count">— check-ins</div>
                                 </div>
 
-                                <div class="activity-card" onclick="ProfileModule.openActivityModal('flip')"
-                                     style="background:var(--neuro-bg,#f0f0f3);border-radius:14px;padding:14px;
-                                            cursor:pointer;text-align:center;
-                                            box-shadow:4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
-                                            transition:transform 0.15s,box-shadow 0.15s;">
-                                    <div style="font-size:1.6rem;margin-bottom:6px;">🔄</div>
-                                    <div style="font-weight:700;font-size:0.88rem;color:var(--neuro-text);">Flip the Script</div>
-                                    <div id="activityCount_flip"
-                                         style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">— entries</div>
+                                <div class="activity-card" onclick="ProfileModule.openActivityModal('flip')">
+                                    <div class="prof-activity-icon">🔄</div>
+                                    <div class="prof-activity-title">Flip the Script</div>
+                                    <div id="activityCount_flip" class="prof-activity-count">— entries</div>
                                 </div>
 
                             </div>
                         </div>
 
                         <!-- Activity Modal -->
-                        <div id="activityModal"
-                             style="display:none;position:fixed;inset:0;z-index:9999;
-                                    background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);
-                                    align-items:center;justify-content:center;
-                                    opacity:0;transition:opacity 0.25s ease;">
-                            <div id="activityModalInner"
-                                 style="background:var(--neuro-bg,#f0f0f3);
-                                        border-radius:20px;padding:1.5rem;
-                                        max-width:480px;width:92%;max-height:80vh;
-                                        position:relative;display:flex;flex-direction:column;
-                                        box-shadow:8px 8px 20px rgba(0,0,0,0.15),-4px -4px 12px rgba(255,255,255,0.7);
-                                        transform:translateY(16px);transition:transform 0.25s ease;">
-                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-                                    <div id="activityModalTitle"
-                                         style="font-size:1.1rem;font-weight:700;color:var(--neuro-text);"></div>
-                                    <button onclick="ProfileModule.closeActivityModal()"
-                                            style="background:none;border:none;cursor:pointer;font-size:18px;opacity:0.5;">✕</button>
+                        <div id="activityModal" class="prof-modal-overlay" style="display:none;">
+                            <div id="activityModalInner" class="prof-modal-inner">
+                                <div class="prof-modal-header">
+                                    <div id="activityModalTitle" class="prof-modal-title"></div>
+                                    <button onclick="ProfileModule.closeActivityModal()" class="prof-modal-close">✕</button>
                                 </div>
-                                <div id="activityModalBody"
-                                     style="overflow-y:auto;flex:1;padding-right:4px;"></div>
+                                <div id="activityModalBody" class="prof-modal-body"></div>
                             </div>
                         </div>
                     </div>
@@ -641,7 +571,7 @@ const ProfileModule = {
         if (titleEl) titleEl.textContent = cfg.title;
         if (bodyEl)  bodyEl.innerHTML = entries.length > 0
             ? entries.map(e => this._renderActivityEntry(type, e)).join('')
-            : `<div style="text-align:center;color:var(--text-muted);padding:2rem;">No entries yet</div>`;
+            : `<div class="prof-entry-empty">No entries yet</div>`;
 
         const modal = document.getElementById('activityModal');
         const inner = document.getElementById('activityModalInner');
@@ -674,47 +604,43 @@ const ProfileModule = {
 
     _renderActivityEntry(type, entry) {
         const date = this._formatEntryDate(entry.timestamp || entry.date);
-        const base = `border-radius:12px;padding:12px 14px;margin-bottom:10px;
-                      background:var(--surface,rgba(0,0,0,0.03));
-                      border-left:3px solid var(--primary,#667eea);
-                      font-size:0.86rem;line-height:1.6;`;
 
         switch (type) {
             case 'journal': {
                 const text = entry.situation || entry.feelings || '';
-                const mood = entry.mood ? `<span style="margin-left:6px;opacity:0.7;">${entry.mood}</span>` : '';
-                return `<div style="${base}">
-                    <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">${date}${mood}</div>
-                    <div style="color:var(--neuro-text);">${this._esc(text)}</div>
+                const mood = entry.mood ? `<span class="prof-entry-mood">${entry.mood}</span>` : '';
+                return `<div class="prof-entry">
+                    <div class="prof-entry-date">${date}${mood}</div>
+                    <div class="prof-entry-text">${this._esc(text)}</div>
                 </div>`;
             }
             case 'gratitude': {
                 const items = entry.entries || [];
-                return `<div style="${base}">
-                    <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:6px;">${date}</div>
-                    ${items.map((g, i) => `<div style="margin-bottom:3px;">🙏 ${this._esc(g)}</div>`).join('')}
+                return `<div class="prof-entry">
+                    <div class="prof-entry-date">${date}</div>
+                    ${items.map((g, i) => `<div class="prof-entry-gratitude-item">🙏 ${this._esc(g)}</div>`).join('')}
                 </div>`;
             }
             case 'energy': {
                 const level = entry.energy ?? '—';
-                const notes = entry.notes ? `<div style="margin-top:4px;opacity:0.8;">${this._esc(entry.notes)}</div>` : '';
+                const notes = entry.notes ? `<div class="prof-entry-notes">${this._esc(entry.notes)}</div>` : '';
                 const tags  = (entry.moodTags || []).length
-                    ? `<div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:4px;">
-                        ${entry.moodTags.map(t => `<span style="background:rgba(102,126,234,0.12);color:var(--primary);border-radius:99px;padding:2px 8px;font-size:0.72rem;">${this._esc(t)}</span>`).join('')}
+                    ? `<div class="prof-entry-tags">
+                        ${entry.moodTags.map(t => `<span class="prof-entry-tag">${this._esc(t)}</span>`).join('')}
                        </div>` : '';
-                return `<div style="${base}">
-                    <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">${date}</div>
-                    <div style="font-size:1rem;font-weight:700;color:var(--primary);">⚡ Energy: ${level}/10</div>
+                return `<div class="prof-entry">
+                    <div class="prof-entry-date">${date}</div>
+                    <div class="prof-entry-energy-level">⚡ Energy: ${level}/10</div>
                     ${tags}${notes}
                 </div>`;
             }
             case 'flip': {
                 const text = entry.situation || entry.original || entry.text || entry.content || '';
                 const reframe = entry.reframe || entry.flipped || '';
-                return `<div style="${base}">
-                    <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">${date}</div>
-                    ${text ? `<div style="color:var(--neuro-text);">📝 ${this._esc(text)}</div>` : ''}
-                    ${reframe ? `<div style="margin-top:6px;color:var(--primary);">✨ ${this._esc(reframe)}</div>` : ''}
+                return `<div class="prof-entry">
+                    <div class="prof-entry-date">${date}</div>
+                    ${text ? `<div class="prof-entry-flip-text">📝 ${this._esc(text)}</div>` : ''}
+                    ${reframe ? `<div class="prof-entry-flip-reframe">✨ ${this._esc(reframe)}</div>` : ''}
                 </div>`;
             }
             default: return '';
@@ -746,7 +672,7 @@ const ProfileModule = {
         const earned = window.app?.gamification?.state?.badges ?? [];
 
         if (!earned || earned.length === 0) {
-            row.innerHTML = '<span style="font-size:12px;color:var(--text-muted);opacity:0.6;">No badges earned yet</span>';
+            row.innerHTML = '<span class="prof-no-badges">No badges earned yet</span>';
             return;
         }
 
@@ -760,18 +686,12 @@ const ProfileModule = {
             const rarityLabels = { common:'Common', uncommon:'Uncommon', rare:'Rare', epic:'Epic', legendary:'Legendary' };
             const color   = rarityColors[rarity] || rarityColors.common;
             return `<div title="${name} · ${rarityLabels[rarity] || 'Common'}"
-                        style="display:flex;flex-direction:column;align-items:center;justify-content:center;
-                               width:52px;height:60px;border-radius:12px;
-                               background:var(--neuro-bg,#f0f0f3);
-                               box-shadow:3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
-                               border-bottom:3px solid ${color};
-                               cursor:default;transition:transform 0.15s,box-shadow 0.15s;
-                               position:relative;overflow:hidden;"
+                        class="mpm-badge-card"
+                        style="border-bottom:3px solid ${color};"
                         onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='4px 4px 12px rgba(0,0,0,0.15),-2px -2px 8px rgba(255,255,255,0.8)'"
-                        onmouseout="this.style.transform='';this.style.boxShadow='3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7)'">
-                        <div style="position:absolute;top:0;left:0;right:0;height:3px;
-                                    background:${color};opacity:0.3;border-radius:12px 12px 0 0;"></div>
-                        <span style="font-size:1.5rem;line-height:1;">${icon}</span>
+                        onmouseout="this.style.transform='';this.style.boxShadow=''">
+                        <div class="mpm-badge-accent-bar" style="background:${color};"></div>
+                        <span class="mpm-badge-icon">${icon}</span>
                     </div>`;
         }).join('');
     },

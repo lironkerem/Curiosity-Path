@@ -95,7 +95,7 @@ const CommunityModule = {
         const gradient  = Core.getAvatarGradient(user.id || 'me');
 
         const avatarInner = avatarUrl
-            ? `<img src="${avatarUrl}" alt="${name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+            ? `<img src="${avatarUrl}" alt="${name}" class="member-avatar-img">`
             : (emoji || initial);
         const avatarStyle = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
 
@@ -103,17 +103,17 @@ const CommunityModule = {
         <section class="section">
             <div class="section-header">
                 <div class="section-title">Community Reflections</div>
-                <div style="font-size: 12px; color: var(--text-muted);">Shared wisdom & moments</div>
+                <div class="section-subtitle">Shared wisdom & moments</div>
             </div>
 
             <!-- New reflection input -->
-            <div class="reflection" style="margin-bottom:16px;">
+            <div class="reflection reflection--input">
                 <div class="ref-header">
-                    <div class="ref-avatar" style="${avatarStyle} cursor:pointer;"
+                    <div class="ref-avatar ref-avatar--clickable" style="${avatarStyle}"
                          onclick="CommunityModule.viewMember('${user.id}')">
                         ${avatarInner}
                     </div>
-                    <div class="ref-meta" style="flex:1;">
+                    <div class="ref-meta">
                         <div class="ref-author">${name}</div>
                         <div class="ref-time">Write a reflection...</div>
                     </div>
@@ -121,16 +121,10 @@ const CommunityModule = {
                 <textarea id="reflectionInput"
                           placeholder="Share a reflection with the community..."
                           maxlength="500"
-                          style="width:100%;padding:10px 12px;border:1px solid var(--border);
-                                 border-radius:var(--radius-md);background:var(--surface);
-                                 color:var(--text);resize:none;min-height:80px;
-                                 font-size:14px;line-height:1.6;box-sizing:border-box;
-                                 margin-top:4px;"></textarea>
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:10px;border-top:2px solid var(--border);">
-                    <span style="font-size:11px;color:var(--text-muted);"><span id="charCount">0</span>/500</span>
-                    <button onclick="CommunityModule.shareReflection()"
-                            style="padding:7px 20px;background:var(--accent);color:#fff;border:none;
-                                   border-radius:var(--radius-md);cursor:pointer;font-size:13px;font-weight:600;">
+                          class="reflection-textarea"></textarea>
+                <div class="reflection-submit-row">
+                    <span class="reflection-char-count"><span id="charCount">0</span>/500</span>
+                    <button onclick="CommunityModule.shareReflection()" class="reflection-submit-btn">
                         Share
                     </button>
                 </div>
@@ -164,7 +158,7 @@ const CommunityModule = {
         if (!container) return;
 
         try {
-            container.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:16px;text-align:center">Loading reflections...</div>';
+            container.innerHTML = '<div class="reflection-status">Loading reflections...</div>';
 
             const [reflections, blocked] = await Promise.all([
                 CommunityDB.getReflections(20),
@@ -175,7 +169,7 @@ const CommunityModule = {
 
             container.innerHTML = visible.length > 0
                 ? visible.map(r => this.getReflectionHTML(r)).join('')
-                : '<div style="color:var(--text-muted);font-size:13px;padding:16px;text-align:center">Be the first to share a reflection ✨</div>';
+                : '<div class="reflection-status">Be the first to share a reflection ✨</div>';
 
 
         } catch (error) {
@@ -206,13 +200,13 @@ const CommunityModule = {
         return `
             <div class="reflection" data-reflection-id="${ref.id}">
                 <div class="ref-header">
-                    <div class="ref-avatar"
-                         style="${avatarStyle} cursor: pointer;"
+                    <div class="ref-avatar ref-avatar--clickable"
+                         style="${avatarStyle}"
                          onclick="CommunityModule.viewMember('${profile.id}')">
                         ${avatarInner}
                     </div>
                     <div class="ref-meta">
-                        <div class="ref-author" style="cursor: pointer;"
+                        <div class="ref-author ref-author--clickable"
                              onclick="CommunityModule.viewMember('${profile.id}')">
                             ${this.escapeHtml(name)}
                         </div>
@@ -233,21 +227,18 @@ const CommunityModule = {
                         <span>Whisper</span>
                     </button>
                     ${isOwn ? `
-                    <div style="margin-left:auto;display:flex;gap:4px;">
+                    <div class="ref-actions-own">
                         <button onclick="CommunityModule.editReflection('${ref.id}')"
-                                class="ref-action"
-                                title="Edit reflection"
-                                style="font-size:14px;opacity:0.6;">✏️</button>
+                                class="ref-action ref-action-icon"
+                                title="Edit reflection">✏️</button>
                         <button onclick="CommunityModule.deleteReflection('${ref.id}')"
-                                class="ref-action"
-                                title="Delete reflection"
-                                style="font-size:14px;opacity:0.6;">🗑️</button>
+                                class="ref-action ref-action-icon"
+                                title="Delete reflection">🗑️</button>
                     </div>` : (isAdmin ? `
-                    <div style="margin-left:auto;display:flex;gap:4px;">
+                    <div class="ref-actions-own">
                         <button onclick="CommunityModule.deleteReflection('${ref.id}')"
-                                class="ref-action"
-                                title="Delete reflection (Admin)"
-                                style="font-size:14px;opacity:0.6;color:rgba(139,92,246,0.8);">🛡️🗑️</button>
+                                class="ref-action ref-action-icon ref-action-icon--admin"
+                                title="Delete reflection (Admin)">🛡️🗑️</button>
                     </div>` : '')}
                 </div>
             </div>`;
@@ -351,23 +342,19 @@ const CommunityModule = {
             <textarea id="editReflectionInput_${reflectionId}"
                       maxlength="500"
                       rows="3"
-                      style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius-md);
-                             background:var(--surface);color:var(--text);resize:vertical;
-                             font-size:14px;line-height:1.6;box-sizing:border-box;"
+                      class="reflection-textarea reflection-textarea--edit"
             >${this.escapeHtml(original)}</textarea>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
-                <span style="font-size:11px;color:var(--text-muted)">
+            <div class="reflection-edit-footer">
+                <span class="reflection-char-count">
                     <span id="editCharCount_${reflectionId}">${original.length}</span>/500
                 </span>
-                <div style="display:flex;gap:8px;">
+                <div class="reflection-edit-btns">
                     <button onclick="CommunityModule.saveEditReflection('${reflectionId}')"
-                            style="padding:5px 14px;background:var(--accent);color:#fff;border:none;
-                                   border-radius:var(--radius-md);cursor:pointer;font-size:13px;font-weight:600;">
+                            class="reflection-submit-btn reflection-submit-btn--sm">
                         Save
                     </button>
                     <button onclick="CommunityModule.cancelEditReflection('${reflectionId}', \`${this.escapeHtml(original).replace(/`/g, '\\`')}\`)"
-                            style="padding:5px 12px;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
-                                   color:var(--neuro-text);border:none;border-radius:var(--radius-md);cursor:pointer;font-size:13px;">
+                            class="reflection-cancel-btn">
                         Cancel
                     </button>
                 </div>
