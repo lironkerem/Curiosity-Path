@@ -709,7 +709,7 @@ export default class NavigationManager {
             <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Chat.png" alt="AI Assistant">
           </li>
           <li class="nav-item nav-item-full-width" data-tab="community-hub" data-label="Community Hub" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Dashboard.png" alt="Community Hub">
+            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/CommunityHub.png" alt="Community Hub">
             <span class="nav-label">Community Hub</span>
           </li>
         </ul>
@@ -730,7 +730,7 @@ export default class NavigationManager {
           <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Dashboard.png" alt=""><span>Home</span>
         </button>
         <button class="mobile-tab" data-tab="community-hub" aria-selected="false">
-          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Dashboard.png" alt=""><span>Community</span>
+          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Community.png" alt=""><span>Community</span>
         </button>
       </nav>
 
