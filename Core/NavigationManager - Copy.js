@@ -708,9 +708,10 @@ export default class NavigationManager {
           <li class="nav-item" data-tab="chatbot" data-label="AI Assistant" role="tab" aria-selected="false" tabindex="-1">
             <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Chat.png" alt="AI Assistant">
           </li>
-         <li class="nav-item" data-tab="community-hub" data-label="Community Hub" role="tab" aria-selected="false" tabindex="-1">
-         <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/CommunityHub.png" alt="Community Hub">
-         </li>
+          <li class="nav-item nav-item-full-width" data-tab="community-hub" data-label="Community Hub" role="tab" aria-selected="false" tabindex="-1">
+            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/CommunityHub.png" alt="Community Hub">
+            <span class="nav-label">Community Hub</span>
+          </li>
         </ul>
       </nav>
 
