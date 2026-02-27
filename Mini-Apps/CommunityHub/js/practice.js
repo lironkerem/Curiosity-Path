@@ -1,8 +1,6 @@
 /**
  * PRACTICE.JS - Generic Practice Utilities
- * PATCHED: Real room chat via Supabase + presence updates on room enter/leave
- *
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 const Practice = {
@@ -24,12 +22,13 @@ const Practice = {
     // ============================================================================
 
     config: {
-        DEFAULT_DURATION:             1200,    // 20 minutes in seconds
-        AFFIRMATION_INTERVAL:         120000,  // 2 minutes in ms
-        AFFIRMATION_DISPLAY_DURATION: 4000,    // 4 seconds in ms
-        FIVE_MINUTE_WARNING:          300,     // 5 minutes in seconds
-        BELL_DURATION:                3,       // seconds
+        DEFAULT_DURATION:             1200,
+        AFFIRMATION_INTERVAL:         120000,
+        AFFIRMATION_DISPLAY_DURATION: 4000,
+        FIVE_MINUTE_WARNING:          300,
+        BELL_DURATION:                3,
         AMBIENT_VOLUME:               0.3,
+        EMPTY_CHAT_HTML:              '<div style="text-align:center;color:var(--text-muted);font-size:12px;margin:20px 0;font-style:italic">Chat disappears when the room closes</div>',
         AFFIRMATIONS: [
             "I am present in this moment",
             "Peace flows through me",
@@ -49,17 +48,35 @@ const Practice = {
             soft:    [ { freq: 660, gain: 0.2 }, { freq: 1320, gain: 0.1 } ],
             om:      [ { freq: 136, gain: 0.4 }, { freq: 272, gain: 0.2 } ]
         },
-        // Room ID → friendly activity label for presence
         ROOM_ACTIVITIES: {
-            'silent-room':    '🧘 Silent practice',
-            'guided-room':    '🎧 Guided session',
-            'breathwork-room':'💨 Breathwork',
-            'campfire-room':  '🔥 Around the fire',
-            'osho-room':      '🌀 Osho space',
-            'deepwork-room':  '🎯 Deep work',
-            'tarot-room':     '🔮 Tarot reading',
-            'reiki-room':     '✨ Reiki session'
+            'silent-room':     '🧘 Silent practice',
+            'guided-room':     '🎧 Guided session',
+            'breathwork-room': '💨 Breathwork',
+            'campfire-room':   '🔥 Around the fire',
+            'osho-room':       '🌀 Osho space',
+            'deepwork-room':   '🎯 Deep work',
+            'tarot-room':      '🔮 Tarot reading',
+            'reiki-room':      '✨ Reiki session'
         }
+    },
+
+    // ============================================================================
+    // DOM CACHE — populated on first access via _el()
+    // ============================================================================
+
+    _domCache: {},
+
+    /** Returns a cached DOM element, or null. */
+    _el(id) {
+        if (!(id in this._domCache)) {
+            this._domCache[id] = document.getElementById(id);
+        }
+        return this._domCache[id];
+    },
+
+    /** Call when leaving a room to bust stale references. */
+    _clearDomCache() {
+        this._domCache = {};
     },
 
     // ============================================================================
@@ -71,82 +88,59 @@ const Practice = {
             console.warn('Practice module already initialized');
             return;
         }
-        try {
-            console.log('🧘 Practice Module Loaded');
-            this.isInitialized = true;
-        } catch (error) {
-            console.error('Practice initialization failed:', error);
-        }
+        console.log('🧘 Practice Module Loaded');
+        this.isInitialized = true;
     },
 
     // ============================================================================
     // ROOM CHAT — SUPABASE INTEGRATION
     // ============================================================================
 
-    /**
-     * Call this when entering a practice room.
-     * Loads chat history, subscribes to live messages, updates presence.
-     * @param {string} roomId  e.g. 'campfire-room'
-     */
     async initRoomChat(roomId) {
         if (!roomId) return;
-
         try {
-            // Update presence: user is now in this room
             const activity = this.config.ROOM_ACTIVITIES[roomId] || '🌿 In practice';
             await CommunityDB.setPresence('online', activity, roomId);
 
-            if (Core?.state) {
-                Core.state.currentRoom = roomId;
-                if (Core.state.currentUser) Core.state.currentUser.activity = activity;
+            const coreState = window.Core?.state;
+            if (coreState) {
+                coreState.currentRoom = roomId;
+                if (coreState.currentUser) coreState.currentUser.activity = activity;
             }
 
-            // Load existing messages
-            const messages = await CommunityDB.getRoomMessages(roomId, 50);
-            const container = document.getElementById('chatMessages');
+            const messages   = await CommunityDB.getRoomMessages(roomId, 50);
+            const container  = this._el('chatMessages');
 
             if (container) {
-                if (messages.length > 0) {
-                    container.innerHTML = messages.map(m => {
-                        const isOwn = m.profiles?.id === Core?.state?.currentUser?.id;
-                        return this._buildChatMsgHTML(m, isOwn);
-                    }).join('');
-                } else {
-                    container.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:12px;margin:20px 0;font-style:italic">Chat disappears when the room closes</div>';
-                }
+                const userId = window.Core?.state?.currentUser?.id;
+                container.innerHTML = messages.length
+                    ? messages.map(m => this._buildChatMsgHTML(m, m.profiles?.id === userId)).join('')
+                    : this.config.EMPTY_CHAT_HTML;
                 container.scrollTop = container.scrollHeight;
             }
 
-            // Subscribe to incoming messages from other users
             CommunityDB.subscribeToRoomChat(roomId, (msg) => {
-                const isOwn = msg.profiles?.id === Core?.state?.currentUser?.id;
-                if (!isOwn) {
-                    // Own messages are added optimistically in sendChat()
+                if (msg.profiles?.id !== window.Core?.state?.currentUser?.id) {
                     this.addChatMessage(msg);
                 }
             });
 
             console.log(`✓ Room chat initialized: ${roomId}`);
-
         } catch (error) {
             console.error('initRoomChat error:', error);
         }
     },
 
-    /**
-     * Call this when leaving a practice room.
-     * Unsubscribes from chat, resets presence to hub.
-     * @param {string} roomId
-     */
     async cleanupRoomChat(roomId) {
         if (!roomId) return;
         try {
             CommunityDB.unsubscribeFromRoomChat(roomId);
             await CommunityDB.setPresence('online', '✨ Available', null);
 
-            if (Core?.state) {
-                Core.state.currentRoom = null;
-                if (Core.state.currentUser) Core.state.currentUser.activity = '✨ Available';
+            const coreState = window.Core?.state;
+            if (coreState) {
+                coreState.currentRoom = null;
+                if (coreState.currentUser) coreState.currentUser.activity = '✨ Available';
             }
 
             console.log(`✓ Room chat cleaned up: ${roomId}`);
@@ -155,19 +149,13 @@ const Practice = {
         }
     },
 
-    /**
-     * Build HTML for a single chat message from a DB row.
-     * @param {Object}  msgRow
-     * @param {boolean} isOwn
-     * @returns {string}
-     */
     _buildChatMsgHTML(msgRow, isOwn) {
         const profile = msgRow.profiles || {};
         const name    = profile.name  || 'Member';
         const emoji   = profile.emoji || name.charAt(0).toUpperCase();
         const time    = new Date(msgRow.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         return `
-            <div class="chat-msg ${isOwn ? 'own' : ''}">
+            <div class="chat-msg${isOwn ? ' own' : ''}">
                 ${!isOwn ? `<div style="font-size:11px;color:var(--text-muted);margin-bottom:2px">${this.escapeHtml(emoji)} ${this.escapeHtml(name)}</div>` : ''}
                 <div>${this.escapeHtml(msgRow.message)}</div>
                 <div style="font-size:10px;color:var(--text-muted);margin-top:4px;text-align:${isOwn ? 'right' : 'left'}">${time}</div>
@@ -179,34 +167,30 @@ const Practice = {
     // ============================================================================
 
     toggleTimer() {
-        if (!window.Core?.state) { console.error('Core not available'); return; }
-        if (window.Core.state.timerRunning) {
-            this.pauseTimer();
-        } else {
-            this.startTimer();
-        }
+        const state = window.Core?.state;
+        if (!state) { console.error('Core not available'); return; }
+        state.timerRunning ? this.pauseTimer() : this.startTimer();
     },
 
     startTimer() {
-        if (!window.Core?.state) return;
+        const state = window.Core?.state;
+        if (!state) return;
         try {
-            window.Core.state.timerRunning = true;
-            const btn = document.getElementById('timerBtn');
+            state.timerRunning = true;
+            const btn = this._el('timerBtn');
             if (btn) btn.textContent = 'Pause';
 
             this.timerInterval = setInterval(() => {
-                if (window.Core.state.timeLeft > 0) {
-                    window.Core.state.timeLeft--;
+                if (state.timeLeft > 0) {
+                    state.timeLeft--;
                     this.updateTimerDisplay();
 
-                    if (window.Core.state.timeLeft === this.config.FIVE_MINUTE_WARNING && this.fiveMinuteEnabled) {
+                    if (state.timeLeft === this.config.FIVE_MINUTE_WARNING && this.fiveMinuteEnabled) {
                         this.playBell('soft');
                         window.Core.showToast?.('5 minutes remaining');
                     }
 
-                    if (window.Core.state.timeLeft === 0) {
-                        this.completeSession();
-                    }
+                    if (state.timeLeft === 0) this.completeSession();
                 }
             }, 1000);
         } catch (error) {
@@ -215,71 +199,51 @@ const Practice = {
     },
 
     pauseTimer() {
-        if (!window.Core?.state) return;
-        try {
-            window.Core.state.timerRunning = false;
-            clearInterval(this.timerInterval);
-            this.timerInterval = null;
-            const btn = document.getElementById('timerBtn');
-            if (btn) btn.textContent = 'Resume';
-        } catch (error) {
-            console.error('Timer pause error:', error);
-        }
+        const state = window.Core?.state;
+        if (!state) return;
+        state.timerRunning = false;
+        clearInterval(this.timerInterval);
+        this.timerInterval = null;
+        const btn = this._el('timerBtn');
+        if (btn) btn.textContent = 'Resume';
     },
 
     resetTimer() {
-        if (!window.Core?.state) return;
-        try {
-            clearInterval(this.timerInterval);
-            this.timerInterval = null;
-            window.Core.state.timerRunning = false;
-            window.Core.state.timeLeft = this.config.DEFAULT_DURATION;
-            this.updateTimerDisplay();
-            const btn = document.getElementById('timerBtn');
-            if (btn) btn.textContent = 'Begin';
-        } catch (error) {
-            console.error('Timer reset error:', error);
-        }
+        const state = window.Core?.state;
+        if (!state) return;
+        clearInterval(this.timerInterval);
+        this.timerInterval = null;
+        state.timerRunning = false;
+        state.timeLeft = this.config.DEFAULT_DURATION;
+        this.updateTimerDisplay();
+        const btn = this._el('timerBtn');
+        if (btn) btn.textContent = 'Begin';
     },
 
     updateTimerDisplay() {
-        const display = document.getElementById('timerDisplay');
-        if (!display || !window.Core?.state) return;
-        try {
-            display.textContent = this.formatTime(window.Core.state.timeLeft);
-        } catch (error) {
-            console.error('Timer display update error:', error);
-        }
+        const display = this._el('timerDisplay');
+        const state   = window.Core?.state;
+        if (display && state) display.textContent = this.formatTime(state.timeLeft);
     },
 
     formatTime(seconds) {
         if (typeof seconds !== 'number' || seconds < 0) return '0:00';
-        const minutes = Math.floor(seconds / 60);
-        const secs    = Math.floor(seconds % 60);
-        return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        return `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
     },
 
     setDuration(minutes) {
-        if (!window.Core?.state) return;
-        if (typeof minutes !== 'number' || minutes <= 0) return;
-        try {
-            window.Core.state.timeLeft = minutes * 60;
-            this.updateTimerDisplay();
-            window.Core.showToast?.(`Timer set to ${minutes} minutes`);
-        } catch (error) {
-            console.error('Set duration error:', error);
-        }
+        const state = window.Core?.state;
+        if (!state || typeof minutes !== 'number' || minutes <= 0) return;
+        state.timeLeft = minutes * 60;
+        this.updateTimerDisplay();
+        window.Core.showToast?.(`Timer set to ${minutes} minutes`);
     },
 
     completeSession() {
-        try {
-            this.pauseTimer();
-            this.playBell('tibetan');
-            window.Core.showToast?.('✨ Session complete');
-            setTimeout(() => this.showGratitude(), 1000);
-        } catch (error) {
-            console.error('Session completion error:', error);
-        }
+        this.pauseTimer();
+        this.playBell('tibetan');
+        window.Core.showToast?.('✨ Session complete');
+        setTimeout(() => this.showGratitude(), 1000);
     },
 
     // ============================================================================
@@ -287,11 +251,7 @@ const Practice = {
     // ============================================================================
 
     toggleAmbient() {
-        if (this.ambientEnabled) {
-            this.stopAmbientSound();
-        } else {
-            this.playAmbientSound();
-        }
+        this.ambientEnabled ? this.stopAmbientSound() : this.playAmbientSound();
     },
 
     playAmbientSound() {
@@ -306,8 +266,7 @@ const Practice = {
                 window.Core.showToast?.('Unable to play audio');
             });
             this.ambientEnabled = true;
-            const btn = document.getElementById('ambientBtn');
-            if (btn) btn.classList.add('active');
+            this._el('ambientBtn')?.classList.add('active');
             window.Core.showToast?.('🎵 Ambient sound on');
         } catch (error) {
             console.error('Ambient sound play error:', error);
@@ -315,14 +274,12 @@ const Practice = {
     },
 
     stopAmbientSound() {
+        if (!this.ambientAudio) return;
         try {
-            if (this.ambientAudio) {
-                this.ambientAudio.pause();
-                this.ambientAudio.currentTime = 0;
-            }
+            this.ambientAudio.pause();
+            this.ambientAudio.currentTime = 0;
             this.ambientEnabled = false;
-            const btn = document.getElementById('ambientBtn');
-            if (btn) btn.classList.remove('active');
+            this._el('ambientBtn')?.classList.remove('active');
             window.Core.showToast?.('🔇 Ambient sound off');
         } catch (error) {
             console.error('Ambient sound stop error:', error);
@@ -334,34 +291,27 @@ const Practice = {
     // ============================================================================
 
     toggleAffirmations() {
-        if (this.affirmationInterval) {
-            this.stopAffirmations();
-        } else {
-            this.startAffirmations();
-        }
+        this.affirmationInterval ? this.stopAffirmations() : this.startAffirmations();
     },
 
     startAffirmations() {
         try {
             let index = 0;
-            const container = document.getElementById('affirmationText');
+            const container = this._el('affirmationText');
 
             const showAffirmation = () => {
                 if (container) {
                     container.textContent = this.config.AFFIRMATIONS[index];
                     container.parentElement?.classList.add('visible');
-                    setTimeout(() => {
-                        container.parentElement?.classList.remove('visible');
-                    }, this.config.AFFIRMATION_DISPLAY_DURATION);
+                    setTimeout(() => container.parentElement?.classList.remove('visible'),
+                        this.config.AFFIRMATION_DISPLAY_DURATION);
                 }
                 index = (index + 1) % this.config.AFFIRMATIONS.length;
             };
 
             showAffirmation();
             this.affirmationInterval = setInterval(showAffirmation, this.config.AFFIRMATION_INTERVAL);
-
-            const btn = document.getElementById('affirmationsBtn');
-            if (btn) btn.classList.add('active');
+            this._el('affirmationsBtn')?.classList.add('active');
             window.Core.showToast?.('💫 Affirmations enabled');
         } catch (error) {
             console.error('Affirmations start error:', error);
@@ -369,17 +319,11 @@ const Practice = {
     },
 
     stopAffirmations() {
-        try {
-            clearInterval(this.affirmationInterval);
-            this.affirmationInterval = null;
-            const container = document.getElementById('affirmationText');
-            if (container) container.parentElement?.classList.remove('visible');
-            const btn = document.getElementById('affirmationsBtn');
-            if (btn) btn.classList.remove('active');
-            window.Core.showToast?.('Affirmations disabled');
-        } catch (error) {
-            console.error('Affirmations stop error:', error);
-        }
+        clearInterval(this.affirmationInterval);
+        this.affirmationInterval = null;
+        this._el('affirmationText')?.parentElement?.classList.remove('visible');
+        this._el('affirmationsBtn')?.classList.remove('active');
+        window.Core.showToast?.('Affirmations disabled');
     },
 
     // ============================================================================
@@ -387,14 +331,9 @@ const Practice = {
     // ============================================================================
 
     toggle5MinuteBell() {
-        try {
-            this.fiveMinuteEnabled = !this.fiveMinuteEnabled;
-            const btn = document.getElementById('fiveMinuteBtn');
-            if (btn) btn.classList.toggle('active', this.fiveMinuteEnabled);
-            window.Core.showToast?.(this.fiveMinuteEnabled ? '🔔 5-minute bell enabled' : '🔕 5-minute bell disabled');
-        } catch (error) {
-            console.error('5-minute bell toggle error:', error);
-        }
+        this.fiveMinuteEnabled = !this.fiveMinuteEnabled;
+        this._el('fiveMinuteBtn')?.classList.toggle('active', this.fiveMinuteEnabled);
+        window.Core.showToast?.(this.fiveMinuteEnabled ? '🔔 5-minute bell enabled' : '🔕 5-minute bell disabled');
     },
 
     playBell(type = 'tibetan') {
@@ -402,19 +341,23 @@ const Practice = {
             if (!this.audioContext) {
                 this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
             }
-            const frequencies = this.config.SOUND_PROFILES[type] || this.config.SOUND_PROFILES.tibetan;
-            frequencies.forEach(({ freq, gain }) => {
-                const oscillator = this.audioContext.createOscillator();
-                const gainNode   = this.audioContext.createGain();
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(freq, this.audioContext.currentTime);
-                gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(gain, this.audioContext.currentTime + 0.05);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + this.config.BELL_DURATION);
-                oscillator.connect(gainNode);
-                gainNode.connect(this.audioContext.destination);
-                oscillator.start(this.audioContext.currentTime);
-                oscillator.stop(this.audioContext.currentTime + this.config.BELL_DURATION);
+            const ctx  = this.audioContext;
+            const now  = ctx.currentTime;
+            const bell = this.config.BELL_DURATION;
+            const freqs = this.config.SOUND_PROFILES[type] || this.config.SOUND_PROFILES.tibetan;
+
+            freqs.forEach(({ freq, gain }) => {
+                const osc      = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, now);
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(gain, now + 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + bell);
+                osc.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + bell);
             });
         } catch (error) {
             console.error('Bell play error:', error);
@@ -426,18 +369,12 @@ const Practice = {
     // ============================================================================
 
     showGratitude() {
-        const container = document.getElementById('gratitudeContainer');
-        if (container) container.classList.add('visible');
+        this._el('gratitudeContainer')?.classList.add('visible');
     },
 
     offerGratitude() {
-        try {
-            window.Core.showToast?.('🙏 Gratitude offered to the space');
-            const container = document.getElementById('gratitudeContainer');
-            if (container) container.classList.remove('visible');
-        } catch (error) {
-            console.error('Gratitude offer error:', error);
-        }
+        window.Core.showToast?.('🙏 Gratitude offered to the space');
+        this._el('gratitudeContainer')?.classList.remove('visible');
     },
 
     // ============================================================================
@@ -445,78 +382,57 @@ const Practice = {
     // ============================================================================
 
     toggleChat() {
-        try {
-            const sidebar = document.getElementById('psSidebar');
-            const fab     = document.getElementById('fabChat');
-            if (sidebar) sidebar.classList.toggle('open');
-            if (fab) fab.classList.toggle('hidden', sidebar?.classList.contains('open'));
-        } catch (error) {
-            console.error('Chat toggle error:', error);
-        }
+        const sidebar = this._el('psSidebar');
+        const fab     = this._el('fabChat');
+        sidebar?.classList.toggle('open');
+        fab?.classList.toggle('hidden', sidebar?.classList.contains('open') ?? false);
     },
 
-    /**
-     * Send a chat message.
-     * Shows the message immediately (optimistic), then saves to Supabase.
-     * Other users receive it via the realtime subscription in initRoomChat().
-     */
     async sendChat() {
-        const input = document.getElementById('chatInput');
+        const input = this._el('chatInput');
         if (!input) return;
 
         const text   = input.value.trim();
         if (!text) return;
 
-        const roomId = Core?.state?.currentRoom;
+        const roomId = window.Core?.state?.currentRoom;
         if (!roomId) {
             console.warn('[Practice] sendChat: no currentRoom set');
             return;
         }
 
         try {
-            // Optimistically add own message to the UI immediately
-            const messagesContainer = document.getElementById('chatMessages');
-            if (messagesContainer) {
+            const container = this._el('chatMessages');
+            if (container) {
                 const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 const msg  = document.createElement('div');
                 msg.className = 'chat-msg own';
                 msg.innerHTML = `
                     <div>${this.escapeHtml(text)}</div>
                     <div style="font-size:10px;color:var(--text-muted);margin-top:4px;text-align:right">${time}</div>`;
-                messagesContainer.appendChild(msg);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                container.appendChild(msg);
+                container.scrollTop = container.scrollHeight;
             }
 
             input.value = '';
-
-            // Persist to Supabase — realtime will echo to other users
             await CommunityDB.sendRoomMessage(roomId, text);
-
         } catch (error) {
             console.error('sendChat error:', error);
         }
     },
 
-    /**
-     * Add an incoming message from another user (called by realtime subscription).
-     * @param {Object} messageData - DB row with profiles join
-     */
     addChatMessage(messageData) {
         if (!messageData) return;
-        const messagesContainer = document.getElementById('chatMessages');
-        if (!messagesContainer) return;
+        const container = this._el('chatMessages');
+        if (!container) return;
 
-        try {
-            const html = this._buildChatMsgHTML(messageData, false);
-            const div  = document.createElement('div');
-            div.innerHTML = html;
-            const el = div.firstElementChild;
-            if (el) {
-                messagesContainer.appendChild(el);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }
-        } catch (error) {
-            console.error('Add chat message error:', error);
+        const html = this._buildChatMsgHTML(messageData, false);
+        const div  = document.createElement('div');
+        div.innerHTML = html;
+        const el = div.firstElementChild;
+        if (el) {
+            container.appendChild(el);
+            container.scrollTop = container.scrollHeight;
         }
     },
 
@@ -525,89 +441,57 @@ const Practice = {
     // ============================================================================
 
     confirmLeave() {
-        try {
-            const presenceCount = window.Core?.state?.presenceCount || 0;
-            if (presenceCount === 1) {
-                if (window.Rituals && typeof window.Rituals.showClosing === 'function') {
-                    window.Rituals.showClosing();
-                } else {
-                    this.leavePractice();
-                }
-            } else {
-                this.leavePractice();
-            }
-        } catch (error) {
-            console.error('Confirm leave error:', error);
+        const presenceCount = window.Core?.state?.presenceCount || 0;
+        if (presenceCount === 1 && typeof window.Rituals?.showClosing === 'function') {
+            window.Rituals.showClosing();
+        } else {
             this.leavePractice();
         }
     },
 
-    /**
-     * Leave practice room — clean up room chat, then clean up everything else.
-     */
     async leavePractice() {
         try {
-            // Clean up room chat subscription and reset presence FIRST
-            const roomId = Core?.state?.currentRoom;
-            if (roomId) {
-                await this.cleanupRoomChat(roomId);
-            }
+            const roomId = window.Core?.state?.currentRoom;
+            if (roomId) await this.cleanupRoomChat(roomId);
 
-            // Clean up timer
             clearInterval(this.timerInterval);
             this.timerInterval = null;
-            if (window.Core?.state) {
-                window.Core.state.timerRunning = false;
-                window.Core.state.timeLeft     = this.config.DEFAULT_DURATION;
+
+            const state = window.Core?.state;
+            if (state) {
+                state.timerRunning = false;
+                state.timeLeft     = this.config.DEFAULT_DURATION;
             }
 
-            // Clean up affirmations
             clearInterval(this.affirmationInterval);
             this.affirmationInterval = null;
 
-            // Stop ambient sound
             this.stopAmbientSound();
-
-            // Reset UI
             this.resetUIElements();
+            this._clearDomCache();
 
-            // Navigate back
-            if (window.Core && typeof window.Core.navigateTo === 'function') {
-                window.Core.navigateTo('hubView');
-            }
-
-            window.Core.showToast?.('You left the space');
+            window.Core?.navigateTo?.('hubView');
+            window.Core?.showToast?.('You left the space');
             console.log('✓ Practice cleanup complete');
-
         } catch (error) {
             console.error('Leave practice error:', error);
         }
     },
 
     resetUIElements() {
-        try {
-            const display = document.getElementById('timerDisplay');
-            if (display) display.textContent = '20:00';
+        const display = this._el('timerDisplay');
+        if (display) display.textContent = '20:00';
 
-            const btn = document.getElementById('timerBtn');
-            if (btn) btn.textContent = 'Begin';
+        const btn = this._el('timerBtn');
+        if (btn) btn.textContent = 'Begin';
 
-            const gratitude = document.getElementById('gratitudeContainer');
-            if (gratitude) gratitude.classList.remove('visible');
+        this._el('gratitudeContainer')?.classList.remove('visible');
 
-            const chatMessages = document.getElementById('chatMessages');
-            if (chatMessages) {
-                chatMessages.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:12px;margin:20px 0;font-style:italic">Chat disappears when the room closes</div>';
-            }
+        const chatMessages = this._el('chatMessages');
+        if (chatMessages) chatMessages.innerHTML = this.config.EMPTY_CHAT_HTML;
 
-            const sidebar = document.getElementById('psSidebar');
-            if (sidebar) sidebar.classList.remove('open');
-
-            const fab = document.getElementById('fabChat');
-            if (fab) fab.classList.remove('hidden');
-        } catch (error) {
-            console.error('UI reset error:', error);
-        }
+        this._el('psSidebar')?.classList.remove('open');
+        this._el('fabChat')?.classList.remove('hidden');
     },
 
     // ============================================================================
@@ -622,21 +506,18 @@ const Practice = {
     },
 
     cleanup() {
-        try {
-            clearInterval(this.timerInterval);
-            clearInterval(this.affirmationInterval);
-            this.stopAmbientSound();
-            if (this.audioContext) {
-                this.audioContext.close();
-                this.audioContext = null;
-            }
-            this.timerInterval       = null;
-            this.affirmationInterval = null;
-            this.ambientAudio        = null;
-            console.log('✓ Practice resources cleaned up');
-        } catch (error) {
-            console.error('Cleanup error:', error);
+        clearInterval(this.timerInterval);
+        clearInterval(this.affirmationInterval);
+        this.stopAmbientSound();
+        if (this.audioContext) {
+            this.audioContext.close();
+            this.audioContext = null;
         }
+        this.timerInterval       = null;
+        this.affirmationInterval = null;
+        this.ambientAudio        = null;
+        this._clearDomCache();
+        console.log('✓ Practice resources cleaned up');
     }
 };
 
