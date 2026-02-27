@@ -6,11 +6,7 @@
  *   - collective_pulses  (per-pulse events → recent senders)
  *   - wave_contributions (per-session logs → wave total, personal stats)
  *
- * Exposes window.CollectiveFieldDB.
- * Designed to mirror CommunityDB patterns — all Supabase calls go here,
- * no other module talks to Supabase directly.
- *
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 const CollectiveFieldDB = {
@@ -19,18 +15,14 @@ const CollectiveFieldDB = {
     // STATE
     // =========================================================================
 
-    _realtimeChannels: {},   // keyed by channel name for cleanup
-    _pollInterval: null,
-    POLL_INTERVAL_MS: 30000, // 30s fallback polling
+    _realtimeChannels: {},
+    _pollInterval:     null,
+    POLL_INTERVAL_MS:  30_000,
 
     // =========================================================================
-    // INIT — call once after CommunityDB.init()
+    // INIT
     // =========================================================================
 
-    /**
-     * Load initial state from DB and start realtime + polling.
-     * Call this after the DOM is ready and CommunityDB is initialised.
-     */
     async init() {
         try {
             await this._ensureTodayRow();
@@ -39,13 +31,10 @@ const CollectiveFieldDB = {
             this._startPolling();
             console.log('✅ CollectiveFieldDB initialised');
         } catch (err) {
-            console.error('CollectiveFieldDB init error:', err);
+            console.error('[CollectiveFieldDB] init error:', err);
         }
     },
 
-    /**
-     * Load everything and push into CollectiveField UI
-     */
     async loadAll() {
         await Promise.all([
             this.loadFieldState(),
@@ -57,16 +46,27 @@ const CollectiveFieldDB = {
     },
 
     // =========================================================================
-    // DAILY ROW MANAGEMENT
+    // HELPERS
     // =========================================================================
 
-    /**
-     * Ensure a collective_field row exists for today (UTC).
-     * If yesterday's row exists and today's doesn't, today starts fresh.
-     */
+    get _sb() { return window.CommunitySupabase; },
+
+    _todayUTC() {
+        return new Date().toISOString().slice(0, 10);
+    },
+
+    // Centralised error logger — keeps call sites terse
+    _err(label, error) {
+        console.error(`[CollectiveFieldDB] ${label}:`, error);
+    },
+
+    // =========================================================================
+    // DAILY ROW
+    // =========================================================================
+
     async _ensureTodayRow() {
         const today = this._todayUTC();
-        const { data, error } = await window.CommunitySupabase
+        const { data, error } = await this._sb
             .from('collective_field')
             .select('id')
             .eq('date', today)
@@ -75,12 +75,10 @@ const CollectiveFieldDB = {
         if (error) throw error;
 
         if (!data) {
-            // Insert fresh row for today
-            const { error: insertErr } = await window.CommunitySupabase
+            const { error: insertErr } = await this._sb
                 .from('collective_field')
                 .insert({ date: today, energy_level: 0, pulse_count_today: 0 });
             if (insertErr) throw insertErr;
-            console.log(`✓ collective_field row created for ${today}`);
         }
     },
 
@@ -88,243 +86,179 @@ const CollectiveFieldDB = {
     // ENERGY FIELD — READ
     // =========================================================================
 
-    /**
-     * Load today's shared field state and push to UI
-     */
     async loadFieldState() {
-        const { data, error } = await window.CommunitySupabase
+        const { data, error } = await this._sb
             .from('collective_field')
             .select('energy_level, pulse_count_today')
             .eq('date', this._todayUTC())
             .single();
 
-        if (error) { console.error('loadFieldState error:', error); return; }
+        if (error) { this._err('loadFieldState', error); return; }
 
         CollectiveField.updateEnergyLevel(data.energy_level);
         CollectiveField.updateCommunityPulseCount(data.pulse_count_today);
     },
 
-    /**
-     * Load the 5 most recent senders and push to UI
-     */
     async loadRecentSenders() {
-        const { data, error } = await window.CommunitySupabase
+        const { data, error } = await this._sb
             .from('collective_pulses')
             .select('user_id, profiles(emoji, avatar_url)')
             .eq('date', this._todayUTC())
             .order('created_at', { ascending: false })
             .limit(5);
 
-        if (error) { console.error('loadRecentSenders error:', error); return; }
+        if (error) { this._err('loadRecentSenders', error); return; }
 
-        const senders = (data || []).map(row => ({
-            emoji:     row.profiles?.emoji     || '🧘',
-            avatarUrl: row.profiles?.avatar_url || null,
-        }));
-
-        CollectiveField.updateRecentSenders(senders);
+        CollectiveField.updateRecentSenders(
+            (data || []).map(row => ({
+                emoji:     row.profiles?.emoji      || '🧘',
+                avatarUrl: row.profiles?.avatar_url || null,
+            }))
+        );
     },
 
     // =========================================================================
     // ENERGY FIELD — WRITE
     // =========================================================================
 
-    /**
-     * Record a pulse from the current user.
-     * - Increments energy_level (+5, cap 100) and pulse_count_today atomically
-     * - Inserts a row into collective_pulses for recent senders
-     */
     async recordPulse() {
         const userId = window.CommunityDB?.userId;
-        if (!userId) { console.error('recordPulse: no userId'); return; }
+        if (!userId) { this._err('recordPulse', 'no userId'); return; }
 
         const today = this._todayUTC();
 
-        // Atomic increment via RPC — avoids race conditions between concurrent users
-        const { error: rpcErr } = await window.CommunitySupabase.rpc('increment_field_pulse', {
-            p_date: today,
+        const { error: rpcErr } = await this._sb.rpc('increment_field_pulse', {
+            p_date:       today,
             p_energy_add: 5,
         });
-        if (rpcErr) { console.error('recordPulse RPC error:', rpcErr); return; }
+        if (rpcErr) { this._err('recordPulse RPC', rpcErr); return; }
 
-        // Log pulse event for recent senders
-        const { error: insertErr } = await window.CommunitySupabase
+        const { error: insertErr } = await this._sb
             .from('collective_pulses')
             .insert({ user_id: userId, date: today });
-        if (insertErr) { console.error('recordPulse insert error:', insertErr); return; }
-
-        console.log('✓ Pulse recorded');
+        if (insertErr) { this._err('recordPulse insert', insertErr); }
     },
 
     // =========================================================================
     // CALM WAVE — READ
     // =========================================================================
 
-    /**
-     * Load today's collective wave total minutes and push to UI
-     */
     async loadWaveTotal() {
-        const { data, error } = await window.CommunitySupabase
+        const { data, error } = await this._sb
             .from('wave_contributions')
             .select('minutes')
             .eq('date', this._todayUTC());
 
-        if (error) { console.error('loadWaveTotal error:', error); return; }
+        if (error) { this._err('loadWaveTotal', error); return; }
 
-        const total = (data || []).reduce((sum, row) => sum + (row.minutes || 0), 0);
-        CollectiveField.updateWaveTotalMinutes(total);
+        CollectiveField.updateWaveTotalMinutes(
+            (data || []).reduce((sum, row) => sum + (row.minutes || 0), 0)
+        );
     },
 
-    /**
-     * Load count of distinct users who contributed ≥1 min today
-     */
     async loadWaveParticipants() {
-        const { data, error } = await window.CommunitySupabase
+        const { data, error } = await this._sb
             .from('wave_contributions')
             .select('user_id')
             .eq('date', this._todayUTC());
 
-        if (error) { console.error('loadWaveParticipants error:', error); return; }
+        if (error) { this._err('loadWaveParticipants', error); return; }
 
-        // Distinct user count
-        const uniqueUsers = new Set((data || []).map(r => r.user_id)).size;
-        CollectiveField.updateWaveParticipants(uniqueUsers);
+        CollectiveField.updateWaveParticipants(
+            new Set((data || []).map(r => r.user_id)).size
+        );
     },
 
-    /**
-     * Load the current user's today + all-time wave minutes and push to UI
-     */
     async loadUserContribution() {
         const userId = window.CommunityDB?.userId;
         if (!userId) return;
 
-        // Today
-        const { data: todayData, error: todayErr } = await window.CommunitySupabase
-            .from('wave_contributions')
-            .select('minutes')
-            .eq('user_id', userId)
-            .eq('date', this._todayUTC());
+        const today = this._todayUTC();
 
-        if (todayErr) { console.error('loadUserContribution today error:', todayErr); return; }
+        const [{ data: todayData, error: todayErr }, { data: allData, error: allErr }] =
+            await Promise.all([
+                this._sb.from('wave_contributions').select('minutes').eq('user_id', userId).eq('date', today),
+                this._sb.from('wave_contributions').select('minutes').eq('user_id', userId),
+            ]);
 
-        // All time
-        const { data: allData, error: allErr } = await window.CommunitySupabase
-            .from('wave_contributions')
-            .select('minutes')
-            .eq('user_id', userId);
+        if (todayErr) { this._err('loadUserContribution today', todayErr); return; }
+        if (allErr)   { this._err('loadUserContribution allTime', allErr); return; }
 
-        if (allErr) { console.error('loadUserContribution allTime error:', allErr); return; }
-
-        const todayMins   = (todayData || []).reduce((s, r) => s + (r.minutes || 0), 0);
-        const allTimeMins = (allData   || []).reduce((s, r) => s + (r.minutes || 0), 0);
-
-        CollectiveField.updateUserContribution(todayMins, allTimeMins);
+        const sum = (rows) => (rows || []).reduce((s, r) => s + (r.minutes || 0), 0);
+        CollectiveField.updateUserContribution(sum(todayData), sum(allData));
     },
 
     // =========================================================================
     // CALM WAVE — WRITE
     // =========================================================================
 
-    /**
-     * Log a completed or partial wave session
-     * @param {number} minutes - minutes contributed
-     * @param {boolean} completed - true if full session, false if partial
-     */
     async logWaveContribution(minutes, completed) {
         const userId = window.CommunityDB?.userId;
-        if (!userId) { console.error('logWaveContribution: no userId'); return; }
-        if (minutes < 1) return; // enforced minimum
+        if (!userId)    { this._err('logWaveContribution', 'no userId'); return; }
+        if (minutes < 1) return;
 
-        const { error } = await window.CommunitySupabase
+        const { error } = await this._sb
             .from('wave_contributions')
-            .insert({
-                user_id:   userId,
-                date:      this._todayUTC(),
-                minutes:   minutes,
-                completed: completed,
-            });
+            .insert({ user_id: userId, date: this._todayUTC(), minutes, completed });
 
-        if (error) { console.error('logWaveContribution error:', error); return; }
+        if (error) { this._err('logWaveContribution', error); return; }
 
-        console.log(`✓ Wave contribution logged: ${minutes}min (completed: ${completed})`);
-
-        // Reload wave total + participants so UI reflects the new contribution
-        await this.loadWaveTotal();
-        await this.loadWaveParticipants();
+        // Reload wave totals so UI reflects the new contribution
+        await Promise.all([this.loadWaveTotal(), this.loadWaveParticipants()]);
     },
 
     // =========================================================================
-    // REALTIME — subscribe to live changes from other users
+    // REALTIME
     // =========================================================================
 
     _subscribeRealtime() {
         const today = this._todayUTC();
 
-        // ── Channel 1: collective_field row changes (energy level, pulse count) ──
-        this._realtimeChannels.field = window.CommunitySupabase
+        // Channel 1: energy level + pulse count updates
+        this._realtimeChannels.field = this._sb
             .channel('collective_field_changes')
             .on('postgres_changes', {
-                event:  'UPDATE',
-                schema: 'public',
-                table:  'collective_field',
-                filter: `date=eq.${today}`,
-            }, payload => {
-                const row = payload.new;
+                event: 'UPDATE', schema: 'public',
+                table: 'collective_field', filter: `date=eq.${today}`,
+            }, ({ new: row }) => {
                 CollectiveField.updateEnergyLevel(row.energy_level);
                 CollectiveField.updateCommunityPulseCount(row.pulse_count_today);
-                console.log('⚡ Field state updated via realtime');
             })
             .subscribe();
 
-        // ── Channel 2: collective_pulses inserts (new pulse from any user) ──
-        this._realtimeChannels.pulses = window.CommunitySupabase
+        // Channel 2: new pulse from any user
+        this._realtimeChannels.pulses = this._sb
             .channel('collective_pulses_inserts')
             .on('postgres_changes', {
-                event:  'INSERT',
-                schema: 'public',
-                table:  'collective_pulses',
-                filter: `date=eq.${today}`,
-            }, async payload => {
-                // Trigger the visual ripple for all users viewing the hub
-                CollectiveField.receiveExternalPulse({ userId: payload.new.user_id, intensity: 0.7 });
-                // Reload recent senders strip
+                event: 'INSERT', schema: 'public',
+                table: 'collective_pulses', filter: `date=eq.${today}`,
+            }, async ({ new: row }) => {
+                CollectiveField.receiveExternalPulse({ userId: row.user_id, intensity: 0.7 });
                 await this.loadRecentSenders();
-                console.log(`⚡ External pulse received from ${payload.new.user_id}`);
             })
             .subscribe();
 
-        // ── Channel 3: wave_contributions inserts (someone logged a session) ──
-        this._realtimeChannels.wave = window.CommunitySupabase
+        // Channel 3: new wave session logged
+        this._realtimeChannels.wave = this._sb
             .channel('wave_contributions_inserts')
             .on('postgres_changes', {
-                event:  'INSERT',
-                schema: 'public',
-                table:  'wave_contributions',
-                filter: `date=eq.${today}`,
+                event: 'INSERT', schema: 'public',
+                table: 'wave_contributions', filter: `date=eq.${today}`,
             }, async () => {
-                await this.loadWaveTotal();
-                await this.loadWaveParticipants();
-                console.log('⚡ Wave total updated via realtime');
+                await Promise.all([this.loadWaveTotal(), this.loadWaveParticipants()]);
             })
             .subscribe();
-
-        console.log('✓ CollectiveFieldDB realtime subscriptions active');
     },
 
     // =========================================================================
-    // POLLING FALLBACK — refreshes state every 30s
+    // POLLING FALLBACK
     // =========================================================================
 
     _startPolling() {
         if (this._pollInterval) clearInterval(this._pollInterval);
-
         this._pollInterval = setInterval(async () => {
-            try {
-                await this.loadAll();
-                console.log('✓ CollectiveFieldDB polled');
-            } catch (err) {
-                console.error('CollectiveFieldDB poll error:', err);
-            }
+            try { await this.loadAll(); }
+            catch (err) { this._err('poll', err); }
         }, this.POLL_INTERVAL_MS);
     },
 
@@ -332,37 +266,14 @@ const CollectiveFieldDB = {
     // CLEANUP
     // =========================================================================
 
-    /**
-     * Unsubscribe all realtime channels and stop polling.
-     * Call on page unload or hub teardown.
-     */
     destroy() {
-        Object.values(this._realtimeChannels).forEach(ch => {
+        for (const ch of Object.values(this._realtimeChannels)) {
             try { ch.unsubscribe(); } catch (_) {}
-        });
-        this._realtimeChannels = {};
-
-        if (this._pollInterval) {
-            clearInterval(this._pollInterval);
-            this._pollInterval = null;
         }
-        console.log('✓ CollectiveFieldDB destroyed');
-    },
-
-    // =========================================================================
-    // UTILITIES
-    // =========================================================================
-
-    /**
-     * Returns today's date string in UTC: "YYYY-MM-DD"
-     */
-    _todayUTC() {
-        return new Date().toISOString().slice(0, 10);
+        this._realtimeChannels = {};
+        if (this._pollInterval) { clearInterval(this._pollInterval); this._pollInterval = null; }
     },
 };
 
-// ── Cleanup on page unload ────────────────────────────────────────────────────
 window.addEventListener('beforeunload', () => CollectiveFieldDB.destroy());
-
-// ── Global exposure ───────────────────────────────────────────────────────────
 window.CollectiveFieldDB = CollectiveFieldDB;
