@@ -1,91 +1,122 @@
 /**
  * UPCOMING EVENTS MODULE
- * 
+ * @version 1.1.0
+ *
  * Manages dual rotating event displays:
- * - Left side: Group classes (e.g., Tarot, Meditation)
+ * - Left side:  Group classes (e.g., Tarot, Meditation)
  * - Right side: Private sessions (e.g., Tarot readings, Reiki)
- * 
+ *
  * Features:
  * - Auto-rotating flyers with smooth transitions
- * - Independent rotation timers for each side
- * - Visual indicators for current slide
+ * - Independent staggered rotation timers
+ * - Visual dot indicators per slide
  * - WhatsApp integration for bookings
- * 
- * @version 1.0.0
+ * - Admin flyer editor (admin users only)
  */
 
 const UpcomingEvents = {
+
     // ============================================================================
     // DATA
     // ============================================================================
-    
-    /** Group classes data */
+
     classes: [
         {
-            title: 'Tarot Masterclass',
+            title:    'Tarot Masterclass',
             subtitle: 'Learn to read the cards with confidence',
-            info: 'Discover the ancient wisdom of tarot through interactive lessons. Suitable for beginners and intermediate practitioners. Small group setting ensures personalized guidance.',
-            type: '🎴 Online Zoom Class',
+            info:     'Discover the ancient wisdom of tarot through interactive lessons. Suitable for beginners and intermediate practitioners. Small group setting ensures personalized guidance.',
+            type:     '🎴 Online Zoom Class',
             datetime: 'Monday, 10:00 AM (GMT+2)',
-            image: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/CTA/Sessions/Sessions4.jpg',
-            whatsapp: 'http://wa.me/+972524588767'
+            image:    'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/CTA/Sessions/Sessions4.jpg',
+            whatsapp: 'http://wa.me/+972524588767',
         },
         {
-            title: 'Classic Meditation Masterclass',
+            title:    'Classic Meditation Masterclass',
             subtitle: 'Foundational techniques for daily practice',
-            info: 'Master the essential meditation techniques used for thousands of years. Learn breath control, mindfulness, and deep relaxation methods you can use every day.',
-            type: '🧘 Online Zoom Class',
+            info:     'Master the essential meditation techniques used for thousands of years. Learn breath control, mindfulness, and deep relaxation methods you can use every day.',
+            type:     '🧘 Online Zoom Class',
             datetime: 'Thursday, 12:00 PM (GMT+2)',
-            image: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/CTA/Sessions/Sessions3.jpg',
-            whatsapp: 'http://wa.me/+972524588767'
-        }
+            image:    'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/CTA/Sessions/Sessions3.jpg',
+            whatsapp: 'http://wa.me/+972524588767',
+        },
     ],
 
-    /** Private sessions data */
     sessions: [
         {
-            title: 'Private Tarot Spread',
+            title:    'Private Tarot Spread',
             subtitle: 'Personal reading tailored to your questions',
-            info: 'A one-on-one deep dive into your personal journey. Bring your questions about love, career, or life path. Receive guidance and clarity through the cards.',
-            type: '🎴 In-Person or Online',
+            info:     'A one-on-one deep dive into your personal journey. Bring your questions about love, career, or life path. Receive guidance and clarity through the cards.',
+            type:     '🎴 In-Person or Online',
             datetime: 'Daily • Flexible Hours',
-            image: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/CTA/Sessions/Sessions1.jpg',
-            whatsapp: 'http://wa.me/+972524588767'
+            image:    'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/CTA/Sessions/Sessions1.jpg',
+            whatsapp: 'http://wa.me/+972524588767',
         },
         {
-            title: 'Private Reiki Healing Session',
+            title:    'Private Reiki Healing Session',
             subtitle: 'Energy healing for balance and wellness',
-            info: 'Experience deep relaxation and energetic clearing. Reiki helps release blockages, reduce stress, and restore your natural state of wellbeing. Sessions tailored to your needs.',
-            type: '✨ In-Person or Online',
+            info:     'Experience deep relaxation and energetic clearing. Reiki helps release blockages, reduce stress, and restore your natural state of wellbeing. Sessions tailored to your needs.',
+            type:     '✨ In-Person or Online',
             datetime: 'Daily • Flexible Hours',
-            image: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/CTA/Sessions/Sessions2.jpg',
-            whatsapp: 'http://wa.me/+972524588767'
-        }
+            image:    'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/CTA/Sessions/Sessions2.jpg',
+            whatsapp: 'http://wa.me/+972524588767',
+        },
     ],
 
     // ============================================================================
-    // STATE
+    // STATE & CONFIG
     // ============================================================================
-    
+
     state: {
-        classIndex: 0,
-        sessionIndex: 0,
-        classInterval: null,
+        classIndex:    0,
+        sessionIndex:  0,
+        classInterval:   null,
         sessionInterval: null,
-        isInitialized: false
+        isInitialized:   false,
     },
 
-    // ============================================================================
-    // CONFIGURATION
-    // ============================================================================
-    
     config: {
-        ROTATION_INTERVAL: 15000, // 15 seconds
-        FADE_DURATION: 500 // 0.5 seconds
+        ROTATION_INTERVAL: 15000,
+        FADE_DURATION:     500,
+
+        // Per-card static config — drives rotation, updateCard, and _adminSave
+        CARDS: {
+            classes: {
+                imageId:     'classesImage',
+                contentId:   'classesContent',
+                cardSelector:'.classes-card',
+                ctaText:     'Register via WhatsApp',
+                stateKey:    'classIndex',
+                intervalKey: 'classInterval',
+                slots:       ['classes0', 'classes1'],
+            },
+            sessions: {
+                imageId:     'sessionsImage',
+                contentId:   'sessionsContent',
+                cardSelector:'.sessions-card',
+                ctaText:     'Book via WhatsApp',
+                stateKey:    'sessionIndex',
+                intervalKey: 'sessionInterval',
+                slots:       ['sessions0', 'sessions1'],
+            },
+        },
+
+        ADMIN_TABS: [
+            { id: 'classes0',  label: '◀ Left Flyer 1' },
+            { id: 'classes1',  label: '◀ Left Flyer 2' },
+            { id: 'sessions0', label: 'Right Flyer 1 ▶' },
+            { id: 'sessions1', label: 'Right Flyer 2 ▶' },
+        ],
+
+        FLYER_FILES: {
+            Sessions:  ['Sessions1.jpg','Sessions2.jpg','Sessions3.jpg','Sessions4.jpg',
+                        'Sessions5.jpg','Sessions6.jpg','Sessions7.jpg','Sessions8.jpg','Sessions9.jpg'],
+            Workshops: ['Workshops1.jpg','Workshops2.jpg','Workshops3.jpg',
+                        'Workshops4.jpg','Workshops5.jpg','Workshops6.jpg'],
+        },
     },
 
     // ============================================================================
-    // FLYER CATALOG — pre-made text for each flyer image
+    // FLYER CATALOG
     // ============================================================================
 
     flyerCatalog: {
@@ -181,97 +212,83 @@ const UpcomingEvents = {
         },
     },
 
-    // Base URL for flyer images
-    _flyerBase: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/CTA/',
-
-    // Admin modal state
-    _adminModal: null,
+    _flyerBase:      'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/CTA/',
+    _adminModal:     null,
     _adminActiveTab: 'classes0',
-    _adminDraft: { classes0: null, classes1: null, sessions0: null, sessions1: null },
+    _adminDraft:     { classes0: null, classes1: null, sessions0: null, sessions1: null },
+    _staggerTimeout: null,
+    _lightboxEsc:    null,
 
     // ============================================================================
     // HTML GENERATION
     // ============================================================================
-    
-    /**
-     * Generate HTML for the entire upcoming events section
-     * @returns {string} HTML string
-     */
+
     getHTML() {
         return `
         <section class="section">
             <div class="section-header">
                 <div class="section-title">Upcoming Events</div>
                 <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="font-size: 12px; color: var(--text-muted);">Group classes & private sessions</div>
-                    <!-- Admin button injected by injectAdminUI() after Core loads user -->
+                    <div style="font-size:12px;color:var(--text-muted);">Group classes & private sessions</div>
                 </div>
             </div>
-            
-            <div class="events-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-                ${this.getClassesCardHTML()}
-                ${this.getSessionsCardHTML()}
+            <div class="events-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+                ${this._getCardHTML('classes')}
+                ${this._getCardHTML('sessions')}
             </div>
-        </section>
-        `;
+        </section>`;
     },
 
-    /**
-     * Generate HTML for classes card (left side)
-     * @returns {string} HTML string
-     */
-    getClassesCardHTML() {
-        const data = this.classes[0];
+    _getCardHTML(type) {
+        const cfg  = this.config.CARDS[type];
+        const data = this[type][0];
         return `
-        <div class="event-card classes-card" style="position: relative; overflow: hidden;">
-            ${this.getFlyerHTML(data, 'classesImage', this.classes.length)}
-            ${this.getContentHTML(data, 'classesContent', 'Register via WhatsApp')}
-        </div>
-        `;
+        <div class="event-card ${type}-card" style="position:relative;overflow:hidden;">
+            ${this._getFlyerHTML(data, cfg.imageId, this[type].length)}
+            ${this._getContentHTML(data, cfg.contentId, cfg.ctaText)}
+        </div>`;
     },
 
-    /**
-     * Generate HTML for sessions card (right side)
-     * @returns {string} HTML string
-     */
-    getSessionsCardHTML() {
-        const data = this.sessions[0];
-        return `
-        <div class="event-card sessions-card" style="position: relative; overflow: hidden;">
-            ${this.getFlyerHTML(data, 'sessionsImage', this.sessions.length)}
-            ${this.getContentHTML(data, 'sessionsContent', 'Book via WhatsApp')}
-        </div>
-        `;
-    },
-
-    /**
-     * Generate HTML for flyer section (image + indicators)
-     * @param {Object} data - Event data
-     * @param {string} imageId - ID for the image element
-     * @param {number} totalItems - Total number of items for indicators
-     * @returns {string} HTML string
-     */
-    getFlyerHTML(data, imageId, totalItems) {
-        const dots = Array.from({ length: totalItems }, (_, i) => 
-            `<span class="dot ${i === 0 ? 'active' : ''}" 
-                   data-index="${i}" 
-                   style="width: 8px; height: 8px; border-radius: 50%; background: white; opacity: ${i === 0 ? '1' : '0.5'};"></span>`
+    _getFlyerHTML(data, imageId, totalItems) {
+        const dots = Array.from({ length: totalItems }, (_, i) =>
+            `<span class="dot${i === 0 ? ' active' : ''}" data-index="${i}"
+                   style="width:8px;height:8px;border-radius:50%;background:white;opacity:${i === 0 ? '1' : '0.5'};"></span>`
         ).join('');
 
         return `
-        <div class="event-flyer" style="position: relative; height: 450px; overflow: hidden; background: var(--surface);">
-            <img src="${this.escapeHtml(data.image)}" 
-                 alt="${this.escapeHtml(data.title)}" 
-                 id="${imageId}"
+        <div class="event-flyer" style="position:relative;height:450px;overflow:hidden;background:var(--surface);">
+            <img src="${this.escapeHtml(data.image)}" alt="${this.escapeHtml(data.title)}" id="${imageId}"
                  onclick="UpcomingEvents.openLightbox(this.src)"
-                 style="width: 100%; height: 100%; object-fit: contain; transition: opacity ${this.config.FADE_DURATION}ms ease;
-                        cursor: zoom-in;">
-            <div class="flyer-indicator" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px;">
+                 style="width:100%;height:100%;object-fit:contain;transition:opacity ${this.config.FADE_DURATION}ms ease;cursor:zoom-in;">
+            <div class="flyer-indicator" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:8px;">
                 ${dots}
             </div>
-        </div>
-        `;
+        </div>`;
     },
+
+    _getContentHTML(data, contentId, ctaText) {
+        return `
+        <div class="event-content" id="${contentId}" style="padding:20px;">
+            <div class="event-type" style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">${this.escapeHtml(data.type)}</div>
+            <h3 class="event-heading" style="font-family:var(--serif);font-size:20px;margin-bottom:4px;">${this.escapeHtml(data.title)}</h3>
+            <div class="event-subheading" style="font-size:14px;color:var(--text-secondary);margin-bottom:12px;">${this.escapeHtml(data.subtitle)}</div>
+            <div class="event-info" style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:16px;padding:12px;background:var(--surface);border-radius:var(--radius-sm);border-left:3px solid var(--accent);">
+                ${this.escapeHtml(data.info)}
+            </div>
+            <div class="event-datetime" style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">📅 ${this.escapeHtml(data.datetime)}</div>
+            <button class="event-btn" onclick="UpcomingEvents.openWhatsApp('${this.escapeHtml(data.whatsapp)}')"
+                    style="width:100%;padding:14px 24px;background:var(--primary);color:var(--season-mood);
+                           border:none;border-radius:var(--radius-md);font-size:15px;font-weight:700;
+                           cursor:pointer;transition:all var(--transition-normal);box-shadow:var(--shadow-raised);
+                           text-transform:uppercase;letter-spacing:0.5px;">
+                ${this.escapeHtml(ctaText)}
+            </button>
+        </div>`;
+    },
+
+    // ============================================================================
+    // LIGHTBOX
+    // ============================================================================
 
     openLightbox(src) {
         if (document.getElementById('flyerLightbox')) return;
@@ -290,16 +307,12 @@ const UpcomingEvents = {
         document.body.appendChild(lb);
         document.body.style.overflow = 'hidden';
 
-        // Animate in
         requestAnimationFrame(() => {
             lb.style.opacity = '1';
             lb.querySelector('img').style.transform = 'scale(1)';
         });
 
-        // Close on backdrop click
         lb.addEventListener('click', e => { if (e.target === lb) this.closeLightbox(); });
-
-        // Close on Escape
         this._lightboxEsc = (e) => { if (e.key === 'Escape') this.closeLightbox(); };
         document.addEventListener('keydown', this._lightboxEsc);
     },
@@ -308,244 +321,114 @@ const UpcomingEvents = {
         const lb = document.getElementById('flyerLightbox');
         if (!lb) return;
         lb.style.opacity = '0';
-        setTimeout(() => {
-            lb.remove();
-            document.body.style.overflow = '';
-        }, 250);
+        setTimeout(() => { lb.remove(); document.body.style.overflow = ''; }, 250);
         if (this._lightboxEsc) {
             document.removeEventListener('keydown', this._lightboxEsc);
+            this._lightboxEsc = null;
         }
     },
 
-    /**
-     * Generate HTML for content section (text + CTA)
-     * @param {Object} data - Event data
-     * @param {string} contentId - ID for the content container
-     * @param {string} ctaText - Call-to-action button text
-     * @returns {string} HTML string
-     */
-    getContentHTML(data, contentId, ctaText) {
-        return `
-        <div class="event-content" id="${contentId}" style="padding: 20px;">
-            <div class="event-type" style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
-                ${this.escapeHtml(data.type)}
-            </div>
-            <h3 class="event-heading" style="font-family: var(--serif); font-size: 20px; margin-bottom: 4px;">
-                ${this.escapeHtml(data.title)}
-            </h3>
-            <div class="event-subheading" style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">
-                ${this.escapeHtml(data.subtitle)}
-            </div>
-            <div class="event-info" style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; padding: 12px; background: var(--surface); border-radius: var(--radius-sm); border-left: 3px solid var(--accent);">
-                ${this.escapeHtml(data.info)}
-            </div>
-            <div class="event-datetime" style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
-                📅 ${this.escapeHtml(data.datetime)}
-            </div>
-            ${this.getButtonHTML(data.whatsapp, ctaText)}
-        </div>
-        `;
-    },
-
-    /**
-     * Generate HTML for CTA button
-     * @param {string} url - WhatsApp URL
-     * @param {string} text - Button text
-     * @returns {string} HTML string
-     */
-    getButtonHTML(url, text) {
-        return `
-        <button class="event-btn" 
-                onclick="UpcomingEvents.openWhatsApp('${this.escapeHtml(url)}')" 
-                style="width: 100%;
-                       padding: 14px 24px;
-                       background: var(--primary);
-                       color: var(--season-mood);
-                       border: none;
-                       border-radius: var(--radius-md);
-                       font-size: 15px;
-                       font-weight: 700;
-                       cursor: pointer;
-                       transition: all var(--transition-normal);
-                       box-shadow: var(--shadow-raised);
-                       text-transform: uppercase;
-                       letter-spacing: 0.5px;">
-            ${this.escapeHtml(text)}
-        </button>
-        `;
-    },
-
     // ============================================================================
-    // ROTATION LOGIC
+    // ROTATION
     // ============================================================================
-    
-    /**
-     * Initialize rotation timers for both classes and sessions
-     */
+
     initRotation() {
-        // Clear any existing intervals
         this.destroy();
 
-        // Left card starts immediately
-        this.state.classInterval = setInterval(() => {
-            try { this.rotateClasses(); } catch (error) { console.error('Classes rotation error:', error); }
-        }, this.config.ROTATION_INTERVAL);
+        const start = (type, delay = 0) => {
+            const cfg = this.config.CARDS[type];
+            const tick = () => {
+                this.state[cfg.stateKey] = (this.state[cfg.stateKey] + 1) % this[type].length;
+                this.updateCard(type, this.state[cfg.stateKey]);
+            };
+            if (delay) {
+                this._staggerTimeout = setTimeout(() => {
+                    this.state[cfg.intervalKey] = setInterval(tick, this.config.ROTATION_INTERVAL);
+                }, delay);
+            } else {
+                this.state[cfg.intervalKey] = setInterval(tick, this.config.ROTATION_INTERVAL);
+            }
+        };
 
-        // Right card starts offset by half the interval so they never change together
-        this._staggerTimeout = setTimeout(() => {
-            this.state.sessionInterval = setInterval(() => {
-                try { this.rotateSessions(); } catch (error) { console.error('Sessions rotation error:', error); }
-            }, this.config.ROTATION_INTERVAL);
-        }, this.config.ROTATION_INTERVAL / 2);
-
+        start('classes');
+        start('sessions', this.config.ROTATION_INTERVAL / 2);
         console.log('✓ UpcomingEvents rotation initialized (staggered)');
     },
 
-    /**
-     * Rotate to next class
-     */
-    rotateClasses() {
-        const nextIndex = (this.state.classIndex + 1) % this.classes.length;
-        this.state.classIndex = nextIndex;
-        
-        this.updateCard(
-            this.classes[nextIndex],
-            'classesImage',
-            'classesContent',
-            '.classes-card',
-            'Register via WhatsApp',
-            nextIndex
-        );
-    },
+    updateCard(type, index) {
+        const cfg     = this.config.CARDS[type];
+        const data    = this[type][index];
+        const image   = document.getElementById(cfg.imageId);
+        const content = document.getElementById(cfg.contentId);
 
-    /**
-     * Rotate to next session
-     */
-    rotateSessions() {
-        const nextIndex = (this.state.sessionIndex + 1) % this.sessions.length;
-        this.state.sessionIndex = nextIndex;
-        
-        this.updateCard(
-            this.sessions[nextIndex],
-            'sessionsImage',
-            'sessionsContent',
-            '.sessions-card',
-            'Book via WhatsApp',
-            nextIndex
-        );
-    },
-
-    /**
-     * Update a card with new content (consolidated update logic)
-     * @param {Object} data - Event data
-     * @param {string} imageId - Image element ID
-     * @param {string} contentId - Content container ID
-     * @param {string} cardSelector - Card container selector
-     * @param {string} ctaText - CTA button text
-     * @param {number} index - Current index for indicators
-     */
-    updateCard(data, imageId, contentId, cardSelector, ctaText, index) {
-        const image = document.getElementById(imageId);
-        const content = document.getElementById(contentId);
-        
         if (!image || !content) {
-            console.warn(`Elements not found: ${imageId} or ${contentId}`);
+            console.warn(`[UpcomingEvents] Elements not found: ${cfg.imageId} or ${cfg.contentId}`);
             return;
         }
 
-        // Fade out
         image.style.opacity = '0';
-        
         setTimeout(() => {
-            // Update image
             image.src = data.image;
             image.alt = data.title;
-            
-            // Update content
-            content.innerHTML = this.getContentHTML(data, contentId, ctaText);
-            
-            // Update indicator dots
-            this.updateDots(cardSelector, index);
-            
-            // Fade in
+            content.innerHTML = this._getContentHTML(data, cfg.contentId, cfg.ctaText);
+            this._updateDots(cfg.cardSelector, index);
             image.style.opacity = '1';
         }, this.config.FADE_DURATION);
     },
 
-    /**
-     * Update indicator dots
-     * @param {string} cardSelector - Card container selector
-     * @param {number} activeIndex - Index of active dot
-     */
-    updateDots(cardSelector, activeIndex) {
-        try {
-            const card = document.querySelector(cardSelector);
-            if (!card) return;
-
-            const dots = card.querySelectorAll('.dot');
-            dots.forEach((dot, i) => {
-                dot.style.opacity = i === activeIndex ? '1' : '0.5';
-                if (i === activeIndex) {
-                    dot.classList.add('active');
-                } else {
-                    dot.classList.remove('active');
-                }
-            });
-        } catch (error) {
-            console.error('Error updating dots:', error);
-        }
-    },
-
-    // ============================================================================
-    // UTILITIES
-    // ============================================================================
-    
-    /**
-     * Open WhatsApp link in new tab
-     * @param {string} url - WhatsApp URL
-     */
-    openWhatsApp(url) {
-        if (!url) {
-            console.error('WhatsApp URL is required');
-            return;
-        }
-        
-        try {
-            window.open(url, '_blank', 'noopener,noreferrer');
-        } catch (error) {
-            console.error('Error opening WhatsApp:', error);
-        }
-    },
-
-    /**
-     * Escape HTML to prevent XSS
-     * @param {string} str - String to escape
-     * @returns {string} Escaped string
-     */
-    escapeHtml(str) {
-        if (!str) return '';
-        
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
+    _updateDots(cardSelector, activeIndex) {
+        document.querySelector(cardSelector)?.querySelectorAll('.dot').forEach((dot, i) => {
+            const isActive = i === activeIndex;
+            dot.style.opacity = isActive ? '1' : '0.5';
+            dot.classList.toggle('active', isActive);
+        });
     },
 
     // ============================================================================
     // LIFECYCLE
     // ============================================================================
-    
-    /**
-     * Render upcoming events into container
-     */
+
+    async render() {
+        if (this.state.isInitialized) { console.warn('UpcomingEvents already initialized'); return; }
+
+        const container = document.getElementById('upcomingEventsContainer');
+        if (!container) { console.warn('upcomingEventsContainer not found — skipping render'); return; }
+
+        try {
+            if (window.CommunityDB?.ready) {
+                const saved = await CommunityDB.getAppSettings('upcoming_events');
+                if (saved) {
+                    // Current slot keys
+                    ['classes0','classes1','sessions0','sessions1'].forEach(key => {
+                        if (saved[key]) {
+                            const [type, idx] = [key.slice(0,-1), +key.slice(-1)];
+                            this[type][idx] = { ...this[type][idx], ...saved[key] };
+                        }
+                    });
+                    // Backwards compat: old saves used 'classes'/'sessions' for slot 0
+                    if (!saved.classes0  && saved.classes)  this.classes[0]  = { ...this.classes[0],  ...saved.classes };
+                    if (!saved.sessions0 && saved.sessions) this.sessions[0] = { ...this.sessions[0], ...saved.sessions };
+                }
+            }
+
+            container.innerHTML = this.getHTML();
+            setTimeout(() => this.initRotation(), 100);
+            this.state.isInitialized = true;
+            console.log('✓ UpcomingEvents rendered');
+        } catch (error) {
+            console.error('UpcomingEvents render error:', error);
+        }
+    },
+
     injectAdminUI() {
         const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
-        // Look for existing button
         const existing = document.getElementById('upcomingAdminBtn');
         if (existing) { existing.style.display = isAdmin ? 'inline-block' : 'none'; return; }
         if (!isAdmin) return;
-        // Inject button into section header
+
         const header = document.querySelector('#upcomingEventsContainer .section-header > div:last-child');
         if (!header) return;
+
         const btn = document.createElement('button');
         btn.id = 'upcomingAdminBtn';
         btn.onclick = () => UpcomingEvents.openAdminModal();
@@ -554,42 +437,15 @@ const UpcomingEvents = {
         header.appendChild(btn);
     },
 
-    async render() {
-        if (this.state.isInitialized) {
-            console.warn('UpcomingEvents already initialized');
-            return;
-        }
-
-        const container = document.getElementById('upcomingEventsContainer');
-        if (!container) {
-            console.warn('upcomingEventsContainer not found - skipping render');
-            return;
-        }
-
-        try {
-            // Load saved config from Supabase if available
-            if (window.CommunityDB?.ready) {
-                const saved = await CommunityDB.getAppSettings('upcoming_events');
-                if (saved?.classes0)  this.classes[0]  = { ...this.classes[0],  ...saved.classes0 };
-                if (saved?.classes1)  this.classes[1]  = { ...this.classes[1],  ...saved.classes1 };
-                if (saved?.sessions0) this.sessions[0] = { ...this.sessions[0], ...saved.sessions0 };
-                if (saved?.sessions1) this.sessions[1] = { ...this.sessions[1], ...saved.sessions1 };
-                // backwards compat: old saves used 'classes'/'sessions' keys for slot 0
-                if (!saved?.classes0  && saved?.classes)  this.classes[0]  = { ...this.classes[0],  ...saved.classes };
-                if (!saved?.sessions0 && saved?.sessions) this.sessions[0] = { ...this.sessions[0], ...saved.sessions };
-            }
-
-            container.innerHTML = this.getHTML();
-            
-            // Start rotation after render
-            setTimeout(() => this.initRotation(), 100);
-            
-            this.state.isInitialized = true;
-            console.log('✓ UpcomingEvents rendered');
-            
-        } catch (error) {
-            console.error('UpcomingEvents render error:', error);
-        }
+    destroy() {
+        clearTimeout(this._staggerTimeout);
+        clearInterval(this.state.classInterval);
+        clearInterval(this.state.sessionInterval);
+        this._staggerTimeout         = null;
+        this.state.classInterval     = null;
+        this.state.sessionInterval   = null;
+        this.state.isInitialized     = false;
+        console.log('✓ UpcomingEvents destroyed');
     },
 
     // ============================================================================
@@ -598,8 +454,6 @@ const UpcomingEvents = {
 
     openAdminModal() {
         if (document.getElementById('eventsAdminModal')) return;
-
-        // Init drafts from current data — 4 slots total
         this._adminDraft = {
             classes0:  { ...this.classes[0] },
             classes1:  { ...this.classes[1] },
@@ -615,55 +469,38 @@ const UpcomingEvents = {
         modal.innerHTML = this._getAdminModalHTML();
         document.body.appendChild(modal);
         document.body.style.overflow = 'hidden';
-
         modal.addEventListener('click', e => { if (e.target === modal) this.closeAdminModal(); });
         this._renderAdminTab('classes0');
     },
 
     closeAdminModal() {
-        const modal = document.getElementById('eventsAdminModal');
-        if (modal) modal.remove();
+        document.getElementById('eventsAdminModal')?.remove();
         document.body.style.overflow = '';
     },
 
     _getAdminModalHTML() {
-        const tabs = [
-            { id: 'classes0',  label: '◀ Left Flyer 1' },
-            { id: 'classes1',  label: '◀ Left Flyer 2' },
-            { id: 'sessions0', label: 'Right Flyer 1 ▶' },
-            { id: 'sessions1', label: 'Right Flyer 2 ▶' },
-        ];
+        const tabs = this.config.ADMIN_TABS;
         return `
         <div style="background:var(--neuro-bg,#f0f0f3);border-radius:20px;padding:24px;
                     max-width:560px;width:94%;max-height:90vh;overflow-y:auto;position:relative;
                     box-shadow:8px 8px 20px rgba(0,0,0,0.2);">
             <button onclick="UpcomingEvents.closeAdminModal()"
-                    style="position:absolute;top:14px;right:16px;background:none;border:none;
-                           cursor:pointer;font-size:18px;opacity:0.5;">✕</button>
-
+                    style="position:absolute;top:14px;right:16px;background:none;border:none;cursor:pointer;font-size:18px;opacity:0.5;">✕</button>
             <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
                         color:rgba(139,92,246,0.9);margin-bottom:16px;">🛡️ Update Flyers</div>
-
-            <!-- 4 tabs in a 2x2 grid -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;">
                 ${tabs.map((t, i) => `
                 <button id="adminTab_${t.id}" onclick="UpcomingEvents._switchAdminTab('${t.id}')"
-                        style="padding:9px;border-radius:10px;border:none;cursor:pointer;
-                               font-size:0.82rem;font-weight:600;
+                        style="padding:9px;border-radius:10px;border:none;cursor:pointer;font-size:0.82rem;font-weight:600;
                                ${i === 0 ? 'background:rgba(139,92,246,0.85);color:#fff;' : 'background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.9);'}">
                     ${t.label}
                 </button>`).join('')}
             </div>
-
-            <!-- Tab content injected here -->
             <div id="adminTabContent"></div>
-
-            <!-- Save -->
             <div style="display:flex;gap:10px;margin-top:20px;">
                 <button onclick="UpcomingEvents._adminSave()"
                         style="flex:1;padding:11px;border-radius:12px;border:none;cursor:pointer;
-                               font-size:0.92rem;font-weight:700;
-                               background:rgba(139,92,246,0.85);color:#fff;">
+                               font-size:0.92rem;font-weight:700;background:rgba(139,92,246,0.85);color:#fff;">
                     Save & Publish
                 </button>
                 <button onclick="UpcomingEvents.closeAdminModal()"
@@ -676,11 +513,9 @@ const UpcomingEvents = {
     },
 
     _switchAdminTab(tab) {
-        // Save current tab's fields before switching
         this._readAdminFields(this._adminActiveTab);
         this._adminActiveTab = tab;
-        const tabs = ['classes0','classes1','sessions0','sessions1'];
-        tabs.forEach(id => {
+        this.config.ADMIN_TABS.forEach(({ id }) => {
             const btn = document.getElementById(`adminTab_${id}`);
             if (!btn) return;
             const active = id === tab;
@@ -693,14 +528,12 @@ const UpcomingEvents = {
     _renderAdminTab(tab) {
         const container = document.getElementById('adminTabContent');
         if (!container) return;
-        const draft = this._adminDraft[tab];
-        const sessions = ['Sessions1.jpg','Sessions2.jpg','Sessions3.jpg','Sessions4.jpg',
-                          'Sessions5.jpg','Sessions6.jpg','Sessions7.jpg','Sessions8.jpg','Sessions9.jpg'];
-        const workshops = ['Workshops1.jpg','Workshops2.jpg','Workshops3.jpg',
-                           'Workshops4.jpg','Workshops5.jpg','Workshops6.jpg'];
+
+        const draft    = this._adminDraft[tab];
+        const { Sessions, Workshops } = this.config.FLYER_FILES;
 
         const flyerGrid = (folder, files) => files.map(f => {
-            const url = this._flyerBase + folder + '/' + f;
+            const url      = this._flyerBase + folder + '/' + f;
             const selected = draft.image === url;
             return `<div onclick="UpcomingEvents._selectFlyer('${tab}','${url}','${f}')"
                          style="cursor:pointer;border-radius:8px;overflow:hidden;
@@ -711,61 +544,46 @@ const UpcomingEvents = {
                     </div>`;
         }).join('');
 
-        const labels = { classes0:'Left Card — Flyer 1', classes1:'Left Card — Flyer 2', sessions0:'Right Card — Flyer 1', sessions1:'Right Card — Flyer 2' };
+        const TAB_LABELS = { classes0:'Left Card — Flyer 1', classes1:'Left Card — Flyer 2', sessions0:'Right Card — Flyer 1', sessions1:'Right Card — Flyer 2' };
+        const fieldStyle = `padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);
+                            font-size:0.88rem;background:var(--neuro-bg);color:var(--neuro-text);
+                            width:100%;box-sizing:border-box;`;
 
         container.innerHTML = `
             <div style="font-size:0.78rem;font-weight:700;color:rgba(139,92,246,0.8);margin-bottom:12px;
-                        text-transform:uppercase;letter-spacing:0.5px;">Editing: ${labels[tab]}</div>
+                        text-transform:uppercase;letter-spacing:0.5px;">Editing: ${TAB_LABELS[tab]}</div>
             <div style="margin-bottom:14px;">
-                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
-                            color:var(--text-muted);margin-bottom:8px;">Sessions</div>
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-                    ${flyerGrid('Sessions', sessions)}
-                </div>
-                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
-                            color:var(--text-muted);margin:14px 0 8px;">Workshops</div>
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-                    ${flyerGrid('Workshops', workshops)}
-                </div>
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:8px;">Sessions</div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">${flyerGrid('Sessions', Sessions)}</div>
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin:14px 0 8px;">Workshops</div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">${flyerGrid('Workshops', Workshops)}</div>
             </div>
-
             <div style="display:flex;flex-direction:column;gap:10px;">
-                <input id="adminField_title" placeholder="Title" value="${this.escapeHtml(draft.title||'')}"
-                       style="padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);
-                              font-size:0.88rem;background:var(--neuro-bg);color:var(--neuro-text);width:100%;box-sizing:border-box;">
-                <input id="adminField_subtitle" placeholder="Subtitle" value="${this.escapeHtml(draft.subtitle||'')}"
-                       style="padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);
-                              font-size:0.88rem;background:var(--neuro-bg);color:var(--neuro-text);width:100%;box-sizing:border-box;">
-                <textarea id="adminField_info" placeholder="Description" rows="3"
-                          style="padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);
-                                 font-size:0.88rem;background:var(--neuro-bg);color:var(--neuro-text);
-                                 width:100%;box-sizing:border-box;resize:vertical;">${this.escapeHtml(draft.info||'')}</textarea>
-                <input id="adminField_type" placeholder="Type (e.g. 🎴 Online Zoom Class)" value="${this.escapeHtml(draft.type||'')}"
-                       style="padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);
-                              font-size:0.88rem;background:var(--neuro-bg);color:var(--neuro-text);width:100%;box-sizing:border-box;">
-                <input id="adminField_datetime" placeholder="Date & Time (e.g. Monday, 10:00 AM GMT+2)" value="${this.escapeHtml(draft.datetime||'')}"
-                       style="padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);
-                              font-size:0.88rem;background:var(--neuro-bg);color:var(--neuro-text);width:100%;box-sizing:border-box;">
-            </div>
-        `;
+                <input id="adminField_title"    placeholder="Title"    value="${this.escapeHtml(draft.title||'')}"    style="${fieldStyle}">
+                <input id="adminField_subtitle" placeholder="Subtitle" value="${this.escapeHtml(draft.subtitle||'')}" style="${fieldStyle}">
+                <textarea id="adminField_info"  placeholder="Description" rows="3" style="${fieldStyle}resize:vertical;">${this.escapeHtml(draft.info||'')}</textarea>
+                <input id="adminField_type"     placeholder="Type (e.g. 🎴 Online Zoom Class)"         value="${this.escapeHtml(draft.type||'')}"     style="${fieldStyle}">
+                <input id="adminField_datetime" placeholder="Date & Time (e.g. Monday, 10:00 AM GMT+2)" value="${this.escapeHtml(draft.datetime||'')}" style="${fieldStyle}">
+            </div>`;
     },
 
     _selectFlyer(tab, url, filename) {
         const meta = this.flyerCatalog[filename] || {};
+        const d    = this._adminDraft[tab];
         this._adminDraft[tab] = {
-            ...this._adminDraft[tab],
+            ...d,
             image:    url,
-            title:    meta.title    || this._adminDraft[tab].title,
-            subtitle: meta.subtitle || this._adminDraft[tab].subtitle,
-            info:     meta.info     || this._adminDraft[tab].info,
-            type:     meta.type     || this._adminDraft[tab].type,
+            title:    meta.title    || d.title,
+            subtitle: meta.subtitle || d.subtitle,
+            info:     meta.info     || d.info,
+            type:     meta.type     || d.type,
         };
         this._renderAdminTab(tab);
     },
 
     _readAdminFields(tab) {
+        if (!document.getElementById('adminField_title')) return;
         const g = id => document.getElementById(id)?.value?.trim() || '';
-        if (!document.getElementById('adminField_title')) return; // panel not rendered
         this._adminDraft[tab] = {
             ...this._adminDraft[tab],
             title:    g('adminField_title'),
@@ -780,27 +598,27 @@ const UpcomingEvents = {
         const saveBtn = document.querySelector('#eventsAdminModal button[onclick*="_adminSave"]');
         if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; }
 
-        // Capture current tab fields before saving
         this._readAdminFields(this._adminActiveTab);
 
         try {
-            const ok = await CommunityDB.saveAppSettings('upcoming_events', {
+            const payload = {
                 classes0:  this._adminDraft.classes0,
                 classes1:  this._adminDraft.classes1,
                 sessions0: this._adminDraft.sessions0,
                 sessions1: this._adminDraft.sessions1,
-            });
+            };
+            const ok = await CommunityDB.saveAppSettings('upcoming_events', payload);
             if (!ok) throw new Error('saveAppSettings returned false');
 
-            // Apply to live data arrays immediately
-            Object.assign(this.classes[0],  this._adminDraft.classes0);
-            Object.assign(this.classes[1],  this._adminDraft.classes1);
-            Object.assign(this.sessions[0], this._adminDraft.sessions0);
-            Object.assign(this.sessions[1], this._adminDraft.sessions1);
+            // Apply to live data
+            ['classes0','classes1','sessions0','sessions1'].forEach(key => {
+                const [type, idx] = [key.slice(0,-1), +key.slice(-1)];
+                Object.assign(this[type][idx], this._adminDraft[key]);
+            });
 
-            // Re-render whichever card is currently visible
-            this.updateCard(this.classes[this.state.classIndex],   'classesImage',  'classesContent',  '.classes-card',  'Register via WhatsApp', this.state.classIndex);
-            this.updateCard(this.sessions[this.state.sessionIndex], 'sessionsImage', 'sessionsContent', '.sessions-card', 'Book via WhatsApp',      this.state.sessionIndex);
+            // Re-render visible cards
+            this.updateCard('classes',  this.state.classIndex);
+            this.updateCard('sessions', this.state.sessionIndex);
 
             Core.showToast('✓ Flyers updated for all users');
             this.closeAdminModal();
@@ -811,41 +629,30 @@ const UpcomingEvents = {
         }
     },
 
-    /**
-     * Clean up intervals and reset state
-     */
-    destroy() {
-        if (this._staggerTimeout) {
-            clearTimeout(this._staggerTimeout);
-            this._staggerTimeout = null;
-        }
-        if (this.state.classInterval) {
-            clearInterval(this.state.classInterval);
-            this.state.classInterval = null;
-        }
-        if (this.state.sessionInterval) {
-            clearInterval(this.state.sessionInterval);
-            this.state.sessionInterval = null;
-        }
-        this.state.isInitialized = false;
-        console.log('✓ UpcomingEvents destroyed');
-    }
+    // ============================================================================
+    // UTILITIES
+    // ============================================================================
+
+    openWhatsApp(url) {
+        if (url) window.open(url, '_blank', 'noopener,noreferrer');
+    },
+
+    escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    },
 };
 
 // ============================================================================
-// AUTO-INITIALIZATION
-// ============================================================================
-
-// Auto-render when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => UpcomingEvents.render());
-} else {
-    // DOM already loaded
-    UpcomingEvents.render();
-}
-
-// ============================================================================
-// GLOBAL EXPOSURE
+// AUTO-INITIALIZATION & GLOBAL EXPOSURE
 // ============================================================================
 
 window.UpcomingEvents = UpcomingEvents;
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => UpcomingEvents.render());
+} else {
+    UpcomingEvents.render();
+}
