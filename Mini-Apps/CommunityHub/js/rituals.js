@@ -1,35 +1,28 @@
 /**
  * RITUALS.JS - Opening & Closing Ceremonies
- * 
+ * @version 1.1.0
+ *
  * Manages the spiritual rituals that frame the user's experience:
  * - Opening ritual: Welcoming users with intention
  * - Closing ritual: Graceful exit from practice spaces
  * - Room cleanup coordination
- * 
- * Features:
- * - Auto-show opening on first visit
- * - Graceful transitions between hub and practice rooms
- * - Automatic cleanup of active practice sessions
- * 
- * @version 1.0.0
  */
 
 const Rituals = {
-    // ============================================================================
-    // STATE
-    // ============================================================================
-    
-    state: {
-        hasSeenOpening: false,
-        isInitialized: false,
-        autoCloseTimer: null
-    },
 
     // ============================================================================
-    // CONFIGURATION
+    // STATE & CONFIG
     // ============================================================================
-    
+
+    state: {
+        hasSeenOpening: false,
+        isInitialized:  false,
+        autoCloseTimer: null,
+    },
+
     config: {
+        OPENING_AUTO_CLOSE_MS: 5000,
+
         OPENING_TEXTS: [
             "Enter with intention, leave with gratitude",
             "This space holds you. Enter with presence.",
@@ -40,8 +33,9 @@ const Rituals = {
             "Set down what you carry. Enter with an open heart.",
             "The space is ready. So are you.",
             "Come as you are. This is a place of welcome.",
-            "Arrive fully. Begin with intention."
+            "Arrive fully. Begin with intention.",
         ],
+
         CLOSING_TEXTS: [
             "Thank you for holding space with us",
             "Carry the stillness with you as you go.",
@@ -52,120 +46,70 @@ const Rituals = {
             "Thank you for your presence in this circle.",
             "Rest in what was received here today.",
             "You are changed by having paused. Go well.",
-            "Until next time — carry the quiet with you."
+            "Until next time — carry the quiet with you.",
         ],
+
         ROOM_MODULES: [
-            'BreathworkRoom',
-            'SilentRoom',
-            'GuidedRoom',
-            'OshoRoom',
-            'DeepWorkRoom',
-            'CampfireRoom',
-            'TarotRoom',
-            'ReikiRoom',
+            'BreathworkRoom', 'SilentRoom', 'GuidedRoom', 'OshoRoom',
+            'DeepWorkRoom',   'CampfireRoom', 'TarotRoom', 'ReikiRoom',
             // Celestial rooms
-            'NewMoonRoom',
-            'WaxingMoonRoom',
-            'FullMoonRoom',
-            'WaningMoonRoom',
-            'SpringSolarRoom',
-            'SummerSolarRoom',
-            'AutumnSolarRoom',
-            'WinterSolarRoom'
-        ]
+            'NewMoonRoom',   'WaxingMoonRoom', 'FullMoonRoom', 'WaningMoonRoom',
+            'SpringSolarRoom','SummerSolarRoom','AutumnSolarRoom','WinterSolarRoom',
+        ],
     },
 
     // ============================================================================
     // INITIALIZATION
     // ============================================================================
-    
-    /**
-     * Initialize Rituals module
-     */
+
     init() {
         if (this.state.isInitialized) {
             console.warn('Rituals already initialized');
             return;
         }
-
         try {
             console.log('🕯️ Rituals Module Loaded');
-            
-            // Check if user has seen opening before
             this.loadState();
-            
-            // Set up event listeners
             this.setupEventListeners();
-            
-            // DON'T auto-show here - let CommunityHubEngine control timing
-            // to ensure DOM is fully ready
-            
             this.state.isInitialized = true;
-            
         } catch (error) {
             console.error('Rituals initialization failed:', error);
         }
     },
 
-    /**
-     * Set up event listeners for ritual interactions
-     */
     setupEventListeners() {
-        // ESC key to close any active ritual
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                const openingOverlay = document.getElementById('openingOverlay');
-                const closingOverlay = document.getElementById('closingOverlay');
-                
-                if (openingOverlay && openingOverlay.classList.contains('active')) {
-                    this.completeOpening();
-                } else if (closingOverlay && closingOverlay.classList.contains('active')) {
-                    this.completeClosing();
-                }
-            }
+            if (e.key !== 'Escape') return;
+            const opening = document.getElementById('openingOverlay');
+            const closing = document.getElementById('closingOverlay');
+            if (opening?.classList.contains('active'))      this.completeOpening();
+            else if (closing?.classList.contains('active')) this.completeClosing();
         });
 
-        // Click handlers for ritual buttons (delegated)
         document.addEventListener('click', (e) => {
-            const btn = e.target.closest('[data-action]');
-            if (!btn) return;
-
-            const action = btn.dataset.action;
-            
-            if (action === 'ritual-opening') {
-                this.completeOpening();
-            } else if (action === 'ritual-closing') {
-                this.completeClosing();
-            }
+            const action = e.target.closest('[data-action]')?.dataset.action;
+            if (action === 'ritual-opening') this.completeOpening();
+            else if (action === 'ritual-closing') this.completeClosing();
         });
     },
 
     // ============================================================================
-    // STATE MANAGEMENT
+    // STATE PERSISTENCE
     // ============================================================================
-    
-    /**
-     * Load state from localStorage
-     */
+
     loadState() {
         try {
             const saved = localStorage.getItem('rituals_state');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                this.state.hasSeenOpening = parsed.hasSeenOpening || false;
-            }
+            if (saved) this.state.hasSeenOpening = JSON.parse(saved).hasSeenOpening || false;
         } catch (error) {
             console.error('Failed to load rituals state:', error);
         }
     },
 
-    /**
-     * Save state to localStorage
-     */
     saveState() {
         try {
             localStorage.setItem('rituals_state', JSON.stringify({
-                hasSeenOpening: this.state.hasSeenOpening
+                hasSeenOpening: this.state.hasSeenOpening,
             }));
         } catch (error) {
             console.error('Failed to save rituals state:', error);
@@ -175,199 +119,113 @@ const Rituals = {
     // ============================================================================
     // OPENING RITUAL
     // ============================================================================
-    
-    /**
-     * Show opening ritual overlay
-     */
+
     showOpening() {
         const overlay = document.getElementById('openingOverlay');
-        if (!overlay) {
-            console.warn('Opening overlay not found');
-            return;
-        }
-        try {
-            const texts = this.config.OPENING_TEXTS;
-            const randomText = texts[Math.floor(Math.random() * texts.length)];
-            const textEl = document.getElementById('openingRitualText');
-            if (textEl) textEl.textContent = `"${randomText}"`;
+        if (!overlay) { console.warn('Opening overlay not found'); return; }
 
-            document.body.classList.add('ritual-active');
-            overlay.classList.add('active');
-            console.log('✓ Opening ritual displayed');
-            this.state.autoCloseTimer = setTimeout(() => {
-                this.completeOpening();
-            }, 5000);
-        } catch (error) {
-            console.error('Error showing opening ritual:', error);
-        }
+        const textEl = document.getElementById('openingRitualText');
+        if (textEl) textEl.textContent = `"${this._randomText('OPENING_TEXTS')}"`;
+
+        document.body.classList.add('ritual-active');
+        overlay.classList.add('active');
+        this.state.autoCloseTimer = setTimeout(() => this.completeOpening(), this.config.OPENING_AUTO_CLOSE_MS);
+        console.log('✓ Opening ritual displayed');
     },
 
-    /**
-     * Complete opening ritual and welcome user
-     */
     completeOpening() {
         const overlay = document.getElementById('openingOverlay');
         if (!overlay) return;
-        try {
-            if (this.state.autoCloseTimer) {
-                clearTimeout(this.state.autoCloseTimer);
-                this.state.autoCloseTimer = null;
-            }
-            overlay.classList.remove('active');
-            document.body.classList.remove('ritual-active');
-            this.state.hasSeenOpening = true;
-            this.saveState();
-            if (window.Core && typeof window.Core.showToast === 'function') {
-                window.Core.showToast('Welcome to the space');
-            }
-            console.log('✓ Opening ritual completed');
-        } catch (error) {
-            console.error('Error completing opening ritual:', error);
-        }
+
+        clearTimeout(this.state.autoCloseTimer);
+        this.state.autoCloseTimer = null;
+
+        overlay.classList.remove('active');
+        document.body.classList.remove('ritual-active');
+        this.state.hasSeenOpening = true;
+        this.saveState();
+        window.Core?.showToast?.('Welcome to the space');
+        console.log('✓ Opening ritual completed');
     },
 
     // ============================================================================
     // CLOSING RITUAL
     // ============================================================================
-    
-    /**
-     * Show closing ritual overlay (when user leaves any room)
-     */
-    showClosing() {
-        const overlay = document.getElementById('closingOverlay');
-        const container = document.getElementById('communityHubFullscreenContainer');
-        if (!overlay) {
-            console.warn('Closing overlay not found');
-            return;
-        }
-        try {
-            const texts = this.config.CLOSING_TEXTS;
-            const randomText = texts[Math.floor(Math.random() * texts.length)];
-            const textEl = document.getElementById('closingRitualText');
-            if (textEl) textEl.textContent = `"${randomText}"`;
 
-            document.body.classList.add('ritual-active');
-            if (container) {
-                container.style.display = 'block';
-                container.style.pointerEvents = 'auto';
-            }
-            overlay.classList.add('active');
-            console.log('✓ Closing ritual displayed');
-        } catch (error) {
-            console.error('Error showing closing ritual:', error);
+    showClosing() {
+        const overlay    = document.getElementById('closingOverlay');
+        const container  = document.getElementById('communityHubFullscreenContainer');
+        if (!overlay) { console.warn('Closing overlay not found'); return; }
+
+        const textEl = document.getElementById('closingRitualText');
+        if (textEl) textEl.textContent = `"${this._randomText('CLOSING_TEXTS')}"`;
+
+        document.body.classList.add('ritual-active');
+        if (container) {
+            container.style.display      = 'block';
+            container.style.pointerEvents = 'auto';
         }
+        overlay.classList.add('active');
+        console.log('✓ Closing ritual displayed');
     },
 
-    /**
-     * Complete closing ritual - clean up any active room and return to hub
-     */
     completeClosing() {
-        const overlay = document.getElementById('closingOverlay');
+        const overlay   = document.getElementById('closingOverlay');
         const container = document.getElementById('communityHubFullscreenContainer');
-        if (!overlay) {
-            console.warn('Closing overlay not found');
-            return;
-        }
+        if (!overlay) { console.warn('Closing overlay not found'); return; }
 
-        try {
-            overlay.classList.remove('active');
-            document.body.classList.remove('ritual-active');
-            document.body.style.overflow = ''; // restore body scroll
-            if (container) {
-                container.style.display = 'none';
-            }
-            
-            // Clean up any active practice room
-            this.cleanupActiveRoom();
-            
-            // Navigate back to hub
-            if (window.Core && typeof window.Core.navigateTo === 'function') {
-                window.Core.navigateTo('hubView');
-            }
-            
-            // Show gratitude toast
-            if (window.Core && typeof window.Core.showToast === 'function') {
-                window.Core.showToast('Space closed with gratitude');
-            }
-            
-            console.log('✓ Closing ritual completed');
-            
-        } catch (error) {
-            console.error('Error completing closing ritual:', error);
-        }
+        overlay.classList.remove('active');
+        document.body.classList.remove('ritual-active');
+        document.body.style.overflow = '';
+        if (container) container.style.display = 'none';
+
+        this.cleanupActiveRoom();
+        window.Core?.navigateTo?.('hubView');
+        window.Core?.showToast?.('Space closed with gratitude');
+        console.log('✓ Closing ritual completed');
     },
 
     // ============================================================================
     // ROOM CLEANUP
     // ============================================================================
-    
-    /**
-     * Clean up whichever room is currently active
-     * Calls leaveRoom() on the active room module
-     */
+
     cleanupActiveRoom() {
-        try {
-            const activeRoom = this.findActiveRoom();
-            
-            if (activeRoom) {
-                console.log(`Cleaning up active room: ${activeRoom.name}`);
-                
-                // Call the room's cleanup method if available
-                if (typeof activeRoom.module.leaveRoom === 'function') {
-                    activeRoom.module.leaveRoom();
-                    console.log(`✓ Called leaveRoom() for ${activeRoom.name}`);
-                } else if (typeof activeRoom.module.cleanup === 'function') {
-                    activeRoom.module.cleanup();
-                    console.log(`✓ Called cleanup() for ${activeRoom.name}`);
-                } else {
-                    // Room doesn't have cleanup methods (e.g., Solar/Lunar rooms)
-                    // That's okay - just log it
-                    console.log(`ℹ️ ${activeRoom.name} has no cleanup method (this is okay)`);
-                }
-            } else {
-                console.log('No active room to cleanup');
-            }
-            
-        } catch (error) {
-            console.error('Error cleaning up active room:', error);
+        const activeRoom = this.findActiveRoom();
+        if (!activeRoom) { console.log('No active room to cleanup'); return; }
+
+        console.log(`Cleaning up active room: ${activeRoom.name}`);
+        const { module, name } = activeRoom;
+
+        if (typeof module.leaveRoom === 'function') {
+            module.leaveRoom();
+            console.log(`✓ Called leaveRoom() for ${name}`);
+        } else if (typeof module.cleanup === 'function') {
+            module.cleanup();
+            console.log(`✓ Called cleanup() for ${name}`);
+        } else {
+            console.log(`ℹ️ ${name} has no cleanup method`);
         }
     },
 
-    /**
-     * Find the currently active room module
-     * @returns {Object|null} Object with room name and module, or null
-     */
     findActiveRoom() {
-        // Check if there's a currentSolarRoom or currentLunarRoom
-        if (window.currentSolarRoom) {
-            return { name: 'CurrentSolarRoom', module: window.currentSolarRoom };
-        }
-        if (window.currentLunarRoom) {
-            return { name: 'CurrentLunarRoom', module: window.currentLunarRoom };
-        }
+        // Prefer dynamic room references
+        if (window.currentSolarRoom) return { name: 'CurrentSolarRoom', module: window.currentSolarRoom };
+        if (window.currentLunarRoom) return { name: 'CurrentLunarRoom', module: window.currentLunarRoom };
 
-        // Check individual room modules
+        const dynamicContent = document.getElementById('dynamicRoomContent');
+        const hasContent     = dynamicContent?.children.length > 0;
+        const hasHeader      = !!document.querySelector('.ps-header');
+        if (!hasContent || !hasHeader) return null;
+
         for (const roomName of this.config.ROOM_MODULES) {
-            try {
-                const room = window[roomName];
-                if (!room) continue;
+            const room = window[roomName];
+            if (!room?.roomId) continue;
 
-                // A practice room is active if dynamicRoomContent has content
-                // and the room's roomId matches what's rendered
-                if (room.roomId) {
-                    const header = document.querySelector(`.ps-header`);
-                    const dynamicContent = document.getElementById('dynamicRoomContent');
-                    if (header && dynamicContent && dynamicContent.children.length > 0) {
-                        // Check if this specific room rendered it
-                        if (document.getElementById(`${room.roomId}ParticipantStack`) ||
-                            document.getElementById(`${room.roomId}View`) ||
-                            document.getElementById(`${room.roomId}TimerDisplay`)) {
-                            return { name: roomName, module: room };
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error(`Error checking room ${roomName}:`, error);
+            const { roomId } = room;
+            if (document.getElementById(`${roomId}ParticipantStack`) ||
+                document.getElementById(`${roomId}View`)             ||
+                document.getElementById(`${roomId}TimerDisplay`)) {
+                return { name: roomName, module: room };
             }
         }
 
@@ -375,55 +233,39 @@ const Rituals = {
     },
 
     /**
-     * Get the view ID for a room
-     * @param {Object} room - Room module instance
-     * @param {string} roomName - Room name
-     * @returns {string} View ID
+     * Derive a view ID for a room module.
+     * Tries room.roomId, then room.viewId, then falls back to name-based convention.
+     * @param {Object} room
+     * @param {string} roomName
+     * @returns {string}
      */
     getRoomViewId(room, roomName) {
-        // Try multiple strategies to find the view ID
-        
-        // Strategy 1: Room has explicit roomId property
-        if (room.roomId) {
-            return `${room.roomId}PracticeView`;
-        }
-        
-        // Strategy 2: Room has viewId property
-        if (room.viewId) {
-            return room.viewId;
-        }
-        
-        // Strategy 3: Derive from room name
-        const baseName = roomName.toLowerCase().replace('room', '');
-        return `${baseName}PracticeView`;
+        if (room.roomId) return `${room.roomId}PracticeView`;
+        if (room.viewId) return room.viewId;
+        return `${roomName.toLowerCase().replace('room', '')}PracticeView`;
     },
 
     // ============================================================================
-    // UTILITY METHODS
+    // UTILITIES
     // ============================================================================
-    
-    /**
-     * Reset rituals state (for testing/debugging)
-     */
+
+    /** Returns a random entry from a named config text array. */
+    _randomText(key) {
+        const arr = this.config[key];
+        return arr[Math.floor(Math.random() * arr.length)];
+    },
+
+    /** Reset opening state (for testing/debugging). */
     reset() {
-        try {
-            this.state.hasSeenOpening = false;
-            this.saveState();
-            console.log('✓ Rituals state reset');
-        } catch (error) {
-            console.error('Error resetting rituals state:', error);
-        }
+        this.state.hasSeenOpening = false;
+        this.saveState();
+        console.log('✓ Rituals state reset');
     },
 
-    /**
-     * Check if a specific ritual overlay exists
-     * @param {string} type - 'opening' or 'closing'
-     * @returns {boolean} True if overlay exists
-     */
+    /** Check if a ritual overlay element exists in the DOM. */
     hasOverlay(type) {
-        const overlayId = `${type}Overlay`;
-        return !!document.getElementById(overlayId);
-    }
+        return !!document.getElementById(`${type}Overlay`);
+    },
 };
 
 // ============================================================================
