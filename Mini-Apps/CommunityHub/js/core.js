@@ -1,47 +1,50 @@
 /**
  * CORE.JS - Community Hub Central Management System
- * PATCHED: Full Supabase integration
- * 
- * @version 2.0.0
+ * @version 2.1.0 — Supabase integrated
  */
 
 const Core = {
 
-    // ============================================================================
+    // =========================================================================
     // STATE
-    // ============================================================================
-    
+    // =========================================================================
+
     state: {
         currentUser: {
-            id:       null,
-            name:     'Loading...',
-            avatar:   '?',
-            emoji:    '',
+            id:         null,
+            name:       'Loading...',
+            avatar:     '?',
+            emoji:      '',
             avatar_url: null,
-            bio:      '',
-            status:   'online',
-            role:     'Member',
-            karma:    0,
-            minutes:  0,
-            circles:  0,
-            offered:  0,
-            email:    ''
+            bio:        '',
+            status:     'online',
+            role:       'Member',
+            karma:      0,
+            xp:         0,
+            badges:     [],
+            minutes:    0,
+            circles:    0,
+            offered:    0,
+            birthday:   null,
+            country:    null,
+            email:      '',
+            is_admin:   false
         },
-        currentRoom:     null,       // e.g. 'campfire-room' — set when entering a room
-        currentActivity: '✨ Available',
-        presenceCount:   0,
+        currentRoom:      null,
+        currentActivity:  '✨ Available',
+        presenceCount:    0,
         presenceInterval: null,
-        pulseSent:       false,
-        timerRunning:    false,
-        timeLeft:        1200,       // 20 minutes in seconds
-        currentView:     'hubView',
-        initialized:     false
+        pulseSent:        false,
+        timerRunning:     false,
+        timeLeft:         1200,   // 20 min in seconds
+        currentView:      'hubView',
+        initialized:      false
     },
 
-    // ============================================================================
+    // =========================================================================
     // CONFIGURATION
-    // ============================================================================
-    
+    // =========================================================================
+
     config: {
         ROOM_MODULES: [
             'SilentRoom',
@@ -53,7 +56,7 @@ const Core = {
             'TarotRoom',
             'ReikiRoom'
         ],
-        statusRings: {
+        STATUS_RINGS: {
             silent:    '#60a5fa',
             available: '#34d399',
             guiding:   '#fbbf24',
@@ -61,53 +64,50 @@ const Core = {
             resonant:  '#f472b6',
             offline:   '#d1d5db'
         },
-        RENDER_DELAY:        100,
-        CELESTIAL_INIT_DELAY: 500
+        AVATAR_GRADIENTS: [
+            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+            'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
+        ],
+        ADMIN_MODULES:       ['CollectiveField', 'LunarEngine', 'SolarEngine', 'UpcomingEvents', 'AdminDashboard'],
+        RENDER_DELAY:         100,
+        CELESTIAL_INIT_DELAY: 500,
+        CELESTIAL_POLL_MAX:   25,   // × 200ms = 5s max wait for SunCalc
+        PRESENCE_INTERVAL:    30000,
+        HEARTBEAT_INTERVAL:   60000,
+        PULSE_COOLDOWN:       60000
     },
 
-    // ============================================================================
+    // =========================================================================
     // INITIALIZATION
-    // ============================================================================
-    
-    /**
-     * Initialize the Community Hub application.
-     * Now async so it can load real user data before rendering.
-     */
+    // =========================================================================
+
     async init() {
         if (this.state.initialized) {
-            console.warn('Core already initialized');
+            console.warn('[Core] Already initialized');
             return;
         }
 
         try {
-
-            // 1. Init Supabase data layer
             if (!window.CommunityDB) {
-                throw new Error('CommunityDB not found — make sure community-supabase.js loaded first');
+                throw new Error('CommunityDB not found — ensure community-supabase.js loaded first');
             }
 
             const dbReady = await CommunityDB.init();
-            if (!dbReady) {
-                throw new Error('Database not ready — is the user logged in?');
-            }
+            if (!dbReady) throw new Error('Database not ready — is the user logged in?');
 
-            // 2. Load real user profile (replaces all hardcoded data)
             await this.loadCurrentUser();
 
-            // 2b. Inject admin UI after modules have rendered
-            setTimeout(() => this._injectAdminUIAll(), 1000);
-
-            // 3. Go online and start heartbeat
             await CommunityDB.setPresence('online', '✨ Available', null);
-            CommunityDB.startHeartbeat(60000);
+            CommunityDB.startHeartbeat(this.config.HEARTBEAT_INTERVAL);
 
-            // 4. Mark offline when tab closes
-            window.addEventListener('beforeunload', async () => {
-                await CommunityDB.setOffline();
+            window.addEventListener('beforeunload', () => {
+                CommunityDB.setOffline();
                 CommunityDB.unsubscribeAll();
             });
 
-            // 5. Standard setup (unchanged from original)
             this.setupEventListeners();
             this.initializeSafetyModals();
             this.initializeModules();
@@ -116,109 +116,58 @@ const Core = {
             this.scheduleCelestialInit();
             this.updatePresenceCount();
 
+            // Inject admin UI after modules have rendered
+            setTimeout(() => this._injectAdminUIAll(), 1000);
+
             this.state.initialized = true;
 
         } catch (error) {
-            console.error('❌ Core initialization failed:', error);
+            console.error('❌ [Core] Initialization failed:', error);
             this.handleInitializationError(error);
         }
     },
 
-    /**
-     * Load the authenticated user's profile from Supabase
-     * and populate Core.state.currentUser with real data.
-     */
     async loadCurrentUser() {
         try {
-            const profile = await CommunityDB.getMyProfile();
-
-            if (!profile) {
-                console.warn('[Core] No profile found for user');
+            const p = await CommunityDB.getMyProfile();
+            if (!p) {
+                console.warn('[Core] No profile found for current user');
                 return;
             }
 
-            this.state.currentUser = {
-                id:               profile.id,
-                name:             profile.name             || 'Anonymous',
-                avatar:           (profile.name || 'A').charAt(0).toUpperCase(),
-                emoji:            profile.emoji            || '',
-                avatar_url:       profile.avatar_url       || null,
-                bio:              profile.inspiration      || 'Here to practice with intention.',
-                status:           ['online','away','offline'].includes(profile.community_status)
-                                    ? profile.community_status : 'online',
-                role:             profile.is_admin === true ? 'Admin' : (profile.community_role || 'Member'),
-                minutes:          profile.total_minutes    || 0,
-                circles:          profile.total_sessions   || 0,
-                offered:          profile.gifts_given      || 0,
-                birthday:         profile.birthday         || null,
-                country:          profile.country          || null,
-                email:            profile.email            || '',
-                is_admin:         profile.is_admin          === true,
-                // karma/xp/badges loaded from GamificationEngine (lives at window.app.gamification)
-                karma:            window.app?.gamification?.state?.karma  ?? 0,
-                xp:               window.app?.gamification?.state?.xp     ?? 0,
-                badges:           window.app?.gamification?.state?.badges ?? []
-            };
+            const validStatuses = new Set(['online', 'away', 'offline']);
 
+            this.state.currentUser = {
+                id:         p.id,
+                name:       p.name             || 'Anonymous',
+                avatar:     (p.name || 'A').charAt(0).toUpperCase(),
+                emoji:      p.emoji            || '',
+                avatar_url: p.avatar_url       || null,
+                bio:        p.inspiration      || 'Here to practice with intention.',
+                status:     validStatuses.has(p.community_status) ? p.community_status : 'online',
+                role:       p.is_admin === true ? 'Admin' : (p.community_role || 'Member'),
+                minutes:    p.total_minutes    || 0,
+                circles:    p.total_sessions   || 0,
+                offered:    p.gifts_given      || 0,
+                birthday:   p.birthday         || null,
+                country:    p.country          || null,
+                email:      p.email            || '',
+                is_admin:   p.is_admin === true,
+                // Gamification — sourced from GamificationEngine
+                karma:      window.app?.gamification?.state?.karma  ?? 0,
+                xp:         window.app?.gamification?.state?.xp     ?? 0,
+                badges:     window.app?.gamification?.state?.badges ?? []
+            };
 
         } catch (error) {
             console.error('[Core] loadCurrentUser failed:', error);
         }
     },
 
-    /**
-     * Call injectAdminUI() on all modules that support it.
-     * Runs after loadCurrentUser() so is_admin is guaranteed to be set.
-     */
-    _injectAdminUIAll() {
-        const modules = [
-            window.CollectiveField,
-            window.LunarEngine,
-            window.SolarEngine,
-            window.UpcomingEvents,
-            window.AdminDashboard,
-        ];
-        modules.forEach(m => {
-            if (m && typeof m.injectAdminUI === 'function') {
-                try { m.injectAdminUI(); } catch(e) { console.warn('injectAdminUI failed:', e); }
-            }
-        });
-    },
+    // =========================================================================
+    // MODULE INITIALIZATION
+    // =========================================================================
 
-    /**
-     * Call injectAdminUI() on all modules that support it.
-     * Runs after loadCurrentUser() so is_admin is guaranteed to be set.
-     */
-    _injectAdminUIAll() {
-        const modules = [
-            window.CollectiveField,
-            window.LunarEngine,
-            window.SolarEngine,
-            window.UpcomingEvents,
-            window.AdminDashboard,
-        ];
-        modules.forEach(m => {
-            if (m && typeof m.injectAdminUI === 'function') {
-                try { m.injectAdminUI(); } catch(e) { console.warn('injectAdminUI failed:', e); }
-            }
-        });
-    },
-
-    /**
-     * Handle initialization errors gracefully
-     */
-    handleInitializationError(error) {
-        this.showToast('Failed to initialize. Please refresh the page.');
-        console.error('Initialization error details:', {
-            message: error.message,
-            stack:   error.stack,
-            state:   this.state
-        });
-    },
-
-    /**
-     * Initialize consolidated modules
-     */
     initializeModules() {
         const modules = [
             { name: 'Rituals',         instance: window.Rituals },
@@ -226,294 +175,270 @@ const Core = {
             { name: 'CommunityModule', instance: window.CommunityModule }
         ];
 
-        modules.forEach(({ name, instance }) => {
-            try {
-                if (instance && typeof instance.init === 'function') {
-                    instance.init();
-                } else {
-                    console.warn(`⚠ ${name} module not found or missing init`);
-                }
-            } catch (error) {
-                console.error(`✗ ${name} initialization failed:`, error);
+        for (const { name, instance } of modules) {
+            if (instance?.init) {
+                try { instance.init(); }
+                catch (e) { console.error(`✗ [Core] ${name} init failed:`, e); }
+            } else {
+                console.warn(`⚠ [Core] ${name} not found or missing init()`);
             }
-        });
+        }
 
-        // ActiveMembers uses render() not init() — call it after CommunityDB is ready
-        if (window.ActiveMembers && typeof window.ActiveMembers.render === 'function') {
+        if (window.ActiveMembers?.render) {
             window.ActiveMembers.render().catch(e =>
-                console.error('✗ ActiveMembers render failed:', e)
+                console.error('✗ [Core] ActiveMembers.render() failed:', e)
             );
         } else {
-            console.warn('⚠ ActiveMembers not found');
+            console.warn('⚠ [Core] ActiveMembers not found');
         }
     },
 
-    // ============================================================================
-    // PRACTICE ROOMS MANAGEMENT
-    // ============================================================================
+    _injectAdminUIAll() {
+        for (const name of this.config.ADMIN_MODULES) {
+            const m = window[name];
+            if (m?.injectAdminUI) {
+                try { m.injectAdminUI(); }
+                catch (e) { console.warn(`[Core] injectAdminUI failed on ${name}:`, e); }
+            }
+        }
+    },
+
+    handleInitializationError(error) {
+        this.showToast('Failed to initialize. Please refresh the page.');
+        console.error('[Core] Init error details:', {
+            message: error.message,
+            stack:   error.stack,
+            state:   this.state
+        });
+    },
+
+    // =========================================================================
+    // PRACTICE ROOMS
+    // =========================================================================
 
     initializePracticeRooms() {
-        let initializedCount = 0;
-        const roomInstances = [];
+        const initialized = [];
 
-        this.config.ROOM_MODULES.forEach(roomName => {
-            try {
-                const room = window[roomName];
-                if (room) {
-                    if (typeof room.init === 'function') {
-                        room.init();
-                        roomInstances.push(room);
-                        initializedCount++;
-                    } else {
-                        console.warn(`⚠ ${roomName} missing init method`);
-                    }
-                } else {
-                    console.warn(`⚠ ${roomName} not found on window`);
-                }
-            } catch (error) {
-                console.error(`✗ Failed to initialize ${roomName}:`, error);
+        for (const roomName of this.config.ROOM_MODULES) {
+            const room = window[roomName];
+            if (!room) {
+                console.warn(`⚠ [Core] ${roomName} not found on window`);
+                continue;
             }
-        });
+            if (!room.init) {
+                console.warn(`⚠ [Core] ${roomName} missing init()`);
+                continue;
+            }
+            try {
+                room.init();
+                initialized.push(room);
+            } catch (e) {
+                console.error(`✗ [Core] ${roomName} init failed:`, e);
+            }
+        }
 
-
-        // Start one shared hub presence subscription for all room cards
-        if (window.PracticeRoom && roomInstances.length) {
-            PracticeRoom.startHubPresence(roomInstances);
+        if (window.PracticeRoom && initialized.length) {
+            PracticeRoom.startHubPresence(initialized);
         }
     },
 
     scheduleRoomRendering() {
         setTimeout(() => {
-            try {
-                this.renderRooms();
-            } catch (error) {
-                console.error('Room rendering failed:', error);
-            }
+            try { this.renderRooms(); }
+            catch (e) { console.error('[Core] Room rendering failed:', e); }
         }, this.config.RENDER_DELAY);
     },
 
     renderRooms() {
-        const roomsGrid = document.getElementById('roomsGrid');
-        if (!roomsGrid) {
-            console.warn('roomsGrid element not found - skipping room rendering');
+        const grid = document.getElementById('roomsGrid');
+        if (!grid) {
+            console.warn('[Core] #roomsGrid not found — skipping render');
             return;
         }
 
-        const roomCards = [];
-        this.config.ROOM_MODULES.forEach(moduleName => {
-            try {
-                const module = window[moduleName];
-                if (module && typeof module.getRoomCardHTML === 'function') {
-                    const html = module.getRoomCardHTML();
-                    if (html) roomCards.push(html);
-                } else {
-                    console.warn(`⚠ ${moduleName} missing getRoomCardHTML method`);
-                }
-            } catch (error) {
-                console.error(`✗ Failed to get card HTML for ${moduleName}:`, error);
+        const cards = this.config.ROOM_MODULES.reduce((acc, name) => {
+            const mod = window[name];
+            if (!mod?.getRoomCardHTML) {
+                console.warn(`⚠ [Core] ${name} missing getRoomCardHTML()`);
+                return acc;
             }
-        });
+            try {
+                const html = mod.getRoomCardHTML();
+                if (html) acc.push(html);
+            } catch (e) {
+                console.error(`✗ [Core] getRoomCardHTML failed for ${name}:`, e);
+            }
+            return acc;
+        }, []);
 
-        if (roomCards.length > 0) {
-            roomsGrid.innerHTML = roomCards.join('');
+        if (cards.length) {
+            grid.innerHTML = cards.join('');
         } else {
-            console.warn('No room cards to render');
+            console.warn('[Core] No room cards to render');
         }
     },
 
-    // ============================================================================
+    // =========================================================================
     // CELESTIAL SYSTEMS
-    // ============================================================================
+    // =========================================================================
 
     scheduleCelestialInit() {
         setTimeout(() => {
-            try {
-                this.initializeCelestialSystems();
-            } catch (error) {
-                console.error('Celestial initialization failed:', error);
-            }
+            try { this.initializeCelestialSystems(); }
+            catch (e) { console.error('[Core] Celestial init failed:', e); }
         }, this.config.CELESTIAL_INIT_DELAY);
     },
 
     initializeCelestialSystems() {
-        const _tryInit = (attemptsLeft) => {
-            if (typeof SunCalc === 'undefined' && attemptsLeft > 0) {
-                setTimeout(() => _tryInit(attemptsLeft - 1), 200);
+        const tryInit = (attemptsLeft) => {
+            if (typeof SunCalc === 'undefined') {
+                if (attemptsLeft > 0) {
+                    setTimeout(() => tryInit(attemptsLeft - 1), 200);
+                } else {
+                    console.error('[Core] SunCalc never loaded — celestial systems unavailable');
+                }
                 return;
             }
 
-            if (window.LunarEngine && typeof window.LunarEngine.init === 'function') {
-                try {
-                    window.LunarEngine.init();
-                } catch (error) {
-                    console.error('✗ Lunar initialization failed:', error);
+            for (const [name, engine] of [['LunarEngine', window.LunarEngine], ['SolarEngine', window.SolarEngine]]) {
+                if (engine?.init) {
+                    try { engine.init(); }
+                    catch (e) { console.error(`✗ [Core] ${name} init failed:`, e); }
+                } else {
+                    console.warn(`⚠ [Core] ${name} not found`);
                 }
-            } else {
-                console.warn('⚠ LunarEngine not found');
-            }
-
-            if (window.SolarEngine && typeof window.SolarEngine.init === 'function') {
-                try {
-                    window.SolarEngine.init();
-                } catch (error) {
-                    console.error('✗ Solar initialization failed:', error);
-                }
-            } else {
-                console.warn('⚠ SolarEngine not found');
             }
         };
 
-        _tryInit(25); // poll up to 25 × 200ms = 5 seconds
+        tryInit(this.config.CELESTIAL_POLL_MAX);
     },
 
-    // ============================================================================
-    // NAVIGATION & VIEW MANAGEMENT
-    // ============================================================================
+    // =========================================================================
+    // NAVIGATION
+    // =========================================================================
 
     navigateTo(viewId) {
         try {
-            const fullscreenContainer = document.getElementById('communityHubFullscreenContainer');
-            const hubTab = document.getElementById('community-hub-tab');
+            const fullscreen = document.getElementById('communityHubFullscreenContainer');
+            const hubTab     = document.getElementById('community-hub-tab');
 
             if (viewId === 'hubView') {
-                if (fullscreenContainer) fullscreenContainer.style.display = 'none';
-                if (hubTab) hubTab.style.display = 'block';
-                document.body.style.overflow = ''; // restore body scroll
-
-                const views = document.querySelectorAll('#hubView');
-                views.forEach(view => view.classList.add('active'));
-
+                if (fullscreen) fullscreen.style.display = 'none';
+                if (hubTab)     hubTab.style.display = 'block';
+                document.body.style.overflow = '';
+                document.querySelectorAll('#hubView').forEach(v => v.classList.add('active'));
                 this.state.currentView = 'hubView';
 
             } else if (viewId === 'practiceRoomView') {
-                if (fullscreenContainer) {
-                    fullscreenContainer.style.display = 'flex';
-
-                    const openingOverlay = fullscreenContainer.querySelector('#openingOverlay');
-                    const closingOverlay = fullscreenContainer.querySelector('#closingOverlay');
-                    if (openingOverlay) openingOverlay.classList.remove('active');
-                    if (closingOverlay) closingOverlay.classList.remove('active');
+                if (fullscreen) {
+                    fullscreen.style.display = 'flex';
+                    fullscreen.querySelector('#openingOverlay')?.classList.remove('active');
+                    fullscreen.querySelector('#closingOverlay')?.classList.remove('active');
                 }
-
                 if (hubTab) {
                     hubTab.style.display = 'none';
                 } else {
-                    console.error('[Core] Hub tab not found!');
+                    console.error('[Core] Hub tab element not found');
                 }
-
-                document.body.style.overflow = 'hidden'; // lock body scroll
+                document.body.style.overflow = 'hidden';
                 this.state.currentView = 'practiceRoomView';
 
             } else {
-                console.warn(`[Core] Unexpected viewId: ${viewId}`);
+                console.warn(`[Core] Unknown viewId: "${viewId}"`);
             }
-        } catch (error) {
-            console.error('[Core] Navigation error:', error);
+        } catch (e) {
+            console.error('[Core] Navigation error:', e);
         }
     },
 
+    // =========================================================================
+    // EVENT LISTENERS
+    // =========================================================================
+
     setupEventListeners() {
+        // Close modal on backdrop click
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal-overlay')) {
                 e.target.classList.remove('active');
             }
         });
 
+        // Close modal on Escape
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                const activeModal = document.querySelector('.modal-overlay.active');
-                if (activeModal) activeModal.classList.remove('active');
+                document.querySelector('.modal-overlay.active')?.classList.remove('active');
             }
         });
-
     },
 
-    // ============================================================================
+    // =========================================================================
     // PRESENCE & STATUS
-    // ============================================================================
+    // =========================================================================
 
-    /**
-     * Fetch real online member count from Supabase and update display.
-     * Also sets up a 30-second refresh interval.
-     */
     async updatePresenceCount() {
-        // Clear any existing interval to prevent stacking on re-visits
+        // Clear stale interval on re-visits
         if (this.state.presenceInterval) {
             clearInterval(this.state.presenceInterval);
         }
 
         const refresh = async () => {
             try {
-                if (!window.CommunityDB || !CommunityDB.ready) return;
+                if (!window.CommunityDB?.ready) return;
                 const members = await CommunityDB.getActiveMembers();
                 this.state.presenceCount = members.length;
-
                 const el = document.getElementById('presenceCount');
                 if (el) el.textContent = members.length;
-            } catch (error) {
-                console.error('[Core] updatePresenceCount error:', error);
+            } catch (e) {
+                console.error('[Core] updatePresenceCount error:', e);
             }
         };
 
         await refresh();
-        this.state.presenceInterval = setInterval(refresh, 30000);
+        this.state.presenceInterval = setInterval(refresh, this.config.PRESENCE_INTERVAL);
     },
 
-    /**
-     * Send a pulse to the community
-     */
     sendPulse() {
         if (this.state.pulseSent) {
             this.showToast('Please wait before sending another pulse');
             return;
         }
-
         this.state.pulseSent = true;
         this.showToast('💫 Pulse sent to the community');
-
-        setTimeout(() => {
-            this.state.pulseSent = false;
-        }, 60000);
+        setTimeout(() => { this.state.pulseSent = false; }, this.config.PULSE_COOLDOWN);
     },
 
-    // ============================================================================
-    // TOAST NOTIFICATIONS
-    // ============================================================================
+    // =========================================================================
+    // TOAST
+    // =========================================================================
 
     showToast(message, duration = 3000) {
         const toast = document.getElementById('toast');
         if (!toast) {
-            console.warn('Toast element not found');
+            console.warn('[Core] #toast element not found');
             return;
         }
-
         toast.textContent = message;
         toast.classList.add('show');
-
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, duration);
+        setTimeout(() => toast.classList.remove('show'), duration);
     },
 
-    // ============================================================================
-    // MODAL MANAGEMENT
-    // ============================================================================
+    // =========================================================================
+    // MODALS
+    // =========================================================================
 
     initializeSafetyModals() {
-        if (document.getElementById('reportModal')) {
-            return;
-        }
+        if (document.getElementById('reportModal')) return;
 
-        const modalsHTML = `
+        document.body.insertAdjacentHTML('beforeend', `
             <!-- Report Modal -->
             <div class="modal-overlay" id="reportModal">
                 <div class="modal-card">
                     <button class="modal-close" onclick="CommunityModule.closeReportModal()">×</button>
                     <h2>⚠️ Report Issue</h2>
                     <div class="modal-content">
-                        <p style="margin-bottom: 16px; color: var(--text-muted);">Help us maintain a safe space. Your report is confidential.</p>
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Reason:</label>
-                        <select id="reportReason" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); color: var(--text); margin-bottom: 16px;">
+                        <p style="margin-bottom:16px; color:var(--text-muted);">Help us maintain a safe space. Your report is confidential.</p>
+                        <label style="display:block; margin-bottom:8px; font-weight:600;">Reason:</label>
+                        <select id="reportReason" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface); color:var(--text); margin-bottom:16px;">
                             <option value="">Select a reason...</option>
                             <option value="harassment">Harassment or bullying</option>
                             <option value="inappropriate">Inappropriate content</option>
@@ -521,28 +446,28 @@ const Core = {
                             <option value="safety">Safety concern</option>
                             <option value="other">Other</option>
                         </select>
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Details (optional):</label>
-                        <textarea id="reportDetails" rows="4" placeholder="Please provide any additional context..." style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); color: var(--text); resize: vertical; margin-bottom: 16px;"></textarea>
-                        <div style="display: flex; gap: 12px;">
-                            <button onclick="CommunityModule.closeReportModal()" style="flex: 1; padding: 12px; border: 1px solid var(--border); background: var(--surface); border-radius: var(--radius-md); cursor: pointer; font-weight: 600;">Cancel</button>
-                            <button onclick="CommunityModule.submitReport()" style="flex: 1; padding: 12px; background: var(--accent); color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600;">Submit Report</button>
+                        <label style="display:block; margin-bottom:8px; font-weight:600;">Details (optional):</label>
+                        <textarea id="reportDetails" rows="4" placeholder="Please provide any additional context..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface); color:var(--text); resize:vertical; margin-bottom:16px;"></textarea>
+                        <div style="display:flex; gap:12px;">
+                            <button onclick="CommunityModule.closeReportModal()" style="flex:1; padding:12px; border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-md); cursor:pointer; font-weight:600;">Cancel</button>
+                            <button onclick="CommunityModule.submitReport()" style="flex:1; padding:12px; background:var(--accent); color:white; border:none; border-radius:var(--radius-md); cursor:pointer; font-weight:600;">Submit Report</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Block User Modal -->
+            <!-- Block Modal -->
             <div class="modal-overlay" id="blockModal">
                 <div class="modal-card">
                     <button class="modal-close" onclick="CommunityModule.closeBlockModal()">×</button>
                     <h2>🚫 Block User</h2>
                     <div class="modal-content">
-                        <p style="margin-bottom: 16px; color: var(--text-muted);">Blocking will hide all messages from this user.</p>
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Username:</label>
-                        <input type="text" id="blockUsername" placeholder="Enter username to block" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); color: var(--text); margin-bottom: 16px;" />
-                        <div style="display: flex; gap: 12px;">
-                            <button onclick="CommunityModule.closeBlockModal()" style="flex: 1; padding: 12px; border: 1px solid var(--border); background: var(--surface); border-radius: var(--radius-md); cursor: pointer; font-weight: 600;">Cancel</button>
-                            <button onclick="CommunityModule.confirmBlock()" style="flex: 1; padding: 12px; background: #e74c3c; color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600;">Block User</button>
+                        <p style="margin-bottom:16px; color:var(--text-muted);">Blocking will hide all messages from this user.</p>
+                        <label style="display:block; margin-bottom:8px; font-weight:600;">Username:</label>
+                        <input type="text" id="blockUsername" placeholder="Enter username to block" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface); color:var(--text); margin-bottom:16px;" />
+                        <div style="display:flex; gap:12px;">
+                            <button onclick="CommunityModule.closeBlockModal()" style="flex:1; padding:12px; border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-md); cursor:pointer; font-weight:600;">Cancel</button>
+                            <button onclick="CommunityModule.confirmBlock()" style="flex:1; padding:12px; background:#e74c3c; color:white; border:none; border-radius:var(--radius-md); cursor:pointer; font-weight:600;">Block User</button>
                         </div>
                     </div>
                 </div>
@@ -554,30 +479,28 @@ const Core = {
                     <button class="modal-close" onclick="CommunityModule.closeHelpModal()">×</button>
                     <h2>🆘 Get Help</h2>
                     <div class="modal-content">
-                        <p style="margin-bottom: 16px;">If you're experiencing a crisis or need immediate support:</p>
-                        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; margin-bottom: 16px;">
-                            <h3 style="margin-top: 0; font-size: 16px;">Crisis Resources</h3>
-                            <p style="margin: 8px 0;"><strong>988 Suicide & Crisis Lifeline:</strong> Call or text 988</p>
-                            <p style="margin: 8px 0;"><strong>Crisis Text Line:</strong> Text HOME to 741741</p>
-                            <p style="margin: 8px 0;"><strong>International:</strong> <a href="https://findahelpline.com" target="_blank" style="color: var(--accent);">findahelpline.com</a></p>
+                        <p style="margin-bottom:16px;">If you're experiencing a crisis or need immediate support:</p>
+                        <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin-bottom:16px;">
+                            <h3 style="margin-top:0; font-size:16px;">Crisis Resources</h3>
+                            <p style="margin:8px 0;"><strong>988 Suicide & Crisis Lifeline:</strong> Call or text 988</p>
+                            <p style="margin:8px 0;"><strong>Crisis Text Line:</strong> Text HOME to 741741</p>
+                            <p style="margin:8px 0;"><strong>International:</strong> <a href="https://findahelpline.com" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">findahelpline.com</a></p>
                         </div>
-                        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; margin-bottom: 16px;">
-                            <h3 style="margin-top: 0; font-size: 16px;">Community Support</h3>
-                            <p style="margin: 8px 0;">Contact our moderators for non-emergency concerns</p>
-                            <p style="margin: 8px 0;"><strong>Email:</strong> support@community.example.com</p>
+                        <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin-bottom:16px;">
+                            <h3 style="margin-top:0; font-size:16px;">Community Support</h3>
+                            <p style="margin:8px 0;">Contact our moderators for non-emergency concerns</p>
+                            <p style="margin:8px 0;"><strong>Email:</strong> support@community.example.com</p>
                         </div>
-                        <button onclick="CommunityModule.closeHelpModal()" style="width: 100%; padding: 12px; border: 1px solid var(--border); background: var(--surface); border-radius: var(--radius-md); cursor: pointer; font-weight: 600;">Close</button>
+                        <button onclick="CommunityModule.closeHelpModal()" style="width:100%; padding:12px; border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-md); cursor:pointer; font-weight:600;">Close</button>
                     </div>
                 </div>
             </div>
-        `;
-
-        document.body.insertAdjacentHTML('beforeend', modalsHTML);
+        `);
     },
 
-    // ============================================================================
-    // UTILITY FUNCTIONS
-    // ============================================================================
+    // =========================================================================
+    // UTILITIES
+    // =========================================================================
 
     formatTime(seconds) {
         if (typeof seconds !== 'number' || seconds < 0) return '0:00';
@@ -588,24 +511,11 @@ const Core = {
 
     getAvatarGradient(seed) {
         if (!seed || typeof seed !== 'string') seed = 'default';
-        const gradients = [
-            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-            'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
-        ];
-        const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        return gradients[Math.abs(hash) % gradients.length];
+        const hash = seed.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+        return this.config.AVATAR_GRADIENTS[Math.abs(hash) % this.config.AVATAR_GRADIENTS.length];
     }
 };
 
-// ============================================================================
-// GLOBAL EXPOSURE
-// ============================================================================
-
 window.Core = Core;
 
-            console.log('🌟 Community Hub Initializing...');
-            console.log('✅ Community Hub Initialized Successfully');
-console.log('✅ Core.js loaded (v2.0.0 — Supabase integrated)');
+console.log('✅ Core.js loaded (v2.1.0)');
