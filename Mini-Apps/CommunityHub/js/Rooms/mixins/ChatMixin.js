@@ -1,130 +1,191 @@
 /**
- * ═══════════════════════════════════════════════════════════════════════════
  * CHAT MIXIN
- * ═══════════════════════════════════════════════════════════════════════════
- * 
- * @mixin ChatMixin
- * @description Adds chat/messaging functionality to practice rooms
- * @version 3.1.0 — PATCHED: Messages saved to Supabase, loaded from DB with realtime
- * 
- * Usage:
- *   Object.assign(YourRoom.prototype, ChatMixin);
- * 
- * Features:
- *   - Message sending and rendering
- *   - Multiple chat channels support
- *   - ✅ Supabase persistence (replaces localStorage)
- *   - ✅ Realtime incoming messages
- * 
+ * Adds chat/messaging functionality to practice rooms.
+ *
+ * Usage: Object.assign(YourRoom.prototype, ChatMixin);
+ *
  * Channel → room_id mapping:
- *   channel 'main'            → room_id: this.roomId          (e.g. 'campfire')
- *   channel 'daily'/'personal' → room_id: this.roomId-channel (e.g. 'tarot-daily')
- * 
- * ═══════════════════════════════════════════════════════════════════════════
+ *   'main'            → this.roomId            (e.g. 'campfire')
+ *   'daily'/'personal' → this.roomId-channel   (e.g. 'tarot-daily')
  */
 
+// ─── Module-level helpers (not mixed into instances) ─────────────────────────
+
+/** Capitalise first letter. */
+const _cap = str => str.charAt(0).toUpperCase() + str.slice(1);
+
+/** Build a consistent avatar { inner, bg } pair from profile data. */
+function _avatarParts(name, avatarUrl, emoji, userId) {
+    const initial  = emoji || name.charAt(0).toUpperCase();
+    const gradient = window.Core?.getAvatarGradient?.(userId || name)
+        ?? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    const inner = avatarUrl
+        ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
+        : `<span style="color:white;font-size:13px;font-weight:600;line-height:1;">${initial}</span>`;
+    const bg = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
+    return { inner, bg, gradient, initial };
+}
+
+/** Format a date string or Date to HH:MM. */
+const _fmtTime = dateVal =>
+    new Date(dateVal).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 const ChatMixin = {
-    /**
-     * Initialize chat state
-     * @param {Array<string>} channels - Chat channel names (e.g., ['daily', 'personal'])
-     */
+
+    // ── Initialisation ────────────────────────────────────────────────────────
+
     initChatState(channels = ['main']) {
-        this.chatChannels = channels;
-        this.state.messages = {};
-        
-        channels.forEach(channel => {
-            this.state.messages[channel] = [];
-        });
+        this.chatChannels   = channels;
+        this.state.messages = Object.fromEntries(channels.map(ch => [ch, []]));
     },
 
-    /**
-     * Compute the Supabase room_id for a given local channel.
-     * 'main' → this.roomId
-     * anything else → `${this.roomId}-${channel}`
-     * @param {string} channel
-     * @returns {string}
-     */
+    /** Load all channels in parallel, then inject sender avatar. */
+    async initializeChat() {
+        await Promise.all(this.chatChannels.map(ch => this.loadRoomChatFromDB(ch)));
+        setTimeout(() => this._injectSenderAvatar(), 200);
+    },
+
+    // ── Routing ───────────────────────────────────────────────────────────────
+
     _getDbRoomId(channel = 'main') {
         return channel === 'main' ? this.roomId : `${this.roomId}-${channel}`;
     },
 
+    _msgContainerId(channel) {
+        return `${this.roomId}${_cap(channel)}Messages`;
+    },
+
+    _inputId(channel) {
+        return `${this.roomId}${_cap(channel)}Input`;
+    },
+
+    // ── DB row → msgData ──────────────────────────────────────────────────────
+
     /**
-     * Send a message to a channel.
-     * Renders locally immediately (optimistic), then saves to Supabase.
-     * @param {string} channel - Channel name
-     * @param {string} inputId - Optional input element ID override
+     * Convert a Supabase message row into the msgData shape used by buildMessageHTML.
+     * Pass isOwn=true to use the current-user's live profile instead of the row's profile.
      */
+    _rowToMsgData(row, isOwn = false) {
+        const profile   = row.profiles || {};
+        const cu        = window.Core?.state?.currentUser || {};
+        const name      = isOwn ? (cu.name || 'You')          : (profile.name || 'Member');
+        const avatarUrl = isOwn ? (cu.avatar_url || '')        : (profile.avatar_url || '');
+        const emoji     = isOwn ? (cu.emoji || '')             : (profile.emoji || '');
+        const userId    = profile.id || null;
+        const { gradient, initial } = _avatarParts(name, avatarUrl, emoji, userId);
+
+        return {
+            name, initial, avatarUrl, avatarBg: gradient,
+            userId,
+            time:    _fmtTime(row.created_at),
+            text:    row.message,
+            country: null,
+        };
+    },
+
+    // ── Send ──────────────────────────────────────────────────────────────────
+
     async sendMessage(channel = 'main', inputId = null) {
-        const input = document.getElementById(inputId || `${this.roomId}${this.capitalize(channel)}Input`);
-        if (!input || !input.value.trim()) return;
-        
-        const message = input.value.trim();
-        const messagesContainer = document.getElementById(`${this.roomId}${this.capitalize(channel)}Messages`);
-        const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-        
-        const currentUser = window.Core?.state?.currentUser || {};
-        const name      = currentUser.name || 'You';
-        const initial   = (currentUser.emoji) || name.charAt(0).toUpperCase();
-        const avatarUrl = currentUser.avatar_url || '';
-        const gradient  = window.Core?.getAvatarGradient
-            ? Core.getAvatarGradient(currentUser.id || name)
-            : 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)';
+        const input = document.getElementById(inputId || this._inputId(channel));
+        if (!input?.value.trim()) return;
+
+        const message   = input.value.trim();
+        const container = document.getElementById(this._msgContainerId(channel));
+        const cu        = window.Core?.state?.currentUser || {};
+        const name      = cu.name || 'You';
+        const { gradient, initial } = _avatarParts(name, cu.avatar_url || '', cu.emoji || '', cu.id);
 
         const msgData = {
             name,
             initial,
-            avatarUrl,
-            avatarBg: gradient,
-            userId:   currentUser.id || null,
-            time,
-            text: message,
-            country: null,
-            timestamp: Date.now()
+            avatarUrl: cu.avatar_url || '',
+            avatarBg:  gradient,
+            userId:    cu.id || null,
+            time:      _fmtTime(new Date()),
+            text:      message,
+            country:   null,
+            timestamp: Date.now(),
+            ...this.getCustomMessageData?.(channel),
         };
-        
-        // Add custom message data if provided by room
-        if (this.getCustomMessageData) {
-            Object.assign(msgData, this.getCustomMessageData(channel));
-        }
-        
-        // Add to local state
+
         this.state.messages[channel].push(msgData);
-        
-        // Render to DOM immediately
-        if (messagesContainer) {
-            const msgHTML = this.buildMessageHTML(msgData);
-            messagesContainer.insertAdjacentHTML('beforeend', msgHTML);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        if (container) {
+            container.insertAdjacentHTML('beforeend', this.buildMessageHTML(msgData));
+            container.scrollTop = container.scrollHeight;
         }
-        
+
         input.value = '';
         Core.showToast('Message sent');
 
-        // ── Persist to Supabase ────────────────────────────────────────────
-        if (window.CommunityDB && CommunityDB.ready) {
+        if (window.CommunityDB?.ready) {
             try {
                 await CommunityDB.sendRoomMessage(this._getDbRoomId(channel), message);
-            } catch (error) {
-                console.error('[ChatMixin] sendRoomMessage error:', error);
+            } catch (e) {
+                console.error('[ChatMixin] sendRoomMessage error:', e);
             }
         }
     },
-    
-    /**
-     * Build message HTML.
-     * Supports real avatar images (msgData.avatarUrl) as well as gradient+initial fallback.
-     * Names are clickable to open MemberProfileModal when msgData.userId is present.
-     * @param {Object} msgData - Message data
-     * @returns {string} Message HTML
-     */
+
+    // ── Load history + realtime ───────────────────────────────────────────────
+
+    async loadRoomChatFromDB(channel = 'main') {
+        if (!window.CommunityDB?.ready) {
+            this.loadMessagesFromStorage(channel);
+            this.renderSavedMessages(channel);
+            return;
+        }
+
+        const dbRoomId  = this._getDbRoomId(channel);
+        const container = document.getElementById(this._msgContainerId(channel));
+        const currentId = window.Core?.state?.currentUser?.id;
+
+        try {
+            const [rows, blocked] = await Promise.all([
+                CommunityDB.getRoomMessages(dbRoomId, 50),
+                CommunityDB.getBlockedUsers(),
+            ]);
+
+            if (container && rows.length) {
+                rows
+                    .filter(r => !blocked.has(r.profiles?.id))
+                    .forEach(row => {
+                        const isOwn = row.profiles?.id === currentId;
+                        container.insertAdjacentHTML('beforeend',
+                            this.buildMessageHTML(this._rowToMsgData(row, isOwn)));
+                    });
+                container.scrollTop = container.scrollHeight;
+            }
+
+            // Realtime: incoming messages from other users
+            CommunityDB.subscribeToRoomChat(dbRoomId, async newMsg => {
+                if (newMsg.profiles?.id === currentId) return; // already rendered optimistically
+
+                const blocked = await CommunityDB.getBlockedUsers();
+                if (blocked.has(newMsg.profiles?.id) || !container) return;
+
+                container.insertAdjacentHTML('beforeend',
+                    this.buildMessageHTML(this._rowToMsgData(newMsg)));
+                container.scrollTop = container.scrollHeight;
+            });
+
+        } catch (e) {
+            console.error(`[ChatMixin] loadRoomChatFromDB error (${channel}):`, e);
+        }
+    },
+
+    // ── Render ────────────────────────────────────────────────────────────────
+
     buildMessageHTML(msgData) {
-        // Avatar: real image takes priority, fallback to gradient + initial/emoji
+        const { inner, bg } = _avatarParts(msgData.name, msgData.avatarUrl, msgData.initial, msgData.userId);
+        // Use pre-built initial from msgData if avatarUrl is absent (avoids re-computing gradient)
         const avatarInner = msgData.avatarUrl
             ? `<img src="${msgData.avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${msgData.name}">`
             : `<span style="color:white;font-size:13px;font-weight:600;line-height:1;">${msgData.initial}</span>`;
         const avatarBg = msgData.avatarUrl ? 'background:transparent;' : `background:${msgData.avatarBg};`;
 
-        // Name: clickable if we have a userId
         const nameEl = msgData.userId
             ? `<span class="campfire-msg-name" style="cursor:pointer;" onclick="openMemberProfileAboveRoom('${msgData.userId}')">${msgData.name}</span>`
             : `<span class="campfire-msg-name">${msgData.name}</span>`;
@@ -143,268 +204,101 @@ const ChatMixin = {
         </div>`;
     },
 
-    /**
-     * Load message history from Supabase and render it.
-     * Also subscribes to realtime incoming messages for this channel.
-     * Call from onEnter() to replace renderSavedMessages() / loadMessagesFromStorage().
-     * @param {string} channel - Channel name
-     */
-    async loadRoomChatFromDB(channel = 'main') {
-        if (!window.CommunityDB || !CommunityDB.ready) {
-            // Fallback to localStorage if DB not available
-            this.loadMessagesFromStorage(channel);
-            this.renderSavedMessages(channel);
-            return;
-        }
-
-        const roomId = this._getDbRoomId(channel);
-        const messagesContainer = document.getElementById(
-            `${this.roomId}${this.capitalize(channel)}Messages`
-        );
-
-        try {
-            const rows = await CommunityDB.getRoomMessages(roomId, 50);
-            const blocked = await CommunityDB.getBlockedUsers();
-
-            if (messagesContainer && rows.length > 0) {
-                const visibleRows = rows.filter(r => !blocked.has(r.profiles?.id));
-
-                visibleRows.forEach(row => {
-                    const profile   = row.profiles || {};
-                    const isOwn     = profile.id === window.Core?.state?.currentUser?.id;
-                    const name      = isOwn ? (window.Core?.state?.currentUser?.name || 'You') : (profile.name || 'Member');
-                    const avatarUrl = isOwn ? (window.Core?.state?.currentUser?.avatar_url || '') : (profile.avatar_url || '');
-                    const initial   = profile.emoji || name.charAt(0).toUpperCase();
-                    const gradient  = window.Core?.getAvatarGradient
-                        ? Core.getAvatarGradient(profile.id || name)
-                        : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                    const time = new Date(row.created_at)
-                        .toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-
-                    const msgData = {
-                        name, initial, avatarUrl, avatarBg: gradient,
-                        userId: profile.id || null,
-                        time, text: row.message, country: null
-                    };
-
-                    messagesContainer.insertAdjacentHTML('beforeend', this.buildMessageHTML(msgData));
-                });
-
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }
-
-            // Subscribe to realtime new messages for this channel
-            CommunityDB.subscribeToRoomChat(roomId, async (newMsg) => {
-                // Skip own messages — already rendered optimistically
-                if (newMsg.profiles?.id === window.Core?.state?.currentUser?.id) return;
-
-                const blocked = await CommunityDB.getBlockedUsers();
-                if (blocked.has(newMsg.profiles?.id)) return;
-
-                if (!messagesContainer) return;
-
-                const profile   = newMsg.profiles || {};
-                const name      = profile.name || 'Member';
-                const avatarUrl = profile.avatar_url || '';
-                const initial   = profile.emoji || name.charAt(0).toUpperCase();
-                const gradient  = window.Core?.getAvatarGradient
-                    ? Core.getAvatarGradient(profile.id || name)
-                    : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                const time = new Date(newMsg.created_at)
-                    .toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-
-                const msgData = {
-                    name, initial, avatarUrl, avatarBg: gradient,
-                    userId: profile.id || null,
-                    time, text: newMsg.message, country: null
-                };
-                messagesContainer.insertAdjacentHTML('beforeend', this.buildMessageHTML(msgData));
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            });
-
-        } catch (error) {
-            console.error(`[ChatMixin] loadRoomChatFromDB error (${channel}):`, error);
-        }
-    },
-
-    // ── LEGACY / FALLBACK METHODS (kept for rooms that call them directly) ─
-
-    /**
-     * Load messages from localStorage (fallback only)
-     * @param {string} channel
-     */
-    loadMessagesFromStorage(channel = 'main') {
-        const storageKey = `${this.roomId}_messages_${channel}`;
-        const saved = localStorage.getItem(storageKey);
-        if (saved) {
-            try {
-                this.state.messages[channel] = JSON.parse(saved);
-            } catch (e) {
-                console.error('Failed to load messages from storage:', e);
-                this.state.messages[channel] = [];
-            }
-        }
-    },
-    
-    /**
-     * Save messages to localStorage (legacy fallback)
-     * @param {string} channel
-     */
-    saveMessagesToStorage(channel = 'main') {
-        try {
-            const storageKey = `${this.roomId}_messages_${channel}`;
-            localStorage.setItem(storageKey, JSON.stringify(this.state.messages[channel]));
-        } catch (e) {
-            console.error('Failed to save messages:', e);
-        }
-    },
-    
-    /**
-     * Render saved messages from local state (legacy fallback)
-     * @param {string} channel
-     */
-    renderSavedMessages(channel = 'main') {
-        const messagesContainer = document.getElementById(
-            `${this.roomId}${this.capitalize(channel)}Messages`
-        );
-        if (!messagesContainer || this.state.messages[channel].length === 0) return;
-        
-        this.state.messages[channel].forEach(msg => {
-            messagesContainer.insertAdjacentHTML('beforeend', this.buildMessageHTML(msg));
-        });
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    },
-    
-    /**
-     * Build chat container HTML.
-     * Messages area grows to fill available space; input row is pinned to the bottom.
-     * A sender-avatar slot is included before the input — call _injectSenderAvatar()
-     * from onEnter() to populate it with the current user's real profile image.
-     * @param {string} channel
-     * @param {string} placeholder
-     * @returns {string}
-     */
     buildChatContainer(channel = 'main', placeholder = 'Type your message...') {
-        const channelCap    = this.capitalize(channel);
-        const avatarSlotId  = `${this.roomId}${channelCap}SenderAvatar`;
+        const cap         = _cap(channel);
+        const avatarSlot  = `${this.roomId}${cap}SenderAvatar`;
+        const className   = this.getClassName();
 
         return `
-        <div class="chat-container" id="${this.roomId}${channelCap}ChatContainer"
+        <div class="chat-container" id="${this.roomId}${cap}ChatContainer"
              style="display:flex;flex-direction:column;flex:1;min-height:300px;">
-            <div class="chat-messages" id="${this.roomId}${channelCap}Messages"
-                 style="flex:1;min-height:100px;">
-                <!-- Messages rendered here -->
-            </div>
+            <div class="chat-messages" id="${this.roomId}${cap}Messages" style="flex:1;min-height:100px;"></div>
             <div class="chat-input-container" style="margin-top:auto;padding-top:8px;">
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-                    <!-- Current user avatar, populated by _injectSenderAvatar() -->
-                    <div id="${avatarSlotId}" style="flex-shrink:0;width:28px;height:28px;">
+                    <div id="${avatarSlot}" style="flex-shrink:0;width:28px;height:28px;">
                         <div style="width:28px;height:28px;border-radius:50%;background:var(--border);"></div>
                     </div>
                     <input type="text"
                            class="chat-input"
-                           id="${this.roomId}${channelCap}Input"
+                           id="${this.roomId}${cap}Input"
                            placeholder="${placeholder}"
-                           onkeypress="if(event.key==='Enter')${this.getClassName()}.sendMessage('${channel}')"
+                           onkeypress="if(event.key==='Enter')${className}.sendMessage('${channel}')"
                            style="flex:1;min-width:0;width:100%;">
-                    <button class="chat-send" onclick="${this.getClassName()}.sendMessage('${channel}')" style="flex-shrink:0;">
+                    <button class="chat-send" onclick="${className}.sendMessage('${channel}')" style="flex-shrink:0;">
                         <span style="font-size:20px;">→</span>
                     </button>
                 </div>
             </div>
         </div>`;
     },
-    
-    /**
-     * Clear messages from a channel
-     * @param {string} channel
-     */
-    clearMessages(channel = 'main') {
-        this.state.messages[channel] = [];
-        
-        const storageKey = `${this.roomId}_messages_${channel}`;
-        localStorage.removeItem(storageKey);
-        
-        const messagesContainer = document.getElementById(
-            `${this.roomId}${this.capitalize(channel)}Messages`
-        );
-        if (messagesContainer) messagesContainer.innerHTML = '';
-        
-        Core.showToast('Messages cleared');
-    },
-    
-    /**
-     * Capitalize first letter of string
-     * @param {string} str
-     * @returns {string}
-     */
-    capitalize(str) {
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    },
-    
-    /**
-     * Populate the sender-avatar slot(s) built by buildChatContainer with the
-     * current user's real profile image (or emoji/initial fallback).
-     * Called automatically by initializeChat(). Safe to call again if the user
-     * profile loads later.
-     * @param {string|null} channel - If null, injects for all chatChannels
-     */
+
+    // ── Sender avatar ─────────────────────────────────────────────────────────
+
     _injectSenderAvatar(channel = null) {
         const channels = channel ? [channel] : (this.chatChannels || ['main']);
-        const user     = window.Core?.state?.currentUser;
-        if (!user) return;
+        const cu = window.Core?.state?.currentUser;
+        if (!cu) return;
 
-        const name      = user.name || 'Me';
-        const avatarUrl = user.avatar_url || '';
-        const emoji     = user.emoji || '';
-        const initial   = emoji || name.charAt(0).toUpperCase();
-        const gradient  = window.Core?.getAvatarGradient
-            ? Core.getAvatarGradient(user.id || name)
-            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-
-        const inner = avatarUrl
-            ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
-            : `<span style="color:white;font-weight:600;font-size:12px;">${initial}</span>`;
-        const bg = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
+        const { inner, bg } = _avatarParts(cu.name || 'Me', cu.avatar_url || '', cu.emoji || '', cu.id);
 
         channels.forEach(ch => {
-            const slotId  = `${this.roomId}${this.capitalize(ch)}SenderAvatar`;
-            const wrapper = document.getElementById(slotId);
+            const wrapper = document.getElementById(`${this.roomId}${_cap(ch)}SenderAvatar`);
             if (!wrapper) return;
-            wrapper.innerHTML = `
-                <div style="width:32px;height:32px;border-radius:50%;${bg}display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
-                    ${inner}
-                </div>`;
+            wrapper.innerHTML = `<div style="width:32px;height:32px;border-radius:50%;${bg}display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">${inner}</div>`;
         });
     },
 
-    /**
-     * Initialize chat on room entry.
-     * Loads history from Supabase for every channel, then injects sender avatar.
-     */
-    async initializeChat() {
-        for (const channel of this.chatChannels) {
-            await this.loadRoomChatFromDB(channel);
+    // ── Legacy / fallback (localStorage) ─────────────────────────────────────
+
+    loadMessagesFromStorage(channel = 'main') {
+        try {
+            const saved = localStorage.getItem(`${this.roomId}_messages_${channel}`);
+            if (saved) this.state.messages[channel] = JSON.parse(saved);
+        } catch (e) {
+            console.error('[ChatMixin] loadMessagesFromStorage error:', e);
+            this.state.messages[channel] = [];
         }
-        // Defer avatar injection slightly to ensure DOM is ready
-        setTimeout(() => this._injectSenderAvatar(), 200);
     },
 
-    /**
-     * Escape HTML for safe display
-     * @param {string} str
-     * @returns {string}
-     */
+    saveMessagesToStorage(channel = 'main') {
+        try {
+            localStorage.setItem(
+                `${this.roomId}_messages_${channel}`,
+                JSON.stringify(this.state.messages[channel])
+            );
+        } catch (e) {
+            console.error('[ChatMixin] saveMessagesToStorage error:', e);
+        }
+    },
+
+    renderSavedMessages(channel = 'main') {
+        const container = document.getElementById(this._msgContainerId(channel));
+        const msgs      = this.state.messages[channel];
+        if (!container || !msgs.length) return;
+        msgs.forEach(msg => container.insertAdjacentHTML('beforeend', this.buildMessageHTML(msg)));
+        container.scrollTop = container.scrollHeight;
+    },
+
+    clearMessages(channel = 'main') {
+        this.state.messages[channel] = [];
+        localStorage.removeItem(`${this.roomId}_messages_${channel}`);
+        const container = document.getElementById(this._msgContainerId(channel));
+        if (container) container.innerHTML = '';
+        Core.showToast('Messages cleared');
+    },
+
+    // ── Utility ───────────────────────────────────────────────────────────────
+
+    capitalize: _cap,
+
     _escapeHtml(str) {
         if (!str || typeof str !== 'string') return '';
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
-    }
+    },
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// GLOBAL EXPORT
-// ═══════════════════════════════════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────────────────────
 
 window.ChatMixin = ChatMixin;

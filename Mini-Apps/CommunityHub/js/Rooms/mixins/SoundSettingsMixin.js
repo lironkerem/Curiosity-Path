@@ -1,259 +1,190 @@
 /**
- * ═══════════════════════════════════════════════════════════════════════════
  * SOUND SETTINGS MIXIN
- * ═══════════════════════════════════════════════════════════════════════════
- * 
- * @mixin SoundSettingsMixin
- * @description Adds sound settings functionality (bells, ambient sounds) to rooms
- * @version 3.0.0
- * 
- * Usage:
- *   Object.assign(YourRoom.prototype, SoundSettingsMixin);
- * 
- * Features:
- *   - 5-minute bell toggle
- *   - Completion sound selection
- *   - Ambient sound toggle and selection
- *   - Sound preview
- * 
- * ═══════════════════════════════════════════════════════════════════════════
+ * Adds sound settings (bells, ambient) to practice rooms.
+ *
+ * Usage: Object.assign(YourRoom.prototype, SoundSettingsMixin);
  */
 
+// ─── Sound catalogue (extend here to add new options) ────────────────────────
+
+const _BELL_OPTIONS = [
+    { value: 'tingsha', label: 'Tingsha Bells' },
+    { value: 'bowl',    label: 'Singing Bowl'  },
+    { value: 'chime',   label: 'Wind Chime'    },
+];
+
+const _COMPLETION_OPTIONS = [
+    { value: 'tibetan', label: 'Tibetan Bowl' },
+    { value: 'gong',    label: 'Temple Gong'  },
+    { value: 'bell',    label: 'Temple Bell'  },
+];
+
+const _AMBIENT_OPTIONS = [
+    { value: 'stream', label: 'Gentle Stream' },
+    { value: 'rain',   label: 'Soft Rain'     },
+    { value: 'forest', label: 'Forest Birds'  },
+    { value: 'ocean',  label: 'Ocean Waves'   },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 const SoundSettingsMixin = {
-    /**
-     * Initialize sound settings state
-     */
+
+    // ── Initialisation ────────────────────────────────────────────────────────
+
     initSoundState() {
-        this.state.fiveMinBellEnabled = false;
-        this.state.ambientEnabled = false;
-        this.state.selectedBell = 'tingsha';
-        this.state.selectedCompletion = 'tibetan';
-        this.state.selectedAmbient = 'stream';
+        this.state.fiveMinBellEnabled  = false;
+        this.state.ambientEnabled      = false;
+        this.state.selectedBell        = 'tingsha';
+        this.state.selectedCompletion  = 'tibetan';
+        this.state.selectedAmbient     = 'stream';
     },
-    
-    /**
-     * Toggle sound settings panel
-     */
+
+    // ── Panel ─────────────────────────────────────────────────────────────────
+
     toggleSoundSettings() {
-        const panel = document.getElementById(`${this.roomId}SoundSettings`);
-        if (panel) {
-            panel.classList.toggle('visible');
-        }
+        document.getElementById(`${this.roomId}SoundSettings`)?.classList.toggle('visible');
     },
-    
+
+    // ── Toggles ───────────────────────────────────────────────────────────────
+
     /**
-     * Toggle 5-minute bell
+     * Generic toggle: flips a boolean state key, syncs UI, shows toast.
+     * @param {string} stateKey   - key on this.state to flip
+     * @param {string} toggleId   - element id of the toggle-switch
+     * @param {string} optionsId  - element id of the options panel
+     * @param {string} label      - human label for toast ("5-minute bell")
+     * @param {Function} [onEnable]  - called when toggled ON
+     * @param {Function} [onDisable] - called when toggled OFF
      */
+    _toggleFeature(stateKey, toggleId, optionsId, label, onEnable, onDisable) {
+        const next = !this.state[stateKey];
+        this.state[stateKey] = next;
+
+        document.getElementById(toggleId)?.classList.toggle('active', next);
+        const opts = document.getElementById(optionsId);
+        if (opts) opts.style.display = next ? 'block' : 'none';
+
+        Core.showToast(`${label} ${next ? 'enabled' : 'disabled'}`);
+        (next ? onEnable : onDisable)?.call(this);
+    },
+
     toggle5minBell() {
-        this.state.fiveMinBellEnabled = !this.state.fiveMinBellEnabled;
-        
-        const toggle = document.getElementById(`${this.roomId}Toggle5min`);
-        const options = document.getElementById(`${this.roomId}5minOptions`);
-        
-        if (toggle) {
-            toggle.classList.toggle('active', this.state.fiveMinBellEnabled);
-        }
-        
-        if (options) {
-            options.style.display = this.state.fiveMinBellEnabled ? 'block' : 'none';
-        }
-        
-        Core.showToast(this.state.fiveMinBellEnabled ? '5-minute bell enabled' : '5-minute bell disabled');
+        this._toggleFeature(
+            'fiveMinBellEnabled',
+            `${this.roomId}Toggle5min`,
+            `${this.roomId}5minOptions`,
+            '5-minute bell',
+        );
     },
-    
-    /**
-     * Toggle ambient sound
-     */
+
     toggleAmbientSound() {
-        this.state.ambientEnabled = !this.state.ambientEnabled;
-        
-        const toggle = document.getElementById(`${this.roomId}ToggleAmbient`);
-        const options = document.getElementById(`${this.roomId}AmbientOptions`);
-        
-        if (toggle) {
-            toggle.classList.toggle('active', this.state.ambientEnabled);
-        }
-        
-        if (options) {
-            options.style.display = this.state.ambientEnabled ? 'block' : 'none';
-        }
-        
-        Core.showToast(this.state.ambientEnabled ? 'Ambient sound enabled' : 'Ambient sound disabled');
-        
-        // Start/stop ambient sound playback
-        if (this.state.ambientEnabled) {
-            this.playAmbientSound();
-        } else {
-            this.stopAmbientSound();
-        }
+        this._toggleFeature(
+            'ambientEnabled',
+            `${this.roomId}ToggleAmbient`,
+            `${this.roomId}AmbientOptions`,
+            'Ambient sound',
+            this.playAmbientSound,
+            this.stopAmbientSound,
+        );
     },
-    
-    /**
-     * Preview a sound
-     * @param {string} soundType - Sound type to preview
-     * @param {Event} event - Click event
-     */
+
+    // ── Preview ───────────────────────────────────────────────────────────────
+
     previewSound(soundType, event) {
-        if (event) event.stopPropagation();
-        Core.showToast(`Playing ${soundType}...`);
-        // TODO: Play actual sound file
+        event?.stopPropagation();
+        Core.showToast(`Playing ${soundType}…`);
+        // TODO: wire to real audio file
     },
-    
-    /**
-     * Preview ambient sound
-     * @param {string} ambientType - Ambient sound type
-     * @param {Event} event - Click event
-     */
+
+    // Alias — ambient preview uses the same behaviour
     previewAmbient(ambientType, event) {
-        if (event) event.stopPropagation();
-        Core.showToast(`Playing ${ambientType}...`);
-        // TODO: Play actual ambient sound
+        this.previewSound(ambientType, event);
     },
-    
-    /**
-     * Play ambient sound
-     */
-    playAmbientSound() {
-        // TODO: Implement actual audio playback
-        console.log('Playing ambient sound:', this.state.selectedAmbient);
-    },
-    
-    /**
-     * Stop ambient sound
-     */
-    stopAmbientSound() {
-        // TODO: Implement actual audio stop
-        console.log('Stopping ambient sound');
-    },
-    
-    /**
-     * Play 5-minute bell
-     */
+
+    // ── Playback stubs ────────────────────────────────────────────────────────
+
+    playAmbientSound()  { /* TODO: start audio */ },
+    stopAmbientSound()  { /* TODO: stop audio  */ },
+
     play5MinBell() {
-        if (!this.state.fiveMinBellEnabled) return;
-        // TODO: Play actual bell sound
-        Core.showToast('🔔');
+        if (this.state.fiveMinBellEnabled) Core.showToast('🔔');
+        // TODO: play bell audio
     },
-    
-    /**
-     * Play completion sound
-     */
+
     playCompletionSound() {
-        // TODO: Play actual completion sound
         Core.showToast('Session complete 🙏');
+        // TODO: play completion audio
     },
-    
-    /**
-     * Build sound settings panel HTML
-     * @returns {string} Sound settings HTML
-     */
-    buildSoundSettings() {
+
+    cleanupSound() {
+        this.stopAmbientSound();
+    },
+
+    // ── HTML builders ─────────────────────────────────────────────────────────
+
+    /** Single radio + label + preview button row. */
+    _soundOption(groupName, value, label, previewFn) {
         return `
-        <div class="sound-settings" id="${this.roomId}SoundSettings">
-            <!-- 5-Minute Bell -->
+        <div class="sound-option">
+            <input type="radio" name="${this.roomId}${groupName}" value="${value}">
+            <label>${label}</label>
+            <button class="sound-preview-btn" onclick="${this.getClassName()}.${previewFn}('${value}',event)">▶</button>
+        </div>`;
+    },
+
+    buildSoundSettings() {
+        const cn = this.getClassName();
+        const id = this.roomId;
+
+        const bellOptions = _BELL_OPTIONS.map(o =>
+            this._soundOption('Bell5min', o.value, o.label, 'previewSound')).join('');
+
+        const completionOptions = _COMPLETION_OPTIONS.map(o =>
+            this._soundOption('Completion', o.value, o.label, 'previewSound')).join('');
+
+        const ambientOptions = _AMBIENT_OPTIONS.map(o =>
+            this._soundOption('Ambient', o.value, o.label, 'previewAmbient')).join('');
+
+        return `
+        <div class="sound-settings" id="${id}SoundSettings">
+
             <div class="sound-section">
                 <div class="sound-toggle">
                     <span class="sound-toggle-label">5-Minute Bell</span>
-                    <div class="toggle-switch" id="${this.roomId}Toggle5min" onclick="${this.getClassName()}.toggle5minBell()">
+                    <div class="toggle-switch" id="${id}Toggle5min" onclick="${cn}.toggle5minBell()">
                         <div class="toggle-slider"></div>
                     </div>
                 </div>
-                <div id="${this.roomId}5minOptions" style="display: none;">
-                    <div class="sound-option">
-                        <input type="radio" name="${this.roomId}Bell5min" value="tingsha" checked>
-                        <label>Tingsha Bells</label>
-                        <button class="sound-preview-btn" onclick="${this.getClassName()}.previewSound('tingsha', event)">▶</button>
-                    </div>
-                    <div class="sound-option">
-                        <input type="radio" name="${this.roomId}Bell5min" value="bowl">
-                        <label>Singing Bowl</label>
-                        <button class="sound-preview-btn" onclick="${this.getClassName()}.previewSound('bowl', event)">▶</button>
-                    </div>
-                    <div class="sound-option">
-                        <input type="radio" name="${this.roomId}Bell5min" value="chime">
-                        <label>Wind Chime</label>
-                        <button class="sound-preview-btn" onclick="${this.getClassName()}.previewSound('chime', event)">▶</button>
-                    </div>
-                </div>
+                <div id="${id}5minOptions" style="display:none;">${bellOptions}</div>
             </div>
 
-            <!-- Completion Sound -->
             <div class="sound-section">
                 <div class="sound-section-title">Completion Sound</div>
-                <div class="sound-option">
-                    <input type="radio" name="${this.roomId}Completion" value="tibetan" checked>
-                    <label>Tibetan Bowl</label>
-                    <button class="sound-preview-btn" onclick="${this.getClassName()}.previewSound('tibetan', event)">▶</button>
-                </div>
-                <div class="sound-option">
-                    <input type="radio" name="${this.roomId}Completion" value="gong">
-                    <label>Temple Gong</label>
-                    <button class="sound-preview-btn" onclick="${this.getClassName()}.previewSound('gong', event)">▶</button>
-                </div>
-                <div class="sound-option">
-                    <input type="radio" name="${this.roomId}Completion" value="bell">
-                    <label>Temple Bell</label>
-                    <button class="sound-preview-btn" onclick="${this.getClassName()}.previewSound('bell', event)">▶</button>
-                </div>
+                ${completionOptions}
             </div>
 
-            <!-- Ambient Sound -->
             <div class="sound-section">
                 <div class="sound-toggle">
                     <span class="sound-toggle-label">Ambient Sound</span>
-                    <div class="toggle-switch" id="${this.roomId}ToggleAmbient" onclick="${this.getClassName()}.toggleAmbientSound()">
+                    <div class="toggle-switch" id="${id}ToggleAmbient" onclick="${cn}.toggleAmbientSound()">
                         <div class="toggle-slider"></div>
                     </div>
                 </div>
-                <div id="${this.roomId}AmbientOptions" style="display: none;">
-                    <div class="sound-option">
-                        <input type="radio" name="${this.roomId}Ambient" value="stream" checked>
-                        <label>Gentle Stream</label>
-                        <button class="sound-preview-btn" onclick="${this.getClassName()}.previewAmbient('stream', event)">▶</button>
-                    </div>
-                    <div class="sound-option">
-                        <input type="radio" name="${this.roomId}Ambient" value="rain">
-                        <label>Soft Rain</label>
-                        <button class="sound-preview-btn" onclick="${this.getClassName()}.previewAmbient('rain', event)">▶</button>
-                    </div>
-                    <div class="sound-option">
-                        <input type="radio" name="${this.roomId}Ambient" value="forest">
-                        <label>Forest Birds</label>
-                        <button class="sound-preview-btn" onclick="${this.getClassName()}.previewAmbient('forest', event)">▶</button>
-                    </div>
-                    <div class="sound-option">
-                        <input type="radio" name="${this.roomId}Ambient" value="ocean">
-                        <label>Ocean Waves</label>
-                        <button class="sound-preview-btn" onclick="${this.getClassName()}.previewAmbient('ocean', event)">▶</button>
-                    </div>
-                </div>
+                <div id="${id}AmbientOptions" style="display:none;">${ambientOptions}</div>
             </div>
+
         </div>`;
     },
-    
-    /**
-     * Build sound button for header
-     * @returns {string} Sound button HTML
-     */
+
     buildSoundButton() {
         return `
-        <button class="ps-leave" 
-                onclick="${this.getClassName()}.toggleSoundSettings()" 
-                style="background: var(--surface); color: var(--text); margin: 0; padding: 10px 16px; white-space: nowrap;">
+        <button class="ps-leave"
+                onclick="${this.getClassName()}.toggleSoundSettings()"
+                style="background:var(--surface);color:var(--text);padding:10px 16px;white-space:nowrap;">
             🔔 Sound
         </button>`;
     },
-    
-    /**
-     * Cleanup sound on room exit
-     */
-    cleanupSound() {
-        this.stopAmbientSound();
-    }
 };
-
-// ═══════════════════════════════════════════════════════════════════════════
-// GLOBAL EXPORT
-// ═══════════════════════════════════════════════════════════════════════════
 
 window.SoundSettingsMixin = SoundSettingsMixin;

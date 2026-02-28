@@ -1,311 +1,216 @@
 /**
- * ═══════════════════════════════════════════════════════════════════════════
  * YOUTUBE PLAYER MIXIN
- * ═══════════════════════════════════════════════════════════════════════════
- * 
- * @mixin YouTubePlayerMixin
- * @description Adds YouTube video player functionality to practice rooms
- * @version 3.0.0
- * 
- * Usage:
- *   Object.assign(YourRoom.prototype, YouTubePlayerMixin);
- * 
+ * Adds YouTube video player functionality to practice rooms.
+ *
+ * Usage: Object.assign(YourRoom.prototype, YouTubePlayerMixin);
+ *
  * Requirements:
  *   - YouTube IFrame API
- *   - state.player, state.playerReady, state.playerInitialized
- *   - getCurrentSession() method returning { videoId, title, duration }
- * 
- * ═══════════════════════════════════════════════════════════════════════════
+ *   - getCurrentSession() → { videoId, title, duration, emoji }
  */
 
+// ─── YT player state aliases ──────────────────────────────────────────────────
+// Defined here so onPlayerStateChange is readable without inline comments.
+const _YT = { ENDED: 0, PLAYING: 1, PAUSED: 2 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 const YouTubePlayerMixin = {
-    /**
-     * Initialize YouTube player state
-     */
+
+    // ── Initialisation ────────────────────────────────────────────────────────
+
     initPlayerState() {
-        this.state.player = null;
-        this.state.playerReady = false;
-        this.state.playerInitialized = false;
-        this.state.sessionStarted = false;
+        this.state.player             = null;
+        this.state.playerReady        = false;
+        this.state.playerInitialized  = false;
+        this.state.sessionStarted     = false;
+        this._progressInterval        = null;
     },
-    
-    /**
-     * Load YouTube IFrame API
-     */
+
+    // ── API loading ───────────────────────────────────────────────────────────
+
     loadYouTubeAPI() {
-        if (window.YT && window.YT.Player) {
+        if (window.YT?.Player) {
             this.initPlayer();
             return;
         }
-        
+
         if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
             const tag = document.createElement('script');
             tag.src = 'https://www.youtube.com/iframe_api';
-            const firstScriptTag = document.querySelector('script');
-            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            document.head.appendChild(tag);
         }
-        
+
         // Chain callbacks so multiple rooms don't overwrite each other
-        const previousCallback = window.onYouTubeIframeAPIReady;
+        const prev = window.onYouTubeIframeAPIReady;
         window.onYouTubeIframeAPIReady = () => {
-            if (previousCallback) previousCallback();
+            prev?.();
             this.initPlayer();
         };
     },
-    
-    /**
-     * Initialize YouTube player
-     */
+
     initPlayer() {
         if (this.state.playerInitialized) return;
-        
+
         const session = this.getCurrentSession();
-        if (!session || !session.videoId) {
-            console.warn('No video session available');
+        if (!session?.videoId) {
+            console.warn(`[${this.roomId}] No video session available`);
             return;
         }
-        
+
         this.state.player = new YT.Player(`${this.roomId}-youtube-player`, {
-            videoId: session.videoId,
-            playerVars: {
-                autoplay: 1,
-                controls: 1,
-                modestbranding: 1,
-                rel: 0,
-                mute: 1  // Required for autoplay to work in modern browsers
-            },
+            videoId:    session.videoId,
+            playerVars: { autoplay: 1, controls: 1, modestbranding: 1, rel: 0, mute: 1 },
             events: {
-                onReady: this.onPlayerReady.bind(this),
-                onStateChange: this.onPlayerStateChange.bind(this)
-            }
+                onReady:       e => this.onPlayerReady(e),
+                onStateChange: e => this.onPlayerStateChange(e),
+            },
         });
-        
+
         this.state.playerInitialized = true;
     },
-    
-    /**
-     * YouTube player ready callback
-     * @param {Object} event - YouTube player event
-     */
+
+    // ── Player callbacks ──────────────────────────────────────────────────────
+
     onPlayerReady(event) {
         this.state.playerReady = true;
-        console.log(`${this.config.icon} Player ready`);
-        
-        // Auto-start if session is already in progress
+
         if (this.state.isInSession || this.devMode) {
             event.target.playVideo();
-            // Unmute after a short delay (browser autoplay policy requires muted start)
+            // Unmute after brief delay — browsers require muted autoplay
             setTimeout(() => {
-                if (this.state.player && this.state.player.unMute) {
-                    this.state.player.unMute();
-                    this.state.player.setVolume(100);
-                }
+                event.target.unMute();
+                event.target.setVolume(100);
             }, 500);
             this.state.sessionStarted = true;
         }
-        
-        // Custom ready callback
-        if (this.onPlayerReadyCustom) {
-            this.onPlayerReadyCustom(event);
-        }
+
+        this.onPlayerReadyCustom?.(event);
     },
-    
-    /**
-     * YouTube player state change callback
-     * @param {Object} event - YouTube player event
-     */
+
     onPlayerStateChange(event) {
-        // YT.PlayerState.PLAYING = 1
-        // YT.PlayerState.PAUSED = 2
-        // YT.PlayerState.ENDED = 0
-        
-        if (event.data === YT.PlayerState.PLAYING) {
-            this.onVideoPlaying();
-        } else if (event.data === YT.PlayerState.ENDED) {
-            this.onVideoEnded();
-        }
+        if      (event.data === _YT.PLAYING) this.onVideoPlaying();
+        else if (event.data === _YT.ENDED)   this.onVideoEnded();
     },
-    
-    /**
-     * Handle video playing state
-     */
+
+    // ── Playback events ───────────────────────────────────────────────────────
+
     onVideoPlaying() {
-        // Hide overlay
-        const overlay = document.getElementById(`${this.roomId}PlayerOverlay`);
-        if (overlay) overlay.style.display = 'none';
-        
-        // Show controls
-        const controls = document.getElementById(`${this.roomId}Controls`);
-        if (controls) controls.style.display = 'flex';
-        
-        // Start progress tracking
+        this._showPlayer();
         this.startProgressTracking();
     },
-    
-    /**
-     * Handle video ended state
-     */
+
     onVideoEnded() {
-        Core.showToast('Session complete 🙏');
         this.stopProgressTracking();
+        Core.showToast('Session complete 🙏');
     },
-    
-    /**
-     * Start session (play video)
-     */
+
+    // ── Session / playback control ────────────────────────────────────────────
+
     startSession() {
         if (!this.state.playerReady || this.state.sessionStarted) return;
-        
         const session = this.getCurrentSession();
         if (!session) return;
-        
-        // Hide overlay
-        const overlay = document.getElementById(`${this.roomId}PlayerOverlay`);
-        if (overlay) overlay.style.display = 'none';
-        
-        // Play video
-        if (this.state.player && this.state.player.playVideo) {
-            this.state.player.playVideo();
-        }
-        
+
+        this._showPlayer();
+        this.state.player?.playVideo();
         this.state.sessionStarted = true;
-        Core.showToast(`${session.emoji} Session starting...`);
+        Core.showToast(`${session.emoji} Session starting…`);
     },
-    
-    /**
-     * Toggle play/pause
-     */
+
     togglePlayPause() {
         if (!this.state.player) return;
-        
+        const isPlaying = this.state.player.getPlayerState() === _YT.PLAYING;
+        isPlaying ? this.state.player.pauseVideo() : this.state.player.playVideo();
+
         const btn = document.getElementById(`${this.roomId}PlayBtn`);
-        
-        if (this.state.player.getPlayerState() === YT.PlayerState.PLAYING) {
-            this.state.player.pauseVideo();
-            if (btn) btn.innerHTML = '<span style="font-size: 24px;">▶</span>';
-        } else {
-            this.state.player.playVideo();
-            if (btn) btn.innerHTML = '<span style="font-size: 24px;">⏸</span>';
-        }
+        if (btn) btn.innerHTML = `<span style="font-size:24px;">${isPlaying ? '▶' : '⏸'}</span>`;
     },
-    
-    /**
-     * Skip backward 10 seconds
-     */
-    skipBackward() {
+
+    _seek(delta) {
         if (!this.state.player) return;
-        const currentTime = this.state.player.getCurrentTime();
-        this.state.player.seekTo(Math.max(0, currentTime - 10));
+        this.state.player.seekTo(Math.max(0, this.state.player.getCurrentTime() + delta));
     },
-    
-    /**
-     * Skip forward 10 seconds
-     */
-    skipForward() {
-        if (!this.state.player) return;
-        const currentTime = this.state.player.getCurrentTime();
-        this.state.player.seekTo(currentTime + 10);
-    },
-    
-    /**
-     * Start progress tracking
-     */
+
+    skipBackward() { this._seek(-10); },
+    skipForward()  { this._seek(+10); },
+
+    // ── Progress tracking ─────────────────────────────────────────────────────
+
     startProgressTracking() {
-        if (this.progressInterval) return;
-        
-        this.progressInterval = setInterval(() => {
-            this.updateTimeDisplay();
-        }, 1000);
+        if (this._progressInterval) return;
+        this._progressInterval = setInterval(() => this.updateTimeDisplay(), 1000);
     },
-    
-    /**
-     * Stop progress tracking
-     */
+
     stopProgressTracking() {
-        if (this.progressInterval) {
-            clearInterval(this.progressInterval);
-            this.progressInterval = null;
+        if (this._progressInterval) {
+            clearInterval(this._progressInterval);
+            this._progressInterval = null;
         }
     },
-    
-    /**
-     * Update time display
-     */
+
     updateTimeDisplay() {
-        if (!this.state.player || !this.state.player.getCurrentTime) return;
-        
-        const current = Math.floor(this.state.player.getCurrentTime());
-        const duration = Math.floor(this.state.player.getDuration());
-        
-        const timeDisplay = document.getElementById(`${this.roomId}TimeDisplay`);
-        if (timeDisplay) {
-            timeDisplay.textContent = `${this.formatTime(current)} / ${this.formatTime(duration)}`;
+        if (!this.state.player?.getCurrentTime) return;
+        const el = document.getElementById(`${this.roomId}TimeDisplay`);
+        if (el) {
+            const cur = Math.floor(this.state.player.getCurrentTime());
+            const dur = Math.floor(this.state.player.getDuration());
+            el.textContent = `${this.formatTime(cur)} / ${this.formatTime(dur)}`;
         }
     },
-    
-    /**
-     * Build YouTube player container HTML
-     * @returns {string} Player HTML
-     */
+
+    // ── Private helpers ───────────────────────────────────────────────────────
+
+    /** Hide overlay + show controls when video becomes active. */
+    _showPlayer() {
+        const overlay = document.getElementById(`${this.roomId}PlayerOverlay`);
+        if (overlay) overlay.style.display = 'none';
+
+        const controls = document.getElementById(`${this.roomId}Controls`);
+        if (controls) controls.style.display = 'flex';
+    },
+
+    // ── HTML builders ─────────────────────────────────────────────────────────
+
     buildPlayerContainer() {
-        const session = this.getCurrentSession();
-        
+        const s = this.getCurrentSession();
         return `
         <div class="guided-player-container">
             <div id="${this.roomId}-youtube-player"></div>
             <div class="player-overlay" id="${this.roomId}PlayerOverlay">
                 <div class="session-info">
-                    <div class="session-emoji" id="${this.roomId}SessionEmoji">${session?.emoji || '🎧'}</div>
-                    <div class="session-title" id="${this.roomId}SessionTitle">${session?.title || 'Loading...'}</div>
-                    <div class="session-duration" id="${this.roomId}SessionDuration">${session?.duration || '00:00'}</div>
-                    <div class="session-starts" id="${this.roomId}SessionStatus">Waiting to start...</div>
+                    <div class="session-emoji"    id="${this.roomId}SessionEmoji"   >${s?.emoji    || '🎧'}</div>
+                    <div class="session-title"    id="${this.roomId}SessionTitle"   >${s?.title    || 'Loading...'}</div>
+                    <div class="session-duration" id="${this.roomId}SessionDuration">${s?.duration || '00:00'}</div>
+                    <div class="session-starts"   id="${this.roomId}SessionStatus"  >Waiting to start…</div>
                 </div>
             </div>
         </div>`;
     },
-    
-    /**
-     * Build player controls HTML
-     * @returns {string} Controls HTML
-     */
+
     buildPlayerControls() {
+        const cn = this.getClassName();
         return `
-        <div class="guided-controls" id="${this.roomId}Controls" style="display: none;">
+        <div class="guided-controls" id="${this.roomId}Controls" style="display:none;">
             <div class="control-buttons">
-                <button class="control-btn" onclick="${this.getClassName()}.skipBackward()">
-                    <span style="font-size: 20px;">⏪</span>
-                </button>
-                <button class="control-btn primary" onclick="${this.getClassName()}.togglePlayPause()" id="${this.roomId}PlayBtn">
-                    <span style="font-size: 24px;">⏸</span>
-                </button>
-                <button class="control-btn" onclick="${this.getClassName()}.skipForward()">
-                    <span style="font-size: 20px;">⏩</span>
-                </button>
+                <button class="control-btn"         onclick="${cn}.skipBackward()"><span style="font-size:20px;">⏪</span></button>
+                <button class="control-btn primary"  onclick="${cn}.togglePlayPause()" id="${this.roomId}PlayBtn"><span style="font-size:24px;">⏸</span></button>
+                <button class="control-btn"         onclick="${cn}.skipForward()"><span style="font-size:20px;">⏩</span></button>
             </div>
-            
             <div class="time-display" id="${this.roomId}TimeDisplay">0:00 / 0:00</div>
         </div>`;
     },
-    
-    /**
-     * Cleanup player on room exit
-     */
+
+    // ── Cleanup ───────────────────────────────────────────────────────────────
+
     cleanupPlayer() {
         this.stopProgressTracking();
-        
-        if (this.state.player && this.state.player.destroy) {
-            this.state.player.destroy();
-        }
-        
-        this.state.player = null;
-        this.state.playerReady = false;
+        this.state.player?.destroy();
+        this.state.player            = null;
+        this.state.playerReady       = false;
         this.state.playerInitialized = false;
-        this.state.sessionStarted = false;
-    }
+        this.state.sessionStarted    = false;
+    },
 };
-
-// ═══════════════════════════════════════════════════════════════════════════
-// GLOBAL EXPORT
-// ═══════════════════════════════════════════════════════════════════════════
 
 window.YouTubePlayerMixin = YouTubePlayerMixin;

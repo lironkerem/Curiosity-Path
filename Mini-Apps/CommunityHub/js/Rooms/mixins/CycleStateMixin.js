@@ -1,204 +1,140 @@
 /**
- * ═══════════════════════════════════════════════════════════════════════════
  * CYCLE STATE MIXIN
- * ═══════════════════════════════════════════════════════════════════════════
- * 
- * @mixin CycleStateMixin
- * @description Manages timed cycles with open/closed windows for practice rooms
- * @version 3.0.0
- * 
- * Usage:
- *   Object.assign(YourRoom.prototype, CycleStateMixin);
- * 
- * Requirements:
- *   - config.cycleDuration (in seconds)
- *   - config.openDuration (in seconds)
- *   - config.sessionDuration (in seconds)
- * 
- * ═══════════════════════════════════════════════════════════════════════════
+ * Manages timed open/closed windows for practice rooms.
+ *
+ * Usage: Object.assign(YourRoom.prototype, CycleStateMixin);
+ *
+ * Required config:
+ *   - config.cycleDuration   (seconds) — full cycle length
+ *   - config.openDuration    (seconds) — open window at cycle start
+ *   - config.sessionDuration (seconds) — session length after open window
  */
 
 const CycleStateMixin = {
-    /**
-     * Initialize cycle state
-     */
+
+    // ── Initialisation ────────────────────────────────────────────────────────
+
     initCycleState() {
-        this.state.isOpen = false;
-        this.state.isInSession = false;
-        this.state.cycleStartTime = null;
-        this.state.nextOpenTime = null;
+        this.state.isOpen           = false;
+        this.state.isInSession      = false;
+        this.state.cycleStartTime   = null;
+        this.state.nextOpenTime     = null;
         this.state.nextSessionStart = null;
-        
-        this.cycleInterval = null;
-        this.countdownInterval = null;
+        this._cycleInterval         = null;
     },
-    
-    /**
-     * Initialize the cycle timing
-     * Call this in room's init() method
-     */
+
     initializeCycle() {
-        const now = Date.now();
+        const now     = Date.now();
         const cycleMs = this.config.cycleDuration * 1000;
-        
-        // Calculate current cycle start time
-        const timeIntoCurrentCycle = now % cycleMs;
-        this.state.cycleStartTime = now - timeIntoCurrentCycle;
-        
-        // Set current and next sessions (if room has sessions)
-        if (this.setSessions) {
-            this.setSessions(now);
-        }
-        
+
+        this.state.cycleStartTime = now - (now % cycleMs);
+        this.setSessions?.(now);
         this.calculateCycleState();
-        
-        // Clean up existing interval if present
-        if (this.cycleInterval) clearInterval(this.cycleInterval);
-        this.cycleInterval = setInterval(() => this.calculateCycleState(), 1000);
-        
-        // Update countdown every second
-        if (this.countdownInterval) clearInterval(this.countdownInterval);
-        this.countdownInterval = setInterval(() => {
+
+        // Single interval: recalculate state + update card every second
+        if (this._cycleInterval) clearInterval(this._cycleInterval);
+        this._cycleInterval = setInterval(() => {
             this.calculateCycleState();
             this.updateRoomCard();
         }, 1000);
     },
-    
-    /**
-     * Calculate current cycle state (open/closed)
-     */
+
+    // ── State calculation ─────────────────────────────────────────────────────
+
     calculateCycleState() {
-        const now = Date.now();
+        const now     = Date.now();
         const cycleMs = this.config.cycleDuration * 1000;
         const openMs  = this.config.openDuration  * 1000;
 
-        const timeIntoCycle = (now - this.state.cycleStartTime) % cycleMs;
-
-        // Detect cycle boundary: timeIntoCycle wraps back near 0 → new cycle started.
-        // Refresh cycleStartTime and sessions so current/next session titles stay accurate.
+        const timeIntoCycle     = (now - this.state.cycleStartTime) % cycleMs;
         const currentCycleStart = now - timeIntoCycle;
+
+        // Crossed a cycle boundary — refresh start time and session list
         if (currentCycleStart !== this.state.cycleStartTime) {
             this.state.cycleStartTime = currentCycleStart;
-            if (this.setSessions) this.setSessions(now);
+            this.setSessions?.(now);
         }
 
-        const isInOpenWindow = timeIntoCycle < openMs;
+        const isOpen       = timeIntoCycle < openMs;
+        this.state.isOpen      = isOpen;
+        this.state.isInSession = !isOpen;
 
-        this.state.isOpen      = isInOpenWindow;
-        this.state.isInSession = !isInOpenWindow;
-
-        // Calculate next state transition times
-        if (isInOpenWindow) {
-            const msUntilClose = openMs - timeIntoCycle;
-            this.state.nextSessionStart = now + msUntilClose;
-            this.state.nextOpenTime     = now + msUntilClose + (this.config.sessionDuration * 1000);
+        if (isOpen) {
+            const msLeft = openMs - timeIntoCycle;
+            this.state.nextSessionStart = now + msLeft;
+            this.state.nextOpenTime     = now + msLeft + (this.config.sessionDuration * 1000);
         } else {
-            // Next open window = start of next cycle
-            const msUntilNextCycle = cycleMs - timeIntoCycle;
-            this.state.nextOpenTime     = now + msUntilNextCycle;
+            this.state.nextOpenTime     = now + (cycleMs - timeIntoCycle);
             this.state.nextSessionStart = null;
         }
 
-        // Auto-start session if user is in room and session begins
+        // Auto-start session when user is inside and window closes
         if (this.state.isInSession && !this.state.sessionStarted && this.isUserInRoom()) {
-            if (this.startSession) this.startSession();
+            this.startSession?.();
         }
     },
-    
-    /**
-     * Check if user is currently in the room
-     * @returns {boolean}
-     */
+
+    // ── Room entry checks ─────────────────────────────────────────────────────
+
+    /** Check whether the user is physically inside this room. */
     isUserInRoom() {
-        return document.getElementById(`${this.roomId}View`) !== null;
-    },
-    
-    /**
-     * Override canEnterRoom for timed rooms.
-     * Admins can always enter regardless of cycle state.
-     * @returns {boolean}
-     */
-    canEnterRoom() {
-        const isAdmin = Core.state?.currentUser?.is_admin === true;
-        return isAdmin || this.state.isOpen;
+        return window.Core?.state?.currentRoom === this.roomId;
     },
 
-    /**
-     * Raw cycle window check — no admin bypass.
-     * Used by PracticeRoom._isWithinOpenWindow() for visual card state only
-     * (border color, opacity, In Session badge).
-     * @returns {boolean}
-     */
+    /** Admins can always enter; others only during the open window. */
+    canEnterRoom() {
+        return Core.state?.currentUser?.is_admin === true || this.state.isOpen;
+    },
+
+    /** Raw window check — no admin bypass. Used for visual card state only. */
     _checkCycleWindow() {
         return this.state.isOpen;
     },
-    
-    /**
-     * Get countdown to next session start
-     * @returns {string} Formatted countdown
-     */
+
+    // ── Countdown helpers ─────────────────────────────────────────────────────
+
+    /** Format a future timestamp as "Label MM:SS". Returns '' if no target. */
+    _formatCountdown(targetMs, label) {
+        if (!targetMs) return '';
+        const diff = Math.max(0, targetMs - Date.now());
+        const m    = Math.floor(diff / 60000);
+        const s    = Math.floor((diff % 60000) / 1000);
+        return `${label} ${m}:${String(s).padStart(2, '0')}`;
+    },
+
     getTimeUntilSessionStarts() {
-        if (!this.state.nextSessionStart) return '';
-        const diff = Math.max(0, this.state.nextSessionStart - Date.now());
-        const minutes = Math.floor(diff / 60000);
-        const seconds = Math.floor((diff % 60000) / 1000);
-        return `Session begins in ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        return this._formatCountdown(this.state.nextSessionStart, 'Session begins in');
     },
-    
-    /**
-     * Get countdown to next open window
-     * @returns {string} Formatted countdown
-     */
+
     getCountdownToNextOpen() {
-        if (!this.state.nextOpenTime) return '';
-        const diff = Math.max(0, this.state.nextOpenTime - Date.now());
-        const minutes = Math.floor(diff / 60000);
-        const seconds = Math.floor((diff % 60000) / 1000);
-        return `Opens in ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        return this._formatCountdown(this.state.nextOpenTime, 'Opens in');
     },
-    
-    /**
-     * Get timer text for room card
-     * @returns {string} Timer HTML
-     */
+
     getTimerText() {
-        const nextSession = this.getNextSession ? this.getNextSession() : null;
-        const nextTitle = nextSession ? nextSession.title : 'Next Session';
-        
-        return `<strong>Next:</strong> ${nextTitle}<br>${this.state.isOpen ? (this.getTimeUntilSessionStarts() || '') : (this.getCountdownToNextOpen() || '')}`;
+        const nextTitle = this.getNextSession?.()?.title ?? 'Next Session';
+        const countdown = this.state.isOpen
+            ? this.getTimeUntilSessionStarts()
+            : this.getCountdownToNextOpen();
+        return `<strong>Next:</strong> ${nextTitle}<br>${countdown}`;
     },
-    
-    /**
-     * Build schedule link for room card
-     * @returns {string} Schedule link HTML
-     */
+
     buildScheduleLink() {
         return `
-        <div class="view-schedule" 
-             onclick="event.stopPropagation(); ${this.getClassName()}.showScheduleModal()" 
-             style="text-align: center; font-size: 11px; color: var(--text-secondary); text-decoration: underline; cursor: pointer; margin: 0; padding: 0;">
+        <div class="view-schedule"
+             onclick="event.stopPropagation();${this.getClassName()}.showScheduleModal()"
+             style="text-align:center;font-size:11px;color:var(--text-secondary);text-decoration:underline;cursor:pointer;">
             📅 View Schedule
         </div>`;
     },
-    
-    /**
-     * Cleanup cycle intervals
-     */
-    cleanupCycle() {
-        if (this.cycleInterval) {
-            clearInterval(this.cycleInterval);
-            this.cycleInterval = null;
-        }
-        
-        if (this.countdownInterval) {
-            clearInterval(this.countdownInterval);
-            this.countdownInterval = null;
-        }
-    }
-};
 
-// ═══════════════════════════════════════════════════════════════════════════
-// GLOBAL EXPORT
-// ═══════════════════════════════════════════════════════════════════════════
+    // ── Cleanup ───────────────────────────────────────────────────────────────
+
+    cleanupCycle() {
+        if (this._cycleInterval) {
+            clearInterval(this._cycleInterval);
+            this._cycleInterval = null;
+        }
+    },
+};
 
 window.CycleStateMixin = CycleStateMixin;
