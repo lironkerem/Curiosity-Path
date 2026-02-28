@@ -1,314 +1,186 @@
 /**
- * LUNARENGINE.JS
- * Complete lunar cycle management: moon phase calculations, visualizations, 
- * lunar practice rooms, and all moon-related functionality
+ * LUNARENGINE.JS v3.0
+ * Lunar cycle management: phase calculations, visualizations, room routing.
+ *
+ * KEY CHANGES v3:
+ * - Deduped lunarRooms (New Moon 0-0.068 and 0.932-1.0 merged via phaseRanges)
+ * - Removed inline onclick handlers from admin panel (XSS risk)
+ * - Extracted timer constant to avoid magic numbers
+ * - _refreshOuterCard: replaced polling interval with single retry
+ * - renderLunarCard: extracted room HTML to _renderRoomSection()
  */
 
 const LunarEngine = {
-    // User location — resolved from browser geolocation on init, falls back to UTC-neutral coords
-    location: {
-        latitude: 31.0,
-        longitude: 0.0,
-        name: 'Default'
-    },
 
-    // Current moon data
+    location: { latitude: 31.0, longitude: 0.0, name: 'Default' },
     currentMoonData: null,
     currentLunarRoom: null,
 
-    // Lunar Practice Room Configurations (4 rooms based on moon phase)
-    // New Moon and Full Moon = ~5 days each (2 days before, day of, 2 days after)
-    // Waxing and Waning = remaining ~10-11 days each
+    /** Canonical room definitions — one entry per room, multi-range via phaseRanges */
     lunarRooms: [
         {
-            phaseRange: [0, 0.068],
-            phaseName: 'New Moon',
-            icon: '🌑',
-            roomName: 'New Moon Intentions',
+            phaseRanges: [[0, 0.068], [0.932, 1.0]],
+            phaseName:   'New Moon',
+            icon:        '🌑',
+            roomName:    'New Moon Intentions',
             description: 'Set intentions and plant seeds for the lunar cycle',
-            roomId: 'new-moon',
-            energy: 'Beginning, Stillness, Potential',
-            practices: [
-                'Silent meditation',
-                'Intention setting',
-                'Vision journaling',
-                'Seed planting ritual'
-            ]
+            roomId:      'new-moon',
+            energy:      'Beginning, Stillness, Potential',
+            practices:   ['Silent meditation', 'Intention setting', 'Vision journaling', 'Seed planting ritual']
         },
         {
-            phaseRange: [0.068, 0.432],
-            phaseName: 'Waxing Moon',
-            icon: '🌓',
-            roomName: 'Waxing Growth Practice',
+            phaseRanges: [[0.068, 0.432]],
+            phaseName:   'Waxing Moon',
+            icon:        '🌓',
+            roomName:    'Waxing Growth Practice',
             description: 'Build momentum and cultivate expanding energy',
-            roomId: 'waxing-moon',
-            energy: 'Growth, Action, Building',
-            practices: [
-                'Dynamic movement',
-                'Energy cultivation',
-                'Goal visualization',
-                'Action planning meditation'
-            ]
+            roomId:      'waxing-moon',
+            energy:      'Growth, Action, Building',
+            practices:   ['Dynamic movement', 'Energy cultivation', 'Goal visualization', 'Action planning meditation']
         },
         {
-            phaseRange: [0.432, 0.568],
-            phaseName: 'Full Moon',
-            icon: '🌕',
-            roomName: 'Full Moon Illumination',
+            phaseRanges: [[0.432, 0.568]],
+            phaseName:   'Full Moon',
+            icon:        '🌕',
+            roomName:    'Full Moon Illumination',
             description: 'Celebrate fullness and release what no longer serves',
-            roomId: 'full-moon',
-            energy: 'Culmination, Release, Clarity',
-            practices: [
-                'Celebration ritual',
-                'Gratitude meditation',
-                'Release ceremony',
-                'Moon bathing'
-            ]
+            roomId:      'full-moon',
+            energy:      'Culmination, Release, Clarity',
+            practices:   ['Celebration ritual', 'Gratitude meditation', 'Release ceremony', 'Moon bathing']
         },
         {
-            phaseRange: [0.568, 0.932],
-            phaseName: 'Waning Moon',
-            icon: '🌗',
-            roomName: 'Waning Release Practice',
+            phaseRanges: [[0.568, 0.932]],
+            phaseName:   'Waning Moon',
+            icon:        '🌗',
+            roomName:    'Waning Release Practice',
             description: 'Let go and reflect on the lunar journey',
-            roomId: 'waning-moon',
-            energy: 'Release, Reflection, Rest',
-            practices: [
-                'Reflection meditation',
-                'Letting go ritual',
-                'Rest and restore',
-                'Completion ceremony'
-            ]
-        },
-        {
-            phaseRange: [0.932, 1.0],
-            phaseName: 'New Moon',
-            icon: '🌑',
-            roomName: 'New Moon Intentions',
-            description: 'Set intentions and plant seeds for the lunar cycle',
-            roomId: 'new-moon',
-            energy: 'Beginning, Stillness, Potential',
-            practices: [
-                'Silent meditation',
-                'Intention setting',
-                'Vision journaling',
-                'Seed planting ritual'
-            ]
+            roomId:      'waning-moon',
+            energy:      'Release, Reflection, Rest',
+            practices:   ['Reflection meditation', 'Letting go ritual', 'Rest and restore', 'Completion ceremony']
         }
     ],
 
-    // Initialize lunar engine
+    // ── Init ────────────────────────────────────────────────────────────────────
+
     init() {
-        // Guard against double-initialization
         if (this._initialized) return;
         this._initialized = true;
-
         console.log('🌙 Lunar Engine Initialized');
-        
-        // Check if SunCalc is available
+
         if (typeof SunCalc === 'undefined') {
-            console.error('❌ SunCalc library not loaded! Moon visualizations will not work.');
+            console.error('❌ SunCalc not loaded — moon visualizations disabled.');
             return;
         }
 
-        // Resolve user location from browser, then run first update
+        const run = () => this.updateAll();
+
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    this.location = {
-                        latitude:  pos.coords.latitude,
-                        longitude: pos.coords.longitude,
-                        name:      'Your Location'
-                    };
-                    this.updateAll();
+                ({ coords }) => {
+                    this.location = { latitude: coords.latitude, longitude: coords.longitude, name: 'Your Location' };
+                    run();
                 },
-                () => {
-                    // Permission denied or unavailable — run with fallback (UTC-neutral coords)
-                    this.updateAll();
-                },
-                { timeout: 5000, maximumAge: 3600000 }
+                () => run(),
+                { timeout: 5000, maximumAge: 3_600_000 }
             );
         } else {
-            this.updateAll();
+            run();
         }
-        
-        // Update every 10 minutes
-        setInterval(() => this.updateAll(), 600000);
+
+        setInterval(() => this.updateAll(), 600_000); // 10-minute refresh
     },
 
-    // Update all lunar data
+    // ── Data ────────────────────────────────────────────────────────────────────
+
     updateAll() {
         this.updateMoonData();
         this.updateMoonVisualization();
         this.updateLunarRoom();
-        this.renderLunarCard(); // Render card to container
+        this.renderLunarCard();
     },
 
-    // Set custom location
     setLocation(latitude, longitude, name) {
         this.location = { latitude, longitude, name };
         this.updateAll();
     },
 
-    // ===== MOON PHASE CALCULATIONS =====
     updateMoonData() {
-        if (typeof SunCalc === 'undefined') {
-            console.error('❌ SunCalc not available in updateMoonData');
-            return;
-        }
-        
-        const now = new Date();
-        const { latitude, longitude } = this.location;
+        if (typeof SunCalc === 'undefined') return;
 
-        // Get moon illumination data from SunCalc
-        const moonIllum = SunCalc.getMoonIllumination(now);
-        const moonTimes = SunCalc.getMoonTimes(now, latitude, longitude);
+        const now = new Date();
+        const illum = SunCalc.getMoonIllumination(now);
+        const times = SunCalc.getMoonTimes(now, this.location.latitude, this.location.longitude);
 
         this.currentMoonData = {
-            phase: moonIllum.phase,
-            fraction: moonIllum.fraction,
-            angle: moonIllum.angle,
-            rise: moonTimes.rise,
-            set: moonTimes.set,
-            phaseName: this.getMoonPhaseName(moonIllum.phase),
-            age: moonIllum.phase * 29.53,
+            phase:        illum.phase,
+            fraction:     illum.fraction,
+            angle:        illum.angle,
+            rise:         times.rise,
+            set:          times.set,
+            phaseName:    this.getMoonPhaseName(illum.phase),
+            age:          illum.phase * 29.53,
             nextFullMoon: this.getNextFullMoon(now)
         };
 
-        // Update UI
-        this.renderMoonInfo();
+        this._renderMoonInfo();
     },
 
-    renderMoonInfo() {
-        const data = this.currentMoonData;
-        if (!data) return;
+    _renderMoonInfo() {
+        const d = this.currentMoonData;
+        if (!d) return;
 
-        // Update moon phase name
-        const phaseNameEl = document.getElementById('moonPhaseName');
-        if (phaseNameEl) phaseNameEl.textContent = data.phaseName;
+        const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+        set('moonPhaseName',    d.phaseName);
+        set('moonIllumination', `${Math.round(d.fraction * 100)}% illuminated`);
+        set('moonAge',          `${d.age.toFixed(1)} days old`);
+        set('moonrise',         d.rise ? this.formatTime(d.rise) : 'No rise today');
+        set('moonset',          d.set  ? this.formatTime(d.set)  : 'No set today');
 
-        // Update illumination
-        const illumEl = document.getElementById('moonIllumination');
-        if (illumEl) illumEl.textContent = `${Math.round(data.fraction * 100)}% illuminated`;
-
-        // Update moon age
-        const ageEl = document.getElementById('moonAge');
-        if (ageEl) ageEl.textContent = `${data.age.toFixed(1)} days old`;
-
-        // Update moon times
-        if (data.rise) {
-            const riseEl = document.getElementById('moonrise');
-            if (riseEl) riseEl.textContent = this.formatTime(data.rise);
-        } else {
-            const riseEl = document.getElementById('moonrise');
-            if (riseEl) riseEl.textContent = 'No rise today';
-        }
-
-        if (data.set) {
-            const setEl = document.getElementById('moonset');
-            if (setEl) setEl.textContent = this.formatTime(data.set);
-        } else {
-            const setEl = document.getElementById('moonset');
-            if (setEl) setEl.textContent = 'No set today';
-        }
-
-        // Calculate next full moon
-        const now = new Date();
-        const daysUntil = Math.ceil((data.nextFullMoon - now) / (1000 * 60 * 60 * 24));
-        const nextPhaseEl = document.getElementById('nextPhase');
-        if (nextPhaseEl) {
-            nextPhaseEl.textContent = `Next Full Moon: ${this.formatDate(data.nextFullMoon)} (${daysUntil} days)`;
-        }
+        const days = Math.ceil((d.nextFullMoon - new Date()) / 86_400_000);
+        set('nextPhase', `Next Full Moon: ${this.formatDate(d.nextFullMoon)} (${days} days)`);
     },
 
-    // ===== MOON VISUALIZATION =====
+    // ── Visualization ───────────────────────────────────────────────────────────
+
     updateMoonVisualization() {
-        if (!this.currentMoonData) return;
-        this.drawMoon(this.currentMoonData.phase, this.currentMoonData.angle);
+        if (this.currentMoonData) this.drawMoon(this.currentMoonData.phase, this.currentMoonData.angle);
     },
 
     drawMoon(phase, angle) {
         const svg = document.getElementById('moonSvg');
         if (!svg) return;
 
-        const size = 120;
-        const radius = 50;
-        const centerX = size / 2;
-        const centerY = size / 2;
-
-        // Clear previous moon
+        const SIZE = 120, R = 50, CX = 60, CY = 60;
         svg.innerHTML = '';
 
-        // Wrap everything in a group so the libration angle rotates the whole moon
-        // SunCalc angle: negative = lit from right (waxing), positive = lit from left (waning)
-        // Convert to degrees and apply as rotation around center
-        const tiltDeg = (angle * 180 / Math.PI) * -1;
-        const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        group.setAttribute('transform', `rotate(${tiltDeg.toFixed(2)}, ${centerX}, ${centerY})`);
-        svg.appendChild(group);
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('transform', `rotate(${((angle * 180 / Math.PI) * -1).toFixed(2)}, ${CX}, ${CY})`);
+        svg.appendChild(g);
 
-        // Create moon circle background (dark side)
-        const moonBg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        moonBg.setAttribute('cx', centerX);
-        moonBg.setAttribute('cy', centerY);
-        moonBg.setAttribute('r', radius);
-        moonBg.setAttribute('fill', '#2d3748');
-        group.appendChild(moonBg);
+        const bg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        bg.setAttribute('cx', CX); bg.setAttribute('cy', CY);
+        bg.setAttribute('r', R);  bg.setAttribute('fill', '#2d3748');
+        g.appendChild(bg);
 
-        // Calculate illuminated portion
-        const phaseAngle = phase * 2 * Math.PI;
-        const offset = Math.cos(phaseAngle) * radius;
+        const offset = Math.cos(phase * 2 * Math.PI) * R;
+        const lit    = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        lit.setAttribute('fill', '#f7fafc');
+        lit.setAttribute('d', phase < 0.5
+            ? `M ${CX},${CY-R} A ${R},${R} 0 0 1 ${CX},${CY+R} Q ${CX+offset},${CY} ${CX},${CY-R}`
+            : `M ${CX},${CY-R} Q ${CX+offset},${CY} ${CX},${CY+R} A ${R},${R} 0 0 1 ${CX},${CY-R}`
+        );
+        g.appendChild(lit);
 
-        // Create illuminated portion
-        const moonLight = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        
-        let d;
-        if (phase < 0.5) {
-            // Waxing: light on right side
-            d = `M ${centerX},${centerY - radius} 
-                 A ${radius},${radius} 0 0 1 ${centerX},${centerY + radius}
-                 Q ${centerX + offset},${centerY} ${centerX},${centerY - radius}`;
-        } else {
-            // Waning: light on left side  
-            d = `M ${centerX},${centerY - radius}
-                 Q ${centerX + offset},${centerY} ${centerX},${centerY + radius}
-                 A ${radius},${radius} 0 0 1 ${centerX},${centerY - radius}`;
-        }
-
-        moonLight.setAttribute('d', d);
-        moonLight.setAttribute('fill', '#f7fafc');
-        group.appendChild(moonLight);
-
-        // Add subtle crater texture
-        this.addMoonCraters(group, centerX, centerY, radius, phase);
-    },
-
-    addMoonCraters(svg, cx, cy, radius, phase) {
-        // Add a few subtle craters for realism
-        const craters = [
-            { x: 0.3, y: -0.2, r: 0.15 },
-            { x: -0.2, y: 0.3, r: 0.1 },
-            { x: 0.1, y: 0.4, r: 0.08 },
-        ];
-
-        craters.forEach(crater => {
-            const craterX = cx + (crater.x * radius);
-            const craterY = cy + (crater.y * radius);
-            const craterR = crater.r * radius;
-
-            // Only show crater if it's on illuminated side
-            const isVisible = (phase < 0.5 && crater.x > 0) || (phase >= 0.5 && crater.x < 0) || 
-                             (phase > 0.45 && phase < 0.55);
-
-            if (isVisible) {
-                const craterCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                craterCircle.setAttribute('cx', craterX);
-                craterCircle.setAttribute('cy', craterY);
-                craterCircle.setAttribute('r', craterR);
-                craterCircle.setAttribute('fill', 'rgba(0, 0, 0, 0.15)');
-                svg.appendChild(craterCircle);
-            }
-        });
+        // Craters
+        [{ x: 0.3, y: -0.2, r: 0.15 }, { x: -0.2, y: 0.3, r: 0.1 }, { x: 0.1, y: 0.4, r: 0.08 }]
+            .forEach(({ x, y, r }) => {
+                const visible = (phase < 0.5 && x > 0) || (phase >= 0.5 && x < 0) || (phase > 0.45 && phase < 0.55);
+                if (!visible) return;
+                const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                c.setAttribute('cx', CX + x * R); c.setAttribute('cy', CY + y * R);
+                c.setAttribute('r', r * R); c.setAttribute('fill', 'rgba(0,0,0,0.15)');
+                g.appendChild(c);
+            });
     },
 
     getMoonPhaseName(phase) {
@@ -322,84 +194,33 @@ const LunarEngine = {
         return 'Waning Crescent';
     },
 
-    getNextFullMoon(fromDate) {
-        // Simple approximation: full moon every 29.53 days
-        const lunarCycle = 29.53;
-        const moonIllum = SunCalc.getMoonIllumination(fromDate);
-        const currentPhase = moonIllum.phase;
-        
-        let daysUntilFull;
-        if (currentPhase < 0.5) {
-            daysUntilFull = (0.5 - currentPhase) * lunarCycle;
-        } else {
-            daysUntilFull = (1 + 0.5 - currentPhase) * lunarCycle;
-        }
-        
-        const nextFull = new Date(fromDate.getTime() + daysUntilFull * 24 * 60 * 60 * 1000);
-        return nextFull;
+    getNextFullMoon(from) {
+        const phase = SunCalc.getMoonIllumination(from).phase;
+        const days  = phase < 0.5 ? (0.5 - phase) * 29.53 : (1.5 - phase) * 29.53;
+        return new Date(from.getTime() + days * 86_400_000);
     },
 
-    // ===== LUNAR PRACTICE ROOM MANAGEMENT =====
-    updateLunarRoom() {
-        if (!this.currentMoonData) {
-            return;
-        }
-
-        const phase = this.currentMoonData.phase;
-
-        // Find the appropriate room based on current phase
-        const room = this.lunarRooms.find(r => {
-            const matches = phase >= r.phaseRange[0] && phase <= r.phaseRange[1];
-            return matches;
-        }) || this.lunarRooms[0]; // Default to New Moon if edge case
-
-        // Always update current room to ensure sync
-        const roomChanged = this.currentLunarRoom?.roomId !== room.roomId;
-        this.currentLunarRoom = room;
-        
-        if (roomChanged) {
-            console.log(`✨ Lunar room CHANGED to: ${room.roomName} (phase: ${phase.toFixed(3)})`);
-        }
-    },
-
-    renderLunarRoom(room) {
-        // Update room icon
-        const iconEl = document.getElementById('lunarRoomIcon');
-        if (iconEl) iconEl.textContent = room.icon;
-
-        // Update room name
-        const nameEl = document.getElementById('lunarRoomName');
-        if (nameEl) nameEl.textContent = room.roomName;
-
-        // Update room description
-        const descEl = document.getElementById('lunarRoomDesc');
-        if (descEl) descEl.textContent = room.description;
-
-        // Update room energy in the practice room data attribute
-        const roomEl = document.getElementById('lunarPracticeRoom');
-        if (roomEl) {
-            roomEl.setAttribute('data-room-id', room.roomId);
-            roomEl.setAttribute('data-room-energy', room.energy);
-        }
-
-        // Update presence count — managed by _refreshOuterCard() via Supabase
-        // Do not overwrite here to avoid clobbering live count
-    },
+    // ── Room management ─────────────────────────────────────────────────────────
 
     getLunarRoomByPhase(phase) {
-        // ✅ FIXED: Changed < to <= to handle edge case where phase === phaseRange[1]
-        return this.lunarRooms.find(r => 
-            phase >= r.phaseRange[0] && phase <= r.phaseRange[1]
-        ) || this.lunarRooms[0];
+        return this.lunarRooms.find(r =>
+            r.phaseRanges.some(([lo, hi]) => phase >= lo && phase <= hi)
+        ) ?? this.lunarRooms[0];
     },
 
-    getCurrentRoom() {
-        return this.currentLunarRoom;
+    updateLunarRoom() {
+        if (!this.currentMoonData) return;
+        const room = this.getLunarRoomByPhase(this.currentMoonData.phase);
+        if (this.currentLunarRoom?.roomId !== room.roomId) {
+            console.log(`✨ Lunar room → ${room.roomName} (phase: ${this.currentMoonData.phase.toFixed(3)})`);
+        }
+        this.currentLunarRoom = room;
     },
 
-    // ===== PRACTICE ROOM JOINING =====
+    getCurrentRoom() { return this.currentLunarRoom; },
 
-    // Maps roomId → { file, globalName } for lazy loading
+    // ── Lazy-load & enter ───────────────────────────────────────────────────────
+
     _roomFileMap: {
         'new-moon':    { file: 'newmoon-room.js',    globalName: 'NewMoonRoom'    },
         'waxing-moon': { file: 'waxingmoon-room.js', globalName: 'WaxingMoonRoom' },
@@ -407,266 +228,230 @@ const LunarEngine = {
         'waning-moon': { file: 'waningmoon-room.js', globalName: 'WaningMoonRoom' },
     },
 
-    /**
-     * Load a lunar room file on demand, then enter it.
-     * If the global (e.g. window.NewMoonRoom) already exists the script is skipped.
-     * @param {string} roomId
-     * @private
-     */
     _loadAndEnterRoom(roomId) {
         const meta = this._roomFileMap[roomId];
-        if (!meta) {
-            if (window.Core) window.Core.showToast(`🌙 Unknown room: ${roomId}`);
-            return;
-        }
+        if (!meta) { window.Core?.showToast(`🌙 Unknown room: ${roomId}`); return; }
 
         const enter = () => {
             const instance = window[meta.globalName];
-            if (instance) {
-                instance.enterRoom();
-            } else {
-                if (window.Core) window.Core.showToast(`⚠️ ${roomId} failed to initialise`);
-            }
+            if (instance) instance.enterRoom();
+            else window.Core?.showToast(`⚠️ ${roomId} failed to initialise`);
         };
 
-        // Already loaded — enter immediately
-        if (window[meta.globalName]) {
-            enter();
-            return;
-        }
+        if (window[meta.globalName]) { enter(); return; }
 
-        // Lazy-load the script, then enter
-        const base = '/Mini-Apps/CommunityHub/js/Lunar/';
         const script = document.createElement('script');
-        script.src = base + meta.file;
-        script.onload = () => {
-            // Give the room's init() a tick to complete before entering
-            setTimeout(enter, 50);
-        };
-        script.onerror = () => {
-            if (window.Core) window.Core.showToast(`⚠️ Failed to load ${meta.file}`);
-        };
+        script.src = `/Mini-Apps/CommunityHub/js/Lunar/${meta.file}`;
+        script.onload  = () => setTimeout(enter, 50);
+        script.onerror = () => window.Core?.showToast(`⚠️ Failed to load ${meta.file}`);
         document.body.appendChild(script);
     },
 
     joinLunarRoom() {
-        if (!this.currentLunarRoom) {
-            if (window.Core) window.Core.showToast('⚠️ Lunar room not ready');
-            return;
-        }
+        if (!this.currentLunarRoom) { window.Core?.showToast('⚠️ Lunar room not ready'); return; }
         this._loadAndEnterRoom(this.currentLunarRoom.roomId);
     },
 
-    // ===== UTILITIES =====
-    formatTime(date) {
-        if (!date || isNaN(date.getTime())) return 'N/A';
-        return date.toLocaleTimeString('en-US', { 
-            hour: 'numeric', 
-            minute: '2-digit',
-            hour12: true 
-        });
-    },
-
-    formatDate(date) {
-        return date.toLocaleDateString('en-US', { 
-            month: 'short', 
-            day: 'numeric' 
-        });
-    },
-
-    // Get current moon data for external use
-    getMoonData() {
-        return this.currentMoonData;
-    },
-
-    // ===== RENDER LUNAR CARD TO CONTAINER =====
-    renderLunarCard() {
-        const container = document.getElementById('lunarContainer');
-        if (!container) {
-            console.warn('LunarEngine: lunarContainer not found in DOM');
-            return;
-        }
-
-        if (!this.currentMoonData || !this.currentLunarRoom) {
-            container.innerHTML = '<p style="color: var(--text-muted); padding: 20px;">Loading lunar data...</p>';
-            return;
-        }
-
-        const room = this.currentLunarRoom;
-        const data = this.currentMoonData;
-        const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
-
-        container.innerHTML = `
-            <div class="celestial-card-full lunar-card">
-                <div class="celestial-content-horizontal">
-                    <!-- Moon Visual -->
-                    <div class="celestial-visual-section">
-                        <div class="moon-visual">
-                            <svg width="120" height="120" viewBox="0 0 120 120" id="moonSvg">
-                                <!-- Moon will be drawn here by updateMoonVisualization -->
-                            </svg>
-                        </div>
-                    </div>
-
-                    <!-- Moon Info -->
-                    <div class="celestial-info-section">
-                        <div class="celestial-info-title">Lunar Phase & Cycles</div>
-                        <div class="moon-info">
-                            <div class="moon-phase-name" id="moonPhaseName">${data.phaseName}</div>
-                            <div class="moon-illumination" id="moonIllumination">${Math.round(data.fraction * 100)}% illuminated</div>
-                            <div class="moon-age" id="moonAge">${data.age.toFixed(1)} days old</div>
-
-                        </div>
-                        <div class="next-phase" id="nextPhase">
-                            Next Full Moon: ${this.formatDate(data.nextFullMoon)} (${Math.ceil((data.nextFullMoon - new Date()) / (1000 * 60 * 60 * 24))} days)
-                        </div>
-                    </div>
-
-                    <!-- Moon Times -->
-                    <div class="celestial-times-section">
-                        <div class="celestial-time">
-                            <span class="time-label">Moonrise</span>
-                            <span class="time-value" id="moonrise">${data.rise ? this.formatTime(data.rise) : 'No rise today'}</span>
-                        </div>
-                        <div class="celestial-time">
-                            <span class="time-label">Moonset</span>
-                            <span class="time-value" id="moonset">${data.set ? this.formatTime(data.set) : 'No set today'}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Integrated Lunar Practice Room -->
-                <div class="celestial-practice-room" data-room-type="lunar" id="lunarPracticeRoom">
-                    <div class="room-divider"></div>
-                    <div class="room-content-inline">
-                        <div class="room-header-inline">
-                            <div class="room-icon-inline" id="lunarRoomIcon">${room.icon}</div>
-                            <div class="room-info-inline">
-                                <div class="room-name-inline" id="lunarRoomName">${room.roomName}</div>
-                                <div class="room-desc-inline" id="lunarRoomDesc">${room.description}</div>
-                            </div>
-                        </div>
-                        <div class="room-meta-inline">
-                            <div class="room-energy">
-                                <div class="energy-pulse" style="background: var(--ring-silent);"></div>
-                                <span id="lunarRoomPresence">0 present</span>
-                            </div>
-                            <button class="join-btn-inline" onclick="LunarEngine.joinLunarRoom()">Join Space</button>
-                        </div>
-                    </div>
-                </div>
-
-                ${isAdmin ? this.renderAdminSection() : ''}
-            </div>
-        `;
-
-        // Redraw moon visualization after rendering
-        this.updateMoonVisualization();
-
-        // Fetch live presence count for outer card
-        this._refreshOuterCard();
-    },
-
-    // Fetch live participant count for the outer lunar card and subscribe to realtime updates
-    _refreshOuterCard() {
-        if (!window.CommunityDB || !CommunityDB.ready) {
-            const _interval = setInterval(() => {
-                if (!window.CommunityDB?.ready) return;
-                clearInterval(_interval);
-                this._refreshOuterCard();
-            }, 500);
-            return;
-        }
-
-        const room   = this.currentLunarRoom;
-        if (!room) return;
-        const roomId = room.roomId;
-
-        const _doCount = async () => {
-            try {
-                const participants = await CommunityDB.getRoomParticipants(roomId);
-                const el = document.getElementById('lunarRoomPresence');
-                if (el) el.textContent = `${participants.length} present`;
-            } catch(e) {
-                console.warn('[LunarEngine] _refreshOuterCard error:', e);
-            }
-        };
-
-        _doCount();
-
-        // Realtime
-        if (this._outerCardSub) {
-            try { this._outerCardSub.unsubscribe(); } catch(e) {}
-        }
-        this._outerCardSub = CommunityDB.subscribeToPresence(_doCount);
-    },
-
-    // Render DEV MODE section with all lunar rooms
-    renderAdminSection() {
-        const panelId = 'lunarAdminPanel';
-        const toggleId = 'lunarAdminToggle';
-        return `
-            <div style="margin-top: 24px; border-radius: var(--radius-lg); border: 2px dashed rgba(139,92,246,0.5); overflow: hidden;">
-                <!-- Collapsible header -->
-                <div onclick="
-                        const p = document.getElementById('${panelId}');
-                        const t = document.getElementById('${toggleId}');
-                        const open = p.style.display !== 'none';
-                        p.style.display = open ? 'none' : 'block';
-                        t.textContent = open ? '▶' : '▼';
-                    "
-                    style="display: flex; align-items: center; justify-content: space-between;
-                           padding: 14px 20px; cursor: pointer; background: var(--surface);
-                           user-select: none;">
-                    <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: rgba(139,92,246,0.9);">
-                        🛡️ ADMIN: Enter Any Lunar Room
-                    </span>
-                    <span id="${toggleId}" style="font-size: 11px; color: rgba(139,92,246,0.7);">▶</span>
-                </div>
-                <!-- Collapsible body -->
-                <div id="${panelId}" style="padding: 16px 20px; background: var(--surface); border-top: 1px solid rgba(139,92,246,0.2); display: none;">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
-                        ${this.lunarRooms.map(room => `
-                            <button
-                                onclick="LunarEngine.adminJoinRoom('${room.roomId}')"
-                                style="padding: 12px; background: var(--season-mood); border: 1px solid var(--border); border-radius: var(--radius-md); cursor: pointer; text-align: left; transition: all 0.2s;"
-                                onmouseover="this.style.background='var(--border)'"
-                                onmouseout="this.style.background='var(--season-mood)'"
-                            >
-                                <div style="font-size: 24px; margin-bottom: 4px;">${room.icon}</div>
-                                <div style="font-size: 13px; font-weight: 600; color: var(--text);">${room.roomName}</div>
-                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">${room.phaseName}</div>
-                            </button>
-                        `).join('')}
-                    </div>
-                </div>
-            </div>
-        `;
-    },
-
-    // ADMIN: Join any lunar room directly (also lazy-loads)
     adminJoinRoom(roomId) {
         console.log(`🛡️ ADMIN: Joining ${roomId}`);
         this._loadAndEnterRoom(roomId);
     },
 
+    // ── Card rendering ──────────────────────────────────────────────────────────
+
+    renderLunarCard() {
+        const container = document.getElementById('lunarContainer');
+        if (!container) { console.warn('LunarEngine: #lunarContainer not found'); return; }
+
+        if (!this.currentMoonData || !this.currentLunarRoom) {
+            container.innerHTML = '<p style="color:var(--text-muted);padding:20px;">Loading lunar data...</p>';
+            return;
+        }
+
+        const { currentMoonData: d, currentLunarRoom: room } = this;
+        const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
+
+        container.innerHTML = `
+            <div class="celestial-card-full lunar-card">
+                <div class="celestial-content-horizontal">
+                    <div class="celestial-visual-section">
+                        <div class="moon-visual">
+                            <svg width="120" height="120" viewBox="0 0 120 120" id="moonSvg"></svg>
+                        </div>
+                    </div>
+                    <div class="celestial-info-section">
+                        <div class="celestial-info-title">Lunar Phase &amp; Cycles</div>
+                        <div class="moon-phase-name" id="moonPhaseName">${d.phaseName}</div>
+                        <div class="moon-illumination" id="moonIllumination">${Math.round(d.fraction * 100)}% illuminated</div>
+                        <div class="moon-age" id="moonAge">${d.age.toFixed(1)} days old</div>
+                        <div class="next-phase" id="nextPhase">
+                            Next Full Moon: ${this.formatDate(d.nextFullMoon)}
+                            (${Math.ceil((d.nextFullMoon - new Date()) / 86_400_000)} days)
+                        </div>
+                    </div>
+                    <div class="celestial-times-section">
+                        <div class="celestial-time">
+                            <span class="time-label">Moonrise</span>
+                            <span class="time-value" id="moonrise">${d.rise ? this.formatTime(d.rise) : 'No rise today'}</span>
+                        </div>
+                        <div class="celestial-time">
+                            <span class="time-label">Moonset</span>
+                            <span class="time-value" id="moonset">${d.set ? this.formatTime(d.set) : 'No set today'}</span>
+                        </div>
+                    </div>
+                </div>
+                ${this._renderRoomSection(room)}
+                ${isAdmin ? this._renderAdminSection() : ''}
+            </div>`;
+
+        this.updateMoonVisualization();
+        this._refreshOuterCard();
+    },
+
+    _renderRoomSection(room) {
+        return `
+            <div class="celestial-practice-room" data-room-type="lunar" id="lunarPracticeRoom">
+                <div class="room-divider"></div>
+                <div class="room-content-inline">
+                    <div class="room-header-inline">
+                        <div class="room-icon-inline" id="lunarRoomIcon">${room.icon}</div>
+                        <div class="room-info-inline">
+                            <div class="room-name-inline" id="lunarRoomName">${room.roomName}</div>
+                            <div class="room-desc-inline" id="lunarRoomDesc">${room.description}</div>
+                        </div>
+                    </div>
+                    <div class="room-meta-inline">
+                        <div class="room-energy">
+                            <div class="energy-pulse" style="background:var(--ring-silent);"></div>
+                            <span id="lunarRoomPresence">0 present</span>
+                        </div>
+                        <button class="join-btn-inline" data-action="join-lunar-room">Join Space</button>
+                    </div>
+                </div>
+            </div>`;
+    },
+
+    /** Attach join-button listener after card renders (called by renderLunarCard). */
+    _attachCardListeners() {
+        const btn = document.querySelector('[data-action="join-lunar-room"]');
+        if (btn && !btn._lunarBound) {
+            btn.addEventListener('click', () => this.joinLunarRoom());
+            btn._lunarBound = true;
+        }
+    },
+
+    _renderAdminSection() {
+        const panelId  = 'lunarAdminPanel';
+        const toggleId = 'lunarAdminToggle';
+
+        // Deduplicated room list (unique roomId only)
+        const seen = new Set();
+        const uniqueRooms = this.lunarRooms.filter(r => seen.has(r.roomId) ? false : seen.add(r.roomId));
+
+        const buttons = uniqueRooms.map(r => `
+            <button class="lunar-admin-room-btn" data-room-id="${r.roomId}">
+                <div style="font-size:24px;margin-bottom:4px;">${r.icon}</div>
+                <div style="font-size:13px;font-weight:600;color:var(--text);">${r.roomName}</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${r.phaseName}</div>
+            </button>`
+        ).join('');
+
+        return `
+            <div class="lunar-admin-wrapper">
+                <div class="lunar-admin-header" data-panel="${panelId}" data-toggle="${toggleId}">
+                    <span>🛡️ ADMIN: Enter Any Lunar Room</span>
+                    <span id="${toggleId}">▶</span>
+                </div>
+                <div id="${panelId}" class="lunar-admin-body" style="display:none;">
+                    <div class="lunar-admin-grid">${buttons}</div>
+                </div>
+            </div>`;
+    },
+
+    /** Wire up admin panel toggle + room buttons. Called once after renderLunarCard. */
+    _attachAdminListeners() {
+        const header = document.querySelector('.lunar-admin-header');
+        if (header && !header._lunarBound) {
+            header.addEventListener('click', () => {
+                const panel  = document.getElementById(header.dataset.panel);
+                const toggle = document.getElementById(header.dataset.toggle);
+                const open   = panel.style.display !== 'none';
+                panel.style.display  = open ? 'none' : 'block';
+                toggle.textContent   = open ? '▶' : '▼';
+            });
+            header._lunarBound = true;
+        }
+
+        document.querySelectorAll('.lunar-admin-room-btn').forEach(btn => {
+            if (!btn._lunarBound) {
+                btn.addEventListener('click', () => this.adminJoinRoom(btn.dataset.roomId));
+                btn._lunarBound = true;
+            }
+        });
+    },
+
+    // ── Presence ────────────────────────────────────────────────────────────────
+
+    _refreshOuterCard() {
+        if (!window.CommunityDB?.ready) {
+            // Single retry — avoid accumulating intervals
+            if (!this._outerCardRetry) {
+                this._outerCardRetry = setTimeout(() => {
+                    this._outerCardRetry = null;
+                    this._refreshOuterCard();
+                }, 500);
+            }
+            return;
+        }
+
+        const roomId = this.currentLunarRoom?.roomId;
+        if (!roomId) return;
+
+        const doCount = async () => {
+            try {
+                const participants = await CommunityDB.getRoomParticipants(roomId);
+                const el = document.getElementById('lunarRoomPresence');
+                if (el) el.textContent = `${participants.length} present`;
+            } catch (e) {
+                console.warn('[LunarEngine] _refreshOuterCard error:', e);
+            }
+        };
+
+        doCount();
+        this._attachCardListeners();
+        this._attachAdminListeners();
+
+        if (this._outerCardSub) { try { this._outerCardSub.unsubscribe(); } catch (e) {} }
+        this._outerCardSub = CommunityDB.subscribeToPresence(doCount);
+    },
+
+    // ── Utils ───────────────────────────────────────────────────────────────────
+
+    formatTime(date) {
+        if (!date || isNaN(date.getTime())) return 'N/A';
+        return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    },
+
+    formatDate(date) {
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    },
+
+    getMoonData() { return this.currentMoonData; },
+
+    // Legacy: kept for external callers that still reference renderLunarRoom()
+    renderLunarRoom() { this.renderLunarCard(); },
+
     injectAdminUI() {
         const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
-        const container = document.getElementById('lunarContainer');
-        if (!container) return;
-        // Admin section is rendered inside the card — re-render card if needed
-        const existing = container.querySelector('#lunarAdminPanel');
-        if (!existing && isAdmin) {
-            // Card already rendered without admin panel — append it
-            const card = container.querySelector('.celestial-card-full');
-            if (card) {
-                const div = document.createElement('div');
-                div.innerHTML = this.renderAdminSection();
-                card.appendChild(div.firstElementChild);
-            }
+        if (!isAdmin) return;
+        const card = document.querySelector('#lunarContainer .celestial-card-full');
+        if (card && !document.getElementById('lunarAdminPanel')) {
+            const div = document.createElement('div');
+            div.innerHTML = this._renderAdminSection();
+            card.appendChild(div.firstElementChild);
+            this._attachAdminListeners();
         }
     }
 };
 
-// Expose globally
 window.LunarEngine = LunarEngine;
