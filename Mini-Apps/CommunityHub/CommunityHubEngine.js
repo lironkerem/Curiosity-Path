@@ -284,13 +284,19 @@ class CommunityHubEngine {
         'js/Rooms/mixins/ChatMixin.js',
         'js/Rooms/mixins/SoundSettingsMixin.js',
         'js/Rooms/mixins/TimerMixin.js',
-        'js/Rooms/mixins/TimedVideoRoom.js',
-        'js/Rooms/mixins/TabRoomMixin.js',
         'js/Solar/solar-config.js',
         'js/Lunar/lunar-core.js',
         'js/Lunar/lunar-ui.js',
         'js/Lunar/lunar-config.js',
         'js/Lunar/lunarengine.js',
+      ]);
+
+      // Group 3b: Composite classes that depend on Group 3 mixins
+      // Must be sequential — TimedVideoRoom extends YouTubePlayerMixin + CycleStateMixin,
+      // and TabRoomMixin is used by rooms in Group 4b.
+      await this._loadAll([
+        'js/Rooms/mixins/TimedVideoRoom.js',
+        'js/Rooms/mixins/TabRoomMixin.js',
       ]);
 
       // Init LunarEngine early — lunar rooms need currentMoonData
