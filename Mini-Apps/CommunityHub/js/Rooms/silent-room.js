@@ -1,100 +1,75 @@
 /**
- * ═══════════════════════════════════════════════════════════════════════════
  * SILENT MEDITATION ROOM
- * ═══════════════════════════════════════════════════════════════════════════
- *
- * @class SilentRoom
  * @extends PracticeRoom
  * @mixes TimerMixin, SoundSettingsMixin
- * @version 3.1.0 — PATCHED:
- *   - onLeave() now resets communityHubFullscreenContainer background
- *     so dim mode doesn't bleed into other rooms after leaving
- *   - devMode stays true (in development)
- *
- * ═══════════════════════════════════════════════════════════════════════════
  */
 
 class SilentRoom extends PracticeRoom {
     constructor() {
         super({
-            roomId: 'silent',
-            roomType: 'always-open',
-            name: 'Silent Meditation',
-            icon: '🧘',
+            roomId:      'silent',
+            roomType:    'always-open',
+            name:        'Silent Meditation',
+            icon:        '🧘',
             description: 'Join others in silence. No guidance, shared energy.',
-            energy: 'Peaceful',
-            imageUrl: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Silent.png',
-            participants: 4
+            energy:      'Peaceful',
+            imageUrl:    'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Silent.png',
+            participants: 4,
         });
 
-        this.initTimerState(1200); // 20 minutes default
+        this.initTimerState(1200); // 20 min default
         this.initSoundState();
 
         this.affirmations = [
-            "Breathe in peace, breathe out tension",
-            "This moment is enough",
-            "I am here, I am present",
-            "Let go of what was, embrace what is",
-            "In stillness, I find clarity",
-            "My breath is my anchor",
-            "I trust the process of life",
-            "Peace begins within",
-            "I am worthy of this rest",
-            "This too shall pass"
+            'Breathe in peace, breathe out tension',
+            'This moment is enough',
+            'I am here, I am present',
+            'Let go of what was, embrace what is',
+            'In stillness, I find clarity',
+            'My breath is my anchor',
+            'I trust the process of life',
+            'Peace begins within',
+            'I am worthy of this rest',
+            'This too shall pass',
         ];
 
-        this.affirmationInterval = null;
+        this._affirmationInterval = null;
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // LIFECYCLE
-    // ═══════════════════════════════════════════════════════════════════════
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     onEnter() {
         this.startAffirmations();
     }
 
     onLeave() {
-        this.resetState();
-
-        // Reset dim mode so it doesn't bleed into other rooms
-        const view = document.getElementById('practiceRoomView');
-        if (view) view.classList.remove('dimmed');
-        const container = document.getElementById('communityHubFullscreenContainer');
-        if (container) container.style.background = 'transparent';
-        const btn = document.getElementById(`${this.roomId}DimModeBtn`);
-        if (btn) btn.textContent = '🌙 Dim';
+        this.resetTimer(); // resets state + DOM btn label + ring
+        this._resetDimMode();
     }
 
     onCleanup() {
         this.cleanupTimer();
         this.cleanupSound();
-
-        if (this.affirmationInterval) {
-            clearInterval(this.affirmationInterval);
-            this.affirmationInterval = null;
+        if (this._affirmationInterval) {
+            clearInterval(this._affirmationInterval);
+            this._affirmationInterval = null;
         }
     }
 
     onOutsideClick(e) {
-        const soundSettings = document.getElementById(`${this.roomId}SoundSettings`);
-        if (soundSettings && !soundSettings.contains(e.target) &&
-            !e.target.closest('[onclick*="toggleSoundSettings"]')) {
-            soundSettings.classList.remove('visible');
+        const panel = document.getElementById(`${this.roomId}SoundSettings`);
+        if (panel && !panel.contains(e.target) && !e.target.closest('[onclick*="toggleSoundSettings"]')) {
+            panel.classList.remove('visible');
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // UI
-    // ═══════════════════════════════════════════════════════════════════════
+    // ── UI ────────────────────────────────────────────────────────────────────
 
     buildAdditionalHeaderButtons() {
         return `
             ${this.buildSoundButton()}
-            <button class="ps-leave"
-                    onclick="${this.getClassName()}.toggleDimMode()"
-                    id="${this.roomId}DimModeBtn"
-                    style="margin: 0; padding: 10px 16px; white-space: nowrap;">
+            <button class="ps-leave" onclick="${this.getClassName()}.toggleDimMode()"
+                    id="${this.roomId}DimModeBtn" style="padding:10px 16px;white-space:nowrap;">
                 🌙 Dim
             </button>`;
     }
@@ -103,20 +78,12 @@ class SilentRoom extends PracticeRoom {
         return `
         ${this.buildSoundSettings()}
         <div class="ps-body">
-            <main class="ps-main" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0;">
-
-                <!-- Affirmation -->
+            <main class="ps-main" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;">
                 <div id="${this.roomId}RotatingAffirmation"
-                     style="position: relative; max-width: 650px; text-align: center; font-size: 22px; font-weight: 600; letter-spacing: 0.02em; line-height: 1.6; margin-bottom: 30px; z-index: 10; opacity: 0.7; transition: opacity 0.5s ease;">
+                     style="position:relative;max-width:650px;text-align:center;font-size:22px;font-weight:600;letter-spacing:0.02em;line-height:1.6;margin-bottom:30px;z-index:10;opacity:0.7;transition:opacity 0.5s ease;">
                 </div>
-
-                <!-- Timer -->
                 ${this.buildTimerContainer()}
-
-                <!-- Controls -->
                 ${this.buildTimerControls()}
-
-                <!-- Gratitude -->
                 <div class="gratitude-container" id="${this.roomId}GratitudeContainer">
                     <button class="gratitude-btn" onclick="${this.getClassName()}.offerGratitude()">
                         🙏 Offer gratitude to the space
@@ -129,7 +96,6 @@ class SilentRoom extends PracticeRoom {
     getInstructions() {
         return `
             <p><strong>Welcome to the Silent Meditation space.</strong></p>
-
             <h3>How to Practice:</h3>
             <ul>
                 <li>Set your timer using +/- buttons</li>
@@ -137,7 +103,6 @@ class SilentRoom extends PracticeRoom {
                 <li>Focus on your breath</li>
                 <li>Use the timer ring as a visual anchor</li>
             </ul>
-
             <h3>Sound Settings:</h3>
             <ul>
                 <li>5-minute bells for gentle reminders</li>
@@ -146,57 +111,52 @@ class SilentRoom extends PracticeRoom {
             </ul>`;
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // AFFIRMATIONS
-    // ═══════════════════════════════════════════════════════════════════════
+    // ── Affirmations ──────────────────────────────────────────────────────────
 
     startAffirmations() {
         this.rotateAffirmation();
-        this.affirmationInterval = setInterval(() => {
-            this.rotateAffirmation();
-        }, 8000);
+        this._affirmationInterval = setInterval(() => this.rotateAffirmation(), 8000);
     }
 
     rotateAffirmation() {
-        const container = document.getElementById(`${this.roomId}RotatingAffirmation`);
-        if (!container) return;
-
-        const text = this.affirmations[Math.floor(Math.random() * this.affirmations.length)];
-        container.style.opacity = '0';
+        const el = document.getElementById(`${this.roomId}RotatingAffirmation`);
+        if (!el) return;
+        el.style.opacity = '0';
         setTimeout(() => {
-            container.textContent  = text;
-            container.style.opacity = '0.7';
+            el.textContent   = this.affirmations[Math.floor(Math.random() * this.affirmations.length)];
+            el.style.opacity = '0.7';
         }, 500);
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // FEATURES
-    // ═══════════════════════════════════════════════════════════════════════
+    // ── Features ──────────────────────────────────────────────────────────────
 
     toggleDimMode() {
         const view = document.getElementById('practiceRoomView');
-        const btn  = document.getElementById(`${this.roomId}DimModeBtn`);
-        if (view) {
-            view.classList.toggle('dimmed');
-            const isDimmed = view.classList.contains('dimmed');
-            if (btn) btn.textContent = isDimmed ? '☀️ Bright' : '🌙 Dim';
-            const container = document.getElementById('communityHubFullscreenContainer');
-            if (container) container.style.background = isDimmed ? 'rgba(0,0,0,0.85)' : 'transparent';
-        }
+        if (!view) return;
+        view.classList.toggle('dimmed');
+        const isDimmed = view.classList.contains('dimmed');
+        const btn = document.getElementById(`${this.roomId}DimModeBtn`);
+        if (btn) btn.textContent = isDimmed ? '☀️ Bright' : '🌙 Dim';
+        const container = document.getElementById('communityHubFullscreenContainer');
+        if (container) container.style.background = isDimmed ? 'rgba(0,0,0,0.85)' : 'transparent';
+    }
+
+    /** Reset dim mode to default — called on leave. */
+    _resetDimMode() {
+        const view = document.getElementById('practiceRoomView');
+        if (view) view.classList.remove('dimmed');
+        const container = document.getElementById('communityHubFullscreenContainer');
+        if (container) container.style.background = 'transparent';
+        const btn = document.getElementById(`${this.roomId}DimModeBtn`);
+        if (btn) btn.textContent = '🌙 Dim';
     }
 
     offerGratitude() {
         Core.showToast('🙏 Gratitude offered to the space');
-        const container = document.getElementById(`${this.roomId}GratitudeContainer`);
-        if (container) {
-            container.style.transform = 'scale(1.05)';
-            setTimeout(() => { container.style.transform = 'scale(1)'; }, 200);
-        }
-    }
-
-    resetState() {
-        this.state.timerRunning = false;
-        this.state.timeLeft     = 1200;
+        const el = document.getElementById(`${this.roomId}GratitudeContainer`);
+        if (!el) return;
+        el.style.transform = 'scale(1.05)';
+        setTimeout(() => { el.style.transform = 'scale(1)'; }, 200);
     }
 }
 

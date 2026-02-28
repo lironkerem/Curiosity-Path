@@ -284,6 +284,8 @@ class CommunityHubEngine {
         'js/Rooms/mixins/ChatMixin.js',
         'js/Rooms/mixins/SoundSettingsMixin.js',
         'js/Rooms/mixins/TimerMixin.js',
+        'js/Rooms/mixins/TimedVideoRoom.js',
+        'js/Rooms/mixins/TabRoomMixin.js',
         'js/Solar/solar-config.js',
         'js/Lunar/lunar-core.js',
         'js/Lunar/lunar-ui.js',
