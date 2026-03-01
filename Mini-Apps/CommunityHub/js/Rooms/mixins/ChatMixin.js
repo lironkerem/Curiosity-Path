@@ -214,7 +214,7 @@ const ChatMixin = {
              style="display:flex;flex-direction:column;flex:1;min-height:300px;">
             <div class="chat-messages" id="${this.roomId}${cap}Messages" style="flex:1;min-height:100px;"></div>
             <div class="chat-input-container" style="margin-top:auto;padding-top:8px;">
-                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;width:100%;">
                     <div id="${avatarSlot}" style="flex-shrink:0;width:28px;height:28px;">
                         <div style="width:28px;height:28px;border-radius:50%;background:var(--border);"></div>
                     </div>

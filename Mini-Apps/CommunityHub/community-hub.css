@@ -912,6 +912,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     width: 40px;
     height: 40px;
     border-radius: 50%;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
