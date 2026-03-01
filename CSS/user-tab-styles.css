@@ -91,12 +91,11 @@
   opacity: 1;
 }
 
-/* ── Status ring around avatar button ─────────────────────────────── */
+/* ── Status ring around avatar disc ──────────────────────────────── */
 .user-disc.has-status-ring {
-  outline: 2.5px solid var(--status-ring-color, #9ca3af);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--status-ring-color, #9ca3af) 25%, transparent);
-  transition: outline-color 0.3s ease, box-shadow 0.3s ease;
+  border: 3px solid var(--status-ring-color, #9ca3af) !important;
+  box-shadow: var(--shadow-raised), 0 0 8px 2px color-mix(in srgb, var(--status-ring-color, #9ca3af) 40%, transparent);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* ── Status picker in profile panel ──────────────────────────────── */
