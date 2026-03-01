@@ -190,59 +190,9 @@ const LunarUI = {
 
 /* ── Moon visual ─────────────────────────────────────────────────────────── */
 .lunar-moon-visual{display:flex;justify-content:center;margin:3rem 0;}
-.lunar-moon-glow{position:relative;width:220px;height:220px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
-.lunar-moon-sphere{position:relative;width:160px;height:160px;border-radius:50%;animation:lunar-float 6s ease-in-out infinite;overflow:hidden;}
-
-/* Shared glow pulse on the wrapper */
-.lunar-moon-glow::after{content:'';position:absolute;inset:-20px;border-radius:50%;animation:lunar-glow-pulse 4s ease-in-out infinite;pointer-events:none;}
-
+.lunar-moon-glow{position:relative;width:200px;height:200px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.lunar-moon-sphere{width:160px;height:160px;border-radius:50%;animation:lunar-float 6s ease-in-out infinite;}
 @keyframes lunar-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@keyframes lunar-glow-pulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
-
-/* ── NEW MOON 🌑 ─────────────────────────────────────────────────────────── */
-/* Dark sphere, faint silver rim, tiny glow */
-.newmoon-moon-sphere{
-    background:radial-gradient(circle at 38% 38%, #1a1a2e 60%, #0d0d1a 100%);
-    box-shadow:inset -6px -6px 18px rgba(255,255,255,.08), inset 4px 4px 12px rgba(255,255,255,.04);
-}
-.newmoon-moon-glow::after{background:radial-gradient(circle,rgba(100,100,180,.25) 0%,transparent 70%);}
-
-/* ── WAXING MOON 🌓 ──────────────────────────────────────────────────────── */
-/* Right half lit — pseudo-element covers left half as shadow */
-.waxingmoon-moon-sphere{
-    background:radial-gradient(circle at 65% 40%, #f0e8d0 0%, #d4c9a8 40%, #b8ad8c 70%, #9a9278 100%);
-    box-shadow:0 0 40px rgba(210,195,150,.35), 0 0 80px rgba(210,195,150,.15);
-}
-.waxingmoon-moon-sphere::before{
-    content:'';position:absolute;inset:0;border-radius:50%;
-    background:radial-gradient(ellipse 120% 100% at 15% 50%, #0a0a1a 45%, transparent 70%);
-}
-.waxingmoon-moon-glow::after{background:radial-gradient(circle,rgba(210,195,150,.4) 0%,transparent 65%);}
-
-/* ── FULL MOON 🌕 ────────────────────────────────────────────────────────── */
-/* Fully lit, bright warm white with crater texture via radial gradients */
-.fullmoon-moon-sphere{
-    background:
-        radial-gradient(circle at 38% 32%, rgba(0,0,0,.07) 0%, transparent 18%),
-        radial-gradient(circle at 62% 55%, rgba(0,0,0,.05) 0%, transparent 12%),
-        radial-gradient(circle at 48% 68%, rgba(0,0,0,.04) 0%, transparent 10%),
-        radial-gradient(circle at 62% 38%, #ffffff 0%, #f5f0e0 35%, #e8dfc0 65%, #d4c9a0 100%);
-    box-shadow:0 0 50px rgba(255,245,200,.6), 0 0 100px rgba(255,245,200,.3), 0 0 160px rgba(255,245,200,.1);
-}
-.fullmoon-moon-glow::after{background:radial-gradient(circle,rgba(255,245,200,.55) 0%,transparent 65%);}
-
-/* ── WANING MOON 🌗 ──────────────────────────────────────────────────────── */
-/* Left half lit — mirror of waxing */
-.waningmoon-moon-sphere{
-    background:radial-gradient(circle at 35% 40%, #e8dfc0 0%, #c8bd9c 40%, #a8a07c 70%, #8a8260 100%);
-    box-shadow:0 0 40px rgba(190,180,130,.3), 0 0 80px rgba(190,180,130,.12);
-}
-.waningmoon-moon-sphere::before{
-    content:'';position:absolute;inset:0;border-radius:50%;
-    background:radial-gradient(ellipse 120% 100% at 85% 50%, #0a0a1a 45%, transparent 70%);
-}
-.waningmoon-moon-glow::after{background:radial-gradient(circle,rgba(190,180,130,.35) 0%,transparent 65%);}
-
 
 /* ── Intro card ──────────────────────────────────────────────────────────── */
 .lunar-intro-card{text-align:center;margin:2rem 0;}
