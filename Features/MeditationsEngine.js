@@ -176,7 +176,7 @@ class MeditationsEngine {
     const oshoCountdown   = calcCycle(90 * 60, 10 * 60);  // 90-min cycle, 10-min open
 
     const btnStyle = `
-      flex: 1 1 200px;
+      width: 100%;
       padding: 0.75rem 1rem;
       border-radius: 999px;
       border: none;
@@ -190,7 +190,7 @@ class MeditationsEngine {
     `;
 
     const disabledStyle = `
-      flex: 1 1 200px;
+      width: 100%;
       padding: 0.75rem 1rem;
       border-radius: 999px;
       border: none;
