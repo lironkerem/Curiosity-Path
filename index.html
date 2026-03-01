@@ -100,6 +100,8 @@
   </div>
 
   <div id="toast-container"></div>
+  <!-- Global toast element for Community Hub Core.showToast() -->
+  <div id="toast" role="alert" aria-live="assertive" style="display:none;"></div>
 
   <!-- ===== External Dependencies ===== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" 
@@ -117,11 +119,13 @@
   <script src="./Features/WellnessKit.js"></script>
 
   <!-- ===== Community Hub: core scripts loaded early for Active Members dashboard widget ===== -->
-  <!-- Sequential loading order matters: supabase-client → community-supabase → core → active-members -->
-  <script src="/Mini-Apps/CommunityHub/js/supabase-client.js"   defer></script>
-  <script src="/Mini-Apps/CommunityHub/js/community-supabase.js" defer></script>
-  <script src="/Mini-Apps/CommunityHub/js/core.js"              defer></script>
-  <script src="/Mini-Apps/CommunityHub/js/active-members.js"    defer></script>
+  <!-- Sequential loading order matters: supabase-client → community-supabase → core → active-members → modals -->
+  <script src="/Mini-Apps/CommunityHub/js/supabase-client.js"      defer></script>
+  <script src="/Mini-Apps/CommunityHub/js/community-supabase.js"   defer></script>
+  <script src="/Mini-Apps/CommunityHub/js/core.js"                 defer></script>
+  <script src="/Mini-Apps/CommunityHub/js/active-members.js"       defer></script>
+  <script src="/Mini-Apps/CommunityHub/js/member-profile-modal.js" defer></script>
+  <script src="/Mini-Apps/CommunityHub/js/WhisperModal.js"         defer></script>
 
   <!-- ===== Bootstrap Application ===== -->
   <script type="module">

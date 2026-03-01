@@ -605,6 +605,10 @@ export default class ProjectCuriosityApp {
         const communityReady = await window.CommunityDB.init();
         if (!communityReady) {
           console.warn('[App] CommunityDB.init() failed — Active Members widget will be unavailable');
+        } else {
+          // Init modals now that CommunityDB is ready
+          window.MemberProfileModal?.init();
+          window.WhisperModal?.init();
         }
       }
 
