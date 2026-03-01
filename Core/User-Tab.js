@@ -365,6 +365,8 @@ export default class UserTab {
       birthday: document.getElementById('profile-birthday')?.value || null,
       emoji: document.getElementById('profile-emoji')?.value || '👤',
       country: document.getElementById('profile-country')?.value.trim() || null,
+      // Preserve community_status — managed by setStatus(), not a form field
+      community_status: this.currentUser?.community_status || 'online',
       // avatar_url is managed separately by handleAvatarUpload (Supabase Storage)
     };
 
