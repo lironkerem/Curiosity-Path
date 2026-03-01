@@ -68,21 +68,9 @@ const KNOWN_ADMIN_BADGE_IDS = new Set([
 // Global helper: navigate to Community Hub tab then scroll to a specific section.
 // Used by the Sanctuary widget on the Dashboard.
 window._navigateToHubSection = function(targetId) {
+  // Store the desired scroll target — Core.init() will scroll after the Hub finishes rendering
+  window._pendingHubScrollTarget = targetId;
   window.app?.nav?.switchTab('community-hub');
-
-  // Poll until the target element exists in the Hub (Hub renders async)
-  const maxAttempts = 30; // 3 seconds max
-  let attempts = 0;
-  const poll = setInterval(() => {
-    attempts++;
-    const el = document.getElementById(targetId);
-    if (el) {
-      clearInterval(poll);
-      setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-    } else if (attempts >= maxAttempts) {
-      clearInterval(poll);
-    }
-  }, 100);
 };
 
 export default class DashboardManager {

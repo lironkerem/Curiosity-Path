@@ -121,14 +121,6 @@ const Core = {
 
             this.state.initialized = true;
 
-            // Scroll to a section requested from the Dashboard sanctuary widget
-            if (window._pendingHubScrollTarget) {
-                const targetId = window._pendingHubScrollTarget;
-                window._pendingHubScrollTarget = null;
-                const el = document.getElementById(targetId);
-                if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-            }
-
         } catch (error) {
             console.error('❌ [Core] Initialization failed:', error);
             this.handleInitializationError(error);
