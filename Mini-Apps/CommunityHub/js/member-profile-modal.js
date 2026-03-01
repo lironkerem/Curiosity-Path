@@ -851,6 +851,7 @@ const MemberProfileModal = {
             await this._adminPushNotify(this.state.currentUserId, '🎖️ New Badge Earned!', `You received the ${badge.name} badge!`);
             Core.showToast(`✓ Awarded ${badge.icon} ${badge.name}`);
             this._closeAdminSubs();
+            await this._safeRefresh(this.state.currentUserId);
         });
     },
 
@@ -924,16 +925,21 @@ const MemberProfileModal = {
             //    This prevents any concurrent saveState() call from spreading
             //    the old XP value back to Supabase before reloadFromDatabase() runs.
             try {
+                // getUserProgress now returns xp, karma, level, badges, unlockedFeatures
                 const fresh = await CommunityDB.getUserProgress(targetUserId);
                 if (fresh && ge?.state) {
-                    if (fresh.xp    !== undefined) ge.state.xp    = fresh.xp;
-                    if (fresh.karma !== undefined) ge.state.karma = fresh.karma;
-                    if (fresh.level !== undefined) ge.state.level = fresh.level;
+                    if (fresh.xp !== undefined)               ge.state.xp               = fresh.xp;
+                    if (fresh.karma !== undefined)            ge.state.karma            = fresh.karma;
+                    if (fresh.level !== undefined)            ge.state.level            = fresh.level;
+                    if (Array.isArray(fresh.badges))          ge.state.badges           = fresh.badges;
+                    if (Array.isArray(fresh.unlockedFeatures)) ge.state.unlockedFeatures = fresh.unlockedFeatures;
                 }
                 if (fresh && window.app?.state?.data) {
-                    if (fresh.xp    !== undefined) window.app.state.data.xp    = fresh.xp;
-                    if (fresh.karma !== undefined) window.app.state.data.karma = fresh.karma;
-                    if (fresh.level !== undefined) window.app.state.data.level = fresh.level;
+                    if (fresh.xp !== undefined)               window.app.state.data.xp               = fresh.xp;
+                    if (fresh.karma !== undefined)            window.app.state.data.karma            = fresh.karma;
+                    if (fresh.level !== undefined)            window.app.state.data.level            = fresh.level;
+                    if (Array.isArray(fresh.badges))          window.app.state.data.badges           = fresh.badges;
+                    if (Array.isArray(fresh.unlockedFeatures)) window.app.state.data.unlockedFeatures = fresh.unlockedFeatures;
                 }
             } catch (e) {
                 console.warn('[_safeRefresh] pre-patch failed:', e);

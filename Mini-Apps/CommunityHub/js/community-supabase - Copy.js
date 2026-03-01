@@ -95,7 +95,6 @@ const CommunityDB = {
             karma:               p.karma ?? 0,
             level:               p.level ?? 1,
             badges:              p.badges ?? [],
-            unlockedFeatures:    p.unlockedFeatures ?? [],
             streak:              p.streaks?.current ?? p.streak?.current ?? 0,
             longestStreak:       p.streaks?.longest ?? 0,
             totalSessions:       p.stats?.totalSessions    ?? 0,
