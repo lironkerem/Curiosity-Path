@@ -1,80 +1,70 @@
 /**
  * SOLAR-BASE-ROOM.JS
- * Base implementation for all seasonal solar practice rooms
- * Contains all shared logic to eliminate code duplication
+ * Base prototype for all seasonal solar practice rooms.
+ * Season rooms use Object.create(BaseSolarRoom) and override only
+ * config, prebuiltAffirmations, practices, and content getters.
  */
 
 const BaseSolarRoom = {
-  // Default structure (will be overridden by specific rooms)
-  config: {},
-  userData: {},
-  practices: {},
-  prebuiltAffirmations: [],
-  
-  isActive: false,
-  startDate: null,
-  endDate: null,
-  collectiveTimer: null,
-  eventListeners: [], // ✅ ADDED: Track event listeners for cleanup
-  saveDebounceTimer: null, // ✅ ADDED: Debounced saves
 
-  // ============================================================================
-  // CONSTANTS
-  // ============================================================================
-  
+  // ── Overridden by each season room ─────────────────────────────────────────
+  config:               {},
+  practices:            {},
+  prebuiltAffirmations: [],
+
+  // ── Shared defaults (reset each season via loadData) ───────────────────────
+  // Season rooms should NOT redefine userData — they inherit this.
+  userData: {
+    intention:        '',
+    affirmation:      '',
+    releaseList:      '',
+    practiceCount:    0,
+    closureReflection:'',
+    completedDate:    null,
+    privateIntention: '',
+    collectiveWord:   '',
+    intentionShared:  false,
+  },
+
+  isActive:          false,
+  startDate:         null,
+  endDate:           null,
+  collectiveTimer:   null,
+  saveDebounceTimer: null,
+  eventListeners:    [],
+
   CONSTANTS: {
-    MAX_INTENTION_LENGTH: 500,
+    MAX_INTENTION_LENGTH:   500,
     MAX_AFFIRMATION_LENGTH: 300,
-    MAX_RELEASE_LIST_LENGTH: 1000,
-    SAVE_DEBOUNCE_MS: 500
+    MAX_RELEASE_LIST_LENGTH:1000,
+    SAVE_DEBOUNCE_MS:       500,
   },
 
   // ============================================================================
-  // UTILITY METHODS (Lunar-style architecture)
+  // UTILITIES
   // ============================================================================
 
-  /**
-   * Sanitize user input to prevent XSS
-   * @param {string} input - Raw user input
-   * @returns {string} Sanitized input
-   */
+  /** Sanitize user text input (strips dangerous tags, trims, caps length). */
   _sanitizeInput(input) {
     if (typeof input !== 'string') return '';
     return input
       .trim()
-      .slice(0, 1000) // Max length
+      .slice(0, 1000)
       .replace(/<script[^>]*>.*?<\/script>/gi, '')
       .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '')
       .replace(/<object[^>]*>.*?<\/object>/gi, '');
   },
 
-  /**
-   * Escape HTML for safe display
-   * @param {string} text - Text to escape
-   * @returns {string} Escaped text
-   */
-  _escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  },
+  /** Delegate to the single canonical implementation in SolarConfig. */
+  _escapeHtml: t => SolarConfig.escapeHtml(t),
 
-  /**
-   * Remove event listeners for cleanup
-   */
   _removeEventListeners() {
-    this.eventListeners.forEach(({ element, event, handler }) => {
-      if (element && element.removeEventListener) {
-        element.removeEventListener(event, handler);
-      }
-    });
+    this.eventListeners.forEach(({ element, event, handler }) =>
+      element?.removeEventListener(event, handler)
+    );
     this.eventListeners = [];
   },
 
-  /**
-   * Clear active timer
-   */
   _clearTimer() {
     if (this.collectiveTimer) {
       clearInterval(this.collectiveTimer);
@@ -82,23 +72,61 @@ const BaseSolarRoom = {
     }
   },
 
-  /**
-   * Cleanup method called before room destruction
-   */
   cleanup() {
     this._clearTimer();
     this._removeEventListeners();
-    if (this.saveDebounceTimer) {
-      clearTimeout(this.saveDebounceTimer);
-      this.saveDebounceTimer = null;
-    }
-    if (this._presenceSub) {
-      try { this._presenceSub.unsubscribe(); } catch(e) {}
-      this._presenceSub = null;
-    }
-    if (this._collectiveWordsSub) {
-      try { this._collectiveWordsSub.unsubscribe(); } catch(e) {}
-      this._collectiveWordsSub = null;
+    clearTimeout(this.saveDebounceTimer);
+    this.saveDebounceTimer = null;
+    this._unsubPresence();
+    this._unsubCollectiveWords();
+  },
+
+  _unsubPresence() {
+    try { this._presenceSub?.unsubscribe(); } catch(e) {}
+    this._presenceSub = null;
+  },
+
+  _unsubCollectiveWords() {
+    try { this._collectiveWordsSub?.unsubscribe(); } catch(e) {}
+    this._collectiveWordsSub = null;
+  },
+
+  // ============================================================================
+  // SHARED COUNTDOWN TIMER
+  // Replaces the duplicated startMeditationTimer / startWitnessingTimer.
+  // ============================================================================
+
+  /**
+   * Start a countdown timer.
+   * @param {string}   timerElId   - ID of the display element
+   * @param {string}   startBtnId  - ID of the start button (hidden on start)
+   * @param {number}   seconds     - Total seconds to count down
+   * @param {Function} onComplete  - Called when timer reaches 0
+   */
+  _startCountdownTimer(timerElId, startBtnId, seconds, onComplete) {
+    try {
+      document.getElementById(startBtnId)?.style && (document.getElementById(startBtnId).style.display = 'none');
+      const display = document.getElementById(timerElId);
+      if (!display) return;
+
+      let timeLeft = seconds;
+      this._clearTimer();
+
+      this.collectiveTimer = setInterval(() => {
+        timeLeft--;
+        const m = Math.floor(timeLeft / 60);
+        const s = timeLeft % 60;
+        display.textContent = `${m}:${String(s).padStart(2, '0')}`;
+
+        if (timeLeft <= 0) {
+          this._clearTimer();
+          display.textContent = 'Complete';
+          onComplete?.();
+        }
+      }, 1000);
+    } catch (err) {
+      console.error('[BaseSolarRoom] _startCountdownTimer error:', err);
+      this._clearTimer();
     }
   },
 
@@ -106,9 +134,6 @@ const BaseSolarRoom = {
   // INITIALIZATION
   // ============================================================================
 
-  /**
-   * Initialize the room
-   */
   init() {
     try {
       console.log(`🌞 ${this.config.displayName} Solar Room initialized`);
@@ -117,525 +142,338 @@ const BaseSolarRoom = {
         this.calculateDates();
         this.loadData();
       }
-    } catch (error) {
-      console.error(`${this.config.displayName} init error:`, error);
+    } catch (err) {
+      console.error(`${this.config.displayName} init error:`, err);
     }
   },
 
-  /**
-   * Check if this season is currently active.
-   * Uses SolarEngine.getSeasonDates() for exact astronomical boundaries —
-   * no hardcoded month/day, zero gaps between seasons, year-spanning handled automatically.
-   */
   checkIfActive() {
-    // ADMIN: force-enable regardless of actual season
-    const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
-    if (isAdmin) {
+    if (window.Core?.state?.currentUser?.is_admin === true) {
       this.isActive = true;
       console.log(`🛡️ ADMIN: ${this.config.displayName} room force-enabled`);
       return;
     }
 
     if (!window.SolarEngine) {
-      console.warn(`[${this.config.displayName}] SolarEngine not available for checkIfActive`);
+      console.warn(`[${this.config.displayName}] SolarEngine not available`);
       this.isActive = false;
       return;
     }
 
     const now  = new Date();
     const year = now.getFullYear();
+    const name = this.config.name;
 
-    // Get exact dates for current and previous year (winter spans year boundary)
-    const dates     = SolarEngine.getSeasonDates(year);
-    const datesPrev = SolarEngine.getSeasonDates(year - 1);
-    const season    = this.config.name; // 'spring' | 'summer' | 'autumn' | 'winter'
+    const curr = SolarEngine.getSeasonDates(year)[name];
+    if (now >= curr.start && now <= curr.end) { this.isActive = true; return; }
 
-    // Check current year
-    const { start, end } = dates[season];
-    if (now >= start && now <= end) {
-      this.isActive = true;
-      return;
-    }
-
-    // Check previous year's range (covers winter spanning Dec→Mar)
-    const prev = datesPrev[season];
-    this.isActive = (now >= prev.start && now <= prev.end);
+    const prev = SolarEngine.getSeasonDates(year - 1)[name];
+    this.isActive = now >= prev.start && now <= prev.end;
   },
 
-  /**
-   * Set this.startDate and this.endDate from exact astronomical season dates.
-   * Reads from SolarEngine.getSeasonDates() — no hardcoded config month/day needed.
-   */
   calculateDates() {
     if (!window.SolarEngine) {
-      console.warn(`[${this.config.displayName}] SolarEngine not available for calculateDates`);
+      console.warn(`[${this.config.displayName}] SolarEngine not available`);
       return;
     }
 
-    const now    = new Date();
-    const year   = now.getFullYear();
-    const season = this.config.name;
+    const now  = new Date();
+    const name = this.config.name;
+    const prev = SolarEngine.getSeasonDates(now.getFullYear() - 1)[name];
 
-    const dates     = SolarEngine.getSeasonDates(year);
-    const datesPrev = SolarEngine.getSeasonDates(year - 1);
-
-    // Use previous year's range if we're currently in its winter (e.g. Jan/Feb/Mar)
-    const prev = datesPrev[season];
     if (now >= prev.start && now <= prev.end) {
       this.startDate = prev.start;
       this.endDate   = prev.end;
       return;
     }
 
-    this.startDate = dates[season].start;
-    this.endDate   = dates[season].end;
+    const curr    = SolarEngine.getSeasonDates(now.getFullYear())[name];
+    this.startDate = curr.start;
+    this.endDate   = curr.end;
   },
 
-  /**
-   * Load saved user data from localStorage
-   */
   loadData() {
     const saved = SolarUIManager.storage.get(this.config.name);
-    if (saved && new Date(saved.seasonStartDate).getTime() === this.startDate.getTime()) {
+    if (saved && new Date(saved.seasonStartDate).getTime() === this.startDate?.getTime()) {
       this.userData = saved.data;
     }
   },
 
-  /**
-   * Save user data to localStorage
-   */
   saveData() {
-    const success = SolarUIManager.storage.set(this.config.name, {
+    const ok = SolarUIManager.storage.set(this.config.name, {
       seasonStartDate: this.startDate.toISOString(),
-      data: this.userData
+      data: this.userData,
     });
-    
-    if (!success) {
-      SolarUIManager.showToast('⚠️ Could not save data. Check storage limits.');
-    }
+    if (!ok) SolarUIManager.showToast('⚠️ Could not save data. Check storage limits.');
   },
 
-  /**
-   * Enter the practice room
-   */
+  // ============================================================================
+  // ROOM ENTER / LEAVE
+  // ============================================================================
+
   enterRoom() {
     const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
-
     if (!this.isActive && !isAdmin) {
       SolarUIManager.showToast(`${this.config.emoji} ${this.config.displayName} room opens during ${this.config.displayName.toLowerCase()} season`);
       return;
     }
+    if (!this.startDate) this.calculateDates();
 
-    // Force dates calculation if not yet set (admin entering out-of-season)
-    if (!this.startDate) {
-      this.calculateDates();
-    }
-
-    if (window.Core && window.Core.navigateTo) {
-      window.Core.navigateTo('practiceRoomView');
-    }
-
-    // Stop hub card subscription while inside a room
-    if (window.PracticeRoom?.stopHubPresence) {
-      PracticeRoom.stopHubPresence();
-    }
-
-    // Add solar room background class
+    window.Core?.navigateTo?.('practiceRoomView');
+    window.PracticeRoom?.stopHubPresence?.();
     document.body.classList.add('solar-room-active');
 
     this.renderDashboard();
-
-    // ── Supabase presence ──────────────────────────────────────────────
     this._setPresence();
-
-    // ── Load collective words from DB ──────────────────────────────────
     this._loadCollectiveWords();
   },
 
-  /**
-   * Leave the practice room and return to hub
-   */
   leaveRoom() {
     try {
-      // ── Supabase presence ──────────────────────────────────────────
       this._clearPresence();
-
-      // ── Unsubscribe from realtime subscriptions ────────────────────
-      if (this._presenceSub) {
-        try { this._presenceSub.unsubscribe(); } catch(e) {}
-        this._presenceSub = null;
-      }
-      if (this._collectiveWordsSub) {
-        try { this._collectiveWordsSub.unsubscribe(); } catch(e) {}
-        this._collectiveWordsSub = null;
-      }
-
-      // Cleanup
+      this._unsubPresence();
+      this._unsubCollectiveWords();
       this._clearTimer();
       this._removeEventListeners();
-
-      // Remove solar room background class
       document.body.classList.remove('solar-room-active');
-
       window.currentSolarRoom = null;
-
-      // ── Restart shared hub presence subscription ───────────────────
-      if (window.PracticeRoom?.startHubPresence) {
-        PracticeRoom.startHubPresence();
-      }
-
-      if (window.Core && window.Core.navigateTo) {
-        window.Core.navigateTo('hubView');
-      }
-    } catch (error) {
-      console.error('Error leaving solar room:', error);
+      window.PracticeRoom?.startHubPresence?.();
+      window.Core?.navigateTo?.('hubView');
+    } catch (err) {
+      console.error('Error leaving solar room:', err);
     }
   },
 
-  /**
-   * Render the main dashboard
-   */
+  // ============================================================================
+  // RENDER DASHBOARD
+  // ============================================================================
+
   renderDashboard() {
     const container = document.getElementById('dynamicRoomContent');
-    if (!container) {
-      console.error('dynamicRoomContent container not found');
-      return;
-    }
+    if (!container) { console.error('dynamicRoomContent not found'); return; }
 
     document.body.setAttribute('data-season', this.config.name);
     window.currentSolarRoom = this;
 
     const daysRemaining = SolarUIManager.utils.calculateDaysRemaining(this.endDate);
-    const daysText = `${daysRemaining} ${daysRemaining === 1 ? 'day' : 'days'} remaining`;
-    const imageUrl = `${SOLAR_CONSTANTS.IMAGE_BASE_URL}${this.config.displayName}.png`;
+    const daysText      = `${daysRemaining} ${daysRemaining === 1 ? 'day' : 'days'} remaining`;
+    const imageUrl      = `${SOLAR_CONSTANTS.IMAGE_BASE_URL}${this.config.displayName}.png`;
+    const presence      = this.getLivingPresenceCount();
 
     container.innerHTML = `
       <div class="solar-room-bg">
-      <div class="solar-floating-bg">
-        ${SolarUIManager.utils.generateFloatingElements(this.config.floatingEmojis)}
-      </div>
-      
-      ${SolarUIManager.renderers.topBar({
-        seasonName: this.config.displayName,
-        emoji: this.config.emoji,
-        daysText,
-        livingPresenceCount: this.getLivingPresenceCount()
-      })}
-      
-      <div class="solar-content-wrapper">
-        <div class="solar-sun-visual">
-          <div class="solar-sun-glow">
-            <div class="solar-sun-sphere"></div>
-          </div>
+        <div class="solar-floating-bg">
+          ${SolarUIManager.utils.generateFloatingElements(this.config.floatingEmojis)}
         </div>
-        
-        <div class="solar-intro-card">
-          <img src="${imageUrl}" 
-               alt="${this.config.displayName} Season" 
-               class="solar-season-img"
-               loading="lazy">
-          <p>${this.config.wisdom}</p>
-        </div>
-        
-        ${SolarUIManager.renderers.modeToggle()}
-        
-        <div id="soloContent" class="solar-mode-content">
-          <div class="solar-mode-description">
-            <h3>Your Sacred Space</h3>
-            <p>${this.config.modeDescription || 'Individual practices for this season'}</p>
-          </div>
-          
-          <div class="solar-practices-grid" id="practicesGrid">
-            ${Object.values(this.practices).map(p => 
-              SolarUIManager.renderers.practiceCard(p, this.isPracticeLocked(p))
-            ).join('')}
-          </div>
-          
-          ${SolarUIManager.renderers.savedInputs(this.userData, this.config.displayName)}
-        </div>
-        
-        <div id="groupContent" class="solar-mode-content" style="display: none;">
-          ${SolarUIManager.renderers.groupPractice({
-            seasonEmoji: this.config.seasonEmoji,
-            seasonName: this.config.displayName,
-            presenceCount: this.getLivingPresenceCount(),
-            itemEmoji: this.config.itemEmoji,
-            sessionTimes: this.config.sessionTimes,
-            collectiveFocus: this.config.collectiveFocus,
-            collectiveNoun: this.config.collectiveNoun
-          })}
-        </div>
-        
-        ${daysRemaining <= 7 ? SolarUIManager.renderers.closureSection(this.config.closure) : ''}
-      </div>
-      </div>
-    `;
-    
-    // Attach event listeners with delegation
-    this._attachEventListeners(container);
 
-    // Fetch live presence and subscribe to realtime (after render, delayed to let DOM settle)
+        ${SolarUIManager.renderers.topBar({
+          seasonName: this.config.displayName,
+          emoji: this.config.emoji,
+          daysText,
+          livingPresenceCount: presence,
+        })}
+
+        <div class="solar-content-wrapper">
+          <div class="solar-sun-visual">
+            <div class="solar-sun-glow"><div class="solar-sun-sphere"></div></div>
+          </div>
+
+          <div class="solar-intro-card">
+            <img src="${imageUrl}" alt="${this.config.displayName} Season"
+                 class="solar-season-img" loading="lazy">
+            <p>${this.config.wisdom}</p>
+          </div>
+
+          ${SolarUIManager.renderers.modeToggle()}
+
+          <div id="soloContent" class="solar-mode-content">
+            <div class="solar-mode-description">
+              <h3>Your Sacred Space</h3>
+              <p>${this.config.modeDescription || 'Individual practices for this season'}</p>
+            </div>
+            <div class="solar-practices-grid" id="practicesGrid">
+              ${Object.values(this.practices).map(p =>
+                SolarUIManager.renderers.practiceCard(p, this.isPracticeLocked(p))
+              ).join('')}
+            </div>
+            ${SolarUIManager.renderers.savedInputs(this.userData, this.config.displayName)}
+          </div>
+
+          <div id="groupContent" class="solar-mode-content" style="display:none;">
+            ${SolarUIManager.renderers.groupPractice({
+              seasonEmoji:    this.config.seasonEmoji,
+              seasonName:     this.config.displayName,
+              presenceCount:  presence,
+              itemEmoji:      this.config.itemEmoji,
+              sessionTimes:   this.config.sessionTimes,
+              collectiveFocus:this.config.collectiveFocus,
+              collectiveNoun: this.config.collectiveNoun,
+            })}
+          </div>
+
+          ${daysRemaining <= 7 ? SolarUIManager.renderers.closureSection(this.config.closure) : ''}
+        </div>
+      </div>`;
+
+    this._attachEventListeners(container);
     setTimeout(() => this._refreshLivePresence(), 300);
   },
 
-  /**
-   * Attach event listeners using delegation (Lunar-style architecture)
-   * @param {HTMLElement} container - Container element
-   */
+  // ============================================================================
+  // EVENT LISTENERS
+  // ============================================================================
+
   _attachEventListeners(container) {
     try {
-      // Remove old listeners
       this._removeEventListeners();
 
-      // Practice card clicks
-      const practicesGrid = container.querySelector('#practicesGrid');
-      if (practicesGrid) {
-        const handlePracticeClick = (e) => {
-          const card = e.target.closest('.solar-practice-card');
-          if (!card) return;
-
-          const practiceId = card.dataset.practice;
-          const isLocked = card.dataset.locked === 'true';
-
-          if (isLocked) {
-            SolarUIManager.showToast('⚠️ Complete the first practice to unlock others');
-          } else {
-            this.showPracticePopup(practiceId);
-          }
-        };
-
-        practicesGrid.addEventListener('click', handlePracticeClick);
-        this.eventListeners.push({ 
-          element: practicesGrid, 
-          event: 'click', 
-          handler: handlePracticeClick 
-        });
-      }
-
-      // Mode toggle buttons
-      const handleModeToggle = (e) => {
-        const btn = e.target.closest('.solar-mode-btn');
-        if (!btn) return;
-
-        const mode = btn.dataset.mode;
-        if (mode) {
-          SolarUIManager.switchMode(mode);
-        }
+      const register = (element, event, handler) => {
+        if (!element) return;
+        element.addEventListener(event, handler);
+        this.eventListeners.push({ element, event, handler });
       };
 
-      const modeToggle = container.querySelector('.solar-mode-toggle');
-      if (modeToggle) {
-        modeToggle.addEventListener('click', handleModeToggle);
-        this.eventListeners.push({ 
-          element: modeToggle, 
-          event: 'click', 
-          handler: handleModeToggle 
-        });
-      }
+      // Practice card clicks
+      const grid = container.querySelector('#practicesGrid');
+      register(grid, 'click', e => {
+        const card = e.target.closest('.solar-practice-card');
+        if (!card) return;
+        card.dataset.locked === 'true'
+          ? SolarUIManager.showToast('⚠️ Complete the first practice to unlock others')
+          : this.showPracticePopup(card.dataset.practice);
+      });
 
-      // Closure button
+      // Mode toggle
+      register(container.querySelector('.solar-mode-toggle'), 'click', e => {
+        const btn = e.target.closest('.solar-mode-btn');
+        if (btn?.dataset.mode) SolarUIManager.switchMode(btn.dataset.mode);
+      });
+
+      // Closure submit
       const closureBtn = container.querySelector('[data-action="submit-closure"]');
-      if (closureBtn) {
-        const handleClosure = () => this.submitClosure();
-        closureBtn.addEventListener('click', handleClosure);
-        this.eventListeners.push({ 
-          element: closureBtn, 
-          event: 'click', 
-          handler: handleClosure 
-        });
-      }
+      register(closureBtn, 'click', () => this.submitClosure());
 
-    } catch (error) {
-      console.error('Error attaching event listeners:', error);
+    } catch (err) {
+      console.error('Error attaching event listeners:', err);
     }
   },
 
-  /**
-   * Check if a practice should be locked
-   * Override this method in specific rooms for custom logic
-   */
-  isPracticeLocked(practice) {
-    // Default: no practices are locked
-    return false;
-  },
+  // ============================================================================
+  // PRACTICE POPUP
+  // ============================================================================
+
+  /** Override in season rooms for custom lock logic. */
+  isPracticeLocked: () => false,
 
   /**
-   * Get practice content by ID
-   * Routes to specific content getter methods
+   * Resolve content by convention: practiceId → get{Id}Content()
+   * Season rooms can override individual getters without needing a dispatch map.
    */
   getPracticeContent(practiceId) {
-    // Convert practiceId to method name (e.g., 'intentionPlanting' -> 'getIntentionPlantingContent')
-    const methodName = 'get' + practiceId.charAt(0).toUpperCase() + practiceId.slice(1) + 'Content';
-    
-    if (typeof this[methodName] === 'function') {
-      return this[methodName]();
-    }
-    
-    console.error(`Content method ${methodName} not found for practice ${practiceId}`);
-    return `
-      <div class="solar-popup-section">
-        <p>Practice content not available.</p>
-      </div>
-    `;
+    const method = `get${practiceId.charAt(0).toUpperCase()}${practiceId.slice(1)}Content`;
+    if (typeof this[method] === 'function') return this[method]();
+    console.error(`[BaseSolarRoom] Content method ${method} not found for ${practiceId}`);
+    return '<div class="solar-popup-section"><p>Practice content not available.</p></div>';
   },
 
-  /**
-   * Show practice popup
-   */
   showPracticePopup(practiceId) {
     try {
       const practice = this.practices[practiceId];
-      if (!practice) {
-        console.error(`Practice ${practiceId} not found`);
-        return;
-      }
+      if (!practice) { console.error(`Practice ${practiceId} not found`); return; }
 
       const popup = document.createElement('div');
       popup.id = 'practicePopup';
       popup.innerHTML = SolarUIManager.renderers.popup({
-        title: practice.title,
-        content: this.getPracticeContent(practiceId),
-        hasSaveButton: practice.hasSaveData,
-        saveAction: `window.currentSolarRoom.savePractice('${practiceId}')`
+        title:         practice.title,
+        content:       this.getPracticeContent(practiceId),
+        hasSaveButton: !!practice.hasSaveData,
       });
-      
-      const _popupTarget = document.getElementById('communityHubFullscreenContainer') || document.body;
-      _popupTarget.appendChild(popup);
-      
-      // ✅ ADDED: Attach event listeners for affirmation buttons
+
+      (document.getElementById('communityHubFullscreenContainer') || document.body).appendChild(popup);
       this._attachPopupListeners(popup, practiceId);
-      
-    } catch (error) {
-      console.error('Error showing practice popup:', error);
+    } catch (err) {
+      console.error('Error showing practice popup:', err);
     }
   },
 
-  /**
-   * Attach event listeners to popup (Lunar-style)
-   * @param {HTMLElement} popup - Popup element
-   * @param {string} practiceId - Practice ID
-   */
   _attachPopupListeners(popup, practiceId) {
     try {
-      // Affirmation button clicks
-      const affirmationButtons = popup.querySelectorAll('.solar-affirmation-btn');
-      if (affirmationButtons.length > 0) {
-        affirmationButtons.forEach(btn => {
-          btn.addEventListener('click', () => {
-            const affirmationText = btn.dataset.affirmation;
-            const textarea = document.getElementById('affirmationText');
-            if (textarea) {
-              textarea.value = affirmationText;
-            }
-          });
+      // Affirmation quick-fill
+      popup.querySelectorAll('.solar-affirmation-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const el = document.getElementById('affirmationText');
+          if (el) el.value = btn.dataset.affirmation;
         });
-      }
-
-      // Save button (if has save data)
-      const saveBtn = popup.querySelector('[data-action="save-practice"]');
-      if (saveBtn) {
-        saveBtn.addEventListener('click', () => this.savePractice(practiceId));
-      }
-
-      // Close buttons (both X and footer button)
-      const closeButtons = popup.querySelectorAll('[data-action="close-popup"]');
-      closeButtons.forEach(btn => {
-        btn.addEventListener('click', () => SolarUIManager.closePracticePopup());
       });
-      
-    } catch (error) {
-      console.error('Error attaching popup listeners:', error);
+
+      // Save / close
+      popup.querySelector('[data-action="save-practice"]')?.addEventListener('click', () => this.savePractice(practiceId));
+      popup.querySelectorAll('[data-action="close-popup"]').forEach(btn =>
+        btn.addEventListener('click', () => SolarUIManager.closePracticePopup())
+      );
+    } catch (err) {
+      console.error('Error attaching popup listeners:', err);
     }
   },
 
-  /**
-   * Save practice data with sanitization (Lunar-style)
-   * Override this method in specific rooms for custom save logic
-   */
   savePractice(practiceId) {
     try {
       const practice = this.practices[practiceId];
-      if (!practice || !practice.hasSaveData) return;
-      
-      // Get form elements
-      const intentionEl = document.getElementById('intentionText');
-      const affirmationEl = document.getElementById('affirmationText');
-      const releaseListEl = document.getElementById('releaseListText');
-      
-      if (!intentionEl && !affirmationEl && !releaseListEl) {
-        SolarUIManager.showToast('⚠️ Form elements not found');
-        return;
-      }
-      
-      // ✅ ADDED: Sanitize all inputs (Lunar-style security)
-      if (intentionEl) {
-        this.userData.intention = this._sanitizeInput(intentionEl.value);
-      }
-      if (affirmationEl) {
-        this.userData.affirmation = this._sanitizeInput(affirmationEl.value);
-      }
-      if (releaseListEl) {
-        this.userData.releaseList = this._sanitizeInput(releaseListEl.value);
-      }
-      
+      if (!practice?.hasSaveData) return;
+
+      const get = id => {
+        const el = document.getElementById(id);
+        return el ? this._sanitizeInput(el.value) : null;
+      };
+
+      const intention   = get('intentionText');
+      const affirmation = get('affirmationText');
+      const releaseList = get('releaseListText');
+
+      if (intention   !== null) this.userData.intention   = intention;
+      if (affirmation !== null) this.userData.affirmation = affirmation;
+      if (releaseList !== null) this.userData.releaseList = releaseList;
+
       this.userData.practiceCount++;
       this.saveData();
-      
+
       SolarUIManager.showToast('✅ Practice saved');
       SolarUIManager.closePracticePopup();
       this.renderDashboard();
-      
-    } catch (error) {
-      console.error('Error saving practice:', error);
+    } catch (err) {
+      console.error('Error saving practice:', err);
       SolarUIManager.showToast('⚠️ Failed to save practice');
     }
   },
 
-  /**
-   * Submit season closure reflection
-   */
   submitClosure() {
-    const reflectionEl = document.getElementById('closureReflection');
-    if (!reflectionEl) {
-      SolarUIManager.showToast('⚠️ Reflection field not found');
-      return;
-    }
-    
-    const reflection = reflectionEl.value.trim();
-    
-    if (!reflection) {
-      SolarUIManager.showToast('Please write your closing reflection');
-      return;
-    }
-    
+    const el = document.getElementById('closureReflection');
+    if (!el) { SolarUIManager.showToast('⚠️ Reflection field not found'); return; }
+
+    const reflection = el.value.trim();
+    if (!reflection) { SolarUIManager.showToast('Please write your closing reflection'); return; }
     if (reflection.length < SOLAR_CONSTANTS.MIN_REFLECTION_LENGTH) {
       SolarUIManager.showToast(`Please write at least ${SOLAR_CONSTANTS.MIN_REFLECTION_LENGTH} characters`);
       return;
     }
 
     this.userData.closureReflection = reflection;
-    this.userData.completedDate = new Date().toISOString();
+    this.userData.completedDate     = new Date().toISOString();
     this.saveData();
 
     SolarUIManager.showToast(`${this.config.emoji} ${this.config.displayName} season complete. Rest well until the next cycle.`);
-    
-    // Reinitialize to reset for next cycle
     setTimeout(() => this.init(), 1000);
   },
 
   // ============================================================================
-  // GROUP CIRCLE / COLLECTIVE PRACTICE METHODS
+  // GROUP CIRCLE / COLLECTIVE PRACTICE
   // ============================================================================
 
-  /**
-   * Show collective practice popup (Group Circle entry point)
-   */
   showCollectiveIntentionPopup() {
     try {
       const popup = document.createElement('div');
       popup.id = 'collectivePopup';
       popup.className = 'solar-practice-popup';
-      
       popup.innerHTML = `
         <div class="solar-popup-overlay" onclick="event.target.closest('#collectivePopup').remove()">
           <div class="solar-popup-content" onclick="event.stopPropagation()">
@@ -647,420 +485,203 @@ const BaseSolarRoom = {
               ${this._renderCollectiveStep1()}
             </div>
           </div>
-        </div>
-      `;
-      
-      const _popupTarget = document.getElementById('communityHubFullscreenContainer') || document.body;
-      _popupTarget.appendChild(popup);
-      
-    } catch (error) {
-      console.error('Error showing collective popup:', error);
+        </div>`;
+      (document.getElementById('communityHubFullscreenContainer') || document.body).appendChild(popup);
+    } catch (err) {
+      console.error('Error showing collective popup:', err);
     }
   },
 
-  /**
-   * Render Step 1: Welcome (uses live presence data)
-   */
   _renderCollectiveStep1() {
-    const count     = this.getLivingPresenceCount();
-    const avatarHTML = this._cachedParticipants
-      ? this._buildRealAvatars(this._cachedParticipants)
-      : '';
-
+    const count      = this.getLivingPresenceCount();
+    const avatarHTML = this._cachedParticipants ? this._buildRealAvatars(this._cachedParticipants) : '';
     return `
-      <div class="solar-popup-section" style="text-align: center;">
-        <div class="solar-live-badge" style="margin-bottom: 1rem;">
+      <div class="solar-popup-section" style="text-align:center;">
+        <div class="solar-live-badge" style="margin-bottom:1rem;">
           <div class="solar-pulse-dot"></div>
           <span id="solarCollectivePresenceBadge">${count} practitioners in circle now</span>
         </div>
-
         ${avatarHTML ? `<div id="solarCollectiveAvatars" style="display:flex;gap:6px;justify-content:center;margin-bottom:2rem;">${avatarHTML}</div>` : ''}
-        
         <h3>Welcome to the ${this.config.displayName} Circle</h3>
-        <p style="margin: 1.5rem 0;">
-          This is a shared practice for ${this.config.collectiveFocus || 'seasonal alignment'}.
-        </p>
-        
+        <p style="margin:1.5rem 0;">This is a shared practice for ${this.config.collectiveFocus || 'seasonal alignment'}.</p>
         <p>You will be guided through 5 steps:</p>
-        <ol style="text-align: left; max-width: 500px; margin: 2rem auto; line-height: 1.8;">
+        <ol style="text-align:left;max-width:500px;margin:2rem auto;line-height:1.8;">
           <li>Silent meditation (3 minutes)</li>
           <li>Write your private seasonal intention</li>
           <li>Choose one word for the collective field</li>
           <li>Witness the collective ${this.config.collectiveNoun || 'energy'}</li>
           <li>Silent witnessing (2 minutes)</li>
         </ol>
-        
-        <button class="solar-popup-btn" onclick="window.currentSolarRoom.startCollectiveStep2()">
-          Begin Practice
-        </button>
-      </div>
-    `;
+        <button class="solar-popup-btn" onclick="window.currentSolarRoom.startCollectiveStep2()">Begin Practice</button>
+      </div>`;
   },
 
-  /**
-   * Step 2: Meditation
-   */
   startCollectiveStep2() {
     try {
       const content = document.getElementById('collectiveIntentionContent');
       if (!content) return;
-      
       content.innerHTML = `
-        <div class="solar-popup-section" style="text-align: center;">
+        <div class="solar-popup-section" style="text-align:center;">
           <h3>Step 1: Silent Meditation</h3>
           <p>Take 3 minutes to center yourself in the ${this.config.displayName} energy.</p>
-          <div id="meditationTimer" class="solar-timer-display">
-            3:00
-          </div>
-          <button id="startMeditationBtn" class="solar-popup-btn" 
-                  onclick="window.currentSolarRoom.startMeditationTimer()">
-            Begin Meditation
-          </button>
-          <button id="skipToIntentionBtn" class="solar-popup-btn solar-btn-secondary" 
-                  onclick="window.currentSolarRoom.startCollectiveStep3()" 
-                  style="display: none; margin-top: 1rem;">
-            Continue to Intention
-          </button>
-        </div>
-      `;
-      
-    } catch (error) {
-      console.error('Error starting step 2:', error);
-    }
+          <div id="meditationTimer" class="solar-timer-display">3:00</div>
+          <button id="startMeditationBtn" class="solar-popup-btn"
+                  onclick="window.currentSolarRoom.startMeditationTimer()">Begin Meditation</button>
+          <button id="skipToIntentionBtn" class="solar-popup-btn solar-btn-secondary"
+                  onclick="window.currentSolarRoom.startCollectiveStep3()"
+                  style="display:none;margin-top:1rem;">Continue to Intention</button>
+        </div>`;
+    } catch (err) { console.error('Error starting step 2:', err); }
   },
 
-  /**
-   * Start meditation timer
-   */
   startMeditationTimer() {
-    try {
-      const startBtn = document.getElementById('startMeditationBtn');
-      if (startBtn) startBtn.style.display = 'none';
-      
-      let timeLeft = 180; // 3 minutes
-      const timerDisplay = document.getElementById('meditationTimer');
-      const skipBtn = document.getElementById('skipToIntentionBtn');
-      
-      if (!timerDisplay) return;
-      
-      this.collectiveTimer = setInterval(() => {
-        timeLeft--;
-        
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        
-        if (timeLeft <= 0) {
-          clearInterval(this.collectiveTimer);
-          this.collectiveTimer = null;
-          timerDisplay.textContent = 'Complete';
-          if (skipBtn) {
-            skipBtn.textContent = 'Continue to Intention';
-            skipBtn.style.display = 'block';
-          }
-        }
-      }, 1000);
-      
-      // Show skip button after 10 seconds
-      setTimeout(() => {
-        if (skipBtn) skipBtn.style.display = 'block';
-      }, 10000);
-      
-    } catch (error) {
-      console.error('Error starting meditation timer:', error);
-      if (this.collectiveTimer) {
-        clearInterval(this.collectiveTimer);
-        this.collectiveTimer = null;
-      }
-    }
+    this._startCountdownTimer('meditationTimer', 'startMeditationBtn', 180, () => {
+      const skip = document.getElementById('skipToIntentionBtn');
+      if (skip) { skip.textContent = 'Continue to Intention'; skip.style.display = 'block'; }
+    });
+    // Show skip after 10 s regardless
+    setTimeout(() => {
+      const skip = document.getElementById('skipToIntentionBtn');
+      if (skip) skip.style.display = 'block';
+    }, 10_000);
   },
 
-  /**
-   * Step 3: Private Intention
-   */
   startCollectiveStep3() {
     try {
-      if (this.collectiveTimer) {
-        clearInterval(this.collectiveTimer);
-        this.collectiveTimer = null;
-      }
-      
+      this._clearTimer();
       const content = document.getElementById('collectiveIntentionContent');
       if (!content) return;
-      
       content.innerHTML = `
         <div class="solar-popup-section">
           <h3>Step 2: Your Private Intention</h3>
           <p>Set a personal intention for this ${this.config.displayName} season. This remains private.</p>
-          <textarea id="privateIntentionText" 
-                    class="solar-textarea" 
-                    placeholder="This ${this.config.displayName}, I intend to..."
-                    maxlength="500"
-                    style="min-height: 120px; margin: 1.5rem 0;"></textarea>
-          <p style="font-size: 0.9rem; color: rgba(224, 224, 255, 0.7);">
-            This intention is for you alone. It will not be shared.
-          </p>
+          <textarea id="privateIntentionText" class="solar-textarea"
+            placeholder="This ${this.config.displayName}, I intend to..." maxlength="500"
+            style="min-height:120px;margin:1.5rem 0;"></textarea>
+          <p style="font-size:0.9rem;color:rgba(224,224,255,0.7);">This intention is for you alone. It will not be shared.</p>
         </div>
-        
         <div class="solar-popup-footer">
-          <button class="solar-popup-btn" onclick="window.currentSolarRoom.startCollectiveStep4()">
-            Continue
-          </button>
-        </div>
-      `;
-      
-    } catch (error) {
-      console.error('Error starting step 3:', error);
-    }
+          <button class="solar-popup-btn" onclick="window.currentSolarRoom.startCollectiveStep4()">Continue</button>
+        </div>`;
+    } catch (err) { console.error('Error starting step 3:', err); }
   },
 
-  /**
-   * Step 4: Collective Word
-   */
   startCollectiveStep4() {
     try {
       const intentionEl = document.getElementById('privateIntentionText');
-      if (intentionEl) {
-        this.userData.privateIntention = intentionEl.value.trim();
-      }
-      
+      if (intentionEl) this.userData.privateIntention = intentionEl.value.trim();
+
       const content = document.getElementById('collectiveIntentionContent');
       if (!content) return;
-      
       content.innerHTML = `
         <div class="solar-popup-section">
           <h3>Step 3: Share One Word</h3>
           <p>Choose a single word that captures your ${this.config.displayName} energy or intention.</p>
-          <p style="font-size: 0.9rem; color: rgba(224, 224, 255, 0.7); margin-bottom: 1.5rem;">
-            This word will be shared with the collective field.
-          </p>
-          
-          <input type="text" 
-                 id="collectiveWordInput" 
-                 class="solar-input"
-                 placeholder="Your word..."
-                 maxlength="50"
-                 style="font-size: 1.2rem; padding: 1rem; text-align: center; margin: 1rem 0; width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text);">
-          
-          <p style="font-size: 0.85rem; color: rgba(224, 224, 255, 0.6); margin-top: 0.5rem;">
-            Examples: Growth, Rest, Joy, Clarity, Strength, Peace
-          </p>
+          <p style="font-size:0.9rem;color:rgba(224,224,255,0.7);margin-bottom:1.5rem;">This word will be shared with the collective field.</p>
+          <input type="text" id="collectiveWordInput" class="solar-input"
+                 placeholder="Your word..." maxlength="50"
+                 style="font-size:1.2rem;padding:1rem;text-align:center;margin:1rem 0;width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--text);">
+          <p style="font-size:0.85rem;color:rgba(224,224,255,0.6);margin-top:0.5rem;">Examples: Growth, Rest, Joy, Clarity, Strength, Peace</p>
         </div>
-        
         <div class="solar-popup-footer">
-          <button class="solar-popup-btn" onclick="window.currentSolarRoom.submitWordToCollective()">
-            Add to Circle
-          </button>
-        </div>
-      `;
-      
-    } catch (error) {
-      console.error('Error starting step 4:', error);
-    }
+          <button class="solar-popup-btn" onclick="window.currentSolarRoom.submitWordToCollective()">Add to Circle</button>
+        </div>`;
+    } catch (err) { console.error('Error starting step 4:', err); }
   },
 
-  /**
-   * Submit word and show collective field
-   */
   submitWordToCollective() {
     try {
-      const wordInput = document.getElementById('collectiveWordInput');
-      const word = wordInput ? wordInput.value.trim() : '';
-      
-      if (!word) {
-        SolarUIManager.showToast('Please enter a word');
-        return;
-      }
-      
-      if (word.length > 50) {
-        SolarUIManager.showToast('Word is too long');
-        return;
-      }
-      
-      this.userData.collectiveWord = word;
-      this.userData.intentionShared = true;
+      const word = document.getElementById('collectiveWordInput')?.value.trim() || '';
+      if (!word)        { SolarUIManager.showToast('Please enter a word'); return; }
+      if (word.length > 50) { SolarUIManager.showToast('Word is too long'); return; }
 
-      // ── Persist to Supabase ────────────────────────────────────────────
-      if (window.CommunityDB && CommunityDB.ready) {
-        const collectiveRoomId = `${this._getSolarRoomId()}-collective`;
-        CommunityDB.sendRoomMessage(collectiveRoomId, word).catch(err => {
-          console.error('[BaseSolarRoom] submitWordToCollective DB error:', err);
-        });
+      this.userData.collectiveWord    = word;
+      this.userData.intentionShared   = true;
+
+      if (window.CommunityDB?.ready) {
+        CommunityDB.sendRoomMessage(`${this._getSolarRoomId()}-collective`, word)
+          .catch(err => console.error('[BaseSolarRoom] submitWordToCollective DB error:', err));
       }
-      
+
       this.startCollectiveStep5();
-      
-    } catch (error) {
-      console.error('Error submitting word:', error);
-    }
+    } catch (err) { console.error('Error submitting word:', err); }
   },
 
-  /**
-   * Step 5: Witness collective field
-   */
   startCollectiveStep5() {
     try {
       const content = document.getElementById('collectiveIntentionContent');
       if (!content) return;
-      
-      // PATCHED: prefer words loaded from DB, fall back to mock
-      const words = (this._dbCollectiveWords && this._dbCollectiveWords.length > 0)
-        ? this._dbCollectiveWords
-        : this._getMockCollectiveWords();
+
+      const words         = this._dbCollectiveWords?.length ? this._dbCollectiveWords : this._getMockCollectiveWords();
       const wordCloudHTML = this._renderWordCloud(words);
-      const totalWords = words.length;
-      
+
       content.innerHTML = `
-        <div class="solar-popup-section" style="text-align: center;">
+        <div class="solar-popup-section" style="text-align:center;">
           <h3>Step 4: The Collective ${this.config.displayName} Field</h3>
           <p>These are the ${this.config.collectiveNoun || 'intentions'} planted by practitioners in this circle.</p>
         </div>
-        
-        <div id="wordCloud" style="padding: 2rem; margin: 2rem 0; background: rgba(255,255,255,0.03); border-radius: 12px; min-height: 200px; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: center;">
+        <div id="wordCloud" style="padding:2rem;margin:2rem 0;background:rgba(255,255,255,0.03);border-radius:12px;min-height:200px;display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:center;">
           ${wordCloudHTML}
         </div>
-        
-        <p style="text-align: center; font-size: 0.9rem; color: rgba(224, 224, 255, 0.7); margin-bottom: 2rem;">
-          <strong>${totalWords}</strong> ${this.config.collectiveNoun || 'intentions'} in this ${this.config.displayName} cycle
+        <p style="text-align:center;font-size:0.9rem;color:rgba(224,224,255,0.7);margin-bottom:2rem;">
+          <span class="solar-word-count"><strong>${words.length}</strong></span> ${this.config.collectiveNoun || 'intentions'} in this ${this.config.displayName} cycle
         </p>
-        
-        <div style="margin: 2rem 0;">
-          <h4 style="text-align: center; margin-bottom: 1rem;">Step 5: Silent Witnessing (2 min)</h4>
-          <div id="witnessingTimer" class="solar-timer-display">
-            2:00
-          </div>
-          <button id="startWitnessingBtn" class="solar-popup-btn" 
-                  onclick="window.currentSolarRoom.startWitnessingTimer()">
-            Begin Silent Witnessing
-          </button>
-          <button id="completeBtn" class="solar-popup-btn" 
-                  onclick="window.currentSolarRoom.completeCollectivePractice()" 
-                  style="display: none; margin-top: 1rem; background: var(--season-accent); color: white;">
-            Complete Practice
-          </button>
-        </div>
-      `;
-      
-    } catch (error) {
-      console.error('Error starting step 5:', error);
-    }
+        <div style="margin:2rem 0;">
+          <h4 style="text-align:center;margin-bottom:1rem;">Step 5: Silent Witnessing (2 min)</h4>
+          <div id="witnessingTimer" class="solar-timer-display">2:00</div>
+          <button id="startWitnessingBtn" class="solar-popup-btn"
+                  onclick="window.currentSolarRoom.startWitnessingTimer()">Begin Silent Witnessing</button>
+          <button id="completeBtn" class="solar-popup-btn"
+                  onclick="window.currentSolarRoom.completeCollectivePractice()"
+                  style="display:none;margin-top:1rem;background:var(--season-accent);color:white;">Complete Practice</button>
+        </div>`;
+    } catch (err) { console.error('Error starting step 5:', err); }
   },
 
-  /**
-   * Start witnessing timer
-   */
   startWitnessingTimer() {
-    try {
-      const startBtn = document.getElementById('startWitnessingBtn');
-      if (startBtn) startBtn.style.display = 'none';
-      
-      let timeLeft = 120; // 2 minutes
-      const timerDisplay = document.getElementById('witnessingTimer');
-      
-      if (!timerDisplay) return;
-      
-      this.collectiveTimer = setInterval(() => {
-        timeLeft--;
-        
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        
-        if (timeLeft <= 0) {
-          clearInterval(this.collectiveTimer);
-          this.collectiveTimer = null;
-          timerDisplay.textContent = 'Complete';
-          const completeBtn = document.getElementById('completeBtn');
-          if (completeBtn) {
-            completeBtn.style.display = 'block';
-          }
-        }
-      }, 1000);
-      
-    } catch (error) {
-      console.error('Error starting witnessing timer:', error);
-      if (this.collectiveTimer) {
-        clearInterval(this.collectiveTimer);
-        this.collectiveTimer = null;
-      }
-    }
+    this._startCountdownTimer('witnessingTimer', 'startWitnessingBtn', 120, () => {
+      const btn = document.getElementById('completeBtn');
+      if (btn) btn.style.display = 'block';
+    });
   },
 
-  /**
-   * Complete collective practice
-   */
   completeCollectivePractice() {
     try {
       this.userData.practiceCount++;
       this.saveData();
-      
       SolarUIManager.showToast(`${this.config.seasonEmoji} ${this.config.collectiveNoun || 'Intention'} planted with the collective`);
-      
-      const popup = document.getElementById('collectivePopup');
-      if (popup) popup.remove();
-      
+      document.getElementById('collectivePopup')?.remove();
       this.renderDashboard();
-      
-    } catch (error) {
-      console.error('Error completing collective practice:', error);
-    }
+    } catch (err) { console.error('Error completing collective practice:', err); }
   },
 
-  /**
-   * Get mock collective words (replace with API call in production)
-   */
   _getMockCollectiveWords() {
-    // Season-specific word sets
-    const seasonWords = {
-      spring: ['Growth', 'Renewal', 'Hope', 'Bloom', 'Energy', 'Fresh', 'Vitality', 'Emerge', 'Awaken', 'Begin'],
-      summer: ['Radiance', 'Joy', 'Abundance', 'Vibrant', 'Expansion', 'Bright', 'Celebrate', 'Fullness', 'Alive', 'Shine'],
-      autumn: ['Harvest', 'Gratitude', 'Release', 'Balance', 'Gather', 'Wisdom', 'Reflection', 'Abundance', 'Thanks', 'Ripen'],
-      winter: ['Rest', 'Stillness', 'Peace', 'Wisdom', 'Quiet', 'Restore', 'Deep', 'Calm', 'Reflection', 'Inner']
+    const words = {
+      spring: ['Growth','Renewal','Hope','Bloom','Energy','Fresh','Vitality','Emerge','Awaken','Begin'],
+      summer: ['Radiance','Joy','Abundance','Vibrant','Expansion','Bright','Celebrate','Fullness','Alive','Shine'],
+      autumn: ['Harvest','Gratitude','Release','Balance','Gather','Wisdom','Reflection','Abundance','Thanks','Ripen'],
+      winter: ['Rest','Stillness','Peace','Wisdom','Quiet','Restore','Deep','Calm','Reflection','Inner'],
     };
-    
-    const words = seasonWords[this.config.name] || seasonWords.spring;
-    const now = Date.now();
-    
-    return words.map((word, i) => ({
-      word,
-      timestamp: now - (i * 3600000) // 1 hour apart
-    }));
+    const list = words[this.config.name] || words.spring;
+    const now  = Date.now();
+    return list.map((word, i) => ({ word, timestamp: now - i * 3_600_000 }));
   },
 
   // ============================================================================
-  // SUPABASE INTEGRATION HELPERS (PRIVATE)
+  // SUPABASE / PRESENCE
   // ============================================================================
 
-  /**
-   * Derive the Supabase/DB room_id for this solar season.
-   * @private
-   * @returns {string} e.g. 'spring-solar'
-   */
-  _getSolarRoomId() {
-    return `${this.config.name}-solar`;
-  },
+  _getSolarRoomId: function() { return `${this.config.name}-solar`; },
 
-  /**
-   * Get cached presence count synchronously (returns 0 on first call).
-   * Actual count arrives via _refreshLivePresence().
-   * @returns {number}
-   */
   getLivingPresenceCount() {
     return typeof this._cachedPresenceCount === 'number' ? this._cachedPresenceCount : 0;
   },
 
-  /**
-   * Fetch live participant count + real avatars from Supabase,
-   * update DOM, and subscribe to realtime presence changes.
-   * Called by renderDashboard() (via setTimeout) and on re-entry.
-   * @private
-   */
   async _refreshLivePresence() {
-    if (!window.CommunityDB || !CommunityDB.ready) return;
-
+    if (!window.CommunityDB?.ready) return;
     const roomId = this._getSolarRoomId();
 
-    const _doRefresh = async () => {
+    const refresh = async () => {
       try {
         const participants = await CommunityDB.getRoomParticipants(roomId);
         const blocked      = await CommunityDB.getBlockedUsers();
@@ -1070,58 +691,36 @@ const BaseSolarRoom = {
         this._cachedPresenceCount = count;
         this._cachedParticipants  = visible;
 
-        // ── Inner top bar ──────────────────────────────────────────────
-        const topEl = document.getElementById('solarLiveCountTop');
-        if (topEl) topEl.textContent = `${count} members practicing with you now`;
+        const setText = (id, t) => { const el = document.getElementById(id); if (el) el.textContent = t; };
+        setText('solarLiveCountTop',          `${count} members practicing with you now`);
+        setText('solarGroupPresenceBadge',     `${count} gathering now`);
+        setText('solarGroupJoinCount',         count);
+        setText('solarCollectivePresenceBadge',`${count} practitioners in circle now`);
 
-        // ── Group circle badge ─────────────────────────────────────────
-        const badgeEl = document.getElementById('solarGroupPresenceBadge');
-        if (badgeEl) badgeEl.textContent = `${count} gathering now`;
-
-        // ── Group circle join-count in the list ───────────────────────
-        const joinCountEl = document.getElementById('solarGroupJoinCount');
-        if (joinCountEl) joinCountEl.textContent = count;
-
-        // ── Group circle avatars ───────────────────────────────────────
         const avatarEl = document.getElementById('solarGroupAvatars');
         if (avatarEl) avatarEl.innerHTML = this._buildRealAvatars(visible);
-
-        // ── Collective step 1 badge (if popup is open) ────────────────
-        const step1BadgeEl = document.getElementById('solarCollectivePresenceBadge');
-        if (step1BadgeEl) step1BadgeEl.textContent = `${count} practitioners in circle now`;
-
       } catch (err) {
         console.warn('[BaseSolarRoom] _refreshLivePresence error:', err);
       }
     };
 
-    await _doRefresh();
-
-    // Realtime — unsubscribe any previous sub first
-    if (this._presenceSub) {
-      try { this._presenceSub.unsubscribe(); } catch(e) {}
-    }
-    this._presenceSub = CommunityDB.subscribeToPresence(_doRefresh);
+    await refresh();
+    this._unsubPresence();
+    this._presenceSub = CommunityDB.subscribeToPresence(refresh);
   },
 
-  /**
-   * Build real user avatars from participant data (photo > emoji > initial).
-   * @param {Array} participants
-   * @returns {string} HTML string
-   * @private
-   */
   _buildRealAvatars(participants) {
-    const MAX = 5;
+    const MAX      = 5;
     const shown    = participants.slice(0, MAX);
     const overflow = participants.length - MAX;
 
-    const avatarHTML = shown.map(p => {
-      const profile = p.profiles || {};
-      const name    = profile.name || profile.display_name || '?';
-      const initial = name.charAt(0).toUpperCase();
-      const gradient = window.Core?.getAvatarGradient
-        ? Core.getAvatarGradient(p.user_id)
-        : 'background: var(--season-accent, #f59e0b)';
+    const avatarStyle = 'width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,0.2);';
+
+    const html = shown.map(p => {
+      const profile  = p.profiles || {};
+      const name     = profile.name || profile.display_name || '?';
+      const initial  = name.charAt(0).toUpperCase();
+      const gradient = window.Core?.getAvatarGradient?.(p.user_id) ?? 'background:var(--season-accent,#f59e0b)';
 
       let inner;
       if (profile.avatar_url) {
@@ -1131,122 +730,75 @@ const BaseSolarRoom = {
       } else {
         inner = `<span style="font-size:13px;font-weight:600;">${initial}</span>`;
       }
-
-      return `<div class="solar-avatar" style="${gradient};width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,0.2);" aria-label="${name}">${inner}</div>`;
+      return `<div class="solar-avatar" style="${gradient};${avatarStyle}" aria-label="${name}">${inner}</div>`;
     }).join('');
 
     const overflowHTML = overflow > 0
-      ? `<div class="solar-avatar" style="background:rgba(255,255,255,0.1);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid rgba(255,255,255,0.2);">+${overflow}</div>`
+      ? `<div class="solar-avatar" style="background:rgba(255,255,255,0.1);${avatarStyle}font-size:12px;">+${overflow}</div>`
       : '';
 
-    return avatarHTML + overflowHTML;
+    return html + overflowHTML;
   },
 
-  /**
-   * Update Supabase presence to show user is in this solar room.
-   * @private
-   */
   _setPresence() {
-    if (!window.CommunityDB || !CommunityDB.ready) return;
+    if (!window.CommunityDB?.ready) return;
     try {
       const roomId   = this._getSolarRoomId();
       const activity = `${this.config.emoji} ${this.config.displayName}`;
       CommunityDB.setPresence('online', activity, roomId);
-
       if (window.Core?.state) {
         Core.state.currentRoom = roomId;
         if (Core.state.currentUser) Core.state.currentUser.activity = activity;
       }
-    } catch (err) {
-      console.error('[BaseSolarRoom] _setPresence error:', err);
-    }
+    } catch (err) { console.error('[BaseSolarRoom] _setPresence error:', err); }
   },
 
-  /**
-   * Reset Supabase presence back to "available at hub".
-   * @private
-   */
   _clearPresence() {
-    if (!window.CommunityDB || !CommunityDB.ready) return;
+    if (!window.CommunityDB?.ready) return;
     try {
       CommunityDB.setPresence('online', '✨ Available', null);
-
       if (window.Core?.state) {
         Core.state.currentRoom = null;
         if (Core.state.currentUser) Core.state.currentUser.activity = '✨ Available';
       }
-    } catch (err) {
-      console.error('[BaseSolarRoom] _clearPresence error:', err);
-    }
+    } catch (err) { console.error('[BaseSolarRoom] _clearPresence error:', err); }
   },
 
-  /**
-   * Load collective words from Supabase for this season.
-   * Subscribes to realtime so new words from other users appear live.
-   * @private
-   */
   async _loadCollectiveWords() {
-    if (!window.CommunityDB || !CommunityDB.ready) return;
+    if (!window.CommunityDB?.ready) return;
     try {
-      const collectiveRoomId = `${this._getSolarRoomId()}-collective`;
-
-      const _doLoad = async () => {
-        const rows = await CommunityDB.getRoomMessages(collectiveRoomId, 100);
-        if (rows && rows.length > 0) {
-          this._dbCollectiveWords = rows.map(row => ({
-            word:      row.message,
-            timestamp: new Date(row.created_at).getTime()
-          }));
-
-          // Update word cloud if collective step 5 is open
-          const cloudEl = document.getElementById('wordCloud');
-          if (cloudEl) {
-            cloudEl.innerHTML = this._renderWordCloud(this._dbCollectiveWords);
-          }
-          const countEl = document.querySelector('.solar-word-count strong');
-          if (countEl) countEl.textContent = this._dbCollectiveWords.length;
-        }
+      const roomId = `${this._getSolarRoomId()}-collective`;
+      const load   = async () => {
+        const rows = await CommunityDB.getRoomMessages(roomId, 100);
+        if (!rows?.length) return;
+        this._dbCollectiveWords = rows.map(r => ({
+          word:      r.message,
+          timestamp: new Date(r.created_at).getTime(),
+        }));
+        const cloudEl = document.getElementById('wordCloud');
+        if (cloudEl) cloudEl.innerHTML = this._renderWordCloud(this._dbCollectiveWords);
+        const countEl = document.querySelector('.solar-word-count strong');
+        if (countEl) countEl.textContent = this._dbCollectiveWords.length;
       };
 
-      await _doLoad();
-
-      // Realtime — new words from other users appear instantly
-      if (this._collectiveWordsSub) {
-        try { this._collectiveWordsSub.unsubscribe(); } catch(e) {}
-      }
-      this._collectiveWordsSub = CommunityDB.subscribeToRoomChat(collectiveRoomId, async () => {
-        await _doLoad();
-      });
-
+      await load();
+      this._unsubCollectiveWords();
+      this._collectiveWordsSub = CommunityDB.subscribeToRoomChat(roomId, load);
     } catch (err) {
       console.warn('[BaseSolarRoom] _loadCollectiveWords error:', err);
     }
   },
 
   _renderWordCloud(words) {
-    if (!words || words.length === 0) {
-      return '<p style="color: rgba(224,224,255,0.5);">No words yet. Be the first to share.</p>';
-    }
-    
-    return words.map(item => {
-      const size = 1 + Math.random() * 1.5; // Random size between 1 and 2.5rem
-      const opacity = 0.6 + Math.random() * 0.4; // Random opacity 0.6-1.0
-      
-      return `
-        <span style="font-size: ${size}rem; 
-                     opacity: ${opacity}; 
-                     color: var(--season-accent, #e0e0ff); 
-                     font-weight: 600; 
-                     display: inline-block; 
-                     margin: 0.5rem; 
-                     transition: all 0.3s;"
-              onmouseover="this.style.transform='scale(1.2)'; this.style.opacity='1';"
-              onmouseout="this.style.transform='scale(1)'; this.style.opacity='${opacity}';">
-          ${item.word}
-        </span>
-      `;
+    if (!words?.length) return '<p style="color:rgba(224,224,255,0.5);">No words yet. Be the first to share.</p>';
+    return words.map(({ word }) => {
+      const size    = (1 + Math.random() * 1.5).toFixed(2);
+      const opacity = (0.6 + Math.random() * 0.4).toFixed(2);
+      return `<span style="font-size:${size}rem;opacity:${opacity};color:var(--season-accent,#e0e0ff);font-weight:600;display:inline-block;margin:0.5rem;transition:all 0.3s;"
+                    onmouseover="this.style.transform='scale(1.2)';this.style.opacity='1';"
+                    onmouseout="this.style.transform='scale(1)';this.style.opacity='${opacity}';">${word}</span>`;
     }).join('');
-  }
+  },
 };
 
 window.BaseSolarRoom = BaseSolarRoom;
