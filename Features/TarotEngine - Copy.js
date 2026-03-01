@@ -463,67 +463,6 @@ class TarotEngine {
   /**
    * Render the tarot interface
    */
-  buildTarotCTA() {
-    return `
-      <div class="card" style="margin-bottom: 2rem; width: 100%; box-sizing: border-box;">
-        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
-          <span style="font-size: 1.6rem;">🔮</span>
-          <h3 style="margin: 0; font-size: 1.15rem; color: var(--neuro-text); font-weight: 700;">
-            Learn & Practice Tarot with the Community
-          </h3>
-        </div>
-        <p style="margin: 0 0 1.5rem; font-size: 0.92rem; color: var(--neuro-text-light); line-height: 1.6;">
-          Explore the cards together. Join live readings, share interpretations,
-          and deepen your intuition in a space of collective wisdom.
-        </p>
-        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-          <button
-            type="button"
-            onclick="document.activeElement?.blur(); window.app.nav.switchTab('community-hub')"
-            style="
-              flex: 1 1 200px;
-              padding: 0.75rem 1rem;
-              border-radius: 999px;
-              border: none;
-              background: var(--neuro-bg);
-              color: var(--neuro-text);
-              font-size: 0.9rem;
-              font-weight: 600;
-              cursor: pointer;
-              box-shadow: 6px 6px 14px var(--neuro-shadow-dark), -6px -6px 14px var(--neuro-shadow-light);
-              transition: all 0.2s;
-            "
-            onmouseover="this.style.transform='translateY(-1px)'"
-            onmouseout="this.style.transform='translateY(0)'"
-          >
-            🏘️ Enter the Community Hub
-          </button>
-          <button
-            type="button"
-            onclick="document.activeElement?.blur(); window._pendingRoomOpen = 'tarot'; window.app.nav.switchTab('community-hub')"
-            style="
-              flex: 1 1 200px;
-              padding: 0.75rem 1rem;
-              border-radius: 999px;
-              border: none;
-              background: var(--neuro-bg);
-              color: var(--neuro-text);
-              font-size: 0.9rem;
-              font-weight: 600;
-              cursor: pointer;
-              box-shadow: 6px 6px 14px var(--neuro-shadow-dark), -6px -6px 14px var(--neuro-shadow-light);
-              transition: all 0.2s;
-            "
-            onmouseover="this.style.transform='translateY(-1px)'"
-            onmouseout="this.style.transform='translateY(0)'"
-          >
-            🔮 Enter the Tarot Room Directly
-          </button>
-        </div>
-      </div>
-    `;
-  }
-
   render() {
     // Clean up any previous event handlers
     if (this.cleanup) this.cleanup();
@@ -592,8 +531,6 @@ class TarotEngine {
                 </button>`;
             })()}
           </div>
-
-          ${this.buildTarotCTA()}
 
           <div class="card" style="padding: 2rem;">
             <div class="flex items-center justify-between" style="margin-bottom: 5rem;">
