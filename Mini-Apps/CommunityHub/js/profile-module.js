@@ -222,23 +222,47 @@ const ProfileModule = {
                             <div class="profile-name" id="profileName">Loading...</div>
                         </div>
 
-                        <!-- Role · Birthday · Country pill row -->
+                        <!-- Role · Birthday · Country meta row -->
                         <div id="profileMetaRow"
-                             style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-                                    margin:0.3rem 0 0.6rem;">
+                             style="display:inline-flex;align-items:center;gap:0;
+                                    margin:0.4rem 0 0.75rem;
+                                    background:var(--neuro-bg,#f0f0f3);
+                                    border-radius:99px;
+                                    box-shadow:3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.75);
+                                    overflow:hidden;max-width:100%;">
+
+                            <!-- Role -->
                             <div id="profileRoleBadge"
                                  style="display:flex;align-items:center;gap:5px;
-                                        font-size:0.78rem;font-weight:600;
+                                        font-size:0.76rem;font-weight:700;
                                         color:var(--primary,#667eea);
-                                        background:rgba(102,126,234,0.1);
-                                        border-radius:99px;padding:3px 10px;white-space:nowrap;">
+                                        padding:5px 12px;white-space:nowrap;">
                                 👤 Member
                             </div>
-                            <span class="profile-meta-sep" style="opacity:0.25;font-size:0.75rem;">|</span>
+
+                            <!-- Separator -->
+                            <span class="profile-meta-sep"
+                                  style="width:1px;height:16px;
+                                         background:rgba(0,0,0,0.1);
+                                         flex-shrink:0;"></span>
+
+                            <!-- Birthday -->
                             <span id="profileBirthdayDisplay"
-                                  style="font-size:0.78rem;color:var(--text-muted);"></span>
+                                  style="font-size:0.76rem;font-weight:600;
+                                         color:var(--text-muted);
+                                         padding:5px 12px;white-space:nowrap;"></span>
+
+                            <!-- Country separator (hidden if no country) -->
+                            <span id="profileCountrySep"
+                                  style="width:1px;height:16px;
+                                         background:rgba(0,0,0,0.1);
+                                         flex-shrink:0;display:none;"></span>
+
+                            <!-- Country -->
                             <span id="profileCountryDisplay"
-                                  style="font-size:0.78rem;color:var(--text-muted);"></span>
+                                  style="font-size:0.76rem;font-weight:600;
+                                         color:var(--text-muted);
+                                         padding:5px 12px;white-space:nowrap;"></span>
                         </div>
 
                         <div class="profile-inspiration">
@@ -619,7 +643,11 @@ const ProfileModule = {
             countryEl.textContent = country ? `${this._countryFlag(country)} ${country}` : '';
         }
 
-        // Hide the separator if both birthday and country are empty
+        // Show/hide country separator
+        const countrySep = document.getElementById('profileCountrySep');
+        if (countrySep) countrySep.style.display = country ? '' : 'none';
+
+        // Hide the main separator if both birthday and country are empty
         const sep = document.querySelector('#profileMetaRow .profile-meta-sep');
         if (sep) sep.style.display = (birthday || country) ? '' : 'none';
     },
