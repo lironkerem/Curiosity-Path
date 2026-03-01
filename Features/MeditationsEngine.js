@@ -210,7 +210,17 @@ class MeditationsEngine {
           Practice in real time with others. Choose silence, guided visualization, or active OSHO techniques —
           all in shared, live spaces.
         </p>
-        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <div class="meditation-cta-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+
+          <button
+            type="button"
+            onclick="document.activeElement?.blur(); window.app.nav.switchTab('community-hub')"
+            style="${btnStyle}"
+            onmouseover="this.style.transform='translateY(-1px)'"
+            onmouseout="this.style.transform='translateY(0)'"
+          >
+            🏘️ Enter the Community Hub
+          </button>
 
           <button
             type="button"
@@ -223,9 +233,15 @@ class MeditationsEngine {
           </button>
 
           ${guidedCountdown ? `
-          <button type="button" disabled style="${disabledStyle}" title="${guidedCountdown}">
-            🎧 Guided — ${guidedCountdown}
-          </button>
+          <div style="display:flex;flex-direction:column;gap:0.35rem;">
+            <button type="button" disabled style="${disabledStyle}">
+              🎧 Guided — ${guidedCountdown}
+            </button>
+            <button type="button" onclick="event.stopPropagation(); window.GuidedRoom?.showScheduleModal()"
+              style="background:none;border:none;padding:0;font-size:11px;color:var(--neuro-text-light);cursor:pointer;text-decoration:underline;text-align:center;">
+              📅 View Schedule
+            </button>
+          </div>
           ` : `
           <button
             type="button"
@@ -239,9 +255,15 @@ class MeditationsEngine {
           `}
 
           ${oshoCountdown ? `
-          <button type="button" disabled style="${disabledStyle}" title="${oshoCountdown}">
-            💃 OSHO Active — ${oshoCountdown}
-          </button>
+          <div style="display:flex;flex-direction:column;gap:0.35rem;">
+            <button type="button" disabled style="${disabledStyle}">
+              💃 OSHO Active — ${oshoCountdown}
+            </button>
+            <button type="button" onclick="event.stopPropagation(); window.OshoRoom?.showScheduleModal()"
+              style="background:none;border:none;padding:0;font-size:11px;color:var(--neuro-text-light);cursor:pointer;text-decoration:underline;text-align:center;">
+              📅 View Schedule
+            </button>
+          </div>
           ` : `
           <button
             type="button"
@@ -450,6 +472,9 @@ class MeditationsEngine {
   renderStyles() {
     return `
       <style>
+        @media (max-width: 600px) {
+          .meditation-cta-grid { grid-template-columns: 1fr !important; }
+        }
         /* Meditation Cards */
         .meditation-card {
           flex: 0 1 320px;
