@@ -168,7 +168,7 @@ const ProfileModule = {
             <div class="profile-container">
                 <div class="profile-content">
                     <div class="profile-avatar-section">
-                        <div class="profile-avatar-wrap">
+                        <div class="profile-avatar-wrap" style="position:relative;width:fit-content;">
                             <div class="profile-avatar" id="profileAvatar" aria-label="Profile avatar">
                                 <img id="profileAvatarImg"
                                      style="display:none;width:100%;height:100%;object-fit:cover;border-radius:inherit;"
@@ -176,7 +176,18 @@ const ProfileModule = {
                                 <span id="profileAvatarFallback">?</span>
                             </div>
                             <div class="profile-status-ring" id="statusRing" aria-hidden="true"></div>
-                            <button class="edit-avatar" onclick="ProfileModule.editProfile()" aria-label="Edit profile">📷</button>
+                            <button class="edit-avatar"
+                                    onclick="ProfileModule.editProfile()"
+                                    aria-label="Edit profile"
+                                    style="position:absolute;bottom:2px;right:2px;
+                                           width:26px;height:26px;border-radius:50%;border:none;
+                                           background:var(--neuro-bg,#f0f0f3);
+                                           box-shadow:2px 2px 6px rgba(0,0,0,0.15),-1px -1px 4px rgba(255,255,255,0.7);
+                                           cursor:pointer;font-size:13px;
+                                           display:flex;align-items:center;justify-content:center;
+                                           transition:transform 0.15s;z-index:2;"
+                                    onmouseover="this.style.transform='scale(1.15)'"
+                                    onmouseout="this.style.transform='scale(1)'">📷</button>
                         </div>
 
                         <!-- Status picker -->
