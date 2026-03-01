@@ -349,10 +349,10 @@ const ProfileModule = {
         const xpPct     = Math.min(100, Math.max(0, levelInfo.progress ?? 0));
 
         const statItems = [
-            { value: status.karma,                 label:'Karma',    emoji:'💎' },
+            { value: status.karma,                 label:'Karma',    emoji:'💎', id:'statKarma'    },
             { value: 0,                            label:'Blessings',emoji:'🙏', id:'statBlessings' },
             { value: '—',                          label:'Fav Room', emoji:'🏠', id:'statFavRoom'   },
-            { value: (status.badges || []).length, label:'Badges',   emoji:'🎖️' },
+            { value: (status.badges || []).length, label:'Badges',   emoji:'🎖️', id:'statBadges'   },
         ];
 
         return `
@@ -524,14 +524,24 @@ const ProfileModule = {
         const xp    = g?.xp     ?? user.xp     ?? 0;
         const level = g?.level  ?? user.level  ?? 1;
 
-        document.getElementById('statKarma')?.setAttribute
-            && (document.getElementById('statKarma').textContent = karma.toLocaleString());
-        document.getElementById('statXP')?.setAttribute
-            && (document.getElementById('statXP').textContent = xp.toLocaleString());
+        // XP display + bar
+        const xpEl   = document.getElementById('profileGamificationXP');
+        const xpNext = document.getElementById('profileGamificationXPNext');
+        const xpBar  = document.getElementById('profileGamificationXpBar');
+        if (xpEl) xpEl.textContent = xp.toLocaleString();
+        if (xpBar) {
+            const ladder = [0,800,2000,4200,7000,12000,30000,60000,180000,450000];
+            const cur    = ladder[level - 1] || 0;
+            const next   = ladder[level]     || ladder[ladder.length - 1];
+            const pct    = next > cur ? Math.min(100, Math.round(((xp - cur) / (next - cur)) * 100)) : 100;
+            xpBar.dataset.width = pct;
+            xpBar.style.width   = pct + '%';
+            if (xpNext) xpNext.textContent = Math.max(0, next - xp).toLocaleString();
+        }
 
-        const title      = this.config.LEVEL_TITLES[level] || 'Seeker';
-        const levelBadge = document.getElementById('profileLevelBadge');
-        if (levelBadge) levelBadge.textContent = `✦ Level ${level} · ${title}`;
+        // Karma stat card
+        const karmaEl = document.getElementById('statKarma');
+        if (karmaEl) karmaEl.textContent = karma.toLocaleString();
     },
 
     // ── Community stats (blessings + fav room) ───────────────────────────────────
@@ -817,36 +827,9 @@ const ProfileModule = {
     // ── Badges ───────────────────────────────────────────────────────────────────
 
     updateBadges() {
-        const row = document.getElementById('badgesRow');
-        if (!row) return;
-
         const earned = window.app?.gamification?.state?.badges ?? [];
-        if (!earned.length) {
-            row.innerHTML = '<span style="font-size:12px;color:var(--text-muted);opacity:0.6;">No badges earned yet</span>';
-            return;
-        }
-
-        const { RARITY_COLORS, RARITY_LABELS } = this.config;
-        row.innerHTML = [...earned].slice(-8).reverse().map(b => {
-            const icon   = b.icon   || '🏅';
-            const name   = b.name   || (typeof b === 'string' ? b : 'Badge');
-            const rarity = b.rarity || 'common';
-            const color  = RARITY_COLORS[rarity] || RARITY_COLORS.common;
-            return `<div title="${name} · ${RARITY_LABELS[rarity] || 'Common'}"
-                        style="display:flex;flex-direction:column;align-items:center;justify-content:center;
-                               width:52px;height:60px;border-radius:12px;
-                               background:var(--neuro-bg,#f0f0f3);
-                               box-shadow:3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
-                               border-bottom:3px solid ${color};
-                               cursor:default;transition:transform 0.15s,box-shadow 0.15s;
-                               position:relative;overflow:hidden;"
-                        onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='4px 4px 12px rgba(0,0,0,0.15),-2px -2px 8px rgba(255,255,255,0.8)'"
-                        onmouseout="this.style.transform='';this.style.boxShadow='3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7)'">
-                    <div style="position:absolute;top:0;left:0;right:0;height:3px;
-                                background:${color};opacity:0.3;border-radius:12px 12px 0 0;"></div>
-                    <span style="font-size:1.5rem;line-height:1;">${icon}</span>
-                </div>`;
-        }).join('');
+        const countEl = document.getElementById('statBadges');
+        if (countEl) countEl.textContent = earned.length;
     },
 
     // ── Status Ring ──────────────────────────────────────────────────────────────
@@ -1135,40 +1118,68 @@ const ProfileModule = {
     },
 
     editBirthday() {
-        this._createInlineEditor({
-            fieldId:      'privateBirthday',
-            dbKey:        'birthday',
-            currentValue: this._user()?.birthday || '',
-            inputType:    'date',
-            placeholder:  '',
-            maxLength:    10,
-            successToast: '✓ Birthday updated',
-            validate:     (v) => v && !/^\d{4}-\d{2}-\d{2}$/.test(v) ? 'Invalid date' : null,
-            onSave:       (val) => {
-                const cu = this._user();
-                if (cu) cu.birthday = val;
-                this.updateBirthday(this._user());
-                this.updateProfileLocationRow(this._user());
-            },
-        });
+        const valEl = document.getElementById('profileBirthdayDisplay');
+        if (!valEl) return;
+
+        const current = this._user()?.birthday || '';
+        const input   = document.createElement('input');
+        input.type    = 'date';
+        input.value   = current;
+        input.style.cssText = `padding:3px 8px;border-radius:8px;border:1px solid rgba(0,0,0,0.15);
+            font-size:0.8rem;background:var(--neuro-bg);color:var(--neuro-text);`;
+
+        const save = async () => {
+            const val = input.value.trim();
+            if (val && !/^\d{4}-\d{2}-\d{2}$/.test(val)) { Core.showToast('Invalid date'); return; }
+            const ok = await CommunityDB.updateProfile({ birthday: val || null });
+            if (!ok) { Core.showToast('Could not save — please try again'); return; }
+            const cu = this._user();
+            if (cu) cu.birthday = val;
+            input.replaceWith(valEl);
+            valEl.style.display = '';
+            this.updateBirthday(this._user());
+            this.updateProfileLocationRow(this._user());
+            Core.showToast('✓ Birthday updated');
+        };
+
+        input.addEventListener('keydown', e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') { input.replaceWith(valEl); valEl.style.display = ''; } });
+        input.addEventListener('blur', save);
+        valEl.style.display = 'none';
+        valEl.parentNode.insertBefore(input, valEl.nextSibling);
+        input.focus();
     },
 
     editCountry() {
-        this._createInlineEditor({
-            fieldId:      'privateCountry',
-            dbKey:        'country',
-            currentValue: this._user()?.country || '',
-            inputType:    'text',
-            placeholder:  'Your country',
-            maxLength:    60,
-            successToast: '✓ Country updated',
-            onSave:       (val) => {
-                const cu = this._user();
-                if (cu) cu.country = val;
-                this.updateCountry(this._user());
-                this.updateProfileLocationRow(this._user());
-            },
-        });
+        const valEl = document.getElementById('profileCountryDisplay');
+        if (!valEl) return;
+
+        const current = this._user()?.country || '';
+        const input   = document.createElement('input');
+        input.type    = 'text';
+        input.value   = current;
+        input.placeholder = 'Your country';
+        input.maxLength   = 60;
+        input.style.cssText = `padding:3px 8px;border-radius:8px;border:1px solid rgba(0,0,0,0.15);
+            font-size:0.8rem;background:var(--neuro-bg);color:var(--neuro-text);width:90px;`;
+
+        const save = async () => {
+            const val = input.value.trim();
+            const ok  = await CommunityDB.updateProfile({ country: val || null });
+            if (!ok) { Core.showToast('Could not save — please try again'); return; }
+            const cu = this._user();
+            if (cu) cu.country = val;
+            input.replaceWith(valEl);
+            valEl.style.display = '';
+            this.updateCountry(this._user());
+            this.updateProfileLocationRow(this._user());
+            Core.showToast('✓ Country updated');
+        };
+
+        input.addEventListener('keydown', e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') { input.replaceWith(valEl); valEl.style.display = ''; } });
+        input.addEventListener('blur', save);
+        valEl.style.display = 'none';
+        valEl.parentNode.insertBefore(input, valEl.nextSibling);
+        input.focus();
     },
 
     // ============================================================================
