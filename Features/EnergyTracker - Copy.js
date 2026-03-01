@@ -385,7 +385,6 @@ class EnergyEngineEnhanced {
         <div class="universal-content">
           ${this.buildHeader()}
           ${this.buildCheckinCard(stats, greeting, period, checkinStatus)}
-          ${this.buildReikiCTA()}
           ${this.buildChartsSection(weeklyData, chakraAvg)}
           ${this.buildJournalSection(filteredJournal)}
         </div>
@@ -420,78 +419,6 @@ class EnergyEngineEnhanced {
         <h1>Energy Tracker</h1>
         <h3>Check, review, track and learn your energy patterns - Overall and Chakras</h3>
       </header>
-    `;
-  }
-
-  /**
-   * Builds Reiki & Chakras Community CTA section
-   */
-  buildReikiCTA() {
-    return `
-      <div class="card" style="margin-bottom: 2rem; width: 100%; box-sizing: border-box;">
-        <div style="
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          flex-wrap: wrap;
-          gap: 1.5rem;
-        ">
-          <div style="flex: 1; min-width: 220px;">
-            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
-              <span style="font-size: 1.6rem;">🌀</span>
-              <h3 style="margin: 0; font-size: 1.15rem; color: var(--neuro-text); font-weight: 700;">
-                Learn & Practice Reiki and Chakras
-              </h3>
-            </div>
-            <p style="margin: 0; font-size: 0.92rem; color: var(--neuro-text-light); line-height: 1.5;">
-              Deepen your energy practice with the community. Join live sessions, guided meditations, 
-              and group healing circles — all in one place.
-            </p>
-          </div>
-          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-            <button
-              type="button"
-              onclick="window.app?.navigateTo?.('community-hub') || window.app?.showTab?.('community-hub')"
-              style="
-                padding: 0.6rem 1.4rem;
-                border-radius: 999px;
-                border: none;
-                background: var(--neuro-bg);
-                color: var(--neuro-text);
-                font-size: 0.9rem;
-                font-weight: 600;
-                cursor: pointer;
-                box-shadow: 6px 6px 14px var(--neuro-shadow-dark), -6px -6px 14px var(--neuro-shadow-light);
-                transition: all 0.2s;
-              "
-              onmouseover="this.style.transform='translateY(-1px)'"
-              onmouseout="this.style.transform='translateY(0)'"
-            >
-              🏘️ Community Hub
-            </button>
-            <button
-              type="button"
-              onclick="window.app?.navigateTo?.('reiki-room') || window.app?.showTab?.('reiki-room')"
-              style="
-                padding: 0.6rem 1.4rem;
-                border-radius: 999px;
-                border: none;
-                background: linear-gradient(135deg, rgba(246,194,74,0.18), rgba(139,107,230,0.18));
-                color: var(--neuro-accent);
-                font-size: 0.9rem;
-                font-weight: 700;
-                cursor: pointer;
-                box-shadow: inset 4px 4px 8px rgba(0,0,0,.04), inset -4px -4px 8px rgba(255,255,255,.6);
-                transition: all 0.2s;
-              "
-              onmouseover="this.style.transform='translateY(-1px)'"
-              onmouseout="this.style.transform='translateY(0)'"
-            >
-              ✨ Enter the Room
-            </button>
-          </div>
-        </div>
-      </div>
     `;
   }
 
