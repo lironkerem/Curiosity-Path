@@ -131,7 +131,7 @@ class SilentRoom extends PracticeRoom {
     // ── Features ──────────────────────────────────────────────────────────────
 
     toggleDimMode() {
-        const view = document.getElementById('practiceRoomView');
+        const view = document.getElementById('dynamicRoomContent');
         if (!view) return;
         view.classList.toggle('dimmed');
         const isDimmed = view.classList.contains('dimmed');
@@ -143,7 +143,7 @@ class SilentRoom extends PracticeRoom {
 
     /** Reset dim mode to default — called on leave. */
     _resetDimMode() {
-        const view = document.getElementById('practiceRoomView');
+        const view = document.getElementById('dynamicRoomContent');
         if (view) view.classList.remove('dimmed');
         const container = document.getElementById('communityHubFullscreenContainer');
         if (container) container.style.background = 'transparent';

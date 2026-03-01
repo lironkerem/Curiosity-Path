@@ -65,7 +65,7 @@ class DeepWorkRoom extends PracticeRoom {
         }
         const container = document.getElementById('communityHubFullscreenContainer');
         if (container) container.style.background = 'transparent';
-        document.getElementById('practiceRoomView')?.classList.remove('dimmed');
+        document.getElementById('dynamicRoomContent')?.classList.remove('dimmed');
     }
 
     onTimerComplete() { this._switchToBreak(); }
@@ -318,7 +318,7 @@ class DeepWorkRoom extends PracticeRoom {
     // ── Dim mode ──────────────────────────────────────────────────────────────
 
     toggleDimMode() {
-        const view = document.getElementById('practiceRoomView');
+        const view = document.getElementById('dynamicRoomContent');
         if (!view) return;
         view.classList.toggle('dimmed');
         const isDimmed = view.classList.contains('dimmed');
