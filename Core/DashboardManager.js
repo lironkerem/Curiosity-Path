@@ -1022,7 +1022,7 @@ export default class DashboardManager {
               <span class="header-sub"></span>
             </header>
             ${this.renderGamificationWidget(status, stats)}
-            <div id="activeMembersContainer"></div>
+            <div id="dashboardActiveMembersContainer"></div>
             ${this.dailyCards.renderDailyCardsSection()}
             ${this.renderWellnessToolkit()}
             ${this.renderQuestHub(status)}
@@ -1034,8 +1034,15 @@ export default class DashboardManager {
       // Animate progress bars
       this.animateProgressBars();
 
-      // Render Active Members widget (scripts + CommunityDB init handled by ProjectCuriosityApp)
-      window.ActiveMembers?.render();
+      // Render Active Members widget into the dashboard container.
+      // ActiveMembers.render() always targets #activeMembersContainer, so we
+      // briefly give our dashboard div that ID, render, then restore it.
+      const dashEl = document.getElementById('dashboardActiveMembersContainer');
+      if (dashEl && window.ActiveMembers) {
+        dashEl.id = 'activeMembersContainer';
+        await window.ActiveMembers.render();
+        dashEl.id = 'dashboardActiveMembersContainer';
+      }
       
     } catch (error) {
       console.error('Error rendering dashboard:', error);
