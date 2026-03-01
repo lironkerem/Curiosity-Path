@@ -1034,26 +1034,9 @@ export default class DashboardManager {
       // Animate progress bars
       this.animateProgressBars();
 
-      // Render Active Members from Community Hub
-      if (window.ActiveMembers) {
-        if (window.CommunityDB?.ready) {
-          window.ActiveMembers.render();
-        } else {
-          // CommunityDB may still be initializing — wait up to 5s
-          const maxAttempts = 20;
-          let attempts = 0;
-          const poll = setInterval(() => {
-            attempts++;
-            if (window.CommunityDB?.ready || window.ActiveMembers) {
-              clearInterval(poll);
-              window.ActiveMembers?.render();
-            } else if (attempts >= maxAttempts) {
-              clearInterval(poll);
-              console.warn('[Dashboard] CommunityDB not ready — ActiveMembers skipped');
-            }
-          }, 250);
-        }
-      }
+      // Render Active Members from Community Hub (lightweight bootstrap —
+      // loads only the 3 scripts needed, not the full CommunityHubEngine)
+      this._initActiveMembersWidget();
       
     } catch (error) {
       console.error('Error rendering dashboard:', error);
@@ -1078,6 +1061,45 @@ export default class DashboardManager {
         }
       });
     });
+  }
+
+  /* ---------- Community Hub: Active Members Widget ---------- */
+
+  /**
+   * Lightweight bootstrap for the Active Members widget.
+   * Loads only the 3 Community Hub scripts required — not the full engine.
+   * If the scripts are already present (user visited Community Hub first),
+   * it renders immediately instead of re-loading.
+   * @private
+   */
+  async _initActiveMembersWidget() {
+    const BASE = '/Mini-Apps/CommunityHub/js';
+
+    // Already loaded — just render
+    if (window.ActiveMembers) {
+      window.ActiveMembers.render();
+      return;
+    }
+
+    const loadScript = (src) => new Promise((resolve, reject) => {
+      if (document.querySelector(`script[src="${src}"]`)) return resolve();
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = () => reject(new Error(`[Dashboard] Failed to load: ${src}`));
+      document.body.appendChild(s);
+    });
+
+    try {
+      // Must be sequential — each depends on the previous
+      await loadScript(`${BASE}/supabase-client.js`);
+      await loadScript(`${BASE}/community-supabase.js`);  // sets window.CommunityDB
+      await loadScript(`${BASE}/active-members.js`);       // sets window.ActiveMembers
+
+      window.ActiveMembers?.render();
+    } catch (err) {
+      console.warn('[Dashboard] ActiveMembers widget could not load:', err.message);
+    }
   }
 
   /* ---------- Cleanup ---------- */

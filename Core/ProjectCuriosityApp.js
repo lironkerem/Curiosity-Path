@@ -613,12 +613,6 @@ export default class ProjectCuriosityApp {
       // Load feature modules
       this.loadModules();
 
-      // Pre-init CommunityHub so CommunityDB + ActiveMembers are ready
-      // before the Dashboard renders (ActiveMembers widget lives on Dashboard)
-      if (this.features) {
-        this.features.init(TAB_NAMES.COMMUNITY_HUB);
-      }
-
       // Restore last active tab
       this.restoreLastTab();
 
