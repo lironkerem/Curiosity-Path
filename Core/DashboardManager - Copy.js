@@ -1024,7 +1024,6 @@ export default class DashboardManager {
             ${this.renderGamificationWidget(status, stats)}
             ${this.dailyCards.renderDailyCardsSection()}
             ${this.renderWellnessToolkit()}
-            <div id="activeMembersContainer"></div>
             ${this.renderQuestHub(status)}
             ${this.renderRecentAchievements(status)}
             <div class="mb-8">${this.renderQuoteCard()}</div>
@@ -1033,11 +1032,6 @@ export default class DashboardManager {
 
       // Animate progress bars
       this.animateProgressBars();
-
-      // Render Active Members from Community Hub
-      if (window.ActiveMembers) {
-        window.ActiveMembers.render();
-      }
       
     } catch (error) {
       console.error('Error rendering dashboard:', error);
