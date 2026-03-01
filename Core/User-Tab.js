@@ -92,6 +92,18 @@ export default class UserTab {
     this.restoreDarkMode();
     await this.hydrateUserProfile();
     await this.initPricingModal();
+
+    // Listen for status changes from Community Hub Hero Profile
+    window.addEventListener('statusChanged', (e) => {
+      const { status } = e.detail || {};
+      if (!status) return;
+      if (this.currentUser) this.currentUser.community_status = status;
+      this.updateStatusRing(status);
+      // Sync active state in picker if it's open
+      document.querySelectorAll('.status-option-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.status === status);
+      });
+    });
   }
 
   /** Attach handlers to dropdown menu */
@@ -1055,6 +1067,9 @@ export default class UserTab {
       console.error('setStatus error:', err);
       this.app.showToast('Could not update status', 'error');
     }
+
+    // Notify other modules (e.g. Community Hub Hero Profile)
+    window.dispatchEvent(new CustomEvent('statusChanged', { detail: { status } }));
   }
 
   // ============== AVATAR SYNC ==============

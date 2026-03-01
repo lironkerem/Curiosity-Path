@@ -132,6 +132,21 @@ const ProfileModule = {
             this.setupCharCounter();
             this.state.isInitialized = true;
             console.log('✓ ProfileModule initialized');
+
+        // Listen for status changes from User Tab
+        window.addEventListener('statusChanged', (e) => {
+            const { status } = e.detail || {};
+            if (!status) return;
+            const cu = this._user();
+            if (cu) cu.status = status;
+            this.updateStatusRing(status);
+            const dot = document.getElementById('statusPickerDot');
+            const lbl = document.getElementById('statusPickerLabel');
+            const cfg = this.config.STATUS_RING[status] || this.config.STATUS_RING.offline;
+            if (dot) dot.style.background = cfg.color;
+            if (lbl) lbl.textContent = cfg.label;
+        });
+
         } catch (error) {
             console.error('ProfileModule initialization failed:', error);
         }
@@ -891,6 +906,9 @@ const ProfileModule = {
             console.error('[ProfileModule] setStatus error:', err);
             Core.showToast('Could not update status — please try again');
         }
+
+        // Notify User Tab ring
+        window.dispatchEvent(new CustomEvent('statusChanged', { detail: { status } }));
     },
 
     updatePresenceCount() {
