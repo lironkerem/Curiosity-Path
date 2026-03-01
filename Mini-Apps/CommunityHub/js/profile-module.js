@@ -234,14 +234,6 @@ const ProfileModule = {
                             <button class="edit-inspiration-btn" onclick="ProfileModule.editInspiration()" aria-label="Edit inspiration">✏️</button>
                         </div>
 
-                        <div id="profileLevelRow" style="margin:0.6rem 0 0.4rem;display:flex;align-items:center;">
-                            <span id="profileLevelBadge"
-                                  style="font-size:1rem;font-weight:700;
-                                         color:var(--primary,#667eea);
-                                         background:rgba(102,126,234,0.12);
-                                         border-radius:99px;padding:5px 14px;"></span>
-                        </div>
-
                         <div id="profileLocationRow"
                              style="display:flex;gap:16px;flex-wrap:wrap;
                                     font-size:0.82rem;color:var(--text-muted);margin-bottom:0.6rem;">
@@ -249,14 +241,8 @@ const ProfileModule = {
                             <span id="profileCountryDisplay"></span>
                         </div>
 
-                        <div class="profile-stats">
-                            <div class="p-stat"><span class="p-stat-num" id="statXP">0</span><div class="p-stat-label">XP</div></div>
-                            <div class="p-stat"><span class="p-stat-num" id="statKarma">0</span><div class="p-stat-label">Karma</div></div>
-                            <div class="p-stat"><span class="p-stat-num" id="statBlessings">0</span><div class="p-stat-label">🙏 Blessings</div></div>
-                            <div class="p-stat"><span class="p-stat-num" id="statFavRoom">—</span><div class="p-stat-label">Fav Room</div></div>
-                        </div>
-
-                        <div class="badges-row" id="badgesRow" style="margin-top:1.2rem;"></div>
+                        <!-- ── Gamification Section ───────────────── -->
+                        ${this._getGamificationHTML()}
 
                         <div class="view-toggle">
                             <button class="v-btn active" onclick="ProfileModule.toggleProfileView('public')" aria-pressed="true">Public View</button>
@@ -275,6 +261,9 @@ const ProfileModule = {
                                 </div>`).join('')}
                             </div>
                         </div>
+
+                        <!-- ── Divider line ───────────────────────── -->
+                        <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(0,0,0,0.1),transparent);margin-top:1rem;"></div>
 
                         <!-- Activity Modal -->
                         <div id="activityModal"
@@ -299,20 +288,7 @@ const ProfileModule = {
                     </div>
                 </div>
             </div>
-        </header>
-
-        <!-- ── Divider ────────────────────────────────────────────── -->
-        <div style="display:flex;align-items:center;gap:12px;padding:0 1.5rem;margin:0.5rem 0;">
-            <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(0,0,0,0.1),transparent);"></div>
-            <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);
-                        text-transform:uppercase;letter-spacing:0.07em;white-space:nowrap;">
-                🧬 Spiritual Progress
-            </div>
-            <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(0,0,0,0.1),transparent);"></div>
-        </div>
-
-        <!-- ── Gamification Section ───────────────────────────────── -->
-        ${this._getGamificationHTML()}`;
+        </header>`;
     },
 
     /**
