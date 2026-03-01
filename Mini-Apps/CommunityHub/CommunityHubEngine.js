@@ -333,6 +333,20 @@ class CommunityHubEngine {
 
       window.Core.init();
 
+      // Auto-open a room requested from an external CTA (e.g. Energy Tracker)
+      if (window._pendingRoomOpen) {
+        const roomKey = window._pendingRoomOpen;
+        window._pendingRoomOpen = null;
+        const tryOpen = setInterval(() => {
+          const fn = window[`${roomKey}_enterRoom`];
+          if (typeof fn === 'function') {
+            clearInterval(tryOpen);
+            fn();
+          }
+        }, 200);
+        setTimeout(() => clearInterval(tryOpen), 8000); // safety timeout
+      }
+
       if (window.Rituals) window.Rituals.state.hasSeenOpening = false;
       if (window.CollectiveFieldDB) await window.CollectiveFieldDB.init();
 

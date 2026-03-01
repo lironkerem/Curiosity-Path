@@ -471,7 +471,7 @@ class EnergyEngineEnhanced {
             </button>
             <button
               type="button"
-              onclick="window.app?.navigateTo?.('reiki-room') || window.app?.showTab?.('reiki-room')"
+              onclick="window._pendingRoomOpen = 'ReikiRoom'; window.app?.navigateTo?.('community-hub') || window.app?.showTab?.('community-hub')"
               style="
                 padding: 0.6rem 1.4rem;
                 border-radius: 999px;
