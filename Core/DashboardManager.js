@@ -1068,7 +1068,7 @@ export default class DashboardManager {
 
   /**
    * Lightweight bootstrap for the Active Members widget.
-   * Loads only the 3 Community Hub scripts required — not the full engine.
+   * Loads only the required Community Hub scripts — not the full engine.
    * If the scripts are already present (user visited Community Hub first),
    * it renders immediately instead of re-loading.
    * @private
@@ -1076,8 +1076,8 @@ export default class DashboardManager {
   async _initActiveMembersWidget() {
     const BASE = '/Mini-Apps/CommunityHub/js';
 
-    // Already loaded — just render
-    if (window.ActiveMembers) {
+    // Already fully loaded — just render
+    if (window.ActiveMembers && window.CommunityDB?.ready) {
       window.ActiveMembers.render();
       return;
     }
@@ -1091,21 +1091,33 @@ export default class DashboardManager {
       document.body.appendChild(s);
     });
 
-    try {
-      // Expose the main app's Supabase client so community-supabase.js can find it
+    const tryInit = async () => {
       if (!window.AppSupabase) {
-        window.AppSupabase = supabase || this.app?.supabase || null;
+        window.AppSupabase = supabase || null;
+        console.log('[Dashboard] AppSupabase set:', !!window.AppSupabase);
+      }
+      return await window.CommunityDB?.init();
+    };
+
+    try {
+      // Sequential — each depends on the previous
+      await loadScript(`${BASE}/supabase-client.js`);
+      await loadScript(`${BASE}/community-supabase.js`); // sets window.CommunityDB
+      await loadScript(`${BASE}/core.js`);               // sets window.Core (needed by ActiveMembers)
+      await loadScript(`${BASE}/active-members.js`);     // sets window.ActiveMembers
+
+      // Init CommunityDB — sets _sb (Supabase client) and _uid (user ID)
+      let ready = await tryInit();
+
+      // Retry once after 1s — auth session may not be fully propagated yet
+      if (!ready) {
+        console.warn('[Dashboard] CommunityDB.init() failed, retrying in 1s...');
+        await new Promise(r => setTimeout(r, 1000));
+        ready = await tryInit();
       }
 
-      // Must be sequential — each depends on the previous
-      await loadScript(`${BASE}/supabase-client.js`);
-      await loadScript(`${BASE}/community-supabase.js`);  // sets window.CommunityDB
-      await loadScript(`${BASE}/active-members.js`);       // sets window.ActiveMembers
-
-      // Init CommunityDB — sets _sb and _uid, required before any DB call
-      const ready = await window.CommunityDB?.init();
       if (!ready) {
-        console.warn('[Dashboard] CommunityDB.init() failed — ActiveMembers skipped');
+        console.warn('[Dashboard] CommunityDB not ready — ActiveMembers skipped');
         return;
       }
 
