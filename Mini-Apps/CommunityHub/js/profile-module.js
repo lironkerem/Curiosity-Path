@@ -220,25 +220,30 @@ const ProfileModule = {
                     <div class="profile-info">
                         <div class="profile-name-row">
                             <div class="profile-name" id="profileName">Loading...</div>
+                        </div>
+
+                        <!-- Role · Birthday · Country pill row -->
+                        <div id="profileMetaRow"
+                             style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+                                    margin:0.3rem 0 0.6rem;">
                             <div id="profileRoleBadge"
-                                 style="font-size:0.78rem;font-weight:600;
+                                 style="display:flex;align-items:center;gap:5px;
+                                        font-size:0.78rem;font-weight:600;
                                         color:var(--primary,#667eea);
                                         background:rgba(102,126,234,0.1);
                                         border-radius:99px;padding:3px 10px;white-space:nowrap;">
                                 👤 Member
                             </div>
+                            <span class="profile-meta-sep" style="opacity:0.25;font-size:0.75rem;">|</span>
+                            <span id="profileBirthdayDisplay"
+                                  style="font-size:0.78rem;color:var(--text-muted);"></span>
+                            <span id="profileCountryDisplay"
+                                  style="font-size:0.78rem;color:var(--text-muted);"></span>
                         </div>
 
                         <div class="profile-inspiration">
                             <span id="profileInspiration">"Here to practice with intention."</span>
                             <button class="edit-inspiration-btn" onclick="ProfileModule.editInspiration()" aria-label="Edit inspiration">✏️</button>
-                        </div>
-
-                        <div id="profileLocationRow"
-                             style="display:flex;gap:16px;flex-wrap:wrap;
-                                    font-size:0.82rem;color:var(--text-muted);margin-bottom:0.6rem;">
-                            <span id="profileBirthdayDisplay"></span>
-                            <span id="profileCountryDisplay"></span>
                         </div>
 
                         <!-- ── Gamification Section ───────────────── -->
@@ -311,8 +316,8 @@ const ProfileModule = {
         const statItems = [
             { value: status.karma,                    label:'Karma',       emoji:'💎' },
             { value: appStats.totalGratitudes || 0,   label:'Gratitudes',  emoji:'❤️' },
-            { value: status.totalJournalEntries || 0, label:'Journaling',  emoji:'📔' },
-            { value: status.totalHappinessViews || 0, label:'Boosters',    emoji:'💡' },
+            { value: 0,                               label:'Blessings',   emoji:'🙏', id:'statBlessings' },
+            { value: '—',                             label:'Fav Room',    emoji:'🏠', id:'statFavRoom'   },
             { value: status.totalTarotSpreads || 0,   label:'Tarot',       emoji:'🔮' },
             { value: appStats.weeklyMeditations || 0, label:'Meditations', emoji:'🧘' },
             { value: status.totalWellnessRuns || 0,   label:'Wellness',    emoji:'🌿' },
@@ -321,13 +326,14 @@ const ProfileModule = {
 
         return `
         <div class="profile-gamification-section"
-             style="padding:1.25rem 1.5rem 1.75rem;background:var(--neuro-bg,#f0f0f3);">
+             style="padding:1.25rem 1.5rem 1.75rem;background:var(--neuro-bg,#f0f0f3);
+                    border-radius:20px;margin-bottom:0.75rem;
+                    box-shadow:4px 4px 12px rgba(0,0,0,0.08),-2px -2px 8px rgba(255,255,255,0.7);">
 
             <!-- Level title + XP bar -->
             <div style="text-align:center;margin-bottom:0.75rem;">
-                <div style="font-size:1rem;color:var(--neuro-text);margin-bottom:0.5rem;">
-                    You are ${article}
-                    <strong style="color:var(--primary,#667eea);">${levelInfo.title}</strong>
+                <div style="font-size:1.25rem;font-weight:700;color:var(--neuro-text);margin-bottom:0.5rem;">
+                    <strong style="color:var(--primary,#667eea);">${article.charAt(0).toUpperCase() + article.slice(1)} ${levelInfo.title}</strong>
                     — Level ${levelInfo.level}
                 </div>
                 <!-- XP progress bar -->
@@ -364,7 +370,7 @@ const ProfileModule = {
                      onmouseover="this.style.transform='translateY(-2px)'"
                      onmouseout="this.style.transform=''">
                     <div style="font-size:1.3rem;line-height:1;margin-bottom:4px;">${item.emoji}</div>
-                    <div style="font-size:1.15rem;font-weight:800;
+                    <div ${item.id ? `id="${item.id}"` : ''} style="font-size:1.15rem;font-weight:800;
                                 color:var(--primary,#667eea);line-height:1;">${item.value}</div>
                     <div style="font-size:0.65rem;color:var(--text-muted);
                                 font-weight:600;text-transform:uppercase;
@@ -616,6 +622,10 @@ const ProfileModule = {
         if (countryEl) {
             countryEl.textContent = country ? `${this._countryFlag(country)} ${country}` : '';
         }
+
+        // Hide the separator if both birthday and country are empty
+        const sep = document.querySelector('#profileMetaRow .profile-meta-sep');
+        if (sep) sep.style.display = (birthday || country) ? '' : 'none';
     },
 
     // ============================================================================
