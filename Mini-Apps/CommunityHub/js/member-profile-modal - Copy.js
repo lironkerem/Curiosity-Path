@@ -32,10 +32,10 @@ const MemberProfileModal = {
     _STATUS_RINGS: {
         online:    { c:'var(--ring-available,#6b9b37)', s:'rgba(107,155,55,0.2)'  },
         available: { c:'var(--ring-available,#6b9b37)', s:'rgba(107,155,55,0.2)'  },
-        away:      { c:'var(--ring-guiding,#e53e3e)',   s:'rgba(229,62,62,0.2)'   },
-        silent:    { c:'var(--ring-silent,#7c3aed)',    s:'rgba(124,58,237,0.2)'  },
-        deep:      { c:'var(--ring-deep,#1e40af)',      s:'rgba(30,64,175,0.2)'   },
-        offline:   { c:'var(--ring-offline,#9ca3af)',   s:'rgba(156,163,175,0.2)' },
+        away:      { c:'var(--ring-guiding,#d4a574)',   s:'rgba(212,165,116,0.2)' },
+        silent:    { c:'var(--ring-silent,#6ba3b3)',    s:'rgba(107,163,179,0.2)' },
+        deep:      { c:'var(--ring-deep,#8b7355)',      s:'rgba(139,115,85,0.2)'  },
+        offline:   { c:'var(--ring-offline,#a89279)',   s:'rgba(168,146,121,0.2)' },
     },
 
     _RARITY_COLORS:  { common:'#9ca3af', uncommon:'#10b981', rare:'#3b82f6', epic:'#a855f7', legendary:'#f59e0b' },
@@ -86,8 +86,8 @@ const MemberProfileModal = {
 
                     <div id="memberModalContent" style="display:none;">
 
-                        <!-- Avatar + name + meta row -->
-                        <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:1rem;">
+                        <!-- Avatar + name -->
+                        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:1.2rem;">
                             <div style="position:relative;width:90px;height:90px;">
                                 <div id="memberModalAvatar"
                                      style="width:90px;height:90px;border-radius:50%;
@@ -100,81 +100,49 @@ const MemberProfileModal = {
                                             box-shadow:0 0 0 3px rgba(107,155,55,0.2);
                                             pointer-events:none;"></div>
                             </div>
-
-                            <!-- Name -->
-                            <div id="memberModalName"
-                                 style="font-size:1.25rem;font-weight:800;color:var(--neuro-text);text-align:center;"></div>
-
-                            <!-- Meta pill: Role · Birthday · Country -->
-                            <div id="memberModalMetaRow"
-                                 style="display:inline-flex;align-items:center;gap:0;
-                                        background:var(--neuro-bg,#f0f0f3);border-radius:99px;
-                                        box-shadow:3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.75);
-                                        overflow:hidden;max-width:100%;">
-                                <div id="memberModalRole"
-                                     style="display:flex;align-items:center;gap:5px;
-                                            font-size:0.76rem;font-weight:700;
-                                            color:var(--primary,#667eea);
-                                            padding:5px 12px;white-space:nowrap;"></div>
-                                <span id="memberModalMetaSep"
-                                      style="width:1px;height:16px;background:rgba(0,0,0,0.1);flex-shrink:0;display:none;"></span>
+                            <div style="text-align:center;">
+                                <div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;">
+                                    <div id="memberModalName"
+                                         style="font-size:1.2rem;font-weight:700;color:var(--neuro-text);"></div>
+                                    <div id="memberModalRole"
+                                         style="font-size:0.75rem;font-weight:600;color:var(--primary,#667eea);
+                                                background:rgba(102,126,234,0.1);border-radius:99px;
+                                                padding:2px 9px;white-space:nowrap;"></div>
+                                </div>
                                 <div id="memberModalLocation"
-                                     style="display:flex;align-items:center;gap:0;"></div>
+                                     style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;
+                                            font-size:0.78rem;color:var(--text-muted);margin-top:5px;"></div>
                             </div>
                         </div>
 
                         <!-- Inspiration -->
                         <div id="memberModalInspiration"
                              style="font-size:0.85rem;font-style:italic;color:var(--neuro-text-light,#555);
-                                    text-align:center;margin-bottom:1rem;padding:0 0.5rem;line-height:1.5;"></div>
+                                    text-align:center;margin-bottom:0.8rem;padding:0 0.5rem;line-height:1.5;"></div>
 
-                        <!-- Level + XP bar -->
-                        <div style="background:var(--neuro-bg,#f0f0f3);border-radius:16px;padding:1rem 1rem 0.75rem;
-                                    box-shadow:3px 3px 8px rgba(0,0,0,0.08),-2px -2px 6px rgba(255,255,255,0.7);
-                                    margin-bottom:0.9rem;">
-                            <div style="text-align:center;margin-bottom:0.5rem;">
-                                <span id="memberModalLevel"
-                                      style="font-size:1.1rem;font-weight:700;color:var(--neuro-text);"></span>
-                            </div>
-                            <div style="height:8px;border-radius:99px;background:rgba(0,0,0,0.07);
-                                        box-shadow:inset 1px 1px 3px rgba(0,0,0,0.1);overflow:hidden;margin-bottom:0.35rem;">
-                                <div id="memberModalXpBar"
-                                     style="height:100%;border-radius:99px;width:0%;
-                                            background:linear-gradient(90deg,var(--primary,#667eea),var(--neuro-accent,#a855f7));
-                                            transition:width 0.9s cubic-bezier(0.4,0,0.2,1);"></div>
-                            </div>
-                            <div style="font-size:0.78rem;color:var(--text-muted);text-align:center;">
-                                <span id="memberModalXP"
-                                      style="font-weight:800;font-size:0.95rem;color:var(--primary,#667eea);">—</span> XP
-                            </div>
+                        <!-- Level -->
+                        <div style="text-align:center;margin-bottom:0.8rem;">
+                            <span id="memberModalLevel"
+                                  style="font-size:0.92rem;font-weight:700;color:var(--primary,#667eea);
+                                         background:rgba(102,126,234,0.12);border-radius:99px;padding:4px 14px;"></span>
                         </div>
 
-                        <!-- 4-stat grid -->
-                        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem;">
-                            ${[
-                                ['memberModalKarma',     '💎', 'Karma'    ],
-                                ['memberModalBlessings', '🙏', 'Blessings'],
-                                ['memberModalFavRoom',   '🏠', 'Fav Room' ],
-                                ['memberModalBadgeCount','🎖️', 'Badges'   ],
-                            ].map(([id, emoji, label]) => `
-                                <div style="background:var(--neuro-bg,#f0f0f3);border-radius:14px;
-                                            padding:10px 6px;text-align:center;
-                                            box-shadow:3px 3px 8px rgba(0,0,0,0.09),-2px -2px 6px rgba(255,255,255,0.7);
-                                            transition:transform 0.15s;"
-                                     onmouseover="this.style.transform='translateY(-2px)'"
-                                     onmouseout="this.style.transform=''">
-                                    <div style="font-size:1.2rem;line-height:1;margin-bottom:3px;">${emoji}</div>
-                                    <div id="${id}" style="font-size:1rem;font-weight:800;
-                                                           color:var(--primary,#667eea);line-height:1;">—</div>
-                                    <div style="font-size:0.62rem;color:var(--text-muted);font-weight:600;
-                                                text-transform:uppercase;letter-spacing:0.03em;margin-top:3px;">${label}</div>
-                                </div>`).join('')}
+                        <!-- Stats -->
+                        <div style="display:flex;justify-content:space-around;margin-bottom:0.8rem;
+                                    padding:0.8rem 0.5rem;border-radius:12px;
+                                    background:var(--neuro-shadow-light,rgba(0,0,0,0.04));">
+                            ${['memberModalXP:XP','memberModalKarma:Karma','memberModalBlessings:🙏 Blessings','memberModalFavRoom:Fav Room']
+                                .map(s => { const [id, label] = s.split(':');
+                                    return `<div style="text-align:center;">
+                                        <div id="${id}" style="font-size:${id==='memberModalFavRoom'?'0.82':'1.2'}rem;font-weight:700;color:var(--primary,#667eea);">—</div>
+                                        <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">${label}</div>
+                                    </div>`; }).join('')}
                         </div>
 
-                        <!-- Badges row -->
+                        <!-- Badges -->
                         <div id="memberModalBadges"
                              style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
-                                    margin-bottom:1rem;min-height:1.5rem;"></div>
+                                    margin:1.2rem 0 1rem;min-height:1.5rem;"></div>
 
                         <!-- Appreciate -->
                         <button id="memberModalAppreciateBtn"
@@ -190,35 +158,19 @@ const MemberProfileModal = {
                         <!-- Actions -->
                         <div id="memberModalActions" style="display:flex;gap:10px;margin-bottom:1rem;">
                             <button id="memberModalWhisperBtn" onclick="MemberProfileModal.startWhisper()"
-                                    style="flex:1;padding:10px 14px;border-radius:14px;border:none;cursor:pointer;
-                                           font-size:0.88rem;font-weight:700;
-                                           background:var(--neuro-bg,#f0f0f3);color:var(--primary,#667eea);
-                                           box-shadow:4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.75);
-                                           transition:all 0.15s;"
-                                    onmouseover="this.style.boxShadow='2px 2px 6px rgba(0,0,0,0.12),-1px -1px 4px rgba(255,255,255,0.8)';this.style.transform='translateY(1px)'"
-                                    onmouseout="this.style.boxShadow='4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.75)';this.style.transform=''">
+                                    style="flex:1;padding:10px;border-radius:12px;border:none;cursor:pointer;
+                                           font-size:0.9rem;font-weight:600;
+                                           background:var(--primary,#667eea);color:#fff;">
                                 💬 Whisper
                             </button>
                             <button onclick="MemberProfileModal.startReport()"
-                                    style="padding:10px 14px;border-radius:14px;border:none;cursor:pointer;
-                                           font-size:0.88rem;font-weight:700;
-                                           background:var(--neuro-bg,#f0f0f3);color:var(--text-muted,#718096);
-                                           box-shadow:4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.75);
-                                           transition:all 0.15s;"
-                                    onmouseover="this.style.boxShadow='2px 2px 6px rgba(0,0,0,0.12),-1px -1px 4px rgba(255,255,255,0.8)';this.style.transform='translateY(1px)'"
-                                    onmouseout="this.style.boxShadow='4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.75)';this.style.transform=''">
-                                🚩 Report
-                            </button>
+                                    style="padding:10px 14px;border-radius:12px;border:none;cursor:pointer;
+                                           font-size:0.9rem;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
+                                           color:var(--neuro-text);">🚩 Report</button>
                             <button onclick="MemberProfileModal.startBlock()"
-                                    style="padding:10px 14px;border-radius:14px;border:none;cursor:pointer;
-                                           font-size:0.88rem;font-weight:700;
-                                           background:var(--neuro-bg,#f0f0f3);color:var(--text-muted,#718096);
-                                           box-shadow:4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.75);
-                                           transition:all 0.15s;"
-                                    onmouseover="this.style.boxShadow='2px 2px 6px rgba(0,0,0,0.12),-1px -1px 4px rgba(255,255,255,0.8)';this.style.transform='translateY(1px)'"
-                                    onmouseout="this.style.boxShadow='4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.75)';this.style.transform=''">
-                                🚫 Block
-                            </button>
+                                    style="padding:10px 14px;border-radius:12px;border:none;cursor:pointer;
+                                           font-size:0.9rem;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
+                                           color:var(--neuro-text);">🚫 Block</button>
                         </div>
 
                         <!-- Whisper panel -->
@@ -558,9 +510,8 @@ const MemberProfileModal = {
         this._setText('memberModalRole',        `👤 ${profile.community_role || 'Member'}`);
         this._setText('memberModalInspiration', profile.inspiration ? `"${profile.inspiration}"` : '');
 
-        // Birthday + Country → inside meta pill
+        // Birthday + Country
         const locationEl = document.getElementById('memberModalLocation');
-        const metaSep    = document.getElementById('memberModalMetaSep');
         if (locationEl) {
             const parts = [];
             if (profile.birthday) {
@@ -570,49 +521,23 @@ const MemberProfileModal = {
                 } catch { parts.push(`🎂 ${profile.birthday}`); }
             }
             if (profile.country) parts.push(`${this._countryFlag(profile.country)} ${profile.country}`);
-
-            if (parts.length) {
-                locationEl.innerHTML = parts.map((p, i) =>
-                    `${i > 0 ? '<span style="width:1px;height:16px;background:rgba(0,0,0,0.1);flex-shrink:0;display:inline-block;"></span>' : ''}
-                     <span style="font-size:0.76rem;font-weight:600;color:var(--text-muted);padding:5px 12px;white-space:nowrap;">${p}</span>`
-                ).join('');
-                if (metaSep) metaSep.style.display = '';
-            } else {
-                locationEl.innerHTML = '';
-                if (metaSep) metaSep.style.display = 'none';
-            }
+            locationEl.innerHTML = parts.map(p => `<span>${p}</span>`).join('');
         }
     },
 
     _populateGamification(g) {
-        // Level title
-        const title    = this._LEVEL_TITLES[g.level] || 'Seeker';
-        const article  = title.match(/^[aeiou]/i) ? 'An' : 'A';
-        const levelEl  = document.getElementById('memberModalLevel');
-        if (levelEl) levelEl.textContent = `${article} ${title} — Level ${g.level}`;
+        const levelEl = document.getElementById('memberModalLevel');
+        if (levelEl) levelEl.textContent = `✦ Level ${g.level} · ${this._LEVEL_TITLES[g.level] || 'Seeker'}`;
 
-        // XP bar
-        const xpBar = document.getElementById('memberModalXpBar');
-        if (xpBar) {
-            // Calculate progress % using same ladder as GamificationEngine
-            const ladder = [0,800,2000,4200,7000,12000,30000,60000,180000,450000];
-            const cur  = ladder[g.level - 1] || 0;
-            const next = ladder[g.level]     || ladder[ladder.length - 1];
-            const pct  = next > cur ? Math.min(100, Math.round(((g.xp - cur) / (next - cur)) * 100)) : 100;
-            requestAnimationFrame(() => { xpBar.style.width = pct + '%'; });
-        }
-
-        this._setText('memberModalXP',    (g.xp    ?? 0).toLocaleString());
         this._setText('memberModalKarma', (g.karma ?? 0).toLocaleString());
-
-        const badges  = g.badges || [];
-        this._setText('memberModalBadgeCount', badges.length);
+        this._setText('memberModalXP',    (g.xp    ?? 0).toLocaleString());
 
         const badgesEl = document.getElementById('memberModalBadges');
         if (!badgesEl) return;
-        if (!badges.length) { badgesEl.innerHTML = ''; return; }
+        const earned = g.badges || [];
+        if (!earned.length) { badgesEl.innerHTML = ''; return; }
 
-        badgesEl.innerHTML = [...badges].slice(-8).reverse().map(b => {
+        badgesEl.innerHTML = [...earned].slice(-8).reverse().map(b => {
             const color = this._RARITY_COLORS[b.rarity] || this._RARITY_COLORS.common;
             const label = this._RARITY_LABELS[b.rarity] || 'Common';
             return `<div title="${b.name || 'Badge'} · ${label}"
@@ -941,14 +866,11 @@ const MemberProfileModal = {
             }
             await window.app?.gamification?.reloadFromDatabase?.();
 
-            // Update merged profile panel DOM (new IDs from profile-module.js)
-            const xpEl    = document.getElementById('profileGamificationXP');
-            const karmaEl = document.getElementById('pipStatKarma') || document.getElementById('statKarma');
+            // Update hero DOM
+            const xpEl    = document.getElementById('statXP');
+            const karmaEl = document.getElementById('statKarma');
             if (xpEl    && g.xp    !== undefined) xpEl.textContent    = g.xp.toLocaleString();
             if (karmaEl && g.karma !== undefined) karmaEl.textContent = g.karma.toLocaleString();
-
-            // Refresh the full gamification section if ProfileModule is available
-            window.ProfileModule?.refreshGamification?.();
 
             this._populateGamification(g);
         } catch (e) {

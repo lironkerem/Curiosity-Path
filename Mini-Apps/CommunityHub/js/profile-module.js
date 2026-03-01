@@ -42,11 +42,11 @@ const ProfileModule = {
         STATUS_RING: {
             online:    { color: 'var(--ring-available, #6b9b37)', label: 'Available'      },
             available: { color: 'var(--ring-available, #6b9b37)', label: 'Available'      },
-            away:      { color: 'var(--ring-guiding,   #d4a574)', label: 'Away'           },
-            guiding:   { color: 'var(--ring-guiding,   #d4a574)', label: 'Away'           },
-            silent:    { color: 'var(--ring-silent,    #6ba3b3)', label: 'In Silence'     },
-            deep:      { color: 'var(--ring-deep,      #8b7355)', label: 'Deep Practice'  },
-            offline:   { color: 'var(--ring-offline,   #a89279)', label: 'Offline'        },
+            away:      { color: 'var(--ring-guiding,   #e53e3e)', label: 'Away'           },
+            guiding:   { color: 'var(--ring-guiding,   #e53e3e)', label: 'Away'           },
+            silent:    { color: 'var(--ring-silent,    #7c3aed)', label: 'In Silence'     },
+            deep:      { color: 'var(--ring-deep,      #1e40af)', label: 'Deep Practice'  },
+            offline:   { color: 'var(--ring-offline,   #9ca3af)', label: 'Offline'        },
         },
 
         STATUS_ACTIVITIES: {
@@ -144,10 +144,10 @@ const ProfileModule = {
     getHTML() {
         const statusOptions = [
             { status:'online',  label:'Available',     color:'var(--ring-available,#6b9b37)', icon:'🟢' },
-            { status:'away',    label:'Away',           color:'var(--ring-guiding,#d4a574)',   icon:'🟡' },
-            { status:'silent',  label:'In Silence',     color:'var(--ring-silent,#6ba3b3)',    icon:'🔵' },
-            { status:'deep',    label:'Deep Practice',  color:'var(--ring-deep,#8b7355)',      icon:'🟤' },
-            { status:'offline', label:'Offline',        color:'var(--ring-offline,#a89279)',   icon:'⚫' },
+            { status:'away',    label:'Away',           color:'var(--ring-guiding,#e53e3e)',   icon:'🔴' },
+            { status:'silent',  label:'In Silence',     color:'var(--ring-silent,#7c3aed)',    icon:'🟣' },
+            { status:'deep',    label:'Deep Practice',  color:'var(--ring-deep,#1e40af)',      icon:'🔵' },
+            { status:'offline', label:'Offline',        color:'var(--ring-offline,#9ca3af)',   icon:'⚫' },
         ];
 
         const activityCards = [
