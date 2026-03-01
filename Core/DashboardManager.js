@@ -1102,6 +1102,13 @@ export default class DashboardManager {
       await loadScript(`${BASE}/community-supabase.js`);  // sets window.CommunityDB
       await loadScript(`${BASE}/active-members.js`);       // sets window.ActiveMembers
 
+      // Init CommunityDB — sets _sb and _uid, required before any DB call
+      const ready = await window.CommunityDB?.init();
+      if (!ready) {
+        console.warn('[Dashboard] CommunityDB.init() failed — ActiveMembers skipped');
+        return;
+      }
+
       window.ActiveMembers?.render();
     } catch (err) {
       console.warn('[Dashboard] ActiveMembers widget could not load:', err.message);
