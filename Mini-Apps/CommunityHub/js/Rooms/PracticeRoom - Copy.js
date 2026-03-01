@@ -107,11 +107,6 @@ class PracticeRoom {
         this.onEnter?.();
         this._setRoomPresence(this.roomId);
 
-        // Auto-contribute to the 24h Calm Wave while in a practice room
-        if (window.CollectiveField && !CollectiveField.state.isContributing) {
-            CollectiveField._startWave();
-        }
-
         // Stagger async initialisation to avoid blocking render
         setTimeout(async () => {
             await this.fetchRoomParticipants();
@@ -150,11 +145,6 @@ class PracticeRoom {
 
     /** Shared teardown for both leaveRoom and gentlyLeave. */
     _exitCleanup() {
-        // Log time spent to the 24h Calm Wave
-        if (window.CollectiveField?.state.isContributing) {
-            CollectiveField._endWave();
-        }
-
         this._clearRoomPresence();
 
         if (this._roomEntryId) {
