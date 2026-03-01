@@ -16,7 +16,7 @@
 
 /* global window, console, localStorage */
 
-import { fetchProgress, saveProgress, clearCache } from '/Core/DB.js';
+import { fetchProgress, saveProgress } from '/Core/DB.js';
 
 // ============================================================================
 // CONSTANTS
@@ -197,16 +197,6 @@ export default class AppState {
     } catch (error) {
       console.error('Failed to clear localStorage:', error);
     }
-  }
-
-  /**
-   * Clears the DB.js cloud fetch cache.
-   * Call this before reloading after an admin write so the next
-   * fetchProgress() goes to Supabase instead of returning stale data.
-   */
-  clearCache() {
-    clearCache();
-    this.clearLocalStorage();
   }
 
   // ==========================================================================

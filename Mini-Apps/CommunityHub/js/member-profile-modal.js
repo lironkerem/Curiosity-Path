@@ -73,6 +73,7 @@ const MemberProfileModal = {
                 <div id="memberProfileModalInner"
                      style="background:var(--neuro-bg,#f0f0f3);border-radius:20px;padding:2rem;
                             max-width:380px;width:90%;position:relative;
+                            max-height:90vh;overflow-y:auto;
                             box-shadow:8px 8px 20px rgba(0,0,0,0.15),-4px -4px 12px rgba(255,255,255,0.7);
                             transform:translateY(16px);transition:transform 0.25s ease;">
 
@@ -88,9 +89,10 @@ const MemberProfileModal = {
 
                         <!-- Avatar + name + meta row -->
                         <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:1rem;">
-                            <div style="position:relative;width:90px;height:90px;">
+                            <div style="position:relative;width:90px;height:90px;flex-shrink:0;">
                                 <div id="memberModalAvatar"
-                                     style="width:90px;height:90px;border-radius:50%;
+                                     style="width:90px;height:90px;min-width:90px;min-height:90px;
+                                            border-radius:50%;
                                             display:flex;align-items:center;justify-content:center;
                                             font-size:2.2rem;overflow:hidden;flex-shrink:0;"></div>
                                 <div id="memberModalStatusRing"
@@ -171,10 +173,7 @@ const MemberProfileModal = {
                                 </div>`).join('')}
                         </div>
 
-                        <!-- Badges row -->
-                        <div id="memberModalBadges"
-                             style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
-                                    margin-bottom:1rem;min-height:1.5rem;"></div>
+
 
                         <!-- Appreciate -->
                         <button id="memberModalAppreciateBtn"
@@ -604,31 +603,7 @@ const MemberProfileModal = {
 
         this._setText('memberModalXP',    (g.xp    ?? 0).toLocaleString());
         this._setText('memberModalKarma', (g.karma ?? 0).toLocaleString());
-
-        const badges  = g.badges || [];
-        this._setText('memberModalBadgeCount', badges.length);
-
-        const badgesEl = document.getElementById('memberModalBadges');
-        if (!badgesEl) return;
-        if (!badges.length) { badgesEl.innerHTML = ''; return; }
-
-        badgesEl.innerHTML = [...badges].slice(-8).reverse().map(b => {
-            const color = this._RARITY_COLORS[b.rarity] || this._RARITY_COLORS.common;
-            const label = this._RARITY_LABELS[b.rarity] || 'Common';
-            return `<div title="${b.name || 'Badge'} · ${label}"
-                         style="display:flex;flex-direction:column;align-items:center;justify-content:center;
-                                width:52px;height:60px;border-radius:12px;
-                                background:var(--neuro-bg,#f0f0f3);
-                                box-shadow:3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
-                                border-bottom:3px solid ${color};cursor:default;
-                                transition:transform 0.15s,box-shadow 0.15s;position:relative;overflow:hidden;"
-                         onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='4px 4px 12px rgba(0,0,0,0.15),-2px -2px 8px rgba(255,255,255,0.8)'"
-                         onmouseout="this.style.transform='';this.style.boxShadow='3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7)'">
-                         <div style="position:absolute;top:0;left:0;right:0;height:3px;
-                                     background:${color};opacity:0.3;border-radius:12px 12px 0 0;"></div>
-                         <span style="font-size:1.5rem;line-height:1;">${b.icon || '🏅'}</span>
-                     </div>`;
-        }).join('');
+        this._setText('memberModalBadgeCount', (g.badges || []).length);
     },
 
     async _loadMemberCommunityStats(userId) {
@@ -832,7 +807,7 @@ const MemberProfileModal = {
             await this._adminPushNotify(this.state.currentUserId, '🎁 Gift from Aanandoham!', `You received +${amount} XP!`);
             Core.showToast(`✓ Sent ${amount} XP`);
             this._closeAdminSubs();
-            await this._refreshMainProfileStats();
+            await this._safeRefresh(this.state.currentUserId);
         });
     },
 
@@ -845,7 +820,7 @@ const MemberProfileModal = {
             await this._adminPushNotify(this.state.currentUserId, '🎁 Gift from Aanandoham!', `You received +${amount} Karma!`);
             Core.showToast(`✓ Sent ${amount} Karma`);
             this._closeAdminSubs();
-            await this._refreshMainProfileStats();
+            await this._safeRefresh(this.state.currentUserId);
         });
     },
 
@@ -892,7 +867,7 @@ const MemberProfileModal = {
             await this._adminPushNotify(this.state.currentUserId, '🔓 New Features Unlocked!', `Admin unlocked: ${names}`);
             Core.showToast(`✓ Unlocked ${checked.length} feature(s)`);
             this._closeAdminSubs();
-            await this._refreshMainProfileStats();
+            await this._safeRefresh(this.state.currentUserId);
         });
     },
 
@@ -920,36 +895,66 @@ const MemberProfileModal = {
         });
     },
 
-    async _refreshMainProfileStats() {
+    /**
+     * Safe refresh after an admin action.
+     * - If targeting self: flushes GamificationEngine debounce, clears DB cache,
+     *   then reloads from Supabase so the UI reflects the new value correctly.
+     * - If targeting another user: just refreshes the modal's displayed stats.
+     */
+    async _safeRefresh(targetUserId) {
+        const myId  = window.Core?.state?.currentUser?.id;
+        const isSelf = targetUserId === myId;
+
+        if (isSelf) {
+            // 1. Cancel any pending GamificationEngine debounced save so it can't
+            //    overwrite the new Supabase value with stale in-memory state.
+            const ge = window.app?.gamification;
+            if (ge?.saveTimeout) {
+                clearTimeout(ge.saveTimeout);
+                ge.saveTimeout = null;
+            }
+
+            // 2. Clear DB.js 30s cache so the next getUserProgress goes to Supabase.
+            // DB.js exports clearCache — GamificationEngine may expose it via app.state
+            window.DB?.clearCache?.();
+            window.app?.state?.clearCache?.();
+        }
+
+        await this._refreshMainProfileStats(targetUserId);
+    },
+
+    async _refreshMainProfileStats(targetUserId) {
         try {
             const myId = window.Core?.state?.currentUser?.id;
             if (!myId) return;
-            const g = await CommunityDB.getUserProgress(myId);
+
+            // Fetch the target user's fresh progress from Supabase
+            const userId = targetUserId || myId;
+            const g = await CommunityDB.getUserProgress(userId);
             if (!g) return;
 
-            // Sync Core state
-            if (window.Core?.state?.currentUser) {
-                if (g.xp    !== undefined) Core.state.currentUser.xp    = g.xp;
-                if (g.karma !== undefined) Core.state.currentUser.karma = g.karma;
-                if (g.level !== undefined) Core.state.currentUser.level = g.level;
+            // Only sync local engine state when the target is ourselves
+            if (userId === myId) {
+                if (window.Core?.state?.currentUser) {
+                    if (g.xp    !== undefined) Core.state.currentUser.xp    = g.xp;
+                    if (g.karma !== undefined) Core.state.currentUser.karma = g.karma;
+                    if (g.level !== undefined) Core.state.currentUser.level = g.level;
+                }
+                if (window.app?.gamification?.state) {
+                    if (g.xp    !== undefined) window.app.gamification.state.xp    = g.xp;
+                    if (g.karma !== undefined) window.app.gamification.state.karma = g.karma;
+                    if (g.level !== undefined) window.app.gamification.state.level = g.level;
+                }
+                // Reload engine from DB (safe now — debounce was cancelled above)
+                await window.app?.gamification?.reloadFromDatabase?.();
+
+                // Refresh the profile hero panel
+                const xpEl = document.getElementById('profileGamificationXP');
+                if (xpEl && g.xp !== undefined) xpEl.textContent = g.xp.toLocaleString();
+                window.ProfileModule?.refreshGamification?.();
             }
-            // Sync GamificationEngine
-            if (window.app?.gamification?.state) {
-                if (g.xp    !== undefined) window.app.gamification.state.xp    = g.xp;
-                if (g.karma !== undefined) window.app.gamification.state.karma = g.karma;
-                if (g.level !== undefined) window.app.gamification.state.level = g.level;
-            }
-            await window.app?.gamification?.reloadFromDatabase?.();
 
-            // Update merged profile panel DOM (new IDs from profile-module.js)
-            const xpEl    = document.getElementById('profileGamificationXP');
-            const karmaEl = document.getElementById('pipStatKarma') || document.getElementById('statKarma');
-            if (xpEl    && g.xp    !== undefined) xpEl.textContent    = g.xp.toLocaleString();
-            if (karmaEl && g.karma !== undefined) karmaEl.textContent = g.karma.toLocaleString();
-
-            // Refresh the full gamification section if ProfileModule is available
-            window.ProfileModule?.refreshGamification?.();
-
+            // Always refresh the member modal's displayed stats
             this._populateGamification(g);
         } catch (e) {
             console.warn('[AdminPanel] _refreshMainProfileStats:', e);
