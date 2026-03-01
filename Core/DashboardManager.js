@@ -65,6 +65,26 @@ const KNOWN_ADMIN_BADGE_IDS = new Set([
   'community_hero'
 ]);
 
+// Global helper: navigate to Community Hub tab then scroll to a specific section.
+// Used by the Sanctuary widget on the Dashboard.
+window._navigateToHubSection = function(targetId) {
+  window.app?.nav?.switchTab('community-hub');
+
+  // Poll until the target element exists in the Hub (Hub renders async)
+  const maxAttempts = 30; // 3 seconds max
+  let attempts = 0;
+  const poll = setInterval(() => {
+    attempts++;
+    const el = document.getElementById(targetId);
+    if (el) {
+      clearInterval(poll);
+      setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    } else if (attempts >= maxAttempts) {
+      clearInterval(poll);
+    }
+  }, 100);
+};
+
 export default class DashboardManager {
   /** @type {Object} Fallback quote when QuotesData unavailable */
   static FALLBACK_QUOTE = {
@@ -1084,10 +1104,10 @@ export default class DashboardManager {
     if (!container) return;
 
     const features = [
-      { emoji: '🚪', title: '8 Practice & Study Rooms', desc: 'Join live rooms with other practitioners' },
-      { emoji: '💬', title: 'Chat & Connect',           desc: 'Talk, study and share with the community' },
-      { emoji: '🌕', title: 'Lunar Cycle Room',         desc: 'Practice in rhythm with the moon' },
-      { emoji: '☀️', title: 'Solar Cycle Room',         desc: 'Align your practice with the sun' },
+      { emoji: '🚪', title: '8 Practice & Study Rooms', desc: 'Join live rooms with other practitioners', target: 'roomsGrid' },
+      { emoji: '💬', title: 'Chat & Connect',           desc: 'Talk, study and share with the community', target: 'communityReflectionsContainer' },
+      { emoji: '🌕', title: 'Lunar Cycle Room',         desc: 'Practice in rhythm with the moon',        target: 'lunarContainer' },
+      { emoji: '☀️', title: 'Solar Cycle Room',         desc: 'Align your practice with the sun',        target: 'solarContainer' },
     ];
 
     container.innerHTML = `
@@ -1100,7 +1120,7 @@ export default class DashboardManager {
         <div class="wellness-buttons-grid">
           ${features.map(f => `
             <button class="wellness-tool-btn wellness-tool-active"
-                    onclick="window.app?.nav?.switchTab('community-hub')"
+                    onclick="window._navigateToHubSection('${f.target}')"
                     aria-label="${f.title}">
               <div class="wellness-tool-icon">${f.emoji}</div>
               <div class="wellness-tool-content">
