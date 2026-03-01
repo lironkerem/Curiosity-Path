@@ -156,110 +156,6 @@ class MeditationsEngine {
   }
 
   /**
-   * Builds the Community Meditation Rooms CTA card
-   */
-  buildMeditationCTA() {
-    // Helper: get countdown string for a timed room
-    const getCountdown = (roomKey) => {
-      const room = window[roomKey];
-      if (!room) return null;
-      if (room.state?.isOpen) return null; // open — no countdown needed
-      return room.getCountdownToNextOpen?.() || null;
-    };
-
-    const guidedCountdown = getCountdown('GuidedRoom');
-    const oshoCountdown   = getCountdown('OshoRoom');
-
-    const btnStyle = `
-      flex: 1 1 200px;
-      padding: 0.75rem 1rem;
-      border-radius: 999px;
-      border: none;
-      background: var(--neuro-bg);
-      color: var(--neuro-text);
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 6px 6px 14px var(--neuro-shadow-dark), -6px -6px 14px var(--neuro-shadow-light);
-      transition: all 0.2s;
-    `;
-
-    const disabledStyle = `
-      flex: 1 1 200px;
-      padding: 0.75rem 1rem;
-      border-radius: 999px;
-      border: none;
-      background: var(--neuro-bg);
-      color: var(--neuro-text-light);
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: not-allowed;
-      opacity: 0.55;
-      box-shadow: inset 4px 4px 8px var(--neuro-shadow-dark), inset -4px -4px 8px var(--neuro-shadow-light);
-    `;
-
-    return `
-      <div class="card" style="margin-bottom: 2rem; width: 100%; box-sizing: border-box;">
-        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
-          <span style="font-size: 1.6rem;">🧘</span>
-          <h3 style="margin: 0; font-size: 1.15rem; color: var(--neuro-text); font-weight: 700;">
-            Meditate Together with the Community
-          </h3>
-        </div>
-        <p style="margin: 0 0 1.5rem; font-size: 0.92rem; color: var(--neuro-text-light); line-height: 1.6;">
-          Practice in real time with others. Choose silence, guided visualization, or active OSHO techniques —
-          all in shared, live spaces.
-        </p>
-        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-
-          <button
-            type="button"
-            onclick="document.activeElement?.blur(); window._pendingRoomOpen = 'silent'; window.app.nav.switchTab('community-hub')"
-            style="${btnStyle}"
-            onmouseover="this.style.transform='translateY(-1px)'"
-            onmouseout="this.style.transform='translateY(0)'"
-          >
-            🧘 Silent Meditation
-          </button>
-
-          ${guidedCountdown ? `
-          <button type="button" disabled style="${disabledStyle}" title="${guidedCountdown}">
-            🎧 Guided — ${guidedCountdown}
-          </button>
-          ` : `
-          <button
-            type="button"
-            onclick="document.activeElement?.blur(); window._pendingRoomOpen = 'guided'; window.app.nav.switchTab('community-hub')"
-            style="${btnStyle}"
-            onmouseover="this.style.transform='translateY(-1px)'"
-            onmouseout="this.style.transform='translateY(0)'"
-          >
-            🎧 Guided Visualizations
-          </button>
-          `}
-
-          ${oshoCountdown ? `
-          <button type="button" disabled style="${disabledStyle}" title="${oshoCountdown}">
-            💃 OSHO Active — ${oshoCountdown}
-          </button>
-          ` : `
-          <button
-            type="button"
-            onclick="document.activeElement?.blur(); window._pendingRoomOpen = 'osho'; window.app.nav.switchTab('community-hub')"
-            style="${btnStyle}"
-            onmouseover="this.style.transform='translateY(-1px)'"
-            onmouseout="this.style.transform='translateY(0)'"
-          >
-            💃 OSHO Active Meditations
-          </button>
-          `}
-
-        </div>
-      </div>
-    `;
-  }
-
-  /**
    * Main render method - builds the complete meditation interface
    */
   render() {
@@ -337,8 +233,6 @@ class MeditationsEngine {
               </button>
             </div>
           </div>
-
-          ${this.buildMeditationCTA()}
 
           <div class="card" style="margin-bottom: 2rem;">
             <div class="dashboard-wellness-header" style="margin-bottom:1.5rem;">
