@@ -1022,9 +1022,9 @@ export default class DashboardManager {
               <span class="header-sub"></span>
             </header>
             ${this.renderGamificationWidget(status, stats)}
+            <div id="activeMembersContainer"></div>
             ${this.dailyCards.renderDailyCardsSection()}
             ${this.renderWellnessToolkit()}
-            <div id="activeMembersContainer"></div>
             ${this.renderQuestHub(status)}
             ${this.renderRecentAchievements(status)}
             <div class="mb-8">${this.renderQuoteCard()}</div>
