@@ -325,10 +325,9 @@ class CommunityHubEngine {
       // Group 5: Engines last
       await this._load('js/Solar/solarengine.js');
 
-      // Boot Core — reset initialized flag first so Core.init() always runs
-      // in full, even if CommunityDB was pre-initialized by the dashboard widget.
+      // Boot Core
       if (!window.Core?.init) throw new Error('Core module not found');
-      window.Core.state.initialized = false;
+
       window.Core.init();
 
       if (window.Rituals) window.Rituals.state.hasSeenOpening = false;

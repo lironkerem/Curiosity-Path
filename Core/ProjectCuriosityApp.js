@@ -600,7 +600,10 @@ export default class ProjectCuriosityApp {
       this.dailyCards = new DailyCards(this);
       await this.dailyCards.initializeBoosters();
 
-      // Initialize CommunityDB — auth is confirmed here so _uid will resolve
+      // Initialize CommunityDB for the Active Members dashboard widget.
+      // We call CommunityDB.init() directly — intentionally NOT calling Core.init() —
+      // so Core.state.initialized stays false and CommunityHubEngine can run it
+      // in full when the user navigates to the Community Hub tab.
       if (window.CommunityDB) {
         const communityReady = await window.CommunityDB.init();
         if (!communityReady) {
