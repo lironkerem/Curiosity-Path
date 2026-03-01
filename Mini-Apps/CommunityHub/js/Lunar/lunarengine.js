@@ -263,6 +263,9 @@ const LunarEngine = {
         const container = document.getElementById('lunarContainer');
         if (!container) { console.warn('LunarEngine: #lunarContainer not found'); return; }
 
+        // Ensure shared lunar CSS is present even before any room is entered
+        if (window.LunarUI) LunarUI.injectStyles();
+
         if (!this.currentMoonData || !this.currentLunarRoom) {
             container.innerHTML = '<p style="color:var(--text-muted);padding:20px;">Loading lunar data...</p>';
             return;
