@@ -1024,8 +1024,8 @@ export default class DashboardManager {
             ${this.renderGamificationWidget(status, stats)}
             <div id="dashboardActiveMembersContainer"></div>
             ${this.dailyCards.renderDailyCardsSection()}
-            ${this.renderWellnessToolkit()}
             <div id="sanctuaryContainer"></div>
+            ${this.renderWellnessToolkit()}
             ${this.renderQuestHub(status)}
             ${this.renderRecentAchievements(status)}
             <div class="mb-8">${this.renderQuoteCard()}</div>
@@ -1084,11 +1084,10 @@ export default class DashboardManager {
     if (!container) return;
 
     const features = [
-      { emoji: '🚪', title: '8 Practice & Study Rooms',   desc: 'Join live rooms with other practitioners' },
-      { emoji: '🌕', title: 'Lunar Cycle Room',           desc: 'Practice in rhythm with the moon' },
-      { emoji: '☀️', title: 'Solar Cycle Room',           desc: 'Align your practice with the sun' },
-      { emoji: '💬', title: 'Chat & Connect',             desc: 'Talk, study and share with the community' },
-      { emoji: '✨', title: 'Send Energy & Calm',         desc: 'Offer presence and support to others' },
+      { emoji: '🚪', title: '8 Practice & Study Rooms', desc: 'Join live rooms with other practitioners' },
+      { emoji: '💬', title: 'Chat & Connect',           desc: 'Talk, study and share with the community' },
+      { emoji: '🌕', title: 'Lunar Cycle Room',         desc: 'Practice in rhythm with the moon' },
+      { emoji: '☀️', title: 'Solar Cycle Room',         desc: 'Align your practice with the sun' },
     ];
 
     container.innerHTML = `
