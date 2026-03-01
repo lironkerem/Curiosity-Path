@@ -242,7 +242,7 @@ class MeditationsEngine {
             <button type="button" disabled style="${disabledStyle}">
               🎧 Guided — ${guidedCountdown}
             </button>
-            <button type="button" onclick="event.stopPropagation(); window.GuidedRoom?.showScheduleModal()"
+            <button type="button" onclick="event.stopPropagation(); window.GuidedRoom?.mountHubModals(); window.GuidedRoom?.showScheduleModal()"
               style="background:none;border:none;padding:0;font-size:11px;color:var(--neuro-text-light);cursor:pointer;text-decoration:underline;text-align:center;">
               📅 View Schedule
             </button>
@@ -264,7 +264,7 @@ class MeditationsEngine {
             <button type="button" disabled style="${disabledStyle}">
               💃 OSHO Active — ${oshoCountdown}
             </button>
-            <button type="button" onclick="event.stopPropagation(); window.OshoRoom?.showScheduleModal()"
+            <button type="button" onclick="event.stopPropagation(); window.OshoRoom?.mountHubModals(); window.OshoRoom?.showScheduleModal()"
               style="background:none;border:none;padding:0;font-size:11px;color:var(--neuro-text-light);cursor:pointer;text-decoration:underline;text-align:center;">
               📅 View Schedule
             </button>
