@@ -314,14 +314,10 @@ const ProfileModule = {
         const xpPct     = Math.min(100, Math.max(0, levelInfo.progress ?? 0));
 
         const statItems = [
-            { value: status.karma,                    label:'Karma',       emoji:'💎' },
-            { value: appStats.totalGratitudes || 0,   label:'Gratitudes',  emoji:'❤️' },
-            { value: 0,                               label:'Blessings',   emoji:'🙏', id:'statBlessings' },
-            { value: '—',                             label:'Fav Room',    emoji:'🏠', id:'statFavRoom'   },
-            { value: status.totalTarotSpreads || 0,   label:'Tarot',       emoji:'🔮' },
-            { value: appStats.weeklyMeditations || 0, label:'Meditations', emoji:'🧘' },
-            { value: status.totalWellnessRuns || 0,   label:'Wellness',    emoji:'🌿' },
-            { value: (status.badges || []).length,    label:'Badges',      emoji:'🎖️' },
+            { value: status.karma,                 label:'Karma',    emoji:'💎' },
+            { value: 0,                            label:'Blessings',emoji:'🙏', id:'statBlessings' },
+            { value: '—',                          label:'Fav Room', emoji:'🏠', id:'statFavRoom'   },
+            { value: (status.badges || []).length, label:'Badges',   emoji:'🎖️' },
         ];
 
         return `
