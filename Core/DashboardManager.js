@@ -7,6 +7,7 @@
 
 import { InquiryEngine } from '../Features/InquiryEngine.js';
 import DailyCards from '../Features/DailyCards.js';
+import { supabase } from '/Core/Supabase.js';
 
 const CONSTANTS = {
   BADGES_PREVIEW_COUNT: 9,
@@ -1091,6 +1092,11 @@ export default class DashboardManager {
     });
 
     try {
+      // Expose the main app's Supabase client so community-supabase.js can find it
+      if (!window.AppSupabase) {
+        window.AppSupabase = supabase || this.app?.supabase || null;
+      }
+
       // Must be sequential — each depends on the previous
       await loadScript(`${BASE}/supabase-client.js`);
       await loadScript(`${BASE}/community-supabase.js`);  // sets window.CommunityDB
