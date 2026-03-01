@@ -262,6 +262,16 @@ export default class UserTab {
     this.attachListener('save-profile-btn', 'click', () => {
       this.saveQuickProfile();
     });
+
+    // Status picker
+    document.querySelectorAll('.status-option-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.setStatus(btn.dataset.status, btn.dataset.color, btn.dataset.label);
+      });
+    });
+
+    // Highlight current status on open
+    this.updateStatusRing(this.currentUser?.community_status || 'offline');
   }
 
   /** Handle avatar image upload — uploads to Supabase Storage, saves public URL */
@@ -413,13 +423,14 @@ export default class UserTab {
 
     // Merge data into current user
     if (data) {
-      const fields = ['name', 'email', 'phone', 'birthday', 'emoji', 'avatar_url', 'country'];
+      const fields = ['name', 'email', 'phone', 'birthday', 'emoji', 'avatar_url', 'country', 'community_status'];
       fields.forEach(field => {
         if (data[field] !== undefined) {
           this.currentUser[field] = data[field];
         }
       });
       this.syncAvatar();
+      this.updateStatusRing(this.currentUser.community_status || 'offline');
     }
   }
 
@@ -986,6 +997,62 @@ export default class UserTab {
         this.closePricingModal();
       }, { once: true })
     );
+  }
+
+  // ============== STATUS ==============
+
+  static STATUS_COLORS = {
+    online:  '#6b9b37',
+    available: '#6b9b37',
+    away:    '#e53e3e',
+    guiding: '#e53e3e',
+    silent:  '#7c3aed',
+    deep:    '#1e40af',
+    offline: '#9ca3af',
+  };
+
+  /**
+   * Update the status ring color around the avatar button
+   * @param {string} status - Status key
+   */
+  updateStatusRing(status = 'offline') {
+    const color = UserTab.STATUS_COLORS[status] || UserTab.STATUS_COLORS.offline;
+    if (this.btn) {
+      this.btn.style.setProperty('--status-ring-color', color);
+      this.btn.classList.add('has-status-ring');
+    }
+    // Highlight the active status button in the picker (if open)
+    document.querySelectorAll('.status-option-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.status === status);
+    });
+  }
+
+  /**
+   * Set user status — updates ring, saves to Supabase, updates local state
+   * @param {string} status - Status key
+   * @param {string} color  - Hex color
+   * @param {string} label  - Display label
+   */
+  async setStatus(status, color, label) {
+    if (this.currentUser) this.currentUser.community_status = status;
+    this.updateStatusRing(status);
+
+    // Highlight active button
+    document.querySelectorAll('.status-option-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.status === status);
+    });
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ community_status: status })
+        .eq('id', this.currentUser?.id);
+      if (error) throw error;
+      this.app.showToast(`Status set to ${label}`, 'success');
+    } catch (err) {
+      console.error('setStatus error:', err);
+      this.app.showToast('Could not update status', 'error');
+    }
   }
 
   // ============== AVATAR SYNC ==============

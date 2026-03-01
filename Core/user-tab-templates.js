@@ -127,6 +127,29 @@ export const profile = (u = {}) => `
       placeholder="Country"
       value="${u.country || ''}">
     <button class="btn-link" id="save-profile-btn">Save changes</button>
+
+    <!-- Status Picker -->
+    <div class="status-picker-section">
+      <div class="status-picker-label">My Status</div>
+      <div class="status-picker-options">
+        ${[
+          { status: 'online',  color: '#6b9b37', icon: '🟢', label: 'Available'     },
+          { status: 'away',    color: '#e53e3e', icon: '🔴', label: 'Away'           },
+          { status: 'silent',  color: '#7c3aed', icon: '🟣', label: 'In Silence'    },
+          { status: 'deep',    color: '#1e40af', icon: '🔵', label: 'Deep Practice' },
+          { status: 'offline', color: '#9ca3af', icon: '⚫', label: 'Offline'       },
+        ].map(s => `
+          <button
+            class="status-option-btn"
+            data-status="${s.status}"
+            data-color="${s.color}"
+            data-label="${s.label}"
+            title="${s.label}">
+            <span class="status-option-dot" style="background:${s.color};"></span>
+            <span class="status-option-text">${s.label}</span>
+          </button>`).join('')}
+      </div>
+    </div>
   </div>`;
 
 // ============== SKINS SECTION ==============

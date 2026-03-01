@@ -264,29 +264,77 @@ export default class UserTab {
     });
   }
 
-  /** Handle avatar image upload */
-  handleAvatarUpload() {
+  /** Handle avatar image upload — uploads to Supabase Storage, saves public URL */
+  async handleAvatarUpload() {
     const file = document.getElementById('avatar-upload').files[0];
     if (!file) return;
 
-    // Validate file size
     if (file.size > UserTab.CONFIG.MAX_AVATAR_SIZE) {
       this.app.showToast('Image > 5 MB', 'error');
       return;
     }
 
+    // Optimistic preview
     const reader = new FileReader();
     reader.onload = (e) => {
-      const img = document.getElementById('profile-avatar-img');
+      const img   = document.getElementById('profile-avatar-img');
       const emoji = document.querySelector('.profile-avatar-emoji');
-      
-      if (img) {
-        img.src = e.target.result;
-        img.style.display = 'block';
-      }
+      if (img)   { img.src = e.target.result; img.style.display = 'block'; }
       if (emoji) emoji.style.display = 'none';
     };
     reader.readAsDataURL(file);
+
+    this.app.showToast('Uploading photo...', 'info');
+
+    try {
+      const uid = this.currentUser?.id;
+      if (!uid) { this.app.showToast('Not logged in', 'error'); return; }
+
+      const ext  = file.name.split('.').pop().toLowerCase() || 'jpg';
+      const path = `avatars/${uid}.${ext}`;
+
+      const { error: upErr } = await supabase.storage
+        .from('community-avatars')
+        .upload(path, file, { upsert: true, contentType: file.type });
+
+      if (upErr) {
+        console.warn('Avatar upload error:', upErr.message);
+        this.app.showToast('Upload failed — please try again', 'error');
+        return;
+      }
+
+      const { data } = supabase.storage.from('community-avatars').getPublicUrl(path);
+      const publicUrl = data?.publicUrl ? `${data.publicUrl}?t=${Date.now()}` : null;
+      if (!publicUrl) { this.app.showToast('Upload failed — please try again', 'error'); return; }
+
+      // Update img element to real URL (replace base64 preview)
+      const img = document.getElementById('profile-avatar-img');
+      if (img) img.src = publicUrl;
+
+      // Save to profiles table
+      const { error: saveErr } = await supabase
+        .from('profiles')
+        .upsert({ id: uid, avatar_url: publicUrl }, { onConflict: 'id' });
+
+      if (saveErr) {
+        console.warn('Profile avatar_url save error:', saveErr.message);
+        this.app.showToast('Photo uploaded but profile save failed', 'warning');
+        return;
+      }
+
+      // Sync into app state
+      if (this.currentUser) this.currentUser.avatar_url = publicUrl;
+      localStorage.setItem(`profile_${uid}`, JSON.stringify({
+        ...JSON.parse(localStorage.getItem(`profile_${uid}`) || '{}'),
+        avatar_url: publicUrl
+      }));
+      this.syncAvatar();
+      this.app.showToast('✅ Profile photo updated', 'success');
+
+    } catch (err) {
+      console.error('handleAvatarUpload error:', err);
+      this.app.showToast('Upload failed — please try again', 'error');
+    }
   }
 
   /** Save user profile (with lock to prevent double-save) */
@@ -306,7 +354,8 @@ export default class UserTab {
       phone: document.getElementById('profile-phone')?.value.trim() || null,
       birthday: document.getElementById('profile-birthday')?.value || null,
       emoji: document.getElementById('profile-emoji')?.value || '👤',
-      avatar_url: document.getElementById('profile-avatar-img')?.src || ''
+      country: document.getElementById('profile-country')?.value.trim() || null,
+      // avatar_url is managed separately by handleAvatarUpload (Supabase Storage)
     };
 
     let savedOnServer = false;
@@ -364,7 +413,7 @@ export default class UserTab {
 
     // Merge data into current user
     if (data) {
-      const fields = ['name', 'email', 'phone', 'birthday', 'emoji', 'avatar_url'];
+      const fields = ['name', 'email', 'phone', 'birthday', 'emoji', 'avatar_url', 'country'];
       fields.forEach(field => {
         if (data[field] !== undefined) {
           this.currentUser[field] = data[field];

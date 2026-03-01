@@ -91,6 +91,72 @@
   opacity: 1;
 }
 
+/* ── Status ring around avatar button ─────────────────────────────── */
+.user-disc.has-status-ring {
+  outline: 2.5px solid var(--status-ring-color, #9ca3af);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--status-ring-color, #9ca3af) 25%, transparent);
+  transition: outline-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* ── Status picker in profile panel ──────────────────────────────── */
+.status-picker-section {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+}
+
+.status-picker-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #888);
+  margin-bottom: 8px;
+}
+
+.status-picker-options {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.status-option-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  cursor: pointer;
+  font-size: 0.84rem;
+  color: var(--neuro-text, #333);
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.status-option-btn:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.status-option-btn.active {
+  background: rgba(0,0,0,0.07);
+  font-weight: 700;
+}
+
+.status-option-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-option-text {
+  flex: 1;
+}
+
 /* Notification dot */
 .disc-dot {
   position: absolute;
