@@ -163,7 +163,6 @@ const ProfileModule = {
             transition:transform 0.15s,box-shadow 0.15s;`;
 
         return `
-        <!-- ── Profile Hero ───────────────────────────────────────── -->
         <header class="profile-hero" style="border-radius:20px 20px 0 0;overflow:hidden;">
             <div class="profile-container">
                 <div class="profile-content">
@@ -299,134 +298,7 @@ const ProfileModule = {
                     </div>
                 </div>
             </div>
-        </header>
-
-        <!-- ── Divider ────────────────────────────────────────────── -->
-        <div style="display:flex;align-items:center;gap:12px;padding:0 1.5rem;margin:0.5rem 0;">
-            <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(0,0,0,0.1),transparent);"></div>
-            <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);
-                        text-transform:uppercase;letter-spacing:0.07em;white-space:nowrap;">
-                🧬 Spiritual Progress
-            </div>
-            <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(0,0,0,0.1),transparent);"></div>
-        </div>
-
-        <!-- ── Gamification Section ───────────────────────────────── -->
-        ${this._getGamificationHTML()}`;
-    },
-
-    /**
-     * Builds the gamification progress section HTML.
-     * Called by getHTML(); also callable standalone to re-render just this section.
-     * @returns {string}
-     */
-    _getGamificationHTML() {
-        const g         = window.app?.gamification;
-        const status    = g?.getStatusSummary?.() ?? {
-            xp:0, karma:0, badges:[], streak:{current:0},
-            totalJournalEntries:0, totalHappinessViews:0,
-            totalTarotSpreads:0, totalWellnessRuns:0
-        };
-        const levelInfo = g?.calculateLevel?.() ?? { level:1, title:'Seeker', progress:0, pointsToNext:100 };
-        const appStats  = window.app?.state?.getStats?.() ?? {};
-        const article   = levelInfo.title.match(/^[aeiou]/i) ? 'an' : 'a';
-        const xpPct     = Math.min(100, Math.max(0, levelInfo.progress ?? 0));
-
-        const statItems = [
-            { value: status.karma,                    label:'Karma',       emoji:'💎' },
-            { value: appStats.totalGratitudes || 0,   label:'Gratitudes',  emoji:'❤️' },
-            { value: status.totalJournalEntries || 0, label:'Journaling',  emoji:'📔' },
-            { value: status.totalHappinessViews || 0, label:'Boosters',    emoji:'💡' },
-            { value: status.totalTarotSpreads || 0,   label:'Tarot',       emoji:'🔮' },
-            { value: appStats.weeklyMeditations || 0, label:'Meditations', emoji:'🧘' },
-            { value: status.totalWellnessRuns || 0,   label:'Wellness',    emoji:'🌿' },
-            { value: (status.badges || []).length,    label:'Badges',      emoji:'🎖️' },
-        ];
-
-        return `
-        <div class="profile-gamification-section"
-             style="padding:1.25rem 1.5rem 1.75rem;background:var(--neuro-bg,#f0f0f3);">
-
-            <!-- Level title + XP bar -->
-            <div style="text-align:center;margin-bottom:0.75rem;">
-                <div style="font-size:1rem;color:var(--neuro-text);margin-bottom:0.5rem;">
-                    You are ${article}
-                    <strong style="color:var(--primary,#667eea);">${levelInfo.title}</strong>
-                    — Level ${levelInfo.level}
-                </div>
-                <!-- XP progress bar -->
-                <div style="height:10px;border-radius:99px;
-                            background:rgba(0,0,0,0.07);
-                            box-shadow:inset 1px 1px 4px rgba(0,0,0,0.1);
-                            overflow:hidden;margin-bottom:0.4rem;">
-                    <div id="profileGamificationXpBar"
-                         class="profile-xp-bar-fill"
-                         data-width="${xpPct}"
-                         style="width:0%;height:100%;border-radius:99px;
-                                background:linear-gradient(90deg,var(--primary,#667eea),var(--neuro-accent,#a855f7));
-                                transition:width 0.9s cubic-bezier(0.4,0,0.2,1);
-                                position:relative;overflow:hidden;">
-                        <div style="position:absolute;inset:0;
-                                    background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.4) 50%,transparent 100%);
-                                    animation:profile-xp-shimmer 2.4s infinite;"></div>
-                    </div>
-                </div>
-                <div style="font-size:0.82rem;color:var(--text-muted);">
-                    <span style="font-weight:800;font-size:1rem;color:var(--primary,#667eea);" id="profileGamificationXP">${status.xp}</span> XP
-                    <span style="margin:0 4px;opacity:0.4;">·</span>
-                    <span id="profileGamificationXPNext">${levelInfo.pointsToNext}</span> to next level
-                </div>
-            </div>
-
-            <!-- 8-stat grid -->
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
-                ${statItems.map(item => `
-                <div style="background:var(--neuro-bg,#f0f0f3);border-radius:14px;
-                            padding:10px 6px;text-align:center;
-                            box-shadow:3px 3px 8px rgba(0,0,0,0.09),-2px -2px 6px rgba(255,255,255,0.7);
-                            transition:transform 0.15s;"
-                     onmouseover="this.style.transform='translateY(-2px)'"
-                     onmouseout="this.style.transform=''">
-                    <div style="font-size:1.3rem;line-height:1;margin-bottom:4px;">${item.emoji}</div>
-                    <div style="font-size:1.15rem;font-weight:800;
-                                color:var(--primary,#667eea);line-height:1;">${item.value}</div>
-                    <div style="font-size:0.65rem;color:var(--text-muted);
-                                font-weight:600;text-transform:uppercase;
-                                letter-spacing:0.03em;margin-top:3px;">${item.label}</div>
-                </div>`).join('')}
-            </div>
-        </div>
-
-        <style>
-            @keyframes profile-xp-shimmer {
-                0%   { transform: translateX(-100%); }
-                100% { transform: translateX(200%); }
-            }
-        </style>`;
-    },
-
-    /**
-     * Animates the XP progress bar after render.
-     * Called automatically by init() via populateData().
-     */
-    animateGamificationBar() {
-        requestAnimationFrame(() => {
-            const bar = document.getElementById('profileGamificationXpBar');
-            if (bar) bar.style.width = (bar.dataset.width || 0) + '%';
-        });
-    },
-
-    /**
-     * Re-renders only the gamification section (e.g. after XP/level change).
-     * Replaces the .profile-gamification-section element in place.
-     */
-    refreshGamification() {
-        const section = document.querySelector('.profile-gamification-section');
-        if (!section) return;
-        const temp = document.createElement('div');
-        temp.innerHTML = this._getGamificationHTML();
-        section.replaceWith(temp.firstElementChild);
-        this.animateGamificationBar();
+        </header>`;
     },
 
     renderHTML() {
@@ -459,7 +331,6 @@ const ProfileModule = {
             this.updateBirthday(user);
             this.updateCountry(user);
             this.updateProfileLocationRow(user);
-            this.animateGamificationBar();
             this.loadActivityData().catch(() => {});
             this.loadCommunityStats().catch(() => {});
         } catch (error) {
