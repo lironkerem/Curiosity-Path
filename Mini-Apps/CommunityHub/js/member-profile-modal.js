@@ -902,22 +902,42 @@ const MemberProfileModal = {
      * - If targeting another user: just refreshes the modal's displayed stats.
      */
     async _safeRefresh(targetUserId) {
-        const myId  = window.Core?.state?.currentUser?.id;
+        const myId   = window.Core?.state?.currentUser?.id;
         const isSelf = targetUserId === myId;
 
         if (isSelf) {
-            // 1. Cancel any pending GamificationEngine debounced save so it can't
-            //    overwrite the new Supabase value with stale in-memory state.
             const ge = window.app?.gamification;
+
+            // 1. Cancel pending debounced save so stale in-memory state
+            //    cannot overwrite the admin-written Supabase value.
             if (ge?.saveTimeout) {
                 clearTimeout(ge.saveTimeout);
                 ge.saveTimeout = null;
             }
 
-            // 2. Clear DB.js 30s cache so the next getUserProgress goes to Supabase.
-            // DB.js exports clearCache — GamificationEngine may expose it via app.state
+            // 2. Clear DB.js 30s cache and localStorage.
             window.DB?.clearCache?.();
             window.app?.state?.clearCache?.();
+
+            // 3. Fetch fresh value from Supabase and immediately patch it into
+            //    the engine's in-memory state AND app.state.data.
+            //    This prevents any concurrent saveState() call from spreading
+            //    the old XP value back to Supabase before reloadFromDatabase() runs.
+            try {
+                const fresh = await CommunityDB.getUserProgress(targetUserId);
+                if (fresh && ge?.state) {
+                    if (fresh.xp    !== undefined) ge.state.xp    = fresh.xp;
+                    if (fresh.karma !== undefined) ge.state.karma = fresh.karma;
+                    if (fresh.level !== undefined) ge.state.level = fresh.level;
+                }
+                if (fresh && window.app?.state?.data) {
+                    if (fresh.xp    !== undefined) window.app.state.data.xp    = fresh.xp;
+                    if (fresh.karma !== undefined) window.app.state.data.karma = fresh.karma;
+                    if (fresh.level !== undefined) window.app.state.data.level = fresh.level;
+                }
+            } catch (e) {
+                console.warn('[_safeRefresh] pre-patch failed:', e);
+            }
         }
 
         await this._refreshMainProfileStats(targetUserId);
@@ -940,12 +960,8 @@ const MemberProfileModal = {
                     if (g.karma !== undefined) Core.state.currentUser.karma = g.karma;
                     if (g.level !== undefined) Core.state.currentUser.level = g.level;
                 }
-                if (window.app?.gamification?.state) {
-                    if (g.xp    !== undefined) window.app.gamification.state.xp    = g.xp;
-                    if (g.karma !== undefined) window.app.gamification.state.karma = g.karma;
-                    if (g.level !== undefined) window.app.gamification.state.level = g.level;
-                }
-                // Reload engine from DB (safe now — debounce was cancelled above)
+                // Reload engine — safe because _safeRefresh already patched
+                // app.state.data with fresh values before calling here.
                 await window.app?.gamification?.reloadFromDatabase?.();
 
                 // Refresh the profile hero panel
