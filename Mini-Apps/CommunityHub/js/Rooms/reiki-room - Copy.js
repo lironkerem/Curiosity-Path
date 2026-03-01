@@ -277,7 +277,7 @@ class ReikiRoom extends PracticeRoom {
             <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;">🌅 Today's Collective Focus</h3>
             ${this.buildChakraDisplay(todayChakra, this.state.dailyImageIndex, `${cn}.previousDailyImage()`, `${cn}.nextDailyImage()`, true)}
         </div>
-        <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:24px;" class="tarot-daily-grid">
+        <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(200px,1fr);gap:16px;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:24px;" class="tarot-daily-grid">
             <div>
                 <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 8px 0;text-align:center;">💬 Community Discussion</h4>
                 <div style="display:flex;flex-direction:column;height:100%;">

@@ -239,7 +239,7 @@ class TarotRoom extends PracticeRoom {
                 <div style="color:var(--text-muted);font-size:14px;padding:40px;">Loading today's card…</div>
             </div>
         </div>
-        <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:24px;" class="tarot-daily-grid">
+        <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(200px,1fr);gap:16px;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:24px;" class="tarot-daily-grid">
             <div>
                 <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;">💬 Community Discussion</h4>
                 <div style="display:flex;flex-direction:column;height:100%;">

@@ -3742,14 +3742,15 @@ body.solar-room-active[data-season] {
 /* ── FIX 3: Tarot/Reiki participants — horizontal bar above chat ──────
    Stack the grid as a flex-column so the members bar sits above chat.
    The members list itself becomes a horizontal scroll strip.            */
-/* ── Desktop: members panel on the right, vertical scroll ── */
 .tarot-daily-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(200px, 1fr);
-    gap: 16px;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px;
 }
 
+/* Members panel above chat */
 .tarot-daily-grid > div:last-child {
+    order: -1;
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 10px 14px;
@@ -3758,31 +3759,38 @@ body.solar-room-active[data-season] {
 }
 
 .tarot-daily-grid > div:last-child > div:first-child {
-    font-size: 13px; margin-bottom: 8px; text-align: center;
+    font-size: 13px; margin-bottom: 8px; text-align: left !important;
 }
 
+/* Participant list: horizontal scroll strip */
 .tarot-daily-grid > div:last-child .campfire-participants,
 .tarot-daily-grid > div:last-child [id$="ParticipantListEl"] {
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    overflow-x: hidden;
-    height: 400px;
-    gap: 6px;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    height: auto !important;
+    max-height: none !important;
+    gap: 8px;
     padding: 4px 0;
-    scrollbar-width: thin;
+   
+    scrollbar-width: none;
 }
+.tarot-daily-grid > div:last-child .campfire-participants::-webkit-scrollbar,
+.tarot-daily-grid > div:last-child [id$="ParticipantListEl"]::-webkit-scrollbar { display: none; }
 
+/* Compact participant chips */
 .tarot-daily-grid .campfire-participant {
-    flex-direction: row; align-items: center;
-    gap: 8px; padding: 6px 8px;
-    margin-bottom: 0;
+    flex-direction: column; align-items: center;
+    gap: 3px; padding: 6px 8px;
+    min-width: 54px; margin-bottom: 0; flex-shrink: 0;
 }
 .tarot-daily-grid .campfire-participant-name {
-    font-size: 12px; white-space: nowrap;
-    overflow: hidden; text-overflow: ellipsis;
+    font-size: 10px; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; max-width: 52px;
 }
-.tarot-daily-grid .campfire-participant-country { display: inline; }
+.tarot-daily-grid .campfire-participant-country { display: none; }
 
 
 /* ─── CELESTIAL OUTER CARD BASE STYLES ─── */
@@ -4942,41 +4950,8 @@ body.solar-room-active[data-season] {
     .chakra-practice-grid li    { margin-bottom: 5px !important; }
 
     /* Members bar mobile */
-    /* Members panel: horizontal strip on mobile */
-    .tarot-daily-grid {
-        grid-template-columns: 1fr !important;
-        display: flex !important;
-        flex-direction: column !important;
-    }
-    .tarot-daily-grid > div:last-child {
-        order: -1;
-        padding: 8px 10px;
-    }
-    .tarot-daily-grid > div:last-child .campfire-participants,
-    .tarot-daily-grid > div:last-child [id$="ParticipantListEl"] {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        overflow-x: auto !important;
-        overflow-y: hidden !important;
-        height: auto !important;
-        max-height: none !important;
-        gap: 8px;
-        scrollbar-width: none;
-    }
-    .tarot-daily-grid > div:last-child .campfire-participants::-webkit-scrollbar,
-    .tarot-daily-grid > div:last-child [id$="ParticipantListEl"]::-webkit-scrollbar { display: none; }
-    .tarot-daily-grid .campfire-participant {
-        flex-direction: column; align-items: center;
-        gap: 3px; padding: 6px 8px;
-        min-width: 54px; flex-shrink: 0; margin-bottom: 0;
-    }
-    .tarot-daily-grid .campfire-participant-name {
-        font-size: 10px; white-space: nowrap;
-        overflow: hidden; text-overflow: ellipsis; max-width: 52px;
-    }
-    .tarot-daily-grid .campfire-participant-country { display: none; }
-    .tarot-daily-grid .chat-messages { max-height: 200px !important; min-height: 80px !important; }
+    .tarot-daily-grid > div:last-child { padding: 8px 10px; }
+    .tarot-daily-grid .chat-messages   { max-height: 200px !important; min-height: 80px !important; }
 
     [id$="PersonalTab"] div[style*="padding: 32px"] { padding: 16px !important; }
     [id$="PersonalFocus"]                           { font-size: 13px !important; padding: 9px !important; }
