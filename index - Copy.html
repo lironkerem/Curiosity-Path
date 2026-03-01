@@ -35,9 +35,6 @@
   <!-- 5. tailwind (if still needed) -->
   <link rel="stylesheet" href="/CSS/tailwind-output.css">
 
-  <!-- 6. Community Hub — loaded globally so the Active Members dashboard widget has styles -->
-  <link rel="stylesheet" href="/Mini-Apps/CommunityHub/community-hub.css">
-
   <!-- ===== Theme activation before first paint ===== -->
   <script>
   (function(){
@@ -115,13 +112,6 @@
   <script type="module" src="./Features/EnergyTracker.js"></script>
   <script type="module" src="./Core/Features.js"></script>
   <script src="./Features/WellnessKit.js"></script>
-
-  <!-- ===== Community Hub: core scripts loaded early for Active Members dashboard widget ===== -->
-  <!-- Sequential loading order matters: supabase-client → community-supabase → core → active-members -->
-  <script src="/Mini-Apps/CommunityHub/js/supabase-client.js"   defer></script>
-  <script src="/Mini-Apps/CommunityHub/js/community-supabase.js" defer></script>
-  <script src="/Mini-Apps/CommunityHub/js/core.js"              defer></script>
-  <script src="/Mini-Apps/CommunityHub/js/active-members.js"    defer></script>
 
   <!-- ===== Bootstrap Application ===== -->
   <script type="module">

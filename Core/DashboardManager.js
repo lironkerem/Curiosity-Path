@@ -7,7 +7,6 @@
 
 import { InquiryEngine } from '../Features/InquiryEngine.js';
 import DailyCards from '../Features/DailyCards.js';
-import { supabase } from '/Core/Supabase.js';
 
 const CONSTANTS = {
   BADGES_PREVIEW_COUNT: 9,
@@ -1035,9 +1034,8 @@ export default class DashboardManager {
       // Animate progress bars
       this.animateProgressBars();
 
-      // Render Active Members from Community Hub (lightweight bootstrap —
-      // loads only the 3 scripts needed, not the full CommunityHubEngine)
-      this._initActiveMembersWidget();
+      // Render Active Members widget (scripts + CommunityDB init handled by ProjectCuriosityApp)
+      window.ActiveMembers?.render();
       
     } catch (error) {
       console.error('Error rendering dashboard:', error);
@@ -1062,69 +1060,6 @@ export default class DashboardManager {
         }
       });
     });
-  }
-
-  /* ---------- Community Hub: Active Members Widget ---------- */
-
-  /**
-   * Lightweight bootstrap for the Active Members widget.
-   * Loads only the required Community Hub scripts — not the full engine.
-   * If the scripts are already present (user visited Community Hub first),
-   * it renders immediately instead of re-loading.
-   * @private
-   */
-  async _initActiveMembersWidget() {
-    const BASE = '/Mini-Apps/CommunityHub/js';
-
-    // Already fully loaded — just render
-    if (window.ActiveMembers && window.CommunityDB?.ready) {
-      window.ActiveMembers.render();
-      return;
-    }
-
-    const loadScript = (src) => new Promise((resolve, reject) => {
-      if (document.querySelector(`script[src="${src}"]`)) return resolve();
-      const s = document.createElement('script');
-      s.src = src;
-      s.onload = resolve;
-      s.onerror = () => reject(new Error(`[Dashboard] Failed to load: ${src}`));
-      document.body.appendChild(s);
-    });
-
-    const tryInit = async () => {
-      if (!window.AppSupabase) {
-        window.AppSupabase = supabase || null;
-        console.log('[Dashboard] AppSupabase set:', !!window.AppSupabase);
-      }
-      return await window.CommunityDB?.init();
-    };
-
-    try {
-      // Sequential — each depends on the previous
-      await loadScript(`${BASE}/supabase-client.js`);
-      await loadScript(`${BASE}/community-supabase.js`); // sets window.CommunityDB
-      await loadScript(`${BASE}/core.js`);               // sets window.Core (needed by ActiveMembers)
-      await loadScript(`${BASE}/active-members.js`);     // sets window.ActiveMembers
-
-      // Init CommunityDB — sets _sb (Supabase client) and _uid (user ID)
-      let ready = await tryInit();
-
-      // Retry once after 1s — auth session may not be fully propagated yet
-      if (!ready) {
-        console.warn('[Dashboard] CommunityDB.init() failed, retrying in 1s...');
-        await new Promise(r => setTimeout(r, 1000));
-        ready = await tryInit();
-      }
-
-      if (!ready) {
-        console.warn('[Dashboard] CommunityDB not ready — ActiveMembers skipped');
-        return;
-      }
-
-      window.ActiveMembers?.render();
-    } catch (err) {
-      console.warn('[Dashboard] ActiveMembers widget could not load:', err.message);
-    }
   }
 
   /* ---------- Cleanup ---------- */

@@ -70,9 +70,6 @@ const EMOJI = {
 // Initialize dark mode on module load
 DarkMode.init();
 
-// Expose Supabase client globally for Community Hub scripts
-window.AppSupabase = supabase;
-
 /* =========================================================
    MAIN APPLICATION CLASS
    ========================================================= */
@@ -599,14 +596,6 @@ export default class ProjectCuriosityApp {
       // Initialize daily cards
       this.dailyCards = new DailyCards(this);
       await this.dailyCards.initializeBoosters();
-
-      // Initialize CommunityDB — auth is confirmed here so _uid will resolve
-      if (window.CommunityDB) {
-        const communityReady = await window.CommunityDB.init();
-        if (!communityReady) {
-          console.warn('[App] CommunityDB.init() failed — Active Members widget will be unavailable');
-        }
-      }
 
       // Show main app UI
       this._hideAuthScreen();
