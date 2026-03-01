@@ -49,12 +49,12 @@
     /* All --neuro-* variables are inherited from main app CSS */
     
     /* Practice status rings using main app accent colors */
-    --ring-silent: var(--neuro-info, #6ba3b3);          /* calm blue-teal */
-    --ring-available: var(--neuro-accent, #6b9b37);     /* vibrant leaf green */
-    --ring-guiding: var(--neuro-warning, #d4a574);      /* warm amber */
-    --ring-deep: var(--neuro-wood, #8b7355);            /* deep wood brown */
+    --ring-silent: #7c3aed;                             /* purple - In Silence */
+    --ring-available: var(--neuro-accent, #6b9b37);     /* vibrant leaf green - Available */
+    --ring-guiding: #e53e3e;                            /* red - Away */
+    --ring-deep: #1e40af;                               /* dark blue - Deep Practice */
     --ring-resonant: var(--neuro-accent, #6b9b37);      /* forest green */
-    --ring-offline: var(--neuro-wood-light, #a89279);   /* muted taupe */
+    --ring-offline: #9ca3af;                            /* grey - Offline */
     
     /* Alias main app variables for Community Hub compatibility */
     --primary: var(--neuro-accent);
@@ -2252,7 +2252,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     animation: pulse-status 2s infinite;
 }
 
-.member-mini-status.away { background: var(--ring-offline); }
+.member-mini-status.away { background: var(--ring-guiding); }
 
 @keyframes pulse-status {
 0%, 100% { box-shadow: 0 0 0 2px var(--neuro-accent-a30); }
