@@ -159,16 +159,21 @@ class MeditationsEngine {
    * Builds the Community Meditation Rooms CTA card
    */
   buildMeditationCTA() {
-    // Helper: get countdown string for a timed room
-    const getCountdown = (roomKey) => {
-      const room = window[roomKey];
-      if (!room) return null;
-      if (room.state?.isOpen) return null; // open — no countdown needed
-      return room.getCountdownToNextOpen?.() || null;
+    // Calculate cycle state directly from the clock — works before Community Hub loads
+    const calcCycle = (cycleSec, openSec) => {
+      const now          = Date.now();
+      const cycleMs      = cycleSec * 1000;
+      const openMs       = openSec  * 1000;
+      const timeInCycle  = now % cycleMs;
+      if (timeInCycle < openMs) return null; // currently open
+      const msUntilOpen  = cycleMs - timeInCycle;
+      const m = Math.floor(msUntilOpen / 60000);
+      const s = Math.floor((msUntilOpen % 60000) / 1000);
+      return `Opens in ${m}:${String(s).padStart(2, '0')}`;
     };
 
-    const guidedCountdown = getCountdown('GuidedRoom');
-    const oshoCountdown   = getCountdown('OshoRoom');
+    const guidedCountdown = calcCycle(60 * 60, 15 * 60);  // 60-min cycle, 15-min open
+    const oshoCountdown   = calcCycle(90 * 60, 10 * 60);  // 90-min cycle, 10-min open
 
     const btnStyle = `
       flex: 1 1 200px;
