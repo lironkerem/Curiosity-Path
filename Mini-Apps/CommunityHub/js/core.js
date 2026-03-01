@@ -125,8 +125,25 @@ const Core = {
             if (window._pendingHubScrollTarget) {
                 const targetId = window._pendingHubScrollTarget;
                 window._pendingHubScrollTarget = null;
-                const el = document.getElementById(targetId);
-                if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+
+                // Wait for the target element to have content before scrolling —
+                // Lunar/Solar render asynchronously so the section may have no
+                // height yet if we scroll immediately.
+                const maxAttempts = 40; // 4 seconds max (40 × 100ms)
+                let attempts = 0;
+                const poll = setInterval(() => {
+                    attempts++;
+                    const el = document.getElementById(targetId);
+                    const hasContent = el && el.offsetHeight > 10;
+                    if (hasContent) {
+                        clearInterval(poll);
+                        setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+                    } else if (attempts >= maxAttempts) {
+                        clearInterval(poll);
+                        // Fallback — scroll to whatever is there even if not fully rendered
+                        el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 100);
             }
 
         } catch (error) {

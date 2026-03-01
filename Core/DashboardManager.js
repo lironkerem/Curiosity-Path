@@ -1094,8 +1094,8 @@ export default class DashboardManager {
     const features = [
       { emoji: '🚪', title: '8 Practice & Study Rooms', desc: 'Join live rooms with other practitioners', target: 'roomsGrid' },
       { emoji: '💬', title: 'Chat & Connect',           desc: 'Talk, study and share with the community', target: 'communityReflectionsContainer' },
-      { emoji: '🌕', title: 'Lunar Cycle Room',         desc: 'Practice in rhythm with the moon',        target: 'lunarContainer' },
-      { emoji: '☀️', title: 'Solar Cycle Room',         desc: 'Align your practice with the sun',        target: 'solarContainer' },
+      { emoji: '🌕', title: 'Lunar Cycle Room',         desc: 'Practice in rhythm with the moon',        target: 'celestialLunarSection' },
+      { emoji: '☀️', title: 'Solar Cycle Room',         desc: 'Align your practice with the sun',        target: 'celestialSolarSection' },
     ];
 
     container.innerHTML = `

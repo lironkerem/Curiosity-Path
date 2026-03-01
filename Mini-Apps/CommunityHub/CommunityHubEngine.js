@@ -99,12 +99,15 @@ class CommunityHubEngine {
                   <div class="rooms-grid" id="roomsGrid"></div>
                 </section>
 
-                <section class="section" aria-labelledby="celestialCyclesTitle">
+                <section class="section" id="celestialLunarSection" aria-labelledby="celestialCyclesTitle">
                   <div class="section-header">
                     <div class="section-title" id="celestialCyclesTitle">Celestial Cycles</div>
                     <div style="font-size:12px; color:var(--text-muted);">Practice with nature's rhythms</div>
                   </div>
                   <div id="lunarContainer" class="celestial-container"></div>
+                </section>
+
+                <section class="section" id="celestialSolarSection">
                   <div id="solarContainer" class="celestial-container"></div>
                 </section>
 
