@@ -1036,7 +1036,23 @@ export default class DashboardManager {
 
       // Render Active Members from Community Hub
       if (window.ActiveMembers) {
-        window.ActiveMembers.render();
+        if (window.CommunityDB?.ready) {
+          window.ActiveMembers.render();
+        } else {
+          // CommunityDB may still be initializing — wait up to 5s
+          const maxAttempts = 20;
+          let attempts = 0;
+          const poll = setInterval(() => {
+            attempts++;
+            if (window.CommunityDB?.ready || window.ActiveMembers) {
+              clearInterval(poll);
+              window.ActiveMembers?.render();
+            } else if (attempts >= maxAttempts) {
+              clearInterval(poll);
+              console.warn('[Dashboard] CommunityDB not ready — ActiveMembers skipped');
+            }
+          }, 250);
+        }
       }
       
     } catch (error) {
