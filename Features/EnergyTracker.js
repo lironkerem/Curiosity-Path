@@ -444,7 +444,8 @@ class EnergyEngineEnhanced {
             type="button"
             onclick="document.activeElement?.blur(); window.app.nav.switchTab('community-hub')"
             style="
-              padding: 0.65rem 1.5rem;
+              flex: 1 1 200px;
+              padding: 0.75rem 1rem;
               border-radius: 999px;
               border: none;
               background: var(--neuro-bg);
@@ -464,15 +465,16 @@ class EnergyEngineEnhanced {
             type="button"
             onclick="document.activeElement?.blur(); window._pendingRoomOpen = 'reiki'; window.app.nav.switchTab('community-hub')"
             style="
-              padding: 0.65rem 1.5rem;
+              flex: 1 1 200px;
+              padding: 0.75rem 1rem;
               border-radius: 999px;
               border: none;
-              background: linear-gradient(135deg, rgba(246,194,74,0.18), rgba(139,107,230,0.18));
-              color: var(--neuro-accent);
+              background: var(--neuro-bg);
+              color: var(--neuro-text);
               font-size: 0.9rem;
-              font-weight: 700;
+              font-weight: 600;
               cursor: pointer;
-              box-shadow: inset 4px 4px 8px rgba(0,0,0,.04), inset -4px -4px 8px rgba(255,255,255,.6);
+              box-shadow: 6px 6px 14px var(--neuro-shadow-dark), -6px -6px 14px var(--neuro-shadow-light);
               transition: all 0.2s;
             "
             onmouseover="this.style.transform='translateY(-1px)'"
