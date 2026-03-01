@@ -1025,6 +1025,7 @@ export default class DashboardManager {
             <div id="dashboardActiveMembersContainer"></div>
             ${this.dailyCards.renderDailyCardsSection()}
             ${this.renderWellnessToolkit()}
+            <div id="sanctuaryContainer"></div>
             ${this.renderQuestHub(status)}
             ${this.renderRecentAchievements(status)}
             <div class="mb-8">${this.renderQuoteCard()}</div>
@@ -1043,6 +1044,9 @@ export default class DashboardManager {
         await window.ActiveMembers.render();
         dashEl.id = 'dashboardActiveMembersContainer';
       }
+
+      // Render Sanctuary / Community Hub invite section
+      this._renderSanctuarySection();
       
     } catch (error) {
       console.error('Error rendering dashboard:', error);
@@ -1067,6 +1071,132 @@ export default class DashboardManager {
         }
       });
     });
+  }
+
+  /* ---------- Sanctuary / Community Hub Invite ---------- */
+
+  /**
+   * Renders a bold hero section inviting users into the Community Hub.
+   * Pulls live room activity from ActiveMembers data already in the DOM,
+   * so no extra DB call is needed.
+   * @private
+   */
+  async _renderSanctuarySection() {
+    const container = document.getElementById('sanctuaryContainer');
+    if (!container) return;
+
+    // Room definitions — names and emoji matching CommunityHubEngine rooms
+    const ROOMS = [
+      { id: 'silent',    label: 'Silent Room',     emoji: '🤫' },
+      { id: 'guided',    label: 'Guided Session',  emoji: '🧘' },
+      { id: 'campfire',  label: 'Campfire Circle', emoji: '🔥' },
+      { id: 'breathwork',label: 'Breathwork',      emoji: '🌬️' },
+      { id: 'deepwork',  label: 'Deep Work',       emoji: '🎯' },
+      { id: 'osho',      label: 'Osho Space',      emoji: '🌀' },
+      { id: 'tarot',     label: 'Tarot Room',      emoji: '🔮' },
+      { id: 'reiki',     label: 'Reiki Circle',    emoji: '✨' },
+    ];
+
+    // Derive room counts from presence data already fetched by ActiveMembers
+    let roomCounts = {};
+    try {
+      if (window.CommunityDB?.ready) {
+        const members = await CommunityDB.getActiveMembers();
+        members.forEach(m => {
+          if (m.room_id) roomCounts[m.room_id] = (roomCounts[m.room_id] || 0) + 1;
+        });
+      }
+    } catch (_) {}
+
+    const activeRooms = ROOMS.filter(r => roomCounts[r.id] > 0);
+    const displayRooms = activeRooms.length ? activeRooms : ROOMS.slice(0, 4);
+    const totalInRooms = Object.values(roomCounts).reduce((a, b) => a + b, 0);
+
+    const roomPillsHTML = displayRooms.map(r => {
+      const count = roomCounts[r.id] || 0;
+      const isLive = count > 0;
+      return `
+        <div style="display:flex;align-items:center;gap:8px;
+                    background:rgba(255,255,255,0.12);
+                    border:1px solid rgba(255,255,255,${isLive ? '0.3' : '0.12'});
+                    border-radius:99px;padding:7px 14px;
+                    backdrop-filter:blur(4px);">
+          <span style="font-size:1rem;">${r.emoji}</span>
+          <span style="font-size:0.82rem;font-weight:600;color:#fff;opacity:${isLive ? '1' : '0.6'};">
+            ${r.label}
+          </span>
+          ${isLive ? `
+            <span style="display:flex;align-items:center;gap:4px;">
+              <span style="width:6px;height:6px;border-radius:50%;background:#6ee7b7;
+                           box-shadow:0 0 6px #6ee7b7;animation:pulse 2s infinite;
+                           flex-shrink:0;"></span>
+              <span style="font-size:0.75rem;color:#6ee7b7;font-weight:700;">${count}</span>
+            </span>` : ''}
+        </div>`;
+    }).join('');
+
+    const liveText = totalInRooms > 0
+      ? `${totalInRooms} practitioner${totalInRooms !== 1 ? 's' : ''} inside right now`
+      : 'Rooms are open and waiting';
+
+    container.innerHTML = `
+      <div class="mb-8" style="
+           background: linear-gradient(135deg, #3b1f6e 0%, #1a3a5c 50%, #2d1b4e 100%);
+           border-radius: 20px;
+           padding: 2rem;
+           position: relative;
+           overflow: hidden;
+           box-shadow: 8px 8px 24px rgba(0,0,0,0.18), -4px -4px 12px rgba(255,255,255,0.05);">
+
+        <!-- Background glow orbs -->
+        <div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;
+                    background:radial-gradient(circle, rgba(167,139,250,0.25) 0%, transparent 70%);
+                    pointer-events:none;"></div>
+        <div style="position:absolute;bottom:-30px;left:-20px;width:140px;height:140px;
+                    background:radial-gradient(circle, rgba(110,231,183,0.15) 0%, transparent 70%);
+                    pointer-events:none;"></div>
+
+        <!-- Header -->
+        <div style="position:relative;margin-bottom:1.25rem;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+            <span style="font-size:1.4rem;">🕯️</span>
+            <h3 style="margin:0;font-size:1.2rem;font-weight:800;color:#fff;letter-spacing:0.01em;">
+              The Sanctuary is Open
+            </h3>
+          </div>
+          <p style="margin:0;font-size:0.85rem;color:rgba(255,255,255,0.6);padding-left:2px;">
+            ${liveText}
+          </p>
+        </div>
+
+        <!-- Room pills -->
+        <div style="position:relative;display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.5rem;">
+          ${roomPillsHTML}
+        </div>
+
+        <!-- CTA -->
+        <div style="position:relative;">
+          <button
+            onclick="window.app?.nav?.switchTab('community-hub')"
+            style="width:100%;padding:14px;border-radius:14px;border:none;cursor:pointer;
+                   font-size:0.92rem;font-weight:700;letter-spacing:0.02em;
+                   background:linear-gradient(135deg,rgba(255,255,255,0.18),rgba(255,255,255,0.08));
+                   color:#fff;
+                   box-shadow:inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 12px rgba(0,0,0,0.2);
+                   backdrop-filter:blur(8px);
+                   border:1px solid rgba(255,255,255,0.2);
+                   transition:opacity 0.15s;">
+            Enter the Sanctuary →
+          </button>
+        </div>
+      </div>
+
+      <style>
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50%       { opacity: 0.5; transform: scale(1.4); }
+        }
+      </style>`;
   }
 
   /* ---------- Cleanup ---------- */
