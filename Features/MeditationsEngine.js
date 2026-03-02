@@ -158,6 +158,118 @@ class MeditationsEngine {
   /**
    * Builds the Community Meditation Rooms CTA card
    */
+  /**
+   * Shows a self-contained schedule modal for a timed room.
+   * Works without Community Hub being loaded.
+   */
+  showMeditationSchedule(roomKey) {
+    const configs = {
+      guided: {
+        title:    "📅 Today's Meditation Schedule",
+        cycleSec: 60 * 60,
+        openSec:  15 * 60,
+        sessions: [
+          { title: 'Grounding to the Center of Earth', duration: '29:56', category: 'Grounding',     emoji: '🌍' },
+          { title: 'Aura Adjustment and Cleaning',     duration: '29:56', category: 'Energy',        emoji: '✨' },
+          { title: 'Chakra Cleaning',                  duration: '39:58', category: 'Chakras',       emoji: '🌈' },
+          { title: 'The Center of the Universe',       duration: '29:56', category: 'Spiritual',     emoji: '🌌' },
+          { title: 'Blowing Roses Healing Technique',  duration: '29:56', category: 'Healing',       emoji: '🌹' },
+          { title: '3 Wishes Manifestation',           duration: '29:52', category: 'Manifestation', emoji: '⭐' },
+          { title: 'Meeting your Higher Self',         duration: '29:56', category: 'Premium',       emoji: '💎' },
+          { title: 'Inner Temple',                     duration: '29:46', category: 'Premium',       emoji: '🔮' },
+          { title: 'Gratitude Practice',               duration: '29:56', category: 'Premium',       emoji: '👑' },
+        ]
+      },
+      osho: {
+        title:    '📅 Upcoming OSHO Sessions',
+        cycleSec: 90 * 60,
+        openSec:  10 * 60,
+        sessions: [
+          { title: 'OSHO Chakra Breathing Meditation', duration: '77:00', category: 'Energy',   emoji: '🌬️' },
+          { title: 'OSHO Chakra Sounds Meditation',    duration: '77:00', category: 'Sound',    emoji: '🎵' },
+          { title: 'OSHO Devavani Meditation',         duration: '77:00', category: 'Voice',    emoji: '🗣️' },
+          { title: 'OSHO Kundalini Meditation',        duration: '77:00', category: 'Movement', emoji: '💃' },
+          { title: 'OSHO Mandala Meditation',          duration: '77:00', category: 'Energy',   emoji: '⭕' },
+          { title: 'OSHO Nadabrahma Meditation',       duration: '77:00', category: 'Humming',  emoji: '🕉️' },
+          { title: 'OSHO Nataraj Meditation',          duration: '77:00', category: 'Dance',    emoji: '🎭' },
+        ]
+      }
+    };
+
+    const cfg     = configs[roomKey];
+    if (!cfg) return;
+
+    const now     = Date.now();
+    const cycleMs = cfg.cycleSec * 1000;
+    const openMs  = cfg.openSec  * 1000;
+    const base    = Math.floor(now / cycleMs);
+    const fmt     = ms => new Date(ms).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+    const rows = Array.from({ length: 6 }, (_, i) => {
+      const idx        = (base + i) % cfg.sessions.length;
+      const session    = cfg.sessions[idx];
+      const cycleStart = (base + i) * cycleMs;
+      const cycleClose = cycleStart + openMs;
+      const timeInto   = now - cycleStart;
+      const isOpen     = i === 0 && timeInto >= 0 && timeInto < openMs;
+      const isInSess   = i === 0 && timeInto >= openMs;
+
+      const badge = isOpen
+        ? `<span style="background:#22c55e;color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px;">OPEN NOW</span>`
+        : isInSess
+          ? `<span style="background:rgba(239,68,68,0.15);color:#ef4444;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px;">IN SESSION</span>`
+          : '';
+
+      const rowBg = isOpen ? 'background:var(--neuro-accent);color:white;' : 'background:var(--neuro-bg);';
+
+      return `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:12px;margin-bottom:8px;${rowBg}
+                    box-shadow:4px 4px 10px var(--neuro-shadow-dark),-4px -4px 10px var(--neuro-shadow-light);">
+          <div style="display:flex;align-items:center;gap:12px;flex:1;">
+            <span style="font-size:24px;">${session.emoji}</span>
+            <div>
+              <div style="font-weight:600;font-size:14px;">${session.title}${badge}</div>
+              <div style="font-size:11px;opacity:0.7;">${[session.category, session.duration].filter(Boolean).join(' · ')}</div>
+            </div>
+          </div>
+          <div style="text-align:right;font-size:12px;white-space:nowrap;margin-left:12px;">
+            <div style="font-weight:600;">${fmt(cycleStart)}</div>
+            <div style="opacity:0.6;">closes ${fmt(cycleClose)}</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    // Remove any existing instance
+    document.getElementById('meditationScheduleModal')?.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'meditationScheduleModal';
+    modal.style.cssText = `
+      position:fixed;inset:0;z-index:99999;
+      background:rgba(0,0,0,0.5);
+      display:flex;align-items:center;justify-content:center;
+      padding:1rem;
+    `;
+    modal.innerHTML = `
+      <div style="background:var(--neuro-bg);border-radius:16px;padding:1.5rem;max-width:520px;width:100%;
+                  max-height:80vh;overflow-y:auto;
+                  box-shadow:12px 12px 24px var(--neuro-shadow-dark),-12px -12px 24px var(--neuro-shadow-light);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="margin:0;font-size:1.1rem;color:var(--neuro-text);">${cfg.title}</h2>
+          <button onclick="document.getElementById('meditationScheduleModal')?.remove()"
+                  style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--neuro-text-light);line-height:1;">×</button>
+        </div>
+        <div>${rows}</div>
+      </div>
+    `;
+
+    modal.addEventListener('click', e => {
+      if (e.target === modal) modal.remove();
+    });
+
+    document.body.appendChild(modal);
+  }
+
   buildMeditationCTA() {
     // Calculate cycle state directly from the clock — works before Community Hub loads
     const calcCycle = (cycleSec, openSec) => {
@@ -242,7 +354,7 @@ class MeditationsEngine {
             <button type="button" disabled style="${disabledStyle}">
               🎧 Guided — ${guidedCountdown}
             </button>
-            <button type="button" onclick="event.stopPropagation(); window.GuidedRoom?.mountHubModals(); window.GuidedRoom?.showScheduleModal()"
+            <button type="button" onclick="event.stopPropagation(); window.featuresManager.engines.meditations.showMeditationSchedule('guided')"
               style="background:none;border:none;padding:0;font-size:11px;color:var(--neuro-text-light);cursor:pointer;text-decoration:underline;text-align:center;">
               📅 View Schedule
             </button>
@@ -264,7 +376,7 @@ class MeditationsEngine {
             <button type="button" disabled style="${disabledStyle}">
               💃 OSHO Active — ${oshoCountdown}
             </button>
-            <button type="button" onclick="event.stopPropagation(); window.OshoRoom?.mountHubModals(); window.OshoRoom?.showScheduleModal()"
+            <button type="button" onclick="event.stopPropagation(); window.featuresManager.engines.meditations.showMeditationSchedule('osho')"
               style="background:none;border:none;padding:0;font-size:11px;color:var(--neuro-text-light);cursor:pointer;text-decoration:underline;text-align:center;">
               📅 View Schedule
             </button>
