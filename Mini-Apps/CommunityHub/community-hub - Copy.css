@@ -1673,7 +1673,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 .sanctuary-content {
     max-width: 900px;
     margin: 0 auto;
-    padding: 0 0 40px;
+    padding: 0 24px 40px;
 }
 
 /* Daily Cycle Bar */
@@ -3842,7 +3842,7 @@ body.solar-room-active[data-season] {
 @media (min-width: 768px) and (max-width: 1024px) {
 
 .sanctuary-content {
-    padding: 0 0 32px;
+    padding: 0 20px 32px;
   }
 
   .rooms-grid {
@@ -4009,7 +4009,7 @@ body.solar-room-active[data-season] {
   }
 
   .sanctuary-content {
-    padding: 0 0 24px;
+    padding: 0 16px 24px;
   }
 
   .profile-container {
@@ -5706,7 +5706,7 @@ body.solar-room-active[data-season] {
 @media (max-width: 380px) {
 
   /* Layout */
-  .sanctuary-content { padding: 0 0 20px; }
+  .sanctuary-content { padding: 0 12px 20px; }
   .profile-container { padding: 0 12px; }
 
   /* Profile */
