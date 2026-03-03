@@ -162,10 +162,11 @@ export const profile = (u = {}) => `
 export const skins = (app) => {
   const activeTheme = localStorage.getItem('activeTheme') || 'default';
   const isDark = document.body.classList.contains('dark-mode');
-  
-  const hasChampagne = app.gamification?.state?.unlockedFeatures?.includes('luxury_champagne_gold_skin');
-  const hasIndigo = app.gamification?.state?.unlockedFeatures?.includes('royal_indigo_skin');
-  const hasEarth = app.gamification?.state?.unlockedFeatures?.includes('earth_luxury_skin');
+  const isPrivileged = app.state?.currentUser?.isAdmin || app.state?.currentUser?.isVip;
+
+  const hasChampagne = isPrivileged || app.gamification?.state?.unlockedFeatures?.includes('luxury_champagne_gold_skin');
+  const hasIndigo = isPrivileged || app.gamification?.state?.unlockedFeatures?.includes('royal_indigo_skin');
+  const hasEarth = isPrivileged || app.gamification?.state?.unlockedFeatures?.includes('earth_luxury_skin');
 
   return `
     <div class="accordion-inner">

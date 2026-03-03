@@ -9,7 +9,8 @@ async render() {
   const tab = document.getElementById('shadow-alchemy-tab');
 
   // Check if feature is unlocked
-  const isLocked = !this.app.gamification?.state?.unlockedFeatures?.includes('shadow_alchemy_lab');
+  const isPrivileged = this.app.state?.currentUser?.isAdmin || this.app.state?.currentUser?.isVip;
+  const isLocked = !isPrivileged && !this.app.gamification?.state?.unlockedFeatures?.includes('shadow_alchemy_lab');
 
   if (isLocked) {
     // Show locked state

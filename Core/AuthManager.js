@@ -330,9 +330,11 @@ export default class AuthManager {
   async _setAuthenticated(u) {
     const isGoogle = u.app_metadata?.provider === 'google';
     let isAdmin = false;
+    let isVip = false;
     try {
-      const { data: profile } = await supabase.from('profiles').select('is_admin').eq('id', u.id).single();
+      const { data: profile } = await supabase.from('profiles').select('is_admin, is_vip').eq('id', u.id).single();
       isAdmin = profile?.is_admin || false;
+      isVip = profile?.is_vip || false;
     } catch (error) { console.warn('Admin check failed:', error); }
     const user = {
       id:u.id,
@@ -345,7 +347,8 @@ export default class AuthManager {
       tier:'Premium',
       joinDate:u.created_at,
       provider:isGoogle ? 'google' : 'email',
-      isAdmin
+      isAdmin,
+      isVip
     };
     this.app.state.currentUser = user;
     this.app.state.isAuthenticated = true;

@@ -508,7 +508,8 @@ class MeditationsEngine {
   renderMeditationCards() {
     return this.meditations.map(med => {
       const isPremium = med.premium;
-      const isLocked = isPremium && !this.app.gamification?.state?.unlockedFeatures?.includes('advanced_meditations');
+      const isPrivileged = this.app.state?.currentUser?.isAdmin || this.app.state?.currentUser?.isVip;
+      const isLocked = isPremium && !isPrivileged && !this.app.gamification?.state?.unlockedFeatures?.includes('advanced_meditations');
       
       return `
         <div class="meditation-card ${isLocked ? 'locked' : ''}" 
@@ -834,7 +835,8 @@ class MeditationsEngine {
     if (!med) return;
     
     // Check premium access
-    if (med.premium && !this.app.gamification?.state?.unlockedFeatures?.includes('advanced_meditations')) {
+    const isPrivileged = this.app.state?.currentUser?.isAdmin || this.app.state?.currentUser?.isVip;
+    if (med.premium && !isPrivileged && !this.app.gamification?.state?.unlockedFeatures?.includes('advanced_meditations')) {
       this.app.showToast('🔒 Unlock Advanced Meditations in the Karma Shop!', 'info');
       return;
     }
@@ -851,7 +853,8 @@ class MeditationsEngine {
     if (!med) return;
     
     // Check premium access
-    if (med.premium && !this.app.gamification?.state?.unlockedFeatures?.includes('advanced_meditations')) {
+    const isPrivileged2 = this.app.state?.currentUser?.isAdmin || this.app.state?.currentUser?.isVip;
+    if (med.premium && !isPrivileged2 && !this.app.gamification?.state?.unlockedFeatures?.includes('advanced_meditations')) {
       this.app.showToast('🔒 Unlock Advanced Meditations in the Karma Shop!', 'info');
       return;
     }

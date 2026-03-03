@@ -565,7 +565,8 @@ class TarotEngine {
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6" style="margin-bottom: 3rem;">
             ${Object.entries(this.spreads).map(([key, sp]) => {
               const isPremium = ['options', 'pyramid', 'cross'].includes(key);
-              const isLocked = isPremium && !this.app.gamification?.state?.unlockedFeatures?.includes('advance_tarot_spreads');
+              const isPrivileged = this.app.state?.currentUser?.isAdmin || this.app.state?.currentUser?.isVip;
+              const isLocked = isPremium && !isPrivileged && !this.app.gamification?.state?.unlockedFeatures?.includes('advance_tarot_spreads');
               return `
               <div onclick="window.featuresManager.engines.tarot.selectSpread('${key}')"
                    class="card cursor-pointer relative ${this.selectedSpread === key ? 'border-4' : ''} ${isLocked ? 'opacity-75' : ''}"
@@ -581,7 +582,8 @@ class TarotEngine {
 
           <div class="flex justify-center" style="margin-bottom: 3rem;padding:0 1.5rem;">
             ${(() => {
-              const has = this.app?.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
+              const isPrivileged = this.app?.state?.currentUser?.isAdmin || this.app?.state?.currentUser?.isVip;
+              const has = isPrivileged || this.app?.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
               const locked = !has;
               return `
                 <button id="tarot-vision-ai-btn"
@@ -921,7 +923,8 @@ class TarotEngine {
       const visionBtn = document.getElementById('tarot-vision-ai-btn');
       if (visionBtn) {
         const handler = () => {
-          const locked = !this.app?.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
+          const isPrivileged = this.app?.state?.currentUser?.isAdmin || this.app?.state?.currentUser?.isVip;
+          const locked = !isPrivileged && !this.app?.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
           if (locked) {
             this.app?.showToast?.('🔒 Unlock Tarot Vision AI in the Karma Shop!', 'info');
           } else {
@@ -943,7 +946,8 @@ class TarotEngine {
     const premiumSpreads = ['options', 'pyramid', 'cross'];
     
     // Check if spread is locked
-    if (premiumSpreads.includes(spreadKey) && 
+    const isPrivileged = this.app?.state?.currentUser?.isAdmin || this.app?.state?.currentUser?.isVip;
+    if (!isPrivileged && premiumSpreads.includes(spreadKey) && 
         !this.app?.gamification?.state?.unlockedFeatures?.includes('advance_tarot_spreads')) {
       this.app?.showToast?.('🔒 Unlock Advanced Tarot Spreads in the Karma Shop!', 'info');
       return;

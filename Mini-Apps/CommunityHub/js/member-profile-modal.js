@@ -308,7 +308,7 @@ const MemberProfileModal = {
                                                    border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
                                                    background:var(--neuro-bg);color:var(--neuro-text);">
                                         <option>Member</option><option>Moderator</option>
-                                        <option>Guide</option><option>Elder</option><option>Admin</option>
+                                        <option>Guide</option><option>Elder</option><option>VIP</option><option>Admin</option>
                                     </select>
                                     ${this._adminSubFooter('_adminChangeRole', 'Save Role')}
                                 </div>
@@ -789,8 +789,12 @@ const MemberProfileModal = {
         const role = document.getElementById('adminRoleSelect')?.value;
         if (!role || !this.state.currentUserId) return;
         await this._withBtnState('#adminSubRole button', 'Saving...', 'Save Role', async () => {
+            const profileUpdate = { community_role: role };
+            // Sync is_vip flag based on role
+            if (role === 'VIP') profileUpdate.is_vip = true;
+            else profileUpdate.is_vip = false;
             const { error } = await CommunityDB._sb.from('profiles')
-                .update({ community_role: role }).eq('id', this.state.currentUserId);
+                .update(profileUpdate).eq('id', this.state.currentUserId);
             if (error) throw error;
             this._setText('memberModalRole', `👤 ${role}`);
             Core.showToast(`✓ Role changed to ${role}`);
