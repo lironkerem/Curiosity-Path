@@ -50,10 +50,10 @@
     
     /* Practice status rings using main app accent colors */
     --ring-silent: #7c3aed;                             /* purple - In Silence */
-    --ring-available: var(--neuro-accent, #6b9b37);     /* vibrant leaf green - Available */
+    --ring-available: #6b9b37;                          /* vibrant leaf green - Available */
     --ring-guiding: #e53e3e;                            /* red - Away */
     --ring-deep: #1e40af;                               /* dark blue - Deep Practice */
-    --ring-resonant: var(--neuro-accent, #6b9b37);      /* forest green */
+    --ring-resonant: #6b9b37;                           /* forest green */
     --ring-offline: #9ca3af;                            /* grey - Offline */
     
     /* Alias main app variables for Community Hub compatibility */
@@ -2246,7 +2246,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 .member-mini-status.online {
-    background: var(--ring-available);
+    background: var(--ring-available, #6b9b37);
     animation: pulse-status 2s infinite;
 }
 
