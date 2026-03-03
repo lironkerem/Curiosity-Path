@@ -78,7 +78,7 @@ const UpcomingEvents = {
         ROTATION_INTERVAL: 15000,
         FADE_DURATION:     500,
 
-        // Per-card static config — drives rotation, updateCard, and _adminSave
+        // Per-card static config - drives rotation, updateCard, and _adminSave
         CARDS: {
             classes: {
                 imageId:     'classesImage',
@@ -123,7 +123,7 @@ const UpcomingEvents = {
         'Sessions1.jpg': {
             title: '1 on 1 Private Tarot Reading',
             subtitle: 'A deeply personal reading just for you',
-            info: 'Sit down one-on-one for an intimate tarot session tailored entirely to your questions and journey. Whether you seek clarity on love, career, purpose, or personal growth — the cards will meet you exactly where you are.',
+            info: 'Sit down one-on-one for an intimate tarot session tailored entirely to your questions and journey. Whether you seek clarity on love, career, purpose, or personal growth - the cards will meet you exactly where you are.',
             type: '🎴 In-Person or Online',
         },
         'Sessions2.jpg': {
@@ -135,19 +135,19 @@ const UpcomingEvents = {
         'Sessions3.jpg': {
             title: 'Classic Meditation Class',
             subtitle: 'Timeless techniques for a calm, clear mind',
-            info: 'Learn the foundational meditation practices that have been used for thousands of years. Covering breath awareness, body scanning, and silent sitting — this class gives you practical tools you can return to every day.',
+            info: 'Learn the foundational meditation practices that have been used for thousands of years. Covering breath awareness, body scanning, and silent sitting - this class gives you practical tools you can return to every day.',
             type: '🧘 Online Zoom Class',
         },
         'Sessions4.jpg': {
             title: 'Tarot Masterclass',
             subtitle: 'Read the cards with depth and confidence',
-            info: 'An immersive class exploring the full language of tarot — from Major Arcana archetypes to Minor Arcana nuance. Develop your intuition, learn how to construct meaningful spreads, and find your own voice as a reader.',
+            info: 'An immersive class exploring the full language of tarot - from Major Arcana archetypes to Minor Arcana nuance. Develop your intuition, learn how to construct meaningful spreads, and find your own voice as a reader.',
             type: '🎴 Online Zoom Class',
         },
         'Sessions5.jpg': {
             title: 'OSHO Active Meditations',
             subtitle: 'Move, release, and arrive in stillness',
-            info: 'OSHO Active Meditations use dynamic movement, breath, and sound to shake loose tension and mental noise — before arriving at deep inner silence. Suitable for all levels, no experience required.',
+            info: 'OSHO Active Meditations use dynamic movement, breath, and sound to shake loose tension and mental noise - before arriving at deep inner silence. Suitable for all levels, no experience required.',
             type: '🌀 In-Person or Online',
         },
         'Sessions6.jpg': {
@@ -165,13 +165,13 @@ const UpcomingEvents = {
         'Sessions8.jpg': {
             title: 'Sivananda Yoga Class',
             subtitle: 'Classical yoga for body, breath, and spirit',
-            info: 'A traditional Sivananda yoga class integrating asana, pranayama, relaxation, and mantra. Rooted in the classical five-point system, this class nourishes the whole being — body, mind, and soul.',
+            info: 'A traditional Sivananda yoga class integrating asana, pranayama, relaxation, and mantra. Rooted in the classical five-point system, this class nourishes the whole being - body, mind, and soul.',
             type: '🕉️ In-Person',
         },
         'Sessions9.jpg': {
             title: 'Divine Intimacy Lecture',
             subtitle: 'Explore the sacred relationship with the self',
-            info: 'A reflective lecture-style session exploring the deeper dimensions of intimacy — with yourself, with life, and with the divine. Drawing from mystical traditions, this talk invites you into a more tender and conscious way of being.',
+            info: 'A reflective lecture-style session exploring the deeper dimensions of intimacy - with yourself, with life, and with the divine. Drawing from mystical traditions, this talk invites you into a more tender and conscious way of being.',
             type: '💫 In-Person or Online',
         },
         'Workshops1.jpg': {
@@ -189,7 +189,7 @@ const UpcomingEvents = {
         'Workshops3.jpg': {
             title: 'Meditation Workshop',
             subtitle: 'Build a practice that transforms your life',
-            info: 'An experiential workshop exploring multiple meditation styles — from breath-focused techniques to body awareness and mantra-based practice. You will leave with a personalised toolkit and the understanding to maintain a consistent daily practice.',
+            info: 'An experiential workshop exploring multiple meditation styles - from breath-focused techniques to body awareness and mantra-based practice. You will leave with a personalised toolkit and the understanding to maintain a consistent daily practice.',
             type: '🧘 Workshop',
         },
         'Workshops4.jpg': {
@@ -207,7 +207,7 @@ const UpcomingEvents = {
         'Workshops6.jpg': {
             title: 'OSHO Camp (4 Days)',
             subtitle: 'Four days of deep immersion and inner freedom',
-            info: 'An extended 4-day OSHO residential camp offering a deeper dive into the full spectrum of OSHO meditations. More time means more depth — more silence, more breakthroughs, and more space to simply be.',
+            info: 'An extended 4-day OSHO residential camp offering a deeper dive into the full spectrum of OSHO meditations. More time means more depth - more silence, more breakthroughs, and more space to simply be.',
             type: '🌀 4-Day Retreat',
         },
     },
@@ -392,7 +392,7 @@ const UpcomingEvents = {
         if (this.state.isInitialized) { console.warn('UpcomingEvents already initialized'); return; }
 
         const container = document.getElementById('upcomingEventsContainer');
-        if (!container) { console.warn('upcomingEventsContainer not found — skipping render'); return; }
+        if (!container) { console.warn('upcomingEventsContainer not found - skipping render'); return; }
 
         try {
             if (window.CommunityDB?.ready) {
@@ -544,7 +544,7 @@ const UpcomingEvents = {
                     </div>`;
         }).join('');
 
-        const TAB_LABELS = { classes0:'Left Card — Flyer 1', classes1:'Left Card — Flyer 2', sessions0:'Right Card — Flyer 1', sessions1:'Right Card — Flyer 2' };
+        const TAB_LABELS = { classes0:'Left Card - Flyer 1', classes1:'Left Card - Flyer 2', sessions0:'Right Card - Flyer 1', sessions1:'Right Card - Flyer 2' };
         const fieldStyle = `padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);
                             font-size:0.88rem;background:var(--neuro-bg);color:var(--neuro-text);
                             width:100%;box-sizing:border-box;`;
@@ -624,7 +624,7 @@ const UpcomingEvents = {
             this.closeAdminModal();
         } catch (err) {
             console.error('_adminSave error:', err);
-            Core.showToast('❌ Could not save — please try again');
+            Core.showToast('❌ Could not save - please try again');
             if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save & Publish'; }
         }
     },

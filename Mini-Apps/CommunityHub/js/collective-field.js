@@ -316,11 +316,11 @@ const CollectiveField = {
             this._lastSentRefreshInterval = null;
         }
         s.isHolding = false;
-        // isContributing intentionally preserved — session survives re-render
+        // isContributing intentionally preserved - session survives re-render
     },
 
     // =========================================================================
-    // HOLD GESTURE — SEND CALM
+    // HOLD GESTURE - SEND CALM
     // =========================================================================
 
     handleHoldStart() {
@@ -394,7 +394,7 @@ const CollectiveField = {
     },
 
     // =========================================================================
-    // ENERGY BAR — FILL & DRAIN
+    // ENERGY BAR - FILL & DRAIN
     // =========================================================================
 
     _addEnergy(amount) {
@@ -440,7 +440,7 @@ const CollectiveField = {
     },
 
     // =========================================================================
-    // WAVE — CONTRIBUTE SILENCE
+    // WAVE - CONTRIBUTE SILENCE
     // =========================================================================
 
     handleContributeWave() {
@@ -761,7 +761,7 @@ const CollectiveField = {
 
     _buildRecentSendersHTML() {
         const senders = this.state.recentSenders;
-        if (!senders.length) return '<span style="font-size:11px;color:var(--text-muted);font-style:italic;">No one yet — be first</span>';
+        if (!senders.length) return '<span style="font-size:11px;color:var(--text-muted);font-style:italic;">No one yet - be first</span>';
         return senders.slice(0, 5).map(s => {
             if (s.avatarUrl) {
                 return `<img src="${s.avatarUrl}" alt="" loading="lazy"
@@ -773,7 +773,7 @@ const CollectiveField = {
     },
 
     // =========================================================================
-    // PUBLIC UPDATES — called by Supabase / external modules
+    // PUBLIC UPDATES - called by Supabase / external modules
     // =========================================================================
 
     updatePresenceCount(count) {
@@ -876,7 +876,7 @@ const CollectiveField = {
 // BOOTSTRAP
 // =========================================================================
 
-// Core.js calls render() after CommunityDB is ready — self-init is a fallback
+// Core.js calls render() after CommunityDB is ready - self-init is a fallback
 // only if this module is loaded standalone (e.g. development).
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => CollectiveField.render());

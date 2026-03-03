@@ -1,6 +1,6 @@
 /**
  * WANINGMOON-ROOM.JS v3.0
- * Waning Moon Practice Room — config only, zero logic.
+ * Waning Moon Practice Room - config only, zero logic.
  */
 
 const waningMoonConfig = {

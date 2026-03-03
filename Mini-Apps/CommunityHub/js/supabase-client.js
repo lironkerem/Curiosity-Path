@@ -1,5 +1,5 @@
 /**
- * supabase-client.js — Community Hub
+ * supabase-client.js - Community Hub
  * Reuses the main app's already-authenticated Supabase client.
  * The main app exposes it via window.AppSupabase (set in /Core/Supabase.js).
  */

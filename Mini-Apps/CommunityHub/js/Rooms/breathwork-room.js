@@ -1,4 +1,4 @@
-/** BREATHWORK ROOM — @extends TimedVideoRoom */
+/** BREATHWORK ROOM - @extends TimedVideoRoom */
 
 class BreathworkRoom extends TimedVideoRoom {
     constructor() {
@@ -32,7 +32,7 @@ class BreathworkRoom extends TimedVideoRoom {
             <p><strong>Transformative breathwork sessions every 90 minutes.</strong></p>
             <h3>How It Works:</h3>
             <ul>
-                <li>Sessions open every 1.5 hours from midnight UTC — enter before :10 to join</li>
+                <li>Sessions open every 1.5 hours from midnight UTC - enter before :10 to join</li>
                 <li>Session runs 80 minutes · Room closes at :10</li>
                 <li>All users worldwide join the same session simultaneously</li>
                 <li>5 techniques rotating each cycle</li>
@@ -45,11 +45,11 @@ class BreathworkRoom extends TimedVideoRoom {
             </ul>
             <h3>Techniques:</h3>
             <ul>
-                <li>🌊 Holotropic — Deep transformative breathing</li>
-                <li>❄️ Wim Hof — Power breathing and breath holds</li>
-                <li>⬜ Box Breathing — Military focus technique</li>
-                <li>🧘 Pranayama — Traditional yogic breathing</li>
-                <li>🔄 Circular — Continuous energy breathing</li>
+                <li>🌊 Holotropic - Deep transformative breathing</li>
+                <li>❄️ Wim Hof - Power breathing and breath holds</li>
+                <li>⬜ Box Breathing - Military focus technique</li>
+                <li>🧘 Pranayama - Traditional yogic breathing</li>
+                <li>🔄 Circular - Continuous energy breathing</li>
             </ul>`;
     }
 }

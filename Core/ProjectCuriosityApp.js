@@ -601,15 +601,15 @@ export default class ProjectCuriosityApp {
       await this.dailyCards.initializeBoosters();
 
       // Initialize CommunityDB for the Active Members dashboard widget.
-      // We call CommunityDB.init() directly — intentionally NOT calling Core.init() —
+      // We call CommunityDB.init() directly - intentionally NOT calling Core.init() -
       // so Core.state.initialized stays false and CommunityHubEngine can run it
       // in full when the user navigates to the Community Hub tab.
       if (window.CommunityDB) {
         const communityReady = await window.CommunityDB.init();
         if (!communityReady) {
-          console.warn('[App] CommunityDB.init() failed — Active Members widget will be unavailable');
+          console.warn('[App] CommunityDB.init() failed - Active Members widget will be unavailable');
         } else {
-          // Modals are self-initializing — they call init() inside their own open()
+          // Modals are self-initializing - they call init() inside their own open()
         }
       }
 

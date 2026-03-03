@@ -384,7 +384,7 @@ const SafetyBar = {
         try {
             await this._writeAdminNotification('report', { reason, details, room: this._getCurrentRoom() });
             await this._pushAdmins('⚠️ New Report',
-                `${this._senderName()} reported: ${reason}${details ? ' — ' + details.substring(0, 60) : ''}`);
+                `${this._senderName()} reported: ${reason}${details ? ' - ' + details.substring(0, 60) : ''}`);
         } catch (err) {
             console.error('submitReport admin notify error:', err);
         }
@@ -420,7 +420,7 @@ const SafetyBar = {
             this.closeModal('help');
         } catch (err) {
             console.error('submitHelpMe error:', err);
-            Core.showToast('❌ Could not send — please try again');
+            Core.showToast('❌ Could not send - please try again');
         } finally {
             if (btn) { btn.disabled = false; btn.textContent = 'Send to Admin'; }
         }
@@ -433,12 +433,12 @@ const SafetyBar = {
         try {
             await this._writeAdminNotification('moderator', { urgency, message, room: this._getCurrentRoom() });
             await this._pushAdmins('👥 Moderator Request',
-                `${this._senderName()} [${urgency}]: ${message ? message.substring(0, 80) : '—'}`);
+                `${this._senderName()} [${urgency}]: ${message ? message.substring(0, 80) : '-'}`);
             Core.showToast('✓ Moderator contacted');
             this.closeModal('moderator');
         } catch (err) {
             console.error('submitModeratorRequest error:', err);
-            Core.showToast('❌ Could not send — please try again');
+            Core.showToast('❌ Could not send - please try again');
         }
     },
 
@@ -452,7 +452,7 @@ const SafetyBar = {
         try {
             await this._writeAdminNotification('technical', { issueType: type, description, device, room: this._getCurrentRoom() });
             await this._pushAdmins('🔧 Technical Issue',
-                `${this._senderName()}: ${type || 'issue'}${description ? ' — ' + description.substring(0, 60) : ''}`);
+                `${this._senderName()}: ${type || 'issue'}${description ? ' - ' + description.substring(0, 60) : ''}`);
         } catch (err) {
             console.error('submitTechnicalIssue admin notify error:', err);
         }

@@ -53,7 +53,7 @@ class CommunityHubEngine {
     }
 
     // Auto-open a room requested from an external CTA (e.g. Energy Tracker)
-    // Runs on every visit — poll until the room function is available
+    // Runs on every visit - poll until the room function is available
     if (window._pendingRoomOpen) {
       const roomKey = window._pendingRoomOpen;
       window._pendingRoomOpen = null;
@@ -310,14 +310,14 @@ class CommunityHubEngine {
       ]);
 
       // Group 3b: Composite classes that depend on Group 3 mixins
-      // Must be sequential — TimedVideoRoom extends YouTubePlayerMixin + CycleStateMixin,
+      // Must be sequential - TimedVideoRoom extends YouTubePlayerMixin + CycleStateMixin,
       // and TabRoomMixin is used by rooms in Group 4b.
       await this._loadAll([
         'js/Rooms/mixins/TimedVideoRoom.js',
         'js/Rooms/mixins/TabRoomMixin.js',
       ]);
 
-      // Init LunarEngine early — lunar rooms need currentMoonData
+      // Init LunarEngine early - lunar rooms need currentMoonData
       window.LunarEngine?.init?.();
 
       // Group 4a: Solar UI must precede base room (sequential)

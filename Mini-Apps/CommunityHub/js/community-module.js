@@ -1,6 +1,6 @@
 /**
  * COMMUNITY MODULE
- * Reflections, appreciations, whispers, reports, blocks — Supabase integrated
+ * Reflections, appreciations, whispers, reports, blocks - Supabase integrated
  * @version 2.1.0
  */
 
@@ -57,7 +57,7 @@ const CommunityModule = {
     },
 
     // =========================================================================
-    // REFLECTIONS — SHELL
+    // REFLECTIONS - SHELL
     // =========================================================================
 
     renderReflectionsHTML() {
@@ -121,7 +121,7 @@ const CommunityModule = {
     },
 
     // =========================================================================
-    // REFLECTIONS — DATA
+    // REFLECTIONS - DATA
     // =========================================================================
 
     async renderReflections() {
@@ -217,7 +217,7 @@ const CommunityModule = {
         }
     },
 
-    // Shared helper — used by subscribeToNewReflections and shareReflection
+    // Shared helper - used by subscribeToNewReflections and shareReflection
     _prependReflection(ref) {
         const container = document.getElementById('reflectionsContainer');
         if (!container) return;
@@ -247,7 +247,7 @@ const CommunityModule = {
 
         try {
             const result = await CommunityDB.postReflection(text);
-            if (!result) { Core.showToast('Could not share reflection — please try again'); return; }
+            if (!result) { Core.showToast('Could not share reflection - please try again'); return; }
 
             input.value = '';
             const counter = document.getElementById('charCount');
@@ -315,7 +315,7 @@ const CommunityModule = {
             CommunityDB.getReflections(20).then(all => {
                 const ref = all.find(r => r.id === reflectionId);
                 if (ref) contentEl.textContent = ref.content;
-            }).catch(() => {}); // silent fallback — content stays as-is
+            }).catch(() => {}); // silent fallback - content stays as-is
         }
     },
 
@@ -335,7 +335,7 @@ const CommunityModule = {
             Core.showToast('✓ Reflection updated');
         } else {
             ta.disabled = false;
-            Core.showToast('Could not update — please try again');
+            Core.showToast('Could not update - please try again');
         }
     },
 
@@ -398,7 +398,7 @@ const CommunityModule = {
     },
 
     // =========================================================================
-    // WAVES (stub — not yet wired to DB)
+    // WAVES (stub - not yet wired to DB)
     // =========================================================================
 
     renderWaves() {
@@ -456,7 +456,7 @@ const CommunityModule = {
             Core.showToast('✓ Report submitted. Thank you for keeping the space safe.');
             this.closeReportModal();
         } else {
-            Core.showToast('Could not submit report — please try again');
+            Core.showToast('Could not submit report - please try again');
         }
     },
 
@@ -479,7 +479,7 @@ const CommunityModule = {
             this.closeBlockModal();
             await this.renderReflections();
         } else {
-            Core.showToast('Could not block user — please try again');
+            Core.showToast('Could not block user - please try again');
         }
     },
 

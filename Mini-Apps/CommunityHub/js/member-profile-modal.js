@@ -55,7 +55,7 @@ const MemberProfileModal = {
     _ADMIN_SUB_IDS: ['adminSubRole','adminSubXp','adminSubKarma','adminSubBadge','adminSubPremium','adminSubMessage'],
 
     // =========================================================================
-    // INIT — inject modal shell once
+    // INIT - inject modal shell once
     // =========================================================================
 
     init() {
@@ -147,7 +147,7 @@ const MemberProfileModal = {
                             </div>
                             <div style="font-size:0.78rem;color:var(--text-muted);text-align:center;">
                                 <span id="memberModalXP"
-                                      style="font-weight:800;font-size:0.95rem;color:var(--primary,#667eea);">—</span> XP
+                                      style="font-weight:800;font-size:0.95rem;color:var(--primary,#667eea);">-</span> XP
                             </div>
                         </div>
 
@@ -167,7 +167,7 @@ const MemberProfileModal = {
                                      onmouseout="this.style.transform=''">
                                     <div style="font-size:1.2rem;line-height:1;margin-bottom:3px;">${emoji}</div>
                                     <div id="${id}" style="font-size:1rem;font-weight:800;
-                                                           color:var(--primary,#667eea);line-height:1;">—</div>
+                                                           color:var(--primary,#667eea);line-height:1;">-</div>
                                     <div style="font-size:0.62rem;color:var(--text-muted);font-weight:600;
                                                 text-transform:uppercase;letter-spacing:0.03em;margin-top:3px;">${label}</div>
                                 </div>`).join('')}
@@ -588,7 +588,7 @@ const MemberProfileModal = {
         const title    = this._LEVEL_TITLES[g.level] || 'Seeker';
         const article  = title.match(/^[aeiou]/i) ? 'An' : 'A';
         const levelEl  = document.getElementById('memberModalLevel');
-        if (levelEl) levelEl.textContent = `${article} ${title} — Level ${g.level}`;
+        if (levelEl) levelEl.textContent = `${article} ${title} - Level ${g.level}`;
 
         // XP bar
         const xpBar = document.getElementById('memberModalXpBar');
@@ -626,7 +626,7 @@ const MemberProfileModal = {
                 this._setText('memberModalFavRoom',
                     favId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
             } else {
-                this._setText('memberModalFavRoom', '—');
+                this._setText('memberModalFavRoom', '-');
             }
         } catch (e) {
             console.warn('[MemberProfileModal] _loadMemberCommunityStats:', e);
@@ -643,14 +643,14 @@ const MemberProfileModal = {
         btn.disabled = true;
         try {
             const result = await CommunityDB.toggleUserAppreciation(this.state.currentUserId, this.state.isAppreciated);
-            if (!result) { Core.showToast('Could not update — please try again'); return; }
+            if (!result) { Core.showToast('Could not update - please try again'); return; }
             this.state.isAppreciated     = result.appreciated;
             this.state.appreciationCount = await CommunityDB.getUserAppreciationCount(this.state.currentUserId);
             this._updateAppreciateBtn();
             Core.showToast(result.appreciated ? '🙏 Appreciation sent' : 'Appreciation removed');
         } catch (err) {
             console.error('[MemberProfileModal] toggleAppreciate error:', err);
-            Core.showToast('Could not update — please try again');
+            Core.showToast('Could not update - please try again');
         } finally {
             btn.disabled = false;
         }
@@ -702,7 +702,7 @@ const MemberProfileModal = {
         await this._withBtnState('#memberModalWhisperPanel button', 'Sending...', 'Send', async () => {
             const result = await CommunityDB.sendWhisper(this.state.currentUserId, message);
             if (result) { Core.showToast('💬 Whisper sent'); this.cancelWhisper(); }
-            else Core.showToast('Could not send — please try again');
+            else Core.showToast('Could not send - please try again');
         });
     },
 
@@ -731,8 +731,8 @@ const MemberProfileModal = {
         if (!reason) { Core.showToast('Please select a reason'); return; }
         await this._withBtnState('#memberModalReportPanel button', 'Submitting...', 'Submit Report', async () => {
             const ok = await CommunityDB.submitReport(this.state.currentUserId, reason, details);
-            if (ok) { Core.showToast('✓ Report submitted — thank you'); this.cancelReport(); }
-            else Core.showToast('Could not submit — please try again');
+            if (ok) { Core.showToast('✓ Report submitted - thank you'); this.cancelReport(); }
+            else Core.showToast('Could not submit - please try again');
         });
     },
 
@@ -750,11 +750,11 @@ const MemberProfileModal = {
                 this.close();
                 window.ActiveMembers?.refresh();
             } else {
-                Core.showToast('Could not block — please try again');
+                Core.showToast('Could not block - please try again');
             }
         } catch (err) {
             console.error('[MemberProfileModal] blockUser error:', err);
-            Core.showToast('Could not block — please try again');
+            Core.showToast('Could not block - please try again');
         }
     },
 
@@ -970,7 +970,7 @@ const MemberProfileModal = {
                     if (g.karma !== undefined) Core.state.currentUser.karma = g.karma;
                     if (g.level !== undefined) Core.state.currentUser.level = g.level;
                 }
-                // Reload engine — safe because _safeRefresh already patched
+                // Reload engine - safe because _safeRefresh already patched
                 // app.state.data with fresh values before calling here.
                 await window.app?.gamification?.reloadFromDatabase?.();
 
@@ -1022,7 +1022,7 @@ const MemberProfileModal = {
         this._closeAdminSubs();
     },
 
-    /** Set textContent on an element by id — reduces boilerplate in _populate */
+    /** Set textContent on an element by id - reduces boilerplate in _populate */
     _setText(id, text) {
         const el = document.getElementById(id);
         if (el) el.textContent = text;

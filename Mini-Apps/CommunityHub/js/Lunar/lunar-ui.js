@@ -208,7 +208,7 @@ const LunarUI = {
 .newmoon-moon-glow::after{background:radial-gradient(circle,rgba(100,100,180,.25) 0%,transparent 70%);}
 
 /* ── WAXING MOON 🌓 ──────────────────────────────────────────────────────── */
-/* Right half lit — pseudo-element covers left half as shadow */
+/* Right half lit - pseudo-element covers left half as shadow */
 .waxingmoon-moon-sphere{
     background:radial-gradient(circle at 65% 40%, #f0e8d0 0%, #d4c9a8 40%, #b8ad8c 70%, #9a9278 100%);
     box-shadow:0 0 40px rgba(210,195,150,.35), 0 0 80px rgba(210,195,150,.15);
@@ -232,7 +232,7 @@ const LunarUI = {
 .fullmoon-moon-glow::after{background:radial-gradient(circle,rgba(255,245,200,.55) 0%,transparent 65%);}
 
 /* ── WANING MOON 🌗 ──────────────────────────────────────────────────────── */
-/* Left half lit — mirror of waxing */
+/* Left half lit - mirror of waxing */
 .waningmoon-moon-sphere{
     background:radial-gradient(circle at 35% 40%, #e8dfc0 0%, #c8bd9c 40%, #a8a07c 70%, #8a8260 100%);
     box-shadow:0 0 40px rgba(190,180,130,.3), 0 0 80px rgba(190,180,130,.12);

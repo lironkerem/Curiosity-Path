@@ -1,7 +1,7 @@
 /**
  * RESONANCE MODULE (Placeholder)
  * @version 1.1.0
- * @status DISABLED — set config.FEATURE_ENABLED = true to activate
+ * @status DISABLED - set config.FEATURE_ENABLED = true to activate
  *
  * Planned features:
  * - User resonance tracking
@@ -49,7 +49,7 @@ const Resonance = {
     render() {
         const container = document.getElementById('resonanceContainer');
         if (!container) {
-            console.warn('resonanceContainer not found — skipping resonance render');
+            console.warn('resonanceContainer not found - skipping resonance render');
             return;
         }
         container.innerHTML = this.getHTML();

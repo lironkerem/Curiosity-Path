@@ -1,6 +1,6 @@
 /**
  * NEWMOON-ROOM.JS v3.0
- * New Moon Practice Room — config only, zero logic.
+ * New Moon Practice Room - config only, zero logic.
  */
 
 const newMoonConfig = {

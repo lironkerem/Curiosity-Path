@@ -51,7 +51,7 @@ const AdminDashboard = {
     _NOTIF_ICONS: { report: '⚠️', help: '🆘', technical: '🔧' },
 
     // =========================================================================
-    // STYLES — injected once
+    // STYLES - injected once
     // =========================================================================
 
     _injectStyles() {
@@ -113,7 +113,7 @@ const AdminDashboard = {
     },
 
     // =========================================================================
-    // BADGE — injected into hub after user loads
+    // BADGE - injected into hub after user loads
     // =========================================================================
 
     injectAdminUI() {
@@ -481,7 +481,7 @@ const AdminDashboard = {
                                  onclick="MemberProfileModal?.open('${id}')">
                                 ${id.substring(0, 8)}...
                             </div>`).join('')
-                        : '<div style="color:var(--text-muted,#888);font-size:0.83rem;">None — great retention! 🎉</div>'}
+                        : '<div style="color:var(--text-muted,#888);font-size:0.83rem;">None - great retention! 🎉</div>'}
                 </div>
                 <div>
                     <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
@@ -604,7 +604,7 @@ const AdminDashboard = {
 
                 <!-- Message panel -->
                 <div id="bulkPanel_message" style="display:none;">
-                    <div style="${mutedLabel}">Broadcast a message — appears in recipients' Whispers inbox</div>
+                    <div style="${mutedLabel}">Broadcast a message - appears in recipients' Whispers inbox</div>
                     <textarea id="bulkMessageText" placeholder="Write your message..." rows="4"
                               style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;resize:vertical;box-sizing:border-box;margin-bottom:10px;"></textarea>
                     <button onclick="AdminDashboard._bulkSendMessage()" style="${btnStyle}">Send Message</button>
@@ -843,7 +843,7 @@ const AdminDashboard = {
     },
 
     _formatDuration(seconds) {
-        if (!seconds) return '—';
+        if (!seconds) return '-';
         if (seconds < 60)   return `${seconds}s`;
         if (seconds < 3600) return `${Math.round(seconds / 60)}m`;
         return `${(seconds / 3600).toFixed(1)}h`;

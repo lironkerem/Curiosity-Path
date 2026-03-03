@@ -408,7 +408,7 @@ const renderCurrencySection = () => `
         <table class="rules-level-table">
           ${LEVEL_PROGRESSION.map((level, i) => `
             <tr>
-              <td>L${i + 1} — ${level[0]}</td>
+              <td>L${i + 1} - ${level[0]}</td>
               <td>${level[1].toLocaleString()}</td>
             </tr>
           `).join('')}

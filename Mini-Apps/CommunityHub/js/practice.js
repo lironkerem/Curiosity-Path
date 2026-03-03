@@ -61,7 +61,7 @@ const Practice = {
     },
 
     // ============================================================================
-    // DOM CACHE — populated on first access via _el()
+    // DOM CACHE - populated on first access via _el()
     // ============================================================================
 
     _domCache: {},
@@ -93,7 +93,7 @@ const Practice = {
     },
 
     // ============================================================================
-    // ROOM CHAT — SUPABASE INTEGRATION
+    // ROOM CHAT - SUPABASE INTEGRATION
     // ============================================================================
 
     async initRoomChat(roomId) {

@@ -1,6 +1,6 @@
 /**
  * FULLMOON-ROOM.JS v3.0
- * Full Moon Practice Room — config only, zero logic.
+ * Full Moon Practice Room - config only, zero logic.
  */
 
 const fullMoonConfig = {

@@ -330,7 +330,7 @@ class LunarRoom {
                 <div class="lunar-practice-card ${this.config.cssPrefix}-practice-card${isLocked ? ' locked' : ''}"
                      data-practice="${key}" data-locked="${isLocked}"
                      tabindex="0" role="button"
-                     aria-label="${p.title}${isLocked ? ' — Complete' : ''}">
+                     aria-label="${p.title}${isLocked ? ' - Complete' : ''}">
                     <div class="lunar-practice-icon" style="color:${p.color};">${p.icon}</div>
                     <div class="lunar-practice-info">
                         <h4>${p.title}</h4>

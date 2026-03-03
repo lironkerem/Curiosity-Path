@@ -1,6 +1,6 @@
 /**
  * PROFILE MODULE
- * v3.1.0 — Full Supabase integration
+ * v3.1.0 - Full Supabase integration
  * - Avatar: shows Google/uploaded image from profiles.avatar_url
  * - Name: from profiles.name
  * - Karma / XP: from GamificationEngine (with profile fallback)
@@ -312,7 +312,7 @@ const ProfileModule = {
                                     <div style="font-size:1.6rem;margin-bottom:6px;">${c.icon}</div>
                                     <div style="font-weight:700;font-size:0.88rem;color:var(--neuro-text);">${c.label}</div>
                                     <div id="activityCount_${c.type}"
-                                         style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">— ${c.count}</div>
+                                         style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">- ${c.count}</div>
                                 </div>`).join('')}
                             </div>
                         </div>
@@ -366,7 +366,7 @@ const ProfileModule = {
         const statItems = [
             { value: status.karma,                 label:'Karma',    emoji:'💎', id:'statKarma'    },
             { value: 0,                            label:'Blessings',emoji:'🙏', id:'statBlessings' },
-            { value: '—',                          label:'Fav Room', emoji:'🏠', id:'statFavRoom'   },
+            { value: '-',                          label:'Fav Room', emoji:'🏠', id:'statFavRoom'   },
             { value: (status.badges || []).length, label:'Badges',   emoji:'🎖️', id:'statBadges'   },
         ];
 
@@ -380,7 +380,7 @@ const ProfileModule = {
             <div style="text-align:center;margin-bottom:0.75rem;">
                 <div style="font-size:1.25rem;font-weight:700;color:var(--neuro-text);margin-bottom:0.5rem;">
                     <strong style="color:var(--primary,#667eea);">${article.charAt(0).toUpperCase() + article.slice(1)} ${levelInfo.title}</strong>
-                    — Level ${levelInfo.level}
+                    - Level ${levelInfo.level}
                 </div>
                 <!-- XP progress bar -->
                 <div style="height:10px;border-radius:99px;
@@ -460,7 +460,7 @@ const ProfileModule = {
     renderHTML() {
         const container = document.getElementById('profileHeroContainer');
         if (!container) {
-            console.warn('profileHeroContainer not found — skipping profile render');
+            console.warn('profileHeroContainer not found - skipping profile render');
             return;
         }
         container.innerHTML = this.getHTML();
@@ -592,7 +592,7 @@ const ProfileModule = {
                     const favRoomId = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
                     statFavRoom.textContent = favRoomId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
                 } else {
-                    statFavRoom.textContent = '—';
+                    statFavRoom.textContent = '-';
                 }
             }
         } catch (e) {
@@ -635,7 +635,7 @@ const ProfileModule = {
                     .toLocaleDateString(undefined, { month:'long', day:'numeric', year:'numeric' });
             } catch { el.textContent = user.birthday; }
         } else {
-            el.textContent = '—';
+            el.textContent = '-';
         }
     },
 
@@ -643,7 +643,7 @@ const ProfileModule = {
 
     updateCountry(user) {
         const el = document.getElementById('privateCountry');
-        if (el) el.textContent = user.country || '—';
+        if (el) el.textContent = user.country || '-';
     },
 
     async updateProfileLocationRow(user) {
@@ -689,7 +689,7 @@ const ProfileModule = {
     },
 
     // ============================================================================
-    // MY ACTIVITY — data loading + modals
+    // MY ACTIVITY - data loading + modals
     // ============================================================================
 
     async loadActivityData() {
@@ -814,7 +814,7 @@ const ProfileModule = {
                 </div>`;
             }
             case 'energy': {
-                const level = entry.energy ?? '—';
+                const level = entry.energy ?? '-';
                 const notes = entry.notes ? `<div style="margin-top:4px;opacity:0.8;">${this._esc(entry.notes)}</div>` : '';
                 const tags  = (entry.moodTags || []).length
                     ? `<div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:4px;">
@@ -904,7 +904,7 @@ const ProfileModule = {
             Core.showToast(`Status set to ${label}`);
         } catch (err) {
             console.error('[ProfileModule] setStatus error:', err);
-            Core.showToast('Could not update status — please try again');
+            Core.showToast('Could not update status - please try again');
         }
 
         // Notify User Tab ring
@@ -988,7 +988,7 @@ const ProfileModule = {
 
     async _uploadAvatar(file) {
         if (file.size > 5 * 1024 * 1024) {
-            Core.showToast('Image too large — max 5MB');
+            Core.showToast('Image too large - max 5MB');
             return;
         }
 
@@ -1010,7 +1010,7 @@ const ProfileModule = {
             if (cu) cu.avatar_url = url;
             Core.showToast('✓ Profile photo updated');
         } else {
-            Core.showToast('Upload failed — please try again');
+            Core.showToast('Upload failed - please try again');
             this.updateAvatar(this._user());
         }
     },
@@ -1022,7 +1022,7 @@ const ProfileModule = {
 
         const trimmed = newVal.trim().substring(0, 60);
         const ok = await CommunityDB.updateProfile({ community_role: trimmed || null });
-        if (!ok) { Core.showToast('Could not save — please try again'); return; }
+        if (!ok) { Core.showToast('Could not save - please try again'); return; }
 
         const cu = this._user();
         if (cu) { cu.community_role = trimmed || 'Member'; cu.role = trimmed || 'Member'; }
@@ -1041,7 +1041,7 @@ const ProfileModule = {
         if (!sanitized) return;
 
         const ok = await CommunityDB.updateProfile({ inspiration: sanitized });
-        if (!ok) { Core.showToast('Could not save — please try again'); return; }
+        if (!ok) { Core.showToast('Could not save - please try again'); return; }
 
         el.textContent = `"${sanitized}"`;
         const cu = this._user();
@@ -1112,7 +1112,7 @@ const ProfileModule = {
             saveBtn.textContent = '...';
             const ok = await CommunityDB.updateProfile({ [dbKey]: trimmed || null });
             if (!ok) {
-                Core.showToast('Could not save — please try again');
+                Core.showToast('Could not save - please try again');
                 saveBtn.disabled = false;
                 saveBtn.textContent = '✓';
                 return;
@@ -1150,7 +1150,7 @@ const ProfileModule = {
             const val = input.value.trim();
             if (val && !/^\d{4}-\d{2}-\d{2}$/.test(val)) { Core.showToast('Invalid date'); return; }
             const ok = await CommunityDB.updateProfile({ birthday: val || null });
-            if (!ok) { Core.showToast('Could not save — please try again'); return; }
+            if (!ok) { Core.showToast('Could not save - please try again'); return; }
             const cu = this._user();
             if (cu) cu.birthday = val;
             input.replaceWith(valEl);
@@ -1183,7 +1183,7 @@ const ProfileModule = {
         const save = async () => {
             const val = input.value.trim();
             const ok  = await CommunityDB.updateProfile({ country: val || null });
-            if (!ok) { Core.showToast('Could not save — please try again'); return; }
+            if (!ok) { Core.showToast('Could not save - please try again'); return; }
             const cu = this._user();
             if (cu) cu.country = val;
             input.replaceWith(valEl);
@@ -1217,5 +1217,5 @@ const ProfileModule = {
     },
 };
 
-// core.js calls ProfileModule.init() after CommunityDB is ready — no self-init here.
+// core.js calls ProfileModule.init() after CommunityDB is ready - no self-init here.
 window.ProfileModule = ProfileModule;

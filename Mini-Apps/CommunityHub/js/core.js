@@ -1,6 +1,6 @@
 /**
  * CORE.JS - Community Hub Central Management System
- * @version 2.1.0 — Supabase integrated
+ * @version 2.1.0 - Supabase integrated
  */
 
 const Core = {
@@ -92,11 +92,11 @@ const Core = {
 
         try {
             if (!window.CommunityDB) {
-                throw new Error('CommunityDB not found — ensure community-supabase.js loaded first');
+                throw new Error('CommunityDB not found - ensure community-supabase.js loaded first');
             }
 
             const dbReady = await CommunityDB.init();
-            if (!dbReady) throw new Error('Database not ready — is the user logged in?');
+            if (!dbReady) throw new Error('Database not ready - is the user logged in?');
 
             await this.loadCurrentUser();
 
@@ -126,7 +126,7 @@ const Core = {
                 const targetId = window._pendingHubScrollTarget;
                 window._pendingHubScrollTarget = null;
 
-                // Wait for the target element to have content before scrolling —
+                // Wait for the target element to have content before scrolling -
                 // Lunar/Solar render asynchronously so the section may have no
                 // height yet if we scroll immediately.
                 const maxAttempts = 40; // 4 seconds max (40 × 100ms)
@@ -140,7 +140,7 @@ const Core = {
                         setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
                     } else if (attempts >= maxAttempts) {
                         clearInterval(poll);
-                        // Fallback — scroll to whatever is there even if not fully rendered
+                        // Fallback - scroll to whatever is there even if not fully rendered
                         el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
                 }, 100);
@@ -178,7 +178,7 @@ const Core = {
                 country:    p.country          || null,
                 email:      p.email            || '',
                 is_admin:   p.is_admin === true,
-                // Gamification — sourced from GamificationEngine
+                // Gamification - sourced from GamificationEngine
                 karma:      window.app?.gamification?.state?.karma  ?? 0,
                 xp:         window.app?.gamification?.state?.xp     ?? 0,
                 badges:     window.app?.gamification?.state?.badges ?? []
@@ -277,7 +277,7 @@ const Core = {
     renderRooms() {
         const grid = document.getElementById('roomsGrid');
         if (!grid) {
-            console.warn('[Core] #roomsGrid not found — skipping render');
+            console.warn('[Core] #roomsGrid not found - skipping render');
             return;
         }
 
@@ -320,7 +320,7 @@ const Core = {
                 if (attemptsLeft > 0) {
                     setTimeout(() => tryInit(attemptsLeft - 1), 200);
                 } else {
-                    console.error('[Core] SunCalc never loaded — celestial systems unavailable');
+                    console.error('[Core] SunCalc never loaded - celestial systems unavailable');
                 }
                 return;
             }

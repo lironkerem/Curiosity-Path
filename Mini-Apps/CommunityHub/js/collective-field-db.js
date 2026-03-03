@@ -1,5 +1,5 @@
 /**
- * COLLECTIVE FIELD — SUPABASE INTEGRATION
+ * COLLECTIVE FIELD - SUPABASE INTEGRATION
  *
  * Handles all DB operations for:
  *   - collective_field   (shared energy level, daily pulse count)
@@ -55,7 +55,7 @@ const CollectiveFieldDB = {
         return new Date().toISOString().slice(0, 10);
     },
 
-    // Centralised error logger — keeps call sites terse
+    // Centralised error logger - keeps call sites terse
     _err(label, error) {
         console.error(`[CollectiveFieldDB] ${label}:`, error);
     },
@@ -83,7 +83,7 @@ const CollectiveFieldDB = {
     },
 
     // =========================================================================
-    // ENERGY FIELD — READ
+    // ENERGY FIELD - READ
     // =========================================================================
 
     async loadFieldState() {
@@ -118,7 +118,7 @@ const CollectiveFieldDB = {
     },
 
     // =========================================================================
-    // ENERGY FIELD — WRITE
+    // ENERGY FIELD - WRITE
     // =========================================================================
 
     async recordPulse() {
@@ -140,7 +140,7 @@ const CollectiveFieldDB = {
     },
 
     // =========================================================================
-    // CALM WAVE — READ
+    // CALM WAVE - READ
     // =========================================================================
 
     async loadWaveTotal() {
@@ -189,7 +189,7 @@ const CollectiveFieldDB = {
     },
 
     // =========================================================================
-    // CALM WAVE — WRITE
+    // CALM WAVE - WRITE
     // =========================================================================
 
     async logWaveContribution(minutes, completed) {

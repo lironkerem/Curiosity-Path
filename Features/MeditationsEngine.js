@@ -271,7 +271,7 @@ class MeditationsEngine {
   }
 
   buildMeditationCTA() {
-    // Calculate cycle state directly from the clock — works before Community Hub loads
+    // Calculate cycle state directly from the clock - works before Community Hub loads
     const calcCycle = (cycleSec, openSec) => {
       const now          = Date.now();
       const cycleMs      = cycleSec * 1000;
@@ -324,7 +324,7 @@ class MeditationsEngine {
           </h3>
         </div>
         <p style="margin: 0 0 1.5rem; font-size: 0.92rem; color: var(--neuro-text-light); line-height: 1.6;">
-          Practice in real time with others. Choose silence, guided visualization, or active OSHO techniques —
+          Practice in real time with others. Choose silence, guided visualization, or active OSHO techniques -
           all in shared, live spaces.
         </p>
         <div class="meditation-cta-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
@@ -352,7 +352,7 @@ class MeditationsEngine {
           ${guidedCountdown ? `
           <div style="display:flex;flex-direction:column;gap:0.35rem;">
             <button type="button" disabled style="${disabledStyle}">
-              🎧 Guided — ${guidedCountdown}
+              🎧 Guided - ${guidedCountdown}
             </button>
             <button type="button" onclick="event.stopPropagation(); window.featuresManager.engines.meditations.showMeditationSchedule('guided')"
               style="background:none;border:none;padding:0;font-size:11px;color:var(--neuro-text-light);cursor:pointer;text-decoration:underline;text-align:center;">
@@ -374,7 +374,7 @@ class MeditationsEngine {
           ${oshoCountdown ? `
           <div style="display:flex;flex-direction:column;gap:0.35rem;">
             <button type="button" disabled style="${disabledStyle}">
-              💃 OSHO Active — ${oshoCountdown}
+              💃 OSHO Active - ${oshoCountdown}
             </button>
             <button type="button" onclick="event.stopPropagation(); window.featuresManager.engines.meditations.showMeditationSchedule('osho')"
               style="background:none;border:none;padding:0;font-size:11px;color:var(--neuro-text-light);cursor:pointer;text-decoration:underline;text-align:center;">

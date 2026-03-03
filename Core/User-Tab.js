@@ -286,7 +286,7 @@ export default class UserTab {
     this.updateStatusRing(this.currentUser?.community_status || 'offline');
   }
 
-  /** Handle avatar image upload — uploads to Supabase Storage, saves public URL */
+  /** Handle avatar image upload - uploads to Supabase Storage, saves public URL */
   async handleAvatarUpload() {
     const file = document.getElementById('avatar-upload').files[0];
     if (!file) return;
@@ -321,13 +321,13 @@ export default class UserTab {
 
       if (upErr) {
         console.warn('Avatar upload error:', upErr.message);
-        this.app.showToast('Upload failed — please try again', 'error');
+        this.app.showToast('Upload failed - please try again', 'error');
         return;
       }
 
       const { data } = supabase.storage.from('community-avatars').getPublicUrl(path);
       const publicUrl = data?.publicUrl ? `${data.publicUrl}?t=${Date.now()}` : null;
-      if (!publicUrl) { this.app.showToast('Upload failed — please try again', 'error'); return; }
+      if (!publicUrl) { this.app.showToast('Upload failed - please try again', 'error'); return; }
 
       // Update img element to real URL (replace base64 preview)
       const img = document.getElementById('profile-avatar-img');
@@ -355,7 +355,7 @@ export default class UserTab {
 
     } catch (err) {
       console.error('handleAvatarUpload error:', err);
-      this.app.showToast('Upload failed — please try again', 'error');
+      this.app.showToast('Upload failed - please try again', 'error');
     }
   }
 
@@ -377,7 +377,7 @@ export default class UserTab {
       birthday: document.getElementById('profile-birthday')?.value || null,
       emoji: document.getElementById('profile-emoji')?.value || '👤',
       country: document.getElementById('profile-country')?.value.trim() || null,
-      // Preserve community_status — managed by setStatus(), not a form field
+      // Preserve community_status - managed by setStatus(), not a form field
       community_status: this.currentUser?.community_status || 'online',
       // avatar_url is managed separately by handleAvatarUpload (Supabase Storage)
     };
@@ -1042,7 +1042,7 @@ export default class UserTab {
   }
 
   /**
-   * Set user status — updates ring, saves to Supabase, updates local state
+   * Set user status - updates ring, saves to Supabase, updates local state
    * @param {string} status - Status key
    * @param {string} color  - Hex color
    * @param {string} label  - Display label

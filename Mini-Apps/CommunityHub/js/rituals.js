@@ -46,7 +46,7 @@ const Rituals = {
             "Thank you for your presence in this circle.",
             "Rest in what was received here today.",
             "You are changed by having paused. Go well.",
-            "Until next time — carry the quiet with you.",
+            "Until next time - carry the quiet with you.",
         ],
 
         ROOM_MODULES: [

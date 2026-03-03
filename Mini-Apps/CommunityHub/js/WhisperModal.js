@@ -11,9 +11,9 @@
  * - Unread badge on the inbox trigger button
  *
  * Public API:
- *   WhisperModal.open()                               — open inbox
- *   WhisperModal.openThread(userId, name, emoji, avatarUrl)  — open directly to a thread
- *   WhisperModal.refreshUnreadBadge()                 — update the hub badge
+ *   WhisperModal.open()                               - open inbox
+ *   WhisperModal.openThread(userId, name, emoji, avatarUrl)  - open directly to a thread
+ *   WhisperModal.refreshUnreadBadge()                 - update the hub badge
  */
 
 const WhisperModal = {
@@ -31,7 +31,7 @@ const WhisperModal = {
     },
 
     // ============================================================================
-    // INIT — inject modal shell once
+    // INIT - inject modal shell once
     // ============================================================================
 
     init() {
@@ -309,7 +309,7 @@ const WhisperModal = {
         if (!messages.length) {
             container.innerHTML = `
                 <div style="text-align:center;padding:2rem;color:var(--text-muted);font-size:0.85rem;">
-                    No messages yet — say something ✨
+                    No messages yet - say something ✨
                 </div>`;
             return;
         }
@@ -375,11 +375,11 @@ const WhisperModal = {
                     created_at: new Date().toISOString(),
                 });
             } else {
-                Core.showToast('Could not send — please try again');
+                Core.showToast('Could not send - please try again');
             }
         } catch (err) {
             console.error('[WhisperModal] sendReply error:', err);
-            Core.showToast('Could not send — please try again');
+            Core.showToast('Could not send - please try again');
         } finally {
             if (btn) { btn.disabled = false; btn.textContent = 'Send'; }
             textarea.disabled = false;

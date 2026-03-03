@@ -16,7 +16,7 @@ const LunarEngine = {
     currentMoonData: null,
     currentLunarRoom: null,
 
-    /** Canonical room definitions — one entry per room, multi-range via phaseRanges */
+    /** Canonical room definitions - one entry per room, multi-range via phaseRanges */
     lunarRooms: [
         {
             phaseRanges: [[0, 0.068], [0.932, 1.0]],
@@ -68,7 +68,7 @@ const LunarEngine = {
         console.log('🌙 Lunar Engine Initialized');
 
         if (typeof SunCalc === 'undefined') {
-            console.error('❌ SunCalc not loaded — moon visualizations disabled.');
+            console.error('❌ SunCalc not loaded - moon visualizations disabled.');
             return;
         }
 
@@ -397,7 +397,7 @@ const LunarEngine = {
 
     _refreshOuterCard() {
         if (!window.CommunityDB?.ready) {
-            // Single retry — avoid accumulating intervals
+            // Single retry - avoid accumulating intervals
             if (!this._outerCardRetry) {
                 this._outerCardRetry = setTimeout(() => {
                     this._outerCardRetry = null;

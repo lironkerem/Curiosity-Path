@@ -93,7 +93,7 @@ export default class AppState {
       if (localData) return localData;
       
       // No data found, initialize empty
-      console.log('📊 No cached data — initializing empty model');
+      console.log('📊 No cached data - initializing empty model');
       return this.emptyModel();
     } catch (error) {
       console.error('Failed to load app data:', error);

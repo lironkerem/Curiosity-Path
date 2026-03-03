@@ -1,6 +1,6 @@
 /**
  * community-supabase.js
- * Supabase Data Layer — Community Hub
+ * Supabase Data Layer - Community Hub
  *
  * Single source of truth for all DB operations and realtime subscriptions.
  * No other module talks to Supabase directly.
@@ -44,7 +44,7 @@ const CommunityDB = {
     // INTERNAL HELPERS
     // =========================================================================
 
-    /** Centralised error log — keeps call sites terse */
+    /** Centralised error log - keeps call sites terse */
     _err(label, err) {
         console.error(`[CommunityDB] ${label}:`, err?.message ?? err);
     },
@@ -58,7 +58,7 @@ const CommunityDB = {
     /** Returns ISO string for "N milliseconds ago" */
     _ago(ms) { return new Date(Date.now() - ms).toISOString(); },
 
-    /** UTC midnight for today — reused in engagement/room stats */
+    /** UTC midnight for today - reused in engagement/room stats */
     _todayUTC() {
         const d = new Date();
         d.setUTCHours(0, 0, 0, 0);
@@ -87,7 +87,7 @@ const CommunityDB = {
         return data;
     },
 
-    /** Parse a user_progress payload — shared logic for getUserProgress + getOwnGamificationState */
+    /** Parse a user_progress payload - shared logic for getUserProgress + getOwnGamificationState */
     _parseProgress(raw) {
         const p = typeof raw === 'string' ? JSON.parse(raw) : raw;
         return {
@@ -501,7 +501,7 @@ const CommunityDB = {
     },
 
     // =========================================================================
-    // SAFETY — REPORTS & BLOCKS
+    // SAFETY - REPORTS & BLOCKS
     // =========================================================================
 
     async submitReport(reportedUserId, reason, details = '') {
@@ -877,7 +877,7 @@ const CommunityDB = {
     // CLEANUP
     // =========================================================================
 
-    /** Shared unsub helper — unsubscribes and removes a keyed subscription */
+    /** Shared unsub helper - unsubscribes and removes a keyed subscription */
     _unsub(key) {
         if (this._subs[key]) { this._subs[key].unsubscribe(); delete this._subs[key]; }
     },

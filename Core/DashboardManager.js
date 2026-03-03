@@ -68,7 +68,7 @@ const KNOWN_ADMIN_BADGE_IDS = new Set([
 // Global helper: navigate to Community Hub tab then scroll to a specific section.
 // Used by the Sanctuary widget on the Dashboard.
 window._navigateToHubSection = function(targetId) {
-  // Store the desired scroll target — Core.init() will scroll after the Hub finishes rendering
+  // Store the desired scroll target - Core.init() will scroll after the Hub finishes rendering
   window._pendingHubScrollTarget = targetId;
   window.app?.nav?.switchTab('community-hub');
 };
@@ -399,7 +399,7 @@ export default class DashboardManager {
                 "${this.currentQuote.text}"
               </p>
               <p class="mt-6 text-center text-lg" style="color: var(--neuro-text);">
-                — ${this.currentQuote.author}
+                - ${this.currentQuote.author}
               </p>
             </div>
             <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
@@ -435,7 +435,7 @@ export default class DashboardManager {
               "${this.currentQuote.text}"
             </p>
             <p class="mt-6 text-center text-lg" style="color: var(--neuro-text);">
-              — ${this.currentQuote.author}
+              - ${this.currentQuote.author}
             </p>
           </div>
           <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">

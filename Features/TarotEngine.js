@@ -85,7 +85,7 @@ const MINOR_ARCANA_MEANINGS = {
     6: "Victory and recognition. Success earned through perseverance.",
     7: "Standing your ground. Defending your position with courage.",
     8: "Swift action and momentum. Things move quickly now.",
-    9: "Resilience and persistence. Nearly there—don't give up.",
+    9: "Resilience and persistence. Nearly there-don't give up.",
     10: "Burden of responsibility. Carrying weight that may not be yours."
   }
 };
