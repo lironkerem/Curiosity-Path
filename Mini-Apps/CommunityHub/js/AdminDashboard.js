@@ -146,16 +146,26 @@ const AdminDashboard = {
             },
         });
 
-        const _inject = (rows, roomId = null) => {
-            const filtered = (rows || []).filter(r => r.user_id !== ADMIN_ID);
-            return [_buildRow(roomId), ...filtered];
-        };
+        const ROOM_IDS = (window.Core?.config?.ROOM_MODULES || [])
+            .map(name => window[name]?.roomId).filter(Boolean);
 
         const origRoom   = CommunityDB.getRoomParticipants.bind(CommunityDB);
         const origActive = CommunityDB.getActiveMembers.bind(CommunityDB);
 
-        CommunityDB.getRoomParticipants = async (roomId) => _inject(await origRoom(roomId), roomId);
-        CommunityDB.getActiveMembers    = async ()       => _inject(await origActive(), null);
+        // Inside a specific room: admin appears at top
+        CommunityDB.getRoomParticipants = async (roomId) => {
+            const rows = await origRoom(roomId);
+            return [_buildRow(roomId), ...rows.filter(r => r.user_id !== ADMIN_ID)];
+        };
+
+        // Hub card counters use getActiveMembers and filter by room_id —
+        // inject one row per room so every card shows admin as present
+        CommunityDB.getActiveMembers = async () => {
+            const rows = await origActive();
+            const filtered = rows.filter(r => r.user_id !== ADMIN_ID);
+            const adminRows = ROOM_IDS.map(id => _buildRow(id));
+            return [...adminRows, ...filtered];
+        };
 
         console.log('✅ [AdminDashboard] Admin presence patch applied');
     },
