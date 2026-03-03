@@ -85,7 +85,6 @@ class CommunityHubEngine {
             <span class="header-sub"></span>
           </header>
 
-          <div class="card" style="padding:2rem">
             <div class="season-flash" id="seasonFlash" aria-live="polite"></div>
 
             <a href="https://chat.whatsapp.com/HQGczWRf70tGqIspByIrL4"
@@ -130,8 +129,6 @@ class CommunityHubEngine {
               </div>
             </div>
 
-            <div class="toast" id="toast" role="alert" aria-live="assertive"></div>
-          </div>
 
         </div>
     `;
