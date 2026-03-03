@@ -437,7 +437,7 @@ class EnergyEngineEnhanced {
         </div>
         <p style="margin: 0 0 1.5rem; font-size: 0.92rem; color: var(--neuro-text-light); line-height: 1.6;">
           Deepen your energy practice together. Join live sessions, guided meditations,
-          and group healing circles — all in one place.
+          and group healing circles - all in one place.
         </p>
         <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
           <button
@@ -958,7 +958,7 @@ class EnergyEngineEnhanced {
     const nonZero = points.filter(v => v > 0);
     const average = nonZero.length 
       ? (nonZero.reduce((sum, v) => sum + v, 0) / nonZero.length).toFixed(1) 
-      : '—';
+      : '-';
     
     svg += `<text x="${WIDTH / 2}" y="${HEIGHT + 85}" font-size="14" font-weight="bold" 
                   fill="var(--neuro-text)" text-anchor="middle">
