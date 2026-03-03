@@ -138,7 +138,10 @@ const ProfileModule = {
             const { status } = e.detail || {};
             if (!status) return;
             const cu = this._user();
-            if (cu) cu.status = status;
+            if (cu) {
+                cu.status = status;
+                cu.community_status = status; // keep both fields in sync
+            }
             this.updateStatusRing(status);
             const dot = document.getElementById('statusPickerDot');
             const lbl = document.getElementById('statusPickerLabel');
@@ -893,7 +896,10 @@ const ProfileModule = {
         if (lbl) lbl.textContent = label;
 
         const cu = this._user();
-        if (cu) cu.status = status;
+        if (cu) {
+            cu.status = status;
+            cu.community_status = status; // keep both fields in sync
+        }
 
         try {
             const roomId = window.Core?.state?.currentRoom || null;

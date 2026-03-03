@@ -2250,7 +2250,10 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     animation: pulse-status 2s infinite;
 }
 
-.member-mini-status.away { background: var(--ring-guiding); }
+.member-mini-status.away    { background: var(--ring-guiding,   #e53e3e); }
+.member-mini-status.silent  { background: var(--ring-silent,    #7c3aed); }
+.member-mini-status.deep    { background: var(--ring-deep,      #1e40af); }
+.member-mini-status.offline { background: var(--ring-offline,   #9ca3af); }
 
 @keyframes pulse-status {
 0%, 100% { box-shadow: 0 0 0 2px var(--neuro-accent-a30); }

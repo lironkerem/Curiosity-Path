@@ -15,7 +15,7 @@ const ActiveMembers = {
     },
 
     config: {
-        VALID_STATUSES: new Set(['online', 'away', 'offline']),
+        VALID_STATUSES: new Set(['online', 'available', 'away', 'guiding', 'silent', 'deep', 'offline']),
         PRESENCE_RETRY_INTERVAL: 300
     },
 
@@ -40,7 +40,7 @@ const ActiveMembers = {
 
             const visible = members.filter(m => !blocked.has(m.user_id));
             container.innerHTML = this._buildShell(
-                `${visible.filter(m => m.status === 'online').length} online`,
+                `${visible.filter(m => m.status === 'online' || m.status === 'available').length} online`,
                 visible
             );
 
@@ -69,14 +69,22 @@ const ActiveMembers = {
     },
 
     _updateGrid(members) {
-        const grid     = document.querySelector('#activeMembersContainer .active-members-grid');
-        const countEl  = document.querySelector('#activeMembersContainer .section-header div:last-child');
-        if (!grid) return;
+        // Update every active-members-grid on the page (dashboard widget + community hub)
+        const grids   = document.querySelectorAll('.active-members-grid');
+        const counts  = document.querySelectorAll('.active-members-online-count');
+        const onlineN = members.filter(m => m.status === 'online' || m.status === 'available').length;
+        const cardsHTML = this._buildMemberCards(members);
 
-        if (countEl) {
-            countEl.textContent = `${members.filter(m => m.status === 'online').length} online`;
+        grids.forEach(grid => { grid.innerHTML = cardsHTML; });
+        counts.forEach(el  => { el.textContent = `${onlineN} online`; });
+
+        // Fallback: legacy selector used before this patch
+        if (!grids.length) {
+            const grid    = document.querySelector('#activeMembersContainer .active-members-grid');
+            const countEl = document.querySelector('#activeMembersContainer .section-header div:last-child');
+            if (grid)    grid.innerHTML    = cardsHTML;
+            if (countEl) countEl.textContent = `${onlineN} online`;
         }
-        grid.innerHTML = this._buildMemberCards(members);
     },
 
     // =========================================================================
@@ -108,7 +116,7 @@ const ActiveMembers = {
             <section class="section">
                 <div class="section-header">
                     <div class="section-title">Active Members</div>
-                    <div style="font-size:12px; color:var(--text-muted);">${subtitle}</div>
+                    <div class="active-members-online-count" style="font-size:12px; color:var(--text-muted);">${subtitle}</div>
                 </div>
                 ${body}
             </section>`;
@@ -128,11 +136,24 @@ const ActiveMembers = {
         const name      = profile.name      || 'Member';
         const emoji     = profile.emoji     || '';
         const avatarUrl = profile.avatar_url || '';
-        const status    = row.status        || 'online';
+        const rawStatus = row.status        || 'online';
         const activity  = row.activity      || '✨ Available';
         const userId    = row.user_id;
         const gradient  = Core.getAvatarGradient(userId || name);
         const safeName  = this._escape(name);
+
+        // Map extended statuses → dot CSS class (online=green, away=red, offline=grey)
+        // silent/deep get their own colour via inline style override
+        const DOT_CLASS_MAP = {
+            online:    'online',
+            available: 'online',
+            away:      'away',
+            guiding:   'away',
+            silent:    'silent',
+            deep:      'deep',
+            offline:   'offline',
+        };
+        const dotClass = DOT_CLASS_MAP[rawStatus] || 'offline';
 
         const avatarInner = avatarUrl
             ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" alt="${safeName}" loading="lazy">`
@@ -150,9 +171,9 @@ const ActiveMembers = {
                      aria-hidden="true">
                     ${avatarInner}
                 </div>
-                <div class="member-mini-status ${status}"
-                     aria-label="${status}"
-                     title="${this._capitalize(status)}"></div>
+                <div class="member-mini-status ${dotClass}"
+                     aria-label="${rawStatus}"
+                     title="${this._capitalize(rawStatus)}"></div>
                 <div class="member-mini-name">${safeName}</div>
                 <div class="member-mini-info">${this._escape(activity)}</div>
             </div>`;
@@ -184,8 +205,17 @@ const ActiveMembers = {
         const indicator = card?.querySelector('.member-mini-status');
         if (!indicator) return;
 
-        this.config.VALID_STATUSES.forEach(s => indicator.classList.remove(s));
-        indicator.classList.add(status);
+        const DOT_CLASS_MAP = {
+            online: 'online', available: 'online',
+            away: 'away', guiding: 'away',
+            silent: 'silent', deep: 'deep',
+            offline: 'offline',
+        };
+
+        // Remove all known dot classes
+        ['online','away','offline','silent','deep'].forEach(s => indicator.classList.remove(s));
+        indicator.classList.add(DOT_CLASS_MAP[status] || 'offline');
+
         indicator.setAttribute('aria-label', status);
         indicator.setAttribute('title', this._capitalize(status));
     },

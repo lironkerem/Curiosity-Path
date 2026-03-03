@@ -160,28 +160,30 @@ const Core = {
                 return;
             }
 
-            const validStatuses = new Set(['online', 'away', 'offline']);
+            const validStatuses = new Set(['online', 'available', 'away', 'guiding', 'silent', 'deep', 'offline']);
+            const resolvedStatus = validStatuses.has(p.community_status) ? p.community_status : 'online';
 
             this.state.currentUser = {
-                id:         p.id,
-                name:       p.name             || 'Anonymous',
-                avatar:     (p.name || 'A').charAt(0).toUpperCase(),
-                emoji:      p.emoji            || '',
-                avatar_url: p.avatar_url       || null,
-                bio:        p.inspiration      || 'Here to practice with intention.',
-                status:     validStatuses.has(p.community_status) ? p.community_status : 'online',
-                role:       p.is_admin === true ? 'Admin' : (p.community_role || 'Member'),
-                minutes:    p.total_minutes    || 0,
-                circles:    p.total_sessions   || 0,
-                offered:    p.gifts_given      || 0,
-                birthday:   p.birthday         || null,
-                country:    p.country          || null,
-                email:      p.email            || '',
-                is_admin:   p.is_admin === true,
+                id:               p.id,
+                name:             p.name             || 'Anonymous',
+                avatar:           (p.name || 'A').charAt(0).toUpperCase(),
+                emoji:            p.emoji            || '',
+                avatar_url:       p.avatar_url       || null,
+                bio:              p.inspiration      || 'Here to practice with intention.',
+                status:           resolvedStatus,           // used by ProfileModule
+                community_status: resolvedStatus,           // used by User-Tab
+                role:             p.is_admin === true ? 'Admin' : (p.community_role || 'Member'),
+                minutes:          p.total_minutes    || 0,
+                circles:          p.total_sessions   || 0,
+                offered:          p.gifts_given      || 0,
+                birthday:         p.birthday         || null,
+                country:          p.country          || null,
+                email:            p.email            || '',
+                is_admin:         p.is_admin === true,
                 // Gamification - sourced from GamificationEngine
-                karma:      window.app?.gamification?.state?.karma  ?? 0,
-                xp:         window.app?.gamification?.state?.xp     ?? 0,
-                badges:     window.app?.gamification?.state?.badges ?? []
+                karma:            window.app?.gamification?.state?.karma  ?? 0,
+                xp:               window.app?.gamification?.state?.xp     ?? 0,
+                badges:           window.app?.gamification?.state?.badges ?? []
             };
 
         } catch (error) {

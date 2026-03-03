@@ -97,7 +97,10 @@ export default class UserTab {
     window.addEventListener('statusChanged', (e) => {
       const { status } = e.detail || {};
       if (!status) return;
-      if (this.currentUser) this.currentUser.community_status = status;
+      if (this.currentUser) {
+        this.currentUser.community_status = status;
+        this.currentUser.status = status; // keep both in sync
+      }
       this.updateStatusRing(status);
       // Sync active state in picker if it's open
       document.querySelectorAll('.status-option-btn').forEach(btn => {
@@ -1048,7 +1051,11 @@ export default class UserTab {
    * @param {string} label  - Display label
    */
   async setStatus(status, color, label) {
-    if (this.currentUser) this.currentUser.community_status = status;
+    // Normalize: keep both field names in sync on the user object
+    if (this.currentUser) {
+      this.currentUser.community_status = status;
+      this.currentUser.status = status; // core.js maps community_status → .status
+    }
     this.updateStatusRing(status);
 
     // Highlight active button
@@ -1056,12 +1063,38 @@ export default class UserTab {
       btn.classList.toggle('active', btn.dataset.status === status);
     });
 
+    const STATUS_ACTIVITIES = {
+      online:    '✨ Available',
+      available: '✨ Available',
+      away:      '🌿 Away',
+      silent:    '🤫 In Silence',
+      deep:      '🧘 Deep Practice',
+      offline:   '💤 Offline',
+    };
+    const activity = STATUS_ACTIVITIES[status] || '✨ Available';
+
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ community_status: status })
-        .eq('id', this.currentUser?.id);
-      if (error) throw error;
+      const uid = this.currentUser?.id;
+      if (!uid) throw new Error('Not logged in');
+
+      // Write to both tables so all listeners (presence + profile) stay in sync
+      const writes = [
+        supabase.from('profiles').update({ community_status: status }).eq('id', uid),
+      ];
+      // CommunityDB.setPresence updates community_presence table (what ActiveMembers reads)
+      if (window.CommunityDB?.ready) {
+        writes.push(
+          window.CommunityDB.setPresence(
+            status,
+            activity,
+            window.Core?.state?.currentRoom || null
+          )
+        );
+      }
+      const results = await Promise.all(writes);
+      const profileErr = results[0]?.error;
+      if (profileErr) throw profileErr;
+
       this.app.showToast(`Status set to ${label}`, 'success');
     } catch (err) {
       console.error('setStatus error:', err);
