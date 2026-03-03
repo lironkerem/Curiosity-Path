@@ -1671,8 +1671,6 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 /* Sanctuary Content */
 .sanctuary-content {
-    max-width: 900px;
-    margin: 0 auto;
     padding: 0 0 40px;
 }
 
