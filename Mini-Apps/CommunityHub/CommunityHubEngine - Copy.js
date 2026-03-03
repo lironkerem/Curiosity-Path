@@ -74,7 +74,8 @@ class CommunityHubEngine {
 
   _buildTabHTML() {
     return `
-      <div class="universal-content">
+      <div style="background:var(--neuro-bg); padding:1.5rem; min-height:100vh; position:relative;">
+        <div class="universal-content">
 
           <header class="main-header project-curiosity"
                   style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavCommunity.png');
@@ -134,6 +135,7 @@ class CommunityHubEngine {
           </div>
 
         </div>
+      </div>
     `;
   }
 
