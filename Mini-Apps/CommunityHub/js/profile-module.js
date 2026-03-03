@@ -887,6 +887,12 @@ const ProfileModule = {
         const dropdown = document.getElementById('statusPickerDropdown');
         if (dropdown) dropdown.style.display = 'none';
 
+        // Optimistic instant update: update own dot in Active Members grid immediately
+        const uid = this._user()?.id;
+        if (uid && window.ActiveMembers) {
+            window.ActiveMembers.updateMemberStatus(uid, status);
+        }
+
         const activity = this.config.STATUS_ACTIVITIES[status] || '✨ Available';
 
         this.updateStatusRing(status);

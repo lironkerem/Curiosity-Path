@@ -1063,6 +1063,12 @@ export default class UserTab {
       btn.classList.toggle('active', btn.dataset.status === status);
     });
 
+    // Optimistic instant update: update own dot in Active Members grid immediately
+    const uid = this.currentUser?.id;
+    if (uid && window.ActiveMembers) {
+      window.ActiveMembers.updateMemberStatus(uid, status);
+    }
+
     const STATUS_ACTIVITIES = {
       online:    '✨ Available',
       available: '✨ Available',
