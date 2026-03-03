@@ -2245,19 +2245,39 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     box-shadow: 0 0 0 2px var(--neuro-accent-a30);
 }
 
-.member-mini-status.online {
+.member-mini-status.online  {
     background: var(--ring-available, #6b9b37);
-    animation: pulse-status 2s infinite;
+    animation: pulse-status-online 2s infinite;
 }
-
-.member-mini-status.away    { background: var(--ring-guiding,   #e53e3e); }
-.member-mini-status.silent  { background: var(--ring-silent,    #7c3aed); }
-.member-mini-status.deep    { background: var(--ring-deep,      #1e40af); }
+.member-mini-status.away    {
+    background: var(--ring-guiding,   #e53e3e);
+    animation: pulse-status-away 2s infinite;
+}
+.member-mini-status.silent  {
+    background: var(--ring-silent,    #7c3aed);
+    animation: pulse-status-silent 2s infinite;
+}
+.member-mini-status.deep    {
+    background: var(--ring-deep,      #1e40af);
+    animation: pulse-status-deep 2s infinite;
+}
 .member-mini-status.offline { background: var(--ring-offline,   #9ca3af); }
 
-@keyframes pulse-status {
-0%, 100% { box-shadow: 0 0 0 2px var(--neuro-accent-a30); }
-50% { box-shadow: 0 0 0 4px var(--neuro-accent-a10); }
+@keyframes pulse-status-online {
+    0%, 100% { box-shadow: 0 0 0 2px rgba(107,155,55,0.3); }
+    50%       { box-shadow: 0 0 0 4px rgba(107,155,55,0.1); }
+}
+@keyframes pulse-status-away {
+    0%, 100% { box-shadow: 0 0 0 2px rgba(229,62,62,0.3); }
+    50%       { box-shadow: 0 0 0 4px rgba(229,62,62,0.1); }
+}
+@keyframes pulse-status-silent {
+    0%, 100% { box-shadow: 0 0 0 2px rgba(124,58,237,0.3); }
+    50%       { box-shadow: 0 0 0 4px rgba(124,58,237,0.1); }
+}
+@keyframes pulse-status-deep {
+    0%, 100% { box-shadow: 0 0 0 2px rgba(30,64,175,0.3); }
+    50%       { box-shadow: 0 0 0 4px rgba(30,64,175,0.1); }
 }
 
 .member-mini-name {
