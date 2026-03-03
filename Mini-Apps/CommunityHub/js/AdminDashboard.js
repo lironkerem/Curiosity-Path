@@ -117,7 +117,47 @@ const AdminDashboard = {
     // =========================================================================
 
     injectAdminUI() {
-        if (window.Core?.state?.currentUser?.is_admin === true) this.injectBadge();
+        if (window.Core?.state?.currentUser?.is_admin === true) {
+            this.injectBadge();
+            this._patchAdminPresence();
+        }
+    },
+
+    _patchAdminPresence() {
+        if (CommunityDB._adminPresencePatched) return; // run once
+        CommunityDB._adminPresencePatched = true;
+
+        const ADMIN_ID      = CommunityDB.userId;
+        const ROOM_ACTIVITY = '🌟 Holding space';
+        const HUB_ACTIVITY  = '🌟 Always here';
+        const p             = window.Core.state.currentUser;
+
+        const _buildRow = (roomId) => ({
+            user_id:   ADMIN_ID,
+            status:    'online',
+            activity:  roomId ? ROOM_ACTIVITY : HUB_ACTIVITY,
+            room_id:   roomId,
+            last_seen: new Date().toISOString(),
+            profiles: {
+                id:         p.id         || ADMIN_ID,
+                name:       p.name       || 'Admin',
+                emoji:      p.emoji      || '🌟',
+                avatar_url: p.avatar_url || '',
+            },
+        });
+
+        const _inject = (rows, roomId = null) => {
+            const filtered = (rows || []).filter(r => r.user_id !== ADMIN_ID);
+            return [_buildRow(roomId), ...filtered];
+        };
+
+        const origRoom   = CommunityDB.getRoomParticipants.bind(CommunityDB);
+        const origActive = CommunityDB.getActiveMembers.bind(CommunityDB);
+
+        CommunityDB.getRoomParticipants = async (roomId) => _inject(await origRoom(roomId), roomId);
+        CommunityDB.getActiveMembers    = async ()       => _inject(await origActive(), null);
+
+        console.log('✅ [AdminDashboard] Admin presence patch applied');
     },
 
     injectBadge() {
