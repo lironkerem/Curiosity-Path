@@ -664,3 +664,176 @@ body.matrix-code.dark-mode .sheet-row:active {
 /* =========================================================
    END MATRIX CODE - OPTIMIZED & CONSOLIDATED
    ========================================================= */
+
+/* =========================================================
+   COMMUNITY HUB PATCH  —  MATRIX CODE
+   ========================================================= */
+
+body.matrix-code {
+  --neuro-forest: #00ff41;
+  --neuro-forest-dark: #00cc33;
+  --neuro-forest-light: #33ff66;
+  --neuro-accent-a08: rgba(0,255,65,0.08);
+  --neuro-accent-a10: rgba(0,255,65,0.10);
+  --neuro-accent-a20: rgba(0,255,65,0.20);
+  --neuro-accent-a30: rgba(0,255,65,0.30);
+  --neuro-warning-a10: rgba(255,255,0,0.10);
+}
+
+body.matrix-code .presence-widget, body.matrix-code .practice-room,
+body.matrix-code .collective-card, body.matrix-code .wave-card,
+body.matrix-code .reflection, body.matrix-code .member-card,
+body.matrix-code .member-card-mini, body.matrix-code .event-card,
+body.matrix-code .campfire-welcome, body.matrix-code .campfire-msg,
+body.matrix-code .campfire-sidebar-always-visible,
+body.matrix-code .campfire-input-area, body.matrix-code .presence-sanctuary,
+body.matrix-code .celestial-card-full, body.matrix-code .celestial-card,
+body.matrix-code .ps-header, body.matrix-code .sound-settings,
+body.matrix-code .safety-menu, body.matrix-code .ps-sidebar,
+body.matrix-code .chat-msg {
+  background: rgba(13,2,8,0.85);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(0,255,65,0.30);
+  box-shadow: var(--shadow-raised);
+  color: var(--neuro-text);
+  font-family: 'Share Tech Mono','Courier New',monospace;
+}
+body.matrix-code .presence-widget:hover, body.matrix-code .practice-room:hover,
+body.matrix-code .collective-card:hover, body.matrix-code .wave-card:hover,
+body.matrix-code .member-card:hover, body.matrix-code .event-card:hover,
+body.matrix-code .celestial-card:hover { border-color: rgba(0,255,65,0.65); box-shadow: var(--shadow-raised-hover),var(--shadow-glow); }
+
+body.matrix-code .join-btn, body.matrix-code .join-btn-inline,
+body.matrix-code .event-btn, body.matrix-code .contrib-btn,
+body.matrix-code .collective-action-btn {
+  background: rgba(0,255,65,0.12); color: #00ff41;
+  border: 1px solid rgba(0,255,65,0.55);
+  box-shadow: var(--shadow-raised),0 0 10px rgba(0,255,65,0.30);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  font-family: 'Share Tech Mono',monospace;
+}
+body.matrix-code .join-btn:hover, body.matrix-code .join-btn-inline:hover,
+body.matrix-code .event-btn:hover, body.matrix-code .contrib-btn:hover,
+body.matrix-code .collective-action-btn:hover { background: rgba(0,255,65,0.20); box-shadow: var(--shadow-raised-hover),var(--shadow-glow); color: #33ff66; }
+
+body.matrix-code .campfire-input, body.matrix-code .chat-input {
+  background: rgba(0,0,0,0.60); border: 1px solid rgba(0,255,65,0.35);
+  color: #00ff41; font-family: 'Share Tech Mono',monospace;
+  box-shadow: var(--shadow-inset-sm);
+}
+body.matrix-code .campfire-input:focus, body.matrix-code .chat-input:focus { border-color: rgba(0,255,65,0.70); outline: none; box-shadow: var(--shadow-inset-sm),0 0 8px rgba(0,255,65,0.30); }
+body.matrix-code .campfire-send, body.matrix-code .chat-send {
+  background: rgba(0,255,65,0.15); color: #00ff41;
+  border: 1px solid rgba(0,255,65,0.50); box-shadow: var(--shadow-raised);
+  text-transform: uppercase; font-family: 'Share Tech Mono',monospace;
+}
+body.matrix-code .campfire-send:hover, body.matrix-code .chat-send:hover { background: rgba(0,255,65,0.25); box-shadow: var(--shadow-raised-hover),var(--shadow-glow); }
+
+body.matrix-code .profile-hero { background: rgba(13,2,8,0.90); backdrop-filter: blur(6px); border: 1px solid rgba(0,255,65,0.35); box-shadow: var(--shadow-raised-lg); }
+body.matrix-code .profile-avatar { border: 3px solid rgba(0,255,65,0.60); box-shadow: 0 0 20px rgba(0,255,65,0.50); }
+body.matrix-code .karma-badge { background: rgba(0,255,65,0.08); border: 1px solid rgba(0,255,65,0.40); color: #00ff41; }
+body.matrix-code .role-spaceholder, body.matrix-code .role-guide { background: rgba(0,255,65,0.08); border: 1px solid rgba(0,255,65,0.40); color: #00ff41; }
+body.matrix-code .profile-inspiration { background: rgba(0,0,0,0.40); border-left: 3px solid #00ff41; color: var(--neuro-text-light); }
+
+body.matrix-code .ref-content { background: rgba(0,0,0,0.50); border: 1px solid rgba(0,255,65,0.25); }
+body.matrix-code .ref-action:hover { color: #33ff66; text-shadow: var(--shadow-text); }
+body.matrix-code .ref-action:active { color: #00cc33; }
+
+body.matrix-code .progress-fill, body.matrix-code .prog-fill { background: linear-gradient(90deg,#00cc33,#33ff66); box-shadow: 0 0 10px rgba(0,255,65,0.60); }
+body.matrix-code .progress-bar, body.matrix-code .prog-bar { background: rgba(0,0,0,0.60); border: 1px solid rgba(0,255,65,0.25); box-shadow: var(--shadow-inset-sm); }
+
+body.matrix-code .view-toggle { background: rgba(0,0,0,0.60); border: 1px solid rgba(0,255,65,0.30); box-shadow: var(--shadow-inset-sm); }
+body.matrix-code .v-btn.active { background: rgba(0,255,65,0.20); color: #00ff41; box-shadow: 0 0 10px rgba(0,255,65,0.50); border: 1px solid rgba(0,255,65,0.60); }
+body.matrix-code .toggle-switch.active { background: #00cc33; box-shadow: 0 0 10px rgba(0,255,65,0.60); }
+body.matrix-code .sound-preview-btn { background: rgba(0,0,0,0.50); border: 1px solid rgba(0,255,65,0.30); color: #00ff41; font-family: 'Share Tech Mono',monospace; }
+body.matrix-code .sound-preview-btn:hover { border-color: rgba(0,255,65,0.60); box-shadow: 0 0 10px rgba(0,255,65,0.30); }
+
+body.matrix-code .safety-bar { background: rgba(13,2,8,0.90); backdrop-filter: blur(6px); border-top: 1px solid rgba(0,255,65,0.40); box-shadow: 0 -4px 12px rgba(0,255,65,0.30); }
+body.matrix-code .safety-btn { background: rgba(0,0,0,0.50); border: 1px solid rgba(0,255,65,0.35); color: var(--neuro-text-light); font-family: 'Share Tech Mono',monospace; }
+body.matrix-code .safety-btn:hover { border-color: rgba(0,255,65,0.70); color: #00ff41; }
+body.matrix-code .toast { background: rgba(13,2,8,0.95); backdrop-filter: blur(6px); border: 1px solid rgba(0,255,65,0.55); color: #00ff41; box-shadow: var(--shadow-raised-lg),var(--shadow-glow); font-family: 'Share Tech Mono',monospace; }
+
+body.matrix-code .ritual-card { background: rgba(13,2,8,0.90); backdrop-filter: blur(6px); border: 2px solid rgba(0,255,65,0.55); box-shadow: var(--shadow-raised-lg),var(--shadow-glow); }
+body.matrix-code .ritual-text { color: #00ff41; text-shadow: var(--shadow-text); }
+body.matrix-code .ritual-btn { background: rgba(0,255,65,0.15); color: #00ff41; border: 1px solid rgba(0,255,65,0.55); text-transform: uppercase; letter-spacing: 0.1em; font-family: 'Share Tech Mono',monospace; }
+
+body.matrix-code .celestial-time, body.matrix-code .time-value { color: #00ff41; text-shadow: var(--shadow-text); }
+body.matrix-code .next-phase, body.matrix-code .next-season { border-top: 1px solid rgba(0,255,65,0.25); color: var(--neuro-text-light); }
+body.matrix-code .moon-phase-name, body.matrix-code .solar-season-name { color: #00ff41; font-weight: 700; text-shadow: var(--shadow-text); }
+
+body.matrix-code .ps-leave { background: rgba(0,0,0,0.50); border: 1px solid rgba(0,255,65,0.35); color: var(--neuro-text-light); text-transform: uppercase; font-family: 'Share Tech Mono',monospace; }
+body.matrix-code .ps-leave:hover { border-color: rgba(0,255,65,0.70); color: #00ff41; }
+body.matrix-code .timer-display { color: #00ff41; text-shadow: var(--shadow-text); font-family: 'Share Tech Mono',monospace; }
+
+body.matrix-code .badge { background: rgba(0,255,65,0.10); border: 1px solid rgba(0,255,65,0.40); color: #00ff41; }
+body.matrix-code .badge-tooltip { background: rgba(13,2,8,0.95); border: 1px solid rgba(0,255,65,0.40); color: #00ff41; box-shadow: var(--shadow-raised); font-family: 'Share Tech Mono',monospace; }
+body.matrix-code .member-mini-status { background: #00cc33; box-shadow: 0 0 6px rgba(0,255,65,0.70); }
+
+body.matrix-code .campfire-participant:hover { background: rgba(0,255,65,0.08); }
+body.matrix-code .event-flyer img { filter: none; }
+body.matrix-code #communityHubFullscreenContainer { background: var(--neuro-bg); color: var(--neuro-text); }
+
+/* dark mode — red variant */
+body.matrix-code.dark-mode {
+  --neuro-forest: #ff0041;
+  --neuro-forest-dark: #cc0033;
+  --neuro-forest-light: #ff3366;
+  --neuro-accent-a08: rgba(255,0,65,0.08);
+  --neuro-accent-a10: rgba(255,0,65,0.10);
+  --neuro-accent-a20: rgba(255,0,65,0.20);
+  --neuro-accent-a30: rgba(255,0,65,0.30);
+  --neuro-warning-a10: rgba(255,255,0,0.10);
+}
+body.matrix-code.dark-mode .presence-widget, body.matrix-code.dark-mode .practice-room,
+body.matrix-code.dark-mode .collective-card, body.matrix-code.dark-mode .wave-card,
+body.matrix-code.dark-mode .reflection, body.matrix-code.dark-mode .member-card,
+body.matrix-code.dark-mode .member-card-mini, body.matrix-code.dark-mode .event-card,
+body.matrix-code.dark-mode .campfire-welcome, body.matrix-code.dark-mode .campfire-msg,
+body.matrix-code.dark-mode .campfire-sidebar-always-visible,
+body.matrix-code.dark-mode .campfire-input-area, body.matrix-code.dark-mode .presence-sanctuary,
+body.matrix-code.dark-mode .celestial-card-full, body.matrix-code.dark-mode .celestial-card,
+body.matrix-code.dark-mode .ps-header, body.matrix-code.dark-mode .sound-settings,
+body.matrix-code.dark-mode .safety-menu, body.matrix-code.dark-mode .ps-sidebar,
+body.matrix-code.dark-mode .chat-msg {
+  background: rgba(8,0,2,0.88); backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,0,65,0.30);
+  box-shadow: var(--shadow-raised); color: #ff0041;
+}
+body.matrix-code.dark-mode .presence-widget:hover, body.matrix-code.dark-mode .practice-room:hover,
+body.matrix-code.dark-mode .collective-card:hover, body.matrix-code.dark-mode .wave-card:hover,
+body.matrix-code.dark-mode .member-card:hover, body.matrix-code.dark-mode .event-card:hover,
+body.matrix-code.dark-mode .celestial-card:hover { border-color: rgba(255,51,102,0.65); box-shadow: var(--shadow-raised-hover),0 0 20px rgba(255,0,65,0.50); }
+body.matrix-code.dark-mode .join-btn, body.matrix-code.dark-mode .join-btn-inline,
+body.matrix-code.dark-mode .event-btn, body.matrix-code.dark-mode .contrib-btn,
+body.matrix-code.dark-mode .collective-action-btn { background: rgba(255,0,65,0.12); color: #ff0041; border: 1px solid rgba(255,0,65,0.55); text-transform: uppercase; letter-spacing: 0.1em; }
+body.matrix-code.dark-mode .join-btn:hover, body.matrix-code.dark-mode .event-btn:hover,
+body.matrix-code.dark-mode .contrib-btn:hover { background: rgba(255,0,65,0.22); box-shadow: 0 0 20px rgba(255,0,65,0.60); color: #ff3366; }
+body.matrix-code.dark-mode .campfire-input, body.matrix-code.dark-mode .chat-input { border-color: rgba(255,0,65,0.35); color: #ff0041; }
+body.matrix-code.dark-mode .campfire-input:focus, body.matrix-code.dark-mode .chat-input:focus { border-color: rgba(255,0,65,0.70); }
+body.matrix-code.dark-mode .campfire-send, body.matrix-code.dark-mode .chat-send { background: rgba(255,0,65,0.15); color: #ff0041; border-color: rgba(255,0,65,0.50); }
+body.matrix-code.dark-mode .campfire-send:hover, body.matrix-code.dark-mode .chat-send:hover { background: rgba(255,0,65,0.25); box-shadow: 0 0 15px rgba(255,0,65,0.50); }
+body.matrix-code.dark-mode .profile-avatar { border-color: rgba(255,0,65,0.60); box-shadow: 0 0 20px rgba(255,0,65,0.50); }
+body.matrix-code.dark-mode .karma-badge { background: rgba(255,0,65,0.08); border-color: rgba(255,0,65,0.40); color: #ff0041; }
+body.matrix-code.dark-mode .role-spaceholder, body.matrix-code.dark-mode .role-guide { background: rgba(255,0,65,0.08); border-color: rgba(255,0,65,0.40); color: #ff0041; }
+body.matrix-code.dark-mode .profile-inspiration { border-left-color: #ff0041; }
+body.matrix-code.dark-mode .progress-fill, body.matrix-code.dark-mode .prog-fill { background: linear-gradient(90deg,#cc0033,#ff3366); box-shadow: 0 0 10px rgba(255,0,65,0.60); }
+body.matrix-code.dark-mode .progress-bar, body.matrix-code.dark-mode .prog-bar { border-color: rgba(255,0,65,0.25); }
+body.matrix-code.dark-mode .v-btn.active { background: rgba(255,0,65,0.20); color: #ff0041; box-shadow: 0 0 10px rgba(255,0,65,0.50); border-color: rgba(255,0,65,0.60); }
+body.matrix-code.dark-mode .toggle-switch.active { background: #cc0033; box-shadow: 0 0 10px rgba(255,0,65,0.60); }
+body.matrix-code.dark-mode .safety-bar { border-top-color: rgba(255,0,65,0.40); box-shadow: 0 -4px 12px rgba(255,0,65,0.30); }
+body.matrix-code.dark-mode .toast { border-color: rgba(255,0,65,0.55); color: #ff0041; box-shadow: var(--shadow-raised-lg),0 0 20px rgba(255,0,65,0.40); }
+body.matrix-code.dark-mode .ritual-card { border-color: rgba(255,0,65,0.55); box-shadow: var(--shadow-raised-lg),0 0 25px rgba(255,0,65,0.40); }
+body.matrix-code.dark-mode .ritual-text { color: #ff0041; }
+body.matrix-code.dark-mode .ritual-btn { background: rgba(255,0,65,0.15); color: #ff0041; border-color: rgba(255,0,65,0.55); }
+body.matrix-code.dark-mode .celestial-time, body.matrix-code.dark-mode .time-value { color: #ff0041; text-shadow: 0 0 5px rgba(255,0,65,0.80),0 0 10px rgba(255,0,65,0.60); }
+body.matrix-code.dark-mode .moon-phase-name, body.matrix-code.dark-mode .solar-season-name { color: #ff0041; }
+body.matrix-code.dark-mode .timer-display { color: #ff0041; text-shadow: 0 0 10px rgba(255,0,65,0.80); }
+body.matrix-code.dark-mode .badge { background: rgba(255,0,65,0.10); border-color: rgba(255,0,65,0.40); color: #ff0041; }
+body.matrix-code.dark-mode .member-mini-status { background: #cc0033; box-shadow: 0 0 6px rgba(255,0,65,0.70); }
+body.matrix-code.dark-mode .campfire-participant:hover { background: rgba(255,0,65,0.08); }
+body.matrix-code.dark-mode .event-flyer img { filter: none; }
+body.matrix-code.dark-mode #communityHubFullscreenContainer { background: var(--neuro-bg); color: #ff0041; }
+
+/* =========================================================
+   END COMMUNITY HUB PATCH  —  MATRIX CODE
+   ========================================================= */

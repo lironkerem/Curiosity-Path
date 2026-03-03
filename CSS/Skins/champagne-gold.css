@@ -295,3 +295,161 @@ body.champagne-gold.dark-mode{--chat-border:1px solid rgba(212,175,55,.35);}
 /* =========================================================
    END CHAMPAGNE-GOLD COMPLETE (updated for new CSS)
    ========================================================= */
+
+/* =========================================================
+   COMMUNITY HUB PATCH  —  CHAMPAGNE GOLD
+   ========================================================= */
+
+body.champagne-gold {
+  --neuro-accent-a08: rgba(212,175,55,0.08);
+  --neuro-accent-a10: rgba(212,175,55,0.10);
+  --neuro-accent-a20: rgba(212,175,55,0.20);
+  --neuro-accent-a30: rgba(212,175,55,0.30);
+  --neuro-warning-a10: rgba(200,150,11,0.10);
+}
+
+body.champagne-gold .presence-widget, body.champagne-gold .practice-room,
+body.champagne-gold .collective-card, body.champagne-gold .wave-card,
+body.champagne-gold .reflection, body.champagne-gold .member-card,
+body.champagne-gold .member-card-mini, body.champagne-gold .event-card,
+body.champagne-gold .campfire-welcome, body.champagne-gold .campfire-msg,
+body.champagne-gold .campfire-sidebar-always-visible,
+body.champagne-gold .campfire-input-area, body.champagne-gold .presence-sanctuary,
+body.champagne-gold .celestial-card-full, body.champagne-gold .celestial-card,
+body.champagne-gold .ps-header, body.champagne-gold .sound-settings,
+body.champagne-gold .safety-menu, body.champagne-gold .ps-sidebar,
+body.champagne-gold .chat-msg {
+  background: var(--neuro-bg-darker);
+  border: 1px solid rgba(212,175,55,0.35);
+  box-shadow: var(--shadow-raised); color: var(--neuro-text);
+}
+body.champagne-gold .presence-widget:hover, body.champagne-gold .practice-room:hover,
+body.champagne-gold .collective-card:hover, body.champagne-gold .wave-card:hover,
+body.champagne-gold .member-card:hover, body.champagne-gold .event-card:hover,
+body.champagne-gold .celestial-card:hover { border-color: rgba(244,208,63,0.65); box-shadow: var(--shadow-raised-hover),var(--shadow-glow); }
+
+body.champagne-gold .join-btn, body.champagne-gold .join-btn-inline,
+body.champagne-gold .event-btn, body.champagne-gold .contrib-btn,
+body.champagne-gold .collective-action-btn {
+  background: linear-gradient(135deg,var(--neuro-gold-dark),var(--neuro-gold),var(--neuro-gold-light));
+  background-size: 200% 200%; color: #2a2318;
+  border: 1px solid rgba(212,175,55,0.60);
+  box-shadow: var(--shadow-raised),var(--shadow-glow);
+  animation: luxuryShine 3s linear infinite;
+}
+body.champagne-gold .join-btn:hover, body.champagne-gold .join-btn-inline:hover,
+body.champagne-gold .event-btn:hover, body.champagne-gold .contrib-btn:hover,
+body.champagne-gold .collective-action-btn:hover { box-shadow: var(--shadow-raised-hover),var(--shadow-intense); }
+
+body.champagne-gold .campfire-input, body.champagne-gold .chat-input {
+  background: var(--neuro-highlight); border: 1px solid rgba(212,175,55,0.35);
+  color: var(--neuro-text); box-shadow: var(--shadow-inset-sm);
+}
+body.champagne-gold .campfire-input:focus, body.champagne-gold .chat-input:focus { border-color: rgba(212,175,55,0.65); outline: none; }
+body.champagne-gold .campfire-send, body.champagne-gold .chat-send {
+  background: linear-gradient(135deg,var(--neuro-gold-dark),var(--neuro-gold-light));
+  color: #2a2318; border: 1px solid rgba(212,175,55,0.50); box-shadow: var(--shadow-raised);
+}
+body.champagne-gold .campfire-send:hover, body.champagne-gold .chat-send:hover { box-shadow: var(--shadow-raised-hover),var(--shadow-glow); }
+
+body.champagne-gold .profile-hero { background: linear-gradient(135deg,var(--neuro-gold-dark),var(--neuro-bg-darker)); border: 1px solid rgba(212,175,55,0.35); box-shadow: var(--shadow-raised-lg); }
+body.champagne-gold .profile-avatar { border: 3px solid rgba(212,175,55,0.65); box-shadow: 0 0 20px rgba(212,175,55,0.35); }
+body.champagne-gold .karma-badge { background: var(--neuro-highlight); border: 1px solid rgba(212,175,55,0.45); color: var(--neuro-gold-dark); }
+body.champagne-gold .role-spaceholder, body.champagne-gold .role-guide { background: var(--neuro-accent-a10); border: 1px solid rgba(212,175,55,0.45); color: var(--neuro-gold-dark); }
+body.champagne-gold .profile-inspiration { background: var(--neuro-bg-darker); border-left: 3px solid var(--neuro-gold); color: var(--neuro-text-light); }
+
+body.champagne-gold .ref-content { background: var(--neuro-bg-darker); border: 1px solid rgba(212,175,55,0.30); }
+body.champagne-gold .ref-action:hover { color: var(--neuro-gold-dark); }
+body.champagne-gold .ref-action:active { color: var(--neuro-gold); }
+
+body.champagne-gold .progress-fill, body.champagne-gold .prog-fill { background: linear-gradient(90deg,var(--neuro-gold-dark),var(--neuro-gold-light)); box-shadow: 0 0 8px rgba(212,175,55,0.45); }
+body.champagne-gold .progress-bar, body.champagne-gold .prog-bar { background: var(--neuro-bg); border: 1px solid rgba(212,175,55,0.30); box-shadow: var(--shadow-inset-sm); }
+
+body.champagne-gold .view-toggle { background: var(--neuro-bg); border: 1px solid rgba(212,175,55,0.35); box-shadow: var(--shadow-inset-sm); }
+body.champagne-gold .v-btn.active { background: linear-gradient(135deg,var(--neuro-gold-dark),var(--neuro-gold-light)); color: #2a2318; box-shadow: 0 0 10px rgba(212,175,55,0.45); }
+body.champagne-gold .toggle-switch.active { background: var(--neuro-gold); }
+body.champagne-gold .sound-preview-btn { background: var(--neuro-bg-darker); border: 1px solid rgba(212,175,55,0.35); color: var(--neuro-gold-dark); }
+body.champagne-gold .sound-preview-btn:hover { border-color: rgba(212,175,55,0.65); box-shadow: 0 0 10px rgba(212,175,55,0.25); }
+
+body.champagne-gold .safety-bar { background: var(--neuro-bg-darker); border-top: 1px solid rgba(212,175,55,0.35); }
+body.champagne-gold .safety-btn { background: var(--neuro-bg); border: 1px solid rgba(212,175,55,0.35); color: var(--neuro-text-light); }
+body.champagne-gold .safety-btn:hover { border-color: rgba(212,175,55,0.65); color: var(--neuro-gold-dark); }
+body.champagne-gold .toast { background: var(--neuro-bg-darker); border: 1px solid rgba(212,175,55,0.55); color: var(--neuro-text); box-shadow: var(--shadow-raised-lg),var(--shadow-glow); }
+
+body.champagne-gold .ritual-card { background: var(--neuro-bg-darker); border: 2px solid rgba(212,175,55,0.55); box-shadow: var(--shadow-raised-lg),var(--shadow-glow); }
+body.champagne-gold .ritual-text { color: var(--neuro-text); }
+body.champagne-gold .ritual-btn { background: linear-gradient(135deg,var(--neuro-gold-dark),var(--neuro-gold-light)); color: #2a2318; border: 1px solid rgba(212,175,55,0.55); }
+
+body.champagne-gold .celestial-time, body.champagne-gold .time-value { color: var(--neuro-gold-dark); }
+body.champagne-gold .next-phase, body.champagne-gold .next-season { border-top: 1px solid rgba(212,175,55,0.30); color: var(--neuro-text-light); }
+body.champagne-gold .moon-phase-name, body.champagne-gold .solar-season-name { color: var(--neuro-gold-dark); font-weight: 700; }
+
+body.champagne-gold .ps-leave { background: var(--neuro-bg); border: 1px solid rgba(212,175,55,0.35); color: var(--neuro-text-light); }
+body.champagne-gold .ps-leave:hover { border-color: rgba(212,175,55,0.65); color: var(--neuro-gold-dark); }
+body.champagne-gold .timer-display { color: var(--neuro-gold-dark); }
+
+body.champagne-gold .badge { background: var(--neuro-accent-a20); border: 1px solid rgba(212,175,55,0.45); color: var(--neuro-gold-dark); }
+body.champagne-gold .badge-tooltip { background: var(--neuro-highlight); border: 1px solid rgba(212,175,55,0.45); color: var(--neuro-text); box-shadow: var(--shadow-raised); }
+body.champagne-gold .member-mini-status { background: var(--neuro-gold); }
+
+body.champagne-gold .campfire-participant:hover { background: var(--neuro-accent-a08); }
+body.champagne-gold .event-flyer img { filter: none; }
+body.champagne-gold #communityHubFullscreenContainer { background: var(--neuro-bg); color: var(--neuro-text); }
+
+/* dark mode */
+body.champagne-gold.dark-mode {
+  --neuro-accent-a08: rgba(212,175,55,0.08);
+  --neuro-accent-a10: rgba(212,175,55,0.10);
+  --neuro-accent-a20: rgba(212,175,55,0.20);
+  --neuro-accent-a30: rgba(212,175,55,0.30);
+  --neuro-warning-a10: rgba(200,150,11,0.10);
+}
+body.champagne-gold.dark-mode .presence-widget, body.champagne-gold.dark-mode .practice-room,
+body.champagne-gold.dark-mode .collective-card, body.champagne-gold.dark-mode .wave-card,
+body.champagne-gold.dark-mode .reflection, body.champagne-gold.dark-mode .member-card,
+body.champagne-gold.dark-mode .member-card-mini, body.champagne-gold.dark-mode .event-card,
+body.champagne-gold.dark-mode .campfire-welcome, body.champagne-gold.dark-mode .campfire-msg,
+body.champagne-gold.dark-mode .campfire-sidebar-always-visible,
+body.champagne-gold.dark-mode .campfire-input-area, body.champagne-gold.dark-mode .presence-sanctuary,
+body.champagne-gold.dark-mode .celestial-card-full, body.champagne-gold.dark-mode .celestial-card,
+body.champagne-gold.dark-mode .ps-header, body.champagne-gold.dark-mode .sound-settings,
+body.champagne-gold.dark-mode .safety-menu, body.champagne-gold.dark-mode .ps-sidebar,
+body.champagne-gold.dark-mode .chat-msg {
+  background: var(--neuro-bg-darker);
+  border: 1px solid rgba(212,175,55,0.45);
+  box-shadow: var(--shadow-raised); color: var(--neuro-text);
+}
+body.champagne-gold.dark-mode .presence-widget:hover, body.champagne-gold.dark-mode .practice-room:hover,
+body.champagne-gold.dark-mode .collective-card:hover, body.champagne-gold.dark-mode .wave-card:hover,
+body.champagne-gold.dark-mode .member-card:hover, body.champagne-gold.dark-mode .event-card:hover,
+body.champagne-gold.dark-mode .celestial-card:hover { border-color: rgba(244,208,63,0.70); box-shadow: var(--shadow-raised-hover),var(--shadow-glow); }
+body.champagne-gold.dark-mode .join-btn, body.champagne-gold.dark-mode .join-btn-inline,
+body.champagne-gold.dark-mode .event-btn, body.champagne-gold.dark-mode .contrib-btn,
+body.champagne-gold.dark-mode .collective-action-btn { background: linear-gradient(135deg,var(--neuro-gold-dark),var(--neuro-gold),var(--neuro-gold-light)); color: #2a241a; border: 1px solid rgba(212,175,55,0.60); box-shadow: var(--shadow-raised),var(--shadow-glow); }
+body.champagne-gold.dark-mode .join-btn:hover, body.champagne-gold.dark-mode .event-btn:hover,
+body.champagne-gold.dark-mode .contrib-btn:hover { box-shadow: var(--shadow-raised-hover),var(--shadow-intense); }
+body.champagne-gold.dark-mode .campfire-input, body.champagne-gold.dark-mode .chat-input { background: var(--neuro-bg); border: 1px solid rgba(212,175,55,0.45); color: var(--neuro-text); }
+body.champagne-gold.dark-mode .campfire-send, body.champagne-gold.dark-mode .chat-send { background: linear-gradient(135deg,var(--neuro-gold-dark),var(--neuro-gold-light)); color: #2a241a; border: 1px solid rgba(212,175,55,0.60); }
+body.champagne-gold.dark-mode .profile-avatar { border-color: rgba(212,175,55,0.70); box-shadow: 0 0 20px rgba(212,175,55,0.50); }
+body.champagne-gold.dark-mode .karma-badge { color: var(--neuro-gold-light); border-color: rgba(212,175,55,0.50); }
+body.champagne-gold.dark-mode .role-spaceholder, body.champagne-gold.dark-mode .role-guide { color: var(--neuro-gold-light); }
+body.champagne-gold.dark-mode .profile-inspiration { border-left-color: var(--neuro-gold); }
+body.champagne-gold.dark-mode .progress-fill, body.champagne-gold.dark-mode .prog-fill { background: linear-gradient(90deg,var(--neuro-gold-dark),var(--neuro-gold-light)); box-shadow: 0 0 10px rgba(212,175,55,0.50); }
+body.champagne-gold.dark-mode .progress-bar, body.champagne-gold.dark-mode .prog-bar { background: var(--neuro-bg); border-color: rgba(212,175,55,0.30); }
+body.champagne-gold.dark-mode .v-btn.active { background: linear-gradient(135deg,var(--neuro-gold-dark),var(--neuro-gold-light)); color: #2a241a; }
+body.champagne-gold.dark-mode .toggle-switch.active { background: var(--neuro-gold); box-shadow: 0 0 10px rgba(212,175,55,0.50); }
+body.champagne-gold.dark-mode .safety-bar { border-top-color: rgba(212,175,55,0.50); }
+body.champagne-gold.dark-mode .toast { border-color: rgba(212,175,55,0.60); box-shadow: var(--shadow-raised-lg),var(--shadow-glow); }
+body.champagne-gold.dark-mode .ritual-card { border-color: rgba(212,175,55,0.60); box-shadow: var(--shadow-raised-lg),var(--shadow-glow); }
+body.champagne-gold.dark-mode .celestial-time, body.champagne-gold.dark-mode .time-value { color: var(--neuro-gold-light); text-shadow: var(--shadow-glow); }
+body.champagne-gold.dark-mode .moon-phase-name, body.champagne-gold.dark-mode .solar-season-name { color: var(--neuro-gold-light); }
+body.champagne-gold.dark-mode .timer-display { color: var(--neuro-gold-light); text-shadow: var(--shadow-glow); }
+body.champagne-gold.dark-mode .badge { border-color: rgba(212,175,55,0.50); color: var(--neuro-gold-light); }
+body.champagne-gold.dark-mode .member-mini-status { background: var(--neuro-gold); }
+body.champagne-gold.dark-mode .campfire-participant:hover { background: var(--neuro-accent-a10); }
+body.champagne-gold.dark-mode .event-flyer img { filter: none; }
+body.champagne-gold.dark-mode #communityHubFullscreenContainer { background: var(--neuro-bg); color: var(--neuro-text); }
+
+/* =========================================================
+   END COMMUNITY HUB PATCH  —  CHAMPAGNE GOLD
+   ========================================================= */
