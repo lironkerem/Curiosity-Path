@@ -1,4 +1,4 @@
-/** GUIDED MEDITATION ROOM — @extends TimedVideoRoom */
+/** GUIDED MEDITATION ROOM - @extends TimedVideoRoom */
 
 class GuidedRoom extends TimedVideoRoom {
     constructor() {
@@ -37,7 +37,7 @@ class GuidedRoom extends TimedVideoRoom {
             <h3>How It Works:</h3>
             <ul>
                 <li>A new session begins every hour, on the hour</li>
-                <li>Open window: :00 to :15 — enter before :15 to join</li>
+                <li>Open window: :00 to :15 - enter before :15 to join</li>
                 <li>Session runs 45 minutes · Room closes at :15</li>
                 <li>All users worldwide join the same session simultaneously</li>
                 <li>9 meditations rotating hourly</li>

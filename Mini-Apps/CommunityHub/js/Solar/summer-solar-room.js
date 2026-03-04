@@ -117,7 +117,7 @@ SummerSolarRoom.getFutureAlignmentContent = function() {
     purpose:             'Integrate clarity and direction for joyful expression',
     visualizationPrompt: 'Visualize yourself at the height of Summer feeling vibrant, energized, and fully present.',
     feelingTitle:        'Feel Radiance',
-    feelingPrompt:       'Do not visualize outcomes—simply feel the fullness of presence and joy.',
+    feelingPrompt:       'Do not visualize outcomes-simply feel the fullness of presence and joy.',
     closingLine:         'I move through this season in alignment with my true radiance.',
   });
 };

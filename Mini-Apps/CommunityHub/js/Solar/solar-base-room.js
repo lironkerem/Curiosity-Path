@@ -13,7 +13,7 @@ const BaseSolarRoom = {
   prebuiltAffirmations: [],
 
   // ── Shared defaults (reset each season via loadData) ───────────────────────
-  // Season rooms should NOT redefine userData — they inherit this.
+  // Season rooms should NOT redefine userData - they inherit this.
   userData: {
     intention:        '',
     affirmation:      '',

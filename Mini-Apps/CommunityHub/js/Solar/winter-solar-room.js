@@ -117,7 +117,7 @@ WinterSolarRoom.getFutureAlignmentContent = function() {
     purpose:             'Integrate insight and prepare for future growth',
     visualizationPrompt: 'Visualize yourself at the end of Winter feeling restored, aligned, and centered.',
     feelingTitle:        'Feel Integration',
-    feelingPrompt:       'Do not visualize outcomes—simply feel inner stability and readiness.',
+    feelingPrompt:       'Do not visualize outcomes-simply feel inner stability and readiness.',
     closingLine:         'I move through this season in harmony with my inner truth.',
   });
 };
@@ -144,7 +144,7 @@ WinterSolarRoom.getEnergyAwarenessContent = function() {
 WinterSolarRoom.getEnvironmentalClearingContent = function() {
   return SolarConfig.generateEnvironmentalClearingContent({
     purpose:      'Create supportive external space for inner calm',
-    removePrompt: 'Take 3 things that no longer serve you and remove or delete them. Do not reorganize—simply create space.',
+    removePrompt: 'Take 3 things that no longer serve you and remove or delete them. Do not reorganize-simply create space.',
     closingLine:  'I create stillness in my environment to support inner clarity.',
   });
 };

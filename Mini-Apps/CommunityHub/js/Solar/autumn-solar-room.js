@@ -117,7 +117,7 @@ AutumnSolarRoom.getFutureAlignmentContent = function() {
     purpose:             'Integrate clarity and direction for the season',
     visualizationPrompt: 'Visualize yourself at the end of Autumn feeling aligned, grounded, and at ease.',
     feelingTitle:        'Feel Alignment',
-    feelingPrompt:       'Do not visualize outcomes—simply feel the state of integration.',
+    feelingPrompt:       'Do not visualize outcomes-simply feel the state of integration.',
     closingLine:         'I move through this season in harmony with my true path.',
   });
 };
@@ -144,7 +144,7 @@ AutumnSolarRoom.getEnergyAwarenessContent = function() {
 AutumnSolarRoom.getEnvironmentalClearingContent = function() {
   return SolarConfig.generateEnvironmentalClearingContent({
     purpose:      'Create external order to support internal consolidation',
-    removePrompt: 'Take 3 things that no longer serve you and remove or delete them. Do not reorganize—only subtraction.',
+    removePrompt: 'Take 3 things that no longer serve you and remove or delete them. Do not reorganize-only subtraction.',
     closingLine:  'I create space by letting go.',
   });
 };

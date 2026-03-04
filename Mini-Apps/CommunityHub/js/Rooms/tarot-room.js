@@ -3,7 +3,7 @@
  * @extends PracticeRoom
  * @mixes ChatMixin, TabRoomMixin
  *
- * Daily card: date-seeded — same card for all users, resets at midnight.
+ * Daily card: date-seeded - same card for all users, resets at midnight.
  */
 
 class TarotRoom extends PracticeRoom {
@@ -268,13 +268,13 @@ class TarotRoom extends PracticeRoom {
             <p><strong>Daily guidance and personal card draws with community reflection.</strong></p>
             <h3>Two Types of Draws:</h3>
             <ul>
-                <li>🌅 <strong>Daily Card</strong> — One shared card for the entire community each day. Resets at midnight.</li>
-                <li>✨ <strong>Personal Draw</strong> — Your own card for specific questions.</li>
+                <li>🌅 <strong>Daily Card</strong> - One shared card for the entire community each day. Resets at midnight.</li>
+                <li>✨ <strong>Personal Draw</strong> - Your own card for specific questions.</li>
             </ul>
             <h3>How to Approach:</h3>
             <ul>
                 <li>Approach with an open heart and curious mind</li>
-                <li>There are no "bad" cards — only lessons and perspectives</li>
+                <li>There are no "bad" cards - only lessons and perspectives</li>
                 <li>Your intuition matters more than memorized meanings</li>
                 <li>Reflect deeply before sharing with the community</li>
             </ul>

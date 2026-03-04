@@ -5,9 +5,9 @@
  * Usage: Object.assign(YourRoom.prototype, CycleStateMixin);
  *
  * Required config:
- *   - config.cycleDuration   (seconds) — full cycle length
- *   - config.openDuration    (seconds) — open window at cycle start
- *   - config.sessionDuration (seconds) — session length after open window
+ *   - config.cycleDuration   (seconds) - full cycle length
+ *   - config.openDuration    (seconds) - open window at cycle start
+ *   - config.sessionDuration (seconds) - session length after open window
  */
 
 const CycleStateMixin = {
@@ -49,7 +49,7 @@ const CycleStateMixin = {
         const timeIntoCycle     = (now - this.state.cycleStartTime) % cycleMs;
         const currentCycleStart = now - timeIntoCycle;
 
-        // Crossed a cycle boundary — refresh start time and session list
+        // Crossed a cycle boundary - refresh start time and session list
         if (currentCycleStart !== this.state.cycleStartTime) {
             this.state.cycleStartTime = currentCycleStart;
             this.setSessions?.(now);
@@ -86,7 +86,7 @@ const CycleStateMixin = {
         return Core.state?.currentUser?.is_admin === true || this.state.isOpen;
     },
 
-    /** Raw window check — no admin bypass. Used for visual card state only. */
+    /** Raw window check - no admin bypass. Used for visual card state only. */
     _checkCycleWindow() {
         return this.state.isOpen;
     },

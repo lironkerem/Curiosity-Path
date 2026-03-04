@@ -141,7 +141,7 @@ class SilentRoom extends PracticeRoom {
         if (container) container.style.background = isDimmed ? 'rgba(0,0,0,0.85)' : 'transparent';
     }
 
-    /** Reset dim mode to default — called on leave. */
+    /** Reset dim mode to default - called on leave. */
     _resetDimMode() {
         const view = document.getElementById('dynamicRoomContent');
         if (view) view.classList.remove('dimmed');

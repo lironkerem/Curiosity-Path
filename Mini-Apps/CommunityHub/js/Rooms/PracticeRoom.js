@@ -324,7 +324,7 @@ class PracticeRoom {
         return avatars + extra;
     }
 
-    /** Header participant stack — larger avatars, clickable. */
+    /** Header participant stack - larger avatars, clickable. */
     _buildRealAvatars(participants) {
         const { MAX, fallbackGradient } = _AVATAR_DEFAULTS;
         const shown    = participants.slice(0, MAX);

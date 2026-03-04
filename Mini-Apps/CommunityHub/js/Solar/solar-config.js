@@ -1,7 +1,7 @@
 /**
  * SOLAR-CONFIG.JS
  * Shared constants and content generators for all solar practice rooms.
- * Single source of truth — eliminates duplication across season files.
+ * Single source of truth - eliminates duplication across season files.
  */
 
 // ============================================================================
@@ -30,7 +30,7 @@ const SOLAR_CONSTANTS = {
 window.SOLAR_CONSTANTS = SOLAR_CONSTANTS;
 
 // ============================================================================
-// SOLAR CONFIG — shared HTML generators
+// SOLAR CONFIG - shared HTML generators
 // ============================================================================
 
 const SolarConfig = {

@@ -117,7 +117,7 @@ SpringSolarRoom.getFutureAlignmentContent = function() {
     purpose:              'Integrate vision and direction for the season',
     visualizationPrompt:  'Visualize yourself at the end of Spring feeling aligned, energized, and inspired.',
     feelingTitle:         'Feel Expansion',
-    feelingPrompt:        'Do not visualize outcomes—simply feel the state of readiness and growth.',
+    feelingPrompt:        'Do not visualize outcomes-simply feel the state of readiness and growth.',
     closingLine:          'I move through this season aligned with my true potential.',
   });
 };

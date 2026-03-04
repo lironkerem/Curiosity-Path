@@ -174,7 +174,7 @@ const SolarEngine = {
     const start     = s   => toDate(_correct(_jde0(s)));
 
     const sp = start('spring'), su = start('summer'), au = start('autumn'), wi = start('winter');
-    const spNext = toDate(_correct(_jde0('spring') + (Y + 1 / 1000 - Y) * 365242.37404)); // next year spring approx — recalculate properly:
+    const spNext = toDate(_correct(_jde0('spring') + (Y + 1 / 1000 - Y) * 365242.37404)); // next year spring approx - recalculate properly:
     // Re-derive next year's spring properly
     const spNextProper = toDate(_correct(
       (() => {

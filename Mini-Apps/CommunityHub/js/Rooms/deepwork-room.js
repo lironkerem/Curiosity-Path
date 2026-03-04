@@ -147,7 +147,7 @@ class DeepWorkRoom extends PracticeRoom {
         if (chatSection) chatSection.style.display = isBreak ? 'flex' : 'none';
         if (isBreak) this._injectChatAvatar();
 
-        Core.showToast(isBreak ? '☕ Break time — chat unlocked!' : `🎯 ${this.getStatusText()}`);
+        Core.showToast(isBreak ? '☕ Break time - chat unlocked!' : `🎯 ${this.getStatusText()}`);
     }
 
     getStatusText() {
@@ -289,7 +289,7 @@ class DeepWorkRoom extends PracticeRoom {
             }
         }
 
-        Core.showToast('✨ Session set — click Begin!');
+        Core.showToast('✨ Session set - click Begin!');
         setTimeout(() => this.showInstructions(), 200);
     }
 
@@ -478,7 +478,7 @@ class DeepWorkRoom extends PracticeRoom {
             </aside>
         </div>
 
-        <!-- FAB — z-index above fullscreen container -->
+        <!-- FAB - z-index above fullscreen container -->
         <button onclick="${cn}.toggleChat()"
                 style="position:fixed;bottom:30px;right:30px;width:60px;height:60px;border-radius:50%;background:var(--accent);border:none;color:white;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);z-index:200000;transition:all 0.3s;">
             💬
@@ -554,9 +554,9 @@ class DeepWorkRoom extends PracticeRoom {
             </ul>
             <h3>Focus Levels:</h3>
             <ul>
-                <li>🎯 <strong>Deep Focus</strong> — Maximum concentration</li>
-                <li>✨ <strong>Light Focus</strong> — Gentle background work</li>
-                <li>☕ <strong>Break</strong> — Recharge and connect</li>
+                <li>🎯 <strong>Deep Focus</strong> - Maximum concentration</li>
+                <li>✨ <strong>Light Focus</strong> - Gentle background work</li>
+                <li>☕ <strong>Break</strong> - Recharge and connect</li>
             </ul>
             <h3>Tips:</h3>
             <ul>

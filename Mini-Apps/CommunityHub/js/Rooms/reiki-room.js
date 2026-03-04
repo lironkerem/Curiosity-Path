@@ -54,7 +54,7 @@ class ReikiRoom extends PracticeRoom {
     _loadInlineChakraData() {
         this.CHAKRA_SCHEDULE = {
             Monday: {
-                key: 'sacral', name: 'Sacral Chakra — Svadhisthana', planet: '🌙 Moon',
+                key: 'sacral', name: 'Sacral Chakra - Svadhisthana', planet: '🌙 Moon',
                 color: 'Orange', theme: 'Emotional flow, creativity, softness',
                 image:  'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Svadhistana1.jpg',
                 image2: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Svadhistana2.jpg',
@@ -63,7 +63,7 @@ class ReikiRoom extends PracticeRoom {
                 inquiry: 'What am I feeling right now without judging it?'
             },
             Tuesday: {
-                key: 'root', name: 'Root Chakra — Muladhara', planet: '♂️ Mars',
+                key: 'root', name: 'Root Chakra - Muladhara', planet: '♂️ Mars',
                 color: 'Red', theme: 'Grounding, strength, action',
                 image:  'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Muladhara1.jpg',
                 image2: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Muladhara2.jpg',
@@ -72,7 +72,7 @@ class ReikiRoom extends PracticeRoom {
                 inquiry: 'What concrete action strengthens my life today?'
             },
             Wednesday: {
-                key: 'throat', name: 'Throat Chakra — Vishuddha', planet: '☿ Mercury',
+                key: 'throat', name: 'Throat Chakra - Vishuddha', planet: '☿ Mercury',
                 color: 'Blue', theme: 'Truth, expression, clarity',
                 image:  'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Vissudha1.jpg',
                 image2: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Vissudha2.jpg',
@@ -81,7 +81,7 @@ class ReikiRoom extends PracticeRoom {
                 inquiry: 'What truth wants to be spoken or written?'
             },
             Thursday: {
-                key: 'solar', name: 'Solar Plexus Chakra — Manipura', planet: '♃ Jupiter',
+                key: 'solar', name: 'Solar Plexus Chakra - Manipura', planet: '♃ Jupiter',
                 color: 'Yellow', theme: 'Confidence, direction, expansion',
                 image:  'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Manipura1.jpg',
                 image2: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Manipura2.jpg',
@@ -90,16 +90,16 @@ class ReikiRoom extends PracticeRoom {
                 inquiry: 'Where am I ready to step up or expand?'
             },
             Friday: {
-                key: 'heart', name: 'Heart Chakra — Anahata', planet: '♀ Venus',
+                key: 'heart', name: 'Heart Chakra - Anahata', planet: '♀ Venus',
                 color: 'Green', theme: 'Love, compassion, connection',
                 image:  'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Anahata1.jpg',
                 image2: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Anahata2.jpg',
                 practice:  ['Place both hands on your heart', 'Take 3 deep breaths into your chest', 'Think of someone you love', 'Hug yourself gently', 'Smile at your reflection', 'Write one thing you appreciate about yourself', 'Send a kind message to someone', 'Stretch arms wide and open chest', 'Notice something beautiful around you', 'Say: I am worthy of love'],
                 practice2: ['Press palms together at heart center', 'Breathe green light into chest', 'Forgive yourself for one small thing', 'List 3 people/things you\'re grateful for', 'Give yourself a compliment out loud', 'Visualize someone you care about happy', 'Place hand on heart and feel it beat', 'Do one act of kindness', 'Open arms wide and breathe deeply', 'Say: Love flows through me'],
-                inquiry: 'Where can I offer more compassion today — to myself or others?'
+                inquiry: 'Where can I offer more compassion today - to myself or others?'
             },
             Saturday: {
-                key: 'integration', name: 'Integration Day — All Chakras', planet: '♄ Saturn',
+                key: 'integration', name: 'Integration Day - All Chakras', planet: '♄ Saturn',
                 color: 'White', theme: 'Discipline, boundaries, completion',
                 image:  'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Integration1.jpg',
                 image2: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Integration2.jpg',
@@ -108,7 +108,7 @@ class ReikiRoom extends PracticeRoom {
                 inquiry: 'What needs to be integrated or released?'
             },
             Sunday: {
-                key: 'crown', name: 'Crown Chakra — Sahasrara', planet: '☉ Sun',
+                key: 'crown', name: 'Crown Chakra - Sahasrara', planet: '☉ Sun',
                 color: 'Violet', theme: 'Awareness, unity, transcendence',
                 image:  'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Sahasrara1.jpg',
                 image2: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Chakras/Sahasrara2.jpg',
@@ -319,18 +319,18 @@ class ReikiRoom extends PracticeRoom {
             </ul>
             <h3>7-Day Planetary Chakra Cycle:</h3>
             <ul>
-                <li><strong>Monday (Moon):</strong> Sacral Chakra — Emotional flow & creativity</li>
-                <li><strong>Tuesday (Mars):</strong> Root Chakra — Grounding & strength</li>
-                <li><strong>Wednesday (Mercury):</strong> Throat Chakra — Truth & expression</li>
-                <li><strong>Thursday (Jupiter):</strong> Solar Plexus — Confidence & expansion</li>
-                <li><strong>Friday (Venus):</strong> Heart Chakra — Love & connection</li>
-                <li><strong>Saturday (Saturn):</strong> Integration Day — Discipline & boundaries</li>
-                <li><strong>Sunday (Sun):</strong> Crown Chakra — Awareness & unity</li>
+                <li><strong>Monday (Moon):</strong> Sacral Chakra - Emotional flow & creativity</li>
+                <li><strong>Tuesday (Mars):</strong> Root Chakra - Grounding & strength</li>
+                <li><strong>Wednesday (Mercury):</strong> Throat Chakra - Truth & expression</li>
+                <li><strong>Thursday (Jupiter):</strong> Solar Plexus - Confidence & expansion</li>
+                <li><strong>Friday (Venus):</strong> Heart Chakra - Love & connection</li>
+                <li><strong>Saturday (Saturn):</strong> Integration Day - Discipline & boundaries</li>
+                <li><strong>Sunday (Sun):</strong> Crown Chakra - Awareness & unity</li>
             </ul>
             <h3>Energy Work Guidelines:</h3>
             <ul>
                 <li>Find a quiet, comfortable space</li>
-                <li>Practice non-forcing — allow energy to flow naturally</li>
+                <li>Practice non-forcing - allow energy to flow naturally</li>
                 <li>Be patient with yourself</li>
                 <li>This is complementary to medical care, not a replacement</li>
             </ul>`;

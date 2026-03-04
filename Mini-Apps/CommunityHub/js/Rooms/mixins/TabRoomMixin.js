@@ -5,8 +5,8 @@
  * Usage: Object.assign(YourRoom.prototype, TabRoomMixin);
  *
  * Expects elements with IDs:
- *   ${roomId}DailyTab      / ${roomId}PersonalTab     — content panels
- *   ${roomId}TabDaily      / ${roomId}TabPersonal      — nav buttons
+ *   ${roomId}DailyTab      / ${roomId}PersonalTab     - content panels
+ *   ${roomId}TabDaily      / ${roomId}TabPersonal      - nav buttons
  */
 
 const TabRoomMixin = {

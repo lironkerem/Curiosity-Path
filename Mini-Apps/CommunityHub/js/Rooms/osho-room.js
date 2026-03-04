@@ -1,4 +1,4 @@
-/** OSHO ACTIVE MEDITATION ROOM — @extends TimedVideoRoom */
+/** OSHO ACTIVE MEDITATION ROOM - @extends TimedVideoRoom */
 
 class OshoRoom extends TimedVideoRoom {
     constructor() {
@@ -34,7 +34,7 @@ class OshoRoom extends TimedVideoRoom {
             <p><strong>Active OSHO meditation techniques every 90 minutes.</strong></p>
             <h3>How It Works:</h3>
             <ul>
-                <li>Sessions open every 1.5 hours from midnight UTC — enter before :10 to join</li>
+                <li>Sessions open every 1.5 hours from midnight UTC - enter before :10 to join</li>
                 <li>Session runs 80 minutes · Room closes at :10</li>
                 <li>All users worldwide join the same session simultaneously</li>
                 <li>7 OSHO methods rotating each cycle</li>
@@ -42,18 +42,18 @@ class OshoRoom extends TimedVideoRoom {
             <h3>Practice Guidelines:</h3>
             <ul>
                 <li>Enter during the open window</li>
-                <li>Express freely — move, breathe, sound</li>
+                <li>Express freely - move, breathe, sound</li>
                 <li>Allow whatever arises</li>
             </ul>
             <h3>The 7 Methods:</h3>
             <ul>
-                <li>🌬️ Chakra Breathing — Energy activation</li>
-                <li>🎵 Chakra Sounds — Vocal energy work</li>
-                <li>🗣️ Devavani — Gibberish and silence</li>
-                <li>💃 Kundalini — Shaking and dancing</li>
-                <li>⭕ Mandala — Running in circles</li>
-                <li>🕉️ Nadabrahma — Humming meditation</li>
-                <li>🎭 Nataraj — Dance meditation</li>
+                <li>🌬️ Chakra Breathing - Energy activation</li>
+                <li>🎵 Chakra Sounds - Vocal energy work</li>
+                <li>🗣️ Devavani - Gibberish and silence</li>
+                <li>💃 Kundalini - Shaking and dancing</li>
+                <li>⭕ Mandala - Running in circles</li>
+                <li>🕉️ Nadabrahma - Humming meditation</li>
+                <li>🎭 Nataraj - Dance meditation</li>
             </ul>`;
     }
 }

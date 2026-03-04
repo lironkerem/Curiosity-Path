@@ -1,7 +1,7 @@
 {
   "Monday": {
     "key": "sacral",
-    "name": "Sacral Chakra — Svadhisthana",
+    "name": "Sacral Chakra - Svadhisthana",
     "planet": "🌙 Moon",
     "color": "Orange",
     "theme": "Emotional flow, creativity, softness",
@@ -35,7 +35,7 @@
   },
   "Tuesday": {
     "key": "root",
-    "name": "Root Chakra — Muladhara",
+    "name": "Root Chakra - Muladhara",
     "planet": "♂️ Mars",
     "color": "Red",
     "theme": "Grounding, strength, action",
@@ -69,7 +69,7 @@
   },
   "Wednesday": {
     "key": "throat",
-    "name": "Throat Chakra — Vishuddha",
+    "name": "Throat Chakra - Vishuddha",
     "planet": "☿ Mercury",
     "color": "Blue",
     "theme": "Truth, expression, clarity",
@@ -103,7 +103,7 @@
   },
   "Thursday": {
     "key": "solar",
-    "name": "Solar Plexus Chakra — Manipura",
+    "name": "Solar Plexus Chakra - Manipura",
     "planet": "♃ Jupiter",
     "color": "Yellow",
     "theme": "Confidence, direction, expansion",
@@ -137,7 +137,7 @@
   },
   "Friday": {
     "key": "heart",
-    "name": "Heart Chakra — Anahata",
+    "name": "Heart Chakra - Anahata",
     "planet": "♀ Venus",
     "color": "Green",
     "theme": "Love, compassion, connection",
@@ -167,11 +167,11 @@
       "Open arms wide and breathe deeply",
       "Say: Love flows through me"
     ],
-    "inquiry": "Where can I offer more compassion today—to myself or others?"
+    "inquiry": "Where can I offer more compassion today-to myself or others?"
   },
   "Saturday": {
     "key": "integration",
-    "name": "Integration Day — All Chakras",
+    "name": "Integration Day - All Chakras",
     "planet": "♄ Saturn",
     "color": "White",
     "theme": "Discipline, boundaries, completion",
@@ -205,7 +205,7 @@
   },
   "Sunday": {
     "key": "crown",
-    "name": "Crown Chakra — Sahasrara",
+    "name": "Crown Chakra - Sahasrara",
     "planet": "☉ Sun",
     "color": "Violet",
     "theme": "Awareness, unity, transcendence",

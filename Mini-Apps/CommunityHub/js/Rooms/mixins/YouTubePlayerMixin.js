@@ -77,7 +77,7 @@ const YouTubePlayerMixin = {
 
         if (this.state.isInSession || this.devMode) {
             event.target.playVideo();
-            // Unmute after brief delay — browsers require muted autoplay
+            // Unmute after brief delay - browsers require muted autoplay
             setTimeout(() => {
                 event.target.unMute();
                 event.target.setVolume(100);

@@ -1,5 +1,5 @@
 /**
- * TIMED VIDEO ROOM — Shared base class
+ * TIMED VIDEO ROOM - Shared base class
  * Extends PracticeRoom with YouTubePlayerMixin + CycleStateMixin behaviour
  * for rooms that follow the timed open-window + rotating video session pattern.
  *
@@ -52,7 +52,7 @@ class TimedVideoRoom extends PracticeRoom {
             <main class="ps-main">
                 <h2 style="text-align:center;margin:20px 0;font-size:24px;font-weight:600;color:var(--text);"
                     id="${this.roomId}SessionHeading">
-                    Current Session — ${session?.title || 'Loading…'}
+                    Current Session - ${session?.title || 'Loading…'}
                 </h2>
                 ${this.buildPlayerContainer()}
                 ${this.buildPlayerControls()}
@@ -133,7 +133,7 @@ class TimedVideoRoom extends PracticeRoom {
     }
 }
 
-// Apply mixins onto the base class — all subclasses inherit them automatically
+// Apply mixins onto the base class - all subclasses inherit them automatically
 Object.assign(TimedVideoRoom.prototype, YouTubePlayerMixin);
 Object.assign(TimedVideoRoom.prototype, CycleStateMixin);
 
