@@ -600,16 +600,34 @@ export default class ProjectCuriosityApp {
       this.dailyCards = new DailyCards(this);
       await this.dailyCards.initializeBoosters();
 
-      // Initialize CommunityDB for the Active Members dashboard widget.
-      // We call CommunityDB.init() directly - intentionally NOT calling Core.init() -
-      // so Core.state.initialized stays false and CommunityHubEngine can run it
-      // in full when the user navigates to the Community Hub tab.
-      if (window.CommunityDB) {
+      // Initialize CommunityDB + load current user profile for the Active Members dashboard widget.
+      // We call CommunityDB.init() and Core.loadCurrentUser() directly - intentionally NOT
+      // calling Core.init() - so Core.state.initialized stays false and CommunityHubEngine
+      // can run it in full when the user navigates to the Community Hub tab.
+      //
+      // We must poll for CommunityDB and Core because they are loaded via `defer` scripts
+      // and may not be available yet when this module-based init() runs (race condition).
+      await new Promise(resolve => {
+        if (window.CommunityDB && window.Core) return resolve();
+        const check = setInterval(() => {
+          if (window.CommunityDB && window.Core) {
+            clearInterval(check);
+            resolve();
+          }
+        }, 50);
+        // Safety timeout: give up after 3s and continue without community features
+        setTimeout(() => { clearInterval(check); resolve(); }, 3000);
+      });
+
+      if (window.CommunityDB && window.Core && !window.Core.state.initialized) {
         const communityReady = await window.CommunityDB.init();
         if (!communityReady) {
           console.warn('[App] CommunityDB.init() failed - Active Members widget will be unavailable');
         } else {
-          // Modals are self-initializing - they call init() inside their own open()
+          // Load the current user's community profile (avatar, name, status) so that
+          // the Active Members dashboard widget renders the correct avatar immediately,
+          // without requiring the user to visit the Community Hub tab first.
+          await window.Core.loadCurrentUser();
         }
       }
 
