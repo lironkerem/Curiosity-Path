@@ -670,7 +670,7 @@ const AdminDashboard = {
     },
 
     // Shared loop for XP / Karma bulk sends
-    async _bulkSendGamification({ inputId, label, xp_delta = 0, karma_delta = 0, notifTitle, notifBody }) {
+    async _bulkSendGamification({ inputId, label, xpDelta = 0, karmaDelta = 0, notifTitle, notifBody }) {
         if (!this._bulkGuard()) return;
         const amount = parseInt(document.getElementById(inputId)?.value, 10);
         if (!amount || amount < 1) { Core.showToast(`Enter a valid ${label} amount`); return; }
@@ -680,12 +680,11 @@ const AdminDashboard = {
         let ok = 0;
 
         for (const uid of ids) {
-            const { error } = await CommunityDB._sb.rpc('update_user_gamification', {
-                target_user_id: uid,
-                xp_delta:    xp_delta    === 'amount' ? amount : xp_delta,
-                karma_delta: karma_delta === 'amount' ? amount : karma_delta,
+            const success = await CommunityDB.adminUpdateGamification(uid, {
+                xpDelta:    xpDelta    === 'amount' ? amount : xpDelta,
+                karmaDelta: karmaDelta === 'amount' ? amount : karmaDelta,
             });
-            if (!error) {
+            if (success) {
                 ok++;
                 window.MemberProfileModal?._adminPushNotify?.(uid, notifTitle, notifBody(amount));
             }
@@ -697,7 +696,7 @@ const AdminDashboard = {
         await this._bulkSendGamification({
             inputId:    'bulkXpAmount',
             label:      'XP',
-            xp_delta:   'amount',
+            xpDelta:    'amount',
             notifTitle: '🎁 Gift from Aanandoham!',
             notifBody:  (n) => `You received +${n} XP!`,
         });
@@ -707,7 +706,7 @@ const AdminDashboard = {
         await this._bulkSendGamification({
             inputId:     'bulkKarmaAmount',
             label:       'Karma',
-            karma_delta: 'amount',
+            karmaDelta:  'amount',
             notifTitle:  '🎁 Gift from Aanandoham!',
             notifBody:   (n) => `You received +${n} Karma!`,
         });
@@ -725,14 +724,31 @@ const AdminDashboard = {
         let ok = 0;
 
         for (const uid of ids) {
-            const progress = await CommunityDB.getUserProgress(uid);
-            const badges   = progress?.badges || [];
-            if (!badges.find(b => (b.id || b) === badgeId)) {
-                badges.push({ id: badgeId, earnedAt: new Date().toISOString() });
+            // Fetch raw payload directly - getUserProgress strips it to parsed fields only,
+            // which would lose all other payload data (quests, logs, etc.) on save.
+            const { data: raw } = await CommunityDB._sb
+                .from('user_progress').select('payload').eq('user_id', uid).single();
+            if (!raw) continue;
+
+            const payload = typeof raw.payload === 'string' ? JSON.parse(raw.payload) : { ...raw.payload };
+            const badges  = payload.badges || [];
+
+            if (!badges.find(b => b.id === badgeId)) {
+                badges.push({
+                    id:          badgeId,
+                    name:        badgeLabel.replace(/^[^\s]+\s/, '').trim(),
+                    icon:        '🏅',
+                    rarity:      'common',
+                    xp:          0,
+                    description: '',
+                    date:        new Date().toISOString(),
+                    unlocked:    true,
+                });
             }
+
             const { error } = await CommunityDB._sb
                 .from('user_progress')
-                .update({ payload: { ...progress, badges } })
+                .update({ payload: { ...payload, badges }, updated_at: new Date().toISOString() })
                 .eq('user_id', uid);
             if (!error) {
                 ok++;
@@ -754,10 +770,8 @@ const AdminDashboard = {
         let ok = 0;
 
         for (const uid of ids) {
-            const { error } = await CommunityDB._sb.rpc('update_user_gamification', {
-                target_user_id: uid, xp_delta: 0, karma_delta: 0, unlock_feature: feature
-            });
-            if (!error) {
+            const success = await CommunityDB.adminUpdateGamification(uid, { unlockFeature: feature });
+            if (success) {
                 ok++;
                 window.MemberProfileModal?._adminPushNotify?.(uid, '🔓 Feature Unlocked!', `${featureLabel} has been unlocked for you!`);
             }
