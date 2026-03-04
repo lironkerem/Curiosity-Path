@@ -1045,7 +1045,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     font-weight: 500;
 }
 
-.toggle-switch {
+.sound-settings .toggle-switch {
     position: relative;
     width: 40px;
     height: 20px;
@@ -1055,9 +1055,9 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     transition: background var(--transition-normal);
 }
 
-.toggle-switch.active { background: var(--ring-available); }
+.sound-settings .toggle-switch.active { background: var(--ring-available); }
 
-.toggle-slider {
+.sound-settings .toggle-slider {
     position: absolute;
     top: 2px;
     left: 2px;
@@ -1068,7 +1068,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     transition: transform var(--transition-normal);
 }
 
-.toggle-switch.active .toggle-slider { transform: translateX(20px); }
+.sound-settings .toggle-switch.active .toggle-slider { transform: translateX(20px); }
 
 .timer-display {
     font-family: var(--serif);
