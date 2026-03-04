@@ -17,6 +17,8 @@ import CTA from './CTA.js';
 import { fetchProgress, saveProgress, clearCache } from '/Core/DB.js';
 import { CommunityDB } from '/Mini-Apps/CommunityHub/js/community-supabase.js';
 import { Core as CommunityCore } from '/Mini-Apps/CommunityHub/js/core.js';
+import { MemberProfileModal } from '/Mini-Apps/CommunityHub/js/member-profile-modal.js';
+import { WhisperModal } from '/Mini-Apps/CommunityHub/js/WhisperModal.js';
 
 /* =========================================================
    CONSTANTS
