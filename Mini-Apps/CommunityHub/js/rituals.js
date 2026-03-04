@@ -1,6 +1,6 @@
 /**
  * RITUALS.JS - Opening & Closing Ceremonies
- * @version 1.1.0
+ * @version 1.2.0
  *
  * Manages the spiritual rituals that frame the user's experience:
  * - Opening ritual: Welcoming users with intention
@@ -22,6 +22,7 @@ const Rituals = {
 
     config: {
         OPENING_AUTO_CLOSE_MS: 5000,
+        OPENING_COOLDOWN_MS: 24 * 60 * 60 * 1000, // 24 hours
 
         OPENING_TEXTS: [
             "Enter with intention, leave with gratitude",
@@ -99,8 +100,11 @@ const Rituals = {
 
     loadState() {
         try {
-            const saved = localStorage.getItem('rituals_state');
-            if (saved) this.state.hasSeenOpening = JSON.parse(saved).hasSeenOpening || false;
+            const ts = localStorage.getItem('rituals_lastSeen');
+            if (ts) {
+                const elapsed = Date.now() - parseInt(ts, 10);
+                this.state.hasSeenOpening = elapsed < this.config.OPENING_COOLDOWN_MS;
+            }
         } catch (error) {
             console.error('Failed to load rituals state:', error);
         }
@@ -108,9 +112,7 @@ const Rituals = {
 
     saveState() {
         try {
-            localStorage.setItem('rituals_state', JSON.stringify({
-                hasSeenOpening: this.state.hasSeenOpening,
-            }));
+            localStorage.setItem('rituals_lastSeen', Date.now().toString());
         } catch (error) {
             console.error('Failed to save rituals state:', error);
         }
@@ -258,7 +260,7 @@ const Rituals = {
     /** Reset opening state (for testing/debugging). */
     reset() {
         this.state.hasSeenOpening = false;
-        this.saveState();
+        localStorage.removeItem('rituals_lastSeen');
         console.log('✓ Rituals state reset');
     },
 

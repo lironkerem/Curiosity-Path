@@ -47,9 +47,6 @@ class CommunityHubEngine {
         window.Core.state.initialized = false;
         window.Core.init();
       }
-      if (window.Rituals) {
-        window.Rituals.state.hasSeenOpening = false;
-      }
     }
 
     // Auto-open a room requested from an external CTA (e.g. Energy Tracker)
@@ -220,6 +217,7 @@ class CommunityHubEngine {
   }
 
   _showRitualImmediately() {
+    if (window.Rituals?.state?.hasSeenOpening) return;
     const overlay = document.getElementById('openingOverlay');
     if (!overlay) return;
 
