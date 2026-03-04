@@ -628,6 +628,15 @@ export default class ProjectCuriosityApp {
           // the Active Members dashboard widget renders the correct avatar immediately,
           // without requiring the user to visit the Community Hub tab first.
           await window.Core.loadCurrentUser();
+
+          // Write presence to Supabase so the user appears in Active Members on dashboard load.
+          // Without this, the user's presence row is stale/offline until Core.init() runs
+          // on first Community Hub tab visit.
+          await window.CommunityDB.setPresence(
+            window.Core.state.currentUser?.status   || 'online',
+            window.Core.state.currentUser?.activity || '✨ Available',
+            null
+          );
         }
       }
 
