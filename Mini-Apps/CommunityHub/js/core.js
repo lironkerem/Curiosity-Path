@@ -100,7 +100,11 @@ const Core = {
 
             await this.loadCurrentUser();
 
-            await CommunityDB.setPresence('online', '✨ Available', null);
+            await CommunityDB.setPresence(
+                this.state.currentUser.status   || 'online',
+                this.state.currentUser.activity || '✨ Available',
+                null
+            );
             CommunityDB.startHeartbeat(this.config.HEARTBEAT_INTERVAL);
 
             window.addEventListener('beforeunload', () => {
