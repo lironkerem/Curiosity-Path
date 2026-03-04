@@ -118,6 +118,15 @@
   <script type="module" src="./Core/Features.js"></script>
   <script src="./Features/WellnessKit.js"></script>
 
+  <!-- ===== Community Hub: core scripts loaded early for Active Members dashboard widget ===== -->
+  <!-- Sequential loading order matters: supabase-client → community-supabase → core → active-members → modals -->
+  <script src="/Mini-Apps/CommunityHub/js/supabase-client.js"      defer></script>
+  <script src="/Mini-Apps/CommunityHub/js/community-supabase.js"   defer></script>
+  <script src="/Mini-Apps/CommunityHub/js/core.js"                 defer></script>
+  <script src="/Mini-Apps/CommunityHub/js/active-members.js"       defer></script>
+  <script src="/Mini-Apps/CommunityHub/js/member-profile-modal.js" defer></script>
+  <script src="/Mini-Apps/CommunityHub/js/WhisperModal.js"         defer></script>
+
   <!-- ===== Bootstrap Application ===== -->
   <script type="module">
     async function init() {

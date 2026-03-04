@@ -7,9 +7,6 @@
  * @version 2.0.0
  */
 
-import { CommunityDB } from './community-supabase.js';
-import { Core } from './core.js';
-
 const MemberProfileModal = {
 
     // =========================================================================
@@ -175,6 +172,8 @@ const MemberProfileModal = {
                                                 text-transform:uppercase;letter-spacing:0.03em;margin-top:3px;">${label}</div>
                                 </div>`).join('')}
                         </div>
+
+
 
                         <!-- Appreciate -->
                         <button id="memberModalAppreciateBtn"
@@ -400,6 +399,7 @@ const MemberProfileModal = {
         });
     },
 
+    /** Shared footer HTML for all admin sub-panels: primary action + Cancel */
     _adminSubFooter(action, label) {
         return `<div style="display:flex;gap:8px;">
             <button onclick="MemberProfileModal.${action}()"
@@ -422,7 +422,7 @@ const MemberProfileModal = {
         this.init();
         if (!userId) return;
 
-        const isSelf = userId === Core.state.currentUser?.id;
+        const isSelf = userId === window.Core?.state?.currentUser?.id;
         this.state.currentUserId = userId;
         this.state.isOpen        = true;
 
@@ -452,28 +452,33 @@ const MemberProfileModal = {
 
             this._populate(profile);
 
+            // Hide action buttons for own profile
             const actionsRow    = document.getElementById('memberModalActions');
             const appreciateBtn = document.getElementById('memberModalAppreciateBtn');
             if (actionsRow)    actionsRow.style.display    = isSelf ? 'none' : 'flex';
             if (appreciateBtn) appreciateBtn.style.display = isSelf ? 'none' : 'block';
 
+            // Admin section
             const adminSection = document.getElementById('memberModalAdminSection');
-            const isAdmin      = Core.state.currentUser?.is_admin === true;
+            const isAdmin      = window.Core?.state?.currentUser?.is_admin === true;
             if (adminSection) {
                 adminSection.style.display = isAdmin ? 'block' : 'none';
                 if (isAdmin && profile.community_role) {
                     const roleSelect = document.getElementById('adminRoleSelect');
                     if (roleSelect) roleSelect.value = profile.community_role;
                 }
+                // Collapse
                 const body   = document.getElementById('memberModalAdminBody');
                 const toggle = document.getElementById('memberModalAdminToggle');
                 if (body)   body.style.display  = 'none';
                 if (toggle) toggle.textContent   = '▶';
                 this._closeAdminSubs();
+                // Hide Change Role for own profile
                 const roleSubBtn = document.querySelector("button[onclick*=\"_openAdminSub('role')\"]");
                 if (roleSubBtn) roleSubBtn.style.display = isSelf ? 'none' : 'inline-block';
             }
 
+            // Appreciation state (async, non-blocking)
             if (!isSelf) {
                 this.state.isAppreciated     = false;
                 this.state.appreciationCount = 0;
@@ -488,6 +493,7 @@ const MemberProfileModal = {
                 }).catch(() => {});
             }
 
+            // Gamification + community stats (async, non-blocking)
             CommunityDB.getUserProgress(userId).then(g => { if (g) this._populateGamification(g); }).catch(() => {});
             this._loadMemberCommunityStats(userId).catch(() => {});
 
@@ -523,6 +529,7 @@ const MemberProfileModal = {
     // =========================================================================
 
     _populate(profile) {
+        // Avatar
         const avatarEl = document.getElementById('memberModalAvatar');
         if (avatarEl) {
             if (profile.avatar_url) {
@@ -531,11 +538,14 @@ const MemberProfileModal = {
                     style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
                     alt="${this._esc(profile.name)}">`;
             } else {
-                avatarEl.style.background = Core.getAvatarGradient(profile.id);
+                avatarEl.style.background = Core?.getAvatarGradient
+                    ? Core.getAvatarGradient(profile.id)
+                    : 'linear-gradient(135deg,#667eea,#764ba2)';
                 avatarEl.innerHTML = `<span>${this._esc(profile.emoji || (profile.name || '?').charAt(0).toUpperCase())}</span>`;
             }
         }
 
+        // Status ring
         const ring = document.getElementById('memberModalStatusRing');
         if (ring) {
             const cfg = this._STATUS_RINGS[profile.community_status] || this._STATUS_RINGS.offline;
@@ -547,6 +557,7 @@ const MemberProfileModal = {
         this._setText('memberModalRole',        `👤 ${profile.community_role || 'Member'}`);
         this._setText('memberModalInspiration', profile.inspiration ? `"${profile.inspiration}"` : '');
 
+        // Birthday + Country → inside meta pill
         const locationEl = document.getElementById('memberModalLocation');
         const metaSep    = document.getElementById('memberModalMetaSep');
         if (locationEl) {
@@ -573,13 +584,16 @@ const MemberProfileModal = {
     },
 
     _populateGamification(g) {
+        // Level title
         const title    = this._LEVEL_TITLES[g.level] || 'Seeker';
         const article  = title.match(/^[aeiou]/i) ? 'An' : 'A';
         const levelEl  = document.getElementById('memberModalLevel');
         if (levelEl) levelEl.textContent = `${article} ${title} - Level ${g.level}`;
 
+        // XP bar
         const xpBar = document.getElementById('memberModalXpBar');
         if (xpBar) {
+            // Calculate progress % using same ladder as GamificationEngine
             const ladder = [0,800,2000,4200,7000,12000,30000,60000,180000,450000];
             const cur  = ladder[g.level - 1] || 0;
             const next = ladder[g.level]     || ladder[ladder.length - 1];
@@ -593,7 +607,7 @@ const MemberProfileModal = {
     },
 
     async _loadMemberCommunityStats(userId) {
-        if (!CommunityDB.ready) return;
+        if (!window.CommunityDB?.ready) return;
         const sb = CommunityDB._sb;
         try {
             const [blessRes, entriesRes] = await Promise.all([
@@ -776,6 +790,7 @@ const MemberProfileModal = {
         if (!role || !this.state.currentUserId) return;
         await this._withBtnState('#adminSubRole button', 'Saving...', 'Save Role', async () => {
             const profileUpdate = { community_role: role };
+            // Sync is_vip flag based on role
             if (role === 'VIP') profileUpdate.is_vip = true;
             else profileUpdate.is_vip = false;
             const { error } = await CommunityDB._sb.from('profiles')
@@ -885,22 +900,36 @@ const MemberProfileModal = {
         });
     },
 
+    /**
+     * Safe refresh after an admin action.
+     * - If targeting self: flushes GamificationEngine debounce, clears DB cache,
+     *   then reloads from Supabase so the UI reflects the new value correctly.
+     * - If targeting another user: just refreshes the modal's displayed stats.
+     */
     async _safeRefresh(targetUserId) {
-        const myId   = Core.state.currentUser?.id;
+        const myId   = window.Core?.state?.currentUser?.id;
         const isSelf = targetUserId === myId;
 
         if (isSelf) {
             const ge = window.app?.gamification;
 
+            // 1. Cancel pending debounced save so stale in-memory state
+            //    cannot overwrite the admin-written Supabase value.
             if (ge?.saveTimeout) {
                 clearTimeout(ge.saveTimeout);
                 ge.saveTimeout = null;
             }
 
+            // 2. Clear DB.js 30s cache and localStorage.
             window.DB?.clearCache?.();
             window.app?.state?.clearCache?.();
 
+            // 3. Fetch fresh value from Supabase and immediately patch it into
+            //    the engine's in-memory state AND app.state.data.
+            //    This prevents any concurrent saveState() call from spreading
+            //    the old XP value back to Supabase before reloadFromDatabase() runs.
             try {
+                // getUserProgress now returns xp, karma, level, badges, unlockedFeatures
                 const fresh = await CommunityDB.getUserProgress(targetUserId);
                 if (fresh && ge?.state) {
                     if (fresh.xp !== undefined)               ge.state.xp               = fresh.xp;
@@ -926,25 +955,32 @@ const MemberProfileModal = {
 
     async _refreshMainProfileStats(targetUserId) {
         try {
-            const myId = Core.state.currentUser?.id;
+            const myId = window.Core?.state?.currentUser?.id;
             if (!myId) return;
 
+            // Fetch the target user's fresh progress from Supabase
             const userId = targetUserId || myId;
             const g = await CommunityDB.getUserProgress(userId);
             if (!g) return;
 
+            // Only sync local engine state when the target is ourselves
             if (userId === myId) {
-                if (g.xp    !== undefined) Core.state.currentUser.xp    = g.xp;
-                if (g.karma !== undefined) Core.state.currentUser.karma = g.karma;
-                if (g.level !== undefined) Core.state.currentUser.level = g.level;
-
+                if (window.Core?.state?.currentUser) {
+                    if (g.xp    !== undefined) Core.state.currentUser.xp    = g.xp;
+                    if (g.karma !== undefined) Core.state.currentUser.karma = g.karma;
+                    if (g.level !== undefined) Core.state.currentUser.level = g.level;
+                }
+                // Reload engine - safe because _safeRefresh already patched
+                // app.state.data with fresh values before calling here.
                 await window.app?.gamification?.reloadFromDatabase?.();
 
+                // Refresh the profile hero panel
                 const xpEl = document.getElementById('profileGamificationXP');
                 if (xpEl && g.xp !== undefined) xpEl.textContent = g.xp.toLocaleString();
                 window.ProfileModule?.refreshGamification?.();
             }
 
+            // Always refresh the member modal's displayed stats
             this._populateGamification(g);
         } catch (e) {
             console.warn('[AdminPanel] _refreshMainProfileStats:', e);
@@ -986,11 +1022,16 @@ const MemberProfileModal = {
         this._closeAdminSubs();
     },
 
+    /** Set textContent on an element by id - reduces boilerplate in _populate */
     _setText(id, text) {
         const el = document.getElementById(id);
         if (el) el.textContent = text;
     },
 
+    /**
+     * Shared wrapper for admin async actions: disables a button, runs the action,
+     * restores it (success or failure), logs errors consistently.
+     */
     async _withBtnState(selector, busyLabel, idleLabel, fn) {
         const btn = document.querySelector(selector);
         if (btn) { btn.disabled = true; btn.textContent = busyLabel; }
@@ -1018,8 +1059,4 @@ const MemberProfileModal = {
     },
 };
 
-// Named export for ES module consumers
-export { MemberProfileModal };
-
-// Keep window assignment for classic scripts
 window.MemberProfileModal = MemberProfileModal;

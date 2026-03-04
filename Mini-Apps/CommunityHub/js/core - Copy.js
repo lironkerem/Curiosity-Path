@@ -3,8 +3,6 @@
  * @version 2.1.0 - Supabase integrated
  */
 
-import { CommunityDB } from './community-supabase.js';
-
 const Core = {
 
     // =========================================================================
@@ -93,6 +91,10 @@ const Core = {
         }
 
         try {
+            if (!window.CommunityDB) {
+                throw new Error('CommunityDB not found - ensure community-supabase.js loaded first');
+            }
+
             const dbReady = await CommunityDB.init();
             if (!dbReady) throw new Error('Database not ready - is the user logged in?');
 
@@ -128,6 +130,9 @@ const Core = {
                 const targetId = window._pendingHubScrollTarget;
                 window._pendingHubScrollTarget = null;
 
+                // Wait for the target element to have content before scrolling -
+                // Lunar/Solar render asynchronously so the section may have no
+                // height yet if we scroll immediately.
                 const maxAttempts = 40; // 4 seconds max (40 × 100ms)
                 let attempts = 0;
                 const poll = setInterval(() => {
@@ -139,6 +144,7 @@ const Core = {
                         setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
                     } else if (attempts >= maxAttempts) {
                         clearInterval(poll);
+                        // Fallback - scroll to whatever is there even if not fully rendered
                         el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
                 }, 100);
@@ -168,8 +174,8 @@ const Core = {
                 emoji:            p.emoji            || '',
                 avatar_url:       p.avatar_url       || null,
                 bio:              p.inspiration      || 'Here to practice with intention.',
-                status:           resolvedStatus,
-                community_status: resolvedStatus,
+                status:           resolvedStatus,           // used by ProfileModule
+                community_status: resolvedStatus,           // used by User-Tab
                 role:             p.is_admin === true ? 'Admin' : (p.community_role || 'Member'),
                 minutes:          p.total_minutes    || 0,
                 circles:          p.total_sessions   || 0,
@@ -401,13 +407,14 @@ const Core = {
     // =========================================================================
 
     async updatePresenceCount() {
+        // Clear stale interval on re-visits
         if (this.state.presenceInterval) {
             clearInterval(this.state.presenceInterval);
         }
 
         const refresh = async () => {
             try {
-                if (!CommunityDB.ready) return;
+                if (!window.CommunityDB?.ready) return;
                 const members = await CommunityDB.getActiveMembers();
                 this.state.presenceCount = members.length;
                 const el = document.getElementById('presenceCount');
@@ -540,10 +547,6 @@ const Core = {
     }
 };
 
-// Named export for ES module consumers
-export { Core };
-
-// Keep window assignment for classic scripts that still reference window.Core
 window.Core = Core;
 
 console.log('✅ Core.js loaded (v2.1.0)');

@@ -4,9 +4,6 @@
  * @version 2.1.0
  */
 
-import { CommunityDB } from './community-supabase.js';
-import { Core } from './core.js';
-
 const ActiveMembers = {
 
     // =========================================================================
@@ -64,7 +61,7 @@ const ActiveMembers = {
 
         if (!CommunityDB.subscribeToPresence(cb)) {
             const interval = setInterval(() => {
-                if (!CommunityDB.ready) return;
+                if (!window.CommunityDB?.ready) return;
                 clearInterval(interval);
                 CommunityDB.subscribeToPresence(cb);
             }, this.config.PRESENCE_RETRY_INTERVAL);
@@ -145,6 +142,8 @@ const ActiveMembers = {
         const gradient  = Core.getAvatarGradient(userId || name);
         const safeName  = this._escape(name);
 
+        // Map extended statuses → dot CSS class (online=green, away=red, offline=grey)
+        // silent/deep get their own colour via inline style override
         const DOT_CLASS_MAP = {
             online:    'online',
             available: 'online',
@@ -213,6 +212,7 @@ const ActiveMembers = {
             offline: 'offline',
         };
 
+        // Remove all known dot classes
         ['online','away','offline','silent','deep'].forEach(s => indicator.classList.remove(s));
         indicator.classList.add(DOT_CLASS_MAP[status] || 'offline');
 
@@ -248,8 +248,4 @@ const ActiveMembers = {
     }
 };
 
-// Named export for ES module consumers
-export { ActiveMembers };
-
-// Keep window assignment for classic scripts
 window.ActiveMembers = ActiveMembers;

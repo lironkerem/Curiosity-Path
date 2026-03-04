@@ -16,9 +16,6 @@
  *   WhisperModal.refreshUnreadBadge()                 - update the hub badge
  */
 
-import { CommunityDB } from './community-supabase.js';
-import { Core } from './core.js';
-
 const WhisperModal = {
 
     // ============================================================================
@@ -187,6 +184,7 @@ const WhisperModal = {
     // VIEW SWITCHING HELPER
     // ============================================================================
 
+    /** Toggle inbox vs thread visibility in one place. */
     _setView(view) {
         const isInbox = view === 'inbox';
         document.getElementById('whisperInboxView').style.display  = isInbox ? 'block' : 'none';
@@ -236,6 +234,7 @@ const WhisperModal = {
         const avatar      = this._avatarHTML(partner, 38);
         const preview     = this._escape(c.lastMessage || '');
         const time        = this._relativeTime(c.lastAt);
+        // Safely encode partner fields for inline onclick
         const safeId      = this._escape(partner.id      || '');
         const safeEmoji   = this._escape(partner.emoji   || '');
         const safeAvatar  = this._escape(partner.avatar_url || '');
@@ -315,7 +314,7 @@ const WhisperModal = {
             return;
         }
 
-        const myId = CommunityDB._uid;
+        const myId = window.CommunityDB?._uid;
         container.innerHTML = messages.map(m => {
             const isMe = m.sender_id === myId || m.sender?.id === myId;
             return this._messageBubbleHTML(isMe, this._escape(m.message), this._relativeTime(m.created_at));
@@ -328,7 +327,7 @@ const WhisperModal = {
 
         container.querySelector('[data-empty]')?.remove();
 
-        const myId = CommunityDB._uid;
+        const myId = window.CommunityDB?._uid;
         const isMe = message.sender_id === myId;
 
         const div = document.createElement('div');
@@ -338,6 +337,7 @@ const WhisperModal = {
         document.getElementById('whisperThreadView')?.scrollTo({ top: 999999 });
     },
 
+    /** Shared bubble template for both render and append. */
     _messageBubbleHTML(isMe, text, time) {
         return `
             <div style="display:flex;flex-direction:column;align-items:${isMe ? 'flex-end' : 'flex-start'};gap:2px;">
@@ -438,7 +438,9 @@ const WhisperModal = {
                          style="width:${s};height:${s};border-radius:50%;object-fit:cover;display:block;"
                          alt="${this._escape(profile.name || '')}">`;
         }
-        const gradient = Core.getAvatarGradient(profile?.id || '');
+        const gradient = window.Core?.getAvatarGradient
+            ? Core.getAvatarGradient(profile?.id || '')
+            : 'linear-gradient(135deg,#667eea,#764ba2)';
         const label = profile?.emoji || (profile?.name || '?').charAt(0).toUpperCase();
         return `<div style="width:${s};height:${s};border-radius:50%;background:${gradient};
                             display:flex;align-items:center;justify-content:center;
@@ -468,9 +470,5 @@ const WhisperModal = {
     },
 };
 
-// Named export for ES module consumers
-export { WhisperModal };
-
-// Keep window assignment for classic scripts
 window.WhisperModal = WhisperModal;
 console.log('✓ WhisperModal loaded');

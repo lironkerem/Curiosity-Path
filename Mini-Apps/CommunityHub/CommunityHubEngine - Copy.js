@@ -1,8 +1,5 @@
 // Mini-Apps/CommunityHub/CommunityHubEngine.js
 
-import { CommunityDB } from './js/community-supabase.js';
-import { Core } from './js/core.js';
-
 const BASE_PATH = '/Mini-Apps/CommunityHub';
 
 const RITUAL_TEXTS = [
@@ -46,8 +43,10 @@ class CommunityHubEngine {
       console.log('✅ Community Hub loaded successfully');
     } else {
       // Re-visit: reset state so sections re-render
-      Core.state.initialized = false;
-      Core.init();
+      if (window.Core) {
+        window.Core.state.initialized = false;
+        window.Core.init();
+      }
     }
 
     // Auto-open a room requested from an external CTA (e.g. Energy Tracker)
@@ -268,8 +267,13 @@ class CommunityHubEngine {
     try {
       this.loadStylesheet(`${BASE_PATH}/community-hub.css`);
 
-      // Group 1: CDN only — core system files are now ES module imports above
-      await this.loadScript('https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js');
+      // Group 1: CDN + core system
+      await Promise.all([
+        this.loadScript('https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js'),
+        this._load('js/core.js'),
+        this._load('js/supabase-client.js'),
+        this._load('js/community-supabase.js'),
+      ]);
 
       // Group 2: Modules dependent on core
       await this._loadAll([
@@ -333,9 +337,9 @@ class CommunityHubEngine {
       await this._load('js/Solar/solarengine.js');
 
       // Boot Core
-      if (!Core?.init) throw new Error('Core module not found');
+      if (!window.Core?.init) throw new Error('Core module not found');
 
-      Core.init();
+      window.Core.init();
 
       if (window.Rituals) window.Rituals.state.hasSeenOpening = false;
       if (window.CollectiveFieldDB) await window.CollectiveFieldDB.init();

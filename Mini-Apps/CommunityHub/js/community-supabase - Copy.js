@@ -8,8 +8,6 @@
  * @version 2.1.0
  */
 
-import { CommunitySupabase } from './supabase-client.js';
-
 const CommunityDB = {
 
     _sb:   null,   // Supabase client
@@ -23,9 +21,9 @@ const CommunityDB = {
     // =========================================================================
 
     async init() {
-        this._sb = CommunitySupabase;
+        this._sb = window.CommunitySupabase;
         if (!this._sb) {
-            console.error('[CommunityDB] CommunitySupabase not ready');
+            console.error('[CommunityDB] window.CommunitySupabase not ready');
             return false;
         }
 
@@ -227,12 +225,10 @@ const CommunityDB = {
         this.stopHeartbeat();
         this._heartbeatTimer = setInterval(async () => {
             if (!this.ready) return;
-            // Use imported Core if available, fall back to window.Core for classic-script compat
-            const coreState = (typeof Core !== 'undefined' ? Core : window.Core)?.state;
             await this.setPresence(
-                coreState?.currentUser?.status   || 'online',
-                coreState?.currentUser?.activity || '✨ Available',
-                coreState?.currentRoom           || null,
+                Core?.state?.currentUser?.status   || 'online',
+                Core?.state?.currentUser?.activity || '✨ Available',
+                Core?.state?.currentRoom           || null,
             );
         }, intervalMs);
         window.addEventListener('beforeunload', () => this._cleanup());
@@ -903,9 +899,4 @@ const CommunityDB = {
 };
 
 window.addEventListener('beforeunload', () => CommunityDB._cleanup());
-
-// Named export for ES module consumers
-export { CommunityDB };
-
-// Keep window assignment for classic scripts that still reference window.CommunityDB
 window.CommunityDB = CommunityDB;

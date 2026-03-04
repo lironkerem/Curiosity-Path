@@ -7,7 +7,6 @@
 
 import { InquiryEngine } from '../Features/InquiryEngine.js';
 import DailyCards from '../Features/DailyCards.js';
-import { ActiveMembers } from '/Mini-Apps/CommunityHub/js/active-members.js';
 
 const CONSTANTS = {
   BADGES_PREVIEW_COUNT: 9,
@@ -1048,9 +1047,9 @@ export default class DashboardManager {
       // ActiveMembers.render() always targets #activeMembersContainer, so we
       // briefly give our dashboard div that ID, render, then restore it.
       const dashEl = document.getElementById('dashboardActiveMembersContainer');
-      if (dashEl) {
+      if (dashEl && window.ActiveMembers) {
         dashEl.id = 'activeMembersContainer';
-        await ActiveMembers.render();
+        await window.ActiveMembers.render();
         dashEl.id = 'dashboardActiveMembersContainer';
       }
 
