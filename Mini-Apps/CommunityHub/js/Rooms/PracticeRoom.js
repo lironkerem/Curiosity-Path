@@ -822,10 +822,11 @@ PracticeRoom.startHubPresence = async function(rooms) {
 
     const refreshAll = async () => {
         const allPresence = await CommunityDB.getActiveMembers();
+        const phantomCount = allPresence.filter(p => p.is_phantom).length;
         allRooms.forEach(room => {
             const count = allPresence.filter(p => p.room_id === room.roomId).length;
-            room.state.participants = count;
-            room._updateRoomCardCount(count);
+            room.state.participants = count + phantomCount;
+            room._updateRoomCardCount(count + phantomCount);
         });
     };
 

@@ -184,9 +184,10 @@ const CommunityDB = {
         if (!this.ready) return [];
         const { data, error } = await this._sb
             .from('community_presence')
-            .select(`user_id, status, activity, room_id, last_seen, profiles ( ${this._profileSelect} )`)
+            .select(`user_id, status, activity, room_id, is_phantom, last_seen, profiles ( ${this._profileSelect} )`)
             .neq('status', 'offline')
             .gte('last_seen', this._ago(5 * 60_000))
+            .order('is_phantom', { ascending: false }) // phantoms always first
             .order('last_seen', { ascending: false });
         if (error) { this._err('getActiveMembers', error); return []; }
         return data || [];
@@ -196,10 +197,11 @@ const CommunityDB = {
         if (!this.ready) return [];
         const { data, error } = await this._sb
             .from('community_presence')
-            .select(`user_id, status, activity, room_id, last_seen, profiles ( ${this._profileSelect} )`)
-            .eq('room_id', roomId)
+            .select(`user_id, status, activity, room_id, is_phantom, last_seen, profiles ( ${this._profileSelect} )`)
+            .or(`room_id.eq.${roomId},is_phantom.eq.true`) // real room members OR phantoms
             .neq('status', 'offline')
             .gte('last_seen', this._ago(5 * 60_000))
+            .order('is_phantom', { ascending: false }) // phantoms always first
             .order('last_seen', { ascending: true });
         if (error) { this._err('getRoomParticipants', error); return []; }
         return data || [];

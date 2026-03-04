@@ -117,57 +117,7 @@ const AdminDashboard = {
     // =========================================================================
 
     injectAdminUI() {
-        if (window.Core?.state?.currentUser?.is_admin === true) {
-            this.injectBadge();
-            this._patchAdminPresence();
-        }
-    },
-
-    _patchAdminPresence() {
-        if (CommunityDB._adminPresencePatched) return; // run once
-        CommunityDB._adminPresencePatched = true;
-
-        const ADMIN_ID      = CommunityDB.userId;
-        const ROOM_ACTIVITY = '🌟 Holding space';
-        const HUB_ACTIVITY  = '🌟 Always here';
-        const p             = window.Core.state.currentUser;
-
-        const _buildRow = (roomId) => ({
-            user_id:   ADMIN_ID,
-            status:    'online',
-            activity:  roomId ? ROOM_ACTIVITY : HUB_ACTIVITY,
-            room_id:   roomId,
-            last_seen: new Date().toISOString(),
-            profiles: {
-                id:         p.id         || ADMIN_ID,
-                name:       p.name       || 'Admin',
-                emoji:      p.emoji      || '🌟',
-                avatar_url: p.avatar_url || '',
-            },
-        });
-
-        const ROOM_IDS = (window.Core?.config?.ROOM_MODULES || [])
-            .map(name => window[name]?.roomId).filter(Boolean);
-
-        const origRoom   = CommunityDB.getRoomParticipants.bind(CommunityDB);
-        const origActive = CommunityDB.getActiveMembers.bind(CommunityDB);
-
-        // Inside a specific room: admin appears at top
-        CommunityDB.getRoomParticipants = async (roomId) => {
-            const rows = await origRoom(roomId);
-            return [_buildRow(roomId), ...rows.filter(r => r.user_id !== ADMIN_ID)];
-        };
-
-        // Hub card counters use getActiveMembers and filter by room_id —
-        // inject one row per room so every card shows admin as present
-        CommunityDB.getActiveMembers = async () => {
-            const rows = await origActive();
-            const filtered = rows.filter(r => r.user_id !== ADMIN_ID);
-            const adminRows = ROOM_IDS.map(id => _buildRow(id));
-            return [...adminRows, ...filtered];
-        };
-
-        console.log('✅ [AdminDashboard] Admin presence patch applied');
+        if (window.Core?.state?.currentUser?.is_admin === true) this.injectBadge();
     },
 
     injectBadge() {
