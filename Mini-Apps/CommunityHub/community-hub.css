@@ -1183,11 +1183,11 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 .chat-input-container input,
 
-.chat-input-container input:focus { border-color: var(--primary); }
+.chat-input-container input:focus { border-color: var(--neuro-accent); }
 
 .chat-input-container button {
     padding: 10px 20px;
-    background: var(--primary);
+    background: var(--neuro-accent);
     color: var(--neuro-bg-lightest);
     border: none;
     border-radius: var(--radius-full);
@@ -1263,7 +1263,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     font-weight: 700; 
     cursor: pointer; 
 }
-.ref-author:hover { color: var(--primary); }
+.ref-author:hover { color: var(--neuro-accent); }
 .ref-time { 
     font-size: 12px; 
     color: var(--text-muted); 
@@ -1299,9 +1299,9 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     transition: color var(--transition-fast); 
 }
 
-.ref-action:hover { color: var(--primary); }
-.ref-action.active { color: var(--primary); }
-.ref-action.appreciated { color: var(--primary); font-weight: 700; }
+.ref-action:hover { color: var(--neuro-accent); }
+.ref-action.active { color: var(--neuro-accent); }
+.ref-action.appreciated { color: var(--neuro-accent); font-weight: 700; }
 .ref-action.appreciated span:first-child { transform: scale(1.2); display: inline-block; }
 
 .ref-avatar img {
@@ -1351,7 +1351,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 .prog-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--neuro-accent), var(--primary));
+    background: linear-gradient(90deg, var(--neuro-accent), var(--neuro-accent));
     position: relative;
 }
 
@@ -1716,7 +1716,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, var(--neuro-accent), var(--primary));
+    background: linear-gradient(90deg, var(--neuro-accent), var(--neuro-accent));
     opacity: 0.6;
 }
 
@@ -1832,7 +1832,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--neuro-accent), var(--primary));
+    background: linear-gradient(90deg, var(--neuro-accent), var(--neuro-accent));
     border-radius: var(--radius-full);
     transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -1963,8 +1963,8 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 .role-guide { 
-    color: var(--primary); 
-    border-color: var(--primary); 
+    color: var(--neuro-accent); 
+    border-color: var(--neuro-accent); 
     background: var(--neuro-accent-a10); 
 }
 
@@ -2126,7 +2126,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     box-shadow: var(--shadow-inset-sm);
 }
 
-.chat-input:focus { border-color: var(--primary); }
+.chat-input:focus { border-color: var(--neuro-accent); }
 
 .chat-send {
     width: 42px;
@@ -2487,7 +2487,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 .event-btn {
     width: 100%;
     padding: 14px 24px;
-    background: var(--primary);
+    background: var(--neuro-accent);
     color: var(--neuro-bg-lightest);
     border: none;
     border-radius: var(--radius-md);
@@ -2743,7 +2743,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 .join-btn-inline {
     padding: 10px 24px;
-    background: var(--primary);
+    background: var(--neuro-accent);
     color: var(--neuro-bg-lightest);
     border: none;
     border-radius: var(--radius-md);

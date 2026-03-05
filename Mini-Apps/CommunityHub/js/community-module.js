@@ -111,8 +111,7 @@ const CommunityModule = {
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:10px;border-top:2px solid var(--border);">
                     <span style="font-size:11px;color:var(--text-muted);"><span id="charCount">0</span>/${this.config.MAX_REFLECTION_LENGTH}</span>
                     <button onclick="CommunityModule.shareReflection()"
-                            style="padding:7px 20px;background:var(--accent);color:#fff;border:none;
-                                   border-radius:var(--radius-md);cursor:pointer;font-size:13px;font-weight:600;">
+                            class="btn btn-primary" style="padding:7px 20px;font-size:13px;">
                         Share
                     </button>
                 </div>

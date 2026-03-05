@@ -267,7 +267,7 @@ const ProfileModule = {
                             <div id="profileRoleBadge"
                                  style="display:flex;align-items:center;gap:5px;
                                         font-size:0.76rem;font-weight:700;
-                                        color:var(--primary,#667eea);
+                                        color:var(--neuro-accent);
                                         padding:5px 12px;white-space:nowrap;">
                                 👤 Member
                             </div>
@@ -385,7 +385,7 @@ const ProfileModule = {
             <!-- Level title + XP bar -->
             <div style="text-align:center;margin-bottom:0.75rem;">
                 <div style="font-size:1.25rem;font-weight:700;color:var(--neuro-text);margin-bottom:0.5rem;">
-                    <strong style="color:var(--primary,#667eea);">${article.charAt(0).toUpperCase() + article.slice(1)} ${levelInfo.title}</strong>
+                    <strong style="color:var(--neuro-accent);">${article.charAt(0).toUpperCase() + article.slice(1)} ${levelInfo.title}</strong>
                     - Level ${levelInfo.level}
                 </div>
                 <!-- XP progress bar -->
@@ -397,7 +397,7 @@ const ProfileModule = {
                          class="profile-xp-bar-fill"
                          data-width="${xpPct}"
                          style="width:0%;height:100%;border-radius:99px;
-                                background:linear-gradient(90deg,var(--primary,#667eea),var(--neuro-accent,#a855f7));
+                                background:linear-gradient(90deg,var(--neuro-accent),var(--neuro-accent,#a855f7));
                                 transition:width 0.9s cubic-bezier(0.4,0,0.2,1);
                                 position:relative;overflow:hidden;">
                         <div style="position:absolute;inset:0;
@@ -406,7 +406,7 @@ const ProfileModule = {
                     </div>
                 </div>
                 <div style="font-size:0.82rem;color:var(--text-muted);">
-                    <span style="font-weight:800;font-size:1rem;color:var(--primary,#667eea);" id="profileGamificationXP">${status.xp}</span> XP
+                    <span style="font-weight:800;font-size:1rem;color:var(--neuro-accent);" id="profileGamificationXP">${status.xp}</span> XP
                     <span style="margin:0 4px;opacity:0.4;">·</span>
                     <span id="profileGamificationXPNext">${levelInfo.pointsToNext}</span> to next level
                 </div>
@@ -423,7 +423,7 @@ const ProfileModule = {
                      onmouseout="this.style.transform=''">
                     <div style="font-size:1.3rem;line-height:1;margin-bottom:4px;">${item.emoji}</div>
                     <div ${item.id ? `id="${item.id}"` : ''} style="font-size:1.15rem;font-weight:800;
-                                color:var(--primary,#667eea);line-height:1;">${item.value}</div>
+                                color:var(--neuro-accent);line-height:1;">${item.value}</div>
                     <div style="font-size:0.65rem;color:var(--text-muted);
                                 font-weight:600;text-transform:uppercase;
                                 letter-spacing:0.03em;margin-top:3px;">${item.label}</div>
@@ -800,7 +800,7 @@ const ProfileModule = {
         const date = this._formatEntryDate(entry.timestamp || entry.date);
         const base = `border-radius:12px;padding:12px 14px;margin-bottom:10px;
                       background:var(--surface,rgba(0,0,0,0.03));
-                      border-left:3px solid var(--primary,#667eea);
+                      border-left:3px solid var(--neuro-accent);
                       font-size:0.86rem;line-height:1.6;`;
 
         switch (type) {
@@ -824,11 +824,11 @@ const ProfileModule = {
                 const notes = entry.notes ? `<div style="margin-top:4px;opacity:0.8;">${this._esc(entry.notes)}</div>` : '';
                 const tags  = (entry.moodTags || []).length
                     ? `<div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:4px;">
-                        ${entry.moodTags.map(t => `<span style="background:rgba(102,126,234,0.12);color:var(--primary);border-radius:99px;padding:2px 8px;font-size:0.72rem;">${this._esc(t)}</span>`).join('')}
+                        ${entry.moodTags.map(t => `<span style="background:var(--neuro-accent-a10);color:var(--neuro-accent);border-radius:99px;padding:2px 8px;font-size:0.72rem;">${this._esc(t)}</span>`).join('')}
                        </div>` : '';
                 return `<div style="${base}">
                     <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">${date}</div>
-                    <div style="font-size:1rem;font-weight:700;color:var(--primary);">⚡ Energy: ${level}/10</div>
+                    <div style="font-size:1rem;font-weight:700;color:var(--neuro-accent);">⚡ Energy: ${level}/10</div>
                     ${tags}${notes}
                 </div>`;
             }
@@ -838,7 +838,7 @@ const ProfileModule = {
                 return `<div style="${base}">
                     <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">${date}</div>
                     ${text    ? `<div style="color:var(--neuro-text);">📝 ${this._esc(text)}</div>` : ''}
-                    ${reframe ? `<div style="margin-top:6px;color:var(--primary);">✨ ${this._esc(reframe)}</div>` : ''}
+                    ${reframe ? `<div style="margin-top:6px;color:var(--neuro-accent);">✨ ${this._esc(reframe)}</div>` : ''}
                 </div>`;
             }
             default: return '';
@@ -1091,7 +1091,7 @@ const ProfileModule = {
             background:var(--neuro-bg);color:var(--neuro-text);`;
         const sharedSaveStyle  = `margin-left:6px;padding:4px 8px;border-radius:8px;border:none;
             cursor:pointer;font-size:0.85rem;font-weight:700;
-            background:var(--primary,#667eea);color:#fff;`;
+            background:var(--neuro-accent);color:#fff;`;
         const sharedCancelStyle = `margin-left:4px;padding:4px 8px;border-radius:8px;border:none;
             cursor:pointer;font-size:0.85rem;opacity:0.6;
             background:rgba(0,0,0,0.06);color:var(--neuro-text);`;
