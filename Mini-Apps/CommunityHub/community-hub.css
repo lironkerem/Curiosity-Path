@@ -2241,8 +2241,8 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    border: 3px solid var(--surface);
-    box-shadow: 0 0 0 2px var(--neuro-accent-a30);
+    border: 3px solid var(--neuro-bg);
+    box-shadow: none;
 }
 
 .member-mini-status.online  {

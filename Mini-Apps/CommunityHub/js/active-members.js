@@ -110,7 +110,7 @@ const ActiveMembers = {
                            position:relative;transition:opacity 0.15s;">
                 💬 Whispers
                 <span id="whisperUnreadBadge"
-                      style="display:none;background:var(--primary,#667eea);color:#fff;
+                      style="display:none;background:var(--neuro-accent);color:#fff;
                              border-radius:99px;font-size:0.7rem;font-weight:700;
                              padding:2px 7px;min-width:18px;text-align:center;"></span>
             </button>`;
