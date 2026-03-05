@@ -1012,3 +1012,46 @@ body.blur-behind > *:not(.pricing-overlay) {
     font-size: .75rem;
   }
 }
+/* ========== AVATAR ICON PICKER ========== */
+
+.avatar-icon-picker {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 12px;
+  background: var(--neuro-bg);
+  box-shadow: var(--shadow-inset);
+}
+
+.avatar-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.avatar-icon-btn:hover {
+  background: rgba(0,0,0,0.07);
+}
+
+.avatar-icon-btn.selected {
+  background: var(--neuro-accent, #6366f1);
+  box-shadow: var(--shadow-raised);
+}
+
+.avatar-icon-btn.selected .lucide-icon {
+  stroke: #fff;
+}
+
+/* Override lucide-icon size inside the picker only */
+.avatar-icon-picker .lucide-icon {
+  width: 22px;
+  height: 22px;
+}
