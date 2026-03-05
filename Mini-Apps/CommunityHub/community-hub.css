@@ -3634,13 +3634,14 @@ body.solar-room-active[data-season] {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 16px;
+    padding: 14px 20px;
     background: var(--neuro-bg-lighter);
     border: 1px solid var(--neuro-accent-a30);
     border-radius: var(--radius-md);
     cursor: pointer;
     color: var(--neuro-text);
-    font-weight: 600;
+    font-weight: 700;
+    user-select: none;
     transition: background var(--transition-normal), border-color var(--transition-normal);
 }
 .lunar-admin-header:hover {
