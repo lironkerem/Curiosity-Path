@@ -287,19 +287,7 @@ class MeditationsEngine {
     const guidedCountdown = calcCycle(60 * 60, 15 * 60);  // 60-min cycle, 15-min open
     const oshoCountdown   = calcCycle(90 * 60, 10 * 60);  // 90-min cycle, 10-min open
 
-    const btnStyle = `
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border-radius: 999px;
-      border: none;
-      background: var(--neuro-bg);
-      color: var(--neuro-text);
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 6px 6px 14px var(--neuro-shadow-dark), -6px -6px 14px var(--neuro-shadow-light);
-      transition: all 0.2s;
-    `;
+    const btnStyle = null; // replaced by community-link-btn class
 
     const disabledStyle = `
       width: 100%;
@@ -316,14 +304,14 @@ class MeditationsEngine {
     `;
 
     return `
-      <div class="card" style="margin-bottom: 2rem; width: 100%; box-sizing: border-box;">
+      <div class="community-link-card">
         <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
           <span style="font-size: 1.6rem;">🧘</span>
-          <h3 style="margin: 0; font-size: 1.15rem; color: var(--neuro-text); font-weight: 700;">
+          <h3 style="margin: 0; font-size: 1.15rem;">
             Meditate Together with the Community
           </h3>
         </div>
-        <p style="margin: 0 0 1.5rem; font-size: 0.92rem; color: var(--neuro-text-light); line-height: 1.6;">
+        <p style="margin: 0 0 1.5rem; font-size: 0.92rem; line-height: 1.6;">
           Practice in real time with others. Choose silence, guided visualization, or active OSHO techniques -
           all in shared, live spaces.
         </p>
@@ -332,7 +320,7 @@ class MeditationsEngine {
           <button
             type="button"
             onclick="document.activeElement?.blur(); window.app.nav.switchTab('community-hub')"
-            style="${btnStyle}"
+            class="community-link-btn"
             onmouseover="this.style.transform='translateY(-1px)'"
             onmouseout="this.style.transform='translateY(0)'"
           >
@@ -342,7 +330,7 @@ class MeditationsEngine {
           <button
             type="button"
             onclick="document.activeElement?.blur(); window._pendingRoomOpen = 'silent'; window.app.nav.switchTab('community-hub')"
-            style="${btnStyle}"
+            class="community-link-btn"
             onmouseover="this.style.transform='translateY(-1px)'"
             onmouseout="this.style.transform='translateY(0)'"
           >
@@ -363,7 +351,7 @@ class MeditationsEngine {
           <button
             type="button"
             onclick="document.activeElement?.blur(); window._pendingRoomOpen = 'guided'; window.app.nav.switchTab('community-hub')"
-            style="${btnStyle}"
+            class="community-link-btn"
             onmouseover="this.style.transform='translateY(-1px)'"
             onmouseout="this.style.transform='translateY(0)'"
           >
@@ -385,7 +373,7 @@ class MeditationsEngine {
           <button
             type="button"
             onclick="document.activeElement?.blur(); window._pendingRoomOpen = 'osho'; window.app.nav.switchTab('community-hub')"
-            style="${btnStyle}"
+            class="community-link-btn"
             onmouseover="this.style.transform='translateY(-1px)'"
             onmouseout="this.style.transform='translateY(0)'"
           >

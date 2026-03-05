@@ -445,9 +445,9 @@ const SolarEngine = {
 
     return `
       <div style="margin-top:24px;border-radius:var(--radius-lg);border:2px dashed rgba(139,92,246,0.5);overflow:hidden;">
-        <div onclick="${toggleFn}" style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;cursor:pointer;background:var(--surface);user-select:none;">
-          <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(139,92,246,0.9);">🛡️ ADMIN: Enter Any Solar Room</span>
-          <span id="${toggleId}" style="font-size:11px;color:rgba(139,92,246,0.7);">▶</span>
+        <div onclick="${toggleFn}" class="solar-admin-header">
+          <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">🛡️ ADMIN: Enter Any Solar Room</span>
+          <span id="${toggleId}" style="font-size:11px;">▶</span>
         </div>
         <div id="${panelId}" style="padding:16px 20px;background:var(--surface);border-top:1px solid rgba(139,92,246,0.2);display:none;">
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">

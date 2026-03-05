@@ -143,13 +143,15 @@ const AdminDashboard = {
                         Community management
                     </div>
                 </div>
-                <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/AdminDashboard.png"
-                     onclick="AdminDashboard.openDashboard()"
-                     alt="Open Admin Dashboard"
-                     style="width:100%;border-radius:14px;cursor:pointer;display:block;
-                            transition:opacity 0.15s,transform 0.15s;box-shadow:0 4px 16px rgba(0,0,0,0.1);"
-                     onmouseover="this.style.opacity='0.9';this.style.transform='scale(1.01)'"
-                     onmouseout="this.style.opacity='1';this.style.transform='scale(1)'">
+                <div class="card" style="padding:16px;">
+                    <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/AdminDashboard.png"
+                         onclick="AdminDashboard.openDashboard()"
+                         alt="Open Admin Dashboard"
+                         style="width:100%;border-radius:14px;cursor:pointer;display:block;
+                                transition:opacity 0.15s,transform 0.15s;box-shadow:0 4px 16px rgba(0,0,0,0.1);"
+                         onmouseover="this.style.opacity='0.9';this.style.transform='scale(1.01)'"
+                         onmouseout="this.style.opacity='1';this.style.transform='scale(1)'">
+                </div>
             </section>`;
 
         const upcoming  = document.getElementById('upcomingEventsContainer');

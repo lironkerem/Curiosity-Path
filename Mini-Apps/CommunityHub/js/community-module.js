@@ -105,7 +105,7 @@ const CommunityModule = {
                           placeholder="Share a reflection with the community..."
                           maxlength="${this.config.MAX_REFLECTION_LENGTH}"
                           style="width:100%;padding:10px 12px;border:1px solid var(--border);
-                                 border-radius:var(--radius-md);background:var(--surface);
+                                 border-radius:var(--radius-md);background:var(--neuro-bg);
                                  color:var(--text);resize:none;min-height:80px;
                                  font-size:14px;line-height:1.6;box-sizing:border-box;margin-top:4px;"></textarea>
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:10px;border-top:2px solid var(--border);">

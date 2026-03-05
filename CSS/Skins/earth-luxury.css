@@ -177,7 +177,8 @@ body.earth-luxury .nav-item.active{
 }
 
 /* ------  PRIMARY BTN ACCENT  ------ */
-body.earth-luxury .btn-primary{
+body.earth-luxury .btn-primary,
+body.earth-luxury .community-link-btn{
   background:linear-gradient(135deg,var(--neuro-sage-dark) 0%,var(--neuro-sage) 25%,var(--neuro-sage-light) 50%,var(--neuro-sage) 75%,var(--neuro-sage-dark) 100%);
   background-size:200% 200%;
   color:#fff;
@@ -197,6 +198,9 @@ body.earth-luxury .btn-primary:hover{background-position:100% 50%;box-shadow:var
 
 /* ------  HEADER BAR + CTA FOOTER (updated selectors)  ------ */
 body.earth-luxury .main-header.project-curiosity,
+body.earth-luxury .community-link-card,
+body.earth-luxury .lunar-admin-header,
+body.earth-luxury .solar-admin-header,
 body.earth-luxury .app-header,
 body.earth-luxury .lux-footer .lux-toggle,
 body.earth-luxury .lux-footer #cta-toggle{
@@ -338,6 +342,7 @@ body.earth-luxury {
 
 body.earth-luxury .presence-widget, body.earth-luxury .practice-room,
 body.earth-luxury .collective-card, body.earth-luxury .wave-card,
+body.earth-luxury .active-members-grid,
 body.earth-luxury .reflection, body.earth-luxury .member-card,
 body.earth-luxury .member-card-mini, body.earth-luxury .event-card,
 body.earth-luxury .campfire-welcome, body.earth-luxury .campfire-msg,
@@ -434,6 +439,7 @@ body.earth-luxury.dark-mode {
 }
 body.earth-luxury.dark-mode .presence-widget, body.earth-luxury.dark-mode .practice-room,
 body.earth-luxury.dark-mode .collective-card, body.earth-luxury.dark-mode .wave-card,
+body.earth-luxury.dark-mode .active-members-grid,
 body.earth-luxury.dark-mode .reflection, body.earth-luxury.dark-mode .member-card,
 body.earth-luxury.dark-mode .member-card-mini, body.earth-luxury.dark-mode .event-card,
 body.earth-luxury.dark-mode .campfire-welcome, body.earth-luxury.dark-mode .campfire-msg,

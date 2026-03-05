@@ -3609,6 +3609,45 @@ body.solar-room-active[data-season] {
   font-style: italic;
 }
 
+/* ─── ADMIN HEADERS (Lunar & Solar) ─── */
+.solar-admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: var(--neuro-bg-lighter);
+    border: 1px solid var(--neuro-accent-a30);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    color: var(--neuro-text);
+    font-weight: 700;
+    user-select: none;
+    transition: background var(--transition-normal), border-color var(--transition-normal);
+}
+.solar-admin-header:hover {
+    background: var(--neuro-bg-lightest);
+    border-color: var(--neuro-accent);
+}
+
+/* ─── LUNAR ADMIN HEADER ─── */
+.lunar-admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: var(--neuro-bg-lighter);
+    border: 1px solid var(--neuro-accent-a30);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    color: var(--neuro-text);
+    font-weight: 600;
+    transition: background var(--transition-normal), border-color var(--transition-normal);
+}
+.lunar-admin-header:hover {
+    background: var(--neuro-bg-lightest);
+    border-color: var(--neuro-accent);
+}
+
 /* ─── LUNAR PHASE SPHERE THEMES ─── */
 .waxingmoon-moon-sphere {
     background: radial-gradient(circle at 30% 30%, #c8c8e0 0%, #a8a8c0 50%, #7878a0 100%);

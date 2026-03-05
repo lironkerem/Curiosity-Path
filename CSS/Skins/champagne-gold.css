@@ -146,7 +146,8 @@ body.champagne-gold .nav-item.active{
 }
 
 /* ------  PRIMARY BTN ACCENT  ------ */
-body.champagne-gold .btn-primary{
+body.champagne-gold .btn-primary,
+body.champagne-gold .community-link-btn{
   background:linear-gradient(135deg,var(--neuro-gold-dark) 0%,var(--neuro-gold) 25%,var(--neuro-gold-light) 50%,var(--neuro-gold) 75%,var(--neuro-gold-dark) 100%);
   background-size:200% 200%;
   color:#2a2318;
@@ -166,6 +167,9 @@ body.champagne-gold .btn-primary:hover{background-position:100% 50%;box-shadow:v
 
 /* ------  HEADER BAR + CTA FOOTER (updated selectors)  ------ */
 body.champagne-gold .main-header.project-curiosity,
+body.champagne-gold .community-link-card,
+body.champagne-gold .lunar-admin-header,
+body.champagne-gold .solar-admin-header,
 body.champagne-gold .app-header,
 body.champagne-gold .lux-footer .lux-toggle,
 body.champagne-gold .lux-footer #cta-toggle{
@@ -310,6 +314,7 @@ body.champagne-gold {
 
 body.champagne-gold .presence-widget, body.champagne-gold .practice-room,
 body.champagne-gold .collective-card, body.champagne-gold .wave-card,
+body.champagne-gold .active-members-grid,
 body.champagne-gold .reflection, body.champagne-gold .member-card,
 body.champagne-gold .member-card-mini, body.champagne-gold .event-card,
 body.champagne-gold .campfire-welcome, body.champagne-gold .campfire-msg,
@@ -406,6 +411,7 @@ body.champagne-gold.dark-mode {
 }
 body.champagne-gold.dark-mode .presence-widget, body.champagne-gold.dark-mode .practice-room,
 body.champagne-gold.dark-mode .collective-card, body.champagne-gold.dark-mode .wave-card,
+body.champagne-gold.dark-mode .active-members-grid,
 body.champagne-gold.dark-mode .reflection, body.champagne-gold.dark-mode .member-card,
 body.champagne-gold.dark-mode .member-card-mini, body.champagne-gold.dark-mode .event-card,
 body.champagne-gold.dark-mode .campfire-welcome, body.champagne-gold.dark-mode .campfire-msg,

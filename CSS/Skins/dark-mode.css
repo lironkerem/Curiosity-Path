@@ -123,6 +123,7 @@ body.dark-mode .archetype-card:hover {
 
 /* ----------  PRIMARY BUTTONS  ---------- */
 body.dark-mode .btn-primary,
+body.dark-mode .community-link-btn,
 body.dark-mode #calculator-tab #btn-analyze,
 body.dark-mode #shadow-alchemy-tab .btn-primary {
   box-shadow: var(--shadow-raised), 0 0 30px rgba(107,155,55,.4);
@@ -199,6 +200,9 @@ body.dark-mode #shadow-alchemy-tab .intensity-slider::-moz-range-thumb {
 
 /* ----------  HEADER / FOOTER BARS – FOREST GRADIENT  ---------- */
 body.dark-mode .main-header.project-curiosity,
+body.dark-mode .community-link-card,
+body.dark-mode .lunar-admin-header,
+body.dark-mode .solar-admin-header,
 body.dark-mode .app-header,
 body.dark-mode .lux-footer .lux-toggle,
 body.dark-mode .lux-footer #cta-toggle {
@@ -336,6 +340,7 @@ body.dark-mode .collective-card,
 body.dark-mode .wave-card,
 body.dark-mode .reflection,
 body.dark-mode .members-grid,
+body.dark-mode .active-members-grid,
 body.dark-mode .member-card,
 body.dark-mode .member-card-mini,
 body.dark-mode .event-card,

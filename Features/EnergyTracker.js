@@ -428,14 +428,14 @@ class EnergyEngineEnhanced {
    */
   buildReikiCTA() {
     return `
-      <div class="card" style="margin-bottom: 2rem; width: 100%; box-sizing: border-box;">
+      <div class="community-link-card">
         <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
           <span style="font-size: 1.6rem;">🌀</span>
-          <h3 style="margin: 0; font-size: 1.15rem; color: var(--neuro-text); font-weight: 700;">
+          <h3 style="margin: 0; font-size: 1.15rem;">
             Learn & Practice Reiki and Chakras with the Community
           </h3>
         </div>
-        <p style="margin: 0 0 1.5rem; font-size: 0.92rem; color: var(--neuro-text-light); line-height: 1.6;">
+        <p style="margin: 0 0 1.5rem; font-size: 0.92rem; line-height: 1.6;">
           Deepen your energy practice together. Join live sessions, guided meditations,
           and group healing circles - all in one place.
         </p>
@@ -443,19 +443,7 @@ class EnergyEngineEnhanced {
           <button
             type="button"
             onclick="document.activeElement?.blur(); window.app.nav.switchTab('community-hub')"
-            style="
-              flex: 1 1 200px;
-              padding: 0.75rem 1rem;
-              border-radius: 999px;
-              border: none;
-              background: var(--neuro-bg);
-              color: var(--neuro-text);
-              font-size: 0.9rem;
-              font-weight: 600;
-              cursor: pointer;
-              box-shadow: 6px 6px 14px var(--neuro-shadow-dark), -6px -6px 14px var(--neuro-shadow-light);
-              transition: all 0.2s;
-            "
+            class="community-link-btn"
             onmouseover="this.style.transform='translateY(-1px)'"
             onmouseout="this.style.transform='translateY(0)'"
           >
@@ -464,19 +452,7 @@ class EnergyEngineEnhanced {
           <button
             type="button"
             onclick="document.activeElement?.blur(); window._pendingRoomOpen = 'reiki'; window.app.nav.switchTab('community-hub')"
-            style="
-              flex: 1 1 200px;
-              padding: 0.75rem 1rem;
-              border-radius: 999px;
-              border: none;
-              background: var(--neuro-bg);
-              color: var(--neuro-text);
-              font-size: 0.9rem;
-              font-weight: 600;
-              cursor: pointer;
-              box-shadow: 6px 6px 14px var(--neuro-shadow-dark), -6px -6px 14px var(--neuro-shadow-light);
-              transition: all 0.2s;
-            "
+            class="community-link-btn"
             onmouseover="this.style.transform='translateY(-1px)'"
             onmouseout="this.style.transform='translateY(0)'"
           >

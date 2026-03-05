@@ -181,7 +181,8 @@ body.royal-indigo .nav-item.active{
 }
 
 /* ------  PRIMARY BTN ACCENT  ------ */
-body.royal-indigo .btn-primary{
+body.royal-indigo .btn-primary,
+body.royal-indigo .community-link-btn{
   background:linear-gradient(135deg,var(--neuro-royal-dark) 0%,var(--neuro-royal) 25%,var(--neuro-royal-light) 50%,var(--neuro-royal-gold) 75%,var(--neuro-royal) 100%);
   background-size:200% 200%;
   color:#fff;
@@ -201,6 +202,9 @@ body.royal-indigo .btn-primary:hover{background-position:100% 50%;box-shadow:var
 
 /* ------  HEADER BAR + CTA FOOTER (updated selectors)  ------ */
 body.royal-indigo .main-header.project-curiosity,
+body.royal-indigo .community-link-card,
+body.royal-indigo .lunar-admin-header,
+body.royal-indigo .solar-admin-header,
 body.royal-indigo .app-header,
 body.royal-indigo .lux-footer .lux-toggle,
 body.royal-indigo .lux-footer #cta-toggle{
@@ -347,6 +351,7 @@ body.royal-indigo {
 /* surfaces */
 body.royal-indigo .presence-widget, body.royal-indigo .practice-room,
 body.royal-indigo .collective-card, body.royal-indigo .wave-card,
+body.royal-indigo .active-members-grid,
 body.royal-indigo .reflection, body.royal-indigo .member-card,
 body.royal-indigo .member-card-mini, body.royal-indigo .event-card,
 body.royal-indigo .campfire-welcome, body.royal-indigo .campfire-msg,
@@ -472,6 +477,7 @@ body.royal-indigo.dark-mode {
 }
 body.royal-indigo.dark-mode .presence-widget, body.royal-indigo.dark-mode .practice-room,
 body.royal-indigo.dark-mode .collective-card, body.royal-indigo.dark-mode .wave-card,
+body.royal-indigo.dark-mode .active-members-grid,
 body.royal-indigo.dark-mode .reflection, body.royal-indigo.dark-mode .member-card,
 body.royal-indigo.dark-mode .member-card-mini, body.royal-indigo.dark-mode .event-card,
 body.royal-indigo.dark-mode .campfire-welcome, body.royal-indigo.dark-mode .campfire-msg,

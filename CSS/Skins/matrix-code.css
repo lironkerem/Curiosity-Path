@@ -177,7 +177,8 @@ body.matrix-code .nav-item.active::after {
 }
 
 /* ===== BUTTONS ===== */
-body.matrix-code .btn-primary {
+body.matrix-code .btn-primary,
+body.matrix-code .community-link-btn {
   background: rgba(0,255,65,.05);
   color: var(--neuro-matrix);
   border: 2px solid var(--neuro-matrix);
@@ -214,6 +215,9 @@ body.matrix-code .btn-primary:hover {
 
 /* ===== HEADERS & FOOTER ===== */
 body.matrix-code .main-header.project-curiosity,
+body.matrix-code .community-link-card,
+body.matrix-code .lunar-admin-header,
+body.matrix-code .solar-admin-header,
 body.matrix-code .app-header,
 body.matrix-code .lux-footer .lux-toggle,
 body.matrix-code .lux-footer #cta-toggle {
@@ -682,6 +686,7 @@ body.matrix-code {
 
 body.matrix-code .presence-widget, body.matrix-code .practice-room,
 body.matrix-code .collective-card, body.matrix-code .wave-card,
+body.matrix-code .active-members-grid,
 body.matrix-code .reflection, body.matrix-code .member-card,
 body.matrix-code .member-card-mini, body.matrix-code .event-card,
 body.matrix-code .campfire-welcome, body.matrix-code .campfire-msg,
@@ -786,6 +791,7 @@ body.matrix-code.dark-mode {
 }
 body.matrix-code.dark-mode .presence-widget, body.matrix-code.dark-mode .practice-room,
 body.matrix-code.dark-mode .collective-card, body.matrix-code.dark-mode .wave-card,
+body.matrix-code.dark-mode .active-members-grid,
 body.matrix-code.dark-mode .reflection, body.matrix-code.dark-mode .member-card,
 body.matrix-code.dark-mode .member-card-mini, body.matrix-code.dark-mode .event-card,
 body.matrix-code.dark-mode .campfire-welcome, body.matrix-code.dark-mode .campfire-msg,

@@ -259,7 +259,7 @@ const UpcomingEvents = {
         ).join('');
 
         return `
-        <div class="event-flyer" style="position:relative;height:450px;overflow:hidden;background:var(--surface);">
+        <div class="event-flyer" style="position:relative;height:450px;overflow:hidden;background:var(--neuro-bg);">
             <img src="${this.escapeHtml(data.image)}" alt="${this.escapeHtml(data.title)}" id="${imageId}"
                  onclick="UpcomingEvents.openLightbox(this.src)"
                  style="width:100%;height:100%;object-fit:contain;transition:opacity ${this.config.FADE_DURATION}ms ease;cursor:zoom-in;">
@@ -275,15 +275,12 @@ const UpcomingEvents = {
             <div class="event-type" style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">${this.escapeHtml(data.type)}</div>
             <h3 class="event-heading" style="font-family:var(--serif);font-size:20px;margin-bottom:4px;">${this.escapeHtml(data.title)}</h3>
             <div class="event-subheading" style="font-size:14px;color:var(--text-secondary);margin-bottom:12px;">${this.escapeHtml(data.subtitle)}</div>
-            <div class="event-info" style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:16px;padding:12px;background:var(--surface);border-radius:var(--radius-sm);border-left:3px solid var(--accent);">
+            <div class="event-info" style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:16px;padding:12px;background:var(--neuro-bg);border-radius:var(--radius-sm);border-left:3px solid var(--accent);">
                 ${this.escapeHtml(data.info)}
             </div>
             <div class="event-datetime" style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">📅 ${this.escapeHtml(data.datetime)}</div>
             <button class="event-btn" onclick="UpcomingEvents.openWhatsApp('${this.escapeHtml(data.whatsapp)}')"
-                    style="width:100%;padding:14px 24px;background:var(--primary);color:var(--season-mood);
-                           border:none;border-radius:var(--radius-md);font-size:15px;font-weight:700;
-                           cursor:pointer;transition:all var(--transition-normal);box-shadow:var(--shadow-raised);
-                           text-transform:uppercase;letter-spacing:0.5px;">
+                    >
                 ${this.escapeHtml(ctaText)}
             </button>
         </div>`;
