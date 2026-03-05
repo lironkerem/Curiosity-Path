@@ -2352,3 +2352,17 @@ body.sheet-open .lux-footer {
 }
 
 /* ===== END OF MOBILE STYLES ===== */
+/* Lucide icon responsive sizing */
+@media (max-width: 768px) {
+  .lucide-icon {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .lucide-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
