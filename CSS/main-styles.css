@@ -2337,6 +2337,37 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   background: var(--neuro-bg);
 }
 
+/* ===== COMMUNITY SANCTUARY CARD ===== */
+.dashboard-community-sanctuary {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    var(--neuro-forest-dark) 0%,
+    var(--neuro-forest) 25%,
+    var(--neuro-forest-light) 50%,
+    var(--neuro-forest) 75%,
+    var(--neuro-forest-dark) 100%
+  );
+  background-size: 200% 200%;
+  animation: earthGlow 6s ease-in-out infinite;
+  border: 1px solid rgba(107,155,55,.5);
+  box-shadow: var(--shadow-raised-lg), var(--shadow-intense), inset 0 2px 0 rgba(139,195,74,.4);
+}
+
+.dashboard-community-sanctuary .dashboard-wellness-title,
+.dashboard-community-sanctuary .dashboard-wellness-subtitle { color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,.5); }
+
+.dashboard-community-sanctuary .wellness-tool-btn {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.dashboard-community-sanctuary .wellness-tool-btn:hover { background: rgba(255,255,255,0.2); }
+
+.dashboard-community-sanctuary .wellness-tool-name { color: #fff; }
+.dashboard-community-sanctuary .wellness-tool-description { color: rgba(255,255,255,0.8); }
+
 .dashboard-wellness-header {
   text-align: center;
   margin-bottom: 1.5rem;

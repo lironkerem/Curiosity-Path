@@ -1100,7 +1100,7 @@ export default class DashboardManager {
     ];
 
     container.innerHTML = `
-      <div class="card dashboard-wellness-toolkit mb-8">
+      <div class="card dashboard-wellness-toolkit dashboard-community-sanctuary mb-8">
         <div class="dashboard-wellness-header">
           <h3 class="dashboard-wellness-title">🌿 Community Sanctuary</h3>
           <p class="dashboard-wellness-subtitle">Practice together, grow together</p>

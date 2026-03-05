@@ -1,0 +1,578 @@
+/* =========================================================
+   DIGITAL CURIOSITY — DARK-MODE SKIN
+   EARTH-LUXURY DARK PALETTE  (stand-alone, patched)
+   ========================================================= */
+
+/* ----------  ROOT TOKENS  ---------- */
+body.dark-mode {
+  /* earth-luxury dark palette */
+  --neuro-bg: #2a251d;
+  --neuro-bg-lighter: #342f25;
+  --neuro-bg-lightest: #3e382d;
+  --neuro-shadow-dark: #1a1610;
+  --neuro-shadow-darker: #0f0c08;
+  --neuro-shadow-light: #3e382d;
+  --neuro-highlight: #4a4438;
+
+  --neuro-text: #e8dcc8;
+  --neuro-text-light: #c4b5a0;
+  --neuro-text-lighter: #9d8f7b;
+  --neuro-text-dim: #726857;
+
+  --neuro-accent: #6b9b37;
+  --neuro-accent-light: #8bc34a;
+
+  /* forest / wood accents */
+  --neuro-forest: #6b9b37;
+  --neuro-forest-dark: #558030;
+  --neuro-forest-light: #8bc34a;
+  --neuro-wood: #8b7355;
+  --neuro-wood-dark: #6d5a42;
+  --neuro-wood-light: #a89279;
+
+  --neuro-success: #6b9b37;
+  --neuro-warning: #d4a574;
+  --neuro-error: #c76b5b;
+  --neuro-info: #6ba3b3;
+
+  /* shadows with green glow */
+  --shadow-raised:
+    10px 10px 20px var(--neuro-shadow-dark),
+    -6px -6px 16px var(--neuro-shadow-light);
+  --shadow-raised-lg:
+    25px 25px 50px var(--neuro-shadow-dark),
+    -15px -15px 40px var(--neuro-shadow-light);
+  --shadow-raised-hover:
+    12px 12px 24px var(--neuro-shadow-dark),
+    -8px -8px 20px var(--neuro-shadow-light);
+  --shadow-inset:
+    inset 6px 6px 12px var(--neuro-shadow-dark),
+    inset -4px -4px 10px var(--neuro-shadow-light);
+  --shadow-inset-sm:
+    inset 3px 3px 6px var(--neuro-shadow-dark),
+    inset -2px -2px 5px var(--neuro-shadow-light);
+  --shadow-inset-lg:
+    inset 8px 8px 16px var(--neuro-shadow-dark),
+    inset -6px -6px 14px var(--neuro-shadow-light);
+
+  /* green glow */
+  --shadow-green-glow:
+    0 0 20px rgba(107,155,55,.5),
+    0 0 40px rgba(107,155,55,.3);
+  --shadow-green-intense:
+    0 0 30px rgba(107,155,55,.7),
+    0 0 60px rgba(107,155,55,.5);
+}
+
+/* ----------  BASE PAGE  ---------- */
+body.dark-mode {
+  background: var(--neuro-bg);
+  color: var(--neuro-text);
+  transition: background .3s ease, color .3s ease;
+}
+
+/* ----------  IMAGE INVERSION  ---------- */
+body.dark-mode img {
+  filter: invert(1) brightness(1);
+}
+body.dark-mode img[src*="/CTA/"],
+body.dark-mode img[src*="/Tarot%20Cards%20images/"],
+body.dark-mode .disc-avatar-img {
+  filter: none;
+}
+
+/* ----------  GREEN BORDERS ON CARDS / SECTIONS  ---------- */
+body.dark-mode .card,
+body.dark-mode .neuro-card,
+body.dark-mode .calc-card,
+body.dark-mode .auth-card,
+body.dark-mode .calc-summary-card,
+body.dark-mode .calc-expandable-card,
+body.dark-mode .dashboard-gamification,
+body.dark-mode .dashboard-quest-hub,
+body.dark-mode .dashboard-daily-card,
+body.dark-mode .dashboard-quote,
+body.dark-mode .dashboard-achievements,
+body.dark-mode .dashboard-wellness-toolkit,
+body.dark-mode .karma-shop-balance,
+body.dark-mode .karma-shop-boosts,
+body.dark-mode .karma-shop-category,
+body.dark-mode .karma-shop-item,
+body.dark-mode #shadow-alchemy-tab .card,
+body.dark-mode #flip-script-tab .page,
+body.dark-mode #calculator-tab .card {
+  border: 2px solid rgba(107,155,55,.6);
+  box-shadow: var(--shadow-raised-lg), 0 0 20px rgba(107,155,55,.3);
+  animation: leafShimmer 4s linear infinite;
+}
+
+/* ----------  STRONGER GREEN ON INTERACTIVE  ---------- */
+body.dark-mode .dashboard-quest-card,
+body.dark-mode .wellness-tool-btn,
+body.dark-mode .karma-shop-item,
+body.dark-mode .archetype-card {
+  border: 2px solid rgba(107,155,55,.7);
+}
+body.dark-mode .dashboard-quest-card:hover,
+body.dark-mode .wellness-tool-btn:hover,
+body.dark-mode .karma-shop-item:hover,
+body.dark-mode .archetype-card:hover {
+  border-color: rgba(139,195,74,.9);
+  box-shadow: var(--shadow-raised-hover), var(--shadow-green-intense);
+}
+
+/* ----------  PRIMARY BUTTONS  ---------- */
+body.dark-mode .btn-primary,
+body.dark-mode .community-link-btn,
+body.dark-mode #calculator-tab #btn-analyze,
+body.dark-mode #shadow-alchemy-tab .btn-primary {
+  box-shadow: var(--shadow-raised), 0 0 30px rgba(107,155,55,.4);
+  border: 2px solid rgba(107,155,55,.7);
+}
+body.dark-mode .btn-primary:hover {
+  box-shadow: var(--shadow-raised-hover), var(--shadow-green-intense);
+  border-color: rgba(139,195,74,.9);
+}
+
+/* ----------  NAVIGATION  ---------- */
+body.dark-mode .nav-item.active {
+  background: rgba(107,155,55,.25);
+  border: 2px solid rgba(107,155,55,.7);
+  box-shadow: var(--shadow-inset-sm), 0 0 20px rgba(107,155,55,.3);
+}
+
+/* ----------  PROGRESS & BADGES  ---------- */
+body.dark-mode .progress-fill {
+  box-shadow: 0 0 20px rgba(107,155,55,.4);
+  border-top: 1px solid rgba(139,195,74,.6);
+  border-bottom: 1px solid rgba(139,195,74,.6);
+}
+body.dark-mode .badge-primary {
+  text-shadow: 0 0 10px rgba(107,155,55,.5);
+  border: 1px solid rgba(107,155,55,.5);
+}
+
+/* ----------  FLIP-SCRIPT MINI-APP  ---------- */
+body.dark-mode #flip-script-tab .flip-main-btn {
+  box-shadow: 0 20px 45px rgba(107,155,55,.5), var(--shadow-raised-lg);
+  border: 2px solid rgba(107,155,55,.7);
+}
+body.dark-mode #flip-script-tab .flip-main-btn:hover:not(:disabled) {
+  box-shadow: 0 25px 55px rgba(107,155,55,.6), inset 0 0 0 transparent;
+  border-color: rgba(139,195,74,.9);
+}
+body.dark-mode #flip-script-tab .output-card {
+  box-shadow: 0 30px 80px rgba(107,155,55,.5), var(--shadow-raised-lg);
+  border: 2px solid rgba(107,155,55,.6);
+}
+
+/* ----------  CALCULATOR MINI-APP  ---------- */
+body.dark-mode #calculator-tab .step-item.completed .step-dot,
+body.dark-mode #calculator-tab .step-item.active .step-dot {
+  box-shadow: var(--shadow-raised), 0 0 20px rgba(107,155,55,.5);
+  border: 1px solid rgba(107,155,55,.6);
+}
+body.dark-mode #calculator-tab .step-item.completed .step-connector {
+  box-shadow: 0 0 10px rgba(107,155,55,.4);
+  border-top: 2px solid rgba(107,155,55,.5);
+}
+body.dark-mode #calculator-tab .location-option:hover {
+  background-color: rgba(107,155,55,.15);
+  border-left: 3px solid rgba(107,155,55,.7);
+}
+
+/* ----------  SHADOW ALCHEMY MINI-APP  ---------- */
+body.dark-mode #shadow-alchemy-tab .neuro-stat {
+  border: 2px solid rgba(107,155,55,.5);
+}
+body.dark-mode #shadow-alchemy-tab .neuro-stat .stat-value {
+  text-shadow: 0 0 15px rgba(107,155,55,.5);
+}
+body.dark-mode #shadow-alchemy-tab label.btn input[type="radio"]:checked {
+  box-shadow: 0 0 10px rgba(107,155,55,.6);
+  border: 2px solid rgba(139,195,74,.8);
+}
+body.dark-mode #shadow-alchemy-tab .intensity-slider::-webkit-slider-thumb,
+body.dark-mode #shadow-alchemy-tab .intensity-slider::-moz-range-thumb {
+  box-shadow: var(--shadow-raised), 0 0 15px rgba(107,155,55,.6);
+  border: 2px solid rgba(107,155,55,.7);
+}
+
+/* ----------  HEADER / FOOTER BARS – FOREST GRADIENT  ---------- */
+body.dark-mode .main-header.project-curiosity,
+body.dark-mode .community-link-card,
+body.dark-mode .dashboard-community-sanctuary,
+body.dark-mode .lunar-admin-header,
+body.dark-mode .solar-admin-header,
+body.dark-mode .app-header,
+body.dark-mode .lux-footer .lux-toggle,
+body.dark-mode .lux-footer #cta-toggle {
+  background: linear-gradient(
+    135deg,
+    var(--neuro-forest-dark) 0%,
+    var(--neuro-forest) 25%,
+    var(--neuro-forest-light) 50%,
+    var(--neuro-forest) 75%,
+    var(--neuro-forest-dark) 100%
+  );
+  background-size: 200% 200%;
+  box-shadow: var(--shadow-raised-lg), var(--shadow-green-glow);
+  border: 2px solid rgba(107,155,55,.7);
+  animation: leafShimmer 6s linear infinite;
+  color: #fff;
+}
+body.dark-mode .main-header.project-curiosity h1,
+body.dark-mode .main-header.project-curiosity h3,
+body.dark-mode .app-header h1,
+body.dark-mode .app-header p,
+body.dark-mode .lux-footer .lux-text-group {
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0,0,0,.4), 0 4px 20px rgba(107,155,55,.6);
+}
+
+/* ----------  MOBILE BARS  ---------- */
+body.dark-mode .mobile-bottom-bar {
+  background: var(--neuro-bg) !important;
+  border-top: 2px solid rgba(107,155,55,.7);
+  box-shadow: 0 -4px 12px rgba(107,155,55,.4), 0 -8px 24px rgba(107,155,55,.2);
+}
+body.dark-mode .mobile-tab {
+  color: var(--neuro-text-light);
+}
+body.dark-mode .mobile-tab.active {
+  color: var(--neuro-accent) !important;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(107,155,55,.8);
+}
+body.dark-mode .mobile-tab:active {
+  background: rgba(107,155,55,.2);
+}
+body.dark-mode .mobile-sheet {
+  background: var(--neuro-bg) !important;
+  border-top: 2px solid rgba(107,155,55,.7);
+  box-shadow: 0 -8px 32px rgba(107,155,55,.4);
+}
+body.dark-mode .sheet-grip {
+  background: rgba(107,155,55,.8) !important;
+}
+body.dark-mode .sheet-header {
+  color: var(--neuro-accent) !important;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(107,155,55,.8);
+}
+body.dark-mode .sheet-row {
+  background: rgba(107,155,55,.15) !important;
+  border: 1px solid rgba(107,155,55,.5);
+  box-shadow: 0 0 10px rgba(107,155,55,.2);
+}
+body.dark-mode .sheet-row:active {
+  background: rgba(107,155,55,.3) !important;
+  box-shadow: inset 0 0 10px rgba(107,155,55,.3);
+}
+body.dark-mode .sheet-row span {
+  color: var(--neuro-text) !important;
+  font-weight: 600;
+}
+
+/* ----------  MODALS / EXPANDABLES  ---------- */
+body.dark-mode .modal-card,
+body.dark-mode .neuro-modal,
+body.dark-mode .expandable-card,
+body.dark-mode .collapsible-card,
+body.dark-mode .lux-section-header,
+body.dark-mode .lux-section-body {
+  border: 2px solid rgba(107,155,55,.6);
+}
+body.dark-mode .expandable-card.expanded,
+body.dark-mode .collapsible-card.expanded {
+  border-color: rgba(139,195,74,.8);
+  box-shadow: var(--shadow-raised-lg), var(--shadow-green-intense);
+}
+
+/* ----------  PRICING OVERLAY (OPTIONAL)  ---------- */
+.pricing-overlay.dark-mode,
+.pricing-overlay.dark-mode .pricing-modal,
+.pricing-overlay.dark-mode .pricing-card {
+  --neuro-bg: #2a251d;
+  --neuro-shadow-dark: #1a1610;
+  --neuro-shadow-light: #3e382d;
+  --neuro-text: #e8dcc8;
+  --neuro-text-light: #c4b5a0;
+  --neuro-text-lighter: #9d8f7b;
+  --neuro-accent: #6b9b37;
+  --neuro-accent-light: #8bc34a;
+  --shadow-raised-sm: inset 3px 3px 6px #1a1610, inset -2px -2px 5px #3e382d;
+  --shadow-raised: 10px 10px 20px #1a1610, -6px -6px 16px #3e382d;
+  --shadow-raised-lg: 25px 25px 50px #1a1610, -15px -15px 40px #3e382d;
+
+  border: 2px solid rgba(107,155,55,.6);
+  box-shadow: var(--shadow-raised-lg), 0 0 20px rgba(107,155,55,.3);
+  animation: leafShimmer 4s ease-in-out infinite;
+}
+.pricing-overlay.dark-mode .pricing-card:hover {
+  border-color: rgba(139,195,74,.9);
+  box-shadow: var(--shadow-raised-hover), var(--shadow-green-intense);
+}
+
+.pricing-overlay.dark-mode .pricing-btn.primary {
+  box-shadow: var(--shadow-raised), 0 0 30px rgba(107,155,55,.4);
+  border: 2px solid rgba(107,155,55,.7);
+}
+
+/* =========================================================
+   END DARK-MODE (EARTH-LUXURY GREEN)
+   ========================================================= */
+/* =========================================================
+   COMMUNITY HUB PATCH — DARK-MODE (Earth-Luxury Dark / Green)
+   ========================================================= */
+
+body.dark-mode {
+  --neuro-accent-a08: rgba(107, 155, 55, 0.08);
+  --neuro-accent-a10: rgba(107, 155, 55, 0.10);
+  --neuro-accent-a20: rgba(107, 155, 55, 0.20);
+  --neuro-accent-a30: rgba(107, 155, 55, 0.30);
+  --neuro-warning-a10: rgba(212, 164, 116, 0.10);
+}
+
+/* Hub surfaces */
+body.dark-mode .presence-widget,
+body.dark-mode .practice-room,
+body.dark-mode .collective-card,
+body.dark-mode .wave-card,
+body.dark-mode .reflection,
+body.dark-mode .members-grid,
+body.dark-mode .active-members-grid,
+body.dark-mode .member-card,
+body.dark-mode .member-card-mini,
+body.dark-mode .event-card,
+body.dark-mode .campfire-welcome,
+body.dark-mode .campfire-msg,
+body.dark-mode .campfire-sidebar-always-visible,
+body.dark-mode .campfire-input-area,
+body.dark-mode .presence-sanctuary,
+body.dark-mode .celestial-card-full,
+body.dark-mode .celestial-card,
+body.dark-mode .ps-header,
+body.dark-mode .sound-settings,
+body.dark-mode .safety-menu,
+body.dark-mode .ps-sidebar,
+body.dark-mode .chat-msg {
+  background: var(--neuro-bg-lighter);
+  border: 1px solid rgba(107, 155, 55, 0.5);
+  box-shadow: var(--shadow-raised);
+  color: var(--neuro-text);
+}
+
+body.dark-mode .presence-widget:hover,
+body.dark-mode .practice-room:hover,
+body.dark-mode .collective-card:hover,
+body.dark-mode .wave-card:hover,
+body.dark-mode .member-card:hover,
+body.dark-mode .event-card:hover,
+body.dark-mode .celestial-card:hover {
+  border-color: rgba(139, 195, 74, 0.8);
+  box-shadow: var(--shadow-raised-hover), var(--shadow-green-glow);
+}
+
+/* Buttons */
+body.dark-mode .join-btn,
+body.dark-mode .join-btn-inline,
+body.dark-mode .event-btn,
+body.dark-mode .contrib-btn,
+body.dark-mode .collective-action-btn {
+  background: linear-gradient(135deg, var(--neuro-forest-dark), var(--neuro-forest), var(--neuro-forest-light));
+  background-size: 200% 200%;
+  color: #fff;
+  border: 1px solid rgba(107, 155, 55, 0.6);
+  box-shadow: var(--shadow-raised), 0 0 15px rgba(107, 155, 55, 0.3);
+  animation: leafShimmer 3s linear infinite;
+}
+body.dark-mode .join-btn:hover,
+body.dark-mode .join-btn-inline:hover,
+body.dark-mode .event-btn:hover,
+body.dark-mode .contrib-btn:hover,
+body.dark-mode .collective-action-btn:hover {
+  box-shadow: var(--shadow-raised-hover), var(--shadow-green-intense);
+  border-color: rgba(139, 195, 74, 0.9);
+}
+
+/* Chat inputs */
+body.dark-mode .campfire-input,
+body.dark-mode .chat-input {
+  background: var(--neuro-bg);
+  border: 1px solid rgba(107, 155, 55, 0.5);
+  color: var(--neuro-text);
+  box-shadow: var(--shadow-inset-sm);
+}
+body.dark-mode .campfire-input:focus,
+body.dark-mode .chat-input:focus {
+  border-color: rgba(139, 195, 74, 0.8);
+  box-shadow: var(--shadow-inset-sm), 0 0 10px rgba(107, 155, 55, 0.3);
+  outline: none;
+}
+body.dark-mode .campfire-send,
+body.dark-mode .chat-send {
+  background: var(--neuro-forest);
+  color: #fff;
+  border: 1px solid rgba(107, 155, 55, 0.6);
+  box-shadow: var(--shadow-raised);
+}
+body.dark-mode .campfire-send:hover,
+body.dark-mode .chat-send:hover {
+  box-shadow: var(--shadow-raised-hover), var(--shadow-green-glow);
+  background: var(--neuro-forest-light);
+}
+
+/* Profile */
+body.dark-mode .profile-hero {
+  background: linear-gradient(135deg, var(--neuro-forest-dark), var(--neuro-bg-lighter));
+  border: 1px solid rgba(107, 155, 55, 0.5);
+  box-shadow: var(--shadow-raised-lg);
+}
+body.dark-mode .profile-avatar {
+  border: 3px solid rgba(107, 155, 55, 0.7);
+  box-shadow: 0 0 20px rgba(107, 155, 55, 0.4);
+}
+body.dark-mode .karma-badge {
+  background: var(--neuro-bg-lighter);
+  border: 1px solid rgba(107, 155, 55, 0.5);
+  color: var(--neuro-forest-light);
+}
+body.dark-mode .role-spaceholder,
+body.dark-mode .role-guide {
+  background: var(--neuro-accent-a20);
+  border: 1px solid rgba(107, 155, 55, 0.5);
+  color: var(--neuro-forest-light);
+}
+body.dark-mode .profile-inspiration {
+  background: var(--neuro-bg-lighter);
+  border-left: 3px solid var(--neuro-forest);
+  color: var(--neuro-text-light);
+}
+
+/* Reflections */
+body.dark-mode .ref-content {
+  background: var(--neuro-bg-lighter);
+  border: 1px solid rgba(107, 155, 55, 0.4);
+}
+body.dark-mode .ref-action:hover,
+body.dark-mode .ref-action:active {
+  color: var(--neuro-forest-light);
+  text-shadow: 0 0 8px rgba(107, 155, 55, 0.6);
+}
+
+/* Progress */
+body.dark-mode .progress-fill,
+body.dark-mode .prog-fill {
+  background: linear-gradient(90deg, var(--neuro-forest-dark), var(--neuro-forest-light));
+  box-shadow: 0 0 10px rgba(107, 155, 55, 0.4);
+}
+body.dark-mode .progress-bar,
+body.dark-mode .prog-bar {
+  background: var(--neuro-bg);
+  border: 1px solid rgba(107, 155, 55, 0.3);
+  box-shadow: var(--shadow-inset-sm);
+}
+
+/* UI controls */
+body.dark-mode .view-toggle {
+  background: var(--neuro-bg);
+  border: 1px solid rgba(107, 155, 55, 0.4);
+  box-shadow: var(--shadow-inset-sm);
+}
+body.dark-mode .v-btn.active {
+  background: var(--neuro-forest);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(107, 155, 55, 0.4);
+}
+body.dark-mode .toggle-switch.active {
+  background: var(--neuro-forest);
+  box-shadow: 0 0 10px rgba(107, 155, 55, 0.5);
+}
+body.dark-mode .sound-preview-btn {
+  background: var(--neuro-bg-lighter);
+  border: 1px solid rgba(107, 155, 55, 0.4);
+  color: var(--neuro-forest-light);
+}
+body.dark-mode .sound-preview-btn:hover {
+  border-color: rgba(139, 195, 74, 0.7);
+  box-shadow: 0 0 10px rgba(107, 155, 55, 0.3);
+}
+
+/* Safety & toasts */
+body.dark-mode .safety-bar {
+  background: var(--neuro-bg-lighter);
+  border-top: 1px solid rgba(107, 155, 55, 0.5);
+  box-shadow: 0 -4px 12px rgba(107, 155, 55, 0.2);
+}
+body.dark-mode .safety-btn {
+  background: var(--neuro-bg);
+  border: 1px solid rgba(107, 155, 55, 0.4);
+  color: var(--neuro-text-light);
+}
+body.dark-mode .safety-btn:hover {
+  border-color: rgba(139, 195, 74, 0.7);
+  color: var(--neuro-forest-light);
+}
+body.dark-mode .toast {
+  background: var(--neuro-bg-lighter);
+  border: 1px solid rgba(107, 155, 55, 0.6);
+  color: var(--neuro-text);
+  box-shadow: var(--shadow-raised-lg), var(--shadow-green-glow);
+}
+
+/* Ritual */
+body.dark-mode .ritual-card {
+  background: var(--neuro-bg-lighter);
+  border: 2px solid rgba(107, 155, 55, 0.6);
+  box-shadow: var(--shadow-raised-lg), var(--shadow-green-glow);
+}
+body.dark-mode .ritual-text { color: var(--neuro-text); }
+body.dark-mode .ritual-btn {
+  background: linear-gradient(135deg, var(--neuro-forest-dark), var(--neuro-forest-light));
+  color: #fff;
+  border: 1px solid rgba(107, 155, 55, 0.6);
+}
+
+/* Celestial */
+body.dark-mode .celestial-time,
+body.dark-mode .time-value { color: var(--neuro-forest-light); text-shadow: var(--shadow-green-glow); }
+body.dark-mode .next-phase,
+body.dark-mode .next-season { color: var(--neuro-text-light); border-top: 1px solid rgba(107, 155, 55, 0.3); }
+body.dark-mode .moon-phase-name,
+body.dark-mode .solar-season-name { color: var(--neuro-forest-light); font-weight: 700; }
+
+/* Practice space */
+body.dark-mode .ps-leave {
+  background: var(--neuro-bg);
+  border: 1px solid rgba(107, 155, 55, 0.4);
+  color: var(--neuro-text-light);
+}
+body.dark-mode .ps-leave:hover { border-color: rgba(107, 155, 55, 0.8); color: var(--neuro-forest-light); }
+body.dark-mode .timer-display { color: var(--neuro-forest-light); text-shadow: var(--shadow-green-glow); }
+
+/* Badges */
+body.dark-mode .badge {
+  background: var(--neuro-accent-a20);
+  border: 1px solid rgba(107, 155, 55, 0.5);
+  color: var(--neuro-forest-light);
+}
+body.dark-mode .badge-tooltip {
+  background: var(--neuro-bg-lighter);
+  border: 1px solid rgba(107, 155, 55, 0.5);
+  color: var(--neuro-text);
+  box-shadow: var(--shadow-raised);
+}
+body.dark-mode .member-mini-status { background: var(--neuro-forest); }
+
+/* Misc */
+body.dark-mode .campfire-participant:hover { background: var(--neuro-accent-a10); }
+body.dark-mode .event-flyer img { filter: none; }
+body.dark-mode #communityHubFullscreenContainer {
+  background: var(--neuro-bg);
+  color: var(--neuro-text);
+}
+
+/* =========================================================
+   END COMMUNITY HUB PATCH — DARK-MODE
+   ========================================================= */
