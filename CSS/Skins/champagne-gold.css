@@ -455,6 +455,8 @@ body.champagne-gold.dark-mode .badge { border-color: rgba(212,175,55,0.50); colo
 body.champagne-gold.dark-mode .member-mini-status { background: var(--neuro-gold); }
 body.champagne-gold.dark-mode .campfire-participant:hover { background: var(--neuro-accent-a10); }
 body.champagne-gold.dark-mode .event-flyer img { filter: none; }
+body.champagne-gold.dark-mode .profile-avatar img,
+body.champagne-gold.dark-mode .member-mini-avatar img { filter: none; }
 body.champagne-gold.dark-mode #communityHubFullscreenContainer { background: var(--neuro-bg); color: var(--neuro-text); }
 
 /* =========================================================

@@ -109,7 +109,9 @@ body.royal-indigo.dark-mode img {
 /* exclude avatars / CTA / tarot images */
 body.royal-indigo.dark-mode img[src*="/CTA/"],
 body.royal-indigo.dark-mode img[src*="/Tarot%20Cards%20images/"],
-body.royal-indigo.dark-mode .disc-avatar-img {
+body.royal-indigo.dark-mode .disc-avatar-img,
+body.royal-indigo.dark-mode .profile-avatar img,
+body.royal-indigo.dark-mode .member-mini-avatar img {
   filter: none;
 }
 

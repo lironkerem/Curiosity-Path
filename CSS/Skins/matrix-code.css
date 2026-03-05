@@ -839,6 +839,8 @@ body.matrix-code.dark-mode .badge { background: rgba(255,0,65,0.10); border-colo
 body.matrix-code.dark-mode .member-mini-status { background: #cc0033; box-shadow: 0 0 6px rgba(255,0,65,0.70); }
 body.matrix-code.dark-mode .campfire-participant:hover { background: rgba(255,0,65,0.08); }
 body.matrix-code.dark-mode .event-flyer img { filter: none; }
+body.matrix-code.dark-mode .profile-avatar img,
+body.matrix-code.dark-mode .member-mini-avatar img { filter: none; }
 body.matrix-code.dark-mode #communityHubFullscreenContainer { background: var(--neuro-bg); color: #ff0041; }
 
 /* =========================================================

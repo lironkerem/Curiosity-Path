@@ -77,7 +77,9 @@ body.dark-mode img {
 }
 body.dark-mode img[src*="/CTA/"],
 body.dark-mode img[src*="/Tarot%20Cards%20images/"],
-body.dark-mode .disc-avatar-img {
+body.dark-mode .disc-avatar-img,
+body.dark-mode .profile-avatar img,
+body.dark-mode .member-mini-avatar img {
   filter: none;
 }
 
@@ -201,6 +203,7 @@ body.dark-mode #shadow-alchemy-tab .intensity-slider::-moz-range-thumb {
 /* ----------  HEADER / FOOTER BARS – FOREST GRADIENT  ---------- */
 body.dark-mode .main-header.project-curiosity,
 body.dark-mode .community-link-card,
+body.dark-mode .dashboard-community-sanctuary,
 body.dark-mode .lunar-admin-header,
 body.dark-mode .solar-admin-header,
 body.dark-mode .app-header,

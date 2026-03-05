@@ -109,7 +109,9 @@ body.earth-luxury.dark-mode img {
 /* exclude avatars / CTA / tarot images */
 body.earth-luxury.dark-mode img[src*="/CTA/"],
 body.earth-luxury.dark-mode img[src*="/Tarot%20Cards%20images/"],
-body.earth-luxury.dark-mode .disc-avatar-img {
+body.earth-luxury.dark-mode .disc-avatar-img,
+body.earth-luxury.dark-mode .profile-avatar img,
+body.earth-luxury.dark-mode .member-mini-avatar img {
   filter: none;
 }
 
