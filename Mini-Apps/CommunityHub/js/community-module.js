@@ -4,7 +4,7 @@
  * @version 2.1.0
  */
 
-import { CommunityDB } from '../community-supabase.js';
+import { CommunityDB } from './community-supabase.js';
 
 const CommunityModule = {
 

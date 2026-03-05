@@ -13,8 +13,8 @@
  * - Community guidelines display
  */
 
-import { Core } from '../core.js';
-import { CommunityDB } from '../community-supabase.js';
+import { Core } from './core.js';
+import { CommunityDB } from './community-supabase.js';
 
 const SafetyBar = {
 

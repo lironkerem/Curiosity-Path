@@ -9,7 +9,7 @@
  *   - getCurrentSession() → { videoId, title, duration, emoji }
  */
 
-import { Core } from '../core.js';
+import { Core } from '../../core.js';
 
 // ─── YT player state aliases ──────────────────────────────────────────────────
 const _YT = { ENDED: 0, PLAYING: 1, PAUSED: 2 };

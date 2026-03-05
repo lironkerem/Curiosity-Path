@@ -9,7 +9,7 @@
  * @version 1.1.0
  */
 
-import { CommunityDB } from '../community-supabase.js';
+import { CommunityDB } from './community-supabase.js';
 
 // CollectiveField is NOT imported here to avoid a circular dependency
 // (collective-field.js imports CollectiveFieldDB, CollectiveFieldDB pushes back to CollectiveField).

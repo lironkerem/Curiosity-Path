@@ -4,7 +4,7 @@
  * @version 1.1.0
  */
 
-import { Core } from '../core.js';
+import { Core } from './core.js';
 
 const AdminDashboard = {
 

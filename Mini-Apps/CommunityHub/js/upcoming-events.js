@@ -14,8 +14,8 @@
  * - Admin flyer editor (admin users only)
  */
 
-import { Core } from '../core.js';
-import { CommunityDB } from '../community-supabase.js';
+import { Core } from './core.js';
+import { CommunityDB } from './community-supabase.js';
 
 const UpcomingEvents = {
 

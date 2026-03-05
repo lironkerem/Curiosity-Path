@@ -5,7 +5,7 @@
  * Usage: Object.assign(YourRoom.prototype, TimerMixin);
  */
 
-import { Core } from '../core.js';
+import { Core } from '../../core.js';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 

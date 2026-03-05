@@ -10,7 +10,7 @@
  *   - config.sessionDuration (seconds) - session length after open window
  */
 
-import { Core } from '../core.js';
+import { Core } from '../../core.js';
 
 const CycleStateMixin = {
 

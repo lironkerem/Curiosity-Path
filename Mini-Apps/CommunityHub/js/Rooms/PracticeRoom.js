@@ -4,7 +4,7 @@
  */
 
 import { Core } from '../core.js';
-import { SafetyBar } from '../safety-bar.js';
+import { SafetyBar } from '../SafetyBar.js';
 import { CommunityDB } from '../community-supabase.js';
 import { CollectiveField } from '../collective-field.js';
 

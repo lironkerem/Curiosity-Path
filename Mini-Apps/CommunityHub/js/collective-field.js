@@ -9,7 +9,7 @@
  * @version 2.1.0
  */
 
-import { Core } from '../core.js';
+import { Core } from './core.js';
 import { CollectiveFieldDB } from './collective-field-db.js';
 
 const CollectiveField = {

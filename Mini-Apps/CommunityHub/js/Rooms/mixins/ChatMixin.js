@@ -9,8 +9,8 @@
  *   'daily'/'personal' → this.roomId-channel   (e.g. 'tarot-daily')
  */
 
-import { Core } from '../core.js';
-import { CommunityDB } from '../community-supabase.js';
+import { Core } from '../../core.js';
+import { CommunityDB } from '../../community-supabase.js';
 
 // ─── Module-level helpers (not mixed into instances) ─────────────────────────
 

@@ -8,7 +8,7 @@
  * Usage: Object.assign(YourRoom.prototype, SoundSettingsMixin);
  */
 
-import { Core } from '../core.js';
+import { Core } from '../../core.js';
 
 // ─── Sound catalogue ──────────────────────────────────────────────────────────
 

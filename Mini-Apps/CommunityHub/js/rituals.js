@@ -8,7 +8,7 @@
  * - Room cleanup coordination
  */
 
-import { Core } from '../core.js';
+import { Core } from './core.js';
 
 const Rituals = {
 
