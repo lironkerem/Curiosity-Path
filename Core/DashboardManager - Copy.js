@@ -7,6 +7,7 @@
 
 import { InquiryEngine } from '../Features/InquiryEngine.js';
 import DailyCards from '../Features/DailyCards.js';
+import { ActiveMembers } from '/Mini-Apps/CommunityHub/js/active-members.js';
 
 const CONSTANTS = {
   BADGES_PREVIEW_COUNT: 9,
@@ -1047,9 +1048,9 @@ export default class DashboardManager {
       // ActiveMembers.render() always targets #activeMembersContainer, so we
       // briefly give our dashboard div that ID, render, then restore it.
       const dashEl = document.getElementById('dashboardActiveMembersContainer');
-      if (dashEl && window.ActiveMembers) {
+      if (dashEl) {
         dashEl.id = 'activeMembersContainer';
-        await window.ActiveMembers.render();
+        await ActiveMembers.render();
         dashEl.id = 'dashboardActiveMembersContainer';
       }
 
@@ -1099,7 +1100,7 @@ export default class DashboardManager {
     ];
 
     container.innerHTML = `
-      <div class="card dashboard-wellness-toolkit mb-8">
+      <div class="card dashboard-wellness-toolkit dashboard-community-sanctuary mb-8">
         <div class="dashboard-wellness-header">
           <h3 class="dashboard-wellness-title">🌿 Community Sanctuary</h3>
           <p class="dashboard-wellness-subtitle">Practice together, grow together</p>
