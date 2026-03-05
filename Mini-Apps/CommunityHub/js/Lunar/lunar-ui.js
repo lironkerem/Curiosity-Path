@@ -389,11 +389,11 @@ const LunarUI = {
 .lunar-witness-title{color:#e0e0ff;font-family:'Cormorant Garamond',serif;margin-bottom:1rem;}
 
 /* ── Admin panel ─────────────────────────────────────────────────────────── */
-.lunar-admin-wrapper{margin-top:24px;border-radius:var(--radius-lg,12px);border:2px dashed rgba(139,92,246,.5);overflow:hidden;}
+.lunar-admin-wrapper{margin-top:24px;border-radius:var(--radius-lg,12px);border:2px dashed var(--neuro-accent-a30);overflow:hidden;}
 .lunar-admin-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;
     cursor:pointer;background:var(--neuro-bg-lighter);user-select:none;}
 .lunar-admin-header span:first-child{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;}
-.lunar-admin-body{padding:16px 20px;background:var(--neuro-bg-lighter);border-top:1px solid rgba(139,92,246,.2);}
+.lunar-admin-body{padding:16px 20px;background:var(--neuro-bg-lighter);border-top:1px solid var(--neuro-accent-a10);}
 .lunar-admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
 .lunar-admin-room-btn{padding:12px;background:var(--season-mood);border:1px solid var(--border);
     border-radius:var(--radius-md,8px);cursor:pointer;text-align:left;transition:background .2s;width:100%;}

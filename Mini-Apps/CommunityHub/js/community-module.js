@@ -168,7 +168,7 @@ const CommunityModule = {
                 <button onclick="CommunityModule.deleteReflection('${ref.id}')" class="ref-action" title="Delete"         style="font-size:14px;opacity:0.6;">🗑️</button>
             </div>` : isAdmin ? `
             <div style="margin-left:auto;display:flex;gap:4px;">
-                <button onclick="CommunityModule.deleteReflection('${ref.id}')" class="ref-action" title="Delete (Admin)" style="font-size:14px;opacity:0.6;color:rgba(139,92,246,0.8);">🛡️🗑️</button>
+                <button onclick="CommunityModule.deleteReflection('${ref.id}')" class="ref-action" title="Delete (Admin)" style="font-size:14px;opacity:0.6;color:var(--neuro-accent);">🛡️🗑️</button>
             </div>` : '';
 
         return `

@@ -444,12 +444,12 @@ const SolarEngine = {
       p.style.display=o?'none':'block';t.textContent=o?'▶':'▼';`;
 
     return `
-      <div style="margin-top:24px;border-radius:var(--radius-lg);border:2px dashed rgba(139,92,246,0.5);overflow:hidden;">
+      <div style="margin-top:24px;border-radius:var(--radius-lg);border:2px dashed var(--neuro-accent-a30);overflow:hidden;">
         <div onclick="${toggleFn}" class="solar-admin-header">
           <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">🛡️ ADMIN: Enter Any Solar Room</span>
           <span id="${toggleId}" style="font-size:11px;">▶</span>
         </div>
-        <div id="${panelId}" style="padding:16px 20px;background:var(--surface);border-top:1px solid rgba(139,92,246,0.2);display:none;">
+        <div id="${panelId}" style="padding:16px 20px;background:var(--neuro-bg-lighter);border-top:1px solid var(--neuro-accent-a10);display:none;">
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
             ${this.solarRooms.map(r => `
               <button onclick="SolarEngine.adminJoinRoom('${r.roomId}')"

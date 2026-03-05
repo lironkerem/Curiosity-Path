@@ -432,7 +432,7 @@ const UpcomingEvents = {
         const btn = document.createElement('button');
         btn.id = 'upcomingAdminBtn';
         btn.onclick = () => UpcomingEvents.openAdminModal();
-        btn.style.cssText = 'font-size:11px;font-weight:700;padding:4px 12px;border-radius:99px;border:none;cursor:pointer;background:rgba(139,92,246,0.12);color:rgba(139,92,246,0.9);text-transform:uppercase;letter-spacing:0.5px;';
+        btn.style.cssText = 'font-size:11px;font-weight:700;padding:4px 12px;border-radius:99px;border:none;cursor:pointer;background:var(--neuro-accent-a10);color:var(--neuro-accent);text-transform:uppercase;letter-spacing:0.5px;';
         btn.textContent = '🛡️ Update Flyers';
         header.appendChild(btn);
     },
@@ -487,12 +487,12 @@ const UpcomingEvents = {
             <button onclick="UpcomingEvents.closeAdminModal()"
                     style="position:absolute;top:14px;right:16px;background:none;border:none;cursor:pointer;font-size:18px;opacity:0.5;">✕</button>
             <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
-                        color:rgba(139,92,246,0.9);margin-bottom:16px;">🛡️ Update Flyers</div>
+                        color:var(--neuro-accent);margin-bottom:16px;">🛡️ Update Flyers</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;">
                 ${tabs.map((t, i) => `
                 <button id="adminTab_${t.id}" onclick="UpcomingEvents._switchAdminTab('${t.id}')"
                         style="padding:9px;border-radius:10px;border:none;cursor:pointer;font-size:0.82rem;font-weight:600;
-                               ${i === 0 ? 'background:rgba(139,92,246,0.85);color:#fff;' : 'background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.9);'}">
+                               ${i === 0 ? 'background:var(--neuro-accent);color:#fff;' : 'background:var(--neuro-accent-a10);color:var(--neuro-accent);'}">
                     ${t.label}
                 </button>`).join('')}
             </div>
@@ -500,7 +500,7 @@ const UpcomingEvents = {
             <div style="display:flex;gap:10px;margin-top:20px;">
                 <button onclick="UpcomingEvents._adminSave()"
                         style="flex:1;padding:11px;border-radius:12px;border:none;cursor:pointer;
-                               font-size:0.92rem;font-weight:700;background:rgba(139,92,246,0.85);color:#fff;">
+                               font-size:0.92rem;font-weight:700;background:var(--neuro-accent);color:#fff;">
                     Save & Publish
                 </button>
                 <button onclick="UpcomingEvents.closeAdminModal()"
@@ -519,8 +519,8 @@ const UpcomingEvents = {
             const btn = document.getElementById(`adminTab_${id}`);
             if (!btn) return;
             const active = id === tab;
-            btn.style.background = active ? 'rgba(139,92,246,0.85)' : 'rgba(139,92,246,0.1)';
-            btn.style.color      = active ? '#fff' : 'rgba(139,92,246,0.9)';
+            btn.style.background = active ? 'var(--neuro-accent)' : 'var(--neuro-accent-a10)';
+            btn.style.color      = active ? '#fff' : 'var(--neuro-accent)';
         });
         this._renderAdminTab(tab);
     },
@@ -537,7 +537,7 @@ const UpcomingEvents = {
             const selected = draft.image === url;
             return `<div onclick="UpcomingEvents._selectFlyer('${tab}','${url}','${f}')"
                          style="cursor:pointer;border-radius:8px;overflow:hidden;
-                                border:3px solid ${selected ? 'rgba(139,92,246,0.8)' : 'transparent'};
+                                border:3px solid ${selected ? 'var(--neuro-accent)' : 'transparent'};
                                 transition:border 0.15s;">
                         <img src="${url}" style="width:100%;height:90px;object-fit:cover;display:block;">
                         <div style="font-size:10px;text-align:center;padding:2px;color:var(--text-muted);">${f}</div>
@@ -550,7 +550,7 @@ const UpcomingEvents = {
                             width:100%;box-sizing:border-box;`;
 
         container.innerHTML = `
-            <div style="font-size:0.78rem;font-weight:700;color:rgba(139,92,246,0.8);margin-bottom:12px;
+            <div style="font-size:0.78rem;font-weight:700;color:var(--neuro-accent);margin-bottom:12px;
                         text-transform:uppercase;letter-spacing:0.5px;">Editing: ${TAB_LABELS[tab]}</div>
             <div style="margin-bottom:14px;">
                 <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:8px;">Sessions</div>
