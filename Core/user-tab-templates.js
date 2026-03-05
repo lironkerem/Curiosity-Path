@@ -4,28 +4,30 @@
  */
 
 import { BADGE_CATEGORIES, LEVEL_PROGRESSION, RARITY_COLORS } from './user-tab-data.js';
+import { AVATAR_ICONS, renderAvatarIcon, EMOJI_TO_KEY } from './avatar-icons.js';
 
 // ============== MENU CONFIGURATION ==============
 
 export const MENU_ITEMS = [
-  { id: 'profile', icon: '👤', label: 'Profile' },
-  { id: 'skins', icon: '🎭', label: 'Skins' },
-  { id: 'notifications', icon: '🔔', label: 'Notifications' },
-  { id: 'about', icon: 'ℹ️', label: 'About the App' },
-  { id: 'rules', icon: '📜', label: 'Rules' },
-  { id: 'contact', icon: '📧', label: 'Contact Me' },
-  { id: 'export', icon: '💾', label: 'Export Data' },
-  { id: 'billing', icon: '⬆️', label: 'Pricings' },
-  { id: 'admin', icon: '🔧', label: 'Admin Hacks', admin: true }
+  { id: 'profile', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>', label: 'Profile' },
+  { id: 'skins', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12a5 5 0 0 0 5 5 8 8 0 0 1 5 2 8 8 0 0 1 5-2 5 5 0 0 0 5-5V7H2z"/><path d="M6 11c1.5 0 3 .5 3 2"/><path d="M18 11c-1.5 0-3 .5-3 2"/></svg>', label: 'Skins' },
+  { id: 'notifications', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>', label: 'Notifications' },
+  { id: 'about', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8"/><line x1="12" y1="12" x2="12" y2="16"/></svg>', label: 'About the App' },
+  { id: 'rules', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>', label: 'Rules' },
+  { id: 'contact', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>', label: 'Contact Me' },
+  { id: 'export', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>', label: 'Export Data' },
+  { id: 'billing', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>', label: 'Pricings' },
+  { id: 'admin', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>', label: 'Admin Hacks', admin: true }
 ];
 
-// ============== EMOJI OPTIONS ==============
+// ============== AVATAR ICON PICKER ==============
 
-const EMOJI_LIST = '👤♈️♉️♊️♋️♌️♍️♎️♏️♐️♑️♒️♓️🧘‍♀️🌙☀️🌟🔮🦋🌿🌸🕉️🍀';
-
-// Cache emoji options for performance
-const EMOJI_OPTIONS = [...EMOJI_LIST]
-  .map(e => `<option value="${e}">${e}</option>`)
+/**
+ * Build SVG icon picker grid
+ * Each item stores a key (e.g. 'moon') as its data-value
+ */
+const ICON_PICKER_OPTIONS = Object.keys(AVATAR_ICONS)
+  .map(key => `<button type="button" class="avatar-icon-btn" data-value="${key}" title="${key}">${AVATAR_ICONS[key]}</button>`)
   .join('');
 
 // ============== UTILITY COMPONENTS ==============
@@ -92,7 +94,7 @@ export const profile = (u = {}) => `
           <span 
             class="profile-avatar-emoji" 
             style="${u.avatar_url ? 'display:none;' : ''}">
-            ${u.emoji || '👤'}
+            ${u.emoji || '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'}
           </span>
         </div>
       </label>
@@ -170,7 +172,7 @@ export const skins = (app) => {
 
   return `
     <div class="accordion-inner">
-      ${toggle('dark-mode-toggle', '🌙 Dark Mode', isDark)}
+      ${toggle('dark-mode-toggle', '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Dark Mode', isDark)}
       
       <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:16px 0;">
       
@@ -202,8 +204,8 @@ export const skins = (app) => {
  */
 const createPremiumThemeToggle = (theme, label, unlocked, activeTheme) => `
   <div class="toggle-switch-container ${unlocked ? '' : 'disabled'}" 
-       title="${unlocked ? '' : '🔒 Purchase in Karma Shop'}">
-    <span class="toggle-switch-label">${label} ${unlocked ? '' : '🔒'}</span>
+       title="${unlocked ? '' : '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Purchase in Karma Shop'}">
+    <span class="toggle-switch-label">${label} ${unlocked ? '' : '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'}</span>
     <label class="toggle-switch">
       <input 
         type="checkbox" 
@@ -247,9 +249,9 @@ export const notifications = () => {
   return `
     <div class="accordion-inner">
       <div style="margin-bottom:16px;">
-        ${toggle('master-notifications-toggle', '🔔 Enable Notifications', settings.enabled)}
+        ${toggle('master-notifications-toggle', '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Enable Notifications', settings.enabled)}
         <small style="opacity:.7;display:block;margin-top:8px;">
-          ${settings.enabled ? '✅ Enabled' : '⚠️ Enable to receive notifications'}
+          ${settings.enabled ? '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Enabled' : '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Enable to receive notifications'}
         </small>
       </div>
 
@@ -261,7 +263,7 @@ export const notifications = () => {
         <hr style="border:none;height:1px;background:rgba(0,0,0,.1);margin:16px 0;">
 
         <button class="btn-link" id="save-notification-settings" style="margin-top:12px;">
-          💾 Save Settings
+          <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Settings
         </button>
         <small style="opacity:.6;display:block;margin-top:8px;font-size:.7rem;text-align:center;">
           Auto-saves after changes
@@ -276,7 +278,7 @@ export const notifications = () => {
  * @returns {string} HTML string
  */
 const renderTimezoneSection = (timezone) => notificationSection(`
-  <h4 style="font-size:.9rem;font-weight:600;margin-bottom:8px;">🌍 Your Timezone</h4>
+  <h4 style="font-size:.9rem;font-weight:600;margin-bottom:8px;"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Your Timezone</h4>
   <div style="padding:10px;background:rgba(0,0,0,.05);border-radius:8px;margin-bottom:16px;">
     <div style="display:flex;align-items:center;gap:8px;">
       <span style="font-size:.85rem;opacity:.7;">Detected:</span>
@@ -294,7 +296,7 @@ const renderTimezoneSection = (timezone) => notificationSection(`
  * @returns {string} HTML string
  */
 const renderTimeWindowSection = (window) => notificationSection(`
-  <h4 style="font-size:.9rem;font-weight:600;margin-bottom:12px;">⏰ Daily Availability Window</h4>
+  <h4 style="font-size:.9rem;font-weight:600;margin-bottom:12px;"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Daily Availability Window</h4>
   <p style="font-size:.85rem;opacity:.8;margin-bottom:12px;">
     Set your Daily Window for Notifications
   </p>
@@ -307,7 +309,7 @@ const renderTimeWindowSection = (window) => notificationSection(`
   <small 
     id="time-validation-warning" 
     style="opacity:.7;display:none;font-size:.75rem;color:#ff9800;">
-    ⚠️ Start time must be before end time
+    <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Start time must be before end time
   </small>
 `);
 
@@ -317,7 +319,7 @@ const renderTimeWindowSection = (window) => notificationSection(`
  * @returns {string} HTML string
  */
 const renderFrequencySection = (frequency) => notificationSection(`
-  <h4 style="font-size:.9rem;font-weight:600;margin-bottom:12px;">📊 Notification Frequency</h4>
+  <h4 style="font-size:.9rem;font-weight:600;margin-bottom:12px;"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Notification Frequency</h4>
   <p style="font-size:.85rem;opacity:.8;margin-bottom:12px;">
     How involved would you like to be?
   </p>
@@ -336,7 +338,7 @@ const renderFrequencySection = (frequency) => notificationSection(`
   <div 
     id="frequency-warning" 
     style="display:none;margin-top:10px;padding:10px;background:rgba(255,152,0,.1);border-left:3px solid #ff9800;border-radius:6px;font-size:.8rem;">
-    <strong style="color:#ff9800;">⚠️ Short window detected</strong>
+    <strong style="color:#ff9800;"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Short window detected</strong>
     <p style="margin:4px 0 0 0;opacity:.9;">
       Your window is less than 6 hours. FULL frequency may feel too frequent (4 notifications in a short time). 
       Consider using MINIMUM or extending your availability.
@@ -356,13 +358,13 @@ const renderFrequencyExplanation = (frequency) => `
     <strong style="display:block;margin-bottom:6px;">What you'll receive:</strong>
     <div style="opacity:.85;line-height:1.6;">
       ${frequency === 'minimum' ? `
-        <div>🌅 <strong>Awakening:</strong> Checking-in and Focusing</div>
-        <div>🌙 <strong>Integration:</strong> Integrating the Day</div>
+        <div><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg> <strong>Awakening:</strong> Checking-in and Focusing</div>
+        <div><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> <strong>Integration:</strong> Integrating the Day</div>
       ` : `
-        <div>🌅 <strong>Awakening:</strong> Checking-in and Focusing</div>
-        <div>☀️ <strong>Recharge:</strong> Quick reset and Mindfulness</div>
-        <div>🌆 <strong>Reflect:</strong> Gratitude and Inspiration</div>
-        <div>🌙 <strong>Integration:</strong> Integrating the Day</div>
+        <div><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg> <strong>Awakening:</strong> Checking-in and Focusing</div>
+        <div><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg> <strong>Recharge:</strong> Quick reset and Mindfulness</div>
+        <div><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="9" x2="12" y2="2"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/></svg> <strong>Reflect:</strong> Gratitude and Inspiration</div>
+        <div><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> <strong>Integration:</strong> Integrating the Day</div>
       `}
     </div>
   </div>`;

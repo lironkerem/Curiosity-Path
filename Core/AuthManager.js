@@ -1,3 +1,4 @@
+import { EMOJI_TO_KEY } from './avatar-icons.js';
 /**
  * AuthManager - Authentication & User Session Management
  * Handles Google OAuth, Email/Password auth, session management, lockout tracking
@@ -342,7 +343,7 @@ export default class AuthManager {
       email:u.email,
       phone:u.user_metadata?.phone || '',
       birthday:u.user_metadata?.birthday || '',
-      emoji:u.user_metadata?.emoji || '👤',
+      emoji:u.user_metadata?.emoji || '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
       avatarUrl:u.user_metadata?.avatar_url || u.user_metadata?.avatarUrl || null,
       tier:'Premium',
       joinDate:u.created_at,
@@ -405,7 +406,7 @@ function attachProfileHelpers() {
       email:document.getElementById('profile-email')?.value.trim() || null,
       phone:document.getElementById('profile-phone')?.value.trim() || null,
       birthday:document.getElementById('profile-birthday')?.value || null,
-      emoji:document.getElementById('profile-emoji')?.value || '👤',
+      emoji:document.getElementById('profile-emoji')?.value || '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
       avatarUrl:document.getElementById('profile-avatar-img')?.src || ''
     };
     let savedOnServer = false;

@@ -2,6 +2,7 @@
  * User-Tab.js – Optimized & Consolidated 2026-01-26
  * Manages user menu, profile, settings, notifications, and themes
  */
+import { renderAvatarIcon, EMOJI_TO_KEY } from './avatar-icons.js';
 import { supabase } from './Supabase.js';
 import * as Templates from './user-tab-templates.js';
 
@@ -47,7 +48,7 @@ export default class UserTab {
           </svg>
           <span class="disc-avatar">
             <img class="disc-avatar-img hidden" alt="avatar">
-            <span class="disc-avatar-emoji">👤</span>
+            <span class="disc-avatar-emoji"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
           </span>
           <span class="disc-dot hidden"></span>
         </button>
@@ -59,7 +60,7 @@ export default class UserTab {
              <div class="accordion-panel" id="panel-${item.id}"></div>`
           ).join('')}
           <div class="dropdown-divider"></div>
-          <button class="dropdown-item" data-action="logout">🚪 Logout</button>
+          <button class="dropdown-item" data-action="logout"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20h9"/><path d="M10 12v.01"/><path d="M13 4l-6 2v14l6 2V4z"/></svg> Logout</button>
         </div>
       </div>`;
   }
@@ -259,15 +260,25 @@ export default class UserTab {
   // ============== PROFILE MANAGEMENT ==============
 
   attachProfileHandlers() {
-    this.attachListener('profile-emoji', 'change', (e) => {
-      const emojiSpan = document.querySelector('.profile-avatar-emoji');
-      const img = document.getElementById('profile-avatar-img');
-      
-      if (emojiSpan) emojiSpan.textContent = e.target.value;
-      if (img) {
-        img.style.display = 'none';
-        emojiSpan.style.display = 'block';
-      }
+    // Icon picker: clicking an SVG button updates the hidden input + preview
+    document.querySelectorAll('.avatar-icon-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.value;
+        const hiddenInput = document.getElementById('profile-emoji');
+        const emojiSpan = document.querySelector('.profile-avatar-emoji');
+        const img = document.getElementById('profile-avatar-img');
+
+        if (hiddenInput) hiddenInput.value = key;
+        if (emojiSpan) emojiSpan.innerHTML = renderAvatarIcon(key);
+        if (img) {
+          img.style.display = 'none';
+          emojiSpan.style.display = 'block';
+        }
+
+        // Highlight selected
+        document.querySelectorAll('.avatar-icon-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
     });
 
     this.attachListener('avatar-upload', 'change', () => {
@@ -354,7 +365,7 @@ export default class UserTab {
         avatar_url: publicUrl
       }));
       this.syncAvatar();
-      this.app.showToast('✅ Profile photo updated', 'success');
+      this.app.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Profile photo updated', 'success');
 
     } catch (err) {
       console.error('handleAvatarUpload error:', err);
@@ -378,7 +389,7 @@ export default class UserTab {
       email: document.getElementById('profile-email')?.value.trim() || null,
       phone: document.getElementById('profile-phone')?.value.trim() || null,
       birthday: document.getElementById('profile-birthday')?.value || null,
-      emoji: document.getElementById('profile-emoji')?.value || '👤',
+      emoji: document.getElementById('profile-emoji')?.value || '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
       country: document.getElementById('profile-country')?.value.trim() || null,
       // Preserve community_status - managed by setStatus(), not a form field
       community_status: this.currentUser?.community_status || 'online',
@@ -402,7 +413,7 @@ export default class UserTab {
     
     this.syncAvatar();
     this.app.showToast(
-      savedOnServer ? '✅ Profile saved' : '⚠️ Saved locally',
+      savedOnServer ? '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Profile saved' : '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Saved locally',
       savedOnServer ? 'success' : 'warning'
     );
     
@@ -679,7 +690,7 @@ export default class UserTab {
     if (warning) warning.style.display = isValid ? 'none' : 'block';
     
     if (!isValid) {
-      this.app.showToast('⚠️ Start time must be before end time', 'warning');
+      this.app.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Start time must be before end time', 'warning');
     }
 
     return isValid;
@@ -709,14 +720,14 @@ export default class UserTab {
   /** Enable push notifications */
   async enablePushNotifications() {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      this.app.showToast('❌ Push not supported', 'error');
+      this.app.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Push not supported', 'error');
       return false;
     }
 
     try {
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
-        this.app.showToast('❌ Permission denied', 'error');
+        this.app.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Permission denied', 'error');
         return false;
       }
 
@@ -752,11 +763,11 @@ export default class UserTab {
         if (!res.ok) throw new Error('Save failed');
       }
 
-      this.app.showToast('✅ Notifications enabled', 'success');
+      this.app.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Notifications enabled', 'success');
       return true;
     } catch (err) {
       console.error(err);
-      this.app.showToast('❌ Enable failed: ' + err.message, 'error');
+      this.app.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Enable failed: ' + err.message, 'error');
       return false;
     }
   }
@@ -769,7 +780,7 @@ export default class UserTab {
       
       if (sub) {
         await sub.unsubscribe();
-        this.app.showToast('🔕 Notifications disabled', 'success');
+        this.app.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg> Notifications disabled', 'success');
       }
     } catch (e) {
       console.error(e);
@@ -812,9 +823,9 @@ export default class UserTab {
       .then(({ error }) => {
         if (error) {
           console.error('Save error:', error);
-          this.app.showToast('⚠️ Saved locally only', 'warning');
+          this.app.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Saved locally only', 'warning');
         } else {
-          this.app.showToast('✅ Settings saved', 'success');
+          this.app.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Settings saved', 'success');
         }
       });
   }
@@ -1070,14 +1081,14 @@ export default class UserTab {
     }
 
     const STATUS_ACTIVITIES = {
-      online:    '✨ Available',
-      available: '✨ Available',
-      away:      '🌿 Away',
-      silent:    '🤫 In Silence',
-      deep:      '🧘 Deep Practice',
-      offline:   '💤 Offline',
+      online:    '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg> Available',
+      available: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg> Available',
+      away:      '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22c1.25-1.25 2.5-2.5 3.75-3.75"/><path d="M22 2C11 2 2 11 2 22c5.5 0 11-2.5 14.5-6S22 7.5 22 2z"/></svg> Away',
+      silent:    '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="1" y1="1" x2="23" y2="23"/></svg> In Silence',
+      deep:      '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Deep Practice',
+      offline:   '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Offline',
     };
-    const activity = STATUS_ACTIVITIES[status] || '✨ Available';
+    const activity = STATUS_ACTIVITIES[status] || '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg> Available';
 
     try {
       const uid = this.currentUser?.id;
@@ -1115,7 +1126,7 @@ export default class UserTab {
 
   /** Synchronize avatar display in user button */
   syncAvatar() {
-    const { avatar_url, emoji = '👤' } = this.currentUser || {};
+    const { avatar_url, emoji = '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' } = this.currentUser || {};
     const avImg = this.btn?.querySelector('.disc-avatar-img');
     const avEmoji = this.btn?.querySelector('.disc-avatar-emoji');
 
@@ -1147,11 +1158,11 @@ export default class UserTab {
         await this.app.logout();
       } else {
         console.error('app.logout() not available');
-        this.app?.showToast('❌ Logout failed', 'error');
+        this.app?.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Logout failed', 'error');
       }
     } catch (err) {
       console.error('Logout error:', err);
-      this.app?.showToast('❌ Logout error', 'error');
+      this.app?.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Logout error', 'error');
     }
   }
 
