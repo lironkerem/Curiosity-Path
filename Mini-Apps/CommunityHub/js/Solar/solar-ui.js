@@ -236,4 +236,6 @@ const SolarUIManager = {
   },
 };
 
+window.SolarUIManager = SolarUIManager;
+
 export { SolarUIManager };
