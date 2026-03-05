@@ -27,9 +27,9 @@ const TabRoomMixin = {
     },
 
     _styleTab(btn, isActive) {
-        btn.style.background   = isActive ? 'linear-gradient(135deg,#8b5cf6 0%,#a78bfa 100%)' : 'transparent';
+        btn.style.background   = isActive ? 'linear-gradient(135deg,var(--neuro-accent) 0%,var(--neuro-accent-light) 100%)' : 'transparent';
         btn.style.color        = isActive ? 'white' : 'var(--text)';
-        btn.style.borderBottom = isActive ? '3px solid #8b5cf6' : '3px solid transparent';
+        btn.style.borderBottom = isActive ? '3px solid var(--neuro-accent)' : '3px solid transparent';
     },
 
     buildTabNav(dailyLabel, personalLabel) {
@@ -37,7 +37,7 @@ const TabRoomMixin = {
         return `
         <div style="display:flex;gap:8px;margin-bottom:24px;border-bottom:2px solid var(--border);flex-wrap:wrap;">
             <button id="${this.roomId}TabDaily" onclick="${cn}.switchTab('daily')"
-                    style="padding:10px 16px;background:linear-gradient(135deg,#8b5cf6 0%,#a78bfa 100%);color:white;border:none;border-bottom:3px solid #8b5cf6;cursor:pointer;font-weight:600;font-size:14px;border-radius:8px 8px 0 0;white-space:nowrap;">
+                    style="padding:10px 16px;background:linear-gradient(135deg,var(--neuro-accent) 0%,var(--neuro-accent-light) 100%);color:white;border:none;border-bottom:3px solid var(--neuro-accent);cursor:pointer;font-weight:600;font-size:14px;border-radius:8px 8px 0 0;white-space:nowrap;">
                 ${dailyLabel}
             </button>
             <button id="${this.roomId}TabPersonal" onclick="${cn}.switchTab('personal')"

@@ -68,26 +68,26 @@ const AdminDashboard = {
             .admin-section-header {
                 display:flex; align-items:center; justify-content:space-between;
                 padding:12px 16px; cursor:pointer; border-radius:12px; user-select:none;
-                background:rgba(139,92,246,0.06); border:1px solid rgba(139,92,246,0.15);
+                background:var(--neuro-accent-a08); border:1px solid var(--neuro-accent-a20);
                 margin-bottom:2px; transition:background 0.15s;
             }
-            .admin-section-header:hover { background:rgba(139,92,246,0.1); }
+            .admin-section-header:hover { background:var(--neuro-accent-a10); }
             .admin-section-body   { padding:12px 4px 4px; }
             .admin-stat-grid {
                 display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px;
             }
             .admin-stat-card {
-                background:rgba(139,92,246,0.06); border-radius:12px;
-                padding:14px 12px; text-align:center; border:1px solid rgba(139,92,246,0.12);
+                background:var(--neuro-accent-a08); border-radius:12px;
+                padding:14px 12px; text-align:center; border:1px solid var(--neuro-accent-a10);
             }
-            .admin-stat-value { font-size:1.6rem; font-weight:700; color:rgba(139,92,246,0.9); }
+            .admin-stat-value { font-size:1.6rem; font-weight:700; color:var(--neuro-accent); }
             .admin-stat-label { font-size:0.72rem; color:var(--text-muted,#888); margin-top:2px; text-transform:uppercase; letter-spacing:0.5px; }
             .admin-notif-row {
                 display:flex; gap:10px; align-items:flex-start;
                 padding:10px 12px; border-radius:10px; margin-bottom:6px;
                 background:rgba(255,255,255,0.5); border:1px solid rgba(0,0,0,0.06);
             }
-            .admin-notif-row.unread { border-left:3px solid rgba(139,92,246,0.8); }
+            .admin-notif-row.unread { border-left:3px solid var(--neuro-accent); }
             .admin-table           { width:100%; border-collapse:collapse; font-size:0.83rem; }
             .admin-table th        { text-align:left; padding:6px 8px; color:var(--text-muted,#888); font-weight:600; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.5px; }
             .admin-table td        { padding:8px; border-top:1px solid rgba(0,0,0,0.06); }
@@ -190,9 +190,9 @@ const AdminDashboard = {
         overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:var(--neuro-bg,#f0f0f3);overflow-y:auto;font-family:var(--font-body,sans-serif);';
         overlay.innerHTML = `
             <div style="position:sticky;top:0;z-index:10;
-                        background:rgba(139,92,246,0.92);backdrop-filter:blur(12px);
+                        background:var(--neuro-accent);backdrop-filter:blur(12px);
                         padding:16px 20px;display:flex;align-items:center;justify-content:space-between;
-                        box-shadow:0 2px 20px rgba(139,92,246,0.3);">
+                        box-shadow:0 2px 20px var(--neuro-accent-a30);">
                 <div style="display:flex;align-items:center;gap:10px;">
                     <span style="font-size:1.4rem;">🛡️</span>
                     <div>
@@ -249,7 +249,7 @@ const AdminDashboard = {
         <div style="margin-bottom:12px;">
             <div class="admin-section-header" onclick="AdminDashboard.toggleSection('${id}')">
                 <span style="font-size:0.92rem;font-weight:700;color:var(--neuro-text,#333);">${title}</span>
-                <span id="adminSecToggle_${id}" style="font-size:0.8rem;color:rgba(139,92,246,0.7);">${startOpen ? '▼' : '▶'}</span>
+                <span id="adminSecToggle_${id}" style="font-size:0.8rem;color:var(--neuro-accent);">${startOpen ? '▼' : '▶'}</span>
             </div>
             <div id="adminSec_${id}" class="admin-section-body" style="display:${startOpen ? 'block' : 'none'};">
                 <div id="adminSecContent_${id}" style="color:var(--text-muted,#888);font-size:0.83rem;padding:8px;">Loading...</div>
@@ -310,8 +310,8 @@ const AdminDashboard = {
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
                 <span style="font-size:0.82rem;color:var(--text-muted,#888);">${unread} unread of ${notifs.length}</span>
                 <button onclick="AdminDashboard._markAllRead()"
-                        style="padding:4px 12px;border-radius:99px;border:1px solid rgba(139,92,246,0.3);
-                               background:rgba(139,92,246,0.08);color:rgba(139,92,246,0.9);
+                        style="padding:4px 12px;border-radius:99px;border:1px solid var(--neuro-accent-a30);
+                               background:var(--neuro-accent-a08);color:var(--neuro-accent);
                                font-size:0.78rem;cursor:pointer;">Mark all read</button>
             </div>
             ${notifs.map(n => `
@@ -335,7 +335,7 @@ const AdminDashboard = {
                     ${!n.read ? `
                     <button onclick="AdminDashboard._markRead(${n.id})"
                             style="flex-shrink:0;padding:3px 8px;border-radius:6px;border:none;cursor:pointer;
-                                   font-size:0.72rem;background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.8);">
+                                   font-size:0.72rem;background:var(--neuro-accent-a10);color:var(--neuro-accent);">
                         ✓ Read
                     </button>` : ''}
                 </div>`).join('')}`;
@@ -428,7 +428,7 @@ const AdminDashboard = {
                     <span style="font-size:1rem;">${['🥇','🥈','🥉'][i] || '·'}</span>
                     <span style="font-size:0.9rem;">${r.profiles?.emoji || ''}</span>
                     <span style="flex:1;font-size:0.85rem;font-weight:600;">${this._esc(r.profiles?.name || 'Member')}</span>
-                    <span style="font-size:0.85rem;font-weight:700;color:rgba(139,92,246,0.9);">${r.payload?.[key] || 0}</span>
+                    <span style="font-size:0.85rem;font-weight:700;color:var(--neuro-accent);">${r.payload?.[key] || 0}</span>
                 </div>`).join('')
             : '<div style="color:var(--text-muted,#888);font-size:0.83rem;">No data yet.</div>';
 
@@ -519,7 +519,7 @@ const AdminDashboard = {
         this._bulkSelected = new Set();
 
         const selectStyle = 'width:100%;padding:8px 12px;border-radius:10px;margin-bottom:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;';
-        const btnStyle    = 'width:100%;padding:8px 18px;border-radius:10px;border:none;cursor:pointer;font-size:0.88rem;font-weight:700;background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);';
+        const btnStyle    = 'width:100%;padding:8px 18px;border-radius:10px;border:none;cursor:pointer;font-size:0.88rem;font-weight:700;background:var(--neuro-accent-a20);color:var(--neuro-accent);';
         const inputStyle  = 'flex:1;padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;';
         const mutedLabel  = 'font-size:0.82rem;color:var(--text-muted,#888);margin-bottom:8px;';
 
@@ -532,7 +532,7 @@ const AdminDashboard = {
                         <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted,#888);">Select Members</div>
                         <div style="display:flex;gap:8px;">
                             <button onclick="AdminDashboard._bulkSelectAll()"
-                                    style="padding:4px 10px;border-radius:99px;border:1px solid rgba(139,92,246,0.3);background:rgba(139,92,246,0.08);color:rgba(139,92,246,0.9);font-size:0.75rem;font-weight:600;cursor:pointer;">All</button>
+                                    style="padding:4px 10px;border-radius:99px;border:1px solid var(--neuro-accent-a30);background:var(--neuro-accent-a08);color:var(--neuro-accent);font-size:0.75rem;font-weight:600;cursor:pointer;">All</button>
                             <button onclick="AdminDashboard._bulkSelectNone()"
                                     style="padding:4px 10px;border-radius:99px;border:1px solid rgba(0,0,0,0.1);background:none;color:var(--text-muted,#888);font-size:0.75rem;font-weight:600;cursor:pointer;">None</button>
                         </div>
@@ -545,11 +545,11 @@ const AdminDashboard = {
                         ${this._bulkMembers.map(m => `
                             <label id="bulkRow_${m.id}"
                                    style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background 0.1s;"
-                                   onmouseover="this.style.background='rgba(139,92,246,0.06)'"
+                                   onmouseover="this.style.background='var(--neuro-accent-a08)'"
                                    onmouseout="this.style.background='none'">
                                 <input type="checkbox" value="${m.id}"
                                        onchange="AdminDashboard._bulkToggle('${m.id}',this.checked)"
-                                       style="width:16px;height:16px;cursor:pointer;accent-color:rgba(139,92,246,0.9);">
+                                       style="width:16px;height:16px;cursor:pointer;accent-color:var(--neuro-accent);">
                                 <span style="font-size:1.1rem;">${m.emoji || '👤'}</span>
                                 <span style="font-size:0.85rem;font-weight:600;color:var(--neuro-text);">${this._esc(m.name || 'Member')}</span>
                                 <span style="font-size:0.75rem;color:var(--text-muted,#888);margin-left:auto;">${this._esc(m.community_role || 'Member')}</span>
@@ -565,7 +565,7 @@ const AdminDashboard = {
                     ${this._BULK_TABS.map(([id, label], i) => `
                         <button onclick="AdminDashboard._bulkShowTab('${id}')" id="bulkTab_${id}"
                                 style="padding:6px 14px;border-radius:99px;border:none;cursor:pointer;font-size:0.8rem;font-weight:600;transition:all 0.15s;
-                                       ${i === 0 ? 'background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);' : 'background:rgba(0,0,0,0.05);color:var(--text-muted,#888);'}">
+                                       ${i === 0 ? 'background:var(--neuro-accent-a20);color:var(--neuro-accent);' : 'background:rgba(0,0,0,0.05);color:var(--text-muted,#888);'}">
                             ${label}
                         </button>`).join('')}
                 </div>
@@ -575,7 +575,7 @@ const AdminDashboard = {
                     <div style="${mutedLabel}">Send XP to all selected members</div>
                     <div style="display:flex;gap:8px;align-items:center;">
                         <input id="bulkXpAmount" type="number" min="1" value="100" placeholder="XP amount" style="${inputStyle}">
-                        <button onclick="AdminDashboard._bulkSendXP()" style="padding:8px 18px;border-radius:10px;border:none;cursor:pointer;font-size:0.88rem;font-weight:700;background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);">Send XP</button>
+                        <button onclick="AdminDashboard._bulkSendXP()" style="padding:8px 18px;border-radius:10px;border:none;cursor:pointer;font-size:0.88rem;font-weight:700;background:var(--neuro-accent-a20);color:var(--neuro-accent);">Send XP</button>
                     </div>
                 </div>
 
@@ -584,7 +584,7 @@ const AdminDashboard = {
                     <div style="${mutedLabel}">Send Karma to all selected members</div>
                     <div style="display:flex;gap:8px;align-items:center;">
                         <input id="bulkKarmaAmount" type="number" min="1" value="10" placeholder="Karma amount" style="${inputStyle}">
-                        <button onclick="AdminDashboard._bulkSendKarma()" style="padding:8px 18px;border-radius:10px;border:none;cursor:pointer;font-size:0.88rem;font-weight:700;background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);">Send Karma</button>
+                        <button onclick="AdminDashboard._bulkSendKarma()" style="padding:8px 18px;border-radius:10px;border:none;cursor:pointer;font-size:0.88rem;font-weight:700;background:var(--neuro-accent-a20);color:var(--neuro-accent);">Send Karma</button>
                     </div>
                 </div>
 
@@ -660,8 +660,8 @@ const AdminDashboard = {
             if (!panel || !btn) continue;
             const active = id === tab;
             panel.style.display  = active ? 'block' : 'none';
-            btn.style.background = active ? 'rgba(139,92,246,0.15)' : 'rgba(0,0,0,0.05)';
-            btn.style.color      = active ? 'rgba(139,92,246,0.9)'  : 'var(--text-muted,#888)';
+            btn.style.background = active ? 'var(--neuro-accent-a20)' : 'rgba(0,0,0,0.05)';
+            btn.style.color      = active ? 'var(--neuro-accent)'  : 'var(--text-muted,#888)';
         }
     },
 
