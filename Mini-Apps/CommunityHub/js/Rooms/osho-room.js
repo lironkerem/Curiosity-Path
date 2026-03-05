@@ -1,6 +1,6 @@
 /**OSHO ACTIVE MEDITATION ROOM - @extends TimedVideoRoom */
 
-import { TimedVideoRoom } from './TimedVideoRoom.js';
+import { TimedVideoRoom } from './mixins/TimedVideoRoom.js';
 
 class OshoRoom extends TimedVideoRoom {
     constructor() {

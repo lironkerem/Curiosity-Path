@@ -1,6 +1,6 @@
 /**BREATHWORK ROOM - @extends TimedVideoRoom */
 
-import { TimedVideoRoom } from './TimedVideoRoom.js';
+import { TimedVideoRoom } from './mixins/TimedVideoRoom.js';
 
 class BreathworkRoom extends TimedVideoRoom {
     constructor() {
