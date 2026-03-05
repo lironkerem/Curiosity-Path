@@ -94,13 +94,15 @@ export const profile = (u = {}) => `
           <span 
             class="profile-avatar-emoji" 
             style="${u.avatar_url ? 'display:none;' : ''}">
-            ${u.emoji || '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'}
+            ${renderAvatarIcon(u.emoji || 'user')}
           </span>
         </div>
       </label>
-      <select id="profile-emoji">
-        ${EMOJI_OPTIONS.replace(`value="${u.emoji}"`, `value="${u.emoji}" selected`)}
-      </select>
+      <!-- Hidden input stores the selected icon key -->
+      <input type="hidden" id="profile-emoji" value="${EMOJI_TO_KEY[u.emoji] || u.emoji || 'user'}">
+      <div class="avatar-icon-picker" id="avatar-icon-picker">
+        ${ICON_PICKER_OPTIONS}
+      </div>
     </div>
     <input 
       id="profile-name" 
