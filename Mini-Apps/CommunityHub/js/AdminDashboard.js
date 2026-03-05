@@ -4,6 +4,8 @@
  * @version 1.1.0
  */
 
+import { Core } from '../core.js';
+
 const AdminDashboard = {
 
     // =========================================================================
@@ -117,12 +119,12 @@ const AdminDashboard = {
     // =========================================================================
 
     injectAdminUI() {
-        if (window.Core?.state?.currentUser?.is_admin === true) this.injectBadge();
+        if (Core?.state?.currentUser?.is_admin === true) this.injectBadge();
     },
 
     injectBadge() {
         if (document.getElementById('adminDashBadge')) return;
-        if (!window.Core?.state?.currentUser?.is_admin) return;
+        if (!Core?.state?.currentUser?.is_admin) return;
 
         this._injectStyles();
 
@@ -875,5 +877,9 @@ const AdminDashboard = {
     },
 };
 
-window.AdminDashboard = AdminDashboard;
 console.log('✅ AdminDashboard loaded');
+
+// Window bridge: preserved for external callers
+window.AdminDashboard = AdminDashboard;
+
+export { AdminDashboard };

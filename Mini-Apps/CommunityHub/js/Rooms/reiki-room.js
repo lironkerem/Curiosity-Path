@@ -1,8 +1,12 @@
-/**
- * REIKI CHAKRA ROOM
+/*** REIKI CHAKRA ROOM
  * @extends PracticeRoom
  * @mixes ChatMixin, TabRoomMixin
  */
+
+import { PracticeRoom } from './PracticeRoom.js';
+import { ChatMixin } from './mixins/ChatMixin.js';
+import { TabRoomMixin } from './mixins/TabRoomMixin.js';
+import { Core } from '../core.js';
 
 class ReikiRoom extends PracticeRoom {
     constructor() {
@@ -339,4 +343,9 @@ class ReikiRoom extends PracticeRoom {
 
 Object.assign(ReikiRoom.prototype, ChatMixin);
 Object.assign(ReikiRoom.prototype, TabRoomMixin);
-window.ReikiRoom = new ReikiRoom();
+
+// Window bridge: preserved for inline onclick handlers
+const reikiRoom = new ReikiRoom();
+window.ReikiRoom = reikiRoom;
+
+export { ReikiRoom, reikiRoom };

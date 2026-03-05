@@ -9,6 +9,9 @@
  *   'daily'/'personal' → this.roomId-channel   (e.g. 'tarot-daily')
  */
 
+import { Core } from '../core.js';
+import { CommunityDB } from '../community-supabase.js';
+
 // ─── Module-level helpers (not mixed into instances) ─────────────────────────
 
 /** Capitalise first letter. */
@@ -17,7 +20,7 @@ const _cap = str => str.charAt(0).toUpperCase() + str.slice(1);
 /** Build a consistent avatar { inner, bg } pair from profile data. */
 function _avatarParts(name, avatarUrl, emoji, userId) {
     const initial  = emoji || name.charAt(0).toUpperCase();
-    const gradient = window.Core?.getAvatarGradient?.(userId || name)
+    const gradient = Core?.getAvatarGradient?.(userId || name)
         ?? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
     const inner = avatarUrl
         ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
@@ -41,7 +44,6 @@ const ChatMixin = {
         this.state.messages = Object.fromEntries(channels.map(ch => [ch, []]));
     },
 
-    /** Load all channels in parallel, then inject sender avatar. */
     async initializeChat() {
         await Promise.all(this.chatChannels.map(ch => this.loadRoomChatFromDB(ch)));
         setTimeout(() => this._injectSenderAvatar(), 200);
@@ -63,13 +65,9 @@ const ChatMixin = {
 
     // ── DB row → msgData ──────────────────────────────────────────────────────
 
-    /**
-     * Convert a Supabase message row into the msgData shape used by buildMessageHTML.
-     * Pass isOwn=true to use the current-user's live profile instead of the row's profile.
-     */
     _rowToMsgData(row, isOwn = false) {
         const profile   = row.profiles || {};
-        const cu        = window.Core?.state?.currentUser || {};
+        const cu        = Core?.state?.currentUser || {};
         const name      = isOwn ? (cu.name || 'You')          : (profile.name || 'Member');
         const avatarUrl = isOwn ? (cu.avatar_url || '')        : (profile.avatar_url || '');
         const emoji     = isOwn ? (cu.emoji || '')             : (profile.emoji || '');
@@ -93,7 +91,7 @@ const ChatMixin = {
 
         const message   = input.value.trim();
         const container = document.getElementById(this._msgContainerId(channel));
-        const cu        = window.Core?.state?.currentUser || {};
+        const cu        = Core?.state?.currentUser || {};
         const name      = cu.name || 'You';
         const { gradient, initial } = _avatarParts(name, cu.avatar_url || '', cu.emoji || '', cu.id);
 
@@ -120,7 +118,7 @@ const ChatMixin = {
         input.value = '';
         Core.showToast('Message sent');
 
-        if (window.CommunityDB?.ready) {
+        if (CommunityDB?.ready) {
             try {
                 await CommunityDB.sendRoomMessage(this._getDbRoomId(channel), message);
             } catch (e) {
@@ -132,7 +130,7 @@ const ChatMixin = {
     // ── Load history + realtime ───────────────────────────────────────────────
 
     async loadRoomChatFromDB(channel = 'main') {
-        if (!window.CommunityDB?.ready) {
+        if (!CommunityDB?.ready) {
             this.loadMessagesFromStorage(channel);
             this.renderSavedMessages(channel);
             return;
@@ -140,7 +138,7 @@ const ChatMixin = {
 
         const dbRoomId  = this._getDbRoomId(channel);
         const container = document.getElementById(this._msgContainerId(channel));
-        const currentId = window.Core?.state?.currentUser?.id;
+        const currentId = Core?.state?.currentUser?.id;
 
         try {
             const [rows, blocked] = await Promise.all([
@@ -159,9 +157,8 @@ const ChatMixin = {
                 container.scrollTop = container.scrollHeight;
             }
 
-            // Realtime: incoming messages from other users
             CommunityDB.subscribeToRoomChat(dbRoomId, async newMsg => {
-                if (newMsg.profiles?.id === currentId) return; // already rendered optimistically
+                if (newMsg.profiles?.id === currentId) return;
 
                 const blocked = await CommunityDB.getBlockedUsers();
                 if (blocked.has(newMsg.profiles?.id) || !container) return;
@@ -179,8 +176,6 @@ const ChatMixin = {
     // ── Render ────────────────────────────────────────────────────────────────
 
     buildMessageHTML(msgData) {
-        const { inner, bg } = _avatarParts(msgData.name, msgData.avatarUrl, msgData.initial, msgData.userId);
-        // Use pre-built initial from msgData if avatarUrl is absent (avoids re-computing gradient)
         const avatarInner = msgData.avatarUrl
             ? `<img src="${msgData.avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${msgData.name}">`
             : `<span style="color:white;font-size:13px;font-weight:600;line-height:1;">${msgData.initial}</span>`;
@@ -236,7 +231,7 @@ const ChatMixin = {
 
     _injectSenderAvatar(channel = null) {
         const channels = channel ? [channel] : (this.chatChannels || ['main']);
-        const cu = window.Core?.state?.currentUser;
+        const cu = Core?.state?.currentUser;
         if (!cu) return;
 
         const { inner, bg } = _avatarParts(cu.name || 'Me', cu.avatar_url || '', cu.emoji || '', cu.id);
@@ -299,6 +294,4 @@ const ChatMixin = {
     },
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-
-window.ChatMixin = ChatMixin;
+export { ChatMixin };

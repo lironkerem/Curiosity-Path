@@ -1,4 +1,6 @@
-/** BREATHWORK ROOM - @extends TimedVideoRoom */
+/**BREATHWORK ROOM - @extends TimedVideoRoom */
+
+import { TimedVideoRoom } from './TimedVideoRoom.js';
 
 class BreathworkRoom extends TimedVideoRoom {
     constructor() {
@@ -54,4 +56,8 @@ class BreathworkRoom extends TimedVideoRoom {
     }
 }
 
-window.BreathworkRoom = new BreathworkRoom();
+// Window bridge: preserved for inline onclick handlers
+const breathworkRoom = new BreathworkRoom();
+window.BreathworkRoom = breathworkRoom;
+
+export { BreathworkRoom, breathworkRoom };

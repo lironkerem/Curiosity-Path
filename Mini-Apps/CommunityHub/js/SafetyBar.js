@@ -13,6 +13,9 @@
  * - Community guidelines display
  */
 
+import { Core } from '../core.js';
+import { CommunityDB } from '../community-supabase.js';
+
 const SafetyBar = {
 
     // ============================================================================
@@ -463,7 +466,7 @@ const SafetyBar = {
     // ============================================================================
 
     async _writeAdminNotification(type, payload) {
-        if (!window.CommunityDB?.ready) return;
+        if (!CommunityDB?.ready) return;
         const { error } = await CommunityDB._sb
             .from('admin_notifications')
             .insert({
@@ -475,7 +478,7 @@ const SafetyBar = {
     },
 
     async _pushAdmins(title, body) {
-        if (!window.CommunityDB?.ready) return;
+        if (!CommunityDB?.ready) return;
         try {
             const [{ data: admins }, ] = await Promise.all([
                 CommunityDB._sb.from('profiles').select('id').eq('is_admin', true),
@@ -509,7 +512,7 @@ const SafetyBar = {
     },
 
     _senderName() {
-        return window.Core?.state?.currentUser?.name || 'A member';
+        return Core?.state?.currentUser?.name || 'A member';
     },
 };
 
@@ -517,7 +520,6 @@ const SafetyBar = {
 // GLOBAL EXPOSURE
 // ============================================================================
 
-window.SafetyBar = SafetyBar;
 
 // ============================================================================
 // COMMUNITYMODULE SHIM
@@ -535,7 +537,7 @@ window.SafetyBar = SafetyBar;
         showModeratorModal:   () => SafetyBar.openModal('moderator'),
         showTechnicalModal:   () => SafetyBar.openModal('technical'),
         showGuidelinesModal:  () => SafetyBar.openModal('guidelines'),
-        muteChat:             () => window.Core?.showToast?.('Chat muted'),
+        muteChat:             () => Core?.showToast?.('Chat muted'),
         closeReportModal:     () => SafetyBar.closeModal('report'),
         closeBlockModal:      () => SafetyBar.closeModal('block'),
         closeHelpModal:       () => SafetyBar.closeModal('help'),
@@ -557,3 +559,8 @@ window.SafetyBar = SafetyBar;
         console.log('🛡️ SafetyBar: CommunityModule created as safety shim');
     }
 })();
+
+// Window bridge: preserved for external callers
+window.SafetyBar = SafetyBar;
+
+export { SafetyBar };

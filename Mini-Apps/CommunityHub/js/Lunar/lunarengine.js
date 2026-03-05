@@ -10,6 +10,10 @@
  * - renderLunarCard: extracted room HTML to _renderRoomSection()
  */
 
+import { LunarUI } from './lunar-ui.js';
+import { Core } from '../core.js';
+import { CommunityDB } from '../community-supabase.js';
+
 const LunarEngine = {
 
     location: { latitude: 31.0, longitude: 0.0, name: 'Default' },
@@ -222,33 +226,30 @@ const LunarEngine = {
     // ── Lazy-load & enter ───────────────────────────────────────────────────────
 
     _roomFileMap: {
-        'new-moon':    { file: 'newmoon-room.js',    globalName: 'NewMoonRoom'    },
-        'waxing-moon': { file: 'waxingmoon-room.js', globalName: 'WaxingMoonRoom' },
-        'full-moon':   { file: 'fullmoon-room.js',   globalName: 'FullMoonRoom'   },
-        'waning-moon': { file: 'waningmoon-room.js', globalName: 'WaningMoonRoom' },
+        'new-moon':    { file: 'newmoon-room.js',    exportName: 'NewMoonRoom'    },
+        'waxing-moon': { file: 'waxingmoon-room.js', exportName: 'WaxingMoonRoom' },
+        'full-moon':   { file: 'fullmoon-room.js',   exportName: 'FullMoonRoom'   },
+        'waning-moon': { file: 'waningmoon-room.js', exportName: 'WaningMoonRoom' },
     },
 
-    _loadAndEnterRoom(roomId) {
+    async _loadAndEnterRoom(roomId) {
         const meta = this._roomFileMap[roomId];
-        if (!meta) { window.Core?.showToast(`🌙 Unknown room: ${roomId}`); return; }
+        if (!meta) { Core?.showToast(`🌙 Unknown room: ${roomId}`); return; }
 
-        const enter = () => {
-            const instance = window[meta.globalName];
+        try {
+            const basePath = '/Mini-Apps/CommunityHub/js/Lunar/';
+            const mod = await import(`${basePath}${meta.file}`);
+            const instance = mod[meta.exportName];
             if (instance) instance.enterRoom();
-            else window.Core?.showToast(`⚠️ ${roomId} failed to initialise`);
-        };
-
-        if (window[meta.globalName]) { enter(); return; }
-
-        const script = document.createElement('script');
-        script.src = `/Mini-Apps/CommunityHub/js/Lunar/${meta.file}`;
-        script.onload  = () => setTimeout(enter, 50);
-        script.onerror = () => window.Core?.showToast(`⚠️ Failed to load ${meta.file}`);
-        document.body.appendChild(script);
+            else Core?.showToast(`⚠️ ${roomId} failed to initialise`);
+        } catch (e) {
+            console.error(`[LunarEngine] Failed to load ${meta.file}:`, e);
+            Core?.showToast(`⚠️ Failed to load ${meta.file}`);
+        }
     },
 
     joinLunarRoom() {
-        if (!this.currentLunarRoom) { window.Core?.showToast('⚠️ Lunar room not ready'); return; }
+        if (!this.currentLunarRoom) { Core?.showToast('⚠️ Lunar room not ready'); return; }
         this._loadAndEnterRoom(this.currentLunarRoom.roomId);
     },
 
@@ -263,8 +264,7 @@ const LunarEngine = {
         const container = document.getElementById('lunarContainer');
         if (!container) { console.warn('LunarEngine: #lunarContainer not found'); return; }
 
-        // Ensure shared lunar CSS is present even before any room is entered
-        if (window.LunarUI) LunarUI.injectStyles();
+        LunarUI.injectStyles();
 
         if (!this.currentMoonData || !this.currentLunarRoom) {
             container.innerHTML = '<p style="color:var(--text-muted);padding:20px;">Loading lunar data...</p>';
@@ -272,7 +272,7 @@ const LunarEngine = {
         }
 
         const { currentMoonData: d, currentLunarRoom: room } = this;
-        const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
+        const isAdmin = Core?.state?.currentUser?.is_admin === true;
 
         container.innerHTML = `
             <div class="celestial-card-full lunar-card">
@@ -347,7 +347,6 @@ const LunarEngine = {
         const panelId  = 'lunarAdminPanel';
         const toggleId = 'lunarAdminToggle';
 
-        // Deduplicated room list (unique roomId only)
         const seen = new Set();
         const uniqueRooms = this.lunarRooms.filter(r => seen.has(r.roomId) ? false : seen.add(r.roomId));
 
@@ -396,8 +395,7 @@ const LunarEngine = {
     // ── Presence ────────────────────────────────────────────────────────────────
 
     _refreshOuterCard() {
-        if (!window.CommunityDB?.ready) {
-            // Single retry - avoid accumulating intervals
+        if (!CommunityDB?.ready) {
             if (!this._outerCardRetry) {
                 this._outerCardRetry = setTimeout(() => {
                     this._outerCardRetry = null;
@@ -445,7 +443,7 @@ const LunarEngine = {
     renderLunarRoom() { this.renderLunarCard(); },
 
     injectAdminUI() {
-        const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
+        const isAdmin = Core?.state?.currentUser?.is_admin === true;
         if (!isAdmin) return;
         const card = document.querySelector('#lunarContainer .celestial-card-full');
         if (card && !document.getElementById('lunarAdminPanel')) {
@@ -457,4 +455,7 @@ const LunarEngine = {
     }
 };
 
+// Window bridge: preserved for any external code referencing window.LunarEngine
 window.LunarEngine = LunarEngine;
+
+export { LunarEngine };

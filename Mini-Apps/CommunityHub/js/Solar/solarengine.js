@@ -4,6 +4,10 @@
  * seasonal practice rooms, and all sun-related functionality.
  */
 
+import { SOLAR_CONSTANTS } from './solar-config.js';
+import { Core } from '../core.js';
+import { CommunityDB } from '../community-supabase.js';
+
 const SolarEngine = {
 
   location: { latitude: 31.0, longitude: 0.0, name: 'Default' },
@@ -136,8 +140,7 @@ const SolarEngine = {
   },
 
   // ============================================================================
-  // ASTRONOMICAL SEASON DATES (Jean Meeus, Astronomical Algorithms Ch. 27)
-  // Cached per year. Zero gaps between seasons guaranteed.
+  // ASTRONOMICAL SEASON DATES
   // ============================================================================
 
   getSeasonDates(year) {
@@ -174,8 +177,6 @@ const SolarEngine = {
     const start     = s   => toDate(_correct(_jde0(s)));
 
     const sp = start('spring'), su = start('summer'), au = start('autumn'), wi = start('winter');
-    const spNext = toDate(_correct(_jde0('spring') + (Y + 1 / 1000 - Y) * 365242.37404)); // next year spring approx - recalculate properly:
-    // Re-derive next year's spring properly
     const spNextProper = toDate(_correct(
       (() => {
         const Y2 = (year + 1 - 2000) / 1000;
@@ -201,7 +202,6 @@ const SolarEngine = {
     const north = this.location.latitude >= 0;
     const southMap = { spring: 'autumn', summer: 'winter', autumn: 'spring', winter: 'summer' };
 
-    // Check previous year's winter (spans year boundary)
     const prev = this.getSeasonDates(year - 1);
     if (now >= prev.winter.start && now <= prev.winter.end) return north ? 'winter' : 'summer';
 
@@ -213,11 +213,6 @@ const SolarEngine = {
     return 'winter';
   },
 
-  /**
-   * Returns all four upcoming season transitions for a given year, sorted by date.
-   * Used by both getSeasonInfo() and _getNextTransition().
-   * @private
-   */
   _getUpcomingTransitions(now) {
     const year = now.getFullYear();
     const curr = this.getSeasonDates(year);
@@ -232,23 +227,20 @@ const SolarEngine = {
      .sort((a, b) => a.date - b.date);
   },
 
-  /** Returns the "X days to Next Season Name" string shown on the outer card. */
   getSeasonInfo(now) {
     const nearest = this._getUpcomingTransitions(now)[0];
     const days    = Math.ceil((nearest.date - now) / 86_400_000);
     return `${days} days to ${nearest.name}`;
   },
 
-  /** Returns { name, days } for the next season transition. */
   _getNextTransition(now) {
     const nearest = this._getUpcomingTransitions(now)[0];
     return {
-      name: nearest.name.split(' ')[0], // 'Spring', 'Summer', etc.
+      name: nearest.name.split(' ')[0],
       days: Math.ceil((nearest.date - now) / 86_400_000),
     };
   },
 
-  // Keep public alias for any external callers
   getNextSeasonInfo(now) { return this._getNextTransition(now); },
 
   // ============================================================================
@@ -268,7 +260,6 @@ const SolarEngine = {
     const cx = W / 2, baseY = H - 30, arcTop = baseY - R;
     svg.innerHTML = '';
 
-    // Arc
     const arc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     arc.setAttribute('d', `M ${cx - R} ${baseY} Q ${cx} ${arcTop} ${cx + R} ${baseY}`);
     arc.setAttribute('stroke', 'var(--season-accent)');
@@ -277,13 +268,11 @@ const SolarEngine = {
     arc.setAttribute('opacity', '0.6');
     svg.appendChild(arc);
 
-    // Season labels
     this.addSeasonLabel(svg, cx - R, baseY, '🍂', 'Autumn');
     this.addSeasonLabel(svg, cx, arcTop - 10, '☀️', 'Summer');
     this.addSeasonLabel(svg, cx + R, baseY, '🌱', 'Spring');
     this.addSeasonLabel(svg, cx, baseY + 25, '❄️', 'Winter');
 
-    // Sun position
     const t = Math.PI * (declination + 23.44) / 46.88;
     const sx = cx - R * Math.cos(t);
     const sy = baseY - R * Math.sin(t);
@@ -294,7 +283,6 @@ const SolarEngine = {
     sun.setAttribute('stroke', '#f59e0b'); sun.setAttribute('stroke-width', '2');
     svg.appendChild(sun);
 
-    // Rays
     for (let i = 0; i < 8; i++) {
       const a   = i * Math.PI / 4;
       const ray = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -359,7 +347,7 @@ const SolarEngine = {
     }
 
     const { currentSolarData: d, currentSolarRoom: room } = this;
-    const isAdmin       = window.Core?.state?.currentUser?.is_admin === true;
+    const isAdmin       = Core?.state?.currentUser?.is_admin === true;
     const seasonDisplay = d.currentSeason.charAt(0).toUpperCase() + d.currentSeason.slice(1);
 
     container.innerHTML = `
@@ -418,9 +406,9 @@ const SolarEngine = {
   },
 
   _refreshOuterCard() {
-    if (!window.CommunityDB?.ready) {
+    if (!CommunityDB?.ready) {
       const iv = setInterval(() => {
-        if (!window.CommunityDB?.ready) return;
+        if (!CommunityDB?.ready) return;
         clearInterval(iv);
         this._refreshOuterCard();
       }, 500);
@@ -483,7 +471,7 @@ const SolarEngine = {
   },
 
   injectAdminUI() {
-    if (!window.Core?.state?.currentUser?.is_admin) return;
+    if (!Core?.state?.currentUser?.is_admin) return;
     const container = document.getElementById('solarContainer');
     if (!container || container.querySelector('#solarAdminPanel')) return;
     const card = container.querySelector('.celestial-card-full');
@@ -491,38 +479,35 @@ const SolarEngine = {
   },
 
   // ============================================================================
-  // LAZY ROOM LOADING
+  // LAZY ROOM LOADING — dynamic import() replaces <script> injection
   // ============================================================================
 
   _roomFileMap: {
-    'spring-equinox':  { file: 'spring-solar-room.js',  globalName: 'SpringSolarRoom'  },
-    'summer-solstice': { file: 'summer-solar-room.js',  globalName: 'SummerSolarRoom'  },
-    'autumn-equinox':  { file: 'autumn-solar-room.js',  globalName: 'AutumnSolarRoom'  },
-    'winter-solstice': { file: 'winter-solar-room.js',  globalName: 'WinterSolarRoom'  },
+    'spring-equinox':  { file: 'spring-solar-room.js',  exportName: 'SpringSolarRoom'  },
+    'summer-solstice': { file: 'summer-solar-room.js',  exportName: 'SummerSolarRoom'  },
+    'autumn-equinox':  { file: 'autumn-solar-room.js',  exportName: 'AutumnSolarRoom'  },
+    'winter-solstice': { file: 'winter-solar-room.js',  exportName: 'WinterSolarRoom'  },
   },
 
-  _loadAndEnterRoom(roomId) {
+  async _loadAndEnterRoom(roomId) {
     const meta = this._roomFileMap[roomId];
-    if (!meta) { window.Core?.showToast?.(`☀️ Unknown room: ${roomId}`); return; }
+    if (!meta) { Core?.showToast?.(`☀️ Unknown room: ${roomId}`); return; }
 
-    const enter = () => {
-      const instance = window[meta.globalName];
+    try {
+      const basePath = '/Mini-Apps/CommunityHub/js/Solar/';
+      const mod = await import(`${basePath}${meta.file}`);
+      const instance = mod[meta.exportName];
       instance
         ? instance.enterRoom()
-        : window.Core?.showToast?.(`⚠️ ${roomId} failed to initialise`);
-    };
-
-    if (window[meta.globalName]) { enter(); return; }
-
-    const script  = document.createElement('script');
-    script.src    = `/Mini-Apps/CommunityHub/js/Solar/${meta.file}`;
-    script.onload = () => setTimeout(enter, 50);
-    script.onerror= () => window.Core?.showToast?.(`⚠️ Failed to load ${meta.file}`);
-    document.body.appendChild(script);
+        : Core?.showToast?.(`⚠️ ${roomId} failed to initialise`);
+    } catch (err) {
+      console.error(`[SolarEngine] _loadAndEnterRoom error for ${roomId}:`, err);
+      Core?.showToast?.(`⚠️ Failed to load ${meta.file}`);
+    }
   },
 
   joinSolarRoom() {
-    if (!this.currentSolarRoom) { window.Core?.showToast?.('⚠️ Solar room not ready'); return; }
+    if (!this.currentSolarRoom) { Core?.showToast?.('⚠️ Solar room not ready'); return; }
     this._loadAndEnterRoom(this.currentSolarRoom.roomId);
   },
 
@@ -540,5 +525,7 @@ const SolarEngine = {
   getSolarData() { return this.currentSolarData; },
 };
 
+export { SolarEngine };
+
+// Window bridge for inline onclick handlers (e.g. onclick="SolarEngine.joinSolarRoom()")
 window.SolarEngine = SolarEngine;
-console.log('☀️ Solar Engine loaded');

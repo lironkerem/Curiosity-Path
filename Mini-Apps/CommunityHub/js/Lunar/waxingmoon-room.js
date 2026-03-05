@@ -3,6 +3,9 @@
  * Waxing Moon Practice Room - config only, zero logic.
  */
 
+import { LunarConfig } from './lunar-config.js';
+import { LunarRoom } from './lunar-core.js';
+
 const waxingMoonConfig = {
     name:        'Waxing Moon',
     emoji:       '🌓',
@@ -122,10 +125,7 @@ const waxingMoonConfig = {
 };
 
 const WaxingMoonRoom = new LunarRoom(waxingMoonConfig);
-window.WaxingMoonRoom = WaxingMoonRoom;
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => WaxingMoonRoom.init());
-} else {
-    WaxingMoonRoom.init();
-}
+WaxingMoonRoom.init();
+
+export { WaxingMoonRoom };

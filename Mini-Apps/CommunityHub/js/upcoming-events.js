@@ -14,6 +14,9 @@
  * - Admin flyer editor (admin users only)
  */
 
+import { Core } from '../core.js';
+import { CommunityDB } from '../community-supabase.js';
+
 const UpcomingEvents = {
 
     // ============================================================================
@@ -395,7 +398,7 @@ const UpcomingEvents = {
         if (!container) { console.warn('upcomingEventsContainer not found - skipping render'); return; }
 
         try {
-            if (window.CommunityDB?.ready) {
+            if (CommunityDB?.ready) {
                 const saved = await CommunityDB.getAppSettings('upcoming_events');
                 if (saved) {
                     // Current slot keys
@@ -421,7 +424,7 @@ const UpcomingEvents = {
     },
 
     injectAdminUI() {
-        const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
+        const isAdmin = Core?.state?.currentUser?.is_admin === true;
         const existing = document.getElementById('upcomingAdminBtn');
         if (existing) { existing.style.display = isAdmin ? 'inline-block' : 'none'; return; }
         if (!isAdmin) return;
@@ -649,10 +652,14 @@ const UpcomingEvents = {
 // AUTO-INITIALIZATION & GLOBAL EXPOSURE
 // ============================================================================
 
-window.UpcomingEvents = UpcomingEvents;
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => UpcomingEvents.render());
 } else {
     UpcomingEvents.render();
 }
+
+// Window bridge: preserved for external callers
+window.UpcomingEvents = UpcomingEvents;
+
+export { UpcomingEvents };

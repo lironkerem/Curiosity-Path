@@ -1,9 +1,12 @@
 /**
- * PRACTICE ROOM BASE CLASS
+ * PRACTICE ROOM BASE CLASS v3.0
  * Base class for all practice rooms with shared lifecycle, UI, and presence.
- *
- * Dependencies: Core, SafetyBar, CommunityModule, Rituals, CommunityDB
  */
+
+import { Core } from '../core.js';
+import { SafetyBar } from '../safety-bar.js';
+import { CommunityDB } from '../community-supabase.js';
+import { CollectiveField } from '../collective-field.js';
 
 // ─── Shared constants ────────────────────────────────────────────────────────
 
@@ -51,7 +54,7 @@ class PracticeRoom {
 
     /** Returns true when CommunityDB is available and ready. */
     _dbReady() {
-        return !!(window.CommunityDB?.ready);
+        return !!(CommunityDB?.ready);
     }
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
@@ -108,7 +111,7 @@ class PracticeRoom {
         this._setRoomPresence(this.roomId);
 
         // Auto-contribute to the 24h Calm Wave while in a practice room
-        if (window.CollectiveField && !CollectiveField.state.isContributing) {
+        if (CollectiveField && !CollectiveField.state.isContributing) {
             CollectiveField._startWave();
         }
 
@@ -151,7 +154,7 @@ class PracticeRoom {
     /** Shared teardown for both leaveRoom and gentlyLeave. */
     _exitCleanup() {
         // Log time spent to the 24h Calm Wave
-        if (window.CollectiveField?.state.isContributing) {
+        if (CollectiveField?.state.isContributing) {
             CollectiveField._endWave();
         }
 
@@ -169,7 +172,7 @@ class PracticeRoom {
             }
         }
 
-        if (window.CommunityDB) CommunityDB.unsubscribeFromBlessings(this.roomId);
+        if (CommunityDB) CommunityDB.unsubscribeFromBlessings(this.roomId);
         this.cleanup();
     }
 
@@ -194,10 +197,10 @@ class PracticeRoom {
     _setRoomPresence(roomId) {
         if (!this._dbReady()) return;
         try {
-            const activity = window.Practice?.config?.ROOM_ACTIVITIES?.[roomId]
+            const activity = PracticeRoom.ROOM_ACTIVITIES[roomId]
                 ?? `${this.config.icon} ${this.config.name}`;
             CommunityDB.setPresence('online', activity, roomId);
-            if (window.Core?.state) {
+            if (Core?.state) {
                 Core.state.currentRoom = roomId;
                 if (Core.state.currentUser) Core.state.currentUser.activity = activity;
             }
@@ -210,7 +213,7 @@ class PracticeRoom {
         if (!this._dbReady()) return;
         try {
             CommunityDB.setPresence('online', '✨ Available', null);
-            if (window.Core?.state) {
+            if (Core?.state) {
                 Core.state.currentRoom = null;
                 if (Core.state.currentUser) Core.state.currentUser.activity = '✨ Available';
             }
@@ -309,7 +312,7 @@ class PracticeRoom {
             const avatarUrl  = p.avatar_url || '';
             const emoji      = p.emoji      || '';
             const initial    = emoji || name.charAt(0).toUpperCase();
-            const gradient   = window.Core?.getAvatarGradient?.(row.user_id || name) ?? fallbackGradient;
+            const gradient   = Core?.getAvatarGradient?.(row.user_id || name) ?? fallbackGradient;
             const inner      = avatarUrl
                 ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
                 : `<span style="color:white;font-size:${fontSize}px;font-weight:700;">${initial}</span>`;
@@ -336,7 +339,7 @@ class PracticeRoom {
             const name      = profile.name      || 'Member';
             const avatarUrl = profile.avatar_url || '';
             const emoji     = profile.emoji     || '';
-            const gradient  = window.Core?.getAvatarGradient?.(userId || name) ?? fallbackGradient;
+            const gradient  = Core?.getAvatarGradient?.(userId || name) ?? fallbackGradient;
             const inner     = avatarUrl
                 ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
                 : `<span>${emoji || name.charAt(0).toUpperCase()}</span>`;
@@ -362,7 +365,7 @@ class PracticeRoom {
             const name      = profile.name      || 'Member';
             const avatarUrl = profile.avatar_url || '';
             const emoji     = profile.emoji     || '';
-            const gradient  = window.Core?.getAvatarGradient?.(userId || name) ?? fallbackGradient;
+            const gradient  = Core?.getAvatarGradient?.(userId || name) ?? fallbackGradient;
             const inner     = avatarUrl
                 ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
                 : `<span style="color:white;font-weight:600;">${emoji || name.charAt(0).toUpperCase()}</span>`;
@@ -804,14 +807,26 @@ class PracticeRoom {
 PracticeRoom._hubPresenceSub = null;
 PracticeRoom._hubRooms       = [];
 
+// Presence activity labels keyed by roomId
+PracticeRoom.ROOM_ACTIVITIES = {
+    'silent-room':     '🧘 Silent practice',
+    'guided-room':     '🎧 Guided session',
+    'breathwork-room': '💨 Breathwork',
+    'campfire-room':   '🔥 Around the fire',
+    'osho-room':       '🌀 Osho space',
+    'deepwork-room':   '🎯 Deep work',
+    'tarot-room':      '🔮 Tarot reading',
+    'reiki-room':      '✨ Reiki session',
+};
+
 PracticeRoom.startHubPresence = async function(rooms) {
     if (rooms) PracticeRoom._hubRooms = rooms;
     const allRooms = PracticeRoom._hubRooms;
     if (!allRooms.length) return;
 
-    if (!window.CommunityDB?.ready) {
+    if (!CommunityDB?.ready) {
         const interval = setInterval(() => {
-            if (!window.CommunityDB?.ready) return;
+            if (!CommunityDB?.ready) return;
             clearInterval(interval);
             PracticeRoom.startHubPresence();
         }, 500);
@@ -844,6 +859,8 @@ PracticeRoom.stopHubPresence = function() {
 
 // ── Global exports ────────────────────────────────────────────────────────────
 
+// ── Window bridges ────────────────────────────────────────────────────────────
+
 window.PracticeRoom = PracticeRoom;
 
 window.openMemberProfileAboveRoom = function(userId) {
@@ -860,3 +877,5 @@ window.openMemberProfileAboveRoom = function(userId) {
         ].forEach(el => { if (el) el.style.zIndex = '200000'; });
     });
 };
+
+export { PracticeRoom };

@@ -1,9 +1,10 @@
 // Mini-Apps/CommunityHub/CommunityHubEngine.js
+// v3.0 - All room/utility scripts converted to ES module dynamic import()
 
-import { CommunityDB } from './js/community-supabase.js';
-import { Core } from './js/core.js';
+import { CommunityDB }       from './js/community-supabase.js';
+import { Core }              from './js/core.js';
 import { MemberProfileModal } from './js/member-profile-modal.js';
-import { WhisperModal } from './js/WhisperModal.js';
+import { WhisperModal }      from './js/WhisperModal.js';
 
 const BASE_PATH = '/Mini-Apps/CommunityHub';
 
@@ -243,6 +244,7 @@ class CommunityHubEngine {
     document.head.appendChild(link);
   }
 
+  /** Legacy helper: load a non-module CDN/external script tag. */
   loadScript(src) {
     return new Promise((resolve, reject) => {
       if (document.querySelector(`script[src="${src}"]`)) return resolve();
@@ -253,13 +255,14 @@ class CommunityHubEngine {
     });
   }
 
-  // Convenience: prepend base path and load
-  _load(path) {
-    return this.loadScript(`${BASE_PATH}/${path}`);
+  /** Dynamic ES module import with absolute path. */
+  _import(path) {
+    return import(`${BASE_PATH}/${path}`);
   }
 
-  _loadAll(paths) {
-    return Promise.all(paths.map(p => this._load(p)));
+  /** Parallel dynamic imports. */
+  _importAll(paths) {
+    return Promise.all(paths.map(p => this._import(p)));
   }
 
   // ---------------------------------------------------------------------------
@@ -270,11 +273,11 @@ class CommunityHubEngine {
     try {
       this.loadStylesheet(`${BASE_PATH}/community-hub.css`);
 
-      // Group 1: CDN only — core system files are now ES module imports above
+      // Group 1: CDN scripts (not ES modules — keep as script tags)
       await this.loadScript('https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js');
 
-      // Group 2: Modules dependent on core
-      await this._loadAll([
+      // Group 2: Hub utilities
+      await this._importAll([
         'js/rituals.js',
         'js/profile-module.js',
         'js/community-module.js',
@@ -285,7 +288,7 @@ class CommunityHubEngine {
       ]);
 
       // Group 3: Mixins + Lunar/Solar foundations
-      await this._loadAll([
+      await this._importAll([
         'js/Rooms/mixins/YouTubePlayerMixin.js',
         'js/Rooms/mixins/CycleStateMixin.js',
         'js/Rooms/mixins/ChatMixin.js',
@@ -299,9 +302,9 @@ class CommunityHubEngine {
       ]);
 
       // Group 3b: Composite classes that depend on Group 3 mixins
-      // Must be sequential - TimedVideoRoom extends YouTubePlayerMixin + CycleStateMixin,
-      // and TabRoomMixin is used by rooms in Group 4b.
-      await this._loadAll([
+      // Sequential: TimedVideoRoom extends YouTubePlayerMixin + CycleStateMixin,
+      // TabRoomMixin is used by rooms in Group 4b.
+      await this._importAll([
         'js/Rooms/mixins/TimedVideoRoom.js',
         'js/Rooms/mixins/TabRoomMixin.js',
       ]);
@@ -310,11 +313,11 @@ class CommunityHubEngine {
       window.LunarEngine?.init?.();
 
       // Group 4a: Solar UI must precede base room (sequential)
-      await this._load('js/Solar/solar-ui.js');
-      await this._load('js/Solar/solar-base-room.js');
+      await this._import('js/Solar/solar-ui.js');
+      await this._import('js/Solar/solar-base-room.js');
 
       // Group 4b: All rooms + dynamic sections (parallel)
-      await this._loadAll([
+      await this._importAll([
         'js/Rooms/silent-room.js',
         'js/Rooms/guided-room.js',
         'js/Rooms/osho-room.js',
@@ -329,7 +332,7 @@ class CommunityHubEngine {
       ]);
 
       // Group 5: Engines last
-      await this._load('js/Solar/solarengine.js');
+      await this._import('js/Solar/solarengine.js');
 
       // Boot Core
       if (!Core?.init) throw new Error('Core module not found');

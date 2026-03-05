@@ -13,13 +13,16 @@
  *   - buildBody()              (defaults to heading + player + controls)
  */
 
+import { YouTubePlayerMixin } from './YouTubePlayerMixin.js';
+import { CycleStateMixin } from './CycleStateMixin.js';
+import { PracticeRoom } from '../PracticeRoom.js';
+
 class TimedVideoRoom extends PracticeRoom {
     constructor(config) {
         super(config);
         this.initPlayerState();
         this.initCycleState();
 
-        // Subclass sets this.sessions in its own constructor
         this.sessions             = [];
         this.scheduleModalTitle   = '📅 Upcoming Sessions';
         this.state.currentSession = null;
@@ -137,4 +140,4 @@ class TimedVideoRoom extends PracticeRoom {
 Object.assign(TimedVideoRoom.prototype, YouTubePlayerMixin);
 Object.assign(TimedVideoRoom.prototype, CycleStateMixin);
 
-window.TimedVideoRoom = TimedVideoRoom;
+export { TimedVideoRoom };

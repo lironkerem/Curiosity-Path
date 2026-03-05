@@ -27,8 +27,6 @@ const SOLAR_CONSTANTS = {
   FLOATING_ELEMENT_DELAY_MAX:      5,
 };
 
-window.SOLAR_CONSTANTS = SOLAR_CONSTANTS;
-
 // ============================================================================
 // SOLAR CONFIG - shared HTML generators
 // ============================================================================
@@ -36,8 +34,6 @@ window.SOLAR_CONSTANTS = SOLAR_CONSTANTS;
 const SolarConfig = {
 
   // ── Shared XSS helpers ─────────────────────────────────────────────────────
-  // NOTE: BaseSolarRoom and SolarUIManager.renderers delegate to these to keep
-  // a single implementation. Do not duplicate elsewhere.
 
   escapeHtml(text) {
     if (!text) return '';
@@ -56,7 +52,7 @@ const SolarConfig = {
       .replace(/>/g,  '&gt;');
   },
 
-  // ── Closing-line block (reused by every generator) ─────────────────────────
+  // ── Closing-line block ─────────────────────────────────────────────────────
   _closingBlock: closingLine =>
     `<div class="solar-popup-highlight">
        <p><strong>Closing Line:</strong> "${closingLine}"</p>
@@ -239,5 +235,4 @@ const SolarConfig = {
   },
 };
 
-window.SolarConfig = SolarConfig;
-console.log('🌞 Solar Config loaded');
+export { SOLAR_CONSTANTS, SolarConfig };

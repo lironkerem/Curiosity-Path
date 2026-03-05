@@ -10,6 +10,9 @@
  * - No auto-init: core.js calls init() after CommunityDB is ready
  */
 
+import { Core } from '../core.js';
+import { CommunityDB } from '../community-supabase.js';
+
 const ProfileModule = {
 
     // ============================================================================
@@ -79,7 +82,7 @@ const ProfileModule = {
 
     /** Returns Core.state.currentUser or null. */
     _user() {
-        return window.Core?.state?.currentUser ?? null;
+        return Core?.state?.currentUser ?? null;
     },
 
     /** Escapes a string for safe HTML insertion. */
@@ -521,7 +524,7 @@ const ProfileModule = {
             if (avatarImg) avatarImg.style.display = 'none';
         }
 
-        if (window.Core?.getAvatarGradient) {
+        if (Core?.getAvatarGradient) {
             avatarWrap.style.background = Core.getAvatarGradient(user.id || user.name || 'default');
         }
     },
@@ -536,7 +539,7 @@ const ProfileModule = {
     // ── Karma / XP / Level ───────────────────────────────────────────────────────
 
     updateKarma(user) {
-        const g = window.CommunityDB?.getOwnGamificationState?.();
+        const g = CommunityDB?.getOwnGamificationState?.();
 
         const karma = g?.karma  ?? user.karma  ?? 0;
         const xp    = g?.xp     ?? user.xp     ?? 0;
@@ -565,7 +568,7 @@ const ProfileModule = {
     // ── Community stats (blessings + fav room) ───────────────────────────────────
 
     async loadCommunityStats() {
-        if (!window.CommunityDB?.ready) return;
+        if (!CommunityDB?.ready) return;
         const userId = this._user()?.id;
         if (!userId) return;
 
@@ -652,7 +655,7 @@ const ProfileModule = {
     async updateProfileLocationRow(user) {
         let { birthday, country } = user;
 
-        if (!birthday && !country && window.CommunityDB?.ready) {
+        if (!birthday && !country && CommunityDB?.ready) {
             try {
                 const profile = await CommunityDB.getMyProfile();
                 if (profile) {
@@ -715,7 +718,7 @@ const ProfileModule = {
         // Fallback: fetch from DB if all arrays empty
         if (!data || Object.values(data).every(arr => arr.length === 0)) {
             try {
-                if (window.CommunityDB?.ready) {
+                if (CommunityDB?.ready) {
                     const payload = await CommunityDB.getOwnFullProgress();
                     if (payload) {
                         data = {
@@ -908,7 +911,7 @@ const ProfileModule = {
         }
 
         try {
-            const roomId = window.Core?.state?.currentRoom || null;
+            const roomId = Core?.state?.currentRoom || null;
             await Promise.all([
                 CommunityDB.setPresence(status, activity, roomId),
                 CommunityDB.updateProfile({ community_status: status }),
@@ -924,7 +927,7 @@ const ProfileModule = {
     },
 
     updatePresenceCount() {
-        window.Core?.updatePresenceCount?.();
+        Core?.updatePresenceCount?.();
     },
 
     // ============================================================================
@@ -948,7 +951,7 @@ const ProfileModule = {
     // ============================================================================
 
     async sendPulse() {
-        const state = window.Core?.state;
+        const state = Core?.state;
         if (!state) { console.error('Core not available'); return; }
         if (state.pulseSent) { Core.showToast('Already offered'); return; }
 
@@ -1230,4 +1233,8 @@ const ProfileModule = {
 };
 
 // core.js calls ProfileModule.init() after CommunityDB is ready - no self-init here.
+
+// Window bridge: preserved for external callers
 window.ProfileModule = ProfileModule;
+
+export { ProfileModule };

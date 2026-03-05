@@ -10,6 +10,8 @@
  *   - config.sessionDuration (seconds) - session length after open window
  */
 
+import { Core } from '../core.js';
+
 const CycleStateMixin = {
 
     // ── Initialisation ────────────────────────────────────────────────────────
@@ -31,7 +33,6 @@ const CycleStateMixin = {
         this.setSessions?.(now);
         this.calculateCycleState();
 
-        // Single interval: recalculate state + update card every second
         if (this._cycleInterval) clearInterval(this._cycleInterval);
         this._cycleInterval = setInterval(() => {
             this.calculateCycleState();
@@ -49,7 +50,6 @@ const CycleStateMixin = {
         const timeIntoCycle     = (now - this.state.cycleStartTime) % cycleMs;
         const currentCycleStart = now - timeIntoCycle;
 
-        // Crossed a cycle boundary - refresh start time and session list
         if (currentCycleStart !== this.state.cycleStartTime) {
             this.state.cycleStartTime = currentCycleStart;
             this.setSessions?.(now);
@@ -68,7 +68,6 @@ const CycleStateMixin = {
             this.state.nextSessionStart = null;
         }
 
-        // Auto-start session when user is inside and window closes
         if (this.state.isInSession && !this.state.sessionStarted && this.isUserInRoom()) {
             this.startSession?.();
         }
@@ -76,24 +75,20 @@ const CycleStateMixin = {
 
     // ── Room entry checks ─────────────────────────────────────────────────────
 
-    /** Check whether the user is physically inside this room. */
     isUserInRoom() {
-        return window.Core?.state?.currentRoom === this.roomId;
+        return Core?.state?.currentRoom === this.roomId;
     },
 
-    /** Admins can always enter; others only during the open window. */
     canEnterRoom() {
         return Core.state?.currentUser?.is_admin === true || this.state.isOpen;
     },
 
-    /** Raw window check - no admin bypass. Used for visual card state only. */
     _checkCycleWindow() {
         return this.state.isOpen;
     },
 
     // ── Countdown helpers ─────────────────────────────────────────────────────
 
-    /** Format a future timestamp as "Label MM:SS". Returns '' if no target. */
     _formatCountdown(targetMs, label) {
         if (!targetMs) return '';
         const diff = Math.max(0, targetMs - Date.now());
@@ -137,4 +132,4 @@ const CycleStateMixin = {
     },
 };
 
-window.CycleStateMixin = CycleStateMixin;
+export { CycleStateMixin };

@@ -4,6 +4,8 @@
  * @version 2.1.0
  */
 
+import { CommunityDB } from '../community-supabase.js';
+
 const CommunityModule = {
 
     // =========================================================================
@@ -45,11 +47,11 @@ const CommunityModule = {
 
     _initWhisperBadge() {
         const refresh = () => window.WhisperModal?.refreshUnreadBadge();
-        if (window.CommunityDB?.ready) {
+        if (CommunityDB?.ready) {
             refresh();
         } else {
             const interval = setInterval(() => {
-                if (!window.CommunityDB?.ready) return;
+                if (!CommunityDB?.ready) return;
                 clearInterval(interval);
                 refresh();
             }, 300);
@@ -210,7 +212,7 @@ const CommunityModule = {
 
         if (!sub) {
             const interval = setInterval(() => {
-                if (!window.CommunityDB?.ready) return;
+                if (!CommunityDB?.ready) return;
                 clearInterval(interval);
                 this.subscribeToNewReflections();
             }, 300);
@@ -548,7 +550,9 @@ const CommunityModule = {
         sidebar.classList.toggle('muted');
         Core.showToast(isMuted ? '🔊 Chat unmuted' : '🔇 Chat muted');
         if (!isMuted && sidebar.classList.contains('open')) {
-            window.Practice?.toggleChat?.();
+            // Close the sidebar when muting
+            sidebar.classList.remove('open');
+            document.getElementById('fabChat')?.classList.remove('hidden');
         }
     },
 
@@ -614,5 +618,9 @@ const CommunityModule = {
     },
 };
 
-window.CommunityModule = CommunityModule;
 // core.js calls CommunityModule.init() after CommunityDB is ready
+
+// Window bridge: preserved for external callers
+window.CommunityModule = CommunityModule;
+
+export { CommunityModule };

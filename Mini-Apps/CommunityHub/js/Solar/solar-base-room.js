@@ -5,6 +5,12 @@
  * config, prebuiltAffirmations, practices, and content getters.
  */
 
+import { SOLAR_CONSTANTS, SolarConfig } from './solar-config.js';
+import { SolarUIManager } from './solar-ui.js';
+import { SolarEngine } from './solarengine.js';
+import { Core } from '../core.js';
+import { CommunityDB } from '../community-supabase.js';
+
 const BaseSolarRoom = {
 
   // ── Overridden by each season room ─────────────────────────────────────────
@@ -12,8 +18,7 @@ const BaseSolarRoom = {
   practices:            {},
   prebuiltAffirmations: [],
 
-  // ── Shared defaults (reset each season via loadData) ───────────────────────
-  // Season rooms should NOT redefine userData - they inherit this.
+  // ── Shared defaults ────────────────────────────────────────────────────────
   userData: {
     intention:        '',
     affirmation:      '',
@@ -44,7 +49,6 @@ const BaseSolarRoom = {
   // UTILITIES
   // ============================================================================
 
-  /** Sanitize user text input (strips dangerous tags, trims, caps length). */
   _sanitizeInput(input) {
     if (typeof input !== 'string') return '';
     return input
@@ -55,7 +59,6 @@ const BaseSolarRoom = {
       .replace(/<object[^>]*>.*?<\/object>/gi, '');
   },
 
-  /** Delegate to the single canonical implementation in SolarConfig. */
   _escapeHtml: t => SolarConfig.escapeHtml(t),
 
   _removeEventListeners() {
@@ -93,16 +96,8 @@ const BaseSolarRoom = {
 
   // ============================================================================
   // SHARED COUNTDOWN TIMER
-  // Replaces the duplicated startMeditationTimer / startWitnessingTimer.
   // ============================================================================
 
-  /**
-   * Start a countdown timer.
-   * @param {string}   timerElId   - ID of the display element
-   * @param {string}   startBtnId  - ID of the start button (hidden on start)
-   * @param {number}   seconds     - Total seconds to count down
-   * @param {Function} onComplete  - Called when timer reaches 0
-   */
   _startCountdownTimer(timerElId, startBtnId, seconds, onComplete) {
     try {
       document.getElementById(startBtnId)?.style && (document.getElementById(startBtnId).style.display = 'none');
@@ -148,15 +143,9 @@ const BaseSolarRoom = {
   },
 
   checkIfActive() {
-    if (window.Core?.state?.currentUser?.is_admin === true) {
+    if (Core?.state?.currentUser?.is_admin === true) {
       this.isActive = true;
       console.log(`🛡️ ADMIN: ${this.config.displayName} room force-enabled`);
-      return;
-    }
-
-    if (!window.SolarEngine) {
-      console.warn(`[${this.config.displayName}] SolarEngine not available`);
-      this.isActive = false;
       return;
     }
 
@@ -172,11 +161,6 @@ const BaseSolarRoom = {
   },
 
   calculateDates() {
-    if (!window.SolarEngine) {
-      console.warn(`[${this.config.displayName}] SolarEngine not available`);
-      return;
-    }
-
     const now  = new Date();
     const name = this.config.name;
     const prev = SolarEngine.getSeasonDates(now.getFullYear() - 1)[name];
@@ -212,14 +196,14 @@ const BaseSolarRoom = {
   // ============================================================================
 
   enterRoom() {
-    const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
+    const isAdmin = Core?.state?.currentUser?.is_admin === true;
     if (!this.isActive && !isAdmin) {
       SolarUIManager.showToast(`${this.config.emoji} ${this.config.displayName} room opens during ${this.config.displayName.toLowerCase()} season`);
       return;
     }
     if (!this.startDate) this.calculateDates();
 
-    window.Core?.navigateTo?.('practiceRoomView');
+    Core?.navigateTo?.('practiceRoomView');
     window.PracticeRoom?.stopHubPresence?.();
     document.body.classList.add('solar-room-active');
 
@@ -238,7 +222,7 @@ const BaseSolarRoom = {
       document.body.classList.remove('solar-room-active');
       window.currentSolarRoom = null;
       window.PracticeRoom?.startHubPresence?.();
-      window.Core?.navigateTo?.('hubView');
+      Core?.navigateTo?.('hubView');
     } catch (err) {
       console.error('Error leaving solar room:', err);
     }
@@ -333,7 +317,6 @@ const BaseSolarRoom = {
         this.eventListeners.push({ element, event, handler });
       };
 
-      // Practice card clicks
       const grid = container.querySelector('#practicesGrid');
       register(grid, 'click', e => {
         const card = e.target.closest('.solar-practice-card');
@@ -343,13 +326,11 @@ const BaseSolarRoom = {
           : this.showPracticePopup(card.dataset.practice);
       });
 
-      // Mode toggle
       register(container.querySelector('.solar-mode-toggle'), 'click', e => {
         const btn = e.target.closest('.solar-mode-btn');
         if (btn?.dataset.mode) SolarUIManager.switchMode(btn.dataset.mode);
       });
 
-      // Closure submit
       const closureBtn = container.querySelector('[data-action="submit-closure"]');
       register(closureBtn, 'click', () => this.submitClosure());
 
@@ -362,13 +343,8 @@ const BaseSolarRoom = {
   // PRACTICE POPUP
   // ============================================================================
 
-  /** Override in season rooms for custom lock logic. */
   isPracticeLocked: () => false,
 
-  /**
-   * Resolve content by convention: practiceId → get{Id}Content()
-   * Season rooms can override individual getters without needing a dispatch map.
-   */
   getPracticeContent(practiceId) {
     const method = `get${practiceId.charAt(0).toUpperCase()}${practiceId.slice(1)}Content`;
     if (typeof this[method] === 'function') return this[method]();
@@ -398,7 +374,6 @@ const BaseSolarRoom = {
 
   _attachPopupListeners(popup, practiceId) {
     try {
-      // Affirmation quick-fill
       popup.querySelectorAll('.solar-affirmation-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const el = document.getElementById('affirmationText');
@@ -406,7 +381,6 @@ const BaseSolarRoom = {
         });
       });
 
-      // Save / close
       popup.querySelector('[data-action="save-practice"]')?.addEventListener('click', () => this.savePractice(practiceId));
       popup.querySelectorAll('[data-action="close-popup"]').forEach(btn =>
         btn.addEventListener('click', () => SolarUIManager.closePracticePopup())
@@ -539,7 +513,6 @@ const BaseSolarRoom = {
       const skip = document.getElementById('skipToIntentionBtn');
       if (skip) { skip.textContent = 'Continue to Intention'; skip.style.display = 'block'; }
     });
-    // Show skip after 10 s regardless
     setTimeout(() => {
       const skip = document.getElementById('skipToIntentionBtn');
       if (skip) skip.style.display = 'block';
@@ -595,10 +568,10 @@ const BaseSolarRoom = {
       if (!word)        { SolarUIManager.showToast('Please enter a word'); return; }
       if (word.length > 50) { SolarUIManager.showToast('Word is too long'); return; }
 
-      this.userData.collectiveWord    = word;
-      this.userData.intentionShared   = true;
+      this.userData.collectiveWord  = word;
+      this.userData.intentionShared = true;
 
-      if (window.CommunityDB?.ready) {
+      if (CommunityDB?.ready) {
         CommunityDB.sendRoomMessage(`${this._getSolarRoomId()}-collective`, word)
           .catch(err => console.error('[BaseSolarRoom] submitWordToCollective DB error:', err));
       }
@@ -678,7 +651,7 @@ const BaseSolarRoom = {
   },
 
   async _refreshLivePresence() {
-    if (!window.CommunityDB?.ready) return;
+    if (!CommunityDB?.ready) return;
     const roomId = this._getSolarRoomId();
 
     const refresh = async () => {
@@ -720,7 +693,7 @@ const BaseSolarRoom = {
       const profile  = p.profiles || {};
       const name     = profile.name || profile.display_name || '?';
       const initial  = name.charAt(0).toUpperCase();
-      const gradient = window.Core?.getAvatarGradient?.(p.user_id) ?? 'background:var(--season-accent,#f59e0b)';
+      const gradient = Core?.getAvatarGradient?.(p.user_id) ?? 'background:var(--season-accent,#f59e0b)';
 
       let inner;
       if (profile.avatar_url) {
@@ -741,12 +714,12 @@ const BaseSolarRoom = {
   },
 
   _setPresence() {
-    if (!window.CommunityDB?.ready) return;
+    if (!CommunityDB?.ready) return;
     try {
       const roomId   = this._getSolarRoomId();
       const activity = `${this.config.emoji} ${this.config.displayName}`;
       CommunityDB.setPresence('online', activity, roomId);
-      if (window.Core?.state) {
+      if (Core?.state) {
         Core.state.currentRoom = roomId;
         if (Core.state.currentUser) Core.state.currentUser.activity = activity;
       }
@@ -754,10 +727,10 @@ const BaseSolarRoom = {
   },
 
   _clearPresence() {
-    if (!window.CommunityDB?.ready) return;
+    if (!CommunityDB?.ready) return;
     try {
       CommunityDB.setPresence('online', '✨ Available', null);
-      if (window.Core?.state) {
+      if (Core?.state) {
         Core.state.currentRoom = null;
         if (Core.state.currentUser) Core.state.currentUser.activity = '✨ Available';
       }
@@ -765,7 +738,7 @@ const BaseSolarRoom = {
   },
 
   async _loadCollectiveWords() {
-    if (!window.CommunityDB?.ready) return;
+    if (!CommunityDB?.ready) return;
     try {
       const roomId = `${this._getSolarRoomId()}-collective`;
       const load   = async () => {
@@ -801,5 +774,4 @@ const BaseSolarRoom = {
   },
 };
 
-window.BaseSolarRoom = BaseSolarRoom;
-console.log('🌍 Base Solar Room loaded');
+export { BaseSolarRoom };

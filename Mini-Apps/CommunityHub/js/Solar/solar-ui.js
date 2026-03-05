@@ -3,6 +3,9 @@
  * Shared UI manager for all seasonal solar practice rooms.
  */
 
+import { SOLAR_CONSTANTS, SolarConfig } from './solar-config.js';
+import { Core } from '../core.js';
+
 const SolarUIManager = {
 
   // ── Storage ─────────────────────────────────────────────────────────────────
@@ -223,15 +226,14 @@ const SolarUIManager = {
     }
     window.currentSolarRoom?._clearPresence?.();
     document.body.classList.remove('solar-room-active');
-    window.Rituals?.showClosing?.() || window.Core?.navigateTo?.('hubView');
+    window.Rituals?.showClosing?.() || Core?.navigateTo?.('hubView');
   },
 
   showToast(message) {
-    window.Core?.showToast
-      ? window.Core.showToast(message)
+    Core?.showToast
+      ? Core.showToast(message)
       : console.log('[Toast]', message);
   },
 };
 
-window.SolarUIManager = SolarUIManager;
-console.log('☀️ Solar UI Manager loaded');
+export { SolarUIManager };

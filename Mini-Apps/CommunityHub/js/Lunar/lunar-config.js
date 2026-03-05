@@ -132,4 +132,4 @@ const LunarConfig = {
     }
 };
 
-window.LunarConfig = LunarConfig;
+export { LunarConfig };

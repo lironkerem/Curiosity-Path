@@ -8,6 +8,8 @@
  * - Room cleanup coordination
  */
 
+import { Core } from '../core.js';
+
 const Rituals = {
 
     // ============================================================================
@@ -146,7 +148,7 @@ const Rituals = {
         document.body.classList.remove('ritual-active');
         this.state.hasSeenOpening = true;
         this.saveState();
-        window.Core?.showToast?.('Welcome to the space');
+        Core?.showToast?.('Welcome to the space');
         console.log('✓ Opening ritual completed');
     },
 
@@ -182,8 +184,8 @@ const Rituals = {
         if (container) container.style.display = 'none';
 
         this.cleanupActiveRoom();
-        window.Core?.navigateTo?.('hubView');
-        window.Core?.showToast?.('Space closed with gratitude');
+        Core?.navigateTo?.('hubView');
+        Core?.showToast?.('Space closed with gratitude');
         console.log('✓ Closing ritual completed');
     },
 
@@ -274,4 +276,7 @@ const Rituals = {
 // GLOBAL EXPOSURE
 // ============================================================================
 
+// Window bridge: preserved for external callers
 window.Rituals = Rituals;
+
+export { Rituals };

@@ -9,8 +9,9 @@
  *   - getCurrentSession() → { videoId, title, duration, emoji }
  */
 
+import { Core } from '../core.js';
+
 // ─── YT player state aliases ──────────────────────────────────────────────────
-// Defined here so onPlayerStateChange is readable without inline comments.
 const _YT = { ENDED: 0, PLAYING: 1, PAUSED: 2 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -41,7 +42,6 @@ const YouTubePlayerMixin = {
             document.head.appendChild(tag);
         }
 
-        // Chain callbacks so multiple rooms don't overwrite each other
         const prev = window.onYouTubeIframeAPIReady;
         window.onYouTubeIframeAPIReady = () => {
             prev?.();
@@ -77,7 +77,6 @@ const YouTubePlayerMixin = {
 
         if (this.state.isInSession || this.devMode) {
             event.target.playVideo();
-            // Unmute after brief delay - browsers require muted autoplay
             setTimeout(() => {
                 event.target.unMute();
                 event.target.setVolume(100);
@@ -161,7 +160,6 @@ const YouTubePlayerMixin = {
 
     // ── Private helpers ───────────────────────────────────────────────────────
 
-    /** Hide overlay + show controls when video becomes active. */
     _showPlayer() {
         const overlay = document.getElementById(`${this.roomId}PlayerOverlay`);
         if (overlay) overlay.style.display = 'none';
@@ -213,4 +211,4 @@ const YouTubePlayerMixin = {
     },
 };
 
-window.YouTubePlayerMixin = YouTubePlayerMixin;
+export { YouTubePlayerMixin };

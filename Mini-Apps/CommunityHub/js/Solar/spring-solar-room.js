@@ -3,6 +3,9 @@
  * Depends on: solar-config.js, solar-ui.js, solar-base-room.js
  */
 
+import { SolarConfig } from './solar-config.js';
+import { BaseSolarRoom } from './solar-base-room.js';
+
 const SpringSolarRoom = Object.create(BaseSolarRoom);
 
 // ============================================================================
@@ -183,6 +186,7 @@ SpringSolarRoom.getRelationshipSpringAuditContent = function() {
 // INIT
 // ============================================================================
 
-window.SpringSolarRoom = SpringSolarRoom;
 SpringSolarRoom.init();
 console.log('🌸 Spring Solar Room loaded');
+
+export { SpringSolarRoom };

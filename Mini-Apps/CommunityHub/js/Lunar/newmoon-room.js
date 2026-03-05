@@ -3,6 +3,9 @@
  * New Moon Practice Room - config only, zero logic.
  */
 
+import { LunarConfig } from './lunar-config.js';
+import { LunarRoom } from './lunar-core.js';
+
 const newMoonConfig = {
     name:        'New Moon',
     emoji:       '🌑',
@@ -123,10 +126,7 @@ const newMoonConfig = {
 };
 
 const NewMoonRoom = new LunarRoom(newMoonConfig);
-window.NewMoonRoom = NewMoonRoom;
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => NewMoonRoom.init());
-} else {
-    NewMoonRoom.init();
-}
+NewMoonRoom.init();
+
+export { NewMoonRoom };

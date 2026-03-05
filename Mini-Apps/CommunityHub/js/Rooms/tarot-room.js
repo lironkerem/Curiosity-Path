@@ -1,10 +1,14 @@
-/**
- * TAROT ROOM
+/*** TAROT ROOM
  * @extends PracticeRoom
  * @mixes ChatMixin, TabRoomMixin
  *
  * Daily card: date-seeded - same card for all users, resets at midnight.
  */
+
+import { PracticeRoom } from './PracticeRoom.js';
+import { ChatMixin } from './mixins/ChatMixin.js';
+import { TabRoomMixin } from './mixins/TabRoomMixin.js';
+import { Core } from '../core.js';
 
 class TarotRoom extends PracticeRoom {
     constructor() {
@@ -290,4 +294,9 @@ class TarotRoom extends PracticeRoom {
 
 Object.assign(TarotRoom.prototype, ChatMixin);
 Object.assign(TarotRoom.prototype, TabRoomMixin);
-window.TarotRoom = new TarotRoom();
+
+// Window bridge: preserved for inline onclick handlers
+const tarotRoom = new TarotRoom();
+window.TarotRoom = tarotRoom;
+
+export { TarotRoom, tarotRoom };

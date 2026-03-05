@@ -1,8 +1,10 @@
-/**
- * COMMUNITY CAMPFIRE ROOM
+/*** COMMUNITY CAMPFIRE ROOM
  * @extends PracticeRoom
  * @mixes ChatMixin
  */
+
+import { PracticeRoom } from './PracticeRoom.js';
+import { ChatMixin } from './mixins/ChatMixin.js';
 
 class CampfireRoom extends PracticeRoom {
     constructor() {
@@ -92,4 +94,8 @@ class CampfireRoom extends PracticeRoom {
 
 Object.assign(CampfireRoom.prototype, ChatMixin);
 
-window.CampfireRoom = new CampfireRoom();
+// Window bridge: preserved for inline onclick handlers
+const campfireRoom = new CampfireRoom();
+window.CampfireRoom = campfireRoom;
+
+export { CampfireRoom, campfireRoom };

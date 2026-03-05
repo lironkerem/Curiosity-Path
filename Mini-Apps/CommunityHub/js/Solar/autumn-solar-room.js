@@ -3,6 +3,9 @@
  * Depends on: solar-config.js, solar-ui.js, solar-base-room.js
  */
 
+import { SolarConfig } from './solar-config.js';
+import { BaseSolarRoom } from './solar-base-room.js';
+
 const AutumnSolarRoom = Object.create(BaseSolarRoom);
 
 // ============================================================================
@@ -183,6 +186,7 @@ AutumnSolarRoom.getRelationshipAuditContent = function() {
 // INIT
 // ============================================================================
 
-window.AutumnSolarRoom = AutumnSolarRoom;
 AutumnSolarRoom.init();
 console.log('🍂 Autumn Solar Room loaded');
+
+export { AutumnSolarRoom };

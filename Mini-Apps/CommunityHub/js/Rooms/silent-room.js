@@ -1,8 +1,12 @@
-/**
- * SILENT MEDITATION ROOM
+/*** SILENT MEDITATION ROOM
  * @extends PracticeRoom
  * @mixes TimerMixin, SoundSettingsMixin
  */
+
+import { PracticeRoom } from './PracticeRoom.js';
+import { TimerMixin } from './mixins/TimerMixin.js';
+import { SoundSettingsMixin } from './mixins/SoundSettingsMixin.js';
+import { Core } from '../core.js';
 
 class SilentRoom extends PracticeRoom {
     constructor() {
@@ -163,4 +167,8 @@ class SilentRoom extends PracticeRoom {
 Object.assign(SilentRoom.prototype, TimerMixin);
 Object.assign(SilentRoom.prototype, SoundSettingsMixin);
 
-window.SilentRoom = new SilentRoom();
+// Window bridge: preserved for inline onclick handlers
+const silentRoom = new SilentRoom();
+window.SilentRoom = silentRoom;
+
+export { SilentRoom, silentRoom };

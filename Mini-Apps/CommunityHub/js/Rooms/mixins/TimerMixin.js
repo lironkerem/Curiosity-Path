@@ -5,12 +5,14 @@
  * Usage: Object.assign(YourRoom.prototype, TimerMixin);
  */
 
+import { Core } from '../core.js';
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const _TIMER_RADIUS      = 180;
+const _TIMER_RADIUS        = 180;
 const _TIMER_CIRCUMFERENCE = +(2 * Math.PI * _TIMER_RADIUS).toFixed(2); // 1130.97
-const _TIMER_MIN_SEC     = 60;
-const _TIMER_MAX_SEC     = 7200; // 120 min
+const _TIMER_MIN_SEC       = 60;
+const _TIMER_MAX_SEC       = 7200; // 120 min
 
 const _BTN_LABEL = { idle: 'Begin', running: 'Pause', paused: 'Continue', done: 'Complete' };
 
@@ -104,7 +106,6 @@ const TimerMixin = {
         if (btn) btn.textContent = _BTN_LABEL[state];
     },
 
-    /** Sync both the display text and the SVG ring in one call. */
     _updateTimer() {
         const display = document.getElementById(`${this.roomId}TimerDisplay`);
         if (display) display.textContent = this.formatTime(this.state.timeLeft);
@@ -116,7 +117,6 @@ const TimerMixin = {
         }
     },
 
-    // Keep public aliases for any rooms calling these directly
     updateTimerDisplay() { this._updateTimer(); },
     updateTimerRing()    { this._updateTimer(); },
 
@@ -161,4 +161,4 @@ const TimerMixin = {
     },
 };
 
-window.TimerMixin = TimerMixin;
+export { TimerMixin };

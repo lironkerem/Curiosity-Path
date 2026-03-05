@@ -1,4 +1,6 @@
-/** OSHO ACTIVE MEDITATION ROOM - @extends TimedVideoRoom */
+/**OSHO ACTIVE MEDITATION ROOM - @extends TimedVideoRoom */
+
+import { TimedVideoRoom } from './TimedVideoRoom.js';
 
 class OshoRoom extends TimedVideoRoom {
     constructor() {
@@ -58,4 +60,8 @@ class OshoRoom extends TimedVideoRoom {
     }
 }
 
-window.OshoRoom = new OshoRoom();
+// Window bridge: preserved for inline onclick handlers
+const oshoRoom = new OshoRoom();
+window.OshoRoom = oshoRoom;
+
+export { OshoRoom, oshoRoom };

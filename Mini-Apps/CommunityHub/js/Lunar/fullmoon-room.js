@@ -3,6 +3,9 @@
  * Full Moon Practice Room - config only, zero logic.
  */
 
+import { LunarConfig } from './lunar-config.js';
+import { LunarRoom } from './lunar-core.js';
+
 const fullMoonConfig = {
     name:        'Full Moon',
     emoji:       '🌕',
@@ -122,10 +125,7 @@ const fullMoonConfig = {
 };
 
 const FullMoonRoom = new LunarRoom(fullMoonConfig);
-window.FullMoonRoom = FullMoonRoom;
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => FullMoonRoom.init());
-} else {
-    FullMoonRoom.init();
-}
+FullMoonRoom.init();
+
+export { FullMoonRoom };

@@ -9,6 +9,9 @@
  * @version 2.1.0
  */
 
+import { Core } from '../core.js';
+import { CollectiveFieldDB } from './collective-field-db.js';
+
 const CollectiveField = {
 
     // =========================================================================
@@ -436,7 +439,7 @@ const CollectiveField = {
         if (value) value.textContent = `${level}%`;
 
         const adminBtn = document.getElementById('adminEnergyBtn');
-        if (adminBtn) adminBtn.style.display = window.Core?.state?.currentUser?.is_admin ? 'inline' : 'none';
+        if (adminBtn) adminBtn.style.display = Core?.state?.currentUser?.is_admin ? 'inline' : 'none';
     },
 
     // =========================================================================
@@ -523,7 +526,7 @@ const CollectiveField = {
         if (s.waveTotalMinutes >= s.WAVE_GOAL_MINUTES) this._onWaveComplete();
         this._updateWaveStatusLine();
 
-        window.CollectiveFieldDB?.logWaveContribution(minutesLogged, true)
+        CollectiveFieldDB?.logWaveContribution(minutesLogged, true)
             .catch(err => console.error('[CollectiveField] logWaveContribution failed:', err));
     },
 
@@ -541,7 +544,7 @@ const CollectiveField = {
         if (value) value.textContent = `${progress}%`;
 
         const adminWaveBtn = document.getElementById('adminWaveBtn');
-        if (adminWaveBtn) adminWaveBtn.style.display = window.Core?.state?.currentUser?.is_admin ? 'inline' : 'none';
+        if (adminWaveBtn) adminWaveBtn.style.display = Core?.state?.currentUser?.is_admin ? 'inline' : 'none';
     },
 
     _updateWaveStatusLine(elapsedMs) {
@@ -665,7 +668,7 @@ const CollectiveField = {
         const stage = document.getElementById('waveRippleStage');
         if (!stage) return;
 
-        const user      = window.Core?.state?.currentUser;
+        const user      = Core?.state?.currentUser;
         const avatarUrl = user?.avatar_url || null;
         const emoji     = user?.emoji || '🧘';
         const leftPx    = Math.floor(Math.random() * ((stage.offsetWidth || 80) - 36)) + 2;
@@ -710,7 +713,7 @@ const CollectiveField = {
     // =========================================================================
 
     _broadcastPulse(sendCount) {
-        window.CollectiveFieldDB?.recordPulse()
+        CollectiveFieldDB?.recordPulse()
             .catch(err => console.error('[CollectiveField] recordPulse failed:', err));
     },
 
@@ -737,7 +740,7 @@ const CollectiveField = {
     },
 
     _addSelfToRecentSenders() {
-        const user = window.Core?.state?.currentUser;
+        const user = Core?.state?.currentUser;
         this.state.recentSenders = [
             { emoji: user?.emoji || '🧘', avatarUrl: user?.avatar_url || null },
             ...this.state.recentSenders
@@ -829,7 +832,7 @@ const CollectiveField = {
     // =========================================================================
 
     injectAdminUI() {
-        const isAdmin = window.Core?.state?.currentUser?.is_admin === true;
+        const isAdmin = Core?.state?.currentUser?.is_admin === true;
         const energyBtn = document.getElementById('adminEnergyBtn');
         const waveBtn   = document.getElementById('adminWaveBtn');
         if (energyBtn) energyBtn.style.display = isAdmin ? 'inline' : 'none';
@@ -837,7 +840,7 @@ const CollectiveField = {
     },
 
     async adminAddEnergy() {
-        if (!window.Core?.state?.currentUser?.is_admin) return;
+        if (!Core?.state?.currentUser?.is_admin) return;
         try {
             const { error } = await window.CommunitySupabase.rpc('increment_field_pulse', {
                 p_date: new Date().toISOString().slice(0, 10),
@@ -853,7 +856,7 @@ const CollectiveField = {
     },
 
     async adminAddWaveMinutes() {
-        if (!window.Core?.state?.currentUser?.is_admin) return;
+        if (!Core?.state?.currentUser?.is_admin) return;
         try {
             await window.CollectiveFieldDB.logWaveContribution(60, false);
             this._toast('🛡️ +60 min added to Wave');
@@ -868,7 +871,7 @@ const CollectiveField = {
     // =========================================================================
 
     _toast(message) {
-        window.Core?.showToast(message);
+        Core?.showToast(message);
     },
 };
 
@@ -886,4 +889,7 @@ if (document.readyState === 'loading') {
 
 window.addEventListener('beforeunload', () => CollectiveField._cleanup());
 
+// Window bridge: preserved for external callers
 window.CollectiveField = CollectiveField;
+
+export { CollectiveField };

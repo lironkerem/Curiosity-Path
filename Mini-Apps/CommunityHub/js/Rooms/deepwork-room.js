@@ -1,8 +1,13 @@
-/**
- * DEEP WORK ROOM
+/*** DEEP WORK ROOM
  * @extends PracticeRoom
  * @mixes TimerMixin, SoundSettingsMixin
  */
+
+import { PracticeRoom } from './PracticeRoom.js';
+import { TimerMixin } from './mixins/TimerMixin.js';
+import { SoundSettingsMixin } from './mixins/SoundSettingsMixin.js';
+import { Core } from '../core.js';
+import { CommunityDB } from '../community-supabase.js';
 
 class DeepWorkRoom extends PracticeRoom {
     constructor() {
@@ -60,7 +65,7 @@ class DeepWorkRoom extends PracticeRoom {
     onCleanup() {
         this.cleanupTimer();
         this.cleanupSound();
-        if (window.CommunityDB?.ready) {
+        if (CommunityDB?.ready) {
             try { CommunityDB.unsubscribeFromRoomChat('deepwork'); } catch {}
         }
         const container = document.getElementById('communityHubFullscreenContainer');
@@ -163,7 +168,7 @@ class DeepWorkRoom extends PracticeRoom {
 
     async _loadBreakChat() {
         const container = document.getElementById(`${this.roomId}ChatMessages`);
-        if (!container || !window.CommunityDB?.ready) return;
+        if (!container || !CommunityDB?.ready) return;
         try {
             const [rows, blocked] = await Promise.all([
                 CommunityDB.getRoomMessages('deepwork', 50),
@@ -174,7 +179,7 @@ class DeepWorkRoom extends PracticeRoom {
             container.scrollTop = container.scrollHeight;
 
             CommunityDB.subscribeToRoomChat('deepwork', async (newMsg) => {
-                if (newMsg.profiles?.id === window.Core?.state?.currentUser?.id) return;
+                if (newMsg.profiles?.id === Core?.state?.currentUser?.id) return;
                 const bl = await CommunityDB.getBlockedUsers();
                 if (bl.has(newMsg.profiles?.id)) return;
                 const c = document.getElementById(`${this.roomId}ChatMessages`);
@@ -191,9 +196,9 @@ class DeepWorkRoom extends PracticeRoom {
         const text = input.value.trim();
         input.value = '';
         const container  = document.getElementById(`${this.roomId}ChatMessages`);
-        const optimistic = { message: text, created_at: new Date().toISOString(), _isOwn: true, profiles: { id: window.Core?.state?.currentUser?.id } };
+        const optimistic = { message: text, created_at: new Date().toISOString(), _isOwn: true, profiles: { id: Core?.state?.currentUser?.id } };
         if (container) { container.insertAdjacentHTML('beforeend', this._buildBreakMsgHTML(optimistic)); container.scrollTop = container.scrollHeight; }
-        if (window.CommunityDB?.ready) {
+        if (CommunityDB?.ready) {
             try { await CommunityDB.sendRoomMessage('deepwork', text); }
             catch (e) { console.error('[DeepWorkRoom] sendChat error:', e); }
         }
@@ -207,7 +212,7 @@ class DeepWorkRoom extends PracticeRoom {
      */
     _buildAvatarHTML(name, avatarUrl, emoji, userId, size = 24) {
         const initial  = emoji || name.charAt(0).toUpperCase();
-        const gradient = window.Core?.getAvatarGradient ? Core.getAvatarGradient(userId || name) : 'linear-gradient(135deg,#667eea,#764ba2)';
+        const gradient = Core?.getAvatarGradient ? Core.getAvatarGradient(userId || name) : 'linear-gradient(135deg,#667eea,#764ba2)';
         const inner    = avatarUrl
             ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
             : `<span style="color:white;font-weight:600;font-size:${Math.round(size*0.45)}px;">${initial}</span>`;
@@ -217,10 +222,10 @@ class DeepWorkRoom extends PracticeRoom {
 
     _buildBreakMsgHTML(row) {
         const profile   = row.profiles || {};
-        const isOwn     = row._isOwn || (profile.id === window.Core?.state?.currentUser?.id);
-        const name      = isOwn ? (window.Core?.state?.currentUser?.name || 'You') : (profile.name || 'Member');
-        const avatarUrl = isOwn ? (window.Core?.state?.currentUser?.avatar_url || '') : (profile.avatar_url || '');
-        const emoji     = isOwn ? (window.Core?.state?.currentUser?.emoji || '') : (profile.emoji || '');
+        const isOwn     = row._isOwn || (profile.id === Core?.state?.currentUser?.id);
+        const name      = isOwn ? (Core?.state?.currentUser?.name || 'You') : (profile.name || 'Member');
+        const avatarUrl = isOwn ? (Core?.state?.currentUser?.avatar_url || '') : (profile.avatar_url || '');
+        const emoji     = isOwn ? (Core?.state?.currentUser?.emoji || '') : (profile.emoji || '');
         const userId    = profile.id || null;
         const clickable = userId && !isOwn;
         const time      = new Date(row.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -243,7 +248,7 @@ class DeepWorkRoom extends PracticeRoom {
 
     _injectChatAvatar() {
         const wrapper = document.getElementById(`${this.roomId}ChatAvatarWrapper`);
-        const user    = window.Core?.state?.currentUser;
+        const user    = Core?.state?.currentUser;
         if (!wrapper || !user) return;
         wrapper.innerHTML = this._buildAvatarHTML(user.name || 'Me', user.avatar_url || '', user.emoji || '', user.id, 28);
     }
@@ -570,4 +575,8 @@ class DeepWorkRoom extends PracticeRoom {
 Object.assign(DeepWorkRoom.prototype, TimerMixin);
 Object.assign(DeepWorkRoom.prototype, SoundSettingsMixin);
 
-window.DeepWorkRoom = new DeepWorkRoom();
+// Window bridge: preserved for inline onclick handlers
+const deepWorkRoom = new DeepWorkRoom();
+window.DeepWorkRoom = deepWorkRoom;
+
+export { DeepWorkRoom, deepWorkRoom };

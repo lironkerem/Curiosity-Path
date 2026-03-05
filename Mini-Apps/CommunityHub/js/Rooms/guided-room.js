@@ -1,4 +1,6 @@
-/** GUIDED MEDITATION ROOM - @extends TimedVideoRoom */
+/**GUIDED MEDITATION ROOM - @extends TimedVideoRoom */
+
+import { TimedVideoRoom } from './TimedVideoRoom.js';
 
 class GuidedRoom extends TimedVideoRoom {
     constructor() {
@@ -52,4 +54,8 @@ class GuidedRoom extends TimedVideoRoom {
     }
 }
 
-window.GuidedRoom = new GuidedRoom();
+// Window bridge: preserved for inline onclick handlers
+const guidedRoom = new GuidedRoom();
+window.GuidedRoom = guidedRoom;
+
+export { GuidedRoom, guidedRoom };

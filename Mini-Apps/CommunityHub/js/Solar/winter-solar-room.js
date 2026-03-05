@@ -3,6 +3,9 @@
  * Depends on: solar-config.js, solar-ui.js, solar-base-room.js
  */
 
+import { SolarConfig } from './solar-config.js';
+import { BaseSolarRoom } from './solar-base-room.js';
+
 const WinterSolarRoom = Object.create(BaseSolarRoom);
 
 // ============================================================================
@@ -183,6 +186,7 @@ WinterSolarRoom.getRelationshipWinterAuditContent = function() {
 // INIT
 // ============================================================================
 
-window.WinterSolarRoom = WinterSolarRoom;
 WinterSolarRoom.init();
 console.log('❄️ Winter Solar Room loaded');
+
+export { WinterSolarRoom };

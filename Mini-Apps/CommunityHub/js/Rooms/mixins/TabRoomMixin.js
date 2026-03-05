@@ -11,10 +11,6 @@
 
 const TabRoomMixin = {
 
-    /**
-     * Switch between 'daily' and 'personal' tabs.
-     * @param {string} tabName - 'daily' | 'personal'
-     */
     switchTab(tabName) {
         const dailyTab    = document.getElementById(`${this.roomId}DailyTab`);
         const personalTab = document.getElementById(`${this.roomId}PersonalTab`);
@@ -30,25 +26,12 @@ const TabRoomMixin = {
         this.state.currentTab = tabName;
     },
 
-    /**
-     * Apply active/inactive styles to a tab button.
-     * @param {HTMLElement} btn
-     * @param {boolean} isActive
-     */
     _styleTab(btn, isActive) {
         btn.style.background   = isActive ? 'linear-gradient(135deg,#8b5cf6 0%,#a78bfa 100%)' : 'transparent';
         btn.style.color        = isActive ? 'white' : 'var(--text)';
         btn.style.borderBottom = isActive ? '3px solid #8b5cf6' : '3px solid transparent';
     },
 
-    /**
-     * Standard two-tab nav HTML (Daily + Personal).
-     * Labels and icons are passed in so each room can customise them.
-     *
-     * @param {string} dailyLabel    - e.g. '🌅 Daily Collective Card'
-     * @param {string} personalLabel - e.g. '✨ Personal Card Draw'
-     * @returns {string} HTML string
-     */
     buildTabNav(dailyLabel, personalLabel) {
         const cn = this.getClassName();
         return `
@@ -65,4 +48,4 @@ const TabRoomMixin = {
     },
 };
 
-window.TabRoomMixin = TabRoomMixin;
+export { TabRoomMixin };

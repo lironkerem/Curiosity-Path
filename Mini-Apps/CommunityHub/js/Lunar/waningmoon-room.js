@@ -3,6 +3,9 @@
  * Waning Moon Practice Room - config only, zero logic.
  */
 
+import { LunarConfig } from './lunar-config.js';
+import { LunarRoom } from './lunar-core.js';
+
 const waningMoonConfig = {
     name:        'Waning Moon',
     emoji:       '🌗',
@@ -122,10 +125,7 @@ const waningMoonConfig = {
 };
 
 const WaningMoonRoom = new LunarRoom(waningMoonConfig);
-window.WaningMoonRoom = WaningMoonRoom;
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => WaningMoonRoom.init());
-} else {
-    WaningMoonRoom.init();
-}
+WaningMoonRoom.init();
+
+export { WaningMoonRoom };

@@ -8,7 +8,9 @@
  * Usage: Object.assign(YourRoom.prototype, SoundSettingsMixin);
  */
 
-// ─── Sound catalogue (extend here to add new options) ────────────────────────
+import { Core } from '../core.js';
+
+// ─── Sound catalogue ──────────────────────────────────────────────────────────
 
 const _BELL_OPTIONS = [
     { value: 'tingsha', label: 'Tingsha Bells' },
@@ -29,9 +31,6 @@ const _AMBIENT_OPTIONS = [
     { value: 'ocean',  label: 'Ocean Waves'   },
 ];
 
-// ─── Ambient audio URLs (CC0 / public domain, loopable) ──────────────────────
-// Sources: pixabay.com/sound-effects (free / royalty-free)
-
 const _AMBIENT_URLS = {
     stream: 'https://cdn.pixabay.com/audio/2022/03/10/audio_2ded6c2d03.mp3',
     rain:   'https://cdn.pixabay.com/audio/2022/05/13/audio_257112ce70.mp3',
@@ -39,12 +38,7 @@ const _AMBIENT_URLS = {
     ocean:  'https://cdn.pixabay.com/audio/2021/09/06/audio_6f8e47c21a.mp3',
 };
 
-// ─── Bell synthesis profiles ──────────────────────────────────────────────────
-// Each profile describes a set of partials { freq multiplier, gain, decay }
-// that together approximate the real instrument timbre.
-
 const _BELL_PROFILES = {
-    // Tingsha: bright, cutting attack, fast-ish decay
     tingsha: {
         baseFreq: 900,
         partials: [
@@ -53,7 +47,6 @@ const _BELL_PROFILES = {
             { mult: 5.40, gain: 0.15, decay: 1.0 },
         ],
     },
-    // Singing bowl: rich, slow decay, warm low partial
     bowl: {
         baseFreq: 220,
         partials: [
@@ -62,7 +55,6 @@ const _BELL_PROFILES = {
             { mult: 5.20, gain: 0.12, decay: 2.5 },
         ],
     },
-    // Wind chime: high, airy, short
     chime: {
         baseFreq: 1200,
         partials: [
@@ -71,7 +63,6 @@ const _BELL_PROFILES = {
             { mult: 3.01, gain: 0.10, decay: 0.6 },
         ],
     },
-    // Tibetan bowl: deep, very long sustain
     tibetan: {
         baseFreq: 180,
         partials: [
@@ -80,7 +71,6 @@ const _BELL_PROFILES = {
             { mult: 5.10, gain: 0.15, decay: 3.5 },
         ],
     },
-    // Temple gong: low boom, long wash
     gong: {
         baseFreq: 80,
         partials: [
@@ -90,7 +80,6 @@ const _BELL_PROFILES = {
             { mult: 5.00, gain: 0.10, decay: 2.0 },
         ],
     },
-    // Temple bell: mid-range, clear tone
     bell: {
         baseFreq: 440,
         partials: [
@@ -113,17 +102,16 @@ const SoundSettingsMixin = {
         this.state.selectedBell        = 'tingsha';
         this.state.selectedCompletion  = 'tibetan';
         this.state.selectedAmbient     = 'stream';
-        this._audioCtx                 = null;  // lazy-created on first use
-        this._ambientAudio             = null;  // HTMLAudioElement for ambient
+        this._audioCtx                 = null;
+        this._ambientAudio             = null;
     },
 
-    // ── AudioContext (lazy, resumes after user gesture) ───────────────────────
+    // ── AudioContext ──────────────────────────────────────────────────────────
 
     _getAudioCtx() {
         if (!this._audioCtx) {
             this._audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
-        // browsers suspend the context until a user gesture; resume if needed
         if (this._audioCtx.state === 'suspended') {
             this._audioCtx.resume();
         }
@@ -132,11 +120,6 @@ const SoundSettingsMixin = {
 
     // ── Bell synthesis ────────────────────────────────────────────────────────
 
-    /**
-     * Synthesise a bell-like tone from a profile.
-     * @param {string} profileKey - key in _BELL_PROFILES
-     * @param {number} [gainMult=1] - overall volume multiplier (0–1)
-     */
     _playBellProfile(profileKey, gainMult = 1) {
         const profile = _BELL_PROFILES[profileKey];
         if (!profile) return;
@@ -145,13 +128,12 @@ const SoundSettingsMixin = {
         const now  = ctx.currentTime;
 
         profile.partials.forEach(({ mult, gain, decay }) => {
-            const osc     = ctx.createOscillator();
+            const osc      = ctx.createOscillator();
             const gainNode = ctx.createGain();
 
             osc.type      = 'sine';
             osc.frequency.setValueAtTime(profile.baseFreq * mult, now);
 
-            // Sharp attack, exponential decay to silence
             gainNode.gain.setValueAtTime(gain * gainMult, now);
             gainNode.gain.exponentialRampToValueAtTime(0.0001, now + decay);
 
@@ -203,19 +185,13 @@ const SoundSettingsMixin = {
         );
     },
 
-    // ── Selection handlers (called by radio onchange) ─────────────────────────
+    // ── Selection handlers ────────────────────────────────────────────────────
 
-    selectBell(value) {
-        this.state.selectedBell = value;
-    },
-
-    selectCompletion(value) {
-        this.state.selectedCompletion = value;
-    },
+    selectBell(value)       { this.state.selectedBell = value; },
+    selectCompletion(value) { this.state.selectedCompletion = value; },
 
     selectAmbient(value) {
         this.state.selectedAmbient = value;
-        // If ambient is already playing, switch to new track immediately
         if (this.state.ambientEnabled) {
             this.stopAmbientSound();
             this.playAmbientSound();
@@ -232,7 +208,6 @@ const SoundSettingsMixin = {
 
     previewAmbient(ambientType, event) {
         event?.stopPropagation();
-        // Play a 4-second snippet of the ambient track
         const url = _AMBIENT_URLS[ambientType];
         if (!url) return;
         if (this._previewAudio) {
@@ -255,9 +230,7 @@ const SoundSettingsMixin = {
     playAmbientSound() {
         const url = _AMBIENT_URLS[this.state.selectedAmbient];
         if (!url) return;
-
-        this.stopAmbientSound(); // clear any existing
-
+        this.stopAmbientSound();
         const audio = new Audio(url);
         audio.loop   = true;
         audio.volume = 0.35;
@@ -298,7 +271,6 @@ const SoundSettingsMixin = {
 
     // ── HTML builders ─────────────────────────────────────────────────────────
 
-    /** Single radio + label + preview button row. */
     _soundOption(groupName, value, label, previewFn, selectFn) {
         const cn      = this.getClassName();
         const checked = this.state[`selected${groupName}`] === value ? 'checked' : '';
@@ -365,4 +337,4 @@ const SoundSettingsMixin = {
     },
 };
 
-window.SoundSettingsMixin = SoundSettingsMixin;
+export { SoundSettingsMixin };

@@ -9,6 +9,15 @@
  * @version 1.1.0
  */
 
+import { CommunityDB } from '../community-supabase.js';
+
+// CollectiveField is NOT imported here to avoid a circular dependency
+// (collective-field.js imports CollectiveFieldDB, CollectiveFieldDB pushes back to CollectiveField).
+// CollectiveField's window bridge is guaranteed to be set before init() is ever called
+// (CommunityHubEngine loads collective-field.js in Group 4b, then calls CollectiveFieldDB.init()).
+// eslint-disable-next-line no-undef
+const _cf = () => window.CollectiveField;
+
 const CollectiveFieldDB = {
 
     // =========================================================================
@@ -95,8 +104,8 @@ const CollectiveFieldDB = {
 
         if (error) { this._err('loadFieldState', error); return; }
 
-        CollectiveField.updateEnergyLevel(data.energy_level);
-        CollectiveField.updateCommunityPulseCount(data.pulse_count_today);
+        _cf().updateEnergyLevel(data.energy_level);
+        _cf().updateCommunityPulseCount(data.pulse_count_today);
     },
 
     async loadRecentSenders() {
@@ -109,7 +118,7 @@ const CollectiveFieldDB = {
 
         if (error) { this._err('loadRecentSenders', error); return; }
 
-        CollectiveField.updateRecentSenders(
+        _cf().updateRecentSenders(
             (data || []).map(row => ({
                 emoji:     row.profiles?.emoji      || '🧘',
                 avatarUrl: row.profiles?.avatar_url || null,
@@ -122,7 +131,7 @@ const CollectiveFieldDB = {
     // =========================================================================
 
     async recordPulse() {
-        const userId = window.CommunityDB?.userId;
+        const userId = CommunityDB?.userId;
         if (!userId) { this._err('recordPulse', 'no userId'); return; }
 
         const today = this._todayUTC();
@@ -151,7 +160,7 @@ const CollectiveFieldDB = {
 
         if (error) { this._err('loadWaveTotal', error); return; }
 
-        CollectiveField.updateWaveTotalMinutes(
+        _cf().updateWaveTotalMinutes(
             (data || []).reduce((sum, row) => sum + (row.minutes || 0), 0)
         );
     },
@@ -164,13 +173,13 @@ const CollectiveFieldDB = {
 
         if (error) { this._err('loadWaveParticipants', error); return; }
 
-        CollectiveField.updateWaveParticipants(
+        _cf().updateWaveParticipants(
             new Set((data || []).map(r => r.user_id)).size
         );
     },
 
     async loadUserContribution() {
-        const userId = window.CommunityDB?.userId;
+        const userId = CommunityDB?.userId;
         if (!userId) return;
 
         const today = this._todayUTC();
@@ -185,7 +194,7 @@ const CollectiveFieldDB = {
         if (allErr)   { this._err('loadUserContribution allTime', allErr); return; }
 
         const sum = (rows) => (rows || []).reduce((s, r) => s + (r.minutes || 0), 0);
-        CollectiveField.updateUserContribution(sum(todayData), sum(allData));
+        _cf().updateUserContribution(sum(todayData), sum(allData));
     },
 
     // =========================================================================
@@ -193,7 +202,7 @@ const CollectiveFieldDB = {
     // =========================================================================
 
     async logWaveContribution(minutes, completed) {
-        const userId = window.CommunityDB?.userId;
+        const userId = CommunityDB?.userId;
         if (!userId)    { this._err('logWaveContribution', 'no userId'); return; }
         if (minutes < 1) return;
 
@@ -221,8 +230,8 @@ const CollectiveFieldDB = {
                 event: 'UPDATE', schema: 'public',
                 table: 'collective_field', filter: `date=eq.${today}`,
             }, ({ new: row }) => {
-                CollectiveField.updateEnergyLevel(row.energy_level);
-                CollectiveField.updateCommunityPulseCount(row.pulse_count_today);
+                _cf().updateEnergyLevel(row.energy_level);
+                _cf().updateCommunityPulseCount(row.pulse_count_today);
             })
             .subscribe();
 
@@ -233,7 +242,7 @@ const CollectiveFieldDB = {
                 event: 'INSERT', schema: 'public',
                 table: 'collective_pulses', filter: `date=eq.${today}`,
             }, async ({ new: row }) => {
-                CollectiveField.receiveExternalPulse({ userId: row.user_id, intensity: 0.7 });
+                _cf().receiveExternalPulse({ userId: row.user_id, intensity: 0.7 });
                 await this.loadRecentSenders();
             })
             .subscribe();
@@ -276,4 +285,8 @@ const CollectiveFieldDB = {
 };
 
 window.addEventListener('beforeunload', () => CollectiveFieldDB.destroy());
+
+// Window bridge: preserved for external callers
 window.CollectiveFieldDB = CollectiveFieldDB;
+
+export { CollectiveFieldDB };
