@@ -701,11 +701,11 @@ const TONE_STYLES = {
   function showReminderNotification() {
     if (Notification.permission === 'granted') {
       const affirmations = [
-        "Time to flip your thoughts! 💭",
-        "Ready to transform negativity into positivity? 🌟",
-        "Let's turn today's challenges into affirmations! ✨",
-        "Your daily flip awaits! 🔄",
-        "Time for some positive self-talk! 💚"
+        "Time to flip your thoughts!",
+        "Ready to transform negativity into positivity?",
+        "Let's turn today's challenges into affirmations!",
+        "Your daily flip awaits!",
+        "Time for some positive self-talk!"
       ];
       
       const randomAffirmation = affirmations[Math.floor(Math.random() * affirmations.length)];

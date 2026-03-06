@@ -42,7 +42,7 @@ export function mountUI(app) {
   function copyToClipboard(text) {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
-        showToast("📋 Copied to clipboard!");
+        showToast("Copied to clipboard!");
       });
     } else {
       const textarea = document.createElement("textarea");
@@ -51,7 +51,7 @@ export function mountUI(app) {
       textarea.select();
       document.execCommand("copy");
       document.body.removeChild(textarea);
-      showToast("📋 Copied to clipboard!");
+      showToast("Copied to clipboard!");
     }
   }
 
@@ -63,9 +63,9 @@ export function mountUI(app) {
       utterance.pitch = 1;
       utterance.volume = 1;
       window.speechSynthesis.speak(utterance);
-      showToast("🔊 Playing audio...");
+      showToast("Playing audio...");
     } else {
-      showToast("⚠️ Audio not supported");
+      showToast("Audio not supported");
     }
   }
 
@@ -91,15 +91,15 @@ export function mountUI(app) {
     recognition.onstart = () => {
       isListening = true;
       voiceInputBtn.classList.add("listening");
-      voiceInputBtn.textContent = "🔴";
-      showToast("🎤 Listening... Speak now!");
+      voiceInputBtn.innerHTML = "🔴";
+      showToast("Listening... Speak now!");
     };
 
     recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
       input.value = transcript;
       charCount.textContent = transcript.length;
-      showToast("✅ Got it! Flipping now...");
+      showToast("Got it! Flipping now...");
       wasVoiceInput = true;
 
       // Auto-trigger flip after 500ms
@@ -114,31 +114,31 @@ export function mountUI(app) {
       console.error("Speech recognition error:", event.error);
       isListening = false;
       voiceInputBtn.classList.remove("listening");
-      voiceInputBtn.textContent = "🎤";
+      voiceInputBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M12 11V3"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>`;
 
       if (event.error === "no-speech") {
-        showToast("⚠️ No speech detected. Try again!");
+        showToast("No speech detected. Try again!");
       } else if (event.error === "not-allowed") {
         showToast(
-          "⚠️ Microphone access denied. Please allow microphone access in browser settings."
+          "Microphone access denied. Please allow microphone access in browser settings."
         );
       } else if (event.error === "network") {
-        showToast("⚠️ Network error. Check your internet connection.");
+        showToast("Network error. Check your internet connection.");
       } else {
-        showToast("⚠️ Could not recognize speech. Try again.");
+        showToast("Could not recognize speech. Try again.");
       }
     };
 
     recognition.onend = () => {
       isListening = false;
       voiceInputBtn.classList.remove("listening");
-      voiceInputBtn.textContent = "🎤";
+      voiceInputBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M12 11V3"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>`;
     };
   }
 
   voiceInputBtn.addEventListener("click", async () => {
     if (!recognition) {
-      showToast("⚠️ Speech recognition not supported in this browser");
+      showToast("Speech recognition not supported in this browser");
       return;
     }
 
@@ -154,7 +154,7 @@ export function mountUI(app) {
       window.location.hostname !== "127.0.0.1"
     ) {
       showToast(
-        "⚠️ Microphone requires HTTPS. Voice input only works on secure pages."
+        "Microphone requires HTTPS. Voice input only works on secure pages."
       );
       return;
     }
@@ -164,7 +164,7 @@ export function mountUI(app) {
       recognition.start();
     } catch (error) {
       console.error("Error starting recognition:", error);
-      showToast("⚠️ Could not start voice input. Please try again.");
+      showToast("Could not start voice input. Please try again.");
     }
   });
 
@@ -301,7 +301,7 @@ export function mountUI(app) {
   async function performFlip() {
     const text = input.value.trim();
     if (!text) {
-      showToast("⚠️ Please enter a thought first");
+      showToast("Please enter a thought first");
       return;
     }
 
@@ -382,7 +382,7 @@ export function mountUI(app) {
     } catch (err) {
       console.error(err);
       extendedFlipEl.textContent = "Error generating flip.";
-      showToast("⚠️ Error occurred");
+      showToast("Error occurred");
     } finally {
       clearInterval(interval);
       setTimeout(() => {
@@ -394,7 +394,7 @@ export function mountUI(app) {
         }
       }, 1500);
       flipBtn.disabled = false;
-      flipBtn.textContent = "✨ Flip It Now✨";
+      flipBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9"/><path d="m15 3 3 3-3 3"/><path d="M18 6H9"/></svg> Flip It Now`;
     }
   }
 
@@ -424,7 +424,7 @@ export function mountUI(app) {
     const t = text.trim();
     if (!t || t.includes("will appear here")) return;
     if (savedFlips.some((f) => f.text === t)) {
-      showToast("⚠️ Already saved");
+      showToast("Already saved");
       return;
     }
     savedFlips.unshift({
@@ -434,7 +434,7 @@ export function mountUI(app) {
     });
     localStorage.setItem("savedFlips", JSON.stringify(savedFlips));
     renderSaved();
-    showToast("💾 Saved!");
+    showToast("Saved!");
   }
 
   saveExtendedBtn.addEventListener("click", () =>
@@ -483,7 +483,7 @@ export function mountUI(app) {
         savedFlips.splice(actualIdx, 1);
         localStorage.setItem("savedFlips", JSON.stringify(savedFlips));
         renderSaved(filter);
-        showToast("🗑️ Deleted");
+        showToast("Deleted");
       });
 
       li.querySelector(".favorite").addEventListener("click", () => {
@@ -540,7 +540,7 @@ export function mountUI(app) {
       "FlipTheScript_Backup_" + new Date().toISOString().split("T")[0] + ".json";
     a.click();
     URL.revokeObjectURL(url);
-    showToast("📥 Backup downloaded!");
+    showToast("Backup downloaded!");
   });
 
   restoreBtn.addEventListener("click", () => {
@@ -559,9 +559,9 @@ export function mountUI(app) {
             localStorage.setItem("savedFlips", JSON.stringify(savedFlips));
           }
           renderSaved();
-          showToast("📤 Backup restored!");
+          showToast("Backup restored!");
         } catch {
-          showToast("⚠️ Invalid backup file");
+          showToast("Invalid backup file");
         }
       };
       reader.readAsText(file);
