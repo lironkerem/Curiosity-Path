@@ -406,7 +406,7 @@ class TarotEngine {
         this.app.gamification.incrementTarotSpreads();
       }
       if (this.app.showToast) {
-        this.app.showToast(`✨ ${spreadType} complete!`, 'success');
+        this.app.showToast(`${spreadType} complete!`, 'success');
       }
       this.checkAchievements();
     }
@@ -467,7 +467,7 @@ class TarotEngine {
     return `
       <div class="community-link-card">
         <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
-          <span style="font-size: 1.6rem;">🔮</span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:1.6rem;height:1.6rem;flex-shrink:0;"><circle cx="12" cy="13" r="8"/><path d="M5 3 2 6l3 3"/><path d="m19 3 3 3-3 3"/><path d="M5.05 11A7 7 0 0 1 9 6.23c.7-.57 1.37-.85 2-.85"/><path d="M10.44 19.5a7 7 0 0 0 7.5-9"/></svg>
           <h3 style="margin: 0; font-size: 1.15rem;">
             Learn & Practice Tarot with the Community
           </h3>
@@ -483,8 +483,10 @@ class TarotEngine {
             class="community-link-btn"
             onmouseover="this.style.transform='translateY(-1px)'"
             onmouseout="this.style.transform='translateY(0)'"
+            style="display:inline-flex;align-items:center;gap:0.4rem;"
           >
-            🏘️ Enter the Community Hub
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Enter the Community Hub
           </button>
           <button
             type="button"
@@ -492,8 +494,10 @@ class TarotEngine {
             class="community-link-btn"
             onmouseover="this.style.transform='translateY(-1px)'"
             onmouseout="this.style.transform='translateY(0)'"
+            style="display:inline-flex;align-items:center;gap:0.4rem;"
           >
-            🔮 Enter the Tarot Room Directly
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="13" r="8"/><path d="M5 3 2 6l3 3"/><path d="m19 3 3 3-3 3"/><path d="M5.05 11A7 7 0 0 1 9 6.23c.7-.57 1.37-.85 2-.85"/><path d="M10.44 19.5a7 7 0 0 0 7.5-9"/></svg>
+            Enter the Tarot Room Directly
           </button>
         </div>
       </div>
@@ -547,9 +551,9 @@ class TarotEngine {
               <div onclick="window.featuresManager.engines.tarot.selectSpread('${key}')"
                    class="card cursor-pointer relative ${this.selectedSpread === key ? 'border-4' : ''} ${isLocked ? 'opacity-75' : ''}"
                    style="${this.selectedSpread === key ? 'border-color: var(--neuro-accent);' : ''} padding: 1.5rem;"
-                   title="${isLocked ? '🔒 Purchase Advanced Tarot Spreads in Karma Shop to unlock' : ''}">
+                   title="${isLocked ? 'Purchase Advanced Tarot Spreads in Karma Shop to unlock' : ''}">
                 ${isPremium ? '<span class="premium-badge-tr">PREMIUM</span>' : ''}
-                ${isLocked ? '<div style="position: absolute; top: 50%; right: 1rem; transform: translateY(-50%); font-size: 3rem; opacity: 0.3;">🔒</div>' : ''}
+                ${isLocked ? '<div style="position: absolute; top: 50%; right: 1rem; transform: translateY(-50%); font-size: 3rem; opacity: 0.3;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:3rem;height:3rem;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>' : ''}
                 <h4 class="text-xl font-bold" style="color: var(--neuro-text);margin-bottom: 0.5rem;">${sp.name}</h4>
                 <p style="color: var(--neuro-text-light);" class="text-sm">${sp.desc}</p>
               </div>`;
@@ -564,8 +568,8 @@ class TarotEngine {
               return `
                 <button id="tarot-vision-ai-btn"
                         class="btn w-full inline-flex items-center justify-center gap-3 px-6 py-6 text-xl font-bold text-white rounded-xl shadow transition-transform ${locked ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02]'}">
-                  🔮 Tarot Vision AI – Take a picture/upload a tarot card to analyse it
-                  ${locked ? '<span style="font-size: 3rem; opacity: .3; margin-left: .5rem;">🔒</span>' : ''}
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="13" r="8"/><path d="M5 3 2 6l3 3"/><path d="m19 3 3 3-3 3"/><path d="M5.05 11A7 7 0 0 1 9 6.23c.7-.57 1.37-.85 2-.85"/><path d="M10.44 19.5a7 7 0 0 0 7.5-9"/></svg> Tarot Vision AI – Take a picture/upload a tarot card to analyse it
+                  ${locked ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:3rem;height:3rem;opacity:0.3;margin-left:0.5rem;flex-shrink:0;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' : ''}
                   <span class="premium-badge">PREMIUM</span>
                 </button>`;
             })()}
@@ -902,9 +906,9 @@ class TarotEngine {
           const isPrivileged = this.app?.state?.currentUser?.isAdmin || this.app?.state?.currentUser?.isVip;
           const locked = !isPrivileged && !this.app?.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
           if (locked) {
-            this.app?.showToast?.('🔒 Unlock Tarot Vision AI in the Karma Shop!', 'info');
+            this.app?.showToast?.('Unlock Tarot Vision AI in the Karma Shop!', 'info');
           } else {
-            this.app?.showToast?.('📸 Tarot Vision AI opening...', 'info');
+            this.app?.showToast?.('Tarot Vision AI opening...', 'info');
             // Add your AI vision feature trigger here
           }
         };
@@ -925,7 +929,7 @@ class TarotEngine {
     const isPrivileged = this.app?.state?.currentUser?.isAdmin || this.app?.state?.currentUser?.isVip;
     if (!isPrivileged && premiumSpreads.includes(spreadKey) && 
         !this.app?.gamification?.state?.unlockedFeatures?.includes('advance_tarot_spreads')) {
-      this.app?.showToast?.('🔒 Unlock Advanced Tarot Spreads in the Karma Shop!', 'info');
+      this.app?.showToast?.('Unlock Advanced Tarot Spreads in the Karma Shop!', 'info');
       return;
     }
     

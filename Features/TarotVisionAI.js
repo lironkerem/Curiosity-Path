@@ -104,7 +104,7 @@
         <div class="vision-popup-card">
           <!-- Header -->
           <header class="vision-popup-header">
-            <h3 class="vision-popup-title">📸 Tarot Vision AI</h3>
+            <h3 class="vision-popup-title" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:1.25rem;height:1.25rem;flex-shrink:0;"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> Tarot Vision AI</h3>
             <button id="vision-close" class="vision-close-btn" aria-label="Close">&times;</button>
           </header>
 
@@ -121,7 +121,7 @@
 
             <!-- Placeholder -->
             <div id="upload-placeholder" class="placeholder-box">
-              <span class="placeholder-icon">📷</span>
+              <span class="placeholder-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:2rem;height:2rem;"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg></span>
               <p>Take a photo or upload an image of your cards</p>
             </div>
 
@@ -789,7 +789,7 @@
     const isUnlocked = window.app?.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
     
     if (!isUnlocked) {
-      showToast('🔒 Purchase Tarot Vision AI in the Karma Shop to use this feature.', 'info');
+      showToast('Purchase Tarot Vision AI in the Karma Shop to use this feature.', 'info');
       return;
     }
 

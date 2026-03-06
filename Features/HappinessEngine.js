@@ -234,7 +234,7 @@ class HappinessEngine {
       banner = document.createElement('div');
       banner.id = bannerId;
       banner.style.cssText = 'margin-bottom:2rem;padding:1rem;border-radius:0.5rem;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);';
-      banner.innerHTML = '<p class="text-center" style="color:#22c55e;">🎉 Daily quest complete! Keep exploring if you\'d like!</p>';
+      banner.innerHTML = '<p class="text-center" style="color:#22c55e;display:flex;align-items:center;justify-content:center;gap:0.5rem;"><svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\' class=\'lucide-icon\'><path d=\'M18 6 7 17l-5-5\'/><path d=\'m22 10-7.5 7.5L13 16\'/></svg> Daily quest complete! Keep exploring if you\'d like!</p>';
       
       const header = document.querySelector('#happiness-tab .universal-content');
       header?.insertBefore(banner, header.querySelector('main'));
@@ -299,30 +299,30 @@ class HappinessEngine {
     if (this.app.showToast) {
       const isComplete = viewCount >= HappinessEngine.QUEST_TARGET;
       const msg = isComplete 
-        ? `✨ Quest complete! You've viewed ${HappinessEngine.QUEST_TARGET} items today!`
-        : `✨ New ${title.toLowerCase()} revealed! (${viewCount}/${HappinessEngine.QUEST_TARGET})`;
+        ? `Quest complete! You've viewed ${HappinessEngine.QUEST_TARGET} items today!`
+        : `New ${title.toLowerCase()} revealed! (${viewCount}/${HappinessEngine.QUEST_TARGET})`;
       this.app.showToast(msg, 'success');
     }
   }
 
   refreshBooster() {
     this._refreshContent('Booster', this.getRandomBooster, 'booster-card', 
-      '💪', 'Booster', this._formatBooster);
+      'booster', 'Booster', this._formatBooster);
   }
 
   refreshQuote() {
     this._refreshContent('Quote', this.getRandomQuote, 'quote-card', 
-      '📜', 'Quote', this._formatQuote);
+      'quote', 'Quote', this._formatQuote);
   }
 
   refreshAffirmation() {
     this._refreshContent('Affirmation', this.getRandomAffirmation, 'affirm-card', 
-      '✨', 'Affirmation', this._formatAffirmation);
+      'affirmation', 'Affirmation', this._formatAffirmation);
   }
 
   refreshInquiry() {
     this._refreshContent('Inquiry', this.getRandomInquiry, 'inquiry-card', 
-      '💭', 'Inquiry', this._formatInquiry);
+      'inquiry', 'Inquiry', this._formatInquiry);
   }
 
   // ============================================
@@ -348,7 +348,7 @@ class HappinessEngine {
         </div>
       </div>
       <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
-        <button onclick="window.featuresManager.engines.happiness.refreshBooster()" class="btn btn-secondary">🔄 Refresh</button>
+        <button onclick="window.featuresManager.engines.happiness.refreshBooster()" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Refresh</button>
       </div>`;
   }
 
@@ -360,7 +360,7 @@ class HappinessEngine {
   _formatQuote(quote) {
     return `
       <div class="flex items-center" style="margin-bottom: 1rem;">
-        <span class="text-3xl" style="margin-right:0.25rem">📜</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="margin-right:0.5rem;flex-shrink:0;"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>
         <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> Inspirational Quote</h2>
       </div>
       <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
@@ -370,7 +370,7 @@ class HappinessEngine {
         - ${quote.author}
       </p>
       <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
-        <button onclick="window.featuresManager.engines.happiness.refreshQuote()" class="btn btn-secondary">🔄 Refresh</button>
+        <button onclick="window.featuresManager.engines.happiness.refreshQuote()" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Refresh</button>
       </div>`;
   }
 
@@ -382,14 +382,14 @@ class HappinessEngine {
   _formatAffirmation(affirmation) {
     return `
       <div class="flex items-center" style="margin-bottom: 1rem;">
-        <span class="text-3xl" style="margin-right:0.25rem">✨</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="margin-right:0.5rem;flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
         <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> Positive Affirmation</h2>
       </div>
       <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
         "${affirmation}"
       </p>
       <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
-        <button onclick="window.featuresManager.engines.happiness.refreshAffirmation()" class="btn btn-secondary">🔄 Refresh</button>
+        <button onclick="window.featuresManager.engines.happiness.refreshAffirmation()" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Refresh</button>
       </div>`;
   }
 
@@ -422,7 +422,7 @@ class HappinessEngine {
         </div>
       </div>
       <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
-        <button onclick="window.featuresManager.engines.happiness.refreshInquiry()" class="btn btn-secondary">🔄 Refresh</button>
+        <button onclick="window.featuresManager.engines.happiness.refreshInquiry()" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Refresh</button>
       </div>`;
   }
 
@@ -464,17 +464,17 @@ class HappinessEngine {
 
       ${viewCount >= HappinessEngine.QUEST_TARGET ? `
         <div id="happiness-quest-complete" style="margin-bottom: 2rem;padding:1rem;border-radius:0.5rem;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);">
-          <p class="text-center" style="color: #22c55e;">🎉 Daily quest complete! Keep exploring if you'd like!</p>
+          <p class="text-center" style="color: #22c55e;display:flex;align-items:center;justify-content:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/></svg> Daily quest complete! Keep exploring if you'd like!</p>
         </div>
       ` : ''}
 
       <main class="space-y-6">
-        ${this._renderCard('affirm-card', '✨', 'Positive Affirmation', 
+        ${this._renderCard('affirm-card', 'affirmation', 'Positive Affirmation', 
           `<p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
             "${this.currentAffirmation}"
           </p>`, 'refreshAffirmation')}
 
-        ${this._renderCard('quote-card', '📜', 'Inspirational Quote', 
+        ${this._renderCard('quote-card', 'quote', 'Inspirational Quote', 
           `<p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent);">
             "${this.currentQuote.text}"
           </p>
@@ -482,16 +482,14 @@ class HappinessEngine {
             - ${this.currentQuote.author}
           </p>`, 'refreshQuote')}
 
-        ${this._renderCard('booster-card', this.currentBooster.emoji, 'A Quick Happiness Booster', 
+        ${this._renderCard('booster-card', 'booster', 'A Quick Happiness Booster', 
           `<h3 class="text-2xl font-bold" style="color: var(--neuro-accent);">${this.currentBooster.title}</h3>
           <p class="mt-2 text-lg">${this.currentBooster.description}</p>
           <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
             <span>${this.currentBooster.duration}</span> • <span>${this.currentBooster.category}</span>
           </div>`, 'refreshBooster')}
 
-        ${this._renderCard('inquiry-card', 
-          HappinessEngine.INTENSITY_EMOJIS[this.currentInquiry.intensity] || '💭', 
-          'Self Inquiry', 
+        ${this._renderCard('inquiry-card', 'inquiry', 'Self Inquiry', 
           `<div style="margin-bottom: 1rem; padding: 0.5rem; background: var(--neuro-bg-secondary); border-radius: 8px; display: inline-block;">
             <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--neuro-accent);">
               ${this.currentInquiry.domain}
@@ -520,20 +518,27 @@ class HappinessEngine {
    * @param {string} refreshMethod - Refresh method name
    * @returns {string} HTML string
    */
-  _renderCard(id, emoji, title, content, refreshMethod) {
+  _renderCard(id, iconKey, title, content, refreshMethod) {
+    const ICONS = {
+      affirmation: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="margin-right:0.5rem;flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>`,
+      quote: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="margin-right:0.5rem;flex-shrink:0;"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>`,
+      booster: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="margin-right:0.5rem;flex-shrink:0;"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>`,
+      inquiry: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="margin-right:0.5rem;flex-shrink:0;"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>`
+    };
+    const icon = ICONS[iconKey] || '';
     return `
       <div class="neuro-card flip-card" id="${id}">
         <div class="flip-card-inner">
           <div class="flip-card-front">
             <div class="flex items-center" style="margin-bottom: 1rem;">
-              <span class="text-3xl" style="margin-right:0.25rem">${emoji}</span>
+              ${icon}
               <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">${title}</h2>
             </div>
             <div class="text-center">
               ${content}
             </div>
             <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
-              <button onclick="window.featuresManager.engines.happiness.${refreshMethod}()" class="btn btn-secondary">🔄 Refresh</button>
+              <button onclick="window.featuresManager.engines.happiness.${refreshMethod}()" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Refresh</button>
             </div>
           </div>
           <div class="flip-card-back"></div>

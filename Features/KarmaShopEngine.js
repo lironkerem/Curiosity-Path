@@ -371,15 +371,15 @@ export class KarmaShopEngine {
    */
   purchase(itemId) {
     const item = this.items.find(i => i.id === itemId);
-    if (!item) { this.app.showToast('❌ Item not found', 'error'); return false; }
+    if (!item) { this.app.showToast('Item not found', 'error'); return false; }
     const check = this.canPurchase(itemId);
     if (!check.can) {
       if (itemId.startsWith('skip_all_')) {
         const type = KarmaShopEngine.CAP_MAP[itemId];
         const periodName = type === 'dailySkips' ? 'week' : type === 'weeklySkips' ? 'month' : 'year';
-        this.app.showToast(`⏳ You've used all ${this._skipCapMax(type)} purchases for this ${periodName}. Resets ${this._whenResets(itemId)}.`, 'info');
+        this.app.showToast(`You've used all ${this._skipCapMax(type)} purchases for this ${periodName}. Resets ${this._whenResets(itemId)}.`, 'info');
       }
-      this.app.showToast(`❌ ${check.reason}`, 'error');
+      this.app.showToast(`${check.reason}`, 'error');
       return false;
     }
     // Deduct karma
@@ -396,7 +396,7 @@ export class KarmaShopEngine {
     if (history.length === 1) this.app.gamification.grantBadge({ id: 'first_purchase', name: 'First Purchase', icon: '🛒', description: 'First purchase in the Karma Shop', xp: 50, rarity: 'epic' });
     // Apply effect
     this.applyItemEffect(itemId, item);
-    this.app.showToast(`✅ Purchased: ${item.name}!`, 'success');
+    this.app.showToast(`Purchased: ${item.name}!`, 'success');
     this.queueRender();
     return true;
   }
@@ -418,16 +418,16 @@ export class KarmaShopEngine {
   applyItemEffect(itemId, item) {
     try {
       // POWER-UPS
-      if (itemId === 'xp_multiplier') { this.activateBoost('xp_multiplier', item.duration); this.app.showToast('⚡ 2× XP active for 24 h!', 'success'); } else if (itemId === 'karma_multiplier') { this.activateBoost('karma_multiplier', item.duration); this.app.showToast('💫 2× Karma active for 24 h!', 'success'); } else if (itemId === 'double_boost') { this.activateBoost('double_boost', item.duration); this.app.showToast('🔥 2× XP + 2× Karma active for 48 h!', 'success'); }
+      if (itemId === 'xp_multiplier') { this.activateBoost('xp_multiplier', item.duration); this.app.showToast('2× XP active for 24 h!', 'success'); } else if (itemId === 'karma_multiplier') { this.activateBoost('karma_multiplier', item.duration); this.app.showToast('2× Karma active for 24 h!', 'success'); } else if (itemId === 'double_boost') { this.activateBoost('double_boost', item.duration); this.app.showToast('2× XP + 2× Karma active for 48 h!', 'success'); }
       // QUEST HELPERS (Unified) - BUGFIX: store concrete resetAt once
       else if (itemId.startsWith('skip_all_')) this._applyQuestSkip(itemId);
       // PREMIUM FEATURES
-      else if (itemId === 'advanced_meditations') { this.safeUnlockFeature('advanced_meditations'); this.app.showToast('🧘‍♀️ Advanced meditations unlocked!', 'success'); } else if (itemId === 'shadow_alchemy_lab') { this.safeUnlockFeature('shadow_alchemy_lab'); this.app.showToast('🌑 Shadow Alchemy Lab unlocked!', 'success'); } else if (itemId === 'advance_tarot_spreads') { this.safeUnlockFeature('advance_tarot_spreads'); this.safeUnlockFeature('tarot_vision_ai'); this.app.showToast('🃏 Advanced Tarot Spreads & 🔮 Tarot Vision AI unlocked!', 'success'); }
+      else if (itemId === 'advanced_meditations') { this.safeUnlockFeature('advanced_meditations'); this.app.showToast('Advanced meditations unlocked!', 'success'); } else if (itemId === 'shadow_alchemy_lab') { this.safeUnlockFeature('shadow_alchemy_lab'); this.app.showToast('Shadow Alchemy Lab unlocked!', 'success'); } else if (itemId === 'advance_tarot_spreads') { this.safeUnlockFeature('advance_tarot_spreads'); this.safeUnlockFeature('tarot_vision_ai'); this.app.showToast('Advanced Tarot Spreads & Tarot Vision AI unlocked!', 'success'); }
       // PREMIUM SKINS
-      else if (itemId === 'luxury_champagne_gold_skin') { this.safeUnlockFeature('luxury_champagne_gold_skin'); this.app.showToast('🥂 Luxury Champagne-Gold Skin unlocked!', 'success'); } else if (itemId === 'royal_indigo_skin') { this.safeUnlockFeature('royal_indigo_skin'); this.app.showToast('🟣 Royal Indigo Skin unlocked!', 'success'); } else if (itemId === 'earth_luxury_skin') { this.safeUnlockFeature('earth_luxury_skin'); this.app.showToast('🌍 Earth Luxury Skin unlocked!', 'success'); }
+      else if (itemId === 'luxury_champagne_gold_skin') { this.safeUnlockFeature('luxury_champagne_gold_skin'); this.app.showToast('Luxury Champagne-Gold Skin unlocked!', 'success'); } else if (itemId === 'royal_indigo_skin') { this.safeUnlockFeature('royal_indigo_skin'); this.app.showToast('Royal Indigo Skin unlocked!', 'success'); } else if (itemId === 'earth_luxury_skin') { this.safeUnlockFeature('earth_luxury_skin'); this.app.showToast('Earth Luxury Skin unlocked!', 'success'); }
       // MEET THE MASTER
       else if (['private_consultation', 'private_tarot_reading', 'reiki_healing'].includes(itemId)) this.showMasterPurchasePopup(item);
-    } catch (err) { console.error('[KarmaShop] applyItemEffect error:', err); this.app.showToast('❌ Could not apply item – please reload', 'error'); }
+    } catch (err) { console.error('[KarmaShop] applyItemEffect error:', err); this.app.showToast('Could not apply item – please reload', 'error'); }
   }
 
   // Unified quest skip logic - BUGFIX: store resetAt once
@@ -452,13 +452,13 @@ export class KarmaShopEngine {
     const resetAt = cfg.resetFn.call(this); // compute once
     this.activeBoosts.push({ id: skipType, resetAt }); // BUGFIX: store resetAt
     this.saveActiveBoosts();
-    this.app.showToast(`✅ All ${cfg.label} quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
+    this.app.showToast(`All ${cfg.label} quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
   }
 
   showMasterPurchasePopup(item) {
     const userName = this.app.state.currentUser?.name || 'Friend';
     const karma = item.cost;
-    const msg = `${item.name} bought using ${karma} ✨ for ${userName}.`;
+    const msg = `${item.name} bought using ${karma} Karma for ${userName}.`;
     const overlay = document.createElement('div');
     overlay.className = 'karma-shop-master-overlay';
     overlay.innerHTML = `
@@ -557,7 +557,7 @@ export class KarmaShopEngine {
     }).join('');
     return `
       <div class="card karma-shop-boosts">
-        <h3 class="karma-shop-boosts-title">🔋 Active Boosts</h3>
+        <h3 class="karma-shop-boosts-title" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="16" height="10" x="2" y="7" rx="2" ry="2"/><path d="M22 11v2"/></svg> Active Boosts</h3>
         <div class="karma-shop-boosts-list" id="boosts-list-live">${initialContent}</div>
       </div>
     `;
@@ -610,10 +610,10 @@ export class KarmaShopEngine {
         <div class="karma-shop-item-footer">
           <div class="karma-shop-item-meta">
             <span class="karma-shop-item-rarity karma-shop-rarity-${item.rarity}">${item.rarity}</span>
-            <span class="karma-shop-item-rarity karma-shop-item-cost karma-shop-rarity-${item.rarity}">${item.cost} 💎</span>
+            <span class="karma-shop-item-rarity karma-shop-item-cost karma-shop-rarity-${item.rarity}">${item.cost} <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="display:inline;vertical-align:middle;width:14px;height:14px;"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg></span>
           </div>
           <button onclick="window.featuresManager.engines['karma-shop'].purchase('${item.id}')" class="btn ${canBuy.can ? 'btn-primary' : 'btn-secondary'} karma-shop-item-btn" ${!canBuy.can ? 'disabled' : ''}>
-            ${isOwned ? '✓ Owned' : isActive ? '✓ Active' : canBuy.can ? '🛒 Purchase' : canBuy.reason}
+            ${isOwned ? '✓ Owned' : isActive ? '✓ Active' : canBuy.can ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="display:inline;vertical-align:middle;margin-right:0.3rem;"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>Purchase' : canBuy.reason}
           </button>
         </div>
       </div>
@@ -623,7 +623,7 @@ export class KarmaShopEngine {
   renderPurchaseHistory(purchaseHistory) {
     return `
       <div class="card karma-shop-history">
-        <h3 class="karma-shop-history-title">📜 Purchase History</h3>
+        <h3 class="karma-shop-history-title" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg> Purchase History</h3>
         <div class="karma-shop-history-list">
           ${purchaseHistory.slice(-10).reverse().map(purchase => {
             const item = this.items.find(i => i.id === purchase.itemId);

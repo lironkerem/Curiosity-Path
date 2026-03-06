@@ -48,10 +48,10 @@ export default class DailyCards {
   };
 
   static FLIP_MESSAGES = {
-    tarot: '✨ Tarot card revealed!',
-    affirmation: '💫 Affirmation revealed!',
-    booster: '😊 Booster revealed!',
-    inquiry: '💭 Daily inquiry revealed!'
+    tarot: 'Tarot card revealed!',
+    affirmation: 'Affirmation revealed!',
+    booster: 'Booster revealed!',
+    inquiry: 'Daily inquiry revealed!'
   };
 
   static TODAY_CACHE_DURATION = 60000; // 1 minute
@@ -611,7 +611,7 @@ export default class DailyCards {
       <div class="card dashboard-quest-hub mb-8" style="position: relative;">
         <span id="daily-cards-timer" class="countdown-badge"></span>
         <div class="dashboard-quest-header">
-          <h3 class="dashboard-quest-title">🎴 Your Daily Cards</h3>
+          <h3 class="dashboard-quest-title" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="10" height="14" x="2" y="5" rx="2"/><rect width="10" height="14" x="12" y="5" rx="2"/></svg> Your Daily Cards</h3>
         </div>
         <div class="grid grid-cols-2 gap-6" id="daily-cards-container">
           ${this.renderDailyCard(DailyCards.CARD_TYPES.TAROT, dailyCard)}

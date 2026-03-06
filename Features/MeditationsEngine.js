@@ -165,7 +165,7 @@ class MeditationsEngine {
   showMeditationSchedule(roomKey) {
     const configs = {
       guided: {
-        title:    "📅 Today's Meditation Schedule",
+        title:    "Today's Meditation Schedule",
         cycleSec: 60 * 60,
         openSec:  15 * 60,
         sessions: [
@@ -181,7 +181,7 @@ class MeditationsEngine {
         ]
       },
       osho: {
-        title:    '📅 Upcoming OSHO Sessions',
+        title:    'Upcoming OSHO Sessions',
         cycleSec: 90 * 60,
         openSec:  10 * 60,
         sessions: [
@@ -306,7 +306,7 @@ class MeditationsEngine {
     return `
       <div class="community-link-card">
         <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
-          <span style="font-size: 1.6rem;">🧘</span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:1.6rem;height:1.6rem;flex-shrink:0;"><path d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20z"/><path d="M12 8v4l2 2"/></svg>
           <h3 style="margin: 0; font-size: 1.15rem;">
             Meditate Together with the Community
           </h3>
@@ -323,8 +323,10 @@ class MeditationsEngine {
             class="community-link-btn"
             onmouseover="this.style.transform='translateY(-1px)'"
             onmouseout="this.style.transform='translateY(0)'"
+            style="display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;"
           >
-            🏘️ Enter the Community Hub
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Enter the Community Hub
           </button>
 
           <button
@@ -333,18 +335,22 @@ class MeditationsEngine {
             class="community-link-btn"
             onmouseover="this.style.transform='translateY(-1px)'"
             onmouseout="this.style.transform='translateY(0)'"
+            style="display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;"
           >
-            🧘 Silent Meditation
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20z"/><path d="M12 8v4l2 2"/></svg>
+            Silent Meditation
           </button>
 
           ${guidedCountdown ? `
           <div style="display:flex;flex-direction:column;gap:0.35rem;">
-            <button type="button" disabled style="${disabledStyle}">
-              🎧 Guided - ${guidedCountdown}
+            <button type="button" disabled style="${disabledStyle}" style="display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg>
+              Guided - ${guidedCountdown}
             </button>
             <button type="button" onclick="event.stopPropagation(); window.featuresManager.engines.meditations.showMeditationSchedule('guided')"
-              style="background:none;border:none;padding:0;font-size:11px;color:var(--neuro-text-light);cursor:pointer;text-decoration:underline;text-align:center;">
-              📅 View Schedule
+              style="background:none;border:none;padding:0;font-size:11px;color:var(--neuro-text-light);cursor:pointer;text-decoration:underline;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:0.3rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:11px;height:11px;"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+              View Schedule
             </button>
           </div>
           ` : `
@@ -354,19 +360,23 @@ class MeditationsEngine {
             class="community-link-btn"
             onmouseover="this.style.transform='translateY(-1px)'"
             onmouseout="this.style.transform='translateY(0)'"
+            style="display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;"
           >
-            🎧 Guided Visualizations
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg>
+            Guided Visualizations
           </button>
           `}
 
           ${oshoCountdown ? `
           <div style="display:flex;flex-direction:column;gap:0.35rem;">
-            <button type="button" disabled style="${disabledStyle}">
-              💃 OSHO Active - ${oshoCountdown}
+            <button type="button" disabled style="${disabledStyle}" style="display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
+              OSHO Active - ${oshoCountdown}
             </button>
             <button type="button" onclick="event.stopPropagation(); window.featuresManager.engines.meditations.showMeditationSchedule('osho')"
-              style="background:none;border:none;padding:0;font-size:11px;color:var(--neuro-text-light);cursor:pointer;text-decoration:underline;text-align:center;">
-              📅 View Schedule
+              style="background:none;border:none;padding:0;font-size:11px;color:var(--neuro-text-light);cursor:pointer;text-decoration:underline;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:0.3rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:11px;height:11px;"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+              View Schedule
             </button>
           </div>
           ` : `
@@ -376,8 +386,10 @@ class MeditationsEngine {
             class="community-link-btn"
             onmouseover="this.style.transform='translateY(-1px)'"
             onmouseout="this.style.transform='translateY(0)'"
+            style="display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;"
           >
-            💃 OSHO Active Meditations
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
+            OSHO Active Meditations
           </button>
           `}
 
@@ -408,57 +420,58 @@ class MeditationsEngine {
             <button onclick="window.featuresManager.engines.meditations.openPDFGuide()" 
                     class="btn btn-primary" 
                     style="padding: 12px 32px; display: inline-flex; align-items: center; gap: 8px;">
-              📖 A Demo from the 'Art of Meditation' Workbook - Free For you (PDF)
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              A Demo from the 'Art of Meditation' Workbook - Free For you (PDF)
             </button>
           </div>
 
           <div class="card dashboard-wellness-toolkit" style="margin-bottom: 2rem;">
             <div class="dashboard-wellness-header">
-              <h3 class="dashboard-wellness-title">🌟 Wellness Toolkit</h3>
+              <h3 class="dashboard-wellness-title" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.770.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></svg> Wellness Toolkit</h3>
               <p class="dashboard-wellness-subtitle">Quick access to your daily reset practices</p>
             </div>
             <div class="wellness-buttons-grid">
               <button class="wellness-tool-btn wellness-tool-active" onclick="window.openSelfReset()" aria-label="Open 60-Second Self Reset">
-                <div class="wellness-tool-icon">🧘</div>
+                <div class="wellness-tool-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20z"/><path d="M12 8v4l2 2"/></svg></div>
                 <div class="wellness-tool-content">
                   <h4 class="wellness-tool-name">Self Reset</h4>
                   <p class="wellness-tool-description">Short Breathing practice</p>
                   <div class="wellness-tool-stats">
-                    <span class="wellness-stat-xp">✨ +10 XP</span>
-                    <span class="wellness-stat-karma">💎 +1 Karma</span>
+                    <span class="wellness-stat-xp">+10 XP</span>
+                    <span class="wellness-stat-karma">+1 Karma</span>
                   </div>
                 </div>
               </button>
               <button class="wellness-tool-btn wellness-tool-active" onclick="window.openFullBodyScan()" aria-label="Full Body Scan">
-                <div class="wellness-tool-icon">🌊</div>
+                <div class="wellness-tool-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg></div>
                 <div class="wellness-tool-content">
                   <h4 class="wellness-tool-name">Full Body Scan</h4>
                   <p class="wellness-tool-description">Progressive relaxation</p>
                   <div class="wellness-tool-stats">
-                    <span class="wellness-stat-xp">✨ +10 XP</span>
-                    <span class="wellness-stat-karma">💎 +1 Karma</span>
+                    <span class="wellness-stat-xp">+10 XP</span>
+                    <span class="wellness-stat-karma">+1 Karma</span>
                   </div>
                 </div>
               </button>
               <button class="wellness-tool-btn wellness-tool-active" onclick="window.openNervousReset()" aria-label="Nervous System Reset">
-                <div class="wellness-tool-icon">⚡</div>
+                <div class="wellness-tool-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
                 <div class="wellness-tool-content">
                   <h4 class="wellness-tool-name">Nervous System</h4>
                   <p class="wellness-tool-description">Balance & regulation</p>
                   <div class="wellness-tool-stats">
-                    <span class="wellness-stat-xp">✨ +10 XP</span>
-                    <span class="wellness-stat-karma">💎 +1 Karma</span>
+                    <span class="wellness-stat-xp">+10 XP</span>
+                    <span class="wellness-stat-karma">+1 Karma</span>
                   </div>
                 </div>
               </button>
               <button class="wellness-tool-btn wellness-tool-active" onclick="window.openTensionSweep()" aria-label="Tension Sweep">
-                <div class="wellness-tool-icon">🌀</div>
+                <div class="wellness-tool-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20"/><path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12"/><circle cx="12" cy="12" r="2"/></svg></div>
                 <div class="wellness-tool-content">
                   <h4 class="wellness-tool-name">Tension Sweep</h4>
                   <p class="wellness-tool-description">Release stored tension</p>
                   <div class="wellness-tool-stats">
-                    <span class="wellness-stat-xp">✨ +10 XP</span>
-                    <span class="wellness-stat-karma">💎 +1 Karma</span>
+                    <span class="wellness-stat-xp">+10 XP</span>
+                    <span class="wellness-stat-karma">+1 Karma</span>
                   </div>
                 </div>
               </button>
@@ -469,7 +482,7 @@ class MeditationsEngine {
 
           <div class="card" style="margin-bottom: 2rem;">
             <div class="dashboard-wellness-header" style="margin-bottom:1.5rem;">
-              <h3 class="dashboard-wellness-title">🎧 Guided Meditations</h3>
+              <h3 class="dashboard-wellness-title" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg> Guided Meditations</h3>
               <p class="dashboard-wellness-subtitle">Aanandoham's private, curated, unique collection</p>
             </div>
 
@@ -501,9 +514,9 @@ class MeditationsEngine {
       
       return `
         <div class="meditation-card ${isLocked ? 'locked' : ''}" 
-             title="${isLocked ? '🔒 Purchase Advanced Meditations in Karma Shop to unlock' : ''}">
+             title="${isLocked ? 'Purchase Advanced Meditations in Karma Shop to unlock' : ''}">
           ${isPremium ? '<span class="premium-badge">PREMIUM</span>' : ''}
-          ${isLocked ? '<div class="lock-icon">🔒</div>' : ''}
+          ${isLocked ? '<div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>' : ''}
           
           <div class="meditation-header">
             <span class="meditation-emoji">${med.emoji}</span>
@@ -514,8 +527,9 @@ class MeditationsEngine {
           <p class="meditation-description">${med.description}</p>
 
           <div class="meditation-actions">
-            <button class="btn btn-secondary flex-1" onclick="window.featuresManager.engines.meditations.playAudio(${med.id})">
-              🎧 Audio
+            <button class="btn btn-secondary flex-1" onclick="window.featuresManager.engines.meditations.playAudio(${med.id})" style="display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg>
+              Audio
             </button>
             <button class="btn btn-primary flex-1" onclick="window.featuresManager.engines.meditations.playVideo(${med.id})">
               ▶️ Video
@@ -547,7 +561,7 @@ class MeditationsEngine {
           </div>
           
           <div class="player-info">
-            <div id="player-emoji" class="player-emoji">🎧</div>
+            <div id="player-emoji" class="player-emoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg></div>
             <div class="player-text">
               <h4 id="player-title" class="font-bold">No Meditation Selected</h4>
               <p id="player-time" class="text-sm">0:00 / 0:00</p>
@@ -825,7 +839,7 @@ class MeditationsEngine {
     // Check premium access
     const isPrivileged = this.app.state?.currentUser?.isAdmin || this.app.state?.currentUser?.isVip;
     if (med.premium && !isPrivileged && !this.app.gamification?.state?.unlockedFeatures?.includes('advanced_meditations')) {
-      this.app.showToast('🔒 Unlock Advanced Meditations in the Karma Shop!', 'info');
+      this.app.showToast('Unlock Advanced Meditations in the Karma Shop!', 'info');
       return;
     }
     
@@ -843,7 +857,7 @@ class MeditationsEngine {
     // Check premium access
     const isPrivileged2 = this.app.state?.currentUser?.isAdmin || this.app.state?.currentUser?.isVip;
     if (med.premium && !isPrivileged2 && !this.app.gamification?.state?.unlockedFeatures?.includes('advanced_meditations')) {
-      this.app.showToast('🔒 Unlock Advanced Meditations in the Karma Shop!', 'info');
+      this.app.showToast('Unlock Advanced Meditations in the Karma Shop!', 'info');
       return;
     }
     
@@ -862,7 +876,7 @@ class MeditationsEngine {
 
       // Update player UI
       const playerBox = document.getElementById('meditation-audio-player');
-      document.getElementById('player-emoji').textContent = med.emoji;
+      document.getElementById('player-emoji').innerHTML = med.emoji;
       document.getElementById('player-title').textContent = med.title;
       playerBox.classList.remove('hidden');
 
@@ -872,7 +886,7 @@ class MeditationsEngine {
       }
     } catch (error) {
       console.error('Error starting meditation:', error);
-      this.app.showToast('❌ Error starting meditation', 'error');
+      this.app.showToast('Error starting meditation', 'error');
     }
   }
 
@@ -883,7 +897,7 @@ class MeditationsEngine {
    */
   _startYouTubePlayer(med, showVideo) {
     if (!window.ytReady) {
-      this.app.showToast('🎧 Initializing player… please tap again.', 'info');
+      this.app.showToast('Initializing player… please tap again.', 'info');
       window.onYouTubeIframeAPIReady = () => {
         window.ytReady = true;
         this._startYouTubePlayer(med, showVideo);
@@ -904,7 +918,7 @@ class MeditationsEngine {
               document.getElementById('play-pause-btn').disabled = false;
               if (!showVideo) {
                 this.ytPlayer.playVideo();
-                this.app.showToast('🎧 Audio playing', 'success');
+                this.app.showToast('Audio playing', 'success');
               } else {
                 this.app.showToast('Ready – tap play to start', 'info');
               }
@@ -912,7 +926,7 @@ class MeditationsEngine {
             onStateChange: (e) => this._handleYouTubeStateChange(e),
             onError: (e) => {
               console.error('YouTube player error:', e);
-              this.app.showToast('❌ Video error', 'error');
+              this.app.showToast('Video error', 'error');
             }
           }
         });
@@ -936,7 +950,7 @@ class MeditationsEngine {
       this._startProgressUpdates();
     } catch (error) {
       console.error('Error initializing YouTube player:', error);
-      this.app.showToast('❌ Error loading video', 'error');
+      this.app.showToast('Error loading video', 'error');
     }
   }
 
@@ -1059,7 +1073,7 @@ class MeditationsEngine {
         }
       } catch (error) {
         console.error('Error toggling playback:', error);
-        this.app.showToast('⏸️ Player not ready', 'info');
+        this.app.showToast('Player not ready', 'info');
       }
     }
   }
@@ -1170,7 +1184,7 @@ class MeditationsEngine {
     try {
       this.isPlaying = false;
       document.getElementById('play-pause-btn').textContent = '▶️';
-      this.app.showToast('🎉 Meditation complete! Well done.', 'success');
+      this.app.showToast('Meditation complete! Well done.', 'success');
       
       if (!this.currentMeditation) return;
 
@@ -1310,7 +1324,7 @@ class MeditationsEngine {
     if (this.pdfGuideUrl && this.pdfGuideUrl !== 'YOUR_PDF_URL_HERE') {
       window.open(this.pdfGuideUrl, '_blank');
     } else {
-      this.app.showToast('ℹ️ PDF Guide is not yet available.', 'info');
+      this.app.showToast('PDF Guide is not yet available.', 'info');
     }
   }
 
