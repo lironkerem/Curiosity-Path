@@ -57,14 +57,14 @@ function shadowLabCard() {
   return `
     <div class="card">
       <div style="text-align:center;margin-bottom:var(--spacing-lg)">
-        <div style="font-size:3rem;margin-bottom:var(--spacing-sm)">🔮</div>
-        <h3 style="margin:0 0 var(--spacing-xs) 0">Shadow Lab</h3>
+        <div style="margin-bottom:var(--spacing-sm)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="13" r="8"/><path d="M12 2v3"/><path d="m4.93 5.93 2.12 2.12"/><path d="M2 13h3"/><path d="m19.07 5.93-2.12 2.12"/><path d="M19 13h3"/></svg></div>
+        <h3 style="margin:0 0 var(--spacing-xs) 0;display:flex;align-items:center;justify-content:center;gap:0.5rem;">Shadow Lab</h3>
         <p style="color:var(--neuro-text-light);font-size:0.95rem;max-width:500px;margin:0 auto">Your primary ritual for reflection and integration.</p>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--spacing-lg);margin-top:var(--spacing-xl)">
-        <button id="startNewJourney" class="btn" style="padding:var(--spacing-xl);font-size:1.1rem;font-weight:700;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--spacing-sm);text-align:center;line-height:1.4"><span style="font-size:2rem">🌑</span><span>9-Step Shadow<br>Guided Process</span></button>
-        <button id="openFreeJournal" class="btn" style="padding:var(--spacing-xl);font-size:1.1rem;font-weight:700;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--spacing-sm);text-align:center;line-height:1.4"><span style="font-size:2rem">💭</span><span>Shadow<br>Dialogue</span></button>
-        <button id="openTriggerLog" class="btn" style="padding:var(--spacing-xl);font-size:1.1rem;font-weight:700;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--spacing-sm);text-align:center;line-height:1.4"><span style="font-size:2rem">⚡</span><span>Trigger<br>Release</span></button>
+        <button id="startNewJourney" class="btn" style="padding:var(--spacing-xl);font-size:1.1rem;font-weight:700;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--spacing-sm);text-align:center;line-height:1.4"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg><span>9-Step Shadow<br>Guided Process</span></button>
+        <button id="openFreeJournal" class="btn" style="padding:var(--spacing-xl);font-size:1.1rem;font-weight:700;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--spacing-sm);text-align:center;line-height:1.4"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Shadow<br>Dialogue</span></button>
+        <button id="openTriggerLog" class="btn" style="padding:var(--spacing-xl);font-size:1.1rem;font-weight:700;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--spacing-sm);text-align:center;line-height:1.4"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg><span>Trigger<br>Release</span></button>
       </div>
     </div>`;
 }
@@ -74,8 +74,8 @@ function archetypeCard(universal, hasActive) {
   return `
     <div class="card">
       <div style="text-align:center;margin-bottom:var(--spacing-lg)">
-        <div style="font-size:3rem;margin-bottom:var(--spacing-sm)">✨</div>
-        <h3 style="margin:0 0 var(--spacing-xs) 0">The Six Archetypes Integration Studio</h3>
+        <div style="margin-bottom:var(--spacing-sm)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg></div>
+        <h3 style="margin:0 0 var(--spacing-xs) 0;display:flex;align-items:center;justify-content:center;gap:0.5rem;">The Six Archetypes Integration Studio</h3>
         <p style="color:var(--neuro-text-light);font-size:0.95rem;max-width:500px;margin:0 auto">Enter a personalized Shadow Alchemy journey.</p>
       </div>
       ${hasActive ? `
@@ -98,16 +98,16 @@ function subShadowsCard(allShadows, completedShadows, shadowPct) {
   return `
     <div class="card">
       <div style="text-align:center;margin-bottom:var(--spacing-lg)">
-        <div style="font-size:3rem;margin-bottom:var(--spacing-sm)">🌑</div>
-        <h3 style="margin:0 0 var(--spacing-xs) 0">Sub-Shadows Lab</h3>
+        <div style="margin-bottom:var(--spacing-sm)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg></div>
+        <h3 style="margin:0 0 var(--spacing-xs) 0;display:flex;align-items:center;justify-content:center;gap:0.5rem;">Sub-Shadows Lab</h3>
         <p style="color:var(--neuro-text-light);font-size:0.95rem;max-width:500px;margin:0 auto">Deep dive into 17 specific shadow patterns.</p>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--spacing-md);margin:var(--spacing-lg) 0">
-        <div style="text-align:center;padding:var(--spacing-md);background:var(--neuro-bg);border-radius:var(--radius-md);box-shadow:var(--shadow-inset-sm)"><div style="font-size:1.5rem;margin-bottom:var(--spacing-xs)">⏱️</div><div style="font-weight:600;font-size:0.9rem;margin-bottom:2px">15-25 Minutes</div><div style="font-size:0.8rem;color:var(--neuro-text-light)">Per session</div></div>
-        <div style="text-align:center;padding:var(--spacing-md);background:var(--neuro-bg);border-radius:var(--radius-md);box-shadow:var(--shadow-inset-sm)"><div style="font-size:1.5rem;margin-bottom:var(--spacing-xs)">💎</div><div style="font-weight:600;font-size:0.9rem;margin-bottom:2px">+5 Light-Particles</div><div style="font-size:0.8rem;color:var(--neuro-text-light)">Per completion</div></div>
-        <div style="text-align:center;padding:var(--spacing-md);background:var(--neuro-bg);border-radius:var(--radius-md);box-shadow:var(--shadow-inset-sm)"><div style="font-size:1.5rem;margin-bottom:var(--spacing-xs)">🎯</div><div style="font-weight:600;font-size:0.9rem;margin-bottom:2px">17 Patterns</div><div style="font-size:0.8rem;color:var(--neuro-text-light)">To explore</div></div>
+        <div style="text-align:center;padding:var(--spacing-md);background:var(--neuro-bg);border-radius:var(--radius-md);box-shadow:var(--shadow-inset-sm)"><div style="margin-bottom:var(--spacing-xs)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg></div><div style="font-weight:600;font-size:0.9rem;margin-bottom:2px">15-25 Minutes</div><div style="font-size:0.8rem;color:var(--neuro-text-light)">Per session</div></div>
+        <div style="text-align:center;padding:var(--spacing-md);background:var(--neuro-bg);border-radius:var(--radius-md);box-shadow:var(--shadow-inset-sm)"><div style="margin-bottom:var(--spacing-xs)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg></div><div style="font-weight:600;font-size:0.9rem;margin-bottom:2px">+5 Light-Particles</div><div style="font-size:0.8rem;color:var(--neuro-text-light)">Per completion</div></div>
+        <div style="text-align:center;padding:var(--spacing-md);background:var(--neuro-bg);border-radius:var(--radius-md);box-shadow:var(--shadow-inset-sm)"><div style="margin-bottom:var(--spacing-xs)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div><div style="font-weight:600;font-size:0.9rem;margin-bottom:2px">17 Patterns</div><div style="font-size:0.8rem;color:var(--neuro-text-light)">To explore</div></div>
       </div>
-      <button id="open-sub-shadows-lab" class="btn btn-primary" style="width:100%;padding:var(--spacing-lg);font-size:1.1rem;font-weight:700;margin-top:var(--spacing-sm)">🔮 Explore All ${allShadows.length} Shadow Patterns</button>
+      <button id="open-sub-shadows-lab" class="btn btn-primary" style="width:100%;padding:var(--spacing-lg);font-size:1.1rem;font-weight:700;margin-top:var(--spacing-sm);display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="13" r="8"/><path d="M12 2v3"/><path d="m4.93 5.93 2.12 2.12"/><path d="M2 13h3"/><path d="m19.07 5.93-2.12 2.12"/><path d="M19 13h3"/></svg> Explore All ${allShadows.length} Shadow Patterns</button>
     </div>`;
 }
 
@@ -116,8 +116,8 @@ function savedWorkCard(recentHTML) {
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" id="saved-work-header">
         <div style="text-align:center;flex:1">
-          <div style="font-size:3rem;margin-bottom:var(--spacing-sm)">📚</div>
-          <h3 style="margin:0 0 var(--spacing-xs) 0">Your Saved Work</h3>
+          <div style="margin-bottom:var(--spacing-sm)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+          <h3 style="margin:0 0 var(--spacing-xs) 0;display:flex;align-items:center;justify-content:center;gap:0.5rem;">Your Saved Work</h3>
           <p style="color:var(--neuro-text-light);font-size:0.95rem;margin:0">Recent entries: Shadow Guided Process, Trigger Release, and Shadow Dialogue.</p>
         </div>
         <button class="btn" style="padding:8px 16px;margin-left:var(--spacing-md);flex-shrink:0" id="toggle-saved-work"><span id="saved-work-arrow">▼</span></button>

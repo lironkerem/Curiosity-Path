@@ -10,7 +10,7 @@ export function openSubShadowJourneyModal(shadowId) {
   const { modal, closeModal } = createModal({
     id: 'subShadowJourneyModal',
     title: `${shadow.icon} ${shadow.title}`,
-    subtitle: `${shadow.tagline}<br><span style="font-size:0.85rem">⏱️ ${shadow.estimatedTime}</span>`,
+    subtitle: `${shadow.tagline}<br><span style="font-size:0.85rem;display:inline-flex;align-items:center;gap:0.25rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:0.85rem;height:0.85rem;vertical-align:middle;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> ${shadow.estimatedTime}</span>`,
     content: '<div id="sub-shadow-journey-content" style="overflow-y:auto;max-height:calc(90vh - 200px)"></div>',
     actions: '',
     onClose: () => {
@@ -111,7 +111,7 @@ function showCompletion(modal) {
 
   const contentEl = modal.querySelector('#sub-shadow-journey-content');
   contentEl.innerHTML = `
-    <h3>🎉 Journey Complete</h3>
+    <h3 style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Journey Complete</h3>
     <div style="background:var(--neuro-bg);padding:var(--spacing-lg);border-radius:var(--radius-lg);box-shadow:var(--shadow-inset-lg);margin:var(--spacing-lg) 0">
       <p style="margin-bottom:var(--spacing-md);white-space:pre-line">${journey.completionMessage}</p>
       <div style="background:var(--neuro-bg);padding:var(--spacing-md);border-radius:var(--radius-md);box-shadow:var(--shadow-inset-sm);margin-top:var(--spacing-md)">

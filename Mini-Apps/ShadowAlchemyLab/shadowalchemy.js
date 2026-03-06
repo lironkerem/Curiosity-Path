@@ -28,13 +28,13 @@ tab.innerHTML = `
       </header>
 
       <div class="card relative" style="padding:3rem; text-align:center; opacity: 0.75;">
-        <div style="font-size: 5rem; margin-bottom: 1rem; opacity: 0.3;">🔒</div>
+        <div style="margin-bottom: 1rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:5rem;height:5rem;opacity:0.3;"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
         <h2 style="color: var(--neuro-text); font-size: 2rem; margin-bottom: 1rem;">Premium Feature Locked</h2>
         <p style="color: var(--neuro-text-light); font-size: 1.2rem; margin-bottom: 2rem;">
           Unlock the Shadow Alchemy Lab in the Karma Shop to access this powerful transformation tool.
         </p>
         <button onclick="window.app.nav.switchTab('karma-shop')" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem;">
-          🛒 Visit Karma Shop
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg> Visit Karma Shop
         </button>
       </div>
 
