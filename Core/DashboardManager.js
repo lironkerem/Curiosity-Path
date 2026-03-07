@@ -1102,7 +1102,7 @@ export default class DashboardManager {
     container.innerHTML = `
       <div class="card dashboard-wellness-toolkit dashboard-community-sanctuary mb-8" style="padding-top:0;">
         <div style="display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:0;">
-          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/CommunityHub.png" alt="Community" style="width:30rem;object-fit:contain;margin-top:1rem;margin-bottom:1rem;">
+          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/CommunityHub.png" alt="Community" style="width:30rem;object-fit:contain;margin-top:0.25rem;margin-bottom:0.25rem;">
         </div>
 
         <div class="wellness-buttons-grid">
