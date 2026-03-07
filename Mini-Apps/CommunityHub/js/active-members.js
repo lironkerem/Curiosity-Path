@@ -6,6 +6,7 @@
 
 import { CommunityDB } from './community-supabase.js';
 import { Core } from './core.js';
+import { renderAvatarIcon } from './avatar-icons.js';
 
 const ActiveMembers = {
 
@@ -158,7 +159,9 @@ const ActiveMembers = {
 
         const avatarInner = avatarUrl
             ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" alt="${safeName}" loading="lazy">`
-            : `<span>${this._escape(emoji || name.charAt(0).toUpperCase())}</span>`;
+            : emoji
+                ? `<span class="member-avatar-icon">${renderAvatarIcon(emoji)}</span>`
+                : `<span>${this._escape(name.charAt(0).toUpperCase())}</span>`;
 
         return `
             <div class="member-card-mini"

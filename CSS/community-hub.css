@@ -5837,3 +5837,9 @@ body.solar-room-active[data-season] {
   .modal-overlay .modal-card { padding: 14px 10px !important; }
 
 }
+
+/* Member card avatar SVG icon */
+.member-avatar-icon .lucide-avatar-icon {
+  width: 24px;
+  height: 24px;
+}
