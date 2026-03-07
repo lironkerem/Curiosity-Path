@@ -625,7 +625,7 @@ export class GamificationEngine {
       const parts = [];
       if (xp > 0) parts.push(`+${xp} XP`);
       if (karma > 0) parts.push(`+${karma} Karma`);
-      this.app.showToast(`<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${parts.join(' • ')} from ${source}`, 'success');
+      this.app.showToast(`${parts.join(' • ')} from ${source}`, 'success');
     }
 
     if (xp > 0) this.checkLevelUp();
@@ -1130,7 +1130,7 @@ export class GamificationEngine {
         this.state.karma += karma;
         
         if (!this.state._bulkMode && this.app?.showToast) {
-          this.app.showToast(`<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Daily quests finished! +${xp} XP +${karma} Karma`, 'success');
+          this.app.showToast(`Daily quests finished! +${xp} XP +${karma} Karma`, 'success');
         }
         
         this.emit('dailyQuestsComplete', null);
@@ -1165,7 +1165,7 @@ export class GamificationEngine {
         this.state.karma += karma;
         
         if (!this.state._bulkMode && this.app?.showToast) {
-          this.app.showToast(`<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Daily quests finished! +${xp} XP +${karma} Karma`, 'success');
+          this.app.showToast(`Daily quests finished! +${xp} XP +${karma} Karma`, 'success');
         }
         
         if (!this.state._bulkMode) this.emit('dailyQuestsComplete', null);
@@ -1211,7 +1211,7 @@ export class GamificationEngine {
         this.state.karma += karma;
         
         if (this.app?.showToast) {
-          this.app.showToast(`<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Weekly quests finished! +${xp} XP +${karma} Karma`, 'success');
+          this.app.showToast(`Weekly quests finished! +${xp} XP +${karma} Karma`, 'success');
         }
         
         this.state.weeklyQuestCompletions = (this.state.weeklyQuestCompletions || 0) + 1;
@@ -1222,7 +1222,7 @@ export class GamificationEngine {
         this.state.karma += karma;
         
         if (this.app?.showToast) {
-          this.app.showToast(`<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Monthly quests finished! +${xp} XP +${karma} Karma`, 'success');
+          this.app.showToast(`Monthly quests finished! +${xp} XP +${karma} Karma`, 'success');
         }
         
         this.state.monthlyQuestCompletions = (this.state.monthlyQuestCompletions || 0) + 1;

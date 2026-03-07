@@ -269,11 +269,11 @@ export default class DashboardManager {
     this.app.gamification.on('questCompleted', quest => {
       if (this.app.gamification._bulkMode) return;
       
-      this.app.showToast(`<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Quest Complete: ${quest.name}! +${quest.xpReward} XP`, 'success');
+      this.app.showToast(`Quest Complete: ${quest.name}! +${quest.xpReward} XP`, 'success');
       
       if (quest.inspirational) {
         setTimeout(() => {
-          this.app.showToast(`<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.88 5.76L19.76 10l-5.76 1.88L12 17.76l-1.88-5.76L4.24 10l5.76-1.88z"/><path d="M5 3l.88 2.76L8.76 7l-2.76.88L5 10.76l-.88-2.76L1.24 7l2.76-.88z"/></svg> ${quest.inspirational}`, 'info');
+          this.app.showToast(`${quest.inspirational}`, 'info');
         }, 1500);
       }
       
@@ -289,7 +289,7 @@ export default class DashboardManager {
     this.app.gamification.on('questProgress', () => this.render());
     
     this.app.gamification.on('dailyQuestsComplete', () => {
-      this.app.showToast(`<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> All Daily Quests Complete! +${UI_CONSTANTS.DAILY_BONUS_XP} Bonus XP <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`, 'success');
+      this.app.showToast(`All Daily Quests Complete! +${UI_CONSTANTS.DAILY_BONUS_XP} Bonus XP `, 'success');
     });
     
     this.checkDailyReset();
@@ -1023,7 +1023,7 @@ export default class DashboardManager {
         <div class="dashboard-container">
           <div class="dashboard-content">
             <header class="main-header project-curiosity"
-                    style="--header-img:url('/public/Tabs/NavDashboard.png');
+                    style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavDashboard.png');
                            --header-title:'${userName}';
                            --header-tag:'Your journey inward begins here, so practice. explore. transform.'">
               <h1>${userName}'s Spiritual Dashboard</h1>
@@ -1100,9 +1100,10 @@ export default class DashboardManager {
     ];
 
     container.innerHTML = `
-      <div class="card dashboard-wellness-toolkit dashboard-community-sanctuary mb-8" style="padding-top:0;">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:0;">
-          <img src="/public/Tabs/CommunityHub.png" alt="Community" style="width:30rem;object-fit:contain;margin-top:0.5rem;margin-bottom:0;">
+      <div class="card dashboard-wellness-toolkit dashboard-community-sanctuary mb-8">
+        <div class="dashboard-wellness-header">
+          <h3 class="dashboard-wellness-title"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22c1.25-1.25 2.5-2.5 3.75-3.75"/><path d="M22 2C11 2 2 11 2 22c5.5 0 11-2.5 14.5-6S22 7.5 22 2z"/></svg> Community Sanctuary</h3>
+          <p class="dashboard-wellness-subtitle">Practice together, grow together</p>
         </div>
 
         <div class="wellness-buttons-grid">
@@ -1120,9 +1121,8 @@ export default class DashboardManager {
 
         <button onclick="window.app?.nav?.switchTab('community-hub')"
                 class="btn btn-primary"
-                style="width:100%;margin-top:1rem;font-size:1.75rem;font-weight:700;letter-spacing:0.02em;gap:0.75rem;padding:1rem 1.5rem;">
-          <img src="/public/Tabs/Community.png" alt="" style="height:4rem;width:4rem;object-fit:contain;">
-          Enter the Community Hub →
+                style="width:100%;margin-top:1rem;">
+          Enter the Sanctuary →
         </button>
       </div>`;
   }

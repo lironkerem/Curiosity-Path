@@ -365,7 +365,7 @@ export default class UserTab {
         avatar_url: publicUrl
       }));
       this.syncAvatar();
-      this.app.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Profile photo updated', 'success');
+      this.app.showToast('Profile photo updated', 'success');
 
     } catch (err) {
       console.error('handleAvatarUpload error:', err);
@@ -690,7 +690,7 @@ export default class UserTab {
     if (warning) warning.style.display = isValid ? 'none' : 'block';
     
     if (!isValid) {
-      this.app.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Start time must be before end time', 'warning');
+      this.app.showToast('Start time must be before end time', 'warning');
     }
 
     return isValid;
@@ -720,14 +720,14 @@ export default class UserTab {
   /** Enable push notifications */
   async enablePushNotifications() {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      this.app.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Push not supported', 'error');
+      this.app.showToast('Push not supported', 'error');
       return false;
     }
 
     try {
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
-        this.app.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Permission denied', 'error');
+        this.app.showToast('Permission denied', 'error');
         return false;
       }
 
@@ -763,11 +763,11 @@ export default class UserTab {
         if (!res.ok) throw new Error('Save failed');
       }
 
-      this.app.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Notifications enabled', 'success');
+      this.app.showToast('Notifications enabled', 'success');
       return true;
     } catch (err) {
       console.error(err);
-      this.app.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Enable failed: ' + err.message, 'error');
+      this.app.showToast('Enable failed: ' + err.message, 'error');
       return false;
     }
   }
@@ -780,7 +780,7 @@ export default class UserTab {
       
       if (sub) {
         await sub.unsubscribe();
-        this.app.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg> Notifications disabled', 'success');
+        this.app.showToast('Notifications disabled', 'success');
       }
     } catch (e) {
       console.error(e);
@@ -823,9 +823,9 @@ export default class UserTab {
       .then(({ error }) => {
         if (error) {
           console.error('Save error:', error);
-          this.app.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Saved locally only', 'warning');
+          this.app.showToast('Saved locally only', 'warning');
         } else {
-          this.app.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Settings saved', 'success');
+          this.app.showToast('Settings saved', 'success');
         }
       });
   }
@@ -1158,11 +1158,11 @@ export default class UserTab {
         await this.app.logout();
       } else {
         console.error('app.logout() not available');
-        this.app?.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Logout failed', 'error');
+        this.app?.showToast('Logout failed', 'error');
       }
     } catch (err) {
       console.error('Logout error:', err);
-      this.app?.showToast('<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Logout error', 'error');
+      this.app?.showToast('Logout error', 'error');
     }
   }
 
