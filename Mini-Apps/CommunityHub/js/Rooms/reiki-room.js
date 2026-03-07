@@ -17,7 +17,7 @@ class ReikiRoom extends PracticeRoom {
             icon:        '✨',
             description: '7-day chakra rhythm with energy healing',
             energy:      'Healing',
-            imageUrl:    '/Public/Community/Reiki.png',
+            imageUrl:    '/public/Community/Reiki.png',
             participants: 15,
         });
 
@@ -60,8 +60,8 @@ class ReikiRoom extends PracticeRoom {
             Monday: {
                 key: 'sacral', name: 'Sacral Chakra - Svadhisthana', planet: '🌙 Moon',
                 color: 'Orange', theme: 'Emotional flow, creativity, softness',
-                image:  '/Public/Community/Chakras/Svadhistana1.jpg',
-                image2: '/Public/Community/Chakras/Svadhistana2.jpg',
+                image:  '/public/Community/Chakras/Svadhistana1.jpg',
+                image2: '/public/Community/Chakras/Svadhistana2.jpg',
                 practice:  ['Gentle hip circles for 1 minute', 'Place hand on lower abdomen, breathe softly', 'Drink water slowly, noticing sensation', 'Move freely to music for 2 minutes', 'Write one sentence about how you feel right now', 'Stretch hips or lower back gently', 'Smile intentionally and hold it for 30 seconds', 'Take a warm shower mindfully', 'Name one thing you enjoy today', 'Say: I allow myself to feel'],
                 practice2: ['Rock pelvis forward and back while seated', 'Place warm hands on lower belly', 'Draw a simple shape or doodle', 'Notice one pleasant sensation in your body', 'Roll shoulders in slow circles', 'Stretch inner thighs lightly', 'Breathe into hips and lower back', 'Allow one emotion without judging it', 'Move hands like water for 1 minute', 'Say: I allow movement and change'],
                 inquiry: 'What am I feeling right now without judging it?'
@@ -69,8 +69,8 @@ class ReikiRoom extends PracticeRoom {
             Tuesday: {
                 key: 'root', name: 'Root Chakra - Muladhara', planet: '♂️ Mars',
                 color: 'Red', theme: 'Grounding, strength, action',
-                image:  '/Public/Community/Chakras/Muladhara1.jpg',
-                image2: '/Public/Community/Chakras/Muladhara2.jpg',
+                image:  '/public/Community/Chakras/Muladhara1.jpg',
+                image2: '/public/Community/Chakras/Muladhara2.jpg',
                 practice:  ['Stand barefoot and feel your weight for 60 seconds', 'Slow inhale 4 sec, exhale 6 sec, 5 rounds', 'Name 3 things you can physically touch right now', 'Press feet firmly into the floor and tense legs for 10 sec', 'Eat something warm and simple with full attention', 'Walk slowly, feeling heel to toe contact', 'Place hands on lower belly and breathe', 'Clean or organize one small physical space', 'Sit and feel your spine connect to the ground', 'Say out loud: I am here, I am safe'],
                 practice2: ['Sit and press your feet into the floor for 30 seconds', 'Slow walk for 2 minutes without phone', 'Place a heavy object on your thighs and feel its weight', 'Eat one bite of food extremely slowly', 'Touch a solid surface and focus on texture', 'Stand and shift weight side to side', 'Tense entire body for 5 sec, release completely', 'Notice 3 red things around you', 'Visualize roots growing from your feet', 'Say: I am grounded and stable'],
                 inquiry: 'What concrete action strengthens my life today?'
@@ -78,8 +78,8 @@ class ReikiRoom extends PracticeRoom {
             Wednesday: {
                 key: 'throat', name: 'Throat Chakra - Vishuddha', planet: '☿ Mercury',
                 color: 'Blue', theme: 'Truth, expression, clarity',
-                image:  '/Public/Community/Chakras/Vissudha1.jpg',
-                image2: '/Public/Community/Chakras/Vissudha2.jpg',
+                image:  '/public/Community/Chakras/Vissudha1.jpg',
+                image2: '/public/Community/Chakras/Vissudha2.jpg',
                 practice:  ['Take a deep breath and sigh out loud', 'Hum gently for 1 minute', 'Speak one honest sentence aloud', 'Roll shoulders and relax neck', 'Drink water mindfully', 'Write one thing you want to say but haven\'t', 'Sing one line of a song', 'Place hand on throat and breathe', 'Speak slower than usual for one minute', 'Say: My voice matters'],
                 practice2: ['Make any sound for 30 seconds', 'Gently massage your neck', 'Write and read aloud one true statement', 'Practice saying "no" out loud', 'Stretch your jaw wide, then relax', 'Whisper, then speak normally', 'Notice when you hold back words', 'Gargle water mindfully', 'Speak your name clearly 3 times', 'Say: I express my truth'],
                 inquiry: 'What truth wants to be spoken or written?'
@@ -87,8 +87,8 @@ class ReikiRoom extends PracticeRoom {
             Thursday: {
                 key: 'solar', name: 'Solar Plexus Chakra - Manipura', planet: '♃ Jupiter',
                 color: 'Yellow', theme: 'Confidence, direction, expansion',
-                image:  '/Public/Community/Chakras/Manipura1.jpg',
-                image2: '/Public/Community/Chakras/Manipura2.jpg',
+                image:  '/public/Community/Chakras/Manipura1.jpg',
+                image2: '/public/Community/Chakras/Manipura2.jpg',
                 practice:  ['Stand tall and open your chest for 30 seconds', 'Take 5 strong belly breaths', 'Place hand above navel and feel warmth', 'Do one small task you have been avoiding', 'Sit upright and feel your core engaged', 'Say your name out loud with confidence', 'Visualize a warm yellow light in your belly', 'Clench fists, release slowly, repeat 3 times', 'Make one clear decision today', 'Say: I trust myself'],
                 practice2: ['Stand in a power pose for 1 minute', 'Laugh out loud for 15 seconds', 'List 3 things you\'re good at', 'Breathe fire breath (quick exhales)', 'Straighten your posture fully', 'Make strong eye contact with yourself in mirror', 'Do 5 confident shoulder rolls', 'Visualize golden light expanding from core', 'Complete one unfinished task', 'Say: I am powerful and capable'],
                 inquiry: 'Where am I ready to step up or expand?'
@@ -96,8 +96,8 @@ class ReikiRoom extends PracticeRoom {
             Friday: {
                 key: 'heart', name: 'Heart Chakra - Anahata', planet: '♀ Venus',
                 color: 'Green', theme: 'Love, compassion, connection',
-                image:  '/Public/Community/Chakras/Anahata1.jpg',
-                image2: '/Public/Community/Chakras/Anahata2.jpg',
+                image:  '/public/Community/Chakras/Anahata1.jpg',
+                image2: '/public/Community/Chakras/Anahata2.jpg',
                 practice:  ['Place both hands on your heart', 'Take 3 deep breaths into your chest', 'Think of someone you love', 'Hug yourself gently', 'Smile at your reflection', 'Write one thing you appreciate about yourself', 'Send a kind message to someone', 'Stretch arms wide and open chest', 'Notice something beautiful around you', 'Say: I am worthy of love'],
                 practice2: ['Press palms together at heart center', 'Breathe green light into chest', 'Forgive yourself for one small thing', 'List 3 people/things you\'re grateful for', 'Give yourself a compliment out loud', 'Visualize someone you care about happy', 'Place hand on heart and feel it beat', 'Do one act of kindness', 'Open arms wide and breathe deeply', 'Say: Love flows through me'],
                 inquiry: 'Where can I offer more compassion today - to myself or others?'
@@ -105,8 +105,8 @@ class ReikiRoom extends PracticeRoom {
             Saturday: {
                 key: 'integration', name: 'Integration Day - All Chakras', planet: '♄ Saturn',
                 color: 'White', theme: 'Discipline, boundaries, completion',
-                image:  '/Public/Community/Chakras/Integration1.jpg',
-                image2: '/Public/Community/Chakras/Integration2.jpg',
+                image:  '/public/Community/Chakras/Integration1.jpg',
+                image2: '/public/Community/Chakras/Integration2.jpg',
                 practice:  ['Scan body from feet to crown', 'Notice which chakra needs attention today', 'Do one grounding practice', 'Do one heart-opening practice', 'Rest in stillness for 2 minutes', 'Reflect on the week', 'Release one thing no longer serving you', 'Set one clear boundary', 'Complete one unfinished task', 'Say: I integrate and release'],
                 practice2: ['Breathe through each chakra slowly', 'Journal about this week\'s growth', 'Practice saying no to something', 'Organize one physical space', 'Do a full body stretch', 'Visualize energy flowing freely', 'Acknowledge one accomplishment', 'Rest without guilt for 5 minutes', 'Plan one thing for next week', 'Say: I honor my boundaries'],
                 inquiry: 'What needs to be integrated or released?'
@@ -114,8 +114,8 @@ class ReikiRoom extends PracticeRoom {
             Sunday: {
                 key: 'crown', name: 'Crown Chakra - Sahasrara', planet: '☉ Sun',
                 color: 'Violet', theme: 'Awareness, unity, transcendence',
-                image:  '/Public/Community/Chakras/Sahasrara1.jpg',
-                image2: '/Public/Community/Chakras/Sahasrara2.jpg',
+                image:  '/public/Community/Chakras/Sahasrara1.jpg',
+                image2: '/public/Community/Chakras/Sahasrara2.jpg',
                 practice:  ['Sit in silence for 3 minutes', 'Focus awareness at crown of head', 'Notice thoughts without following them', 'Breathe white or violet light', 'Feel connection to something larger', 'Practice gratitude for consciousness itself', 'Observe without judgment for 2 minutes', 'Visualize light entering crown', 'Rest in pure awareness', 'Say: I am connected to all that is'],
                 practice2: ['Meditate on infinite space', 'Gently touch top of head', 'Imagine boundaries dissolving', 'Breathe as if the universe breathes you', 'Notice awareness of being aware', 'Feel unity with all beings', 'Rest in stillness and openness', 'Visualize violet light at crown', 'Simply be, without doing', 'Say: I am one with everything'],
                 inquiry: 'What is awareness itself noticing right now?'
@@ -130,16 +130,16 @@ class ReikiRoom extends PracticeRoom {
         };
 
         this.CHAKRA_OPTIONS = [
-            { value: 'root',      label: 'Root Chakra',   color: 'Red',    image: '/Public/Community/Chakras/Muladhara1.jpg',   image2: '/Public/Community/Chakras/Muladhara2.jpg' },
-            { value: 'sacral',    label: 'Sacral Chakra', color: 'Orange', image: '/Public/Community/Chakras/Svadhistana1.jpg', image2: '/Public/Community/Chakras/Svadhistana2.jpg' },
-            { value: 'solar',     label: 'Solar Plexus',  color: 'Yellow', image: '/Public/Community/Chakras/Manipura1.jpg',    image2: '/Public/Community/Chakras/Manipura2.jpg' },
-            { value: 'heart',     label: 'Heart Chakra',  color: 'Green',  image: '/Public/Community/Chakras/Anahata1.jpg',     image2: '/Public/Community/Chakras/Anahata2.jpg' },
-            { value: 'throat',    label: 'Throat Chakra', color: 'Blue',   image: '/Public/Community/Chakras/Vissudha1.jpg',    image2: '/Public/Community/Chakras/Vissudha2.jpg' },
-            { value: 'third-eye', label: 'Third Eye',     color: 'Indigo', image: '/Public/Community/Chakras/Ajna1.jpg',        image2: '/Public/Community/Chakras/Ajna2.jpg',
+            { value: 'root',      label: 'Root Chakra',   color: 'Red',    image: '/public/Community/Chakras/Muladhara1.jpg',   image2: '/public/Community/Chakras/Muladhara2.jpg' },
+            { value: 'sacral',    label: 'Sacral Chakra', color: 'Orange', image: '/public/Community/Chakras/Svadhistana1.jpg', image2: '/public/Community/Chakras/Svadhistana2.jpg' },
+            { value: 'solar',     label: 'Solar Plexus',  color: 'Yellow', image: '/public/Community/Chakras/Manipura1.jpg',    image2: '/public/Community/Chakras/Manipura2.jpg' },
+            { value: 'heart',     label: 'Heart Chakra',  color: 'Green',  image: '/public/Community/Chakras/Anahata1.jpg',     image2: '/public/Community/Chakras/Anahata2.jpg' },
+            { value: 'throat',    label: 'Throat Chakra', color: 'Blue',   image: '/public/Community/Chakras/Vissudha1.jpg',    image2: '/public/Community/Chakras/Vissudha2.jpg' },
+            { value: 'third-eye', label: 'Third Eye',     color: 'Indigo', image: '/public/Community/Chakras/Ajna1.jpg',        image2: '/public/Community/Chakras/Ajna2.jpg',
               practices:  ['Focus on space between eyebrows', 'Close eyes and look inward', 'Trust your intuition on one decision', 'Meditate in darkness for 5 minutes', 'Notice synchronicities today', 'Visualize indigo light at third eye', 'Ask a question and listen for inner answer', 'Practice seeing with eyes closed', 'Trust your first instinct', 'Say: I see clearly'],
               practices2: ['Gently press center of forehead', 'Imagine opening inner eye', 'Write down one intuitive hit', 'Notice patterns in your life', 'Practice visualization', 'Breathe indigo light through third eye', 'Trust gut feelings', 'Observe dreams and symbols', 'Release need to understand everything', 'Say: My intuition guides me'],
               inquiry: 'What does my intuition know that my mind doesn\'t?' },
-            { value: 'crown',     label: 'Crown Chakra',  color: 'Violet', image: '/Public/Community/Chakras/Sahasrara1.jpg',   image2: '/Public/Community/Chakras/Sahasrara2.jpg' },
+            { value: 'crown',     label: 'Crown Chakra',  color: 'Violet', image: '/public/Community/Chakras/Sahasrara1.jpg',   image2: '/public/Community/Chakras/Sahasrara2.jpg' },
         ];
 
         this.CHAKRA_OPTIONS.forEach(opt => {

@@ -21,7 +21,7 @@ class MeditationsEngine {
     this.eventCleanup = [];
     
     // Configuration
-    this.pdfGuideUrl = '/Public/Source_PDF/Meditation_Demo.pdf';
+    this.pdfGuideUrl = '/public/Source_PDF/Meditation_Demo.pdf';
     this.SKIP_SECONDS = 15;
     this.MIN_PLAYER_WIDTH = 380;
     this.PROGRESS_UPDATE_MS = 1000;
@@ -306,7 +306,7 @@ class MeditationsEngine {
     return `
       <div class="community-link-card" style="padding-top:0;">
         <div style="display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:0;">
-          <img src="/Public/Tabs/CommunityHub.png" alt="Community" style="width:30rem;object-fit:contain;margin-top:1rem;margin-bottom:1rem;">
+          <img src="/public/Tabs/CommunityHub.png" alt="Community" style="width:30rem;object-fit:contain;margin-top:1rem;margin-bottom:1rem;">
           <h3 style="margin: 0 0 0.75rem; font-size: 1.15rem; text-align:center;">
             Meditate Together with the Community
           </h3>
@@ -410,7 +410,7 @@ class MeditationsEngine {
         <div class="universal-content">
 
           <header class="main-header project-curiosity"
-                  style="--header-img:url('/Public/Tabs/NavMeditations.png');
+                  style="--header-img:url('/public/Tabs/NavMeditations.png');
                          --header-title:'';
                          --header-tag:'Aanandoham\\'s curated, unique collection of guided meditations'">
             <h1>Guided Meditations</h1>

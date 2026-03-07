@@ -113,7 +113,7 @@ export default class GratitudeEngine {
     return `
       <div class="community-link-card" style="padding-top:0;">
         <div style="display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:0;">
-          <img src="/Public/Tabs/CommunityHub.png" alt="Community" style="width:30rem;object-fit:contain;margin-top:1rem;margin-bottom:1rem;">
+          <img src="/public/Tabs/CommunityHub.png" alt="Community" style="width:30rem;object-fit:contain;margin-top:1rem;margin-bottom:1rem;">
           <h3 style="margin: 0 0 0.75rem; font-size: 1.15rem; text-align:center;">
             Mingle & Practice, Chat and Be one with the Community
           </h3>
@@ -179,7 +179,7 @@ export default class GratitudeEngine {
   _getHeaderHTML() {
     return `
       <header class="main-header project-curiosity"
-              style="--header-img:url('/Public/Tabs/NavGratitude.png');
+              style="--header-img:url('/public/Tabs/NavGratitude.png');
                      --header-title:'';
                      --header-tag:'Log in your gratitudes, as much as possible, to open-up for abundance'">
         <h1>Gratitude Practice</h1>

@@ -8,7 +8,7 @@ import { supabase } from './Supabase.js';
 
 const CONFIG = {MAX_FAILED_ATTEMPTS:5,LOCKOUT_TIME:900000,PASSWORD_MIN_LENGTH:6,PASSWORD_DEBOUNCE:300,TOAST_DURATION:3000,REDIRECT_DELAY:2000};
 const STORAGE_KEYS = {USER:'pc_user',APPDATA:'pc_appdata',ACTIVE_TAB:'pc_active_tab',LOCKOUT:'login_lockout',REMEMBER_ME:'remember_me',DAILY_RESET:'lastDailyReset',QUEST_RESET:'last_quest_reset',DAILY_TAROT:'daily_tarot_card',THEME:'activeTheme'};
-const ASSETS = {LOGO_URL:'/Public/Watermarks/Logo.svg'};
+const ASSETS = {LOGO_URL:'/public/Watermarks/Logo.svg'};
 
 export default class AuthManager {
   constructor(app) { 

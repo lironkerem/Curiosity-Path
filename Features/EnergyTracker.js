@@ -414,7 +414,7 @@ class EnergyEngineEnhanced {
   buildHeader() {
     return `
       <header class="main-header project-curiosity" 
-              style="--header-img:url('/Public/Tabs/NavEnergy.png');
+              style="--header-img:url('/public/Tabs/NavEnergy.png');
                      --header-title:'';
                      --header-tag:'Check, review, track and learn your energy patterns - Overall and Chakras'">
         <h1>Energy Tracker</h1>
@@ -430,7 +430,7 @@ class EnergyEngineEnhanced {
     return `
       <div class="community-link-card" style="padding-top:0;">
         <div style="display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:0;">
-          <img src="/Public/Tabs/CommunityHub.png" alt="Community" style="width:30rem;object-fit:contain;margin-top:1rem;margin-bottom:1rem;">
+          <img src="/public/Tabs/CommunityHub.png" alt="Community" style="width:30rem;object-fit:contain;margin-top:1rem;margin-bottom:1rem;">
           <h3 style="margin:0;font-size:1.15rem;text-align:center;">
             Learn & Practice Reiki and Chakras with the Community
           </h3>

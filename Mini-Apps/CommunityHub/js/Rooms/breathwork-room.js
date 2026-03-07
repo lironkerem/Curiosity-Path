@@ -11,7 +11,7 @@ class BreathworkRoom extends TimedVideoRoom {
             icon:            '💨',
             description:     'Holotropic, Wim Hof, and more.',
             energy:          'Transformative',
-            imageUrl:        '/Public/Community/Breathwork.png',
+            imageUrl:        '/public/Community/Breathwork.png',
             participants:    0,
             cycleDuration:   90 * 60,
             openDuration:    10 * 60,

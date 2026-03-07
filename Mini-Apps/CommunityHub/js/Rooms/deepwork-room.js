@@ -18,7 +18,7 @@ class DeepWorkRoom extends PracticeRoom {
             icon:        '🎯',
             description: 'Focused work sessions. Pomodoro together.',
             energy:      'Focused',
-            imageUrl:    '/Public/Community/Focus.png',
+            imageUrl:    '/public/Community/Focus.png',
             participants: 12,
         });
 

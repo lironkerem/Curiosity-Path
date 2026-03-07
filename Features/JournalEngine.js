@@ -99,7 +99,7 @@ class JournalEngine {
       <div class="journal-container">
         <div class="universal-content">
           <header class="main-header project-curiosity"
-                  style="--header-img:url('/Public/Tabs/NavJournal.png');
+                  style="--header-img:url('/public/Tabs/NavJournal.png');
                          --header-title:'';
                          --header-tag:'Your safe, private, secret space, to open up, vent and write down your emotions and thoughts'">
             <h1>My Personal Journal</h1>

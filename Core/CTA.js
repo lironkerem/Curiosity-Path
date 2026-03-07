@@ -215,7 +215,7 @@ export default class CTA {
     return `
       <footer id="cta-footer" class="lux-footer">
         <button id="cta-toggle" class="lux-toggle" aria-expanded="false">
-          <img src="/Public/Watermarks/Logo.svg"
+          <img src="/public/Watermarks/Logo.svg"
                alt="Aanandoham" class="lux-logo">
           <div class="lux-text-group">
             <span class="lux-line1">Deepen your life experience with me</span>
@@ -293,7 +293,7 @@ export default class CTA {
    * @private
    */
   populateGrids() {
-    const base = '/Public/CTA/';
+    const base = '/public/CTA/';
     const sessions = [
       'https://lironkerem.wixsite.com/project-curiosity/tarot',
       'https://lironkerem.wixsite.com/project-curiosity/reiki',

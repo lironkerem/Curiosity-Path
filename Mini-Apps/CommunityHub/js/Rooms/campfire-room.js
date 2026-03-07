@@ -15,7 +15,7 @@ class CampfireRoom extends PracticeRoom {
             icon:        '🔥',
             description: 'Gather, share, connect. Open chat & inspire.',
             energy:      'Social',
-            imageUrl:    '/Public/Community/Campfire.png',
+            imageUrl:    '/public/Community/Campfire.png',
             participants: 12,
         });
 

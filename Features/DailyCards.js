@@ -10,7 +10,7 @@ import { InquiryEngine } from '../Features/InquiryEngine.js';
  */
 export default class DailyCards {
   // Constants
-  static CARD_BACK_URL = '/Public/Tarot%20Cards%20images/CardBacks.jpg';
+  static CARD_BACK_URL = '/public/Tarot%20Cards%20images/CardBacks.jpg';
   
   static STORAGE_KEYS = {
     BOOSTER: 'daily_booster',
