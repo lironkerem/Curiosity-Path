@@ -127,7 +127,7 @@ function showCompletion(modal) {
 
   contentEl.querySelector('#complete-journey').addEventListener('click', () => {
     window.AppController.addLightParticles(particles);
-    import('../utils.js').then(m => m.showToast(`${journey.title} complete! +${particles} Light-Particles earned.`));
+    import('/Mini-Apps/ShadowAlchemyLab/js/core/utils.js').then(m => m.showToast(`${journey.title} complete! +${particles} Light-Particles earned.`));
     engine.completeJourney();
     engine.clearUserState();
     modal.remove();
