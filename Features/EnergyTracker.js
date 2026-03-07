@@ -430,7 +430,7 @@ class EnergyEngineEnhanced {
     return `
       <div class="community-link-card">
         <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavCommunity.png" alt="Community" style="width:2rem;height:2rem;object-fit:contain;flex-shrink:0;">
           <h3 style="margin: 0; font-size: 1.15rem;">
             Learn & Practice Reiki and Chakras with the Community
           </h3>
@@ -443,20 +443,18 @@ class EnergyEngineEnhanced {
           <button
             type="button"
             onclick="document.activeElement?.blur(); window.app.nav.switchTab('community-hub')"
-            class="community-link-btn"
-            onmouseover="this.style.transform='translateY(-1px)'"
-            onmouseout="this.style.transform='translateY(0)'"
+            class="btn btn-primary"
+            style="display:inline-flex;align-items:center;gap:0.5rem;"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="display:inline;vertical-align:middle;margin-right:0.4rem;"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Enter the Community Hub
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Enter the Community Hub
           </button>
           <button
             type="button"
             onclick="document.activeElement?.blur(); window._pendingRoomOpen = 'reiki'; window.app.nav.switchTab('community-hub')"
-            class="community-link-btn"
-            onmouseover="this.style.transform='translateY(-1px)'"
-            onmouseout="this.style.transform='translateY(0)'"
+            class="btn btn-secondary"
+            style="display:inline-flex;align-items:center;gap:0.5rem;"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="display:inline;vertical-align:middle;margin-right:0.4rem;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>Enter the Reiki Room Directly
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>Enter the Reiki Room Directly
           </button>
         </div>
       </div>
