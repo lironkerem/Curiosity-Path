@@ -52,7 +52,7 @@ class ToastQueue {
   async show(msg, type = 'info', key = null, options = {}) {
     const {
       duration = TOAST_CONFIG.SHOW_DURATION,
-      dismissible = true,
+      dismissible = false,
       icon = TOAST_ICONS[type]
     } = options;
 
