@@ -271,8 +271,6 @@ class CommunityHubEngine {
 
   async initializeCommunityHub() {
     try {
-      this.loadStylesheet(`${BASE_PATH}/community-hub.css`);
-
       // Group 1: CDN scripts (not ES modules — keep as script tags)
       await this.loadScript('https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js');
 
