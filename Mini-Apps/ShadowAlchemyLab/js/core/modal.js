@@ -20,6 +20,7 @@ export function createModal({ id, title, subtitle, content, actions, onClose }) 
       <div class="modal-actions">${actions}</div>
     </div>`;
   document.body.appendChild(modal);
+  requestAnimationFrame(() => modal.classList.add('active'));
 
   const closeModal = () => {
     modal.remove();
