@@ -9,6 +9,7 @@ export function attachDashboardListeners() {
   attached = true;
 
   document.addEventListener('click', async e => {
+    try {
     /* ignore slider clicks */
     if (e.target.classList.contains('intensity-slider') ||
         e.target.classList.contains('intensity-value') ||
@@ -165,6 +166,9 @@ export function attachDashboardListeners() {
         const { openArchetypeIntegrationStudioModal } = await import('/Mini-Apps/ShadowAlchemyLab/js/features/archetypeStudio.js');
         return openArchetypeIntegrationStudioModal(archetypeId);
       }
+    }
+    } catch (err) {
+      console.error('[ShadowAlchemy] Click handler error:', err);
     }
   });
 }
