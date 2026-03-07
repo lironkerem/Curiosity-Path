@@ -428,11 +428,13 @@ class EnergyEngineEnhanced {
    */
   buildReikiCTA() {
     return `
-      <div class="community-link-card" style="position:relative;">
-        <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavCommunity.png" alt="Community" style="position:absolute;top:0;left:0;width:6rem;height:6rem;object-fit:contain;">
-        <h3 style="margin: 0 0 0.75rem; font-size: 1.15rem; text-align:center;">
-          Learn & Practice Reiki and Chakras with the Community
-        </h3>
+      <div class="community-link-card">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;margin-bottom:1rem;">
+          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavCommunity.png" alt="Community" style="width:6rem;height:6rem;object-fit:contain;">
+          <h3 style="margin:0;font-size:1.15rem;text-align:center;">
+            Learn & Practice Reiki and Chakras with the Community
+          </h3>
+        </div>
         <p style="margin: 0 0 1.5rem; font-size: 0.92rem; line-height: 1.6;">
           Deepen your energy practice together. Join live sessions, guided meditations,
           and group healing circles - all in one place.
@@ -441,16 +443,16 @@ class EnergyEngineEnhanced {
           <button
             onclick="document.activeElement?.blur(); window.app.nav.switchTab('community-hub')"
             class="btn btn-primary"
-            style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;flex:1 1 40%;"
+            style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;flex:1 1 40%;white-space:nowrap;"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Enter the Community Hub
           </button>
           <button
             onclick="document.activeElement?.blur(); window._pendingRoomOpen = 'reiki'; window.app.nav.switchTab('community-hub')"
             class="btn btn-primary"
-            style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;flex:1 1 40%;"
+            style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;flex:1 1 40%;white-space:nowrap;"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>Enter the Reiki Room Directly
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>Enter the Reiki Room
           </button>
         </div>
       </div>
