@@ -1033,6 +1033,13 @@ body.blur-behind > *:not(.pricing-overlay) {
 }
 /* ========== AVATAR ICON PICKER ========== */
 
+/* Base size for all avatar SVG icons */
+.lucide-avatar-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
 .avatar-icon-picker {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
