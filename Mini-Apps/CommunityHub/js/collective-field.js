@@ -393,7 +393,7 @@ const CollectiveField = {
         s.communityPulseCount++;
         this._addSelfToRecentSenders();
         this._refreshEnergyCardMeta();
-        this._toast('Energy sent ⚡');
+        this._toast('Energy sent');
     },
 
     // =========================================================================
@@ -461,7 +461,7 @@ const CollectiveField = {
         if (label) label.textContent = 'End Session';
 
         this._updateWaveStatusLine();
-        this._toast('Silence started 🤫');
+        this._toast('Silence started');
 
         s.timerInterval = setInterval(() => this._waveTick(), 1_000);
     },
@@ -485,7 +485,7 @@ const CollectiveField = {
             s.countedAsParticipant = true;
             this._incrementParticipantCount();
             this._triggerAvatarRipple();
-            this._toast("You're in the wave ✨");
+            this._toast("You're in the wave");
         }
 
         this._updateWaveStatusLine(elapsedMs);
@@ -510,7 +510,7 @@ const CollectiveField = {
 
         if (minutesLogged < 1) {
             if (label) label.textContent = 'Start Silence';
-            this._toast('Sit a little longer 🙏');
+            this._toast('Sit a little longer');
             this._updateWaveStatusLine();
             return;
         }
@@ -521,7 +521,7 @@ const CollectiveField = {
         this._updateWaveProgress();
 
         if (label) label.textContent = 'Start Silence';
-        this._toast(`${minutesLogged}min contributed to the wave 🌊`);
+        this._toast(`${minutesLogged}min contributed to the wave`);
 
         if (s.waveTotalMinutes >= s.WAVE_GOAL_MINUTES) this._onWaveComplete();
         this._updateWaveStatusLine();
@@ -531,7 +531,7 @@ const CollectiveField = {
     },
 
     _onWaveComplete() {
-        this._toast('🎉 The wave is complete! A new one begins tomorrow.');
+        this._toast('The wave is complete! A new one begins tomorrow.');
     },
 
     _updateWaveProgress() {
@@ -848,10 +848,10 @@ const CollectiveField = {
             });
             if (error) throw error;
             await window.CollectiveFieldDB.loadFieldState();
-            this._toast('🛡️ +10 Energy added');
+            this._toast('+10 Energy added');
         } catch (err) {
             console.error('[CollectiveField] adminAddEnergy error:', err);
-            this._toast('❌ Could not add energy');
+            this._toast('Could not add energy');
         }
     },
 
@@ -859,10 +859,10 @@ const CollectiveField = {
         if (!Core?.state?.currentUser?.is_admin) return;
         try {
             await window.CollectiveFieldDB.logWaveContribution(60, false);
-            this._toast('🛡️ +60 min added to Wave');
+            this._toast('+60 min added to Wave');
         } catch (err) {
             console.error('[CollectiveField] adminAddWaveMinutes error:', err);
-            this._toast('❌ Could not add wave minutes');
+            this._toast('Could not add wave minutes');
         }
     },
 

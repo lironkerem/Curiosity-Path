@@ -101,7 +101,7 @@ const YouTubePlayerMixin = {
 
     onVideoEnded() {
         this.stopProgressTracking();
-        Core.showToast('Session complete 🙏');
+        Core.showToast('Session complete');
     },
 
     // ── Session / playback control ────────────────────────────────────────────

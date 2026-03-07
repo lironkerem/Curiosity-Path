@@ -446,7 +446,7 @@ const SolarEngine = {
     return `
       <div style="margin-top:24px;border-radius:var(--radius-lg);border:2px dashed var(--neuro-accent-a30);overflow:hidden;">
         <div onclick="${toggleFn}" class="solar-admin-header">
-          <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">🛡️ ADMIN: Enter Any Solar Room</span>
+          <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> ADMIN: Enter Any Solar Room</span>
           <span id="${toggleId}" style="font-size:11px;">▶</span>
         </div>
         <div id="${panelId}" style="padding:16px 20px;background:var(--neuro-bg-lighter);border-top:1px solid var(--neuro-accent-a10);display:none;">
@@ -491,7 +491,7 @@ const SolarEngine = {
 
   async _loadAndEnterRoom(roomId) {
     const meta = this._roomFileMap[roomId];
-    if (!meta) { Core?.showToast?.(`☀️ Unknown room: ${roomId}`); return; }
+    if (!meta) { Core?.showToast?.(`Unknown room: ${roomId}`); return; }
 
     try {
       const basePath = '/Mini-Apps/CommunityHub/js/Solar/';
@@ -499,15 +499,15 @@ const SolarEngine = {
       const instance = mod[meta.exportName];
       instance
         ? instance.enterRoom()
-        : Core?.showToast?.(`⚠️ ${roomId} failed to initialise`);
+        : Core?.showToast?.(`${roomId} failed to initialise`);
     } catch (err) {
       console.error(`[SolarEngine] _loadAndEnterRoom error for ${roomId}:`, err);
-      Core?.showToast?.(`⚠️ Failed to load ${meta.file}`);
+      Core?.showToast?.(`Failed to load ${meta.file}`);
     }
   },
 
   joinSolarRoom() {
-    if (!this.currentSolarRoom) { Core?.showToast?.('⚠️ Solar room not ready'); return; }
+    if (!this.currentSolarRoom) { Core?.showToast?.('Solar room not ready'); return; }
     this._loadAndEnterRoom(this.currentSolarRoom.roomId);
   },
 

@@ -528,7 +528,7 @@ class LunarRoom {
             Object.assign(this.userWeekData, { intention, affirmation, releaseList });
             this.userWeekData.practiceCount++;
             this.saveUserWeekData(true);
-            Core?.showToast('✅ Practice saved');
+            Core?.showToast('Practice saved');
             this.closePracticePopup();
             this.renderRoomDashboard();
         } catch (e) {
@@ -715,7 +715,7 @@ class LunarRoom {
     completeCollectivePractice() {
         this.userWeekData.practiceCount++;
         this.saveUserWeekData(true);
-        Core?.showToast('🌱 Intention planted with the collective');
+        Core?.showToast('Intention planted with the collective');
         this.closeCollectivePopup();
         this.renderRoomDashboard();
     }

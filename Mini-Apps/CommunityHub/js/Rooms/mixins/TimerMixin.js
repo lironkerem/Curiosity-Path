@@ -68,7 +68,7 @@ const TimerMixin = {
         this._setTimerBtn('done');
         this._updateTimer();
         this.playCompletionSound?.();
-        Core.showToast('🎉 Session complete!');
+        Core.showToast('Session complete!');
         this.onTimerComplete?.();
     },
 

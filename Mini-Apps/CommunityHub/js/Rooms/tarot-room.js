@@ -197,7 +197,7 @@ class TarotRoom extends PracticeRoom {
         this.state.personalDrawn = true;
         const container = document.getElementById(`${this.roomId}PersonalCardContainer`);
         if (container) container.innerHTML = this._buildCardDisplay(card);
-        Core.showToast('✨ Card drawn');
+        Core.showToast('Card drawn');
     }
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
@@ -227,7 +227,7 @@ class TarotRoom extends PracticeRoom {
         <div class="ps-body" style="display:flex;">
             <main class="tarot-main" style="flex:1;padding:24px;overflow-y:auto;display:flex;justify-content:center;align-items:flex-start;">
                 <div style="width:100%;">
-                    ${this.buildTabNav('🌅 Daily Collective Card', '✨ Personal Card Draw')}
+                    ${this.buildTabNav(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/></svg> Daily Collective Card`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Personal Card Draw`)}
                     <div id="${this.roomId}DailyTab"    style="display:block;">${this._buildDailyTab()}</div>
                     <div id="${this.roomId}PersonalTab" style="display:none;">${this._buildPersonalTab()}</div>
                 </div>
@@ -238,14 +238,14 @@ class TarotRoom extends PracticeRoom {
     _buildDailyTab() {
         return `
         <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:16px;">
-            <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;">🌅 Daily Collective Card</h3>
+            <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/></svg> Daily Collective Card</h3>
             <div id="${this.roomId}DailyCardContainer" style="display:flex;flex-direction:column;align-items:center;gap:16px;">
                 <div style="color:var(--text-muted);font-size:14px;padding:40px;">Loading today's card…</div>
             </div>
         </div>
         <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:24px;" class="tarot-daily-grid">
             <div>
-                <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;">💬 Community Discussion</h4>
+                <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Community Discussion</h4>
                 <div style="display:flex;flex-direction:column;height:100%;">
                     ${this.buildChatContainer('daily', 'Share your thoughts on today\'s card...')}
                 </div>
@@ -257,7 +257,7 @@ class TarotRoom extends PracticeRoom {
     _buildPersonalTab() {
         return `
         <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:16px;">
-            <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;">✨ Personal Card Draw</h3>
+            <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Personal Card Draw</h3>
             <div id="${this.roomId}PersonalCardContainer" style="display:flex;flex-direction:column;align-items:center;gap:16px;min-height:200px;justify-content:center;">
                 <button id="${this.roomId}DrawBtn" onclick="${this.getClassName()}.drawPersonalCard()"
                         style="padding:16px 32px;border:2px solid var(--border);background:var(--surface);border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:16px;">

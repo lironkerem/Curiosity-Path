@@ -388,7 +388,7 @@ class PracticeRoom {
         const btn = document.getElementById(`${this.roomId}BlessBtn`);
 
         if (!this._dbReady()) {
-            Core.showToast('🙏 Blessing sent ✨');
+            Core.showToast('Blessing sent');
             return;
         }
 
@@ -405,7 +405,7 @@ class PracticeRoom {
         }
 
         await CommunityDB.blessRoom(this.roomId);
-        Core.showToast('🙏 Blessing sent ✨');
+        Core.showToast('Blessing sent');
 
         if (document.getElementById(`${this.roomId}BlessedCounter`)) {
             this._showBlessingAnimation();
@@ -462,7 +462,7 @@ class PracticeRoom {
             : '';
 
         el.innerHTML = `
-            <span style="font-size:11px;color:var(--text-muted);white-space:nowrap;margin-right:4px;">🙏 Blessed by</span>
+            <span style="font-size:11px;color:var(--text-muted);white-space:nowrap;margin-right:4px;display:inline-flex;align-items:center;gap:0.25rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Blessed by</span>
             <div style="display:flex;align-items:center;margin-left:6px;">${avatars}</div>
             ${extra}`;
     }
@@ -572,16 +572,16 @@ class PracticeRoom {
         <div style="position:relative;" id="${this.roomId}SafetyDropdownContainer">
             <button class="ps-leave" onclick="${toggle}(event)"
                     style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);white-space:nowrap;padding:10px 16px;">
-                🛡️ Safety <span style="font-size:12px;">▼</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Safety <span style="font-size:12px;">▼</span>
             </button>
             <div id="${this.roomId}SafetyDropdown"
                  style="display:none;position:absolute;top:100%;right:0;margin-top:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:100001;">
                 ${[
-                    [`${showInst}(); ${toggle}(event);`,              '📖', 'Instructions'],
-                    [`CommunityModule.showReportModal(); ${toggle}(event);`, '⚠️', 'Report Issue'],
-                    [`CommunityModule.showBlockModal();  ${toggle}(event);`, '🚫', 'Block User'],
-                    [`CommunityModule.muteChat();        ${toggle}(event);`, '🔇', 'Mute Chat'],
-                    [`CommunityModule.showHelpModal();   ${toggle}(event);`, '🆘', 'Get Help'],
+                    [`${showInst}(); ${toggle}(event);`,              `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`, 'Instructions'],
+                    [`CommunityModule.showReportModal(); ${toggle}(event);`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`, 'Report Issue'],
+                    [`CommunityModule.showBlockModal();  ${toggle}(event);`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>`, 'Block User'],
+                    [`CommunityModule.muteChat();        ${toggle}(event);`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`, 'Mute Chat'],
+                    [`CommunityModule.showHelpModal();   ${toggle}(event);`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg>`, 'Get Help'],
                 ].map(([fn, icon, label], i, arr) => {
                     const border = i < arr.length - 1 ? 'border-bottom:1px solid var(--border);' : '';
                     return `<button onclick="${fn}" style="width:100%;padding:12px 16px;text-align:left;background:none;border:none;${border}cursor:pointer;display:flex;align-items:center;gap:12px;color:var(--text);"><span>${icon}</span> ${label}</button>`;
@@ -611,7 +611,7 @@ class PracticeRoom {
             <div class="modal-card">
                 <button class="modal-close" onclick="${closeKey}()">×</button>
                 <div class="modal-content">
-                    <h2 style="font-family:var(--serif);margin-top:0;">📖 ${this.config.name}</h2>
+                    <h2 style="font-family:var(--serif);margin-top:0;display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> ${this.config.name}</h2>
                     ${this.getInstructions()}
                     <button onclick="${closeKey}()" style="width:100%;padding:12px;border:2px solid var(--border);background:var(--surface);border-radius:var(--radius-md);cursor:pointer;font-weight:600;margin-top:16px;">Close</button>
                 </div>
@@ -715,7 +715,7 @@ class PracticeRoom {
     buildCardFooter() {
         if (this.roomType === 'timed' && this.getTimerText) {
             const scheduleLink = this.showScheduleModal
-                ? `<button onclick="event.stopPropagation();${this.getClassName()}.showScheduleModal()" style="background:none;border:none;padding:0;font-size:11px;color:var(--text-muted);cursor:pointer;text-decoration:underline;text-align:left;">📅 View Schedule</button>`
+                ? `<button onclick="event.stopPropagation();${this.getClassName()}.showScheduleModal()" style="background:none;border:none;padding:0;font-size:11px;color:var(--text-muted);cursor:pointer;text-decoration:underline;text-align:left;" style="background:none;border:none;padding:0;font-size:11px;color:var(--text-muted);cursor:pointer;text-decoration:underline;text-align:left;display:inline-flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> View Schedule</button>`
                 : '';
             return `
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">

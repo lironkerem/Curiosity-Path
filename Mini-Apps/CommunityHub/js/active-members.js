@@ -108,7 +108,7 @@ const ActiveMembers = {
                            box-shadow:3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
                            display:flex;align-items:center;justify-content:center;gap:8px;
                            position:relative;transition:opacity 0.15s;">
-                💬 Whispers
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Whispers
                 <span id="whisperUnreadBadge"
                       style="display:none;background:var(--neuro-accent);color:#fff;
                              border-radius:99px;font-size:0.7rem;font-weight:700;

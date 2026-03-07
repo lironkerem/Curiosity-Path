@@ -234,22 +234,22 @@ const LunarEngine = {
 
     async _loadAndEnterRoom(roomId) {
         const meta = this._roomFileMap[roomId];
-        if (!meta) { Core?.showToast(`🌙 Unknown room: ${roomId}`); return; }
+        if (!meta) { Core?.showToast(`Unknown room: ${roomId}`); return; }
 
         try {
             const basePath = '/Mini-Apps/CommunityHub/js/Lunar/';
             const mod = await import(`${basePath}${meta.file}`);
             const instance = mod[meta.exportName];
             if (instance) instance.enterRoom();
-            else Core?.showToast(`⚠️ ${roomId} failed to initialise`);
+            else Core?.showToast(`${roomId} failed to initialise`);
         } catch (e) {
             console.error(`[LunarEngine] Failed to load ${meta.file}:`, e);
-            Core?.showToast(`⚠️ Failed to load ${meta.file}`);
+            Core?.showToast(`Failed to load ${meta.file}`);
         }
     },
 
     joinLunarRoom() {
-        if (!this.currentLunarRoom) { Core?.showToast('⚠️ Lunar room not ready'); return; }
+        if (!this.currentLunarRoom) { Core?.showToast('Lunar room not ready'); return; }
         this._loadAndEnterRoom(this.currentLunarRoom.roomId);
     },
 
@@ -361,7 +361,7 @@ const LunarEngine = {
         return `
             <div class="lunar-admin-wrapper">
                 <div class="lunar-admin-header" data-panel="${panelId}" data-toggle="${toggleId}">
-                    <span>🛡️ ADMIN: Enter Any Lunar Room</span>
+                    <span style="display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> ADMIN: Enter Any Lunar Room</span>
                     <span id="${toggleId}">▶</span>
                 </div>
                 <div id="${panelId}" class="lunar-admin-body" style="display:none;">

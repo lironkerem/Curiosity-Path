@@ -249,12 +249,12 @@ const SoundSettingsMixin = {
     play5MinBell() {
         if (!this.state.fiveMinBellEnabled) return;
         this._playBellProfile(this.state.selectedBell, 0.7);
-        Core.showToast('🔔 5-minute bell');
+        Core.showToast('5-minute bell');
     },
 
     playCompletionSound() {
         this._playBellProfile(this.state.selectedCompletion, 1.0);
-        Core.showToast('Session complete 🙏');
+        Core.showToast('Session complete');
     },
 
     cleanupSound() {
@@ -332,7 +332,7 @@ const SoundSettingsMixin = {
         <button class="ps-leave"
                 onclick="${this.getClassName()}.toggleSoundSettings()"
                 style="background:var(--surface);color:var(--text);padding:10px 16px;white-space:nowrap;">
-            🔔 Sound
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg> Sound
         </button>`;
     },
 };

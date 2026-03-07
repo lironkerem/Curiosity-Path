@@ -188,7 +188,7 @@ const BaseSolarRoom = {
       seasonStartDate: this.startDate.toISOString(),
       data: this.userData,
     });
-    if (!ok) SolarUIManager.showToast('⚠️ Could not save data. Check storage limits.');
+    if (!ok) SolarUIManager.showToast('Could not save data. Check storage limits.');
   },
 
   // ============================================================================
@@ -322,7 +322,7 @@ const BaseSolarRoom = {
         const card = e.target.closest('.solar-practice-card');
         if (!card) return;
         card.dataset.locked === 'true'
-          ? SolarUIManager.showToast('⚠️ Complete the first practice to unlock others')
+          ? SolarUIManager.showToast('Complete the first practice to unlock others')
           : this.showPracticePopup(card.dataset.practice);
       });
 
@@ -411,18 +411,18 @@ const BaseSolarRoom = {
       this.userData.practiceCount++;
       this.saveData();
 
-      SolarUIManager.showToast('✅ Practice saved');
+      SolarUIManager.showToast('Practice saved');
       SolarUIManager.closePracticePopup();
       this.renderDashboard();
     } catch (err) {
       console.error('Error saving practice:', err);
-      SolarUIManager.showToast('⚠️ Failed to save practice');
+      SolarUIManager.showToast('Failed to save practice');
     }
   },
 
   submitClosure() {
     const el = document.getElementById('closureReflection');
-    if (!el) { SolarUIManager.showToast('⚠️ Reflection field not found'); return; }
+    if (!el) { SolarUIManager.showToast('Reflection field not found'); return; }
 
     const reflection = el.value.trim();
     if (!reflection) { SolarUIManager.showToast('Please write your closing reflection'); return; }

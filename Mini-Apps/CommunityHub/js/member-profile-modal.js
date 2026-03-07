@@ -157,10 +157,10 @@ const MemberProfileModal = {
                         <!-- 4-stat grid -->
                         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem;">
                             ${[
-                                ['memberModalKarma',     '💎', 'Karma'    ],
-                                ['memberModalBlessings', '🙏', 'Blessings'],
-                                ['memberModalFavRoom',   '🏠', 'Fav Room' ],
-                                ['memberModalBadgeCount','🎖️', 'Badges'   ],
+                                ['memberModalKarma',     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>`, 'Karma'    ],
+                                ['memberModalBlessings', `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg>`, 'Blessings'],
+                                ['memberModalFavRoom',   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`, 'Fav Room' ],
+                                ['memberModalBadgeCount',`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>`, 'Badges'   ],
                             ].map(([id, emoji, label]) => `
                                 <div style="background:var(--neuro-bg,#f0f0f3);border-radius:14px;
                                             padding:10px 6px;text-align:center;
@@ -184,7 +184,7 @@ const MemberProfileModal = {
                                        background:var(--neuro-bg,#f0f0f3);color:var(--neuro-text);
                                        box-shadow:3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
                                        transition:all 0.2s;">
-                            🙏 Appreciate
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Appreciate
                         </button>
 
                         <!-- Actions -->
@@ -197,7 +197,7 @@ const MemberProfileModal = {
                                            transition:all 0.15s;"
                                     onmouseover="this.style.boxShadow='2px 2px 6px rgba(0,0,0,0.12),-1px -1px 4px rgba(255,255,255,0.8)';this.style.transform='translateY(1px)'"
                                     onmouseout="this.style.boxShadow='4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.75)';this.style.transform=''">
-                                💬 Whisper
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Whisper
                             </button>
                             <button onclick="MemberProfileModal.startReport()"
                                     style="padding:10px 14px;border-radius:14px;border:none;cursor:pointer;
@@ -207,7 +207,7 @@ const MemberProfileModal = {
                                            transition:all 0.15s;"
                                     onmouseover="this.style.boxShadow='2px 2px 6px rgba(0,0,0,0.12),-1px -1px 4px rgba(255,255,255,0.8)';this.style.transform='translateY(1px)'"
                                     onmouseout="this.style.boxShadow='4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.75)';this.style.transform=''">
-                                🚩 Report
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Report
                             </button>
                             <button onclick="MemberProfileModal.startBlock()"
                                     style="padding:10px 14px;border-radius:14px;border:none;cursor:pointer;
@@ -217,7 +217,7 @@ const MemberProfileModal = {
                                            transition:all 0.15s;"
                                     onmouseover="this.style.boxShadow='2px 2px 6px rgba(0,0,0,0.12),-1px -1px 4px rgba(255,255,255,0.8)';this.style.transform='translateY(1px)'"
                                     onmouseout="this.style.boxShadow='4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.75)';this.style.transform=''">
-                                🚫 Block
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg> Block
                             </button>
                         </div>
 
@@ -279,7 +279,7 @@ const MemberProfileModal = {
                                         background:rgba(139,92,246,0.08);border:2px dashed rgba(139,92,246,0.4);
                                         user-select:none;">
                                 <span style="font-size:0.78rem;font-weight:700;text-transform:uppercase;
-                                             letter-spacing:1px;color:rgba(139,92,246,0.9);">🛡️ Admin Controls</span>
+                                             letter-spacing:1px;color:rgba(139,92,246,0.9);"style="display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin Controls</span>
                                 <span id="memberModalAdminToggle" style="font-size:0.75rem;color:rgba(139,92,246,0.7);">▶</span>
                             </div>
 
@@ -544,7 +544,7 @@ const MemberProfileModal = {
         }
 
         this._setText('memberModalName',        profile.name || 'Member');
-        this._setText('memberModalRole',        `👤 ${profile.community_role || 'Member'}`);
+        this._setText('memberModalRole',        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${profile.community_role || 'Member'}`);
         this._setText('memberModalInspiration', profile.inspiration ? `"${profile.inspiration}"` : '');
 
         const locationEl = document.getElementById('memberModalLocation');
@@ -554,8 +554,8 @@ const MemberProfileModal = {
             if (profile.birthday) {
                 try {
                     const d = new Date(profile.birthday + 'T00:00:00');
-                    parts.push(`🎂 ${d.toLocaleDateString(undefined, { month:'long', day:'numeric' })}`);
-                } catch { parts.push(`🎂 ${profile.birthday}`); }
+                    parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2 1 2 1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg> ${d.toLocaleDateString(undefined, { month:'long', day:'numeric' })}`);
+                } catch { parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2 1 2 1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg> ${profile.birthday}`); }
             }
             if (profile.country) parts.push(`${this._countryFlag(profile.country)} ${profile.country}`);
 
@@ -633,7 +633,7 @@ const MemberProfileModal = {
             this.state.isAppreciated     = result.appreciated;
             this.state.appreciationCount = await CommunityDB.getUserAppreciationCount(this.state.currentUserId);
             this._updateAppreciateBtn();
-            Core.showToast(result.appreciated ? '🙏 Appreciation sent' : 'Appreciation removed');
+            Core.showToast(result.appreciated ? 'Appreciation sent' : 'Appreciation removed');
         } catch (err) {
             console.error('[MemberProfileModal] toggleAppreciate error:', err);
             Core.showToast('Could not update - please try again');
@@ -648,12 +648,12 @@ const MemberProfileModal = {
         const count    = this.state.appreciationCount ?? '';
         const countStr = count !== '' ? ` (${count})` : '';
         if (this.state.isAppreciated) {
-            btn.textContent = `🙏 Appreciated${countStr}`;
+            btn.textContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Appreciated${countStr}`;
             btn.style.background = 'var(--primary,#667eea)';
             btn.style.color      = '#fff';
             btn.style.boxShadow  = 'inset 2px 2px 5px rgba(0,0,0,0.15)';
         } else {
-            btn.textContent = `🙏 Appreciate${countStr}`;
+            btn.textContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Appreciate${countStr}`;
             btn.style.background = 'var(--neuro-bg,#f0f0f3)';
             btn.style.color      = 'var(--neuro-text)';
             btn.style.boxShadow  = '3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7)';
@@ -687,7 +687,7 @@ const MemberProfileModal = {
         if (!message) { Core.showToast('Please write a message first'); return; }
         await this._withBtnState('#memberModalWhisperPanel button', 'Sending...', 'Send', async () => {
             const result = await CommunityDB.sendWhisper(this.state.currentUserId, message);
-            if (result) { Core.showToast('💬 Whisper sent'); this.cancelWhisper(); }
+            if (result) { Core.showToast('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Whisper sent'); this.cancelWhisper(); }
             else Core.showToast('Could not send - please try again');
         });
     },
@@ -717,7 +717,7 @@ const MemberProfileModal = {
         if (!reason) { Core.showToast('Please select a reason'); return; }
         await this._withBtnState('#memberModalReportPanel button', 'Submitting...', 'Submit Report', async () => {
             const ok = await CommunityDB.submitReport(this.state.currentUserId, reason, details);
-            if (ok) { Core.showToast('✓ Report submitted - thank you'); this.cancelReport(); }
+            if (ok) { Core.showToast('Report submitted - thank you'); this.cancelReport(); }
             else Core.showToast('Could not submit - please try again');
         });
     },
@@ -732,7 +732,7 @@ const MemberProfileModal = {
         try {
             const ok = await CommunityDB.blockUser(this.state.currentUserId);
             if (ok) {
-                Core.showToast(`🚫 ${name} blocked`);
+                Core.showToast(`${name} blocked`);
                 this.close();
                 window.ActiveMembers?.refresh();
             } else {
@@ -781,8 +781,8 @@ const MemberProfileModal = {
             const { error } = await CommunityDB._sb.from('profiles')
                 .update(profileUpdate).eq('id', this.state.currentUserId);
             if (error) throw error;
-            this._setText('memberModalRole', `👤 ${role}`);
-            Core.showToast(`✓ Role changed to ${role}`);
+            this._setText('memberModalRole', `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${role}`);
+            Core.showToast(`Role changed to ${role}`);
             this._closeAdminSubs();
         });
     },
@@ -794,7 +794,7 @@ const MemberProfileModal = {
             const ok = await CommunityDB.adminUpdateGamification(this.state.currentUserId, { xpDelta: amount });
             if (!ok) throw new Error('Save failed');
             await this._adminPushNotify(this.state.currentUserId, '🎁 Gift from Aanandoham!', `You received +${amount} XP!`);
-            Core.showToast(`✓ Sent ${amount} XP`);
+            Core.showToast(`Sent ${amount} XP`);
             this._closeAdminSubs();
             await this._safeRefresh(this.state.currentUserId);
         });
@@ -807,7 +807,7 @@ const MemberProfileModal = {
             const ok = await CommunityDB.adminUpdateGamification(this.state.currentUserId, { karmaDelta: amount });
             if (!ok) throw new Error('Save failed');
             await this._adminPushNotify(this.state.currentUserId, '🎁 Gift from Aanandoham!', `You received +${amount} Karma!`);
-            Core.showToast(`✓ Sent ${amount} Karma`);
+            Core.showToast(`Sent ${amount} Karma`);
             this._closeAdminSubs();
             await this._safeRefresh(this.state.currentUserId);
         });
@@ -830,7 +830,7 @@ const MemberProfileModal = {
             const payload = prog?.payload || {};
             const badges  = payload.badges || [];
             if (badges.find(b => b.id === badge.id)) {
-                Core.showToast('⚠️ Member already has this badge'); return;
+                Core.showToast('Member already has this badge'); return;
             }
             badges.push({ ...badge, date: new Date().toISOString(), unlocked: true });
             const { error } = await CommunityDB._sb.from('user_progress')
@@ -838,7 +838,7 @@ const MemberProfileModal = {
                 .eq('user_id', this.state.currentUserId);
             if (error) throw error;
             await this._adminPushNotify(this.state.currentUserId, '🎖️ New Badge Earned!', `You received the ${badge.name} badge!`);
-            Core.showToast(`✓ Awarded ${badge.icon} ${badge.name}`);
+            Core.showToast(`Awarded ${badge.icon} ${badge.name}`);
             this._closeAdminSubs();
             await this._safeRefresh(this.state.currentUserId);
         });
@@ -855,7 +855,7 @@ const MemberProfileModal = {
             }
             const names = checked.map(f => f.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())).join(', ');
             await this._adminPushNotify(this.state.currentUserId, '🔓 New Features Unlocked!', `Admin unlocked: ${names}`);
-            Core.showToast(`✓ Unlocked ${checked.length} feature(s)`);
+            Core.showToast(`Unlocked ${checked.length} feature(s)`);
             this._closeAdminSubs();
             await this._safeRefresh(this.state.currentUserId);
         });
@@ -878,7 +878,7 @@ const MemberProfileModal = {
             if (error) throw error;
             const preview = content.length > 80 ? content.slice(0, 80) + '...' : content;
             await this._adminPushNotify(this.state.currentUserId, `💬 ${title}`, preview);
-            Core.showToast('✓ Message sent');
+            Core.showToast('Message sent');
             this._closeAdminSubs();
             document.getElementById('adminMessageTitle').value   = '';
             document.getElementById('adminMessageContent').value = '';
@@ -998,7 +998,7 @@ const MemberProfileModal = {
             await fn();
         } catch (err) {
             console.error(`[AdminPanel] ${idleLabel} error:`, err);
-            Core.showToast(`❌ Could not complete: ${idleLabel}`);
+            Core.showToast(`Could not complete: ${idleLabel}`);
         } finally {
             if (btn) { btn.disabled = false; btn.textContent = idleLabel; }
         }

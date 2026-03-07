@@ -152,7 +152,7 @@ class DeepWorkRoom extends PracticeRoom {
         if (chatSection) chatSection.style.display = isBreak ? 'flex' : 'none';
         if (isBreak) this._injectChatAvatar();
 
-        Core.showToast(isBreak ? '☕ Break time - chat unlocked!' : `🎯 ${this.getStatusText()}`);
+        Core.showToast(isBreak ? 'Break time - chat unlocked!' : `${this.getStatusText()}`);
     }
 
     getStatusText() {
@@ -294,7 +294,7 @@ class DeepWorkRoom extends PracticeRoom {
             }
         }
 
-        Core.showToast('✨ Session set - click Begin!');
+        Core.showToast('Session set - click Begin!');
         setTimeout(() => this.showInstructions(), 200);
     }
 
@@ -328,7 +328,7 @@ class DeepWorkRoom extends PracticeRoom {
         view.classList.toggle('dimmed');
         const isDimmed = view.classList.contains('dimmed');
         document.getElementById(`${this.roomId}DimModeBtn`)?.textContent !== undefined &&
-            (document.getElementById(`${this.roomId}DimModeBtn`).textContent = isDimmed ? '☀️ Bright' : '🌙 Dim');
+            (document.getElementById(`${this.roomId}DimModeBtn`).innerHTML = isDimmed ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg> Bright` : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg> Dim`);
         const container = document.getElementById('communityHubFullscreenContainer');
         if (container) container.style.background = isDimmed ? 'rgba(0,0,0,0.85)' : 'transparent';
     }
@@ -367,7 +367,7 @@ class DeepWorkRoom extends PracticeRoom {
             ${this.buildSoundButton()}
             <button class="ps-leave" onclick="${this.getClassName()}.toggleDimMode()"
                     id="${this.roomId}DimModeBtn" style="margin:0;padding:10px 16px;white-space:nowrap;">
-                🌙 Dim
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg> Dim
             </button>`;
     }
 
@@ -388,7 +388,7 @@ class DeepWorkRoom extends PracticeRoom {
                     <button class="dw-status-btn" data-status="${s}"
                             onclick="${cn}.changeStatus('${s}')"
                             style="padding:12px 24px;border:2px solid ${this.state.currentStatus===s?'var(--accent)':'var(--border)'};border-radius:var(--radius-md);background:${this.state.currentStatus===s?'var(--accent)':'var(--surface)'};color:${this.state.currentStatus===s?'white':'var(--text)'};cursor:pointer;font-weight:600;transition:all 0.2s;">
-                        ${{ 'deep-focus':'🎯 Deep','light-focus':'✨ Light','break':'☕ Break' }[s]}
+                        ${{ 'deep-focus':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Deep','light-focus':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Light','break':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg> Break' }[s]}
                     </button>`).join('')}
                 </div>
 
@@ -486,7 +486,7 @@ class DeepWorkRoom extends PracticeRoom {
         <!-- FAB - z-index above fullscreen container -->
         <button onclick="${cn}.toggleChat()"
                 style="position:fixed;bottom:30px;right:30px;width:60px;height:60px;border-radius:50%;background:var(--accent);border:none;color:white;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);z-index:200000;transition:all 0.3s;">
-            💬
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         </button>`;
     }
 
@@ -540,7 +540,7 @@ class DeepWorkRoom extends PracticeRoom {
 
                     <button onclick="${cn}.confirmSetup()"
                             style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:var(--radius-md);color:white;cursor:pointer;font-weight:600;font-size:16px;">
-                        ✨ Start Session
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Start Session
                     </button>
                 </div>
             </div>

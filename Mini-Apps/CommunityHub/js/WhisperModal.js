@@ -67,7 +67,7 @@ const WhisperModal = {
                                        font-size:1.1rem;padding:0 4px;opacity:0.6;line-height:1;">←</button>
                         <div style="flex:1;">
                             <div id="whisperModalTitle"
-                                 style="font-size:1rem;font-weight:700;color:var(--neuro-text);">💬 Whispers</div>
+                                 style="font-size:1rem;font-weight:700;color:var(--neuro-text);" style="display:flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Whispers</div>
                             <div id="whisperModalSubtitle"
                                  style="font-size:0.75rem;color:var(--text-muted);margin-top:1px;display:none;"></div>
                         </div>
@@ -83,7 +83,7 @@ const WhisperModal = {
                         </div>
                         <div id="whisperInboxEmpty"
                              style="display:none;text-align:center;padding:2.5rem 1rem;color:var(--text-muted);">
-                            <div style="font-size:2rem;margin-bottom:0.5rem;">💬</div>
+                            <div style="margin-bottom:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
                             <div style="font-size:0.88rem;">No whispers yet.</div>
                             <div style="font-size:0.8rem;margin-top:4px;opacity:0.7;">Visit a member's profile to send one.</div>
                         </div>
@@ -196,7 +196,7 @@ const WhisperModal = {
 
         const subtitle = document.getElementById('whisperModalSubtitle');
         if (isInbox) {
-            document.getElementById('whisperModalTitle').textContent = '💬 Whispers';
+            document.getElementById('whisperModalTitle').innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Whispers`;
             subtitle.style.display = 'none';
         }
     },
@@ -405,7 +405,7 @@ const WhisperModal = {
                 this._appendMessage(whisper);
                 CommunityDB.markConversationRead(whisper.sender_id).catch(() => {});
             } else {
-                Core.showToast(`💬 New whisper from ${whisper.sender?.name || 'Someone'}`);
+                Core.showToast(`New whisper from ${whisper.sender?.name || 'Someone'}`);
                 if (this.state.view === 'inbox') this._showInbox();
                 else this.refreshUnreadBadge();
             }

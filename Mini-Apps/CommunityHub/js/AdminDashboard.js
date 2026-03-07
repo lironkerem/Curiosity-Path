@@ -134,7 +134,7 @@ const AdminDashboard = {
         badge.innerHTML = `
             <section class="section">
                 <div class="section-header">
-                    <div class="section-title">🛡️ Admin Tools</div>
+                    <div class="section-title" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin Tools</div>
                     <div style="font-size:12px;color:var(--text-muted);">
                         <span id="adminDashUnreadBadge"
                               style="display:none;background:#ef4444;color:#fff;border-radius:99px;
@@ -194,7 +194,7 @@ const AdminDashboard = {
                         padding:16px 20px;display:flex;align-items:center;justify-content:space-between;
                         box-shadow:0 2px 20px var(--neuro-accent-a30);">
                 <div style="display:flex;align-items:center;gap:10px;">
-                    <span style="font-size:1.4rem;">🛡️</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                     <div>
                         <div style="font-size:1rem;font-weight:700;color:#fff;letter-spacing:0.5px;">Admin Dashboard</div>
                         <div id="adminDashSubtitle" style="font-size:0.72rem;color:rgba(255,255,255,0.7);">Loading...</div>
@@ -233,14 +233,14 @@ const AdminDashboard = {
 
     _sectionTitle(id) {
         return {
-            notifications: '📬 Notifications',
-            members:       '👥 Members',
-            engagement:    '📊 Community Engagement',
-            safety:        '🛡️ Safety & Stats',
-            leaderboard:   '🏆 Leaderboard',
-            rooms:         '⏰ Room Usage Today',
-            retention:     '📈 Retention Signals',
-            bulk:          '⚡ Bulk Actions',
+            notifications: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg> Notifications`,
+            members:       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Members`,
+            engagement:    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Community Engagement`,
+            safety:        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Safety & Stats`,
+            leaderboard:   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg> Leaderboard`,
+            rooms:         `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> Room Usage Today`,
+            retention:     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> Retention Signals`,
+            bulk:          `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg> Bulk Actions`,
         }[id] || id;
     },
 
@@ -693,7 +693,7 @@ const AdminDashboard = {
                 window.MemberProfileModal?._adminPushNotify?.(uid, notifTitle, notifBody(amount));
             }
         }
-        Core.showToast(`✓ Sent ${amount} ${label} to ${ok}/${ids.length} members`);
+        Core.showToast(`Sent ${amount} ${label} to ${ok}/${ids.length} members`);
     },
 
     async _bulkSendXP() {
@@ -759,7 +759,7 @@ const AdminDashboard = {
                 window.MemberProfileModal?._adminPushNotify?.(uid, '🏅 New Badge!', `You earned the ${badgeLabel} badge!`);
             }
         }
-        Core.showToast(`✓ Sent badge to ${ok}/${ids.length} members`);
+        Core.showToast(`Sent badge to ${ok}/${ids.length} members`);
     },
 
     async _bulkSendUnlock() {
@@ -780,7 +780,7 @@ const AdminDashboard = {
                 window.MemberProfileModal?._adminPushNotify?.(uid, '🔓 Feature Unlocked!', `${featureLabel} has been unlocked for you!`);
             }
         }
-        Core.showToast(`✓ Unlocked ${featureLabel} for ${ok}/${ids.length} members`);
+        Core.showToast(`Unlocked ${featureLabel} for ${ok}/${ids.length} members`);
     },
 
     async _bulkSendMessage() {
@@ -797,9 +797,9 @@ const AdminDashboard = {
                 window.MemberProfileModal?._adminPushNotify?.(uid, '💬 Message from Aanandoham', message.substring(0, 80));
             }
             document.getElementById('bulkMessageText').value = '';
-            Core.showToast(`✓ Message sent to ${result.sent}/${ids.length} members`);
+            Core.showToast(`Message sent to ${result.sent}/${ids.length} members`);
         } else {
-            Core.showToast('❌ Failed to send messages');
+            Core.showToast('Failed to send messages');
         }
     },
 
@@ -829,9 +829,9 @@ const AdminDashboard = {
         const ok = await CommunityDB.deleteReflection(reflectionId);
         if (ok) {
             btn.closest('.admin-refl-row')?.remove();
-            Core.showToast('✓ Reflection deleted');
+            Core.showToast('Reflection deleted');
         } else {
-            Core.showToast('❌ Could not delete');
+            Core.showToast('Could not delete');
             btn.disabled = false;
         }
     },

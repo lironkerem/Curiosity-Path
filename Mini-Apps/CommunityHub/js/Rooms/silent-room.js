@@ -74,7 +74,7 @@ class SilentRoom extends PracticeRoom {
             ${this.buildSoundButton()}
             <button class="ps-leave" onclick="${this.getClassName()}.toggleDimMode()"
                     id="${this.roomId}DimModeBtn" style="padding:10px 16px;white-space:nowrap;">
-                🌙 Dim
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg> Dim
             </button>`;
     }
 
@@ -90,7 +90,7 @@ class SilentRoom extends PracticeRoom {
                 ${this.buildTimerControls()}
                 <div class="gratitude-container" id="${this.roomId}GratitudeContainer">
                     <button class="gratitude-btn" onclick="${this.getClassName()}.offerGratitude()">
-                        🙏 Offer gratitude to the space
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Offer gratitude to the space
                     </button>
                 </div>
             </main>
@@ -140,7 +140,7 @@ class SilentRoom extends PracticeRoom {
         view.classList.toggle('dimmed');
         const isDimmed = view.classList.contains('dimmed');
         const btn = document.getElementById(`${this.roomId}DimModeBtn`);
-        if (btn) btn.textContent = isDimmed ? '☀️ Bright' : '🌙 Dim';
+        if (btn) btn.innerHTML = isDimmed ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg> Bright` : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg> Dim`;
         const container = document.getElementById('communityHubFullscreenContainer');
         if (container) container.style.background = isDimmed ? 'rgba(0,0,0,0.85)' : 'transparent';
     }
@@ -152,11 +152,11 @@ class SilentRoom extends PracticeRoom {
         const container = document.getElementById('communityHubFullscreenContainer');
         if (container) container.style.background = 'transparent';
         const btn = document.getElementById(`${this.roomId}DimModeBtn`);
-        if (btn) btn.textContent = '🌙 Dim';
+        if (btn) btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg> Dim`;
     }
 
     offerGratitude() {
-        Core.showToast('🙏 Gratitude offered to the space');
+        Core.showToast('Gratitude offered to the space');
         const el = document.getElementById(`${this.roomId}GratitudeContainer`);
         if (!el) return;
         el.style.transform = 'scale(1.05)';

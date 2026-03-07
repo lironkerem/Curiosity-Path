@@ -172,10 +172,10 @@ const ProfileModule = {
         ];
 
         const activityCards = [
-            { type:'journal',   icon:'📓', label:'Journal',          count:'entries'   },
-            { type:'gratitude', icon:'🙏', label:'Gratitude',        count:'entries'   },
-            { type:'energy',    icon:'⚡', label:'Energy',           count:'check-ins' },
-            { type:'flip',      icon:'🔄', label:'Flip the Script',  count:'entries'   },
+            { type:'journal',   icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`, label:'Journal',          count:'entries'   },
+            { type:'gratitude', icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg>`, label:'Gratitude',        count:'entries'   },
+            { type:'energy',    icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>`, label:'Energy',           count:'check-ins' },
+            { type:'flip',      icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`, label:'Flip the Script',  count:'entries'   },
         ];
 
         const cardStyle = `background:var(--neuro-bg,#f0f0f3);border-radius:14px;padding:14px;
@@ -208,7 +208,7 @@ const ProfileModule = {
                                            display:flex;align-items:center;justify-content:center;
                                            transition:transform 0.15s;z-index:2;"
                                     onmouseover="this.style.transform='scale(1.15)'"
-                                    onmouseout="this.style.transform='scale(1)'">📷</button>
+                                    onmouseout="this.style.transform='scale(1)'"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg></button>
                         </div>
 
                         <!-- Status picker -->
@@ -269,7 +269,7 @@ const ProfileModule = {
                                         font-size:0.76rem;font-weight:700;
                                         color:var(--neuro-accent);
                                         padding:5px 12px;white-space:nowrap;">
-                                👤 Member
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Member
                             </div>
 
                             <!-- Separator -->
@@ -299,7 +299,7 @@ const ProfileModule = {
 
                         <div class="profile-inspiration">
                             <span id="profileInspiration">"Here to practice with intention."</span>
-                            <button class="edit-inspiration-btn" onclick="ProfileModule.editInspiration()" aria-label="Edit inspiration">✏️</button>
+                            <button class="edit-inspiration-btn" onclick="ProfileModule.editInspiration()" aria-label="Edit inspiration"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></button>
                         </div>
 
                         <!-- ── Gamification Section ───────────────── -->
@@ -370,10 +370,10 @@ const ProfileModule = {
         const xpPct     = Math.min(100, Math.max(0, levelInfo.progress ?? 0));
 
         const statItems = [
-            { value: status.karma,                 label:'Karma',    emoji:'💎', id:'statKarma'    },
-            { value: 0,                            label:'Blessings',emoji:'🙏', id:'statBlessings' },
-            { value: '-',                          label:'Fav Room', emoji:'🏠', id:'statFavRoom'   },
-            { value: (status.badges || []).length, label:'Badges',   emoji:'🎖️', id:'statBadges'   },
+            { value: status.karma,                 label:'Karma',    emoji:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>`, id:'statKarma'    },
+            { value: 0,                            label:'Blessings',emoji:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg>`, id:'statBlessings' },
+            { value: '-',                          label:'Fav Room', emoji:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`, id:'statFavRoom'   },
+            { value: (status.badges || []).length, label:'Badges',   emoji:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>`, id:'statBadges'   },
         ];
 
         return `
@@ -621,7 +621,7 @@ const ProfileModule = {
         const status = user.status || 'available';
 
         const roleBadge = document.getElementById('profileRoleBadge');
-        if (roleBadge) roleBadge.textContent = `👤 ${role}`;
+        if (roleBadge) roleBadge.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${role}`;
 
         const privateRole = document.getElementById('privateRole');
         if (privateRole) privateRole.textContent = role;
@@ -673,8 +673,8 @@ const ProfileModule = {
                 try {
                     const formatted = new Date(birthday + 'T00:00:00')
                         .toLocaleDateString(undefined, { month:'long', day:'numeric' });
-                    birthdayEl.textContent = `🎂 ${formatted}`;
-                } catch { birthdayEl.textContent = `🎂 ${birthday}`; }
+                    birthdayEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2 1 2 1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg> ${formatted}`;
+                } catch { birthdayEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2 1 2 1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg> ${birthday}`; }
             } else {
                 birthdayEl.textContent = '';
             }
@@ -752,10 +752,10 @@ const ProfileModule = {
         if (!this._activityData) await this.loadActivityData();
 
         const MODAL_CONFIG = {
-            journal:   { title: '📓 Journal Entries'   },
-            gratitude: { title: '🙏 Gratitude Entries' },
-            energy:    { title: '⚡ Energy Check-ins'   },
-            flip:      { title: '🔄 Flip the Script'   },
+            journal:   { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Journal Entries`   },
+            gratitude: { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Gratitude Entries` },
+            energy:    { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg> Energy Check-ins`   },
+            flip:      { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Flip the Script`   },
         };
 
         const cfg     = MODAL_CONFIG[type];
@@ -816,7 +816,7 @@ const ProfileModule = {
                 const items = entry.entries || [];
                 return `<div style="${base}">
                     <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:6px;">${date}</div>
-                    ${items.map(g => `<div style="margin-bottom:3px;">🙏 ${this._esc(g)}</div>`).join('')}
+                    ${items.map(g => `<div style="margin-bottom:3px;display:flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> ${this._esc(g)}</div>`).join('')}
                 </div>`;
             }
             case 'energy': {
@@ -828,7 +828,7 @@ const ProfileModule = {
                        </div>` : '';
                 return `<div style="${base}">
                     <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">${date}</div>
-                    <div style="font-size:1rem;font-weight:700;color:var(--neuro-accent);">⚡ Energy: ${level}/10</div>
+                    <div style="font-size:1rem;font-weight:700;color:var(--neuro-accent);display:flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg> Energy: ${level}/10</div>
                     ${tags}${notes}
                 </div>`;
             }
@@ -837,8 +837,8 @@ const ProfileModule = {
                 const reframe = entry.reframe   || entry.flipped  || '';
                 return `<div style="${base}">
                     <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">${date}</div>
-                    ${text    ? `<div style="color:var(--neuro-text);">📝 ${this._esc(text)}</div>` : ''}
-                    ${reframe ? `<div style="margin-top:6px;color:var(--neuro-accent);">✨ ${this._esc(reframe)}</div>` : ''}
+                    ${text    ? `<div style="color:var(--neuro-text);display:flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> ${this._esc(text)}</div>` : ''}
+                    ${reframe ? `<div style="margin-top:6px;color:var(--neuro-accent);display:flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> ${this._esc(reframe)}</div>` : ''}
                 </div>`;
             }
             default: return '';
@@ -969,7 +969,7 @@ const ProfileModule = {
                 const pulseFill = document.getElementById('pulseFill');
                 if (pulseFill) pulseFill.style.width = '50%';
 
-                Core.showToast('💗 Calm offered to the community');
+                Core.showToast('Calm offered to the community');
                 await CommunityDB.setPresence('online', '💗 Offering calm', state.currentRoom || null);
                 const cu = this._user();
                 if (cu) cu.activity = '💗 Offering calm';
@@ -1023,7 +1023,7 @@ const ProfileModule = {
         if (url) {
             const cu = this._user();
             if (cu) cu.avatar_url = url;
-            Core.showToast('✓ Profile photo updated');
+            Core.showToast('Profile photo updated');
         } else {
             Core.showToast('Upload failed - please try again');
             this.updateAvatar(this._user());
@@ -1042,7 +1042,7 @@ const ProfileModule = {
         const cu = this._user();
         if (cu) { cu.community_role = trimmed || 'Member'; cu.role = trimmed || 'Member'; }
         this.updateRole(this._user());
-        Core.showToast('✓ Role updated');
+        Core.showToast('Role updated');
     },
 
     async editInspiration() {
@@ -1061,7 +1061,7 @@ const ProfileModule = {
         el.textContent = `"${sanitized}"`;
         const cu = this._user();
         if (cu) cu.inspiration = sanitized;
-        Core.showToast('✓ Inspiration updated');
+        Core.showToast('Inspiration updated');
     },
 
     /**
@@ -1172,7 +1172,7 @@ const ProfileModule = {
             valEl.style.display = '';
             this.updateBirthday(this._user());
             this.updateProfileLocationRow(this._user());
-            Core.showToast('✓ Birthday updated');
+            Core.showToast('Birthday updated');
         };
 
         input.addEventListener('keydown', e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') { input.replaceWith(valEl); valEl.style.display = ''; } });
@@ -1205,7 +1205,7 @@ const ProfileModule = {
             valEl.style.display = '';
             this.updateCountry(this._user());
             this.updateProfileLocationRow(this._user());
-            Core.showToast('✓ Country updated');
+            Core.showToast('Country updated');
         };
 
         input.addEventListener('keydown', e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') { input.replaceWith(valEl); valEl.style.display = ''; } });
