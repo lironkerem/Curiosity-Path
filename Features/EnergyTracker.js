@@ -430,7 +430,7 @@ class EnergyEngineEnhanced {
     return `
       <div class="community-link-card" style="padding-top:0;">
         <div style="display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:0;">
-          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/CommunityHub.png" alt="Community" style="width:30rem;object-fit:contain;margin-top:1rem;">
+          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/CommunityHub.png" alt="Community" style="width:30rem;object-fit:contain;margin-top:1rem;margin-bottom:1rem;">
           <h3 style="margin:0;font-size:1.15rem;text-align:center;">
             Learn & Practice Reiki and Chakras with the Community
           </h3>
