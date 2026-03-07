@@ -1042,10 +1042,10 @@ body.blur-behind > *:not(.pricing-overlay) {
 
 .avatar-icon-picker {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 8px;
-  margin-top: 8px;
-  padding: 8px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-top: 6px;
+  padding: 4px;
   border-radius: 12px;
   background: var(--neuro-bg);
   box-shadow: var(--shadow-inset);
@@ -1055,7 +1055,7 @@ body.blur-behind > *:not(.pricing-overlay) {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px;
+  padding: 4px;
   border: none;
   border-radius: 8px;
   background: transparent;
