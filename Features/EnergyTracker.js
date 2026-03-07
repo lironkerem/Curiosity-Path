@@ -428,8 +428,8 @@ class EnergyEngineEnhanced {
    */
   buildReikiCTA() {
     return `
-      <div class="community-link-card" style="padding-top:0;padding-bottom:0;">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;margin-bottom:1rem;">
+      <div class="community-link-card" style="padding-top:0;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;margin-bottom:0.5rem;">
           <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavCommunity.png" alt="Community" style="width:10rem;height:10rem;object-fit:contain;">
           <h3 style="margin:0;font-size:1.15rem;text-align:center;">
             Learn & Practice Reiki and Chakras with the Community
