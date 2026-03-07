@@ -1100,10 +1100,9 @@ export default class DashboardManager {
     ];
 
     container.innerHTML = `
-      <div class="card dashboard-wellness-toolkit dashboard-community-sanctuary mb-8">
-        <div class="dashboard-wellness-header">
-          <h3 class="dashboard-wellness-title"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22c1.25-1.25 2.5-2.5 3.75-3.75"/><path d="M22 2C11 2 2 11 2 22c5.5 0 11-2.5 14.5-6S22 7.5 22 2z"/></svg> Community Sanctuary</h3>
-          <p class="dashboard-wellness-subtitle">Practice together, grow together</p>
+      <div class="card dashboard-wellness-toolkit dashboard-community-sanctuary mb-8" style="padding-top:0;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:0;">
+          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/CommunityHub.png" alt="Community" style="width:30rem;object-fit:contain;margin-top:1rem;margin-bottom:1rem;">
         </div>
 
         <div class="wellness-buttons-grid">
