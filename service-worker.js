@@ -4,7 +4,7 @@
 const CACHE_VERSION = 'tcp-2025-01-23';
 const CACHE_NAME = `tcp-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tcp-runtime-${CACHE_VERSION}`;
-const ICON_PATH = './Public/Icons/';
+const ICON_PATH = './public/Icons/';
 
 // Core assets to cache immediately
 const CORE_ASSETS = [
