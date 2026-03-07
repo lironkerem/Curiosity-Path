@@ -64,6 +64,19 @@ const MemberProfileModal = {
     init() {
         if (document.getElementById('memberProfileModal')) return;
 
+        // Fix 1: update modal ring instantly when the logged-in user changes their own status
+        window.addEventListener('statusChanged', (e) => {
+            const { status } = e.detail || {};
+            if (!status || !this.state.isOpen) return;
+            const isSelf = this.state.currentUserId === Core.state.currentUser?.id;
+            if (!isSelf) return;
+            const ring = document.getElementById('memberModalStatusRing');
+            if (!ring) return;
+            const cfg = this._STATUS_RINGS[status] || this._STATUS_RINGS.offline;
+            ring.style.borderColor = cfg.c;
+            ring.style.boxShadow   = `0 0 0 3px ${cfg.s}`;
+        });
+
         const shell = document.createElement('div');
         shell.innerHTML = `
             <div id="memberProfileModal"
@@ -452,6 +465,19 @@ const MemberProfileModal = {
 
             this._populate(profile);
 
+            // Fix 2: live ring updates for other users while modal is open
+            if (!isSelf) {
+                this._presenceUnsub = CommunityDB.subscribeToPresence((members) => {
+                    const updated = members.find(m => m.user_id === userId);
+                    if (!updated || !this.state.isOpen) return;
+                    const ring = document.getElementById('memberModalStatusRing');
+                    if (!ring) return;
+                    const cfg = this._STATUS_RINGS[updated.status] || this._STATUS_RINGS.offline;
+                    ring.style.borderColor = cfg.c;
+                    ring.style.boxShadow   = `0 0 0 3px ${cfg.s}`;
+                });
+            }
+
             const actionsRow    = document.getElementById('memberModalActions');
             const appreciateBtn = document.getElementById('memberModalAppreciateBtn');
             if (actionsRow)    actionsRow.style.display    = isSelf ? 'none' : 'flex';
@@ -515,6 +541,11 @@ const MemberProfileModal = {
             this.state.currentUserId = null;
             document.body.style.overflow = '';
             this._hideActionPanels();
+            // Clean up presence subscription (Fix 2)
+            if (this._presenceUnsub) {
+                this._presenceUnsub();
+                this._presenceUnsub = null;
+            }
         }, 250);
     },
 
