@@ -565,6 +565,15 @@ export default class NavigationManager {
     window.scrollTo(0, 0);
     this.vibrate(CONSTANTS.VIBRATION_MS);
 
+    // Update mobile bottom bar active state
+    const { mobileBar } = this.cachedElements;
+    if (mobileBar) {
+      mobileBar.querySelectorAll('.mobile-tab[data-tab]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabName);
+        btn.setAttribute('aria-selected', btn.dataset.tab === tabName);
+      });
+    }
+
     // Update mobile indicator
     this.updateTabIndicator(tabName);
   }
@@ -708,9 +717,6 @@ export default class NavigationManager {
           <li class="nav-item" data-tab="chatbot" data-label="AI Assistant" role="tab" aria-selected="false" tabindex="-1">
             <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Chat.png" alt="AI Assistant">
           </li>
-         <li class="nav-item" data-tab="community-hub" data-label="Community Hub" role="tab" aria-selected="false" tabindex="-1">
-         <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/CommunityHub.png" alt="Community Hub">
-         </li>
         </ul>
       </nav>
 
@@ -725,7 +731,7 @@ export default class NavigationManager {
         <button class="mobile-tab" data-popup="features" aria-haspopup="true" aria-expanded="false">
           <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Features.png" alt=""><span>Features</span>
         </button>
-        <button class="mobile-tab active" data-tab="dashboard" aria-selected="true">
+        <button class="mobile-tab" data-tab="dashboard" aria-selected="false">
           <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Dashboard.png" alt=""><span>Home</span>
         </button>
         <button class="mobile-tab" data-tab="community-hub" aria-selected="false">
