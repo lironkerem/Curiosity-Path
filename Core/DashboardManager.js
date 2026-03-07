@@ -1121,7 +1121,7 @@ export default class DashboardManager {
         <button onclick="window.app?.nav?.switchTab('community-hub')"
                 class="btn btn-primary"
                 style="width:100%;margin-top:1rem;font-size:1.35rem;font-weight:700;letter-spacing:0.02em;gap:0.75rem;padding:1rem 1.5rem;">
-          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Community.png" alt="" style="height:2rem;width:2rem;object-fit:contain;">
+          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Community.png" alt="" style="height:5rem;width:5rem;object-fit:contain;">
           Enter the Sanctuary →
         </button>
       </div>`;
