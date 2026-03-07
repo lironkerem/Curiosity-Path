@@ -256,3 +256,20 @@ export { ActiveMembers };
 
 // Keep window assignment for classic scripts
 window.ActiveMembers = ActiveMembers;
+
+// Listen for avatar changes from User Tab profile save
+window.addEventListener('avatarChanged', (e) => {
+    const { userId, emoji, avatarUrl } = e.detail || {};
+    if (!userId) return;
+    const card = document.querySelector(`[data-member-id="${userId}"]`);
+    if (!card) return;
+    const avatarEl = card.querySelector('.member-mini-avatar');
+    if (!avatarEl) return;
+    if (avatarUrl) {
+        avatarEl.style.background = 'transparent';
+        avatarEl.innerHTML = `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" loading="lazy">`;
+    } else if (emoji) {
+        avatarEl.style.background = '';
+        avatarEl.innerHTML = `<span class="member-avatar-icon">${renderAvatarIcon(emoji)}</span>`;
+    }
+});

@@ -9,6 +9,7 @@
 
 import { CommunityDB } from './community-supabase.js';
 import { Core } from './core.js';
+import { renderAvatarIcon } from './avatar-icons.js';
 
 const MemberProfileModal = {
 
@@ -75,6 +76,22 @@ const MemberProfileModal = {
             const cfg = this._STATUS_RINGS[status] || this._STATUS_RINGS.offline;
             ring.style.borderColor = cfg.c;
             ring.style.boxShadow   = `0 0 0 3px ${cfg.s}`;
+        });
+
+        // Fix 3: update modal avatar instantly when the viewed user changes their avatar
+        window.addEventListener('avatarChanged', (e) => {
+            const { userId, emoji, avatarUrl } = e.detail || {};
+            if (!userId || !this.state.isOpen || this.state.currentUserId !== userId) return;
+            const avatarEl = document.getElementById('memberModalAvatar');
+            if (!avatarEl) return;
+            if (avatarUrl) {
+                avatarEl.style.background = 'transparent';
+                avatarEl.innerHTML = `<img src="${avatarUrl}" loading="lazy"
+                    style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="avatar">`;
+            } else if (emoji) {
+                avatarEl.style.background = '';
+                avatarEl.innerHTML = `<span>${renderAvatarIcon(emoji)}</span>`;
+            }
         });
 
         const shell = document.createElement('div');
