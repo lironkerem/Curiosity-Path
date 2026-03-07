@@ -465,10 +465,10 @@ class TarotEngine {
    */
   buildTarotCTA() {
     return `
-      <div class="community-link-card">
-        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:1.6rem;height:1.6rem;flex-shrink:0;"><circle cx="12" cy="13" r="8"/><path d="M5 3 2 6l3 3"/><path d="m19 3 3 3-3 3"/><path d="M5.05 11A7 7 0 0 1 9 6.23c.7-.57 1.37-.85 2-.85"/><path d="M10.44 19.5a7 7 0 0 0 7.5-9"/></svg>
-          <h3 style="margin: 0; font-size: 1.15rem;">
+      <div class="community-link-card" style="padding-top:0;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:0;">
+          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/CommunityHub.png" alt="Community" style="width:30rem;object-fit:contain;margin-top:1rem;margin-bottom:1rem;">
+          <h3 style="margin: 0 0 0.75rem; font-size: 1.15rem; text-align:center;">
             Learn & Practice Tarot with the Community
           </h3>
         </div>
@@ -476,28 +476,22 @@ class TarotEngine {
           Explore the cards together. Join live readings, share interpretations,
           and deepen your intuition in a space of collective wisdom.
         </p>
-        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
           <button
-            type="button"
             onclick="document.activeElement?.blur(); window.app.nav.switchTab('community-hub')"
-            class="community-link-btn"
-            onmouseover="this.style.transform='translateY(-1px)'"
-            onmouseout="this.style.transform='translateY(0)'"
-            style="display:inline-flex;align-items:center;gap:0.4rem;"
+            class="btn btn-primary"
+            style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;flex:1 1 40%;white-space:nowrap;"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             Enter the Community Hub
           </button>
           <button
-            type="button"
             onclick="document.activeElement?.blur(); window._pendingRoomOpen = 'tarot'; window.app.nav.switchTab('community-hub')"
-            class="community-link-btn"
-            onmouseover="this.style.transform='translateY(-1px)'"
-            onmouseout="this.style.transform='translateY(0)'"
-            style="display:inline-flex;align-items:center;gap:0.4rem;"
+            class="btn btn-primary"
+            style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;flex:1 1 40%;white-space:nowrap;"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="13" r="8"/><path d="M5 3 2 6l3 3"/><path d="m19 3 3 3-3 3"/><path d="M5.05 11A7 7 0 0 1 9 6.23c.7-.57 1.37-.85 2-.85"/><path d="M10.44 19.5a7 7 0 0 0 7.5-9"/></svg>
-            Enter the Tarot Room Directly
+            Enter the Tarot Room
           </button>
         </div>
       </div>
