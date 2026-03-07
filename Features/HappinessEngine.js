@@ -504,9 +504,36 @@ class HappinessEngine {
           <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
             <span>Level ${this.currentInquiry.intensity}</span> • <span>Self-Inquiry</span>
           </div>`, 'refreshInquiry')}
+        ${this.buildCommunityCTA()}
       </main>
     </div>
   </div>`;
+  }
+
+  buildCommunityCTA() {
+    return `
+      <div class="community-link-card" style="padding-top:0;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:0;">
+          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/CommunityHub.png" alt="Community" style="width:30rem;object-fit:contain;margin-top:1rem;margin-bottom:1rem;">
+          <h3 style="margin: 0 0 0.75rem; font-size: 1.15rem; text-align:center;">
+            Mingle & Practice, Chat and Be one with the Community
+          </h3>
+        </div>
+        <p style="margin: 0 0 1.5rem; font-size: 0.92rem; line-height: 1.6;">
+          Deepen your connection with the community. Join live practice rooms, Sync with the Sun and Moon, Learn and Evolve - all in one place.
+        </p>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+          <button
+            onclick="document.activeElement?.blur(); window.app.nav.switchTab('community-hub')"
+            class="btn btn-primary"
+            style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;flex:1 1 100%;white-space:nowrap;"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Enter the Community Hub
+          </button>
+        </div>
+      </div>
+    `;
   }
 
   /**
