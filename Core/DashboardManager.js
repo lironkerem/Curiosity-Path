@@ -1023,7 +1023,7 @@ export default class DashboardManager {
         <div class="dashboard-container">
           <div class="dashboard-content">
             <header class="main-header project-curiosity"
-                    style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavDashboard.png');
+                    style="--header-img:url('/Public/Tabs/NavDashboard.png');
                            --header-title:'${userName}';
                            --header-tag:'Your journey inward begins here, so practice. explore. transform.'">
               <h1>${userName}'s Spiritual Dashboard</h1>
@@ -1102,7 +1102,7 @@ export default class DashboardManager {
     container.innerHTML = `
       <div class="card dashboard-wellness-toolkit dashboard-community-sanctuary mb-8" style="padding-top:0;">
         <div style="display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:0;">
-          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/CommunityHub.png" alt="Community" style="width:30rem;object-fit:contain;margin-top:0.5rem;margin-bottom:0;">
+          <img src="/Public/Tabs/CommunityHub.png" alt="Community" style="width:30rem;object-fit:contain;margin-top:0.5rem;margin-bottom:0;">
         </div>
 
         <div class="wellness-buttons-grid">
@@ -1121,7 +1121,7 @@ export default class DashboardManager {
         <button onclick="window.app?.nav?.switchTab('community-hub')"
                 class="btn btn-primary"
                 style="width:100%;margin-top:1rem;font-size:1.75rem;font-weight:700;letter-spacing:0.02em;gap:0.75rem;padding:1rem 1.5rem;">
-          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Community.png" alt="" style="height:4rem;width:4rem;object-fit:contain;">
+          <img src="/Public/Tabs/Community.png" alt="" style="height:4rem;width:4rem;object-fit:contain;">
           Enter the Community Hub →
         </button>
       </div>`;

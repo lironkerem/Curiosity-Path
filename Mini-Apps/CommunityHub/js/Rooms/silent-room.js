@@ -17,7 +17,7 @@ class SilentRoom extends PracticeRoom {
             icon:        '🧘',
             description: 'Join others in silence. No guidance, shared energy.',
             energy:      'Peaceful',
-            imageUrl:    'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Silent.png',
+            imageUrl:    '/Public/Community/Silent.png',
             participants: 4,
         });
 

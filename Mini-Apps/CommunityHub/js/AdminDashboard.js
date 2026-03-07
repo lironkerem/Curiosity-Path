@@ -144,7 +144,7 @@ const AdminDashboard = {
                     </div>
                 </div>
                 <div class="card" style="padding:16px;">
-                    <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/AdminDashboard.png"
+                    <img src="/Public/Community/AdminDashboard.png"
                          onclick="AdminDashboard.openDashboard()"
                          alt="Open Admin Dashboard"
                          style="width:100%;border-radius:14px;cursor:pointer;display:block;

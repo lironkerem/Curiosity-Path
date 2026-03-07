@@ -2,7 +2,7 @@
  * TarotEngine.js - Complete Tarot Integration
  */
 
-const TAROT_BASE_URL = 'https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Tarot%20Cards%20images/';
+const TAROT_BASE_URL = '/Public/Tarot%20Cards%20images/';
 
 class TarotEngine {
   constructor() {

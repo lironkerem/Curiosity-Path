@@ -11,7 +11,7 @@ class OshoRoom extends TimedVideoRoom {
             icon:            '💃',
             description:     '7 OSHO methods. Dynamic practice.',
             energy:          'Dynamic',
-            imageUrl:        'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/OSHO.png',
+            imageUrl:        '/Public/Community/OSHO.png',
             participants:    0,
             cycleDuration:   90 * 60,
             openDuration:    10 * 60,

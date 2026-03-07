@@ -16,7 +16,7 @@ const SOLAR_CONSTANTS = {
   STORAGE_PREFIX:                  'solar_',
   STORAGE_KEY_SUFFIX:              '_data',
 
-  IMAGE_BASE_URL:                  'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Solar/',
+  IMAGE_BASE_URL:                  '/Public/Community/Solar/',
 
   SEASONS:                         { SPRING: 'spring', SUMMER: 'summer', AUTUMN: 'autumn', WINTER: 'winter' },
 

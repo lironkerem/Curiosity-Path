@@ -16,7 +16,7 @@ const newMoonConfig = {
     // Phase: start (0–0.068) and end (0.932–1.0) of cycle
     phaseRanges: [[0, 0.068], [0.932, 1.0]],
 
-    imageUrl: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Lunar/NewMoon.png',
+    imageUrl: '/Public/Community/Lunar/NewMoon.png',
 
     description:      'In darkness, we plant seeds of intention. In silence, we listen for what wants to emerge.',
     wisdomQuote:      'Every ending is a beginning in disguise. Tonight, we honor both.',

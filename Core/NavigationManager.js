@@ -673,7 +673,7 @@ export default class NavigationManager {
       <!-- CENTERED HEADER -->
       <div class="app-header">
         <img class="header-image" 
-             src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Header.png" 
+             src="/Public/Tabs/Header.png" 
              alt="Aanandoham Header">
       </div>
 
@@ -681,41 +681,41 @@ export default class NavigationManager {
       <nav class="main-nav desktop-nav" role="navigation" aria-label="Main navigation">
         <ul class="nav-tabs" id="nav-tabs" role="tablist">
           <li class="nav-item active" data-tab="dashboard" data-label="Main Dashboard" role="tab" aria-selected="true" tabindex="0">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavDashboard.png" alt="Main Dashboard">
+            <img class="nav-image" src="/Public/Tabs/NavDashboard.png" alt="Main Dashboard">
           </li>
           <li class="nav-item" data-tab="energy" data-label="Daily Energy Tracker" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavEnergy.png" alt="Daily Energy Tracker">
+            <img class="nav-image" src="/Public/Tabs/NavEnergy.png" alt="Daily Energy Tracker">
           </li>
           <li class="nav-item" data-tab="tarot" data-label="Tarot Cards Guidance" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavTarot.png" alt="Tarot Cards Guidance">
+            <img class="nav-image" src="/Public/Tabs/NavTarot.png" alt="Tarot Cards Guidance">
           </li>
           <li class="nav-item" data-tab="gratitude" data-label="Gratitude Practice" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavGratitude.png" alt="Gratitude Practice">
+            <img class="nav-image" src="/Public/Tabs/NavGratitude.png" alt="Gratitude Practice">
           </li>
           <li class="nav-item" data-tab="happiness" data-label="Happiness Booster" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavHappiness.png" alt="Happiness Booster">
+            <img class="nav-image" src="/Public/Tabs/NavHappiness.png" alt="Happiness Booster">
           </li>
           <li class="nav-item" data-tab="journal" data-label="My Private Journal" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavJournal.png" alt="My Private Journal">
+            <img class="nav-image" src="/Public/Tabs/NavJournal.png" alt="My Private Journal">
           </li>
           <li class="nav-item" data-tab="meditations" data-label="Guided Meditations" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavMeditations.png" alt="Guided Meditations">
+            <img class="nav-image" src="/Public/Tabs/NavMeditations.png" alt="Guided Meditations">
           </li>
           <li class="nav-item" data-tab="flip-script" data-label="Flip The Script" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavFlip.png" alt="Flip The Script">
+            <img class="nav-image" src="/Public/Tabs/NavFlip.png" alt="Flip The Script">
           </li>
           <li class="nav-item" data-tab="calculator" data-label="Self Analysis Pro" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavAnalysis.png" alt="Self Analysis Pro">
+            <img class="nav-image" src="/Public/Tabs/NavAnalysis.png" alt="Self Analysis Pro">
           </li>
           <li class="nav-item" data-tab="shadow-alchemy" data-label="Shadow Alchemy Lab" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavShadow.png" alt="Shadow Alchemy Lab">
+            <img class="nav-image" src="/Public/Tabs/NavShadow.png" alt="Shadow Alchemy Lab">
             <span class="premium-badge">PREMIUM</span>
           </li>
           <li class="nav-item" data-tab="karma-shop" data-label="Karma Shop" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavShop.png" alt="Karma Shop">
+            <img class="nav-image" src="/Public/Tabs/NavShop.png" alt="Karma Shop">
           </li>
           <li class="nav-item" data-tab="chatbot" data-label="AI Assistant" role="tab" aria-selected="false" tabindex="-1">
-            <img class="nav-image" src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Chat.png" alt="AI Assistant">
+            <img class="nav-image" src="/Public/Tabs/Chat.png" alt="AI Assistant">
           </li>
         </ul>
       </nav>
@@ -726,16 +726,16 @@ export default class NavigationManager {
       <!-- MOBILE 4-BUTTON BAR -->
       <nav id="mobile-bottom-bar" class="mobile-bottom-bar mobile-bottom-bar-4" role="navigation" aria-label="Mobile navigation">
         <button class="mobile-tab" data-popup="miniapps" aria-haspopup="true" aria-expanded="false">
-          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/MiniApps.png" alt=""><span>Mini Apps</span>
+          <img src="/Public/Tabs/MiniApps.png" alt=""><span>Mini Apps</span>
         </button>
         <button class="mobile-tab" data-popup="features" aria-haspopup="true" aria-expanded="false">
-          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Features.png" alt=""><span>Features</span>
+          <img src="/Public/Tabs/Features.png" alt=""><span>Features</span>
         </button>
         <button class="mobile-tab" data-tab="dashboard" aria-selected="false">
-          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Dashboard.png" alt=""><span>Home</span>
+          <img src="/Public/Tabs/Dashboard.png" alt=""><span>Home</span>
         </button>
         <button class="mobile-tab" data-tab="community-hub" aria-selected="false">
-          <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Community.png" alt=""><span>Community</span>
+          <img src="/Public/Tabs/Community.png" alt=""><span>Community</span>
         </button>
       </nav>
 
@@ -743,23 +743,23 @@ export default class NavigationManager {
       <div id="sheet-miniapps" class="mobile-sheet" role="dialog" aria-modal="true" aria-hidden="true">
         <div class="sheet-grip"></div><div class="sheet-header">Mini Apps</div>
         <div class="sheet-scroller">
-          <div class="sheet-row" data-tab="flip-script" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavFlip.png" alt=""><span>Flip Your Thoughts</span></div>
-          <div class="sheet-row" data-tab="calculator" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavAnalysis.png" alt=""><span>Analyze your 'Self'</span></div>
-          <div class="sheet-row" data-tab="shadow-alchemy" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavShadow.png" alt=""><span>Shadow Work</span></div>
-          <div class="sheet-row" data-tab="chatbot" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Chat.png" alt=""><span>Aanandoham's AI Assistant</span></div>
+          <div class="sheet-row" data-tab="flip-script" role="menuitem" tabindex="0"><img src="/Public/Tabs/NavFlip.png" alt=""><span>Flip Your Thoughts</span></div>
+          <div class="sheet-row" data-tab="calculator" role="menuitem" tabindex="0"><img src="/Public/Tabs/NavAnalysis.png" alt=""><span>Analyze your 'Self'</span></div>
+          <div class="sheet-row" data-tab="shadow-alchemy" role="menuitem" tabindex="0"><img src="/Public/Tabs/NavShadow.png" alt=""><span>Shadow Work</span></div>
+          <div class="sheet-row" data-tab="chatbot" role="menuitem" tabindex="0"><img src="/Public/Tabs/Chat.png" alt=""><span>Aanandoham's AI Assistant</span></div>
         </div>
       </div>
 
       <div id="sheet-features" class="mobile-sheet" role="dialog" aria-modal="true" aria-hidden="true">
         <div class="sheet-grip"></div><div class="sheet-header">Features</div>
         <div class="sheet-scroller">
-          <div class="sheet-row" data-tab="happiness" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavHappiness.png" alt=""><span>Happiness and Motivation</span></div>
-          <div class="sheet-row" data-tab="gratitude" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavGratitude.png" alt=""><span>Gratitude Enhancer</span></div>
-          <div class="sheet-row" data-tab="journal" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavJournal.png" alt=""><span>Write To Yourself</span></div>
-          <div class="sheet-row" data-tab="energy" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavEnergy.png" alt=""><span>Track Your Energies</span></div>
-          <div class="sheet-row" data-tab="tarot" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavTarot.png" alt=""><span>Tarot Cards Divinations</span></div>
-          <div class="sheet-row" data-tab="meditations" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavMeditations.png" alt=""><span>Aanandoham's Meditations</span></div>
-          <div class="sheet-row" data-tab="karma-shop" role="menuitem" tabindex="0"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavShop.png" alt=""><span>Spend Your Karma</span></div>
+          <div class="sheet-row" data-tab="happiness" role="menuitem" tabindex="0"><img src="/Public/Tabs/NavHappiness.png" alt=""><span>Happiness and Motivation</span></div>
+          <div class="sheet-row" data-tab="gratitude" role="menuitem" tabindex="0"><img src="/Public/Tabs/NavGratitude.png" alt=""><span>Gratitude Enhancer</span></div>
+          <div class="sheet-row" data-tab="journal" role="menuitem" tabindex="0"><img src="/Public/Tabs/NavJournal.png" alt=""><span>Write To Yourself</span></div>
+          <div class="sheet-row" data-tab="energy" role="menuitem" tabindex="0"><img src="/Public/Tabs/NavEnergy.png" alt=""><span>Track Your Energies</span></div>
+          <div class="sheet-row" data-tab="tarot" role="menuitem" tabindex="0"><img src="/Public/Tabs/NavTarot.png" alt=""><span>Tarot Cards Divinations</span></div>
+          <div class="sheet-row" data-tab="meditations" role="menuitem" tabindex="0"><img src="/Public/Tabs/NavMeditations.png" alt=""><span>Aanandoham's Meditations</span></div>
+          <div class="sheet-row" data-tab="karma-shop" role="menuitem" tabindex="0"><img src="/Public/Tabs/NavShop.png" alt=""><span>Spend Your Karma</span></div>
         </div>
       </div>
 
@@ -797,7 +797,7 @@ export default class NavigationManager {
     ];
 
     const dots = tabs.map(t => 
-      `<span class="tab-dot${t.active ? ' active' : ''}" data-tab="${t.tab}" title="${t.title}" style="${baseStyle}"><img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Dots/${t.img}" style="${imgStyle}"></span>`
+      `<span class="tab-dot${t.active ? ' active' : ''}" data-tab="${t.tab}" title="${t.title}" style="${baseStyle}"><img src="/Public/Tabs/Dots/${t.img}" style="${imgStyle}"></span>`
     ).join('\n        ');
 
     return `

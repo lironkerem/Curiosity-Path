@@ -11,7 +11,7 @@ class GuidedRoom extends TimedVideoRoom {
             icon:            '🎧',
             description:     'Hourly sessions. Timer & notifications.',
             energy:          'Focused',
-            imageUrl:        'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Visualization.png',
+            imageUrl:        '/Public/Community/Visualization.png',
             participants:    0,
             cycleDuration:   60 * 60,
             openDuration:    15 * 60,

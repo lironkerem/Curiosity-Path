@@ -19,7 +19,7 @@ class TarotRoom extends PracticeRoom {
             icon:        '🔮',
             description: 'Daily guidance & personal draws with reflection',
             energy:      'Intuitive',
-            imageUrl:    'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Tarot.png',
+            imageUrl:    '/Public/Community/Tarot.png',
             participants: 8,
         });
 
@@ -39,7 +39,7 @@ class TarotRoom extends PracticeRoom {
     // ── Data initialisation ───────────────────────────────────────────────────
 
     async _initializeTarotData() {
-        this.TAROT_BASE_URL = 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tarot%20Cards%20images/';
+        this.TAROT_BASE_URL = '/Public/Tarot%20Cards%20images/';
         this.suits       = ['pentacles', 'swords', 'cups', 'wands'];
         this.SUIT_NAMES  = { pentacles: 'Pentacles', swords: 'Swords', cups: 'Cups', wands: 'Wands' };
         this.COURT_RANKS = { 11: 'Page', 12: 'Knight', 13: 'Queen', 14: 'King' };

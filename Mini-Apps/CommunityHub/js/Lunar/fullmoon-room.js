@@ -15,7 +15,7 @@ const fullMoonConfig = {
 
     phaseRanges: [[0.432, 0.568]],
 
-    imageUrl: 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Community/Lunar/FullMoon.png',
+    imageUrl: '/Public/Community/Lunar/FullMoon.png',
 
     description:      'In illumination, we see clearly. In fullness, we honor what is.',
     wisdomQuote:      'In the light of the full moon, everything becomes visible. We honor what we see.',
