@@ -1120,9 +1120,9 @@ export default class DashboardManager {
 
         <button onclick="window.app?.nav?.switchTab('community-hub')"
                 class="btn btn-primary"
-                style="width:100%;margin-top:1rem;font-size:1.35rem;font-weight:700;letter-spacing:0.02em;gap:0.75rem;padding:1rem 1.5rem;">
+                style="width:100%;margin-top:1rem;font-size:1.75rem;font-weight:700;letter-spacing:0.02em;gap:0.75rem;padding:1rem 1.5rem;">
           <img src="https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/Community.png" alt="" style="height:4rem;width:4rem;object-fit:contain;">
-          Enter the Community Hub ->
+          Enter the Community Hub →
         </button>
       </div>`;
   }
