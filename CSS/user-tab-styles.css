@@ -1076,8 +1076,4 @@ body.blur-behind > *:not(.pricing-overlay) {
   stroke: #fff;
 }
 
-/* Override lucide-icon size inside the picker only */
-.lucide-avatar-icon {
-  width: 22px;
-  height: 22px;
-}
+
