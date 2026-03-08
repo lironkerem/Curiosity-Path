@@ -1051,11 +1051,12 @@ body.blur-behind > *:not(.pricing-overlay) {
   box-shadow: var(--shadow-inset);
 }
 
-.avatar-icon-btn {
+.avatar-icon-btn,
+button[type="button"].avatar-icon-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  padding: 4px !important;
   border: none;
   border-radius: 8px;
   background: transparent;
