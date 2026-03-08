@@ -695,14 +695,14 @@ class TarotRoom extends PracticeRoom {
         <!-- Enriched sections injected here after card loads -->
         <div id="${this.roomId}EnrichedSections"></div>
         <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:24px;" class="tarot-daily-grid">
-            <!-- Participants panel — rendered by override below -->
-            ${this._buildParticipantPanel()}
             <div>
                 <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Community Discussion</h4>
                 <div style="display:flex;flex-direction:column;height:100%;">
                     ${this.buildChatContainer('daily', 'Share your thoughts on today\'s card...')}
                 </div>
             </div>
+            <!-- Participants panel — rendered by override below -->
+            ${this._buildParticipantPanel()}
         </div>`;
     }
 
