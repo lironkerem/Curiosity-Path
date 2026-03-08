@@ -591,6 +591,53 @@ class TarotRoom extends PracticeRoom {
         return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    // ── Participant panel (tarot-specific responsive override) ───────────────
+
+    _buildParticipantPanel() {
+        const roomId = this.roomId;
+        return `
+        <div id="${roomId}ParticipantPanel" style="margin-bottom:16px;">
+            <!-- Desktop: vertical sidebar (shown via tarot-daily-grid CSS) -->
+            <!-- Mobile: horizontal strip — both rendered, CSS controls which is visible -->
+            <div class="tarot-participants-desktop" style="border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;background:var(--background);">
+                <div style="font-weight:600;font-size:14px;margin-bottom:8px;text-align:center;">Online Practitioners</div>
+                <div id="${roomId}ParticipantCount" style="font-size:12px;color:var(--text-muted);margin-bottom:12px;text-align:center;">${this.state.participants} present</div>
+                <div id="${roomId}ParticipantListEl" class="campfire-participants" style="max-height:360px;overflow-y:auto;">
+                    <div style="color:var(--text-muted);font-size:13px;padding:8px;">Loading…</div>
+                </div>
+            </div>
+        </div>
+
+    // Override _renderParticipantList to use campfire-participant classes
+    // (PracticeRoom base already does this, but we re-declare to be safe)
+    _renderParticipantList(listEl, participants) {
+        if (!participants.length) {
+            listEl.innerHTML = `<div style="color:var(--text-muted);font-size:13px;padding:8px;">Just you here 🕯️</div>`;
+            return;
+        }
+        listEl.innerHTML = participants.map(p => {
+            const profile   = p.profiles || {};
+            const userId    = p.user_id || profile.id || '';
+            const name      = profile.name      || 'Member';
+            const avatarUrl = profile.avatar_url || '';
+            const emoji     = profile.emoji      || '';
+            const gradient  = Core?.getAvatarGradient?.(userId || name) ?? 'linear-gradient(135deg,#667eea,#764ba2)';
+            const inner     = avatarUrl
+                ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
+                : `<span style="color:white;font-weight:600;font-size:13px;">${emoji || name.charAt(0).toUpperCase()}</span>`;
+            const bg    = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
+            const click = userId ? `onclick="openMemberProfileAboveRoom('${userId}')"` : '';
+            return `
+            <div class="campfire-participant" ${click} style="${userId ? 'cursor:pointer;' : ''}">
+                <div class="campfire-participant-avatar" style="${bg}display:flex;align-items:center;justify-content:center;">${inner}</div>
+                <div class="campfire-participant-info">
+                    <div class="campfire-participant-name">${name}</div>
+                    <div class="campfire-participant-country">${p.activity || '✨ Available'}</div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
     drawPersonalCard() {
         if (this.state.personalDrawn) { Core.showToast('You already drew your card'); return; }
         this.state.personalDeck  = this._shuffleDeck(this.state.personalDeck);
@@ -647,13 +694,14 @@ class TarotRoom extends PracticeRoom {
         <!-- Enriched sections injected here after card loads -->
         <div id="${this.roomId}EnrichedSections"></div>
         <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:24px;" class="tarot-daily-grid">
+            <!-- Participants panel — rendered by override below -->
+            ${this._buildParticipantPanel()}
             <div>
                 <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Community Discussion</h4>
                 <div style="display:flex;flex-direction:column;height:100%;">
                     ${this.buildChatContainer('daily', 'Share your thoughts on today\'s card...')}
                 </div>
             </div>
-            ${this.buildParticipantSidebarHTML('Tarot Students', `${this.roomId}ParticipantListEl`, `${this.roomId}ParticipantCount`)}
         </div>`;
     }
 

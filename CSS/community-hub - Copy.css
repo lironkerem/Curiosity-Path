@@ -3811,7 +3811,7 @@ body.solar-room-active[data-season] {
     gap: 16px;
 }
 
-.tarot-daily-grid > div:first-child {
+.tarot-daily-grid > div:last-child {
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 10px 14px;
@@ -3819,12 +3819,12 @@ body.solar-room-active[data-season] {
     box-sizing: border-box;
 }
 
-.tarot-daily-grid > div:first-child > div:first-child {
+.tarot-daily-grid > div:last-child > div:first-child {
     font-size: 13px; margin-bottom: 8px; text-align: center;
 }
 
-.tarot-daily-grid > div:first-child .campfire-participants,
-.tarot-daily-grid > div:first-child [id$="ParticipantListEl"] {
+.tarot-daily-grid > div:last-child .campfire-participants,
+.tarot-daily-grid > div:last-child [id$="ParticipantListEl"] {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -5010,12 +5010,12 @@ body.solar-room-active[data-season] {
         display: flex !important;
         flex-direction: column !important;
     }
-    .tarot-daily-grid > div:first-child {
+    .tarot-daily-grid > div:last-child {
         order: -1;
         padding: 8px 10px;
     }
-    .tarot-daily-grid > div:first-child .campfire-participants,
-    .tarot-daily-grid > div:first-child [id$="ParticipantListEl"] {
+    .tarot-daily-grid > div:last-child .campfire-participants,
+    .tarot-daily-grid > div:last-child [id$="ParticipantListEl"] {
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
@@ -5026,8 +5026,8 @@ body.solar-room-active[data-season] {
         gap: 8px;
         scrollbar-width: none;
     }
-    .tarot-daily-grid > div:first-child .campfire-participants::-webkit-scrollbar,
-    .tarot-daily-grid > div:first-child [id$="ParticipantListEl"]::-webkit-scrollbar { display: none; }
+    .tarot-daily-grid > div:last-child .campfire-participants::-webkit-scrollbar,
+    .tarot-daily-grid > div:last-child [id$="ParticipantListEl"]::-webkit-scrollbar { display: none; }
     .tarot-daily-grid .campfire-participant {
         flex-direction: column; align-items: center;
         gap: 3px; padding: 6px 8px;
