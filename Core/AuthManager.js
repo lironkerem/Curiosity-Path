@@ -46,29 +46,29 @@ export default class AuthManager {
   }
 
   _generateLoginHTML(isLocked, lockoutMessage) {
-    return `<div class="min-h-screen flex items-center justify-center p-4 mobile-optimized" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)"><div class="auth-card-enhanced">${this._generateLogoHeader('The Curiosity Path', 'by Aanandoham', 'Join 10,000+ seekers on their journey')}${isLocked ? `<div class="lockout-warning">${lockoutMessage}</div>` : ''}${this._generateGoogleButton('Continue with Google', 'handleGoogleLogin', isLocked)}<div class=divider><span>or</span></div>${this._generateLoginForm(isLocked)}<p class="text-center mt-4 text-sm" style="margin-top:24px"><a href="#" onclick="window.app.auth.showSignupForm(); return false;" style="color:#6366f1;text-decoration:none;font-weight:500">Create an account</a></p>${this._generateFooter()}</div></div>${this._generateStyles()}`;
+    return `<div class="auth-screen-wrapper mobile-optimized"><div class="auth-card-enhanced">${this._generateLogoHeader('The Curiosity Path', 'by Aanandoham', 'Join 10,000+ seekers on their journey')}${isLocked ? `<div class="lockout-warning">${lockoutMessage}</div>` : ''}${this._generateGoogleButton('Continue with Google', 'handleGoogleLogin', isLocked)}<div class=divider><span>or</span></div>${this._generateLoginForm(isLocked)}<p class="text-center mt-4 text-sm" style="margin-top:24px"><a href="#" onclick="window.app.auth.showSignupForm(); return false;" class="auth-link">Create an account</a></p>${this._generateFooter()}</div></div>${this._generateStyles()}`;
   }
 
   showSignupForm() {
-    const html = `<div class="min-h-screen flex items-center justify-center p-4 mobile-optimized" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)"><div class="auth-card-enhanced">${this._generateLogoHeader('Create Account', 'Join The Curiosity Path', 'Join 10,000+ seekers on their journey')}${this._generateGoogleButton('Sign up with Google', 'handleGoogleSignup', false)}<div class=divider><span>or</span></div>${this._generateSignupForm()}<p class="text-center mt-4 text-sm" style="margin-top:24px"><a href="#" onclick="window.app.auth.renderAuthScreen(); return false;" style="color:#6366f1;text-decoration:none;font-weight:500">Already have an account? Sign in</a></p>${this._generateFooter()}</div></div>${this._generateStyles()}`;
+    const html = `<div class="auth-screen-wrapper mobile-optimized"><div class="auth-card-enhanced">${this._generateLogoHeader('Create Account', 'Join The Curiosity Path', 'Join 10,000+ seekers on their journey')}${this._generateGoogleButton('Sign up with Google', 'handleGoogleSignup', false)}<div class=divider><span>or</span></div>${this._generateSignupForm()}<p class="text-center mt-4 text-sm" style="margin-top:24px"><a href="#" onclick="window.app.auth.renderAuthScreen(); return false;" class="auth-link">Already have an account? Sign in</a></p>${this._generateFooter()}</div></div>${this._generateStyles()}`;
     document.getElementById('auth-screen').innerHTML = html;
   }
 
   showForgotPassword() {
-    const html = `<div class="min-h-screen flex items-center justify-center p-4 mobile-optimized" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)"><div class="auth-card-enhanced">${this._generateLogoHeader('Reset Password', 'Enter your email to receive a reset link', '')}<form id=forgot-form onsubmit="window.app.auth.handleForgotPassword(event)" class="space-y-4" style="margin-top:2.5rem"><div class=form-group style="margin-bottom:20px"><label class=form-label style="margin-bottom:8px;display:block">Email</label><input type=email class="form-input-enhanced" placeholder="your@email.com" autocomplete="email" inputmode="email" required><span class="error-message" style="display:none"></span></div>${this._generateSubmitButton('Send Reset Link')}</form><p class="text-center mt-4 text-sm" style="margin-top:24px"><a href="#" onclick="window.app.auth.renderAuthScreen(); return false;" style="color:#6366f1;text-decoration:none;font-weight:500">Back to sign in</a></p>${this._generateSecurityBadge()}</div></div>`;
+    const html = `<div class="auth-screen-wrapper mobile-optimized"><div class="auth-card-enhanced">${this._generateLogoHeader('Reset Password', 'Enter your email to receive a reset link', '')}<form id=forgot-form onsubmit="window.app.auth.handleForgotPassword(event)" class="space-y-4" style="margin-top:2.5rem"><div class=form-group style="margin-bottom:20px"><label class=form-label style="margin-bottom:8px;display:block">Email</label><input type=email class="form-input-enhanced" placeholder="your@email.com" autocomplete="email" inputmode="email" required><span class="error-message" style="display:none"></span></div>${this._generateSubmitButton('Send Reset Link')}</form><p class="text-center mt-4 text-sm" style="margin-top:24px"><a href="#" onclick="window.app.auth.renderAuthScreen(); return false;" class="auth-link">Back to sign in</a></p>${this._generateSecurityBadge()}</div></div>`;
     document.getElementById('auth-screen').innerHTML = html;
   }
 
   _generateLogoHeader(title, subtitle, description) {
-    return `<div class="text-center mb-8 fade-in"><div class="logo-icon" style="width:144px;height:144px;display:flex;align-items:center;justify-content:center;margin:0 auto"><img src="${ASSETS.LOGO_URL}" alt="Aanandoham" style="width:120px;height:120px;object-fit:contain" loading="eager"></div><h1 class="text-3xl font-bold mb-2">${title}</h1><p style="color:#6c757d;font-weight:bold;font-size:1.1rem">${subtitle}</p>${description ? `<p style="color:#9ca3af;font-size:0.9rem;margin-top:8px">${description}</p>` : ''}</div>`;
+    return `<div class="text-center mb-8 fade-in"><div class="logo-icon" style="width:144px;height:144px;display:flex;align-items:center;justify-content:center;margin:0 auto"><img src="${ASSETS.LOGO_URL}" alt="Aanandoham" style="width:120px;height:120px;object-fit:contain" loading="eager"></div><h1 class="text-3xl font-bold mb-2">${title}</h1><p class="auth-subtitle">${subtitle}</p>${description ? `<p class="auth-desc">${description}</p>` : ''}</div>`;
   }
 
   _generateGoogleButton(text, handler, disabled) {
-    return `<button onclick="window.app.auth.${handler}()" class="btn-google w-full mb-4 touch-target" style="margin-top:2.5rem" ${disabled ? 'disabled' : ''}><svg width="20" height="20" viewBox="0 0 48 48" style="margin-right:12px"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.03h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.66z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span style="font-weight:500;color:#3c4043">${text}</span></button>`;
+    return `<button onclick="window.app.auth.${handler}()" class="btn-google w-full mb-4 touch-target" style="margin-top:2.5rem" ${disabled ? 'disabled' : ''}><svg width="20" height="20" viewBox="0 0 48 48" style="margin-right:12px"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.03h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.66z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span style="font-weight:500;color:var(--neuro-text)">${text}</span></button>`;
   }
 
   _generateLoginForm(disabled) {
-    return `<form id=login-form onsubmit="window.app.auth.handleLogin(event)" class="space-y-4" style="margin-top:2.5rem">${this._generateEmailField(disabled)}${this._generatePasswordField(disabled, false)}<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;margin-bottom:24px"><label style="display:flex;align-items:center;font-size:0.875rem;color:#6c757d;cursor:pointer"><input type=checkbox id="remember-me" style="margin-right:6px" ${disabled ? 'disabled' : ''}>Remember me</label><a href="#" onclick="window.app.auth.showForgotPassword(); return false;" style="color:#6366f1;text-decoration:none;font-size:0.875rem;font-weight:500">Forgot password?</a></div>${this._generateSubmitButton('Sign In', disabled)}</form>`;
+    return `<form id=login-form onsubmit="window.app.auth.handleLogin(event)" class="space-y-4" style="margin-top:2.5rem">${this._generateEmailField(disabled)}${this._generatePasswordField(disabled, false)}<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;margin-bottom:24px"><label style="display:flex;align-items:center;font-size:0.875rem;color:var(--neuro-text-light);cursor:pointer"><input type=checkbox id="remember-me" style="margin-right:6px" ${disabled ? 'disabled' : ''}>Remember me</label><a href="#" onclick="window.app.auth.showForgotPassword(); return false;" class="auth-link" style="font-size:0.875rem">Forgot password?</a></div>${this._generateSubmitButton('Sign In', disabled)}</form>`;
   }
 
   _generateSignupForm() {
@@ -83,7 +83,7 @@ export default class AuthManager {
     const autocomplete = showStrength ? 'new-password' : 'current-password';
     const minlength = showStrength ? `minlength="${CONFIG.PASSWORD_MIN_LENGTH}"` : '';
     const oninput = showStrength ? 'oninput="window.app.auth.debouncedPasswordCheck(this)"' : '';
-    return `<div class=form-group style="margin-bottom:20px"><label class=form-label style="margin-bottom:8px;display:block">Password${this._generatePasswordHint()}</label><div style="position:relative"><input type=password class="form-input-enhanced" placeholder="••••••••" ${minlength} autocomplete="${autocomplete}" required ${oninput} onkeyup="window.app.auth.checkCapsLock(event)" ${disabled ? 'disabled' : ''}></div>${showStrength ? this._generatePasswordStrength() : ''}<span class="caps-warning" style="display:none;color:#f59e0b;font-size:0.8rem;margin-top:4px">⚠️ Caps Lock is ON</span><span class="error-message" style="display:none"></span></div>`;
+    return `<div class=form-group style="margin-bottom:20px"><label class=form-label style="margin-bottom:8px;display:block">Password${this._generatePasswordHint()}</label><div style="position:relative"><input type=password class="form-input-enhanced" placeholder="••••••••" ${minlength} autocomplete="${autocomplete}" required ${oninput} onkeyup="window.app.auth.checkCapsLock(event)" ${disabled ? 'disabled' : ''}></div>${showStrength ? this._generatePasswordStrength() : ''}<span class="caps-warning" style="display:none;font-size:0.8rem;margin-top:4px">⚠️ Caps Lock is ON</span><span class="error-message" style="display:none"></span></div>`;
   }
 
   _generatePasswordHint() {
@@ -91,7 +91,7 @@ export default class AuthManager {
   }
 
   _generatePasswordStrength() {
-    return `<div class="password-strength" style="display:flex;gap:4px;margin-top:8px"><span style="flex:1;height:4px;background:#e5e7eb;border-radius:2px;transition:background 0.3s"></span><span style="flex:1;height:4px;background:#e5e7eb;border-radius:2px;transition:background 0.3s"></span><span style="flex:1;height:4px;background:#e5e7eb;border-radius:2px;transition:background 0.3s"></span><span style="flex:1;height:4px;background:#e5e7eb;border-radius:2px;transition:background 0.3s"></span></div>`;
+    return `<div class="password-strength" style="display:flex;gap:4px;margin-top:8px"><span style="flex:1;height:4px;border-radius:2px;transition:background 0.3s"></span><span style="flex:1;height:4px;border-radius:2px;transition:background 0.3s"></span><span style="flex:1;height:4px;border-radius:2px;transition:background 0.3s"></span><span style="flex:1;height:4px;border-radius:2px;transition:background 0.3s"></span></div>`;
   }
 
   _generateSubmitButton(text, disabled = false) {
@@ -99,15 +99,67 @@ export default class AuthManager {
   }
 
   _generateSecurityBadge() {
-    return `<div class="text-center mt-6 text-sm" style="color:#6c757d;margin-top:32px"><div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span style="font-size:0.85rem">Secure & encrypted • We never share your data</span></div></div>`;
+    return `<div class="auth-footer text-center mt-6 text-sm" style="margin-top:32px"><div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span style="font-size:0.85rem">Secure & encrypted • We never share your data</span></div></div>`;
   }
 
   _generateFooter() {
-    return `<div class="text-center mt-6 text-sm" style="color:#6c757d;margin-top:32px"><div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span style="font-size:0.85rem">Secure & encrypted • We never share your data</span></div><p class="mb-2">Your account is securely stored in Supabase Cloud</p><div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap"><a href="#" onclick="window.app.auth.showTerms(); return false;" style="color:#6c757d;text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='#6366f1'" onmouseout="this.style.color='#6c757d'">Terms of Service</a><span>•</span><a href="#" onclick="window.app.auth.showPrivacy(); return false;" style="color:#6c757d;text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='#6366f1'" onmouseout="this.style.color='#6c757d'">Privacy Policy</a></div></div>`;
+    return `<div class="auth-footer text-center mt-6 text-sm" style="margin-top:32px"><div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span style="font-size:0.85rem">Secure & encrypted • We never share your data</span></div><p class="mb-2">Your account is securely stored in Supabase Cloud</p><div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap"><a href="#" onclick="window.app.auth.showTerms(); return false;" class="auth-link">Terms of Service</a><span>•</span><a href="#" onclick="window.app.auth.showPrivacy(); return false;" class="auth-link">Privacy Policy</a></div></div>`;
   }
 
   _generateStyles() {
-    return `<style>@keyframes spin{to{transform:rotate(360deg)}}@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}.fade-in{animation:fadeIn .5s ease-out}.mobile-optimized *{-webkit-tap-highlight-color:transparent}.auth-card-enhanced{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.15);padding:48px 40px;max-width:440px;width:100%;border:1px solid rgba(0,0,0,.08)}@media(max-width:640px){.auth-card-enhanced{padding:32px 24px;border-radius:12px}.tooltip{white-space:normal;max-width:250px}}.touch-target{min-height:44px;min-width:44px}.btn-google{display:flex;align-items:center;justify-content:center;padding:14px 24px;background:#fff;border:1px solid #dadce0;border-radius:4px;font-weight:500;font-size:14px;cursor:pointer;transition:all .15s cubic-bezier(.4,0,.2,1);color:#3c4043;font-family:'Google Sans',Roboto,Arial,sans-serif;box-shadow:0 1px 2px 0 rgba(60,64,67,.3),0 1px 3px 1px rgba(60,64,67,.15)}.btn-google:hover:not(:disabled){background:#f8f9fa;border-color:#d2e3fc;box-shadow:0 1px 3px 0 rgba(60,64,67,.3),0 4px 8px 3px rgba(60,64,67,.15)}.btn-google:active:not(:disabled){background:#f1f3f4}.btn-google:disabled{opacity:.5;cursor:not-allowed}.btn-primary-enhanced{display:flex;align-items:center;justify-content:center;padding:12px 24px;background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%);border:none;border-radius:8px;color:#fff;font-weight:600;font-size:.95rem;cursor:pointer;transition:all .2s}.btn-primary-enhanced:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 20px rgba(99,102,241,.4)}.btn-primary-enhanced:active:not(:disabled){transform:translateY(0)}.btn-primary-enhanced:disabled{opacity:.6;cursor:not-allowed;transform:none}.form-input-enhanced{width:100%;padding:12px 16px;border:2px solid #e5e7eb;border-radius:8px;font-size:16px;transition:all .2s;outline:none}.form-input-enhanced:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.1)}.form-input-enhanced.error{border-color:#ef4444}.form-input-enhanced:disabled{background:#f3f4f6;cursor:not-allowed}.error-message{color:#ef4444;font-size:.8rem;margin-top:4px;display:block}.caps-warning{display:block;animation:fadeIn .3s ease-out}.divider{display:flex;align-items:center;text-align:center;margin:24px 0;color:#9ca3af;font-size:.875rem}.divider::before,.divider::after{content:'';flex:1;border-bottom:1px solid #e5e7eb}.divider span{padding:0 12px}.password-strength span.active-weak{background:#ef4444}.password-strength span.active-medium{background:#f59e0b}.password-strength span.active-strong{background:#10b981}.tooltip{position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:12px;border-radius:8px;font-size:.8rem;white-space:nowrap;z-index:1000;box-shadow:0 4px 12px rgba(0,0,0,.2)}.tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#1f2937}.lockout-warning{background:#fef2f2;border:2px solid #ef4444;color:#991b1b;padding:16px;border-radius:8px;margin-bottom:20px;text-align:center;font-weight:500;animation:fadeIn .3s ease-out}</style>`;
+    return `<style>
+      @keyframes spin    { to { transform: rotate(360deg) } }
+      @keyframes fadeIn  { from { opacity:0; transform:translateY(-10px) } to { opacity:1; transform:translateY(0) } }
+      @keyframes slideIn { from { transform:translateX(100%); opacity:0 } to { transform:translateX(0); opacity:1 } }
+      @keyframes slideUp { from { transform:translateY(20px); opacity:0 } to { transform:translateY(0); opacity:1 } }
+      .auth-screen-wrapper { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1rem; background:var(--neuro-bg); }
+      .auth-card-enhanced { background:var(--neuro-bg); border-radius:var(--radius-2xl); box-shadow:var(--shadow-raised-lg); padding:48px 40px; max-width:440px; width:100%; }
+      @media (max-width:640px) { .auth-card-enhanced { padding:32px 24px; border-radius:var(--radius-xl); } .tooltip { white-space:normal; max-width:250px; } }
+      .auth-card-enhanced h1 { color:var(--neuro-text); }
+      .auth-subtitle  { color:var(--neuro-text-light); font-weight:600; font-size:1.1rem; }
+      .auth-desc      { color:var(--neuro-text-lighter); font-size:0.9rem; margin-top:8px; }
+      .auth-link { color:var(--neuro-accent); text-decoration:none; font-weight:500; transition:color var(--transition-fast); }
+      .auth-link:hover { color:var(--neuro-forest-dark); }
+      .btn-google { display:flex; align-items:center; justify-content:center; padding:14px 24px; background:var(--neuro-bg); border:1px solid var(--neuro-shadow-dark); border-radius:var(--radius-md); font-weight:500; font-size:14px; cursor:pointer; transition:all .15s cubic-bezier(.4,0,.2,1); color:var(--neuro-text); box-shadow:var(--shadow-raised); width:100%; }
+      .btn-google:hover:not(:disabled)  { box-shadow:var(--shadow-raised-hover); }
+      .btn-google:active:not(:disabled) { box-shadow:var(--shadow-inset); }
+      .btn-google:disabled { opacity:.5; cursor:not-allowed; }
+      .btn-primary-enhanced { display:flex; align-items:center; justify-content:center; padding:12px 24px; background:linear-gradient(135deg, var(--neuro-accent), var(--neuro-accent-light)); border:none; border-radius:var(--radius-lg); color:#fff; font-weight:600; font-size:.95rem; cursor:pointer; transition:all .2s; width:100%; box-shadow:var(--shadow-raised); }
+      .btn-primary-enhanced:hover:not(:disabled)  { transform:translateY(-2px); box-shadow:var(--shadow-raised-hover); }
+      .btn-primary-enhanced:active:not(:disabled) { transform:translateY(0); box-shadow:var(--shadow-inset); }
+      .btn-primary-enhanced:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+      .form-label { color:var(--neuro-text); font-weight:500; }
+      .form-input-enhanced { width:100%; padding:12px 16px; background:var(--neuro-bg); border:none; border-radius:var(--radius-md); font-size:16px; transition:all .2s; outline:none; color:var(--neuro-text); box-shadow:var(--shadow-inset); font-family:inherit; }
+      .form-input-enhanced:focus { box-shadow:var(--shadow-inset), 0 0 0 2px var(--neuro-accent); }
+      .form-input-enhanced.error { box-shadow:var(--shadow-inset), 0 0 0 2px var(--neuro-error); }
+      .form-input-enhanced:disabled { opacity:.6; cursor:not-allowed; }
+      .error-message { color:var(--neuro-error); font-size:.8rem; margin-top:4px; display:block; }
+      .caps-warning  { display:block; color:var(--neuro-warning); font-size:.8rem; margin-top:4px; animation:fadeIn .3s ease-out; }
+      .divider { display:flex; align-items:center; text-align:center; margin:24px 0; color:var(--neuro-text-dim); font-size:.875rem; }
+      .divider::before, .divider::after { content:''; flex:1; border-bottom:1px solid var(--neuro-shadow-dark); }
+      .divider span { padding:0 12px; }
+      .password-strength span { background:var(--neuro-shadow-dark); }
+      .password-strength span.active-weak   { background:var(--neuro-error); }
+      .password-strength span.active-medium { background:var(--neuro-warning); }
+      .password-strength span.active-strong { background:var(--neuro-success); }
+      .tooltip { position:absolute; bottom:120%; left:50%; transform:translateX(-50%); background:var(--neuro-text); color:var(--neuro-bg); padding:12px; border-radius:var(--radius-md); font-size:.8rem; white-space:nowrap; z-index:1000; box-shadow:var(--shadow-raised-lg); }
+      .tooltip::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:6px solid transparent; border-top-color:var(--neuro-text); }
+      .lockout-warning { background:var(--neuro-bg); border:2px solid var(--neuro-error); color:var(--neuro-error); box-shadow:var(--shadow-inset); padding:16px; border-radius:var(--radius-md); margin-bottom:20px; text-align:center; font-weight:500; animation:fadeIn .3s ease-out; }
+      .auth-footer { color:var(--neuro-text-dim); }
+      .auth-footer a { color:var(--neuro-text-light); text-decoration:none; transition:color var(--transition-fast); }
+      .auth-footer a:hover { color:var(--neuro-accent); }
+      .auth-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; z-index:10000; padding:20px; animation:fadeIn .2s ease-out; }
+      .auth-modal-card { background:var(--neuro-bg); border-radius:var(--radius-xl); max-width:600px; width:100%; max-height:80vh; overflow-y:auto; box-shadow:var(--shadow-raised-lg); animation:slideUp .3s ease-out; }
+      .auth-modal-header { padding:24px; border-bottom:1px solid var(--neuro-shadow-dark); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:var(--neuro-bg); z-index:1; }
+      .auth-modal-header h2 { font-size:1.5rem; font-weight:700; color:var(--neuro-text); }
+      .auth-modal-close { background:var(--neuro-bg); border:none; cursor:pointer; padding:8px; border-radius:var(--radius-sm); color:var(--neuro-text-light); box-shadow:var(--shadow-raised); transition:all var(--transition-fast); }
+      .auth-modal-close:hover { box-shadow:var(--shadow-inset); color:var(--neuro-error); }
+      .auth-modal-body { padding:24px; color:var(--neuro-text-light); line-height:1.6; }
+      .auth-modal-body h3 { color:var(--neuro-text); }
+      .fade-in { animation:fadeIn .5s ease-out; }
+      .touch-target { min-height:44px; min-width:44px; }
+      .mobile-optimized * { -webkit-tap-highlight-color:transparent; }
+    </style>`;
   }
 
   togglePassword(btn) {
@@ -165,7 +217,7 @@ export default class AuthManager {
 
   showSuccess(message) {
     const toast = document.createElement('div');
-    toast.style.cssText = 'position:fixed;top:20px;right:20px;background:#10b981;color:white;padding:16px 24px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:10000;animation:slideIn .3s ease-out';
+    toast.style.cssText = 'position:fixed;top:20px;right:20px;background:var(--neuro-success);color:#fff;padding:16px 24px;border-radius:var(--radius-lg);box-shadow:var(--shadow-raised-lg);z-index:10000;animation:slideIn .3s ease-out';
     toast.innerHTML = `<div style="display:flex;align-items:center;gap:12px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg><span>${message}</span></div>`;
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), CONFIG.TOAST_DURATION);
@@ -389,8 +441,9 @@ export default class AuthManager {
 
   _showModal(title, content) {
     const modal = document.createElement('div');
-    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px;animation:fadeIn 0.2s ease-out';
-    modal.innerHTML = `<div style="background:white;border-radius:16px;max-width:600px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:slideUp 0.3s ease-out"><div style="padding:24px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:white;z-index:1"><h2 style="font-size:1.5rem;font-weight:700;color:#1f2937">${title}</h2><button onclick="this.closest('div[style*=fixed]').remove()" style="background:none;border:none;cursor:pointer;padding:8px;color:#6c757d;transition:color 0.2s" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#6c757d'"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div style="padding:24px;color:#374151;line-height:1.6">${content}</div></div>`;
+    modal.style.cssText = '';
+    modal.className = 'auth-modal-overlay';
+    modal.innerHTML = `<div class="auth-modal-card"><div class="auth-modal-header"><h2>${title}</h2><button class="auth-modal-close" onclick="this.closest('.auth-modal-overlay').remove()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div class="auth-modal-body">${content}</div></div>`;
     modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
     document.body.appendChild(modal);
   }
