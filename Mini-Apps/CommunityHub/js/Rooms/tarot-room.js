@@ -591,24 +591,6 @@ class TarotRoom extends PracticeRoom {
         return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    // ── Participant panel (tarot-specific responsive override) ───────────────
-
-    _buildParticipantPanel() {
-        const roomId = this.roomId;
-        return `
-        <div id="${roomId}ParticipantPanel" style="margin-bottom:16px;">
-            <!-- Desktop: vertical sidebar (shown via tarot-daily-grid CSS) -->
-            <!-- Mobile: horizontal strip — both rendered, CSS controls which is visible -->
-            <div class="tarot-participants-desktop" style="border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;background:var(--background);">
-                <div style="font-weight:600;font-size:14px;margin-bottom:8px;text-align:center;">Online Practitioners</div>
-                <div id="${roomId}ParticipantCount" style="font-size:12px;color:var(--text-muted);margin-bottom:12px;text-align:center;">${this.state.participants} present</div>
-                <div id="${roomId}ParticipantListEl" class="campfire-participants" style="max-height:360px;overflow-y:auto;">
-                    <div style="color:var(--text-muted);font-size:13px;padding:8px;">Loading…</div>
-                </div>
-            </div>
-        </div>`;
-    }
-
     // Override _renderParticipantList to use campfire-participant classes
     // (PracticeRoom base already does this, but we re-declare to be safe)
     _renderParticipantList(listEl, participants) {
@@ -701,8 +683,7 @@ class TarotRoom extends PracticeRoom {
                     ${this.buildChatContainer('daily', 'Share your thoughts on today\'s card...')}
                 </div>
             </div>
-            <!-- Participants panel — rendered by override below -->
-            ${this._buildParticipantPanel()}
+            ${this.buildParticipantSidebarHTML('Online Practitioners', `${this.roomId}ParticipantListEl`, `${this.roomId}ParticipantCount`)}
         </div>`;
     }
 
