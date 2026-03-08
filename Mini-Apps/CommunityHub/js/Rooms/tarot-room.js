@@ -217,18 +217,16 @@ class TarotRoom extends PracticeRoom {
         const cardData = this.getCardData(card.number, card.suit);
         const subtitle = cardData?.title ?? '';
         return `
-        <div style="width:100%;display:flex;flex-direction:column;align-items:center;">
-          <picture style="display:block;width:min(280px,80vw);">
-            <source srcset="${this.getCardImage(card.number, card.suit)}" type="image/webp">
-            <img src="${this.getCardImage(card.number, card.suit).replace('.webp', '.jpg')}"
-                 style="width:100%;height:auto;border-radius:12px;box-shadow:var(--shadow);display:block;"
-                 alt="${this.getCardName(card.number, card.suit)}"
-                 loading="lazy" decoding="async"
-                 onerror="this.src='${this.TAROT_BASE_URL}CardBacks.webp'">
-          </picture>
-          <h4 style="font-family:var(--serif);font-size:20px;margin:12px 0 2px;text-align:center;">${this.getCardName(card.number, card.suit)}</h4>
-          ${subtitle ? `<p style="font-size:13px;color:var(--text-muted);text-align:center;margin:0;font-style:italic;letter-spacing:.02em;">${subtitle}</p>` : ''}
-        </div>`;
+        <picture style="display:block;width:min(280px,80vw);margin:0 auto;">
+          <source srcset="${this.getCardImage(card.number, card.suit)}" type="image/webp">
+          <img src="${this.getCardImage(card.number, card.suit).replace('.webp', '.jpg')}"
+               style="width:100%;height:auto;border-radius:12px;box-shadow:var(--shadow);display:block;"
+               alt="${this.getCardName(card.number, card.suit)}"
+               loading="lazy" decoding="async"
+               onerror="this.src='${this.TAROT_BASE_URL}CardBacks.webp'">
+        </picture>
+        <h4 style="font-family:var(--serif);font-size:20px;margin:12px 0 4px;text-align:center;">${this.getCardName(card.number, card.suit)}</h4>
+        ${subtitle ? `<p style="font-family:var(--serif);font-size:16px;font-weight:700;color:var(--text);text-align:center;margin:0;letter-spacing:.01em;">${subtitle}</p>` : ''}`;
     }
 
     // ── Enriched daily sections ───────────────────────────────────────────────
@@ -237,24 +235,38 @@ class TarotRoom extends PracticeRoom {
         const data = this.getCardData(card.number, card.suit);
         if (!data) return ''; // enriched data not loaded yet
 
+        // ── Derive Element & Aspect ──
+        const SUIT_ELEMENT = { pentacles:'Earth', swords:'Air', cups:'Water', wands:'Fire' };
+        const SUIT_ASPECT  = { pentacles:'Physical', swords:'Mental', cups:'Emotional', wands:'Spiritual' };
+        const MAJOR_ELEMENT_MAP = { Air:'Air', Fire:'Fire', Water:'Water', Earth:'Earth' };
+
+        let element = null;
+        let aspect  = null;
+        if (card.suit === 'major') {
+            element = MAJOR_ELEMENT_MAP[data.correspondence] ?? null; // only show if pure element
+        } else {
+            element = SUIT_ELEMENT[card.suit] ?? null;
+            aspect  = SUIT_ASPECT[card.suit] ?? null;
+        }
+
+        // ── Keywords pills ──
         const keywords = (data.keywords || [])
             .map(k => `<span style="display:inline-block;padding:4px 12px;border:1px solid var(--border);border-radius:20px;font-size:12px;color:var(--text-muted);margin:3px 4px;white-space:nowrap;">${k}</span>`)
             .join('');
 
-        // Attribute row — show what's available per card type
+        // ── Attribute row ──
         const attrs = [];
-        if (data.correspondence)  attrs.push({ label: 'Element',     value: data.correspondence });
-        if (data.astrology && data.astrology !== '-') attrs.push({ label: 'Astrology', value: data.astrology });
-        if (data.hebrewLetter)    attrs.push({ label: 'Hebrew',      value: data.hebrewLetter });
-        if (data.treeOfLife)      attrs.push({ label: 'Tree of Life', value: data.treeOfLife });
-        if (data.number && card.suit === 'major') attrs.push({ label: 'Numerology', value: data.number });
+        if (data.astrology && data.astrology !== '-') attrs.push({ label: 'Astrology',    value: data.astrology });
+        if (element)                                   attrs.push({ label: 'Element',      value: element });
+        if (aspect)                                    attrs.push({ label: 'Aspect',       value: aspect });
+        if (data.treeOfLife)                           attrs.push({ label: 'Tree of Life', value: data.treeOfLife });
         const attrHTML = attrs.map(a => `
-            <div style="text-align:center;">
-                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:2px;">${a.label}</div>
+            <div style="text-align:center;min-width:80px;">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:3px;font-weight:700;">${a.label}</div>
                 <div style="font-size:13px;font-weight:500;">${a.value}</div>
             </div>`).join('');
 
-        // Symbols list
+        // ── Symbols list ──
         const symbolsHTML = (data.symbols || []).map(s => `<li style="margin:6px 0;font-size:14px;color:var(--text-muted);line-height:1.5;">${s}</li>`).join('');
 
         const roomId = this.roomId;
@@ -263,15 +275,29 @@ class TarotRoom extends PracticeRoom {
         <!-- ── Attributes & Meaning ── -->
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;">
 
-            ${keywords ? `
-            <div style="margin-bottom:20px;">
-                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;text-align:center;margin-bottom:8px;">Keywords</div>
-                <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:0;">${keywords}</div>
+            <!-- REPRESENTS (moved above keywords) -->
+            ${data.narrative ? `
+            <div style="text-align:center;margin-bottom:20px;">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;margin-bottom:10px;">Represents</div>
+                <p style="font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.8;color:var(--text-muted);max-width:560px;margin:0 auto;">
+                    ${data.narrative}
+                </p>
             </div>` : ''}
 
-            ${attrHTML ? `<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:20px;padding:12px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:20px;">${attrHTML}</div>` : ''}
+            <!-- KEYWORDS -->
+            ${keywords ? `
+            <div style="margin-bottom:20px;${data.narrative ? 'padding-top:20px;border-top:1px solid var(--border);' : ''}">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;text-align:center;margin-bottom:8px;">Keywords</div>
+                <div style="display:flex;flex-wrap:wrap;justify-content:center;">${keywords}</div>
+            </div>` : ''}
 
-            <!-- Upright / Reversed toggle -->
+            <!-- ATTRIBUTES ROW -->
+            ${attrHTML ? `
+            <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:16px;padding:16px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:20px;">
+                ${attrHTML}
+            </div>` : ''}
+
+            <!-- UPRIGHT / REVERSED TOGGLE -->
             <div style="display:flex;justify-content:center;gap:8px;margin-bottom:16px;">
                 <button id="${roomId}UprightBtn"
                     onclick="window.TarotRoom._setMeaningTab('upright')"
@@ -291,20 +317,11 @@ class TarotRoom extends PracticeRoom {
                 ${data.reversed || ''}
             </div>
 
-            <!-- Narrative -->
-            ${data.narrative ? `
-            <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);text-align:center;">
-                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;margin-bottom:10px;">Represents</div>
-                <p style="font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.8;color:var(--text-muted);max-width:560px;margin:0 auto;">
-                    ${data.narrative}
-                </p>
-            </div>` : ''}
-
-            <!-- Symbols accordion -->
+            <!-- SYMBOLS ACCORDION -->
             ${symbolsHTML ? `
             <details style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
                 <summary style="cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.04em;color:var(--text-muted);text-transform:uppercase;list-style:none;display:flex;align-items:center;gap:6px;">
-                    <span id="${roomId}SymbolsArrow" style="transition:transform .2s;display:inline-block;">▶</span> Symbols Guide
+                    <span style="display:inline-block;">▶</span> Symbols Guide
                 </summary>
                 <ul style="margin:12px 0 0 0;padding:0 0 0 4px;list-style:none;">
                     ${symbolsHTML}
@@ -316,43 +333,50 @@ class TarotRoom extends PracticeRoom {
         ${(data.mysticalQuestion || data.dailyQuestion) ? `
         <div style="background:var(--surface);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;text-align:center;">
             <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:700;margin-bottom:12px;">🔮 Today's Question</div>
-            ${data.dailyQuestion ? `<p style="font-family:var(--serif);font-size:17px;line-height:1.7;margin:0 auto 0;max-width:520px;">${data.dailyQuestion}</p>` : ''}
+            ${data.dailyQuestion ? `<p style="font-family:var(--serif);font-size:17px;line-height:1.7;margin:0 auto;max-width:520px;">${data.dailyQuestion}</p>` : ''}
             ${data.mysticalQuestion ? `<p style="font-size:13px;color:var(--text-muted);margin:10px auto 0;max-width:480px;font-style:italic;">Mystical: ${data.mysticalQuestion}</p>` : ''}
         </div>` : ''}
 
-        <!-- ── What do you see? ── -->
+        <!-- ── Card Journal ── -->
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;">
-            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;margin-bottom:10px;">✍ What do you see?</div>
-            <p style="font-size:13px;color:var(--text-muted);margin:0 0 12px 0;line-height:1.5;">Write your own interpretation before reading the card's deeper meaning.</p>
-            <div id="${roomId}ReflectionForm">
-                <textarea id="${roomId}ReflectionInput"
-                    placeholder="What feelings, images, or thoughts arise when you look at this card?"
-                    style="width:100%;box-sizing:border-box;padding:12px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--background);color:var(--text);font-size:14px;line-height:1.6;resize:vertical;min-height:90px;font-family:inherit;"
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;">📓 Card Journal</div>
+                <button onclick="window.TarotRoom._toggleJournalLog()"
+                    id="${roomId}JournalLogBtn"
+                    style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;font-weight:600;">View Log</button>
+            </div>
+            <p style="font-size:13px;color:var(--text-muted);margin:0 0 14px 0;line-height:1.6;">
+                Look closely at the card. What do you notice? Describe what you see — the characters, their posture, expression, actions. What colors stand out? Any symbols, objects, or small details that catch your eye? How does it make you feel?
+            </p>
+            <!-- Write form -->
+            <div id="${roomId}JournalForm">
+                <textarea id="${roomId}JournalInput"
+                    placeholder="e.g. A figure stands at the edge of a cliff, looking up… the colors feel warm and golden… I notice a small dog at their feet…"
+                    style="width:100%;box-sizing:border-box;padding:12px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--background);color:var(--text);font-size:14px;line-height:1.6;resize:vertical;min-height:110px;font-family:inherit;"
                 ></textarea>
-                <button onclick="window.TarotRoom._submitReflection()"
+                <button onclick="window.TarotRoom._saveJournalEntry()"
                     style="margin-top:10px;padding:9px 22px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;">
-                    Save &amp; Reveal Meaning
+                    Save to Journal
                 </button>
             </div>
-            <div id="${roomId}ReflectionRevealed" style="display:none;">
-                <div id="${roomId}ReflectionSaved" style="background:var(--background);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px;font-size:14px;line-height:1.6;color:var(--text-muted);font-style:italic;margin-bottom:14px;"></div>
-                <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;margin-bottom:8px;">Card Meaning</div>
-                <div style="font-size:14px;line-height:1.7;">${data.narrative || data.upright || ''}</div>
+            <!-- Log view (hidden by default) -->
+            <div id="${roomId}JournalLog" style="display:none;">
+                <div id="${roomId}JournalLogList" style="display:flex;flex-direction:column;gap:10px;max-height:340px;overflow-y:auto;"></div>
             </div>
         </div>
 
         <!-- ── Community Interpretations ── -->
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;">
-            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;margin-bottom:10px;">🌀 Community Interpretations</div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;margin-bottom:6px;">🌀 Community Interpretations</div>
             <p style="font-size:13px;color:var(--text-muted);margin:0 0 12px 0;">Share a one-line interpretation of today's card.</p>
             <div style="display:flex;gap:8px;margin-bottom:16px;">
                 <input id="${roomId}InterpInput" type="text" maxlength="140"
                     placeholder="One line — what does this card say to you today?"
-                    style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--background);color:var(--text);font-size:14px;font-family:inherit;"
+                    style="flex:1;min-width:0;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--background);color:var(--text);font-size:14px;font-family:inherit;"
                     onkeydown="if(event.key==='Enter')window.TarotRoom._submitInterpretation()"
                 />
                 <button onclick="window.TarotRoom._submitInterpretation()"
-                    style="padding:9px 18px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;">
+                    style="padding:9px 18px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
                     Share
                 </button>
             </div>
@@ -379,35 +403,127 @@ class TarotRoom extends PracticeRoom {
         }
     }
 
-    async _submitReflection() {
-        const input = document.getElementById(`${this.roomId}ReflectionInput`);
+    // ── Journal ──────────────────────────────────────────────────────────────
+
+    _toggleJournalLog() {
+        const logDiv = document.getElementById(`${this.roomId}JournalLog`);
+        const formDiv = document.getElementById(`${this.roomId}JournalForm`);
+        const btn = document.getElementById(`${this.roomId}JournalLogBtn`);
+        if (!logDiv) return;
+        const showing = logDiv.style.display !== 'none';
+        logDiv.style.display  = showing ? 'none' : '';
+        formDiv.style.display = showing ? ''     : 'none';
+        btn.textContent = showing ? 'View Log' : 'Write Entry';
+        if (!showing) this._loadJournalLog();
+    }
+
+    async _saveJournalEntry() {
+        const input = document.getElementById(`${this.roomId}JournalInput`);
         const text  = input?.value?.trim();
         if (!text) { Core.showToast('Please write something first'); return; }
 
-        // Save to Supabase
-        try {
-            const user = Core.state.currentUser;
-            const card = this.state.dailyCard;
-            const today = new Date().toISOString().slice(0,10);
-            await Core.supabase.from('tarot_reflections').upsert({
-                user_id:   user?.id,
-                card_key:  `${card.suit}-${card.number}`,
-                date:      today,
-                reflection: text,
-            }, { onConflict: 'user_id,date' });
-        } catch (e) {
-            console.warn('[TarotRoom] reflection save failed', e);
-        }
+        const user  = Core.state.currentUser;
+        const card  = this.state.dailyCard;
+        const today = new Date().toISOString().slice(0,10);
 
-        // Reveal
-        const form     = document.getElementById(`${this.roomId}ReflectionForm`);
-        const revealed = document.getElementById(`${this.roomId}ReflectionRevealed`);
-        const saved    = document.getElementById(`${this.roomId}ReflectionSaved`);
-        if (saved)    saved.textContent = `"${text}"`;
-        if (form)     form.style.display = 'none';
-        if (revealed) revealed.style.display = '';
-        Core.showToast('Reflection saved ✨');
+        try {
+            await Core.supabase.from('tarot_reflections').insert({
+                user_id:    user?.id,
+                card_key:   `${card.suit}-${card.number}`,
+                card_name:  this.getCardName(card.number, card.suit),
+                date:       today,
+                reflection: text,
+            });
+            input.value = '';
+            Core.showToast('Saved to your journal ✨');
+        } catch (e) {
+            console.warn('[TarotRoom] journal save failed', e);
+            Core.showToast('Could not save — please try again');
+        }
     }
+
+    async _loadJournalLog() {
+        const user    = Core.state.currentUser;
+        const listEl  = document.getElementById(`${this.roomId}JournalLogList`);
+        if (!listEl || !user?.id) return;
+        listEl.innerHTML = `<div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px;">Loading…</div>`;
+
+        try {
+            const { data, error } = await Core.supabase
+                .from('tarot_reflections')
+                .select('id, card_name, date, reflection')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false })
+                .limit(30);
+
+            if (error) throw error;
+            if (!data || data.length === 0) {
+                listEl.innerHTML = `<div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px;">No journal entries yet.</div>`;
+                return;
+            }
+
+            listEl.innerHTML = data.map(row => `
+                <div id="jr-${row.id}" style="background:var(--background);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <span style="font-size:12px;font-weight:600;color:var(--accent);">${this._escHTML(row.card_name || '')} · ${row.date}</span>
+                        <div style="display:flex;gap:10px;">
+                            <button onclick="window.TarotRoom._editJournalEntry('${row.id}')" style="font-size:12px;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:0;">Edit</button>
+                            <button onclick="window.TarotRoom._deleteJournalEntry('${row.id}')" style="font-size:12px;color:#e57373;background:none;border:none;cursor:pointer;padding:0;">Delete</button>
+                        </div>
+                    </div>
+                    <div id="jr-text-${row.id}" style="font-size:14px;line-height:1.6;color:var(--text);">${this._escHTML(row.reflection)}</div>
+                    <div id="jr-edit-${row.id}" style="display:none;">
+                        <textarea style="width:100%;box-sizing:border-box;padding:8px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface);color:var(--text);font-size:14px;line-height:1.5;resize:vertical;min-height:80px;font-family:inherit;margin-top:8px;">${this._escHTML(row.reflection)}</textarea>
+                        <div style="display:flex;gap:8px;margin-top:6px;">
+                            <button onclick="window.TarotRoom._saveEditedEntry('${row.id}')" style="padding:5px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-md);font-size:13px;font-weight:600;cursor:pointer;">Save</button>
+                            <button onclick="window.TarotRoom._cancelEditEntry('${row.id}')" style="padding:5px 14px;background:none;border:1px solid var(--border);border-radius:var(--radius-md);font-size:13px;cursor:pointer;color:var(--text-muted);">Cancel</button>
+                        </div>
+                    </div>
+                </div>`).join('');
+        } catch (e) {
+            console.warn('[TarotRoom] load journal failed', e);
+            listEl.innerHTML = `<div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px;">Could not load journal.</div>`;
+        }
+    }
+
+    _editJournalEntry(id) {
+        document.getElementById(`jr-text-${id}`)?.style && (document.getElementById(`jr-text-${id}`).style.display = 'none');
+        document.getElementById(`jr-edit-${id}`)?.style && (document.getElementById(`jr-edit-${id}`).style.display = '');
+    }
+
+    _cancelEditEntry(id) {
+        document.getElementById(`jr-text-${id}`)?.style && (document.getElementById(`jr-text-${id}`).style.display = '');
+        document.getElementById(`jr-edit-${id}`)?.style && (document.getElementById(`jr-edit-${id}`).style.display = 'none');
+    }
+
+    async _saveEditedEntry(id) {
+        const editDiv  = document.getElementById(`jr-edit-${id}`);
+        const textarea = editDiv?.querySelector('textarea');
+        const newText  = textarea?.value?.trim();
+        if (!newText) return;
+        try {
+            await Core.supabase.from('tarot_reflections').update({ reflection: newText }).eq('id', id);
+            const textDiv = document.getElementById(`jr-text-${id}`);
+            if (textDiv) textDiv.textContent = newText;
+            this._cancelEditEntry(id);
+            Core.showToast('Entry updated');
+        } catch (e) {
+            console.warn('[TarotRoom] edit failed', e);
+            Core.showToast('Could not update entry');
+        }
+    }
+
+    async _deleteJournalEntry(id) {
+        try {
+            await Core.supabase.from('tarot_reflections').delete().eq('id', id);
+            document.getElementById(`jr-${id}`)?.remove();
+            Core.showToast('Entry deleted');
+        } catch (e) {
+            console.warn('[TarotRoom] delete failed', e);
+            Core.showToast('Could not delete entry');
+        }
+    }
+
 
     async _submitInterpretation() {
         const input = document.getElementById(`${this.roomId}InterpInput`);
@@ -509,7 +625,7 @@ class TarotRoom extends PracticeRoom {
         <div class="ps-body" style="display:flex;">
             <main class="tarot-main" style="flex:1;padding:24px;overflow-y:auto;display:flex;justify-content:center;align-items:flex-start;">
                 <div style="width:100%;">
-                    ${this.buildTabNav(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/></svg> Daily Collective Card`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Personal Card Draw`)}
+                    ${this.buildTabNav(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="14" y2="14"/></svg> Daily Community Card`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect x="2" y="4" width="14" height="18" rx="2"/><rect x="8" y="2" width="14" height="18" rx="2"/></svg> Solo Card Learning`)}
                     <div id="${this.roomId}DailyTab"    style="display:block;">${this._buildDailyTab()}</div>
                     <div id="${this.roomId}PersonalTab" style="display:none;">${this._buildPersonalTab()}</div>
                 </div>
@@ -520,7 +636,7 @@ class TarotRoom extends PracticeRoom {
     _buildDailyTab() {
         return `
         <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:16px;">
-            <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/></svg> Daily Collective Card</h3>
+            <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="14" y2="14"/></svg> Daily Community Card</h3>
             <div id="${this.roomId}DailyCardContainer" style="display:flex;flex-direction:column;align-items:center;gap:16px;">
                 <div style="color:var(--text-muted);font-size:14px;padding:40px;">Loading today's card…</div>
             </div>
@@ -541,7 +657,7 @@ class TarotRoom extends PracticeRoom {
     _buildPersonalTab() {
         return `
         <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:16px;">
-            <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Personal Card Draw</h3>
+            <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect x="2" y="4" width="14" height="18" rx="2"/><rect x="8" y="2" width="14" height="18" rx="2"/></svg> Solo Card Learning</h3>
             <div id="${this.roomId}PersonalCardContainer" style="display:flex;flex-direction:column;align-items:center;gap:16px;min-height:200px;justify-content:center;">
                 <button id="${this.roomId}DrawBtn" onclick="${this.getClassName()}.drawPersonalCard()"
                         style="padding:16px 32px;border:2px solid var(--border);background:var(--surface);border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:16px;">
