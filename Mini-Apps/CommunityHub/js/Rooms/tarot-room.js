@@ -217,10 +217,10 @@ class TarotRoom extends PracticeRoom {
         const cardData = this.getCardData(card.number, card.suit);
         const subtitle = cardData?.title ?? '';
         return `
-        <picture style="display:block;width:100%;max-width:280px;align-self:center;">
+        <picture style="display:contents;">
           <source srcset="${this.getCardImage(card.number, card.suit)}" type="image/webp">
           <img src="${this.getCardImage(card.number, card.suit).replace('.webp', '.jpg')}"
-               style="width:100%;height:auto;border-radius:12px;box-shadow:var(--shadow);display:block;"
+               style="width:min(280px,100%);height:auto;border-radius:12px;box-shadow:var(--shadow);display:block;"
                alt="${this.getCardName(card.number, card.suit)}"
                loading="lazy" decoding="async"
                onerror="this.src='${this.TAROT_BASE_URL}CardBacks.webp'">
@@ -556,6 +556,9 @@ class TarotRoom extends PracticeRoom {
         const today = new Date().toISOString().slice(0,10);
         const list  = document.getElementById(`${this.roomId}InterpList`);
         if (!list || !card) return;
+
+        // Purge yesterday's (and older) entries — first visitor of the day cleans up silently
+        Core.supabase.from('tarot_interpretations').delete().lt('date', today).then(() => {});
 
         try {
             const { data, error } = await Core.supabase
