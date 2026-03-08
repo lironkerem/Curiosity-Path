@@ -352,7 +352,7 @@ class TarotEngine {
     }
 
     // Set card image with error handling
-    front.innerHTML = `<picture><source srcset="${card.imageUrl}" type="image/webp"><img src="${card.imageUrl.replace('.webp', '.jpg')}" alt="${card.name}" class="tarot-card-image" loading="lazy" decoding="async" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'tarot-card-error\'>🃏</div>'"></picture>`;
+    front.innerHTML = `<img src="${card.imageUrl}" alt="${card.name}" class="tarot-card-image" loading="lazy" decoding="async" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'tarot-card-error\'>🃏</div>'">`;
     
     // Update card details
     details.innerHTML = `<h4 class="font-bold mt-4 mb-2" style="color: var(--neuro-text);">${card.name}</h4><p style="color: var(--neuro-text-light);" class="text-sm leading-relaxed">${card.meaning}</p>`;
@@ -831,7 +831,7 @@ class TarotEngine {
           <div class="tarot-card-flip-inner">
             <div class="tarot-card-back">
               <p class="card-reveal-prompt">Click to reveal</p>
-              <picture><source srcset="${this.CARD_BACK_URL}" type="image/webp"><img src="${this.CARD_BACK_URL.replace('.webp', '.jpg')}" alt="Card Back" class="tarot-card-image" loading="lazy" decoding="async"></picture>
+              <img src="${this.CARD_BACK_URL}" alt="Card Back" class="tarot-card-image" loading="lazy" decoding="async">
             </div>
             <div class="tarot-card-front"></div>
           </div>

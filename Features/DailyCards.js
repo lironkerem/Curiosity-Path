@@ -474,11 +474,7 @@ export default class DailyCards {
               <!-- Card Back -->
               <div class="daily-card-back">
                 <p class="card-reveal-prompt">Click to reveal</p>
-                <picture><source srcset="${DailyCards.CARD_BACK_URL}" type="image/webp"><img src="${DailyCards.CARD_BACK_URL.replace('.webp', '.jpg')}" 
-                     alt="Card Back" 
-                     class="dashboard-card-image"
-                     loading="lazy"
-                     decoding="async"></picture>
+                <img src="${DailyCards.CARD_BACK_URL}" alt="Card Back" class="dashboard-card-image" loading="lazy" decoding="async">
               </div>
               
               <!-- Card Front -->
@@ -515,11 +511,7 @@ export default class DailyCards {
       frontTitle: 'Daily Vibe',
       frontContent: `
         <div style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
-          <picture><source srcset="${card.image.replace(/\.(jpg|jpeg|png)$/i, '.webp')}" type="image/webp"><img src="${card.image}" 
-               alt="${card.name}" 
-               style="width: 100%; max-height: 70%; flex-shrink: 0; object-fit: contain;"
-               loading="lazy"
-               decoding="async"></picture>
+          <img src="${card.image}" alt="${card.name}" loading="lazy" decoding="async" style="width: 100%; max-height: 70%; flex-shrink: 0; object-fit: contain;">
           <div style="text-align: center; overflow-y: auto; padding: 0.75rem; flex: 1;">
             <h4 class="tarot-card-name">${card.name}</h4>
             <p class="tarot-card-meaning">${card.meaning}</p>

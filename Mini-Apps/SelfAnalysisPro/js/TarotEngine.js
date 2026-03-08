@@ -251,10 +251,8 @@ class TarotEngine {
             <div class="tarot-card-loading" id="loading-${uniqueId}" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.9); border-radius: 4px; z-index: 10;">
               <div class="tarot-spinner"></div>
             </div>
-            <picture>
-              <source srcset="${card.image}" type="image/webp">
-              <img id="${uniqueId}"
-                 src="${card.image.replace('.webp', '.jpg')}" 
+            <img id="${uniqueId}"
+                 src="${card.image}" 
                  alt="${card.name}" 
                  title="${card.name}" 
                  loading="lazy"
@@ -262,7 +260,6 @@ class TarotEngine {
                  style="width: 100%; height: auto; border-radius: 4px; display: block; opacity: 0; position: relative; z-index: 5; transition: opacity 0.3s ease;"
                  onload="this.style.opacity='1'; var loader = document.getElementById('loading-${uniqueId}'); if (loader) loader.style.display='none';"
                  onerror="this.style.opacity='1'; var loader = document.getElementById('loading-${uniqueId}'); if (loader) loader.innerHTML='<span style=\\'color:#999;font-size:12px;\\'>Image unavailable</span>';">
-            </picture>
             <p style="margin: 6px 0 0 0; font-size: 20px; color: white; background: #3F7652; padding: 4px; border-radius: 4px; line-height: 1.2; font-weight: 600; position: relative; z-index: 5;">${card.name}</p>
           </div>
         </div>`;
