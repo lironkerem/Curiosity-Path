@@ -1042,10 +1042,10 @@ body.blur-behind > *:not(.pricing-overlay) {
 
 .avatar-icon-picker {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 3px;
+  grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+  gap: 4px;
   margin-top: 6px;
-  padding: 1px;
+  padding: 4px;
   border-radius: 12px;
   background: var(--neuro-bg);
   box-shadow: var(--shadow-inset);
