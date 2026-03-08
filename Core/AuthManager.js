@@ -8,7 +8,7 @@ import { supabase } from './Supabase.js';
 
 const CONFIG = {MAX_FAILED_ATTEMPTS:5,LOCKOUT_TIME:900000,PASSWORD_MIN_LENGTH:6,PASSWORD_DEBOUNCE:300,TOAST_DURATION:3000,REDIRECT_DELAY:2000};
 const STORAGE_KEYS = {USER:'pc_user',APPDATA:'pc_appdata',ACTIVE_TAB:'pc_active_tab',LOCKOUT:'login_lockout',REMEMBER_ME:'remember_me',DAILY_RESET:'lastDailyReset',QUEST_RESET:'last_quest_reset',DAILY_TAROT:'daily_tarot_card',THEME:'activeTheme'};
-const ASSETS = {LOGO_URL:'/public/Watermarks/Logo.svg'};
+const ASSETS = {LOGO_URL:'/public/Tabs/Header.png'};
 
 export default class AuthManager {
   constructor(app) { 
@@ -60,7 +60,7 @@ export default class AuthManager {
   }
 
   _generateLogoHeader(title, subtitle, description) {
-    return `<div class="text-center mb-8 fade-in"><div class="logo-icon" style="width:144px;height:144px;display:flex;align-items:center;justify-content:center;margin:0 auto"><img src="${ASSETS.LOGO_URL}" alt="Aanandoham" style="width:120px;height:120px;object-fit:contain" loading="eager"></div><h1 class="text-3xl font-bold mb-2">${title}</h1><p class="auth-subtitle">${subtitle}</p>${description ? `<p class="auth-desc">${description}</p>` : ''}</div>`;
+    return `<div class="text-center mb-8 fade-in"><img class="header-image" src="${ASSETS.LOGO_URL}" alt="Aanandoham Header" loading="eager" style="margin:0 auto 1rem"><h1 class="text-3xl font-bold mb-2">${title}</h1><p class="auth-subtitle">${subtitle}</p>${description ? `<p class="auth-desc">${description}</p>` : ''}</div>`;
   }
 
   _generateGoogleButton(text, handler, disabled) {
