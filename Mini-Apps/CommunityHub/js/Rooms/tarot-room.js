@@ -217,7 +217,7 @@ class TarotRoom extends PracticeRoom {
         const cardData = this.getCardData(card.number, card.suit);
         const subtitle = cardData?.title ?? '';
         return `
-        <picture style="display:block;width:min(280px,80vw);margin:0 auto;">
+        <picture style="display:block;width:100%;max-width:280px;align-self:center;">
           <source srcset="${this.getCardImage(card.number, card.suit)}" type="image/webp">
           <img src="${this.getCardImage(card.number, card.suit).replace('.webp', '.jpg')}"
                style="width:100%;height:auto;border-radius:12px;box-shadow:var(--shadow);display:block;"
@@ -635,7 +635,7 @@ class TarotRoom extends PracticeRoom {
 
     _buildDailyTab() {
         return `
-        <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:16px;">
+        <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:24px 16px;margin-bottom:16px;">
             <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="14" y2="14"/></svg> Daily Community Card</h3>
             <div id="${this.roomId}DailyCardContainer" style="display:flex;flex-direction:column;align-items:center;gap:16px;">
                 <div style="color:var(--text-muted);font-size:14px;padding:40px;">Loading today's card…</div>
