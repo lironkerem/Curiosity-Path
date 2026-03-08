@@ -37,20 +37,20 @@
   <!-- 1. base look — includes preflight reset + utility classes (no separate tailwind file needed) -->
   <link rel="stylesheet" href="/CSS/main-styles.css?v=0803">
 
-  <!-- 3. default dark-mode sheet (disabled by default; enabled by boot script below) -->
-  <link rel="preload" href="/CSS/dark-mode.css" as="style">
-  <link rel="stylesheet" href="/CSS/dark-mode.css?v=0803" id="dark-mode-css" disabled>
+  <!-- 3. default dark-mode sheet — media="not all" prevents it applying until boot script activates it -->
+  <link rel="preload" href="/CSS/dark-mode.css?v=0803" as="style">
+  <link rel="stylesheet" href="/CSS/dark-mode.css?v=0803" id="dark-mode-css" media="not all">
 
-  <!-- 4. premium skins – preloaded so they're ready instantly; disabled until activated -->
-  <link rel="preload" href="/CSS/Skins/champagne-gold.css" as="style">
-  <link rel="preload" href="/CSS/Skins/royal-indigo.css"   as="style">
-  <link rel="preload" href="/CSS/Skins/earth-luxury.css"   as="style">
-  <link rel="preload" href="/CSS/Skins/matrix-code.css"    as="style">
+  <!-- 4. premium skins — media="not all" prevents them applying until boot script activates them -->
+  <link rel="preload" href="/CSS/Skins/champagne-gold.css?v=0803" as="style">
+  <link rel="preload" href="/CSS/Skins/royal-indigo.css?v=0803"   as="style">
+  <link rel="preload" href="/CSS/Skins/earth-luxury.css?v=0803"   as="style">
+  <link rel="preload" href="/CSS/Skins/matrix-code.css?v=0803"    as="style">
 
-  <link rel="stylesheet" href="/CSS/Skins/champagne-gold.css?v=0803" id="skin_champagne-gold" disabled>
-  <link rel="stylesheet" href="/CSS/Skins/royal-indigo.css?v=0803"   id="skin_royal-indigo"   disabled>
-  <link rel="stylesheet" href="/CSS/Skins/earth-luxury.css?v=0803"   id="skin_earth-luxury"   disabled>
-  <link rel="stylesheet" href="/CSS/Skins/matrix-code.css?v=0803"    id="skin_matrix-code"    disabled>
+  <link rel="stylesheet" href="/CSS/Skins/champagne-gold.css?v=0803" id="skin_champagne-gold" media="not all">
+  <link rel="stylesheet" href="/CSS/Skins/royal-indigo.css?v=0803"   id="skin_royal-indigo"   media="not all">
+  <link rel="stylesheet" href="/CSS/Skins/earth-luxury.css?v=0803"   id="skin_earth-luxury"   media="not all">
+  <link rel="stylesheet" href="/CSS/Skins/matrix-code.css?v=0803"    id="skin_matrix-code"    media="not all">
 
   <!-- 5. mobile sheet -->
   <link rel="stylesheet" href="/CSS/mobile-styles.css?v=0803" media="(max-width:1024px)">
@@ -81,13 +81,13 @@
     // Apply skin body class immediately so skin CSS selectors match on first paint
     if (skin !== 'default') {
       document.body.classList.add(skin);
-      // Enable the preloaded skin stylesheet
+      // Activate the preloaded skin stylesheet
       var skinLink = document.getElementById('skin_' + skin);
-      if (skinLink) skinLink.disabled = false;
+      if (skinLink) skinLink.media = 'all';
       // Premium skins include their own dark rules — keep default dark sheet off
     } else if (dark) {
-      // Default theme + dark mode: enable the dark stylesheet
-      document.getElementById('dark-mode-css').disabled = false;
+      // Default theme + dark mode: activate the dark stylesheet
+      document.getElementById('dark-mode-css').media = 'all';
     }
 
     // Apply dark-mode body class immediately (what dark-mode.css and all app code target)
@@ -195,13 +195,13 @@
       return;
     }
     // Fallback: stylesheet-only toggle (body class will be set by User-Tab on init)
-    document.querySelectorAll('link[id^="skin_"]').forEach(l => l.disabled = true);
+    document.querySelectorAll('link[id^="skin_"]').forEach(l => l.media = 'not all');
     if (name !== 'default') {
       var wanted = document.getElementById('skin_' + name);
-      if (wanted) wanted.disabled = false;
-      document.getElementById('dark-mode-css').disabled = true;
+      if (wanted) wanted.media = 'all';
+      document.getElementById('dark-mode-css').media = 'not all';
     } else if (localStorage.getItem('darkMode') === 'enabled') {
-      document.getElementById('dark-mode-css').disabled = false;
+      document.getElementById('dark-mode-css').media = 'all';
     }
     localStorage.setItem('activeTheme', name);
   };
@@ -217,9 +217,9 @@
     localStorage.setItem('darkMode', enable ? 'enabled' : 'disabled');
     document.body.classList.toggle('dark-mode', enable);
     // Only toggle default dark sheet when no premium skin is active
-    var premiumActive = document.querySelector('link[id^="skin_"]:not([disabled])');
+    var premiumActive = document.querySelector('link[id^="skin_"][media="all"]');
     if (!premiumActive) {
-      document.getElementById('dark-mode-css').disabled = !enable;
+      document.getElementById('dark-mode-css').media = enable ? 'all' : 'not all';
     }
   };
   </script>

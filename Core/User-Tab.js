@@ -495,7 +495,7 @@ export default class UserTab {
     document.body.classList.toggle('dark-mode', enabled);
     
     const link = document.getElementById('dark-mode-css');
-    if (link) link.disabled = !enabled;
+    if (link) link.media = enabled ? 'all' : 'not all';
     
     localStorage.setItem('darkMode', enabled ? 'enabled' : 'disabled');
 
@@ -512,14 +512,14 @@ export default class UserTab {
   switchTheme(name) {
     // Disable dark mode CSS for non-default themes
     if (name !== 'default') {
-      document.getElementById('dark-mode-css')?.setAttribute('disabled', 'true');
+      document.getElementById('dark-mode-css')?.style && (document.getElementById('dark-mode-css').media = 'not all');
     }
 
     // Remove all theme classes
     document.body.classList.remove(...UserTab.THEME_CLASSES);
 
     // Disable all preloaded skin stylesheets and remove any dynamically injected ones
-    document.querySelectorAll('link[id^="skin_"]').forEach(l => l.disabled = true);
+    document.querySelectorAll('link[id^="skin_"]').forEach(l => l.media = 'not all');
     document.querySelectorAll('link[data-premium-theme]').forEach(l => l.remove());
 
     // Clean up matrix rain
@@ -531,7 +531,8 @@ export default class UserTab {
 
     // Handle default theme
     if (name === 'default') {
-      document.getElementById('dark-mode-css')?.removeAttribute('disabled');
+      const darkLink = document.getElementById('dark-mode-css');
+      if (darkLink) darkLink.media = localStorage.getItem('darkMode') === 'enabled' ? 'all' : 'not all';
       return;
     }
 
@@ -541,7 +542,7 @@ export default class UserTab {
     // Reuse the preloaded skin_ stylesheet if available; otherwise inject dynamically
     const preloaded = document.getElementById('skin_' + name);
     if (preloaded) {
-      preloaded.disabled = false;
+      preloaded.media = 'all';
     } else {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
@@ -579,7 +580,7 @@ export default class UserTab {
     const link = document.getElementById('dark-mode-css');
     const toggle = document.getElementById('dark-mode-toggle');
     
-    if (link) link.disabled = !dark;
+    if (link) link.media = dark ? 'all' : 'not all';
     if (toggle) toggle.checked = dark;
   }
 
