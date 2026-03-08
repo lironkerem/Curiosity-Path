@@ -612,7 +612,7 @@ class TarotRoom extends PracticeRoom {
             const click = userId ? `onclick="openMemberProfileAboveRoom('${userId}')"` : '';
             return `
             <div class="campfire-participant" ${click} style="${userId ? 'cursor:pointer;' : ''}">
-                <div class="campfire-participant-avatar" style="${bg}display:flex;align-items:center;justify-content:center;">${inner}</div>
+                <div class="campfire-participant-avatar" style="${bg}width:40px;height:40px;min-width:40px;min-height:40px;display:flex;align-items:center;justify-content:center;overflow:hidden;">${inner}</div>
                 <div class="campfire-participant-info">
                     <div class="campfire-participant-name">${name}</div>
                     <div class="campfire-participant-country">${p.activity || '✨ Available'}</div>
