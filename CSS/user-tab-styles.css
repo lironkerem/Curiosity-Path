@@ -219,6 +219,10 @@
     width: 10px;
     height: 10px;
   }
+
+  .avatar-icon-picker {
+    grid-template-columns: repeat(5, 1fr);
+  }
 }
 
 /* ========== DROPDOWN MENU ========== */
@@ -1042,7 +1046,7 @@ body.blur-behind > *:not(.pricing-overlay) {
 
 .avatar-icon-picker {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 4px;
   margin-top: 6px;
   padding: 4px;

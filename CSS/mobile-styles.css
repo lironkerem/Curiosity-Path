@@ -1546,6 +1546,10 @@ textarea {
   overflow-y: auto;
 }
 
+.avatar-icon-picker {
+  grid-template-columns: repeat(5, 1fr) !important;
+}
+
 .dropdown-item {
   width: calc(100% - 24px) !important;
   margin: 0 auto 10px auto !important;
