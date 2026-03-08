@@ -606,7 +606,8 @@ class TarotRoom extends PracticeRoom {
                     <div style="color:var(--text-muted);font-size:13px;padding:8px;">Loading…</div>
                 </div>
             </div>
-        </div>
+        </div>`;
+    }
 
     // Override _renderParticipantList to use campfire-participant classes
     // (PracticeRoom base already does this, but we re-declare to be safe)
