@@ -78,10 +78,10 @@ export class ChatBotAI {
 
             <!-- Toolbar -->
             <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;align-items:center;">
-              <button id="chatbot-history-btn" class="btn btn-secondary" style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;padding:0.4rem 0.85rem;" aria-label="Conversation history">
+              <button id="chatbot-history-btn" class="btn btn-primary" style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;min-width:52px;height:52px;padding:0 1rem;" aria-label="Conversation history">
                 ${this._getHistoryIcon()} History
               </button>
-              <button id="chatbot-new-btn" class="btn btn-secondary" style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;padding:0.4rem 0.85rem;" aria-label="New conversation">
+              <button id="chatbot-new-btn" class="btn btn-primary" style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;min-width:52px;height:52px;padding:0 1rem;" aria-label="New conversation">
                 ${this._getPlusIcon()} New Chat
               </button>
             </div>
@@ -118,8 +118,8 @@ export class ChatBotAI {
       <!-- History Modal -->
       <div id="chatbot-history-modal" role="dialog" aria-modal="true" aria-label="Conversation History"
            style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;">
-        <div style="background:var(--neuro-bg-secondary,#1e1e2e);border-radius:16px;width:min(480px,90vw);max-height:70vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1px solid rgba(255,255,255,0.08);">
+        <div style="background:var(--neuro-card-bg,var(--neuro-bg-secondary,var(--neuro-bg)));border-radius:16px;width:min(480px,90vw);max-height:70vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1px solid var(--neuro-border,rgba(255,255,255,0.08));">
             <h3 style="margin:0;font-size:1rem;color:var(--neuro-text);">Conversation History</h3>
             <button id="chatbot-history-close" aria-label="Close" style="background:none;border:none;cursor:pointer;color:var(--neuro-text);opacity:0.6;font-size:1.25rem;line-height:1;">✕</button>
           </div>
