@@ -518,7 +518,8 @@ export default class UserTab {
     // Remove all theme classes
     document.body.classList.remove(...UserTab.THEME_CLASSES);
 
-    // Remove theme stylesheets
+    // Disable all preloaded skin stylesheets and remove any dynamically injected ones
+    document.querySelectorAll('link[id^="skin_"]').forEach(l => l.disabled = true);
     document.querySelectorAll('link[data-premium-theme]').forEach(l => l.remove());
 
     // Clean up matrix rain
@@ -534,14 +535,20 @@ export default class UserTab {
       return;
     }
 
-    // Apply premium theme
+    // Apply premium theme body class
     document.body.classList.add(name);
-    
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = `./CSS/Skins/${name}.css`;
-    link.setAttribute('data-premium-theme', name);
-    document.head.appendChild(link);
+
+    // Reuse the preloaded skin_ stylesheet if available; otherwise inject dynamically
+    const preloaded = document.getElementById('skin_' + name);
+    if (preloaded) {
+      preloaded.disabled = false;
+    } else {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = `./CSS/Skins/${name}.css`;
+      link.setAttribute('data-premium-theme', name);
+      document.head.appendChild(link);
+    }
 
     // Initialize matrix rain if needed
     if (name === 'matrix-code') {

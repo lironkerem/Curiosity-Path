@@ -15,8 +15,7 @@
     "personal-growth"
   ],
   "scripts": {
-    "build": "exit 0",
-    "dev": "tailwindcss -i ./CSS/main-styles.css -o ./CSS/tailwind-output.css --watch"
+    "build": "exit 0"
   },
   "engines": {
     "node": ">=18.0.0",
@@ -26,10 +25,5 @@
     "@supabase/supabase-js": "^2.89.0",
     "groq-sdk": "^0.8.0",
     "web-push": "^3.6.7"
-  },
-  "devDependencies": {
-    "@tailwindcss/cli": "^4.1.18",
-    "@tailwindcss/typography": "^0.5.19",
-    "tailwindcss": "^4.1.18"
   }
 }
