@@ -214,17 +214,21 @@ class TarotRoom extends PracticeRoom {
     }
 
     _buildCardDisplay(card) {
+        const cardData = this.getCardData(card.number, card.suit);
+        const subtitle = cardData?.title ?? '';
         return `
-        <picture>
-          <source srcset="${this.getCardImage(card.number, card.suit)}" type="image/webp">
-          <img src="${this.getCardImage(card.number, card.suit).replace('.webp', '.jpg')}"
-               style="width:280px;height:auto;border-radius:12px;box-shadow:var(--shadow);"
-               alt="${this.getCardName(card.number, card.suit)}"
-               loading="lazy" decoding="async"
-               onerror="this.src='${this.TAROT_BASE_URL}CardBacks.webp'">
-        </picture>
-        <h4 style="font-family:var(--serif);font-size:20px;margin:8px 0;text-align:center;">${this.getCardName(card.number, card.suit)}</h4>
-        <p style="text-align:center;color:var(--text-muted);max-width:500px;line-height:1.6;">${this.getCardMeaning(card.number, card.suit)}</p>`;
+        <div style="width:100%;display:flex;flex-direction:column;align-items:center;">
+          <picture style="display:block;width:min(280px,80vw);">
+            <source srcset="${this.getCardImage(card.number, card.suit)}" type="image/webp">
+            <img src="${this.getCardImage(card.number, card.suit).replace('.webp', '.jpg')}"
+                 style="width:100%;height:auto;border-radius:12px;box-shadow:var(--shadow);display:block;"
+                 alt="${this.getCardName(card.number, card.suit)}"
+                 loading="lazy" decoding="async"
+                 onerror="this.src='${this.TAROT_BASE_URL}CardBacks.webp'">
+          </picture>
+          <h4 style="font-family:var(--serif);font-size:20px;margin:12px 0 2px;text-align:center;">${this.getCardName(card.number, card.suit)}</h4>
+          ${subtitle ? `<p style="font-size:13px;color:var(--text-muted);text-align:center;margin:0;font-style:italic;letter-spacing:.02em;">${subtitle}</p>` : ''}
+        </div>`;
     }
 
     // ── Enriched daily sections ───────────────────────────────────────────────
@@ -234,7 +238,7 @@ class TarotRoom extends PracticeRoom {
         if (!data) return ''; // enriched data not loaded yet
 
         const keywords = (data.keywords || [])
-            .map(k => `<span style="display:inline-block;padding:3px 10px;border:1px solid var(--border);border-radius:20px;font-size:12px;color:var(--text-muted);margin:3px 2px;">${k}</span>`)
+            .map(k => `<span style="display:inline-block;padding:4px 12px;border:1px solid var(--border);border-radius:20px;font-size:12px;color:var(--text-muted);margin:3px 4px;white-space:nowrap;">${k}</span>`)
             .join('');
 
         // Attribute row — show what's available per card type
@@ -259,7 +263,11 @@ class TarotRoom extends PracticeRoom {
         <!-- ── Attributes & Meaning ── -->
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;">
 
-            ${keywords ? `<div style="text-align:center;margin-bottom:20px;">${keywords}</div>` : ''}
+            ${keywords ? `
+            <div style="margin-bottom:20px;">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;text-align:center;margin-bottom:8px;">Keywords</div>
+                <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:0;">${keywords}</div>
+            </div>` : ''}
 
             ${attrHTML ? `<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:20px;padding:12px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:20px;">${attrHTML}</div>` : ''}
 
@@ -285,9 +293,12 @@ class TarotRoom extends PracticeRoom {
 
             <!-- Narrative -->
             ${data.narrative ? `
-            <p style="font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.8;color:var(--text-muted);text-align:center;max-width:560px;margin:20px auto 0;padding-top:16px;border-top:1px solid var(--border);">
-                ${data.narrative}
-            </p>` : ''}
+            <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);text-align:center;">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;margin-bottom:10px;">Represents</div>
+                <p style="font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.8;color:var(--text-muted);max-width:560px;margin:0 auto;">
+                    ${data.narrative}
+                </p>
+            </div>` : ''}
 
             <!-- Symbols accordion -->
             ${symbolsHTML ? `
