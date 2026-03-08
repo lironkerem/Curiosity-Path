@@ -15,7 +15,7 @@ const waningMoonConfig = {
 
     phaseRanges: [[0.568, 0.932]],
 
-    imageUrl: '/public/Community/Lunar/WaningMoon.png',
+    imageUrl: '/public/Community/Lunar/WaningMoon.webp',
 
     description:      'In the waning light, we release and reflect. In letting go, we make space for what\'s to come.',
     wisdomQuote:      'As the moon wanes, we honor the cycle. What we release makes room for new beginnings.',

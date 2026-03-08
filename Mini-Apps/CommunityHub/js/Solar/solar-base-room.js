@@ -241,7 +241,7 @@ const BaseSolarRoom = {
 
     const daysRemaining = SolarUIManager.utils.calculateDaysRemaining(this.endDate);
     const daysText      = `${daysRemaining} ${daysRemaining === 1 ? 'day' : 'days'} remaining`;
-    const imageUrl      = `${SOLAR_CONSTANTS.IMAGE_BASE_URL}${this.config.displayName}.png`;
+    const imageUrl      = `${SOLAR_CONSTANTS.IMAGE_BASE_URL}${this.config.displayName}.webp`;
     const presence      = this.getLivingPresenceCount();
 
     container.innerHTML = `
@@ -263,8 +263,11 @@ const BaseSolarRoom = {
           </div>
 
           <div class="solar-intro-card">
-            <img src="${imageUrl}" alt="${this.config.displayName} Season"
-                 class="solar-season-img" loading="lazy">
+            <picture>
+              <source srcset="${imageUrl}" type="image/webp">
+              <img src="${imageUrl.replace('.webp', '.png')}" alt="${this.config.displayName} Season"
+                   class="solar-season-img" loading="lazy" decoding="async">
+            </picture>
             <p>${this.config.wisdom}</p>
           </div>
 
@@ -697,7 +700,7 @@ const BaseSolarRoom = {
 
       let inner;
       if (profile.avatar_url) {
-        inner = `<img src="${profile.avatar_url}" alt="${initial}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+        inner = `<img src="${profile.avatar_url}" alt="${initial}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
       } else if (profile.emoji) {
         inner = `<span style="font-size:18px;">${profile.emoji}</span>`;
       } else {

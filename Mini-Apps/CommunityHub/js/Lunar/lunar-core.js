@@ -846,7 +846,7 @@ class LunarRoom {
             const initial  = name.charAt(0).toUpperCase();
             const gradient = Core?.getAvatarGradient?.(p.user_id) ?? 'background:#8B7AFF';
             let inner = profile.avatar_url
-                ? `<img src="${profile.avatar_url}" alt="${initial}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                ? `<img src="${profile.avatar_url}" alt="${initial}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
                 : profile.emoji
                     ? `<span style="font-size:18px;">${profile.emoji}</span>`
                     : `<span style="font-size:14px;font-weight:600;">${initial}</span>`;

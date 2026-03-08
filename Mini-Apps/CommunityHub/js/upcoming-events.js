@@ -262,6 +262,7 @@ const UpcomingEvents = {
         <div class="event-flyer" style="position:relative;height:450px;overflow:hidden;background:var(--neuro-bg);">
             <img src="${this.escapeHtml(data.image)}" alt="${this.escapeHtml(data.title)}" id="${imageId}"
                  onclick="UpcomingEvents.openLightbox(this.src)"
+                 loading="lazy" decoding="async"
                  style="width:100%;height:100%;object-fit:contain;transition:opacity ${this.config.FADE_DURATION}ms ease;cursor:zoom-in;">
             <div class="flyer-indicator" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:8px;">
                 ${dots}
@@ -539,7 +540,7 @@ const UpcomingEvents = {
                          style="cursor:pointer;border-radius:8px;overflow:hidden;
                                 border:3px solid ${selected ? 'var(--neuro-accent)' : 'transparent'};
                                 transition:border 0.15s;">
-                        <img src="${url}" style="width:100%;height:90px;object-fit:cover;display:block;">
+                        <img src="${url}" alt="${f}" loading="lazy" decoding="async" style="width:100%;height:90px;object-fit:cover;display:block;">
                         <div style="font-size:10px;text-align:center;padding:2px;color:var(--text-muted);">${f}</div>
                     </div>`;
         }).join('');

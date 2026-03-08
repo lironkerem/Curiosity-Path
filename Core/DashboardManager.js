@@ -1023,7 +1023,7 @@ export default class DashboardManager {
         <div class="dashboard-container">
           <div class="dashboard-content">
             <header class="main-header project-curiosity"
-                    style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavDashboard.png');
+                    style="--header-img:url('/public/Tabs/NavDashboard.webp');
                            --header-title:'${userName}';
                            --header-tag:'Your journey inward begins here, so practice. explore. transform.'">
               <h1>${userName}'s Spiritual Dashboard</h1>

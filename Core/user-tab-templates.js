@@ -90,6 +90,9 @@ export const profile = (u = {}) => `
           <img 
             id="profile-avatar-img" 
             src="${u.avatar_url || ''}" 
+            alt="Profile avatar"
+            loading="lazy"
+            decoding="async"
             style="${u.avatar_url ? '' : 'display:none;'}">
           <span 
             class="profile-avatar-emoji" 

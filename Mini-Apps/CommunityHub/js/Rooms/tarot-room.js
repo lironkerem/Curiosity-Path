@@ -19,7 +19,7 @@ class TarotRoom extends PracticeRoom {
             icon:        '🔮',
             description: 'Daily guidance & personal draws with reflection',
             energy:      'Intuitive',
-            imageUrl:    '/public/Community/Tarot.png',
+            imageUrl:    '/public/Community/Tarot.webp',
             participants: 8,
         });
 
@@ -176,16 +176,21 @@ class TarotRoom extends PracticeRoom {
 
     getCardImage(number, suit = 'major') {
         const n = String(number).padStart(2, '0');
-        if (suit === 'major') return `${this.TAROT_BASE_URL}${n}-${this.getCardName(number,'major').replace(/\s+/g,'')}.jpg`;
+        if (suit === 'major') return `${this.TAROT_BASE_URL}${n}-${this.getCardName(number,'major').replace(/\s+/g,'')}.webp`;
         const s = suit.charAt(0).toUpperCase() + suit.slice(1);
-        return `${this.TAROT_BASE_URL}${s}${n}.jpg`;
+        return `${this.TAROT_BASE_URL}${s}${n}.webp`;
     }
 
     _buildCardDisplay(card) {
         return `
-        <img src="${this.getCardImage(card.number, card.suit)}"
-             style="width:280px;height:auto;border-radius:12px;box-shadow:var(--shadow);"
-             onerror="this.src='${this.TAROT_BASE_URL}CardBacks.jpg'">
+        <picture>
+          <source srcset="${this.getCardImage(card.number, card.suit)}" type="image/webp">
+          <img src="${this.getCardImage(card.number, card.suit).replace('.webp', '.jpg')}"
+               style="width:280px;height:auto;border-radius:12px;box-shadow:var(--shadow);"
+               alt="${this.getCardName(card.number, card.suit)}"
+               loading="lazy" decoding="async"
+               onerror="this.src='${this.TAROT_BASE_URL}CardBacks.webp'">
+        </picture>
         <h4 style="font-family:var(--serif);font-size:20px;margin:8px 0;text-align:center;">${this.getCardName(card.number, card.suit)}</h4>
         <p style="text-align:center;color:var(--text-muted);max-width:500px;line-height:1.6;">${this.getCardMeaning(card.number, card.suit)}</p>`;
     }

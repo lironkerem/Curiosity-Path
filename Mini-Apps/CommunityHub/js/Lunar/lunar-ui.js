@@ -70,7 +70,10 @@ const LunarUI = {
     renderIntroCard({ imageUrl, description }) {
         return `
             <div class="lunar-intro-card">
-                <img src="${imageUrl}" alt="Moon Phase" class="lunar-intro-image" loading="lazy">
+                <picture>
+                  <source srcset="${imageUrl}" type="image/webp">
+                  <img src="${imageUrl.replace('.webp', '.png')}" alt="Moon Phase" class="lunar-intro-image" loading="lazy" decoding="async">
+                </picture>
                 <p>${description}</p>
             </div>`;
     },

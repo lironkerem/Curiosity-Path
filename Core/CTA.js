@@ -334,7 +334,7 @@ export default class CTA {
     a.target = '_blank';
     a.rel = 'noopener';
     a.className = 'lux-card';
-    a.innerHTML = `<div class="lux-img-wrap"><img src="${src}" alt="${alt}" loading="lazy"></div>`;
+    a.innerHTML = `<div class="lux-img-wrap"><picture><source srcset="${src.replace(/\.(jpg|jpeg|png)$/i, '.webp')}" type="image/webp"><img src="${src}" alt="${alt}" loading="lazy" decoding="async"></picture></div>`;
     return a;
   }
 

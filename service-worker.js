@@ -1,7 +1,7 @@
 // The Curiosity Path - Service Worker
 // Version: 2025-01-23
 
-const CACHE_VERSION = 'tcp-2025-01-23';
+const CACHE_VERSION = 'tcp-2025-03-08';
 const CACHE_NAME = `tcp-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tcp-runtime-${CACHE_VERSION}`;
 const ICON_PATH = './public/Icons/';
@@ -12,7 +12,6 @@ const CORE_ASSETS = [
   './index.html',
   './CSS/main-styles.css',
   './CSS/mobile-styles.css',
-  './CSS/tailwind-output.css',
   './CSS/dark-mode.css',
   `${ICON_PATH}icon-192x192.png`,
   `${ICON_PATH}icon-512x512.png`,

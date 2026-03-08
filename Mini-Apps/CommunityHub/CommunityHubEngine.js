@@ -78,7 +78,7 @@ class CommunityHubEngine {
       <div class="universal-content">
 
           <header class="main-header project-curiosity"
-                  style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavCommunity.png');
+                  style="--header-img:url('/public/Tabs/NavCommunity.webp');
                          --header-title:'';
                          --header-tag:'A space for mindful practice and togetherness'">
             <h1>Community Hub</h1>
