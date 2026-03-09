@@ -3807,7 +3807,7 @@ body.solar-room-active[data-season] {
 /* ── Desktop: members panel on the right, vertical scroll ── */
 .tarot-daily-grid {
     display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(200px, 1fr);
+    grid-template-columns: minmax(0, 3fr) minmax(160px, 1fr);
     gap: 16px;
 }
 
