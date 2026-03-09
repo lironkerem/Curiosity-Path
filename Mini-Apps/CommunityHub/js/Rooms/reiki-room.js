@@ -496,12 +496,12 @@ class ReikiRoom extends PracticeRoom {
         </div>
         <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:12px 8px 24px;" class="tarot-daily-grid">
             <div>
-                <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 8px 0;text-align:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Community Discussion</h4>
+                <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 8px 0;text-align:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Community Discussion</h4>
                 <div style="display:flex;flex-direction:column;height:100%;">
                     ${this.buildChatContainer('daily', 'Share your thoughts on today\'s chakra...')}
                 </div>
             </div>
-            ${this.buildParticipantSidebarHTML('Online Lightworkers', `${this.roomId}ParticipantListEl`, `${this.roomId}ParticipantCount`)}
+            ${this.buildParticipantSidebarHTML('Online Lightworkers', `${this.roomId}ParticipantListEl`, `${this.roomId}ParticipantCount`, 'auto')}
         </div>`;
     }
 
