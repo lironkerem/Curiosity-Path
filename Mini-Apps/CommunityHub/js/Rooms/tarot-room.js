@@ -606,7 +606,7 @@ class TarotRoom extends PracticeRoom {
             const emoji     = profile.emoji      || '';
             const gradient  = Core?.getAvatarGradient?.(userId || name) ?? 'linear-gradient(135deg,#667eea,#764ba2)';
             const inner     = avatarUrl
-                ? `<img src="${avatarUrl}" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
+                ? `<img src="${avatarUrl}" referrerpolicy="no-referrer" style="width:40px;height:40px;min-width:40px;min-height:40px;object-fit:cover;border-radius:50%;display:block;" alt="${name}">`
                 : `<span style="color:white;font-weight:600;font-size:13px;">${emoji || name.charAt(0).toUpperCase()}</span>`;
             const bg    = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
             const click = userId ? `onclick="openMemberProfileAboveRoom('${userId}')"` : '';
