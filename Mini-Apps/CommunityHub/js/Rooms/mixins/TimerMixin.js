@@ -160,8 +160,8 @@ const TimerMixin = {
         <style>
             /* Outer ring glow pulse while running */
             @keyframes timerGlow_${this.roomId} {
-                0%,100% { filter: drop-shadow(0 0 8px ${glowColor}) drop-shadow(0 0 22px ${glowColor}); }
-                50%      { filter: drop-shadow(0 0 18px ${glowColor}) drop-shadow(0 0 48px ${glowColor}); }
+                0%,100% { filter: drop-shadow(0 0 6px ${glowColor}) drop-shadow(0 0 18px ${glowColor}) drop-shadow(0 0 35px ${glowColor}); }
+                50%      { filter: drop-shadow(0 0 12px ${glowColor}) drop-shadow(0 0 35px ${glowColor}) drop-shadow(0 0 70px ${glowColor}); }
             }
             #${this.roomId}TimerRingWrap.running #${this.roomId}OuterSvg {
                 animation: timerGlow_${this.roomId} 3s ease-in-out infinite;

@@ -412,7 +412,7 @@ class DeepWorkRoom extends PracticeRoom {
                     gradientId:  'deepworkTimerGrad',
                     color1:      '#c1705a',
                     color2:      '#8b3a2a',
-                    glowColor:   'rgba(193,112,90,0.35)',
+                    glowColor:   'rgba(193,112,90,0.7)',
                     subtitleHtml: `<div id="currentStatus" style="font-size:13px;text-transform:uppercase;letter-spacing:0.22em;opacity:0.5;font-weight:500;">${this.getStatusText()}</div>`,
                 })}
 
