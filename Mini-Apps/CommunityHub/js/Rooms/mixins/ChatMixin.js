@@ -241,7 +241,11 @@ const ChatMixin = {
         channels.forEach(ch => {
             const wrapper = document.getElementById(`${this.roomId}${_cap(ch)}SenderAvatar`);
             if (!wrapper) return;
-            wrapper.innerHTML = `<div style="width:32px;height:32px;border-radius:50%;${bg}display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">${inner}</div>`;
+            const avatarStyle = cu.avatar_url
+                ? `width:32px;height:32px;border-radius:50%;background-image:url('${cu.avatar_url}');background-size:cover;background-position:center;flex-shrink:0;`
+                : `width:32px;height:32px;border-radius:50%;${bg}display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;`;
+            const avatarContent = cu.avatar_url ? '' : inner;
+            wrapper.innerHTML = `<div style="${avatarStyle}">${avatarContent}</div>`;
         });
     },
 
