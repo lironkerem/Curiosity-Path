@@ -250,7 +250,7 @@ class ReikiRoom extends PracticeRoom {
     _stepDailyImage(delta) {
         this.state.dailyImageIndex = (this.state.dailyImageIndex + delta + 2) % 2;
         const chakra = this.CHAKRA_SCHEDULE?.[this.state.currentDay];
-        const img    = document.querySelector(`#${this.roomId}DailyTab img`);
+        const img    = document.getElementById(`${this.roomId}DailyCarouselImg`);
         if (img && chakra) img.src = this.state.dailyImageIndex === 0 ? chakra.image : chakra.image2;
     }
 
@@ -260,7 +260,7 @@ class ReikiRoom extends PracticeRoom {
     _stepPersonalImage(delta) {
         this.state.personalImageIndex = (this.state.personalImageIndex + delta + 2) % 2;
         const selected = this.CHAKRA_OPTIONS?.find(o => o.value === this.state.personalFocus);
-        const img      = document.querySelector(`#${this.roomId}PersonalSession img`);
+        const img      = document.getElementById(`${this.roomId}PersonalCarouselImg`);
         if (img && selected) img.src = this.state.personalImageIndex === 0 ? selected.image : selected.image2;
     }
 
@@ -334,14 +334,12 @@ class ReikiRoom extends PracticeRoom {
 
         return `
         <!-- ── Image carousel ── -->
-        <div style="position:relative;text-align:center;margin-bottom:24px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:nowrap;">
-            <button onclick="${onPrev}" style="background:var(--surface);border:2px solid var(--border);border-radius:50%;width:40px;height:40px;flex-shrink:0;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;">‹</button>
-            <picture>
-              <source srcset="${img}" type="image/webp">
-              <img src="${img.replace('.webp', '.jpg')}" alt="${chakra.name}" loading="lazy" decoding="async"
-                   style="max-width:min(500px,calc(100% - 100px));width:100%;height:auto;border-radius:var(--radius-md);box-shadow:0 4px 12px rgba(0,0,0,0.1);">
-            </picture>
-            <button onclick="${onNext}" style="background:var(--surface);border:2px solid var(--border);border-radius:50%;width:40px;height:40px;flex-shrink:0;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;">›</button>
+        <div style="text-align:center;margin-bottom:24px;display:flex;align-items:center;justify-content:center;gap:8px;">
+            <button onclick="${onPrev}" style="background:var(--surface);border:2px solid var(--border);border-radius:50%;width:40px;height:40px;min-width:40px;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">‹</button>
+            <img id="${roomId}${prefix}CarouselImg"
+                 src="${img}" alt="${chakra.name}" loading="lazy" decoding="async"
+                 style="max-width:min(500px,calc(100% - 100px));width:100%;height:auto;border-radius:var(--radius-md);box-shadow:0 4px 12px rgba(0,0,0,0.1);display:block;flex:1 1 auto;min-width:0;">
+            <button onclick="${onNext}" style="background:var(--surface);border:2px solid var(--border);border-radius:50%;width:40px;height:40px;min-width:40px;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">›</button>
         </div>
 
         <!-- ── Enriched card ── -->
@@ -351,7 +349,14 @@ class ReikiRoom extends PracticeRoom {
             ${chakra.roleAndPurpose ? `
             <div style="text-align:center;margin-bottom:20px;">
                 <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;margin-bottom:10px;">Represents</div>
-                <p style="font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.8;color:var(--text-muted);max-width:560px;margin:0 auto;">${chakra.theme ? chakra.theme + ' — ' : ''}${chakra.roleAndPurpose}</p>
+                <p style="font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.8;color:var(--text-muted);max-width:560px;margin:0 auto;">${chakra.roleAndPurpose}</p>
+            </div>` : ''}
+
+            <!-- THEME -->
+            ${chakra.theme ? `
+            <div style="text-align:center;margin-bottom:20px;padding-top:16px;border-top:1px solid var(--border);">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;margin-bottom:6px;">Theme</div>
+                <p style="font-size:14px;font-weight:600;color:var(--text);margin:0;">${chakra.theme}</p>
             </div>` : ''}
 
             <!-- KEYWORDS -->
@@ -363,58 +368,55 @@ class ReikiRoom extends PracticeRoom {
 
             <!-- ATTRIBUTES ROW -->
             ${attrHTML ? `
-            <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:16px;padding:16px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:20px;">
+            <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:16px;padding:16px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
                 ${attrHTML}
             </div>` : ''}
+        </div>
 
-            <!-- COMMON ISSUES ACCORDION -->
+        <!-- ── Fundamental Truths & Visualization (standalone section) ── -->
+        ${(chakra.fundamentalTruths?.length || chakra.visualization) ? `
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;margin-bottom:16px;text-align:center;">Fundamental Truths &amp; Visualization</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                ${(chakra.fundamentalTruths || []).map(t => `
+                <p style="font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.7;margin:0;text-align:center;color:var(--text);">"${t}"</p>`).join('')}
+                ${chakra.visualization ? `
+                <div style="margin-top:8px;padding-top:12px;border-top:1px solid var(--border);">
+                    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;margin-bottom:6px;text-align:center;">Visualization</div>
+                    <p style="font-size:14px;color:var(--text-muted);text-align:center;margin:0;font-style:italic;">${chakra.visualization}</p>
+                </div>` : ''}
+            </div>
+        </div>` : ''}
+
+        <!-- ── Common Issues + Guided Reflections (combined collapsible card) ── -->
+        ${(issuesHTML || reflectionsHTML) ? `
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;display:flex;flex-direction:column;gap:8px;">
             ${issuesHTML ? `
-            <details style="margin-bottom:8px;">
+            <details>
                 <summary style="cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.04em;color:var(--text-muted);text-transform:uppercase;list-style:none;display:flex;align-items:center;gap:6px;">
-                    <span style="display:inline-block;">▶</span> Common Issues
+                    <span>▶</span> Common Issues
                 </summary>
                 <ul style="margin:12px 0 0 0;padding:0 0 0 4px;list-style:none;">
                     ${issuesHTML}
                 </ul>
             </details>` : ''}
-
-            <!-- FUNDAMENTAL TRUTHS + VISUALIZATION -->
-            ${(chakra.fundamentalTruths?.length || chakra.visualization) ? `
-            <details style="margin-top:8px;">
+            ${reflectionsHTML ? `
+            <details ${issuesHTML ? 'style="border-top:1px solid var(--border);padding-top:8px;"' : ''}>
                 <summary style="cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.04em;color:var(--text-muted);text-transform:uppercase;list-style:none;display:flex;align-items:center;gap:6px;">
-                    <span style="display:inline-block;">▶</span> Fundamental Truths &amp; Visualization
-                </summary>
-                <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px;">
-                    ${(chakra.fundamentalTruths || []).map(t => `
-                    <p style="font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.7;margin:0;text-align:center;color:var(--text);">"${t}"</p>`).join('')}
-                    ${chakra.visualization ? `
-                    <div style="margin-top:8px;padding-top:10px;border-top:1px solid var(--border);">
-                        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;margin-bottom:6px;text-align:center;">Visualization</div>
-                        <p style="font-size:14px;color:var(--text-muted);text-align:center;margin:0;font-style:italic;">${chakra.visualization}</p>
-                    </div>` : ''}
-                </div>
-            </details>` : ''}
-        </div>
-
-        <!-- ── Today's Inquiry ── -->
-        ${chakra.inquiry ? `
-        <div style="background:var(--surface);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;text-align:center;">
-            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:700;margin-bottom:12px;">✨ ${isDaily ? "Today's" : 'Guiding'} Inquiry</div>
-            <p style="font-family:var(--serif);font-size:17px;line-height:1.7;margin:0 auto;max-width:520px;">"${chakra.inquiry}"</p>
-        </div>` : ''}
-
-        <!-- ── Guided Reflections ACCORDION ── -->
-        ${reflectionsHTML ? `
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;">
-            <details>
-                <summary style="cursor:pointer;font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;list-style:none;display:flex;align-items:center;gap:6px;">
                     <span>▶</span> 🌀 Guided Reflections for Clarity &amp; Growth
                 </summary>
                 <p style="font-size:13px;color:var(--text-muted);margin:10px 0 12px 0;line-height:1.6;font-style:italic;">Take a few moments to reflect on each question. Let your answers flow naturally, without overthinking or judgment. There are no wrong answers here.</p>
                 <ul style="margin:0;padding:0;list-style:none;">
                     ${reflectionsHTML}
                 </ul>
-            </details>
+            </details>` : ''}
+        </div>` : ''}
+
+        <!-- ── Today's Inquiry (moved below Guided Reflections) ── -->
+        ${chakra.inquiry ? `
+        <div style="background:var(--surface);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;text-align:center;">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:700;margin-bottom:12px;">✨ ${isDaily ? "Today's" : 'Guiding'} Inquiry</div>
+            <p style="font-family:var(--serif);font-size:17px;line-height:1.7;margin:0 auto;max-width:520px;">"${chakra.inquiry}"</p>
         </div>` : ''}
 
         <!-- ── Chakra Journal ── -->
