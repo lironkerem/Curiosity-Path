@@ -143,36 +143,56 @@ const TimerMixin = {
         glowColor    = 'rgba(167,139,250,0.35)',
         subtitleHtml = null,
     } = {}) {
-        const C              = _TIMER_CIRCUMFERENCE;
-        // Inner seconds ring: smaller radius
-        const _INNER_R       = 148;
-        const _INNER_C       = +(2 * Math.PI * _INNER_R).toFixed(2);
-        const innerGradId    = `${gradientId}_inner`;
-        const subtitleEl     = subtitleHtml
+        const C = _TIMER_CIRCUMFERENCE;
+
+        // Inner comet ring — almost touching outer (outer r=180, stroke=14 → inner edge at ~173)
+        const _INNER_R  = 163;
+        const _INNER_C  = +(2 * Math.PI * _INNER_R).toFixed(2);
+        // Comet head: ~18° arc; trail: ~60° arc
+        const HEAD_LEN  = +(_INNER_C * 18  / 360).toFixed(2); // ~51px
+        const TRAIL_LEN = +(_INNER_C * 60  / 360).toFixed(2); // ~171px
+        const GAP       = +(_INNER_C - HEAD_LEN).toFixed(2);
+        const TRAIL_GAP = +(_INNER_C - TRAIL_LEN).toFixed(2);
+
+        const subtitleEl = subtitleHtml
             ?? `<div style="font-size:13px;text-transform:uppercase;letter-spacing:0.22em;opacity:0.5;font-weight:500;">${subtitle}</div>`;
 
         return `
         <style>
-            /* Outer ring: pulsing glow when running */
+            /* Outer ring glow pulse while running */
             @keyframes timerGlow_${this.roomId} {
-                0%,100% { filter: drop-shadow(0 0 8px ${glowColor}) drop-shadow(0 0 20px ${glowColor}); }
-                50%      { filter: drop-shadow(0 0 18px ${glowColor}) drop-shadow(0 0 44px ${glowColor}); }
+                0%,100% { filter: drop-shadow(0 0 8px ${glowColor}) drop-shadow(0 0 22px ${glowColor}); }
+                50%      { filter: drop-shadow(0 0 18px ${glowColor}) drop-shadow(0 0 48px ${glowColor}); }
             }
             #${this.roomId}TimerRingWrap.running #${this.roomId}OuterSvg {
                 animation: timerGlow_${this.roomId} 3s ease-in-out infinite;
             }
-            /* Inner seconds ring: sweep 0→full in 1s, CSS-driven */
-            @keyframes secondsSweep_${this.roomId} {
-                0%   { stroke-dashoffset: ${_INNER_C}; }
-                100% { stroke-dashoffset: 0; }
+
+            /* Comet head races clockwise: dashoffset 0 → -C in 1s */
+            @keyframes cometHead_${this.roomId} {
+                from { stroke-dashoffset: 0; }
+                to   { stroke-dashoffset: -${_INNER_C}; }
             }
-            #${this.roomId}SecondsRing {
-                stroke-dasharray: ${_INNER_C};
-                stroke-dashoffset: ${_INNER_C};
-                animation: secondsSweep_${this.roomId} 1s linear infinite;
+            /* Trail follows, slightly delayed */
+            @keyframes cometTrail_${this.roomId} {
+                from { stroke-dashoffset: ${HEAD_LEN}; }
+                to   { stroke-dashoffset: ${HEAD_LEN - _INNER_C}; }
+            }
+
+            #${this.roomId}CometHead {
+                stroke-dasharray:  ${HEAD_LEN} ${GAP};
+                stroke-dashoffset: 0;
+                animation: cometHead_${this.roomId} 1s linear infinite;
                 animation-play-state: paused;
             }
-            #${this.roomId}TimerRingWrap.running #${this.roomId}SecondsRing {
+            #${this.roomId}CometTrail {
+                stroke-dasharray:  ${TRAIL_LEN} ${TRAIL_GAP};
+                stroke-dashoffset: ${HEAD_LEN};
+                animation: cometTrail_${this.roomId} 1s linear infinite;
+                animation-play-state: paused;
+            }
+            #${this.roomId}TimerRingWrap.running #${this.roomId}CometHead,
+            #${this.roomId}TimerRingWrap.running #${this.roomId}CometTrail {
                 animation-play-state: running;
             }
             #${this.roomId}TimerDisplay {
@@ -183,7 +203,7 @@ const TimerMixin = {
         <div id="${this.roomId}TimerRingWrap"
              style="position:relative;width:min(380px,82vw);height:min(380px,82vw);margin-bottom:36px;">
 
-            <!-- Outer progress ring (clockwise shrink) -->
+            <!-- Outer progress ring (clockwise countdown) -->
             <svg id="${this.roomId}OuterSvg"
                  width="100%" height="100%" viewBox="0 0 400 400"
                  style="transform:rotate(-90deg);position:absolute;top:0;left:0;z-index:2;">
@@ -196,7 +216,7 @@ const TimerMixin = {
                 <!-- Track -->
                 <circle cx="200" cy="200" r="${_TIMER_RADIUS}"
                         fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="14"/>
-                <!-- Progress — clockwise: starts full, offset grows as time runs out -->
+                <!-- Progress -->
                 <circle cx="200" cy="200" r="${_TIMER_RADIUS}"
                         fill="none" stroke="url(#${gradientId})"
                         stroke-width="14" stroke-linecap="round"
@@ -204,23 +224,25 @@ const TimerMixin = {
                         id="${this.roomId}TimerRing"/>
             </svg>
 
-            <!-- Inner seconds ring (CSS sweep, clockwise, 1s per revolution) -->
+            <!-- Inner comet ring -->
             <svg width="100%" height="100%" viewBox="0 0 400 400"
                  style="transform:rotate(-90deg);position:absolute;top:0;left:0;z-index:3;">
-                <defs>
-                    <linearGradient id="${innerGradId}" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%"   stop-color="${color1}" stop-opacity="0.5"/>
-                        <stop offset="100%" stop-color="${color2}" stop-opacity="0.9"/>
-                    </linearGradient>
-                </defs>
-                <!-- Inner track (dark) -->
+                <!-- Dark track -->
                 <circle cx="200" cy="200" r="${_INNER_R}"
-                        fill="none" stroke="rgba(0,0,0,0.45)" stroke-width="8"/>
-                <!-- Seconds sweep -->
+                        fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="6"/>
+                <!-- Fading trail (neon blue, low opacity) -->
                 <circle cx="200" cy="200" r="${_INNER_R}"
-                        fill="none" stroke="url(#${innerGradId})"
-                        stroke-width="8" stroke-linecap="round"
-                        id="${this.roomId}SecondsRing"/>
+                        fill="none" stroke="#00cfff"
+                        stroke-width="5" stroke-linecap="round"
+                        opacity="0.25"
+                        id="${this.roomId}CometTrail"/>
+                <!-- Comet head (bright neon blue, glowing) -->
+                <circle cx="200" cy="200" r="${_INNER_R}"
+                        fill="none"
+                        stroke="#00eeff"
+                        stroke-width="6" stroke-linecap="round"
+                        style="filter:drop-shadow(0 0 4px #00eeff) drop-shadow(0 0 10px #00cfff);"
+                        id="${this.roomId}CometHead"/>
             </svg>
 
             <!-- Text content -->

@@ -410,9 +410,9 @@ class DeepWorkRoom extends PracticeRoom {
                 <!-- Timer ring -->
                 ${this.buildTimerContainer({
                     gradientId:  'deepworkTimerGrad',
-                    color1:      '#f59e0b',
-                    color2:      '#ef4444',
-                    glowColor:   'rgba(245,158,11,0.35)',
+                    color1:      '#c1705a',
+                    color2:      '#8b3a2a',
+                    glowColor:   'rgba(193,112,90,0.35)',
                     subtitleHtml: `<div id="currentStatus" style="font-size:13px;text-transform:uppercase;letter-spacing:0.22em;opacity:0.5;font-weight:500;">${this.getStatusText()}</div>`,
                 })}
 

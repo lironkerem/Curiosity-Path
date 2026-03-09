@@ -89,9 +89,9 @@ class SilentRoom extends PracticeRoom {
                 ${this.buildTimerContainer({
                     subtitle:   'in silence',
                     gradientId: 'silentTimerGrad',
-                    color1:     '#a78bfa',
-                    color2:     '#c084fc',
-                    glowColor:  'rgba(167,139,250,0.4)',
+                    color1:     '#4ade80',
+                    color2:     '#16a34a',
+                    glowColor:  'rgba(74,222,128,0.35)',
                 })}
                 ${this.buildTimerControls()}
                 <div class="gratitude-container" id="${this.roomId}GratitudeContainer">
