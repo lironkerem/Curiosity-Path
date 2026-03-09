@@ -684,7 +684,11 @@ class TarotRoom extends PracticeRoom {
                 el.innerHTML = `<span style="color:var(--text-muted);font-size:13px;">No cards drawn yet.</span>`;
                 return;
             }
-            const typeIcon = { major:'✨', minor:'🌱', court:'👑' };
+            const typeIcon = {
+                major: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>`,
+                minor: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
+                court: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><path d="M2 20h20"/><path d="m4 14 4-8 4 8 4-8 4 8"/></svg>`
+            };
             el.innerHTML = data.map(row => {
                 const date = new Date(row.drawn_at).toLocaleDateString([], { month:'short', day:'numeric', year:'numeric' });
                 const time = new Date(row.drawn_at).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
@@ -855,7 +859,7 @@ class TarotRoom extends PracticeRoom {
             <!-- Selectors -->
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
                 <div>
-                    <label style="${labelStyle}">✨ Major Arcana</label>
+                    <label style="font-weight:700;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Major Arcana</label>
                     <select id="${roomId}MajorSelect" style="${selectStyle}"
                             onchange="${cn}._onPersonalSelectChange('major')">
                         <option value="">— Select —</option>
@@ -863,7 +867,7 @@ class TarotRoom extends PracticeRoom {
                     </select>
                 </div>
                 <div>
-                    <label style="${labelStyle}">🌱 Minor Arcana</label>
+                    <label style="font-weight:700;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> Minor Arcana</label>
                     <select id="${roomId}MinorSelect" style="${selectStyle}"
                             onchange="${cn}._onPersonalSelectChange('minor')">
                         <option value="">— Select —</option>
@@ -871,7 +875,7 @@ class TarotRoom extends PracticeRoom {
                     </select>
                 </div>
                 <div>
-                    <label style="${labelStyle}">👑 Court Cards</label>
+                    <label style="font-weight:700;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><path d="M2 20h20"/><path d="m4 14 4-8 4 8 4-8 4 8"/></svg> Court Cards</label>
                     <select id="${roomId}CourtSelect" style="${selectStyle}"
                             onchange="${cn}._onPersonalSelectChange('court')">
                         <option value="">— Select —</option>
@@ -883,13 +887,13 @@ class TarotRoom extends PracticeRoom {
             <!-- Random Draw button -->
             <div style="text-align:center;margin-bottom:24px;">
                 <button onclick="${cn}.drawPersonalCard()"
-                        style="padding:12px 32px;background:linear-gradient(135deg,var(--neuro-accent),var(--neuro-accent-light));color:white;border:none;border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:15px;letter-spacing:0.5px;">
-                    🔀 Random Draw
+                        style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:linear-gradient(135deg,var(--neuro-accent),var(--neuro-accent-light));color:white;border:none;border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:15px;letter-spacing:0.5px;box-shadow:var(--shadow-raised);">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg> Random Draw
                 </button>
             </div>
 
             <!-- Card display area -->
-            <div id="${roomId}PersonalCardContainer"></div>
+            <div id="${roomId}PersonalCardContainer" style="display:flex;flex-direction:column;align-items:center;"></div>
             <div id="${roomId}PersonalEnrichedSections"></div>
 
             <!-- Progress & History -->
@@ -897,7 +901,7 @@ class TarotRoom extends PracticeRoom {
 
                 <!-- Mastery Tracker -->
                 <div style="border:2px solid var(--border);border-radius:var(--radius-lg);padding:20px;background:var(--background);">
-                    <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;">🌟 Major Arcana Mastery</h4>
+                    <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Major Arcana Mastery</h4>
                     <div id="${roomId}MasteryBar" style="margin-bottom:12px;">
                         <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:6px;">
                             <span>Cards Discovered</span>
@@ -915,7 +919,7 @@ class TarotRoom extends PracticeRoom {
                 <!-- Draw History -->
                 <div style="border:2px solid var(--border);border-radius:var(--radius-lg);padding:20px;background:var(--background);">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                        <h4 style="font-family:var(--serif);font-size:18px;margin:0;">📜 Cards You've Drawn</h4>
+                        <h4 style="font-family:var(--serif);font-size:18px;margin:0;display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg> Cards You've Drawn</h4>
                         <button onclick="${cn}._clearDrawHistory()" style="font-size:12px;color:var(--text-muted);background:none;border:1px solid var(--border);border-radius:var(--radius-md);padding:4px 10px;cursor:pointer;">Clear History</button>
                     </div>
                     <div id="${roomId}DrawHistory" style="max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;">
