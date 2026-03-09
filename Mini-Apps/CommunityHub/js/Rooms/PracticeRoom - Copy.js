@@ -1,14 +1,6 @@
 /**
- * PRACTICE ROOM BASE CLASS v3.1
+ * PRACTICE ROOM BASE CLASS v3.0
  * Base class for all practice rooms with shared lifecycle, UI, and presence.
- *
- * Changes from v3.0:
- * - _renderParticipantList: added explicit avatar dimensions (width/height/min-width/min-height)
- *   so subclasses no longer need to override it just for sizing.
- * - _refreshParticipantSidebar: now accepts an optional pre-fetched participants array
- *   to avoid a redundant DB call when enterRoom() has already fetched participants.
- * - fetchRoomParticipants: passes fetched data directly to _refreshParticipantSidebar
- *   so onEnter() hooks don't need to trigger a second fetch.
  */
 
 import { Core } from '../core.js';
@@ -123,13 +115,10 @@ class PracticeRoom {
             CollectiveField._startWave();
         }
 
-        // Fetch participants once and pass to sidebar — avoids double DB call.
-        // _refreshParticipantSidebar will also set up the realtime subscription.
+        // Stagger async initialisation to avoid blocking render
         setTimeout(async () => {
-            await this._refreshParticipantSidebar(
-                `${this.roomId}ParticipantListEl`,
-                `${this.roomId}ParticipantCount`
-            );
+            await this.fetchRoomParticipants();
+            this.subscribeToRoomParticipants();
         }, 300);
 
         setTimeout(() => {
@@ -164,6 +153,7 @@ class PracticeRoom {
 
     /** Shared teardown for both leaveRoom and gentlyLeave. */
     _exitCleanup() {
+        // Log time spent to the 24h Calm Wave
         if (CollectiveField?.state.isContributing) {
             CollectiveField._endWave();
         }
@@ -263,10 +253,6 @@ class PracticeRoom {
         if (stackEl) stackEl.innerHTML = this._buildAvatarStack(participants);
     }
 
-    /**
-     * Fetches participants and renders the sidebar list + realtime subscription.
-     * Called once from enterRoom() — subsequent updates come via the subscription.
-     */
     async _refreshParticipantSidebar(listId, countId = null) {
         if (!this._dbReady()) return;
 
@@ -277,9 +263,6 @@ class PracticeRoom {
             ]);
             const visible = participants.filter(p => !blocked.has(p.user_id));
             this.state.participants = visible.length;
-
-            // Update header avatar stack too
-            this._updateParticipantUI(visible);
 
             const listEl = document.getElementById(listId);
             if (listEl) this._renderParticipantList(listEl, visible);
@@ -370,11 +353,6 @@ class PracticeRoom {
             : '');
     }
 
-    /**
-     * Renders the participant sidebar list.
-     * Canonical implementation — subclasses should NOT override this.
-     * Avatar dimensions are explicitly set here to 40x40px.
-     */
     _renderParticipantList(listEl, participants) {
         if (!participants.length) {
             listEl.innerHTML = `<div style="color:var(--text-muted);font-size:13px;padding:8px;">Just you here 🕯️</div>`;
@@ -389,13 +367,13 @@ class PracticeRoom {
             const emoji     = profile.emoji     || '';
             const gradient  = Core?.getAvatarGradient?.(userId || name) ?? fallbackGradient;
             const inner     = avatarUrl
-                ? `<img src="${avatarUrl}" referrerpolicy="no-referrer" style="width:40px;height:40px;min-width:40px;min-height:40px;object-fit:cover;border-radius:50%;display:block;" alt="${name}">`
-                : `<span style="color:white;font-weight:600;font-size:13px;">${emoji || name.charAt(0).toUpperCase()}</span>`;
+                ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
+                : `<span style="color:white;font-weight:600;">${emoji || name.charAt(0).toUpperCase()}</span>`;
             const bg    = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
             const click = userId ? `onclick="openMemberProfileAboveRoom('${userId}')"` : '';
             return `
             <div class="campfire-participant" ${click} style="${userId ? 'cursor:pointer;' : ''}">
-                <div class="campfire-participant-avatar" style="${bg}width:40px;height:40px;min-width:40px;min-height:40px;display:flex;align-items:center;justify-content:center;overflow:hidden;">${inner}</div>
+                <div class="campfire-participant-avatar" style="${bg}display:flex;align-items:center;justify-content:center;">${inner}</div>
                 <div class="campfire-participant-info">
                     <div class="campfire-participant-name">${name}</div>
                     <div class="campfire-participant-country">${p.activity || '✨ Available'}</div>
@@ -737,7 +715,7 @@ class PracticeRoom {
     buildCardFooter() {
         if (this.roomType === 'timed' && this.getTimerText) {
             const scheduleLink = this.showScheduleModal
-                ? `<button onclick="event.stopPropagation();${this.getClassName()}.showScheduleModal()" style="background:none;border:none;padding:0;font-size:11px;color:var(--text-muted);cursor:pointer;text-decoration:underline;text-align:left;display:inline-flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> View Schedule</button>`
+                ? `<button onclick="event.stopPropagation();${this.getClassName()}.showScheduleModal()" style="background:none;border:none;padding:0;font-size:11px;color:var(--text-muted);cursor:pointer;text-decoration:underline;text-align:left;" style="background:none;border:none;padding:0;font-size:11px;color:var(--text-muted);cursor:pointer;text-decoration:underline;text-align:left;display:inline-flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> View Schedule</button>`
                 : '';
             return `
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
@@ -829,6 +807,7 @@ class PracticeRoom {
 PracticeRoom._hubPresenceSub = null;
 PracticeRoom._hubRooms       = [];
 
+// Presence activity labels keyed by roomId
 PracticeRoom.ROOM_ACTIVITIES = {
     'silent-room':     '🧘 Silent practice',
     'guided-room':     '🎧 Guided session',
@@ -879,6 +858,8 @@ PracticeRoom.stopHubPresence = function() {
 };
 
 // ── Global exports ────────────────────────────────────────────────────────────
+
+// ── Window bridges ────────────────────────────────────────────────────────────
 
 window.PracticeRoom = PracticeRoom;
 

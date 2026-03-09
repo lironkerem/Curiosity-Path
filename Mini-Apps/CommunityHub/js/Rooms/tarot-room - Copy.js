@@ -3,16 +3,6 @@
  * @mixes ChatMixin, TabRoomMixin
  *
  * Daily card: date-seeded - same card for all users, resets at midnight.
- *
- * Optimizations vs previous version:
- * - Removed duplicate _renderParticipantList (now inherited from PracticeRoom)
- * - Removed duplicate _escHTML — replaced with inherited _escapeHtml from ChatMixin
- * - switchTab delegated to TabRoomMixin via onPersonalTabEnter() hook
- * - _buildEnrichedSections HTML cached by card key — not rebuilt on every render
- * - _loadMastery / _loadDrawHistory only re-fetch after draws/clears, not on every tab switch
- * - Interpretation purge runs once per session, not on every load
- * - onEnter no longer calls _refreshParticipantSidebar (PracticeRoom.enterRoom handles it)
- * - personalDeck reuses this.state.personalDeck instead of rebuilding on every draw
  */
 
 import { PracticeRoom } from './PracticeRoom.js';
@@ -36,11 +26,8 @@ class TarotRoom extends PracticeRoom {
 
         this.initChatState(['daily', 'personal']);
 
-        this._tarotDataReady          = false;
-        this._pendingDailyRender      = false;
-        this._interpPurgedToday       = false; // run purge once per session
-        this._enrichedCache           = {};    // cache built HTML by card key
-        this._personalDataLoaded      = false; // only fetch history/mastery when needed
+        this._tarotDataReady     = false;
+        this._pendingDailyRender = false;
 
         this.state.dailyCard     = null;
         this.state.personalDeck  = [];
@@ -62,12 +49,13 @@ class TarotRoom extends PracticeRoom {
             const res = await fetch('/Mini-Apps/CommunityHub/js/Rooms/tarot-data.json');
             if (res.ok) {
                 const data = await res.json();
-                this._tarotData = data;
+                this._tarotData = data; // full enriched dataset
+                // Build legacy lookup maps from new structure for getCardName / getCardMeaning
                 this.MAJOR_ARCANA_NAMES    = {};
                 this.MAJOR_ARCANA_MEANINGS = {};
                 data.majorArcana.forEach(c => {
-                    this.MAJOR_ARCANA_NAMES[c.id]   = c.name;
-                    this.MAJOR_ARCANA_MEANINGS[c.id] = c.upright;
+                    this.MAJOR_ARCANA_NAMES[c.id]    = c.name;
+                    this.MAJOR_ARCANA_MEANINGS[c.id]  = c.upright;
                 });
                 this.MINOR_ARCANA_MEANINGS = {};
                 this.COURT_CARD_MEANINGS   = {};
@@ -87,9 +75,6 @@ class TarotRoom extends PracticeRoom {
         } catch {
             this._loadInlineTarotData();
         }
-
-        // Build the deck once and reuse throughout the session
-        this.state.personalDeck = this._buildFullDeck();
 
         this._tarotDataReady = true;
         if (this._pendingDailyRender) {
@@ -173,7 +158,7 @@ class TarotRoom extends PracticeRoom {
         const container = document.getElementById(`${this.roomId}DailyCardContainer`);
         if (container && this.state.dailyCard) container.innerHTML = this._buildCardDisplay(this.state.dailyCard);
         const enriched = document.getElementById(`${this.roomId}EnrichedSections`);
-        if (enriched && this.state.dailyCard) enriched.innerHTML = this._getEnrichedHTML(this.state.dailyCard, true);
+        if (enriched && this.state.dailyCard) enriched.innerHTML = this._buildEnrichedSections(this.state.dailyCard);
         requestAnimationFrame(() => this._loadInterpretations());
     }
 
@@ -209,6 +194,7 @@ class TarotRoom extends PracticeRoom {
         return this.COURT_CARD_MEANINGS?.[suit]?.[this.COURT_RANKS[number]] ?? '';
     }
 
+    // Returns the full enriched card object from tarot-data.json, or null
     getCardData(number, suit = 'major') {
         if (!this._tarotData) return null;
         if (suit === 'major') {
@@ -244,25 +230,13 @@ class TarotRoom extends PracticeRoom {
         ${subtitle ? `<p style="font-family:var(--serif);font-size:16px;font-weight:700;color:var(--text);text-align:center;margin:0;letter-spacing:.01em;">${subtitle}</p>` : ''}`;
     }
 
-    // ── Enriched sections (with HTML caching) ─────────────────────────────────
-
-    /**
-     * Returns cached enriched HTML for a card, or builds and caches it.
-     * Cache key uses card suit+number+showCommunity so daily/personal variants
-     * are stored separately.
-     */
-    _getEnrichedHTML(card, showCommunity = true) {
-        const cacheKey = `${card.suit}-${card.number}-${showCommunity}`;
-        if (!this._enrichedCache[cacheKey]) {
-            this._enrichedCache[cacheKey] = this._buildEnrichedSections(card, showCommunity);
-        }
-        return this._enrichedCache[cacheKey];
-    }
+    // ── Enriched daily sections ───────────────────────────────────────────────
 
     _buildEnrichedSections(card, showCommunity = true) {
         const data = this.getCardData(card.number, card.suit);
-        if (!data) return '';
+        if (!data) return ''; // enriched data not loaded yet
 
+        // ── Derive Element & Aspect ──
         const SUIT_ELEMENT = { pentacles:'Earth', swords:'Air', cups:'Water', wands:'Fire' };
         const SUIT_ASPECT  = { pentacles:'Physical', swords:'Mental', cups:'Emotional', wands:'Spiritual' };
         const MAJOR_ELEMENT_MAP = { Air:'Air', Fire:'Fire', Water:'Water', Earth:'Earth' };
@@ -270,16 +244,18 @@ class TarotRoom extends PracticeRoom {
         let element = null;
         let aspect  = null;
         if (card.suit === 'major') {
-            element = MAJOR_ELEMENT_MAP[data.correspondence] ?? null;
+            element = MAJOR_ELEMENT_MAP[data.correspondence] ?? null; // only show if pure element
         } else {
             element = SUIT_ELEMENT[card.suit] ?? null;
             aspect  = SUIT_ASPECT[card.suit] ?? null;
         }
 
+        // ── Keywords pills ──
         const keywords = (data.keywords || [])
             .map(k => `<span style="display:inline-block;padding:4px 12px;border:1px solid var(--border);border-radius:20px;font-size:12px;color:var(--text-muted);margin:3px 4px;white-space:nowrap;">${k}</span>`)
             .join('');
 
+        // ── Attribute row ──
         const attrs = [];
         if (data.astrology && data.astrology !== '-') attrs.push({ label: 'Astrology',    value: data.astrology });
         if (element)                                   attrs.push({ label: 'Element',      value: element });
@@ -291,6 +267,7 @@ class TarotRoom extends PracticeRoom {
                 <div style="font-size:13px;font-weight:500;">${a.value}</div>
             </div>`).join('');
 
+        // ── Symbols list ──
         const symbolsHTML = (data.symbols || []).map(s => `<li style="margin:6px 0;font-size:14px;color:var(--text-muted);line-height:1.5;">${s}</li>`).join('');
 
         const roomId = this.roomId;
@@ -298,6 +275,8 @@ class TarotRoom extends PracticeRoom {
         return `
         <!-- ── Attributes & Meaning ── -->
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;">
+
+            <!-- REPRESENTS (moved above keywords) -->
             ${data.narrative ? `
             <div style="text-align:center;margin-bottom:20px;">
                 <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;margin-bottom:10px;">Represents</div>
@@ -305,11 +284,15 @@ class TarotRoom extends PracticeRoom {
                     ${data.narrative}
                 </p>
             </div>` : ''}
+
+            <!-- KEYWORDS -->
             ${keywords ? `
             <div style="margin-bottom:20px;${data.narrative ? 'padding-top:20px;border-top:1px solid var(--border);' : ''}">
                 <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;text-align:center;margin-bottom:8px;">Keywords</div>
                 <div style="display:flex;flex-wrap:wrap;justify-content:center;">${keywords}</div>
             </div>` : ''}
+
+            <!-- ATTRIBUTES ROW -->
             ${attrHTML ? `
             <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:16px;padding:16px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:20px;">
                 ${attrHTML}
@@ -335,6 +318,7 @@ class TarotRoom extends PracticeRoom {
                 ${data.reversed || ''}
             </div>
 
+            <!-- SYMBOLS ACCORDION -->
             ${symbolsHTML ? `
             <details style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
                 <summary style="cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.04em;color:var(--text-muted);text-transform:uppercase;list-style:none;display:flex;align-items:center;gap:6px;">
@@ -365,6 +349,7 @@ class TarotRoom extends PracticeRoom {
             <p style="font-size:13px;color:var(--text-muted);margin:0 0 14px 0;line-height:1.6;">
                 Look closely at the card. What do you notice? Describe what you see — the characters, their posture, expression, actions. What colors stand out? Any symbols, objects, or small details that catch your eye? How does it make you feel?
             </p>
+            <!-- Write form -->
             <div id="${roomId}JournalForm">
                 <textarea id="${roomId}JournalInput"
                     placeholder="e.g. A figure stands at the edge of a cliff, looking up… the colors feel warm and golden… I notice a small dog at their feet…"
@@ -375,6 +360,7 @@ class TarotRoom extends PracticeRoom {
                     Save to Journal
                 </button>
             </div>
+            <!-- Log view (hidden by default) -->
             <div id="${roomId}JournalLog" style="display:none;">
                 <div id="${roomId}JournalLogList" style="display:flex;flex-direction:column;gap:10px;max-height:340px;overflow-y:auto;"></div>
             </div>
@@ -423,9 +409,9 @@ class TarotRoom extends PracticeRoom {
     // ── Journal ──────────────────────────────────────────────────────────────
 
     _toggleJournalLog() {
-        const logDiv  = document.getElementById(`${this.roomId}JournalLog`);
+        const logDiv = document.getElementById(`${this.roomId}JournalLog`);
         const formDiv = document.getElementById(`${this.roomId}JournalForm`);
-        const btn     = document.getElementById(`${this.roomId}JournalLogBtn`);
+        const btn = document.getElementById(`${this.roomId}JournalLogBtn`);
         if (!logDiv) return;
         const showing = logDiv.style.display !== 'none';
         logDiv.style.display  = showing ? 'none' : '';
@@ -460,8 +446,8 @@ class TarotRoom extends PracticeRoom {
     }
 
     async _loadJournalLog() {
-        const user   = Core.state.currentUser;
-        const listEl = document.getElementById(`${this.roomId}JournalLogList`);
+        const user    = Core.state.currentUser;
+        const listEl  = document.getElementById(`${this.roomId}JournalLogList`);
         if (!listEl || !user?.id) return;
         listEl.innerHTML = `<div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px;">Loading…</div>`;
 
@@ -482,15 +468,15 @@ class TarotRoom extends PracticeRoom {
             listEl.innerHTML = data.map(row => `
                 <div id="jr-${row.id}" style="background:var(--background);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                        <span style="font-size:12px;font-weight:600;color:var(--accent);">${this._escapeHtml(row.card_name || '')} · ${row.date}</span>
+                        <span style="font-size:12px;font-weight:600;color:var(--accent);">${this._escHTML(row.card_name || '')} · ${row.date}</span>
                         <div style="display:flex;gap:10px;">
                             <button onclick="window.TarotRoom._editJournalEntry('${row.id}')" style="font-size:12px;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:0;">Edit</button>
                             <button onclick="window.TarotRoom._deleteJournalEntry('${row.id}')" style="font-size:12px;color:#e57373;background:none;border:none;cursor:pointer;padding:0;">Delete</button>
                         </div>
                     </div>
-                    <div id="jr-text-${row.id}" style="font-size:14px;line-height:1.6;color:var(--text);">${this._escapeHtml(row.reflection)}</div>
+                    <div id="jr-text-${row.id}" style="font-size:14px;line-height:1.6;color:var(--text);">${this._escHTML(row.reflection)}</div>
                     <div id="jr-edit-${row.id}" style="display:none;">
-                        <textarea style="width:100%;box-sizing:border-box;padding:8px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface);color:var(--text);font-size:14px;line-height:1.5;resize:vertical;min-height:80px;font-family:inherit;margin-top:8px;">${this._escapeHtml(row.reflection)}</textarea>
+                        <textarea style="width:100%;box-sizing:border-box;padding:8px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface);color:var(--text);font-size:14px;line-height:1.5;resize:vertical;min-height:80px;font-family:inherit;margin-top:8px;">${this._escHTML(row.reflection)}</textarea>
                         <div style="display:flex;gap:8px;margin-top:6px;">
                             <button onclick="window.TarotRoom._saveEditedEntry('${row.id}')" style="padding:5px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-md);font-size:13px;font-weight:600;cursor:pointer;">Save</button>
                             <button onclick="window.TarotRoom._cancelEditEntry('${row.id}')" style="padding:5px 14px;background:none;border:1px solid var(--border);border-radius:var(--radius-md);font-size:13px;cursor:pointer;color:var(--text-muted);">Cancel</button>
@@ -541,13 +527,14 @@ class TarotRoom extends PracticeRoom {
         }
     }
 
+
     async _submitInterpretation() {
         const input = document.getElementById(`${this.roomId}InterpInput`);
         const text  = input?.value?.trim();
         if (!text) return;
 
-        const user  = Core.state.currentUser;
-        const card  = this.state.dailyCard;
+        const user = Core.state.currentUser;
+        const card = this.state.dailyCard;
         const today = new Date().toISOString().slice(0,10);
 
         try {
@@ -573,11 +560,8 @@ class TarotRoom extends PracticeRoom {
         const list  = document.getElementById(`${this.roomId}InterpList`);
         if (!list || !card) return;
 
-        // Purge old entries once per session, not on every load
-        if (!this._interpPurgedToday) {
-            this._interpPurgedToday = true;
-            CommunityDB._sb.from('tarot_interpretations').delete().lt('date', today).then(() => {});
-        }
+        // Purge yesterday's (and older) entries — first visitor of the day cleans up silently
+        CommunityDB._sb.from('tarot_interpretations').delete().lt('date', today).then(() => {});
 
         try {
             const { data, error } = await CommunityDB._sb
@@ -597,8 +581,8 @@ class TarotRoom extends PracticeRoom {
 
             list.innerHTML = data.map(row => `
                 <div style="display:flex;gap:10px;align-items:baseline;padding:8px 10px;background:var(--background);border-radius:var(--radius-md);border:1px solid var(--border);">
-                    <span style="font-size:12px;font-weight:600;color:var(--accent);white-space:nowrap;flex-shrink:0;">${this._escapeHtml(row.display_name)}</span>
-                    <span style="font-size:14px;line-height:1.5;color:var(--text);">${this._escapeHtml(row.interpretation)}</span>
+                    <span style="font-size:12px;font-weight:600;color:var(--accent);white-space:nowrap;flex-shrink:0;">${this._escHTML(row.display_name)}</span>
+                    <span style="font-size:14px;line-height:1.5;color:var(--text);">${this._escHTML(row.interpretation)}</span>
                 </div>`).join('');
         } catch (e) {
             console.warn('[TarotRoom] load interpretations failed', e);
@@ -606,42 +590,60 @@ class TarotRoom extends PracticeRoom {
         }
     }
 
-    // ── Tab hook (replaces switchTab override) ────────────────────────────────
-
-    /** Called by TabRoomMixin.switchTab when personal tab is activated. */
-    onPersonalTabEnter() {
-        if (!this._personalDataLoaded) {
-            this._loadDrawHistory();
-            this._loadMastery();
-        }
+    _escHTML(str) {
+        return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    // ── Personal draws ────────────────────────────────────────────────────────
+    // Override _renderParticipantList to use campfire-participant classes
+    // (PracticeRoom base already does this, but we re-declare to be safe)
+    _renderParticipantList(listEl, participants) {
+        if (!participants.length) {
+            listEl.innerHTML = `<div style="color:var(--text-muted);font-size:13px;padding:8px;">Just you here 🕯️</div>`;
+            return;
+        }
+        listEl.innerHTML = participants.map(p => {
+            const profile   = p.profiles || {};
+            const userId    = p.user_id || profile.id || '';
+            const name      = profile.name      || 'Member';
+            const avatarUrl = profile.avatar_url || '';
+            const emoji     = profile.emoji      || '';
+            const gradient  = Core?.getAvatarGradient?.(userId || name) ?? 'linear-gradient(135deg,#667eea,#764ba2)';
+            const inner     = avatarUrl
+                ? `<img src="${avatarUrl}" referrerpolicy="no-referrer" style="width:40px;height:40px;min-width:40px;min-height:40px;object-fit:cover;border-radius:50%;display:block;" alt="${name}">`
+                : `<span style="color:white;font-weight:600;font-size:13px;">${emoji || name.charAt(0).toUpperCase()}</span>`;
+            const bg    = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
+            const click = userId ? `onclick="openMemberProfileAboveRoom('${userId}')"` : '';
+            return `
+            <div class="campfire-participant" ${click} style="${userId ? 'cursor:pointer;' : ''}">
+                <div class="campfire-participant-avatar" style="${bg}width:40px;height:40px;min-width:40px;min-height:40px;display:flex;align-items:center;justify-content:center;overflow:hidden;">${inner}</div>
+                <div class="campfire-participant-info">
+                    <div class="campfire-participant-name">${name}</div>
+                    <div class="campfire-participant-country">${p.activity || '✨ Available'}</div>
+                </div>
+            </div>`;
+        }).join('');
+    }
 
     drawPersonalCard() {
-        // Clear selects, shuffle existing deck (no rebuild needed)
+        // Random draw — clear selects, pick random card
         ['Major','Minor','Court'].forEach(s => {
             const el = document.getElementById(`${this.roomId}${s}Select`);
             if (el) el.value = '';
         });
-        const shuffled = this._shuffleDeck(this.state.personalDeck);
-        this._renderPersonalCard(shuffled[0]);
+        const deck = this._shuffleDeck(this._buildFullDeck());
+        this._renderPersonalCard(deck[0]);
     }
 
     _renderPersonalCard(card) {
         const container = document.getElementById(`${this.roomId}PersonalCardContainer`);
         const enriched  = document.getElementById(`${this.roomId}PersonalEnrichedSections`);
         if (container) container.innerHTML = this._buildCardDisplay(card);
-        if (enriched)  enriched.innerHTML  = this._getEnrichedHTML(card, false);
+        if (enriched)  enriched.innerHTML  = this._buildEnrichedSections(card, false);
         container?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Log draw and refresh progress
         this._logDraw(card);
-        // Mark personal data stale so history/mastery reload on next view
-        this._personalDataLoaded = false;
-        // If already on personal tab, reload immediately
-        if (this.state.currentTab === 'personal') {
-            this._loadDrawHistory();
-            this._loadMastery();
-        }
+        this._loadDrawHistory();
+        this._loadMastery();
     }
 
     _cardKey(card) {
@@ -696,13 +698,11 @@ class TarotRoom extends PracticeRoom {
                 <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface);border-radius:var(--radius-md);border:1px solid var(--border);">
                     <div style="display:flex;align-items:center;gap:8px;">
                         <span style="font-size:16px;">${typeIcon[row.card_type] || '🃏'}</span>
-                        <span style="font-size:14px;font-weight:500;">${this._escapeHtml(row.card_name)}</span>
+                        <span style="font-size:14px;font-weight:500;">${this._escHTML(row.card_name)}</span>
                     </div>
                     <span style="font-size:11px;color:var(--text-muted);white-space:nowrap;">${date} · ${time}</span>
                 </div>`;
             }).join('');
-
-            this._personalDataLoaded = true;
         } catch(e) {
             console.warn('[TarotRoom] loadDrawHistory failed', e);
         }
@@ -722,18 +722,18 @@ class TarotRoom extends PracticeRoom {
                 .eq('user_id', cu.id)
                 .eq('card_type', 'major');
 
-            const seen  = new Set((data || []).map(r => r.card_key));
+            const seen = new Set((data || []).map(r => r.card_key));
             const total = 22;
             const count = seen.size;
             const pct   = Math.round((count / total) * 100);
 
-            if (countEl)    countEl.textContent    = `${count} / ${total}`;
+            if (countEl)    countEl.textContent = `${count} / ${total}`;
             if (progressEl) progressEl.style.width = `${pct}%`;
 
             if (cardsEl) {
                 const names = this.MAJOR_ARCANA_NAMES || {};
                 cardsEl.innerHTML = Object.entries(names).map(([n, name]) => {
-                    const key    = `major-${n}`;
+                    const key   = `major-${n}`;
                     const isSeen = seen.has(key);
                     return `<span style="padding:3px 8px;border-radius:12px;font-size:12px;border:1px solid var(--border);
                         background:${isSeen ? 'var(--neuro-accent)' : 'transparent'};
@@ -754,7 +754,6 @@ class TarotRoom extends PracticeRoom {
         if (!confirm('Clear your entire draw history? This cannot be undone.')) return;
         try {
             await CommunityDB._sb.from('tarot_draws').delete().eq('user_id', cu.id);
-            this._personalDataLoaded = false;
             this._loadDrawHistory();
             this._loadMastery();
             Core.showToast('Draw history cleared');
@@ -766,10 +765,7 @@ class TarotRoom extends PracticeRoom {
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     onEnter() {
-        // Build/reuse personal deck
-        if (!this.state.personalDeck.length) {
-            this.state.personalDeck = this._buildFullDeck();
-        }
+        this.state.personalDeck = this._buildFullDeck();
 
         if (this._tarotDataReady) {
             this._drawAndRenderDaily();
@@ -778,7 +774,7 @@ class TarotRoom extends PracticeRoom {
         }
 
         this.initializeChat();
-        // Participant sidebar is handled by PracticeRoom.enterRoom() — no duplicate call needed.
+        this._refreshParticipantSidebar(`${this.roomId}ParticipantListEl`, `${this.roomId}ParticipantCount`);
         requestAnimationFrame(() => document.querySelector(`#${this.roomId}View .tarot-main`)?.scrollTo(0, 0));
     }
 
@@ -809,6 +805,7 @@ class TarotRoom extends PracticeRoom {
                 <div style="color:var(--text-muted);font-size:14px;padding:40px;">Loading today's card…</div>
             </div>
         </div>
+        <!-- Enriched sections injected here after card loads -->
         <div id="${this.roomId}EnrichedSections"></div>
         <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:12px 8px 24px;" class="tarot-daily-grid">
             <div>
@@ -822,13 +819,15 @@ class TarotRoom extends PracticeRoom {
     }
 
     _buildPersonalTab() {
-        const cn     = this.getClassName();
+        const cn = this.getClassName();
         const roomId = this.roomId;
 
+        // Major Arcana options
         const majorOptions = Object.entries(this.MAJOR_ARCANA_NAMES || {})
             .map(([n, name]) => `<option value="major:${n}">${name}</option>`).join('');
 
-        const suits      = ['pentacles','swords','cups','wands'];
+        // Minor Arcana options grouped by suit
+        const suits = ['pentacles','swords','cups','wands'];
         const suitLabels = { pentacles:'Pentacles', swords:'Swords', cups:'Cups', wands:'Wands' };
         const numberNames = {1:'Ace',2:'Two',3:'Three',4:'Four',5:'Five',6:'Six',7:'Seven',8:'Eight',9:'Nine',10:'Ten'};
         const minorOptions = suits.map(suit =>
@@ -839,7 +838,8 @@ class TarotRoom extends PracticeRoom {
             }</optgroup>`
         ).join('');
 
-        const courtRanks  = {11:'Page',12:'Knight',13:'Queen',14:'King'};
+        // Court Cards options grouped by suit
+        const courtRanks = {11:'Page',12:'Knight',13:'Queen',14:'King'};
         const courtOptions = suits.map(suit =>
             `<optgroup label="${suitLabels[suit]}">${
                 Object.entries(courtRanks)
@@ -849,6 +849,7 @@ class TarotRoom extends PracticeRoom {
         ).join('');
 
         const selectStyle = 'width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:var(--radius-md);background:var(--surface);color:var(--text);font-size:14px;cursor:pointer;';
+        const labelStyle = 'font-weight:600;font-size:13px;color:var(--text-muted);margin-bottom:6px;display:block;';
 
         return `
         <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:16px;">
@@ -857,6 +858,7 @@ class TarotRoom extends PracticeRoom {
                 Solo Card Learning
             </h3>
 
+            <!-- Selectors -->
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
                 <div>
                     <label style="font-weight:700;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Major Arcana</label>
@@ -884,6 +886,7 @@ class TarotRoom extends PracticeRoom {
                 </div>
             </div>
 
+            <!-- Random Draw button -->
             <div style="text-align:center;margin-bottom:24px;">
                 <button onclick="${cn}.drawPersonalCard()"
                         style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:linear-gradient(135deg,var(--neuro-accent),var(--neuro-accent-light));color:white;border:none;border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:15px;letter-spacing:0.5px;box-shadow:var(--shadow-raised);">
@@ -891,10 +894,13 @@ class TarotRoom extends PracticeRoom {
                 </button>
             </div>
 
+            <!-- Card display area -->
             <div id="${roomId}PersonalCardContainer" style="display:flex;flex-direction:column;align-items:center;"></div>
             <div id="${roomId}PersonalEnrichedSections"></div>
 
+            <!-- Progress & History -->
             <div style="margin-top:32px;display:flex;flex-direction:column;gap:20px;">
+
                 <!-- Mastery Tracker -->
                 <div style="border:2px solid var(--border);border-radius:var(--radius-lg);padding:20px;background:var(--background);">
                     <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Major Arcana Mastery</h4>
@@ -922,18 +928,22 @@ class TarotRoom extends PracticeRoom {
                         <span style="color:var(--text-muted);font-size:13px;">No cards drawn yet.</span>
                     </div>
                 </div>
+
             </div>
         </div>`;
     }
 
     _onPersonalSelectChange(source) {
         const roomId = this.roomId;
+        const cn = this.getClassName();
+        // Clear other selects
         ['Major','Minor','Court'].forEach(s => {
             if (s.toLowerCase() !== source) {
                 const el = document.getElementById(`${roomId}${s}Select`);
                 if (el) el.value = '';
             }
         });
+        // Get selected value
         const selectEl = document.getElementById(`${roomId}${source.charAt(0).toUpperCase()+source.slice(1)}Select`);
         if (!selectEl?.value) return;
         const parts = selectEl.value.split(':');
@@ -946,6 +956,26 @@ class TarotRoom extends PracticeRoom {
             card = { type:'court', number: parseInt(parts[1]), suit: parts[2] };
         }
         this._renderPersonalCard(card);
+    }
+
+    switchTab(tabName) {
+        // Call inherited
+        const dailyTab    = document.getElementById(`${this.roomId}DailyTab`);
+        const personalTab = document.getElementById(`${this.roomId}PersonalTab`);
+        const dailyBtn    = document.getElementById(`${this.roomId}TabDaily`);
+        const personalBtn = document.getElementById(`${this.roomId}TabPersonal`);
+        if (!dailyTab || !personalTab || !dailyBtn || !personalBtn) return;
+        const isDaily = tabName === 'daily';
+        dailyTab.style.display    = isDaily ? 'block' : 'none';
+        personalTab.style.display = isDaily ? 'none'  : 'block';
+        this._styleTab(dailyBtn,    isDaily);
+        this._styleTab(personalBtn, !isDaily);
+        this.state.currentTab = tabName;
+        // Load progress when switching to personal tab
+        if (tabName === 'personal') {
+            this._loadDrawHistory();
+            this._loadMastery();
+        }
     }
 
     getInstructions() {

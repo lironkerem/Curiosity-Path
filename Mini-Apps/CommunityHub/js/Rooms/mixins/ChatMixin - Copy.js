@@ -7,9 +7,6 @@
  * Channel → room_id mapping:
  *   'main'            → this.roomId            (e.g. 'campfire')
  *   'daily'/'personal' → this.roomId-channel   (e.g. 'tarot-daily')
- *
- * NOTE: This mixin provides the canonical _escapeHtml() implementation.
- * Do NOT redefine it in room subclasses.
  */
 
 import { Core } from '../../core.js';
@@ -295,10 +292,6 @@ const ChatMixin = {
 
     capitalize: _cap,
 
-    /**
-     * Canonical HTML escape utility.
-     * Available to all rooms via mixin — do NOT redefine in subclasses.
-     */
     _escapeHtml(str) {
         if (!str || typeof str !== 'string') return '';
         const div = document.createElement('div');

@@ -7,9 +7,6 @@
  * Expects elements with IDs:
  *   ${roomId}DailyTab      / ${roomId}PersonalTab     - content panels
  *   ${roomId}TabDaily      / ${roomId}TabPersonal      - nav buttons
- *
- * Override onPersonalTabEnter() in your room class to run side-effects
- * when the personal tab is activated (e.g. load mastery data).
  */
 
 const TabRoomMixin = {
@@ -27,11 +24,6 @@ const TabRoomMixin = {
         this._styleTab(dailyBtn,    isDaily);
         this._styleTab(personalBtn, !isDaily);
         this.state.currentTab = tabName;
-
-        // Hook for room-specific side-effects on personal tab activation
-        if (tabName === 'personal' && typeof this.onPersonalTabEnter === 'function') {
-            this.onPersonalTabEnter();
-        }
     },
 
     _styleTab(btn, isActive) {
