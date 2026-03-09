@@ -177,9 +177,11 @@ const ChatMixin = {
 
     buildMessageHTML(msgData) {
         const avatarInner = msgData.avatarUrl
-            ? `<img src="${msgData.avatarUrl}" style="width:36px;height:36px;object-fit:cover;border-radius:50%;display:block;flex-shrink:0;" alt="${msgData.name}">`
+            ? ``
             : `<span style="color:white;font-size:13px;font-weight:600;line-height:1;">${msgData.initial}</span>`;
-        const avatarBg = msgData.avatarUrl ? 'background:transparent;' : `background:${msgData.avatarBg};`;
+        const avatarBg = msgData.avatarUrl
+            ? `background-image:url('${msgData.avatarUrl}');background-size:cover;background-position:center;`
+            : `background:${msgData.avatarBg};`;
 
         const nameEl = msgData.userId
             ? `<span class="campfire-msg-name" style="cursor:pointer;" onclick="openMemberProfileAboveRoom('${msgData.userId}')">${msgData.name}</span>`
