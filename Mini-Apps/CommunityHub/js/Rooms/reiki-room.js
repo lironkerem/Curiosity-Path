@@ -540,7 +540,7 @@ class ReikiRoom extends PracticeRoom {
             <div id="${this.roomId}MasteryChakras" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">
                 <span style="color:var(--text-muted);font-size:13px;">Loading…</span>
             </div>
-        </div>\`;
+        </div>`;
     }
 
     // ── Journal ──────────────────────────────────────────────────────────────
