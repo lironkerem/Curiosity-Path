@@ -89,7 +89,7 @@ class DeepWorkRoom extends PracticeRoom {
         this._clearInterval();
         this.state.timerRunning = false;
         this._setTimerBtn('paused'); // shows 'Continue' via _BTN_LABEL
-        this._setTimerGlow(false);
+        this._setTimerGlow('paused');
         this._switchToBreak();
     }
 
@@ -101,7 +101,7 @@ class DeepWorkRoom extends PracticeRoom {
         const btn = document.getElementById(`${this.roomId}TimerBtn`);
         if (btn) btn.textContent = 'Break';
 
-        this._setTimerGlow(true);
+        this._setTimerGlow('running');
 
         this._timerInterval = setInterval(() => {
             this.state.timeLeft--;

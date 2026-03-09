@@ -39,7 +39,7 @@ const TimerMixin = {
         if (this.state.timerRunning) return;
         this.state.timerRunning = true;
         this._setTimerBtn('running');
-        this._setTimerGlow(true);
+        this._setTimerGlow('running');
 
         this._timerInterval = setInterval(() => {
             this.state.timeLeft--;
@@ -59,8 +59,7 @@ const TimerMixin = {
         this._clearInterval();
         this.state.timerRunning = false;
         this._setTimerBtn('paused');
-        this._setTimerGlow(false);
-        Core.showToast('Timer paused');
+        this._setTimerGlow('paused');
     },
 
     completeTimer() {
@@ -69,7 +68,7 @@ const TimerMixin = {
         this.state.timeLeft     = 0;
         this._setTimerBtn('done');
         this._updateTimer();
-        this._setTimerGlow(false);
+        this._setTimerGlow('idle');
         this.playCompletionSound?.();
         Core.showToast('Session complete!');
         this.onTimerComplete?.();
@@ -81,7 +80,7 @@ const TimerMixin = {
         this.state.timeLeft     = this.state.initialTime;
         this._setTimerBtn('idle');
         this._updateTimer();
-        this._setTimerGlow(false);
+        this._setTimerGlow('idle');
     },
 
     adjustTime(minutes) {
@@ -148,9 +147,9 @@ const TimerMixin = {
         // Inner comet ring — almost touching outer (outer r=180, stroke=14 → inner edge at ~173)
         const _INNER_R  = 163;
         const _INNER_C  = +(2 * Math.PI * _INNER_R).toFixed(2);
-        // Comet head: ~18° arc; trail: ~60° arc
-        const HEAD_LEN  = +(_INNER_C * 18  / 360).toFixed(2); // ~51px
-        const TRAIL_LEN = +(_INNER_C * 60  / 360).toFixed(2); // ~171px
+        // Comet head: ~35° arc; trail: ~120° arc
+        const HEAD_LEN  = +(_INNER_C * 35  / 360).toFixed(2);
+        const TRAIL_LEN = +(_INNER_C * 120 / 360).toFixed(2);
         const GAP       = +(_INNER_C - HEAD_LEN).toFixed(2);
         const TRAIL_GAP = +(_INNER_C - TRAIL_LEN).toFixed(2);
 
@@ -195,6 +194,17 @@ const TimerMixin = {
             #${this.roomId}TimerRingWrap.running #${this.roomId}CometTrail {
                 animation-play-state: running;
             }
+            /* Comet: hidden until timer starts, freezes on pause, hides on reset */
+            #${this.roomId}CometSvg {
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+            #${this.roomId}TimerRingWrap.running #${this.roomId}CometSvg {
+                opacity: 1;
+            }
+            #${this.roomId}TimerRingWrap.paused #${this.roomId}CometSvg {
+                opacity: 1; /* visible but animation is paused = frozen */
+            }
             #${this.roomId}TimerDisplay {
                 font-variant-numeric: tabular-nums;
             }
@@ -225,7 +235,8 @@ const TimerMixin = {
             </svg>
 
             <!-- Inner comet ring -->
-            <svg width="100%" height="100%" viewBox="0 0 400 400"
+            <svg id="${this.roomId}CometSvg"
+                 width="100%" height="100%" viewBox="0 0 400 400"
                  style="transform:rotate(-90deg);position:absolute;top:0;left:0;z-index:3;">
                 <!-- Dark track -->
                 <circle cx="200" cy="200" r="${_INNER_R}"
@@ -266,10 +277,14 @@ const TimerMixin = {
         </div>`;
     },
 
-    /** Toggle glow animation on the ring wrap when timer starts/stops. */
-    _setTimerGlow(running) {
-        document.getElementById(`${this.roomId}TimerRingWrap`)
-            ?.classList.toggle('running', running);
+    /** Toggle glow + comet visibility. state: 'running' | 'paused' | 'idle' */
+    _setTimerGlow(state) {
+        const wrap = document.getElementById(`${this.roomId}TimerRingWrap`);
+        if (!wrap) return;
+        wrap.classList.remove('running', 'paused');
+        if (state === 'running') wrap.classList.add('running');
+        if (state === 'paused')  wrap.classList.add('paused');
+        // 'idle' → neither class → comet hidden
     },
 };
 
