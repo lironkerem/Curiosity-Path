@@ -623,13 +623,137 @@ class TarotRoom extends PracticeRoom {
     }
 
     drawPersonalCard() {
-        if (this.state.personalDrawn) { Core.showToast('You already drew your card'); return; }
-        this.state.personalDeck  = this._shuffleDeck(this.state.personalDeck);
-        const card = this.state.personalDeck.pop();
-        this.state.personalDrawn = true;
+        // Random draw — clear selects, pick random card
+        ['Major','Minor','Court'].forEach(s => {
+            const el = document.getElementById(`${this.roomId}${s}Select`);
+            if (el) el.value = '';
+        });
+        const deck = this._shuffleDeck(this._buildFullDeck());
+        this._renderPersonalCard(deck[0]);
+    }
+
+    _renderPersonalCard(card) {
         const container = document.getElementById(`${this.roomId}PersonalCardContainer`);
+        const enriched  = document.getElementById(`${this.roomId}PersonalEnrichedSections`);
         if (container) container.innerHTML = this._buildCardDisplay(card);
-        Core.showToast('Card drawn');
+        if (enriched)  enriched.innerHTML  = this._buildEnrichedSections(card);
+        container?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Log draw and refresh progress
+        this._logDraw(card);
+        this._loadDrawHistory();
+        this._loadMastery();
+    }
+
+    _cardKey(card) {
+        if (card.suit === 'major') return `major-${card.number}`;
+        if (card.number <= 10)    return `minor-${card.number}-${card.suit}`;
+        return `court-${card.number}-${card.suit}`;
+    }
+
+    async _logDraw(card) {
+        if (!CommunityDB._sb) return;
+        const cu = Core?.state?.currentUser;
+        if (!cu?.id) return;
+        const name = this.getCardName(card.number, card.suit);
+        const type = card.suit === 'major' ? 'major' : card.number <= 10 ? 'minor' : 'court';
+        try {
+            await CommunityDB._sb.from('tarot_draws').insert({
+                user_id:   cu.id,
+                card_key:  this._cardKey(card),
+                card_name: name,
+                card_type: type,
+            });
+        } catch(e) {
+            console.warn('[TarotRoom] logDraw failed', e);
+        }
+    }
+
+    async _loadDrawHistory() {
+        const el = document.getElementById(`${this.roomId}DrawHistory`);
+        if (!el || !CommunityDB._sb) return;
+        const cu = Core?.state?.currentUser;
+        if (!cu?.id) return;
+        try {
+            const { data } = await CommunityDB._sb
+                .from('tarot_draws')
+                .select('card_name, card_type, drawn_at')
+                .eq('user_id', cu.id)
+                .order('drawn_at', { ascending: false })
+                .limit(50);
+            if (!data?.length) {
+                el.innerHTML = `<span style="color:var(--text-muted);font-size:13px;">No cards drawn yet.</span>`;
+                return;
+            }
+            const typeIcon = { major:'✨', minor:'🌱', court:'👑' };
+            el.innerHTML = data.map(row => {
+                const date = new Date(row.drawn_at).toLocaleDateString([], { month:'short', day:'numeric', year:'numeric' });
+                const time = new Date(row.drawn_at).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+                return `
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface);border-radius:var(--radius-md);border:1px solid var(--border);">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="font-size:16px;">${typeIcon[row.card_type] || '🃏'}</span>
+                        <span style="font-size:14px;font-weight:500;">${this._escHTML(row.card_name)}</span>
+                    </div>
+                    <span style="font-size:11px;color:var(--text-muted);white-space:nowrap;">${date} · ${time}</span>
+                </div>`;
+            }).join('');
+        } catch(e) {
+            console.warn('[TarotRoom] loadDrawHistory failed', e);
+        }
+    }
+
+    async _loadMastery() {
+        const countEl    = document.getElementById(`${this.roomId}MasteryCount`);
+        const progressEl = document.getElementById(`${this.roomId}MasteryProgress`);
+        const cardsEl    = document.getElementById(`${this.roomId}MasteryCards`);
+        if (!countEl || !CommunityDB._sb) return;
+        const cu = Core?.state?.currentUser;
+        if (!cu?.id) return;
+        try {
+            const { data } = await CommunityDB._sb
+                .from('tarot_draws')
+                .select('card_key')
+                .eq('user_id', cu.id)
+                .eq('card_type', 'major');
+
+            const seen = new Set((data || []).map(r => r.card_key));
+            const total = 22;
+            const count = seen.size;
+            const pct   = Math.round((count / total) * 100);
+
+            if (countEl)    countEl.textContent = `${count} / ${total}`;
+            if (progressEl) progressEl.style.width = `${pct}%`;
+
+            if (cardsEl) {
+                const names = this.MAJOR_ARCANA_NAMES || {};
+                cardsEl.innerHTML = Object.entries(names).map(([n, name]) => {
+                    const key   = `major-${n}`;
+                    const isSeen = seen.has(key);
+                    return `<span style="padding:3px 8px;border-radius:12px;font-size:12px;border:1px solid var(--border);
+                        background:${isSeen ? 'var(--neuro-accent)' : 'transparent'};
+                        color:${isSeen ? 'white' : 'var(--text-muted)'};
+                        opacity:${isSeen ? '1' : '0.6'};"
+                        title="${name}">${isSeen ? '✓ ' : ''}${name}</span>`;
+                }).join('');
+            }
+        } catch(e) {
+            console.warn('[TarotRoom] loadMastery failed', e);
+        }
+    }
+
+    async _clearDrawHistory() {
+        if (!CommunityDB._sb) return;
+        const cu = Core?.state?.currentUser;
+        if (!cu?.id) return;
+        if (!confirm('Clear your entire draw history? This cannot be undone.')) return;
+        try {
+            await CommunityDB._sb.from('tarot_draws').delete().eq('user_id', cu.id);
+            this._loadDrawHistory();
+            this._loadMastery();
+            Core.showToast('Draw history cleared');
+        } catch(e) {
+            console.warn('[TarotRoom] clearDrawHistory failed', e);
+        }
     }
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
@@ -689,16 +813,163 @@ class TarotRoom extends PracticeRoom {
     }
 
     _buildPersonalTab() {
+        const cn = this.getClassName();
+        const roomId = this.roomId;
+
+        // Major Arcana options
+        const majorOptions = Object.entries(this.MAJOR_ARCANA_NAMES || {})
+            .map(([n, name]) => `<option value="major:${n}">${name}</option>`).join('');
+
+        // Minor Arcana options grouped by suit
+        const suits = ['pentacles','swords','cups','wands'];
+        const suitLabels = { pentacles:'Pentacles', swords:'Swords', cups:'Cups', wands:'Wands' };
+        const numberNames = {1:'Ace',2:'Two',3:'Three',4:'Four',5:'Five',6:'Six',7:'Seven',8:'Eight',9:'Nine',10:'Ten'};
+        const minorOptions = suits.map(suit =>
+            `<optgroup label="${suitLabels[suit]}">${
+                Array.from({length:10},(_,i)=>i+1)
+                    .map(n=>`<option value="minor:${n}:${suit}">${numberNames[n]} of ${suitLabels[suit]}</option>`)
+                    .join('')
+            }</optgroup>`
+        ).join('');
+
+        // Court Cards options grouped by suit
+        const courtRanks = {11:'Page',12:'Knight',13:'Queen',14:'King'};
+        const courtOptions = suits.map(suit =>
+            `<optgroup label="${suitLabels[suit]}">${
+                Object.entries(courtRanks)
+                    .map(([n,rank])=>`<option value="court:${n}:${suit}">${rank} of ${suitLabels[suit]}</option>`)
+                    .join('')
+            }</optgroup>`
+        ).join('');
+
+        const selectStyle = 'width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:var(--radius-md);background:var(--surface);color:var(--text);font-size:14px;cursor:pointer;';
+        const labelStyle = 'font-weight:600;font-size:13px;color:var(--text-muted);margin-bottom:6px;display:block;';
+
         return `
-        <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:16px;">
-            <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect x="2" y="4" width="14" height="18" rx="2"/><rect x="8" y="2" width="14" height="18" rx="2"/></svg> Solo Card Learning</h3>
-            <div id="${this.roomId}PersonalCardContainer" style="display:flex;flex-direction:column;align-items:center;gap:16px;min-height:200px;justify-content:center;">
-                <button id="${this.roomId}DrawBtn" onclick="${this.getClassName()}.drawPersonalCard()"
-                        style="padding:16px 32px;border:2px solid var(--border);background:var(--surface);border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:16px;">
-                    Draw Your Card
+        <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:16px;">
+            <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 24px 0;text-align:center;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect x="2" y="4" width="14" height="18" rx="2"/><rect x="8" y="2" width="14" height="18" rx="2"/></svg>
+                Solo Card Learning
+            </h3>
+
+            <!-- Selectors -->
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
+                <div>
+                    <label style="${labelStyle}">✨ Major Arcana</label>
+                    <select id="${roomId}MajorSelect" style="${selectStyle}"
+                            onchange="${cn}._onPersonalSelectChange('major')">
+                        <option value="">— Select —</option>
+                        ${majorOptions}
+                    </select>
+                </div>
+                <div>
+                    <label style="${labelStyle}">🌱 Minor Arcana</label>
+                    <select id="${roomId}MinorSelect" style="${selectStyle}"
+                            onchange="${cn}._onPersonalSelectChange('minor')">
+                        <option value="">— Select —</option>
+                        ${minorOptions}
+                    </select>
+                </div>
+                <div>
+                    <label style="${labelStyle}">👑 Court Cards</label>
+                    <select id="${roomId}CourtSelect" style="${selectStyle}"
+                            onchange="${cn}._onPersonalSelectChange('court')">
+                        <option value="">— Select —</option>
+                        ${courtOptions}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Random Draw button -->
+            <div style="text-align:center;margin-bottom:24px;">
+                <button onclick="${cn}.drawPersonalCard()"
+                        style="padding:12px 32px;background:linear-gradient(135deg,var(--neuro-accent),var(--neuro-accent-light));color:white;border:none;border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:15px;letter-spacing:0.5px;">
+                    🔀 Random Draw
                 </button>
             </div>
+
+            <!-- Card display area -->
+            <div id="${roomId}PersonalCardContainer"></div>
+            <div id="${roomId}PersonalEnrichedSections"></div>
+
+            <!-- Progress & History -->
+            <div style="margin-top:32px;display:flex;flex-direction:column;gap:20px;">
+
+                <!-- Mastery Tracker -->
+                <div style="border:2px solid var(--border);border-radius:var(--radius-lg);padding:20px;background:var(--background);">
+                    <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;">🌟 Major Arcana Mastery</h4>
+                    <div id="${roomId}MasteryBar" style="margin-bottom:12px;">
+                        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:6px;">
+                            <span>Cards Discovered</span>
+                            <span id="${roomId}MasteryCount">Loading…</span>
+                        </div>
+                        <div style="height:8px;border-radius:4px;background:var(--border);overflow:hidden;">
+                            <div id="${roomId}MasteryProgress" style="height:100%;border-radius:4px;background:linear-gradient(90deg,var(--neuro-accent),var(--neuro-accent-light));width:0%;transition:width 0.5s ease;"></div>
+                        </div>
+                    </div>
+                    <div id="${roomId}MasteryCards" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;">
+                        <span style="color:var(--text-muted);font-size:13px;">Loading…</span>
+                    </div>
+                </div>
+
+                <!-- Draw History -->
+                <div style="border:2px solid var(--border);border-radius:var(--radius-lg);padding:20px;background:var(--background);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                        <h4 style="font-family:var(--serif);font-size:18px;margin:0;">📜 Cards You've Drawn</h4>
+                        <button onclick="${cn}._clearDrawHistory()" style="font-size:12px;color:var(--text-muted);background:none;border:1px solid var(--border);border-radius:var(--radius-md);padding:4px 10px;cursor:pointer;">Clear History</button>
+                    </div>
+                    <div id="${roomId}DrawHistory" style="max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;">
+                        <span style="color:var(--text-muted);font-size:13px;">No cards drawn yet.</span>
+                    </div>
+                </div>
+
+            </div>
         </div>`;
+    }
+
+    _onPersonalSelectChange(source) {
+        const roomId = this.roomId;
+        const cn = this.getClassName();
+        // Clear other selects
+        ['Major','Minor','Court'].forEach(s => {
+            if (s.toLowerCase() !== source) {
+                const el = document.getElementById(`${roomId}${s}Select`);
+                if (el) el.value = '';
+            }
+        });
+        // Get selected value
+        const selectEl = document.getElementById(`${roomId}${source.charAt(0).toUpperCase()+source.slice(1)}Select`);
+        if (!selectEl?.value) return;
+        const parts = selectEl.value.split(':');
+        let card;
+        if (parts[0] === 'major') {
+            card = { type:'major', number: parseInt(parts[1]), suit:'major' };
+        } else if (parts[0] === 'minor') {
+            card = { type:'minor', number: parseInt(parts[1]), suit: parts[2] };
+        } else {
+            card = { type:'court', number: parseInt(parts[1]), suit: parts[2] };
+        }
+        this._renderPersonalCard(card);
+    }
+
+    switchTab(tabName) {
+        // Call inherited
+        const dailyTab    = document.getElementById(`${this.roomId}DailyTab`);
+        const personalTab = document.getElementById(`${this.roomId}PersonalTab`);
+        const dailyBtn    = document.getElementById(`${this.roomId}TabDaily`);
+        const personalBtn = document.getElementById(`${this.roomId}TabPersonal`);
+        if (!dailyTab || !personalTab || !dailyBtn || !personalBtn) return;
+        const isDaily = tabName === 'daily';
+        dailyTab.style.display    = isDaily ? 'block' : 'none';
+        personalTab.style.display = isDaily ? 'none'  : 'block';
+        this._styleTab(dailyBtn,    isDaily);
+        this._styleTab(personalBtn, !isDaily);
+        this.state.currentTab = tabName;
+        // Load progress when switching to personal tab
+        if (tabName === 'personal') {
+            this._loadDrawHistory();
+            this._loadMastery();
+        }
     }
 
     getInstructions() {
