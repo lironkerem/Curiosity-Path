@@ -234,13 +234,17 @@ const TimerMixin = {
                         id="${this.roomId}TimerRing"/>
             </svg>
 
-            <!-- Inner comet ring -->
-            <svg id="${this.roomId}CometSvg"
-                 width="100%" height="100%" viewBox="0 0 400 400"
-                 style="transform:rotate(-90deg);position:absolute;top:0;left:0;z-index:3;">
-                <!-- Dark track -->
+            <!-- Inner dark track (always visible) -->
+            <svg width="100%" height="100%" viewBox="0 0 400 400"
+                 style="position:absolute;top:0;left:0;z-index:3;">
                 <circle cx="200" cy="200" r="${_INNER_R}"
                         fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="6"/>
+            </svg>
+
+            <!-- Inner comet ring (hidden until Start) -->
+            <svg id="${this.roomId}CometSvg"
+                 width="100%" height="100%" viewBox="0 0 400 400"
+                 style="transform:rotate(-90deg);position:absolute;top:0;left:0;z-index:4;">
                 <!-- Fading trail (neon blue, low opacity) -->
                 <circle cx="200" cy="200" r="${_INNER_R}"
                         fill="none" stroke="#00cfff"
@@ -257,7 +261,7 @@ const TimerMixin = {
             </svg>
 
             <!-- Text content -->
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:4;width:65%;">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:5;width:65%;">
                 <div id="${this.roomId}TimerDisplay"
                      style="font-size:clamp(2.8rem,12vw,5rem);font-weight:200;letter-spacing:0.04em;line-height:1;margin-bottom:10px;">
                     ${this.formatTime(this.state.timeLeft)}
