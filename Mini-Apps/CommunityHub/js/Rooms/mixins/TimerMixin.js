@@ -296,25 +296,27 @@ const TimerMixin = {
         clearTimeout(this._glowTransitionTimer);
         wrap.classList.remove('running', 'paused');
 
+        // Comet reacts immediately — set class right away
+        if (state === 'running') wrap.classList.add('running');
+        if (state === 'paused')  wrap.classList.add('paused');
+
         if (state === 'running') {
-            // Clear any previous animation:none override, then fade in
+            // Glow: fade in via transition, then hand off to CSS pulse animation
             svg.style.animation  = '';
             svg.style.transition = 'filter 1.2s ease';
             svg.style.filter     = `drop-shadow(0 0 12px ${this._glowColor}) drop-shadow(0 0 35px ${this._glowColor}) drop-shadow(0 0 70px ${this._glowColor})`;
             this._glowTransitionTimer = setTimeout(() => {
-                // Add class first (animation starts), then remove inline style on next frame
-                wrap.classList.add('running');
+                wrap.classList.add('running'); // ensure still running
                 requestAnimationFrame(() => {
                     svg.style.transition = '';
                     svg.style.filter     = '';
                 });
             }, 1200);
         } else {
-            // Stop animation, fade out
+            // Glow: fade out
             svg.style.animation  = 'none';
             svg.style.transition = 'filter 1.2s ease';
             svg.style.filter     = 'none';
-            if (state === 'paused') wrap.classList.add('paused');
         }
     },
 };
