@@ -212,7 +212,7 @@ const ChatMixin = {
         return `
         <div class="chat-container" id="${this.roomId}${cap}ChatContainer"
              style="display:flex;flex-direction:column;flex:1;">
-            <div class="chat-messages" id="${this.roomId}${cap}Messages" style="flex:1;"></div>
+            <div class="chat-messages" id="${this.roomId}${cap}Messages" style="flex:1;max-height:400px;overflow-y:auto;"></div>
             <div class="chat-input-container" style="padding-top:8px;border-top:none;padding-left:0;padding-right:0;padding-bottom:0;">
                 <div style="display:flex;align-items:center;gap:6px;width:100%;flex-wrap:nowrap;box-sizing:border-box;">
                     <div id="${avatarSlot}" style="flex-shrink:0;width:28px;height:28px;">
