@@ -220,14 +220,6 @@ class ReikiRoom extends PracticeRoom {
         });
     }
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
-
-    onEnter() {
-        this.initializeChat();
-        this._refreshParticipantSidebar(`${this.roomId}ParticipantListEl`, `${this.roomId}ParticipantCount`);
-        requestAnimationFrame(() => document.querySelector(`#${this.roomId}View .tarot-main`)?.scrollTo(0, 0));
-    }
-
     // ── Overrides ─────────────────────────────────────────────────────────────
 
     getClassName() { return 'ReikiRoom'; }
@@ -826,7 +818,7 @@ class ReikiRoom extends PracticeRoom {
         requestAnimationFrame(() => {
             document.querySelector(`#${this.roomId}View .tarot-main`)?.scrollTo(0, 0);
             this._loadCommunityEnergy();
-            if (this.state.currentTab === 'personal') this._loadChakraMastery();
+            this._loadChakraMastery();
         });
     }
 
