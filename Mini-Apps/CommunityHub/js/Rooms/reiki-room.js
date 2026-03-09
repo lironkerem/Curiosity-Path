@@ -40,7 +40,7 @@ class ReikiRoom extends PracticeRoom {
         this.DAY_MAP = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
         try {
-            const response = await fetch('/Mini-Apps/CommunityHub/js/Rooms/chakra-schedule.json');
+            const response = await fetch('/Mini-Apps/CommunityHub/js/Rooms/chakra-data.json');
             if (response.ok) {
                 this.CHAKRA_SCHEDULE = await response.json();
             } else {
@@ -341,6 +341,7 @@ class ReikiRoom extends PracticeRoom {
                  style="max-width:min(500px,calc(100% - 100px));width:100%;height:auto;border-radius:var(--radius-md);box-shadow:0 4px 12px rgba(0,0,0,0.1);display:block;flex:1 1 auto;min-width:0;">
             <button onclick="${onNext}" style="background:var(--surface);border:2px solid var(--border);border-radius:50%;width:40px;height:40px;min-width:40px;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">›</button>
         </div>
+        <h4 style="font-family:var(--serif);font-size:20px;margin:0 0 20px;text-align:center;">${chakra.name}</h4>
 
         <!-- ── Enriched card ── -->
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;">
@@ -376,7 +377,7 @@ class ReikiRoom extends PracticeRoom {
         <!-- ── Fundamental Truths & Visualization (standalone section) ── -->
         ${(chakra.fundamentalTruths?.length || chakra.visualization) ? `
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;">
-            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;margin-bottom:16px;text-align:center;">Fundamental Truths &amp; Visualization</div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;margin-bottom:16px;text-align:center;">Fundamental Truths</div>
             <div style="display:flex;flex-direction:column;gap:10px;">
                 ${(chakra.fundamentalTruths || []).map(t => `
                 <p style="font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.7;margin:0;text-align:center;color:var(--text);">"${t}"</p>`).join('')}
@@ -403,7 +404,7 @@ class ReikiRoom extends PracticeRoom {
             ${reflectionsHTML ? `
             <details ${issuesHTML ? 'style="border-top:1px solid var(--border);padding-top:8px;"' : ''}>
                 <summary style="cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.04em;color:var(--text-muted);text-transform:uppercase;list-style:none;display:flex;align-items:center;gap:6px;">
-                    <span>▶</span> 🌀 Guided Reflections for Clarity &amp; Growth
+                    <span>▶</span> Guided Reflections for Clarity &amp; Growth
                 </summary>
                 <p style="font-size:13px;color:var(--text-muted);margin:10px 0 12px 0;line-height:1.6;font-style:italic;">Take a few moments to reflect on each question. Let your answers flow naturally, without overthinking or judgment. There are no wrong answers here.</p>
                 <ul style="margin:0;padding:0;list-style:none;">
@@ -415,7 +416,7 @@ class ReikiRoom extends PracticeRoom {
         <!-- ── Today's Inquiry (moved below Guided Reflections) ── -->
         ${chakra.inquiry ? `
         <div style="background:var(--surface);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;text-align:center;">
-            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:700;margin-bottom:12px;">✨ ${isDaily ? "Today's" : 'Guiding'} Inquiry</div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:700;margin-bottom:12px;">${isDaily ? "Today's" : 'Guiding'} Inquiry</div>
             <p style="font-family:var(--serif);font-size:17px;line-height:1.7;margin:0 auto;max-width:520px;">"${chakra.inquiry}"</p>
         </div>` : ''}
 
