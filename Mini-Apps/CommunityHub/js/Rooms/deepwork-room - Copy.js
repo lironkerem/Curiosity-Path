@@ -6,7 +6,6 @@
 import { PracticeRoom } from './PracticeRoom.js';
 import { TimerMixin } from './mixins/TimerMixin.js';
 import { SoundSettingsMixin } from './mixins/SoundSettingsMixin.js';
-import { ChatMixin } from './mixins/ChatMixin.js';
 import { Core } from '../core.js';
 import { CommunityDB } from '../community-supabase.js';
 
@@ -27,7 +26,6 @@ class DeepWorkRoom extends PracticeRoom {
 
         this.initTimerState(1800);
         this.initSoundState();
-        this.initChatState(['main']);
 
         this.state.currentStatus    = 'deep-focus';
         this.state.lastFocusStatus  = 'deep-focus';
@@ -55,9 +53,9 @@ class DeepWorkRoom extends PracticeRoom {
             setTimeout(() => this.showInstructions(), 300);
         }
 
-        this.loadRoomChatFromDB('main');
-        this._injectSenderAvatar('main');
-        this._refreshParticipantSidebar(`${this.roomId}ParticipantListEl`, `${this.roomId}ParticipantCount`);
+        this._loadBreakChat();
+        this._injectChatAvatar();
+        this._refreshParticipantSidebar(`${this.roomId}ParticipantsList`, `${this.roomId}SidebarCount`);
 
         requestAnimationFrame(() => {
             document.querySelector(`#${this.roomId}View .ps-main`)?.scrollTo(0, 0);
@@ -145,19 +143,17 @@ class DeepWorkRoom extends PracticeRoom {
             btn.style.border     = `2px solid ${active ? 'var(--accent)' : 'var(--border)'}`;
         });
 
-        const chatInput = document.getElementById(`${this.roomId}MainInput`);
-        const chatSend  = document.getElementById(`${this.roomId}MainSendBtn`);
-        const chatContainer = document.getElementById(`${this.roomId}MainChatContainer`);
-
+        const chatInput = document.getElementById(`${this.roomId}ChatInput`);
+        const chatSend  = document.getElementById(`${this.roomId}ChatSendBtn`);
         if (chatInput) {
             chatInput.disabled    = !isBreak;
-            chatInput.placeholder = isBreak ? 'Share during your break...' : 'Pause timer to chat';
+            chatInput.placeholder = isBreak ? 'Break chat...' : 'Pause timer to chat';
         }
         if (chatSend) chatSend.disabled = !isBreak;
-        if (chatContainer) {
-            chatContainer.style.opacity        = isBreak ? '1'      : '0.4';
-            chatContainer.style.pointerEvents  = isBreak ? 'auto'   : 'none';
-        }
+
+        const chatSection = document.getElementById(`${this.roomId}ChatSection`);
+        if (chatSection) chatSection.style.display = isBreak ? 'flex' : 'none';
+        if (isBreak) this._injectChatAvatar();
 
         Core.showToast(isBreak ? 'Break time - chat unlocked!' : `${this.getStatusText()}`);
     }
@@ -169,6 +165,102 @@ class DeepWorkRoom extends PracticeRoom {
     changeStatus(newStatus) {
         if (newStatus !== 'break') this.state.lastFocusStatus = newStatus;
         this._applyStatus(newStatus);
+    }
+
+    // ── Break chat ────────────────────────────────────────────────────────────
+
+    async _loadBreakChat() {
+        const container = document.getElementById(`${this.roomId}ChatMessages`);
+        if (!container || !CommunityDB?.ready) return;
+        try {
+            const [rows, blocked] = await Promise.all([
+                CommunityDB.getRoomMessages('deepwork', 50),
+                CommunityDB.getBlockedUsers(),
+            ]);
+            rows.filter(r => !blocked.has(r.profiles?.id))
+                .forEach(row => container.insertAdjacentHTML('beforeend', this._buildBreakMsgHTML(row)));
+            container.scrollTop = container.scrollHeight;
+
+            CommunityDB.subscribeToRoomChat('deepwork', async (newMsg) => {
+                if (newMsg.profiles?.id === Core?.state?.currentUser?.id) return;
+                const bl = await CommunityDB.getBlockedUsers();
+                if (bl.has(newMsg.profiles?.id)) return;
+                const c = document.getElementById(`${this.roomId}ChatMessages`);
+                if (c) { c.insertAdjacentHTML('beforeend', this._buildBreakMsgHTML(newMsg)); c.scrollTop = c.scrollHeight; }
+            });
+        } catch (e) {
+            console.error('[DeepWorkRoom] _loadBreakChat error:', e);
+        }
+    }
+
+    async sendChat() {
+        const input = document.getElementById(`${this.roomId}ChatInput`);
+        if (!input?.value.trim() || this.state.currentStatus !== 'break') return;
+        const text = input.value.trim();
+        input.value = '';
+        const container  = document.getElementById(`${this.roomId}ChatMessages`);
+        const optimistic = { message: text, created_at: new Date().toISOString(), _isOwn: true, profiles: { id: Core?.state?.currentUser?.id } };
+        if (container) { container.insertAdjacentHTML('beforeend', this._buildBreakMsgHTML(optimistic)); container.scrollTop = container.scrollHeight; }
+        if (CommunityDB?.ready) {
+            try { await CommunityDB.sendRoomMessage('deepwork', text); }
+            catch (e) { console.error('[DeepWorkRoom] sendChat error:', e); }
+        }
+    }
+
+    // ── Avatar helpers ────────────────────────────────────────────────────────
+
+    /**
+     * Build avatar HTML for a given user object + size.
+     * Shared by _buildBreakMsgHTML and _injectChatAvatar.
+     */
+    _buildAvatarHTML(name, avatarUrl, emoji, userId, size = 24) {
+        const initial  = emoji || name.charAt(0).toUpperCase();
+        const gradient = Core?.getAvatarGradient ? Core.getAvatarGradient(userId || name) : 'linear-gradient(135deg,#667eea,#764ba2)';
+        const inner    = avatarUrl
+            ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
+            : `<span style="color:white;font-weight:600;font-size:${Math.round(size*0.45)}px;">${initial}</span>`;
+        const bg = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
+        return `<div style="width:${size}px;height:${size}px;border-radius:50%;${bg}display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">${inner}</div>`;
+    }
+
+    _buildBreakMsgHTML(row) {
+        const profile   = row.profiles || {};
+        const isOwn     = row._isOwn || (profile.id === Core?.state?.currentUser?.id);
+        const name      = isOwn ? (Core?.state?.currentUser?.name || 'You') : (profile.name || 'Member');
+        const avatarUrl = isOwn ? (Core?.state?.currentUser?.avatar_url || '') : (profile.avatar_url || '');
+        const emoji     = isOwn ? (Core?.state?.currentUser?.emoji || '') : (profile.emoji || '');
+        const userId    = profile.id || null;
+        const clickable = userId && !isOwn;
+        const time      = new Date(row.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const text      = this._escapeHtml(row.message || '');
+        const nameEl    = clickable
+            ? `<span style="cursor:pointer;" onclick="openMemberProfileAboveRoom('${userId}')">${name}</span>`
+            : `<span>${name}</span>`;
+        const avatar    = this._buildAvatarHTML(name, avatarUrl, emoji, userId, 24);
+        const clickAttr = clickable ? `onclick="openMemberProfileAboveRoom('${userId}')" style="cursor:pointer;"` : '';
+
+        return `
+        <div style="margin-bottom:12px;padding:8px;background:var(--surface);border-radius:var(--radius-md);">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                <div ${clickAttr}>${avatar}</div>
+                <span style="font-size:11px;color:var(--text-muted);">${nameEl} · ${time}</span>
+            </div>
+            <div style="font-size:13px;padding-left:32px;">${text}</div>
+        </div>`;
+    }
+
+    _injectChatAvatar() {
+        const wrapper = document.getElementById(`${this.roomId}ChatAvatarWrapper`);
+        const user    = Core?.state?.currentUser;
+        if (!wrapper || !user) return;
+        wrapper.innerHTML = this._buildAvatarHTML(user.name || 'Me', user.avatar_url || '', user.emoji || '', user.id, 28);
+    }
+
+    _escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
     }
 
     // ── Setup modal ───────────────────────────────────────────────────────────
@@ -244,6 +336,31 @@ class DeepWorkRoom extends PracticeRoom {
         if (container) container.style.background = isDimmed ? 'rgba(0,0,0,0.85)' : 'transparent';
     }
 
+    // ── Chat toggle (mobile FAB) ───────────────────────────────────────────────
+
+    toggleChat() {
+        const sidebar = document.getElementById(`${this.roomId}Sidebar`);
+        const section = document.getElementById(`${this.roomId}ChatSection`);
+        if (!section) return;
+
+        const isVisible = section.style.display !== 'none';
+        if (isVisible) {
+            section.style.display = 'none';
+            if (sidebar && window.innerWidth <= 767) sidebar.style.display = 'none';
+        } else {
+            if (sidebar) {
+                if (window.innerWidth <= 767) {
+                    sidebar.style.cssText = `display:block !important;position:fixed;bottom:100px;right:16px;width:min(340px,calc(100vw - 32px));max-height:60vh;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);box-shadow:0 8px 32px rgba(0,0,0,0.3);z-index:199999;overflow:hidden;`;
+                } else {
+                    sidebar.style.removeProperty('display');
+                }
+            }
+            section.style.display       = 'flex';
+            section.style.flexDirection = 'column';
+            this._injectChatAvatar();
+        }
+    }
+
     // ── UI ────────────────────────────────────────────────────────────────────
 
     getParticipantText() { return `${this.state.participants} working together`; }
@@ -264,7 +381,7 @@ class DeepWorkRoom extends PracticeRoom {
 
         return `
         ${this.buildSoundSettings()}
-        <div class="ps-body" style="display:flex;flex-direction:column;">
+        <div class="ps-body" style="display:flex;">
             <main class="ps-main" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;">
 
                 <!-- Status buttons -->
@@ -272,7 +389,7 @@ class DeepWorkRoom extends PracticeRoom {
                     ${['deep-focus','light-focus','break'].map(s => `
                     <button class="dw-status-btn" data-status="${s}"
                             onclick="${cn}.changeStatus('${s}')"
-                            style="padding:12px 24px;border:2px solid ${this.state.currentStatus===s?'var(--accent)':' var(--border)'};border-radius:var(--radius-md);background:${this.state.currentStatus===s?'var(--accent)':' var(--surface)'};color:${this.state.currentStatus===s?'white':'var(--text)'};cursor:pointer;font-weight:600;transition:all 0.2s;">
+                            style="padding:12px 24px;border:2px solid ${this.state.currentStatus===s?'var(--accent)':'var(--border)'};border-radius:var(--radius-md);background:${this.state.currentStatus===s?'var(--accent)':'var(--surface)'};color:${this.state.currentStatus===s?'white':'var(--text)'};cursor:pointer;font-weight:600;transition:all 0.2s;">
                         ${{ 'deep-focus':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Deep','light-focus':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Light','break':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg> Break' }[s]}
                     </button>`).join('')}
                 </div>
@@ -305,23 +422,52 @@ class DeepWorkRoom extends PracticeRoom {
                 </div>
             </main>
 
-            <!-- Chat below timer -->
-            <div style="padding:0 20px 20px;">
-                <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:12px 8px 24px;" class="tarot-daily-grid">
-                    <div>
-                        <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
-                            Break Room Chat
-                        </h4>
-                        <div id="${this.roomId}MainChatContainer" style="display:flex;flex-direction:column;height:auto;opacity:${isBreak ? '1' : '0.4'};pointer-events:${isBreak ? 'auto' : 'none'};transition:opacity 0.3s;">
-                            ${this.buildChatContainer('main', isBreak ? 'Share during your break...' : 'Pause timer to chat')}
+            <!-- Sidebar -->
+            <aside id="${this.roomId}Sidebar" class="dw-sidebar"
+                   style="background:var(--surface);border-left:2px solid var(--border);overflow:hidden;">
+                <div style="padding:20px;height:100%;display:flex;flex-direction:column;min-height:0;box-sizing:border-box;">
+                    <div style="flex-shrink:0;margin-bottom:16px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                            <span style="font-weight:600;font-size:15px;">Active Members</span>
+                            <span id="${this.roomId}SidebarCount" style="font-size:11px;color:var(--text-muted);">Loading...</span>
                         </div>
-                        ${!isBreak ? '<div style="text-align:center;margin-top:8px;font-size:12px;color:var(--text-muted);font-style:italic;">☕ Chat unlocks during Break</div>' : ''}
+                        <div id="${this.roomId}ParticipantsList" class="campfire-participants" style="max-height:180px;overflow-y:auto;">
+                            <div style="color:var(--text-muted);font-size:13px;padding:8px;">Loading...</div>
+                        </div>
                     </div>
-                    ${this.buildParticipantSidebarHTML('Working Together', `${this.roomId}ParticipantListEl`, `${this.roomId}ParticipantCount`, 'auto')}
+                    <div style="height:1px;background:var(--border);flex-shrink:0;margin-bottom:16px;"></div>
+                    <div id="${this.roomId}ChatSection"
+                         style="display:${isBreak?'flex':'none'};flex-direction:column;flex:1;min-height:0;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0;">
+                            <span style="font-weight:600;font-size:15px;">Break Room Chat</span>
+                        </div>
+                        <div id="${this.roomId}ChatMessages"
+                             style="flex:1;overflow-y:auto;padding:12px;background:var(--background);border-radius:var(--radius-md);margin-bottom:12px;min-height:0;">
+                            <div style="text-align:center;color:var(--text-muted);font-size:11px;margin:20px 0;font-style:italic;">Say hello 👋</div>
+                        </div>
+                        <div style="flex-shrink:0;">
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <div id="${this.roomId}ChatAvatarWrapper" style="flex-shrink:0;">
+                                    <div style="width:28px;height:28px;border-radius:50%;background:var(--border);"></div>
+                                </div>
+                                <input type="text" id="${this.roomId}ChatInput"
+                                       placeholder="Break chat..."
+                                       onkeypress="if(event.key==='Enter')${cn}.sendChat()"
+                                       style="flex:1;min-width:0;padding:10px;border:2px solid var(--border);border-radius:var(--radius-md);background:var(--background);">
+                                <button id="${this.roomId}ChatSendBtn" onclick="${cn}.sendChat()"
+                                        style="flex-shrink:0;padding:10px 12px;background:var(--accent);border:none;border-radius:var(--radius-md);color:white;cursor:pointer;font-size:18px;">↑</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>`;
+            </aside>
+        </div>
+
+        <!-- FAB - z-index above fullscreen container -->
+        <button onclick="${cn}.toggleChat()"
+                style="position:fixed;bottom:30px;right:30px;width:60px;height:60px;border-radius:50%;background:var(--accent);border:none;color:white;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);z-index:200000;transition:all 0.3s;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </button>`;
     }
 
     buildHubModals() {
@@ -408,7 +554,6 @@ class DeepWorkRoom extends PracticeRoom {
 
 Object.assign(DeepWorkRoom.prototype, TimerMixin);
 Object.assign(DeepWorkRoom.prototype, SoundSettingsMixin);
-Object.assign(DeepWorkRoom.prototype, ChatMixin);
 
 // Window bridge: preserved for inline onclick handlers
 const deepWorkRoom = new DeepWorkRoom();
