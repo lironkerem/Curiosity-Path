@@ -142,6 +142,7 @@ const TimerMixin = {
         glowColor    = 'rgba(167,139,250,0.35)',
         subtitleHtml = null,
     } = {}) {
+        this._glowColor = glowColor; // stored for use in _setTimerGlow
         const C = _TIMER_CIRCUMFERENCE;
 
         // Inner comet ring — almost touching outer (outer r=180, stroke=14 → inner edge at ~173)
@@ -163,8 +164,13 @@ const TimerMixin = {
                 0%,100% { filter: drop-shadow(0 0 6px ${glowColor}) drop-shadow(0 0 18px ${glowColor}) drop-shadow(0 0 35px ${glowColor}); }
                 50%      { filter: drop-shadow(0 0 12px ${glowColor}) drop-shadow(0 0 35px ${glowColor}) drop-shadow(0 0 70px ${glowColor}); }
             }
+            #${this.roomId}OuterSvg {
+                filter: none;
+                transition: filter 1.5s ease;
+            }
             #${this.roomId}TimerRingWrap.running #${this.roomId}OuterSvg {
                 animation: timerGlow_${this.roomId} 3s ease-in-out infinite;
+                transition: none;
             }
 
             /* Comet head races clockwise: dashoffset 0 → -C in 1s */
@@ -281,14 +287,34 @@ const TimerMixin = {
         </div>`;
     },
 
-    /** Toggle glow + comet visibility. state: 'running' | 'paused' | 'idle' */
+    /** Smoothly fade glow in/out. state: 'running' | 'paused' | 'idle' */
     _setTimerGlow(state) {
         const wrap = document.getElementById(`${this.roomId}TimerRingWrap`);
-        if (!wrap) return;
+        const svg  = document.getElementById(`${this.roomId}OuterSvg`);
+        if (!wrap || !svg) return;
+
         wrap.classList.remove('running', 'paused');
-        if (state === 'running') wrap.classList.add('running');
-        if (state === 'paused')  wrap.classList.add('paused');
-        // 'idle' → neither class → comet hidden
+
+        if (state === 'running') {
+            // Step 1: fade in via transition (no animation yet)
+            svg.style.animation  = 'none';
+            svg.style.transition = 'filter 1.2s ease';
+            svg.style.filter     = `drop-shadow(0 0 12px ${this._glowColor}) drop-shadow(0 0 35px ${this._glowColor}) drop-shadow(0 0 70px ${this._glowColor})`;
+            // Step 2: after fade completes, hand off to CSS pulse animation
+            clearTimeout(this._glowTransitionTimer);
+            this._glowTransitionTimer = setTimeout(() => {
+                svg.style.transition = 'none';
+                svg.style.filter     = '';
+                wrap.classList.add('running');
+            }, 1250);
+        } else {
+            // Fade out smoothly
+            clearTimeout(this._glowTransitionTimer);
+            svg.style.animation  = 'none';
+            svg.style.transition = 'filter 1.2s ease';
+            svg.style.filter     = 'none';
+            if (state === 'paused') wrap.classList.add('paused');
+        }
     },
 };
 
