@@ -23,7 +23,7 @@ function _avatarParts(name, avatarUrl, emoji, userId) {
     const gradient = Core?.getAvatarGradient?.(userId || name)
         ?? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
     const inner = avatarUrl
-        ? `<img src="${avatarUrl}" style="width:100%;height:100%;min-height:32px;object-fit:cover;border-radius:50%;display:block;" alt="${name}">`
+        ? `<img src="${avatarUrl}" style="width:36px;height:36px;object-fit:cover;border-radius:50%;display:block;flex-shrink:0;" alt="${name}">`
         : `<span style="color:white;font-size:13px;font-weight:600;line-height:1;">${initial}</span>`;
     const bg = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
     return { inner, bg, gradient, initial };
@@ -177,7 +177,7 @@ const ChatMixin = {
 
     buildMessageHTML(msgData) {
         const avatarInner = msgData.avatarUrl
-            ? `<img src="${msgData.avatarUrl}" style="width:100%;height:100%;min-height:32px;object-fit:cover;border-radius:50%;display:block;" alt="${msgData.name}">`
+            ? `<img src="${msgData.avatarUrl}" style="width:36px;height:36px;object-fit:cover;border-radius:50%;display:block;flex-shrink:0;" alt="${msgData.name}">`
             : `<span style="color:white;font-size:13px;font-weight:600;line-height:1;">${msgData.initial}</span>`;
         const avatarBg = msgData.avatarUrl ? 'background:transparent;' : `background:${msgData.avatarBg};`;
 
@@ -187,7 +187,7 @@ const ChatMixin = {
 
         return `
         <div class="campfire-msg">
-            <div class="campfire-msg-avatar" style="${avatarBg}overflow:hidden;display:flex;align-items:center;justify-content:center;">${avatarInner}</div>
+            <div class="campfire-msg-avatar" style="${avatarBg}width:36px;height:36px;min-width:36px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${avatarInner}</div>
             <div class="campfire-msg-content">
                 <div class="campfire-msg-header">
                     ${nameEl}
