@@ -293,23 +293,24 @@ const TimerMixin = {
         const svg  = document.getElementById(`${this.roomId}OuterSvg`);
         if (!wrap || !svg) return;
 
+        clearTimeout(this._glowTransitionTimer);
         wrap.classList.remove('running', 'paused');
 
         if (state === 'running') {
-            // Step 1: fade in via transition (no animation yet)
-            svg.style.animation  = 'none';
+            // Clear any previous animation:none override, then fade in
+            svg.style.animation  = '';
             svg.style.transition = 'filter 1.2s ease';
             svg.style.filter     = `drop-shadow(0 0 12px ${this._glowColor}) drop-shadow(0 0 35px ${this._glowColor}) drop-shadow(0 0 70px ${this._glowColor})`;
-            // Step 2: after fade completes, hand off to CSS pulse animation
-            clearTimeout(this._glowTransitionTimer);
             this._glowTransitionTimer = setTimeout(() => {
-                svg.style.transition = 'none';
-                svg.style.filter     = '';
+                // Add class first (animation starts), then remove inline style on next frame
                 wrap.classList.add('running');
-            }, 1250);
+                requestAnimationFrame(() => {
+                    svg.style.transition = '';
+                    svg.style.filter     = '';
+                });
+            }, 1200);
         } else {
-            // Fade out smoothly
-            clearTimeout(this._glowTransitionTimer);
+            // Stop animation, fade out
             svg.style.animation  = 'none';
             svg.style.transition = 'filter 1.2s ease';
             svg.style.filter     = 'none';
