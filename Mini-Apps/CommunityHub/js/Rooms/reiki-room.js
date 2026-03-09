@@ -522,7 +522,25 @@ class ReikiRoom extends PracticeRoom {
                 Begin Session
             </button>
             <div id="${this.roomId}PersonalSession" style="margin-top:24px;display:none;"></div>
-        </div>`;
+        </div>
+
+        <!-- Mastery Tracker -->
+        <div style="border:2px solid var(--border);border-radius:var(--radius-lg);padding:20px;background:var(--surface);margin-top:16px;">
+            <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                Chakra Mastery
+            </h4>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:6px;">
+                <span>Chakras Explored</span>
+                <span id="${this.roomId}MasteryCount">Loading…</span>
+            </div>
+            <div style="height:8px;border-radius:4px;background:var(--border);overflow:hidden;margin-bottom:16px;">
+                <div id="${this.roomId}MasteryProgress" style="height:100%;border-radius:4px;background:linear-gradient(90deg,var(--neuro-accent),var(--neuro-accent-light));width:0%;transition:width 0.5s ease;"></div>
+            </div>
+            <div id="${this.roomId}MasteryChakras" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">
+                <span style="color:var(--text-muted);font-size:13px;">Loading…</span>
+            </div>
+        </div>\`;
     }
 
     // ── Journal ──────────────────────────────────────────────────────────────
@@ -559,6 +577,7 @@ class ReikiRoom extends PracticeRoom {
             });
             input.value = '';
             Core.showToast('Saved to your chakra journal ✨');
+            if (prefix === 'Personal') this._loadChakraMastery();
         } catch (e) {
             console.warn('[ReikiRoom] journal save failed', e);
             Core.showToast('Could not save — please try again');
@@ -741,6 +760,60 @@ class ReikiRoom extends PracticeRoom {
         }).join('');
     }
 
+    async _loadChakraMastery() {
+        const user       = Core.state.currentUser;
+        const countEl    = document.getElementById(`${this.roomId}MasteryCount`);
+        const progressEl = document.getElementById(`${this.roomId}MasteryProgress`);
+        const pillsEl    = document.getElementById(`${this.roomId}MasteryChakras`);
+        if (!pillsEl) return;
+
+        const ALL_CHAKRAS = [
+            { key: 'root',      label: 'Root',        color: '#ef4444' },
+            { key: 'sacral',    label: 'Sacral',      color: '#f97316' },
+            { key: 'solar',     label: 'Solar Plexus',color: '#eab308' },
+            { key: 'heart',     label: 'Heart',       color: '#22c55e' },
+            { key: 'throat',    label: 'Throat',      color: '#3b82f6' },
+            { key: 'third-eye', label: 'Third Eye',   color: '#6366f1' },
+            { key: 'crown',     label: 'Crown',       color: '#a855f7' },
+        ];
+
+        if (!user?.id) {
+            pillsEl.innerHTML = ALL_CHAKRAS.map(c =>
+                `<span style="padding:5px 14px;border-radius:20px;font-size:13px;font-weight:600;background:var(--border);color:var(--text-muted);">${c.label}</span>`
+            ).join('');
+            if (countEl) countEl.textContent = '0 / 7';
+            return;
+        }
+
+        try {
+            const { data, error } = await CommunityDB._sb
+                .from('reiki_sessions')
+                .select('chakra_key')
+                .eq('user_id', user.id);
+
+            if (error) throw error;
+
+            const discovered = new Set((data || []).map(r => r.chakra_key));
+            const count      = ALL_CHAKRAS.filter(c => discovered.has(c.key)).length;
+            const pct        = Math.round((count / 7) * 100);
+
+            if (countEl)    countEl.textContent    = `${count} / 7`;
+            if (progressEl) progressEl.style.width = `${pct}%`;
+
+            pillsEl.innerHTML = ALL_CHAKRAS.map(c => {
+                const done = discovered.has(c.key);
+                return `<span style="padding:5px 14px;border-radius:20px;font-size:13px;font-weight:600;
+                    background:${done ? c.color : 'var(--border)'};
+                    color:${done ? '#fff' : 'var(--text-muted)'};
+                    opacity:${done ? '1' : '0.5'};
+                    transition:all 0.3s ease;">${c.label}</span>`;
+            }).join('');
+        } catch (e) {
+            console.warn('[ReikiRoom] load mastery failed', e);
+            if (countEl) countEl.textContent = '— / 7';
+        }
+    }
+
     _escapeHtml(str) {
         return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
@@ -753,7 +826,24 @@ class ReikiRoom extends PracticeRoom {
         requestAnimationFrame(() => {
             document.querySelector(`#${this.roomId}View .tarot-main`)?.scrollTo(0, 0);
             this._loadCommunityEnergy();
+            if (this.state.currentTab === 'personal') this._loadChakraMastery();
         });
+    }
+
+    switchTab(tabName) {
+        // Delegate to mixin
+        const dailyTab    = document.getElementById(`${this.roomId}DailyTab`);
+        const personalTab = document.getElementById(`${this.roomId}PersonalTab`);
+        const dailyBtn    = document.getElementById(`${this.roomId}TabDaily`);
+        const personalBtn = document.getElementById(`${this.roomId}TabPersonal`);
+        if (!dailyTab || !personalTab || !dailyBtn || !personalBtn) return;
+        const isDaily = tabName === 'daily';
+        dailyTab.style.display    = isDaily ? 'block' : 'none';
+        personalTab.style.display = isDaily ? 'none'  : 'block';
+        this._styleTab(dailyBtn,    isDaily);
+        this._styleTab(personalBtn, !isDaily);
+        this.state.currentTab = tabName;
+        if (tabName === 'personal') this._loadChakraMastery();
     }
 
     getInstructions() {
