@@ -9,6 +9,7 @@ import { PracticeRoom } from './PracticeRoom.js';
 import { ChatMixin } from './mixins/ChatMixin.js';
 import { TabRoomMixin } from './mixins/TabRoomMixin.js';
 import { Core } from '../core.js';
+import { CommunityDB } from '../community-supabase.js';
 
 class TarotRoom extends PracticeRoom {
     constructor() {
@@ -427,7 +428,7 @@ class TarotRoom extends PracticeRoom {
         const today = new Date().toISOString().slice(0,10);
 
         try {
-            await Core.supabase.from('tarot_reflections').insert({
+            await CommunityDB._sb.from('tarot_reflections').insert({
                 user_id:    user?.id,
                 card_key:   `${card.suit}-${card.number}`,
                 card_name:  this.getCardName(card.number, card.suit),
@@ -449,7 +450,7 @@ class TarotRoom extends PracticeRoom {
         listEl.innerHTML = `<div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px;">Loading…</div>`;
 
         try {
-            const { data, error } = await Core.supabase
+            const { data, error } = await CommunityDB._sb
                 .from('tarot_reflections')
                 .select('id, card_name, date, reflection')
                 .eq('user_id', user.id)
@@ -502,7 +503,7 @@ class TarotRoom extends PracticeRoom {
         const newText  = textarea?.value?.trim();
         if (!newText) return;
         try {
-            await Core.supabase.from('tarot_reflections').update({ reflection: newText }).eq('id', id);
+            await CommunityDB._sb.from('tarot_reflections').update({ reflection: newText }).eq('id', id);
             const textDiv = document.getElementById(`jr-text-${id}`);
             if (textDiv) textDiv.textContent = newText;
             this._cancelEditEntry(id);
@@ -515,7 +516,7 @@ class TarotRoom extends PracticeRoom {
 
     async _deleteJournalEntry(id) {
         try {
-            await Core.supabase.from('tarot_reflections').delete().eq('id', id);
+            await CommunityDB._sb.from('tarot_reflections').delete().eq('id', id);
             document.getElementById(`jr-${id}`)?.remove();
             Core.showToast('Entry deleted');
         } catch (e) {
@@ -535,7 +536,7 @@ class TarotRoom extends PracticeRoom {
         const today = new Date().toISOString().slice(0,10);
 
         try {
-            await Core.supabase.from('tarot_interpretations').insert({
+            await CommunityDB._sb.from('tarot_interpretations').insert({
                 user_id:        user?.id,
                 display_name:   user?.display_name || user?.username || 'A seeker',
                 card_key:       `${card.suit}-${card.number}`,
@@ -558,10 +559,10 @@ class TarotRoom extends PracticeRoom {
         if (!list || !card) return;
 
         // Purge yesterday's (and older) entries — first visitor of the day cleans up silently
-        Core.supabase.from('tarot_interpretations').delete().lt('date', today).then(() => {});
+        CommunityDB._sb.from('tarot_interpretations').delete().lt('date', today).then(() => {});
 
         try {
-            const { data, error } = await Core.supabase
+            const { data, error } = await CommunityDB._sb
                 .from('tarot_interpretations')
                 .select('display_name, interpretation, created_at')
                 .eq('card_key', `${card.suit}-${card.number}`)
