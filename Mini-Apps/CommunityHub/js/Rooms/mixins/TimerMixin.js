@@ -136,34 +136,56 @@ const TimerMixin = {
      * @param {string} subtitleHtml  - Raw HTML for subtitle (overrides subtitle string if provided)
      */
     buildTimerContainer({
-        subtitle    = 'in practice',
-        gradientId  = `timerGrad_${this.roomId}`,
-        color1      = '#a78bfa',
-        color2      = '#c084fc',
-        glowColor   = 'rgba(167,139,250,0.35)',
+        subtitle     = 'in practice',
+        gradientId   = `timerGrad_${this.roomId}`,
+        color1       = '#a78bfa',
+        color2       = '#c084fc',
+        glowColor    = 'rgba(167,139,250,0.35)',
         subtitleHtml = null,
     } = {}) {
-        const C           = _TIMER_CIRCUMFERENCE;
-        const subtitleEl  = subtitleHtml
+        const C              = _TIMER_CIRCUMFERENCE;
+        // Inner seconds ring: smaller radius
+        const _INNER_R       = 148;
+        const _INNER_C       = +(2 * Math.PI * _INNER_R).toFixed(2);
+        const innerGradId    = `${gradientId}_inner`;
+        const subtitleEl     = subtitleHtml
             ?? `<div style="font-size:13px;text-transform:uppercase;letter-spacing:0.22em;opacity:0.5;font-weight:500;">${subtitle}</div>`;
 
         return `
         <style>
+            /* Outer ring: pulsing glow when running */
             @keyframes timerGlow_${this.roomId} {
-                0%,100% { filter: drop-shadow(0 0 10px ${glowColor}) drop-shadow(0 0 24px ${glowColor}); }
-                50%      { filter: drop-shadow(0 0 20px ${glowColor}) drop-shadow(0 0 48px ${glowColor}); }
+                0%,100% { filter: drop-shadow(0 0 8px ${glowColor}) drop-shadow(0 0 20px ${glowColor}); }
+                50%      { filter: drop-shadow(0 0 18px ${glowColor}) drop-shadow(0 0 44px ${glowColor}); }
             }
-            #${this.roomId}TimerRingWrap.running svg {
+            #${this.roomId}TimerRingWrap.running #${this.roomId}OuterSvg {
                 animation: timerGlow_${this.roomId} 3s ease-in-out infinite;
+            }
+            /* Inner seconds ring: sweep 0→full in 1s, CSS-driven */
+            @keyframes secondsSweep_${this.roomId} {
+                0%   { stroke-dashoffset: ${_INNER_C}; }
+                100% { stroke-dashoffset: 0; }
+            }
+            #${this.roomId}SecondsRing {
+                stroke-dasharray: ${_INNER_C};
+                stroke-dashoffset: ${_INNER_C};
+                animation: secondsSweep_${this.roomId} 1s linear infinite;
+                animation-play-state: paused;
+            }
+            #${this.roomId}TimerRingWrap.running #${this.roomId}SecondsRing {
+                animation-play-state: running;
             }
             #${this.roomId}TimerDisplay {
                 font-variant-numeric: tabular-nums;
-                transition: opacity 0.15s ease;
             }
         </style>
+
         <div id="${this.roomId}TimerRingWrap"
              style="position:relative;width:min(380px,82vw);height:min(380px,82vw);margin-bottom:36px;">
-            <svg width="100%" height="100%" viewBox="0 0 400 400"
+
+            <!-- Outer progress ring (clockwise shrink) -->
+            <svg id="${this.roomId}OuterSvg"
+                 width="100%" height="100%" viewBox="0 0 400 400"
                  style="transform:rotate(-90deg);position:absolute;top:0;left:0;z-index:2;">
                 <defs>
                     <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -171,20 +193,40 @@ const TimerMixin = {
                         <stop offset="100%" stop-color="${color2}"/>
                     </linearGradient>
                 </defs>
-                <!-- Track ring -->
+                <!-- Track -->
                 <circle cx="200" cy="200" r="${_TIMER_RADIUS}"
-                        fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="6"/>
-                <!-- Progress ring -->
+                        fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="14"/>
+                <!-- Progress — clockwise: starts full, offset grows as time runs out -->
                 <circle cx="200" cy="200" r="${_TIMER_RADIUS}"
                         fill="none" stroke="url(#${gradientId})"
-                        stroke-width="6" stroke-linecap="round"
+                        stroke-width="14" stroke-linecap="round"
                         stroke-dasharray="${C}" stroke-dashoffset="0"
                         id="${this.roomId}TimerRing"/>
             </svg>
-            <!-- Inner content -->
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:3;width:70%;">
+
+            <!-- Inner seconds ring (CSS sweep, clockwise, 1s per revolution) -->
+            <svg width="100%" height="100%" viewBox="0 0 400 400"
+                 style="transform:rotate(-90deg);position:absolute;top:0;left:0;z-index:3;">
+                <defs>
+                    <linearGradient id="${innerGradId}" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%"   stop-color="${color1}" stop-opacity="0.5"/>
+                        <stop offset="100%" stop-color="${color2}" stop-opacity="0.9"/>
+                    </linearGradient>
+                </defs>
+                <!-- Inner track (dark) -->
+                <circle cx="200" cy="200" r="${_INNER_R}"
+                        fill="none" stroke="rgba(0,0,0,0.45)" stroke-width="8"/>
+                <!-- Seconds sweep -->
+                <circle cx="200" cy="200" r="${_INNER_R}"
+                        fill="none" stroke="url(#${innerGradId})"
+                        stroke-width="8" stroke-linecap="round"
+                        id="${this.roomId}SecondsRing"/>
+            </svg>
+
+            <!-- Text content -->
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:4;width:65%;">
                 <div id="${this.roomId}TimerDisplay"
-                     style="font-size:clamp(3rem,13vw,5.5rem);font-weight:200;letter-spacing:0.04em;line-height:1;margin-bottom:10px;">
+                     style="font-size:clamp(2.8rem,12vw,5rem);font-weight:200;letter-spacing:0.04em;line-height:1;margin-bottom:10px;">
                     ${this.formatTime(this.state.timeLeft)}
                 </div>
                 ${subtitleEl}
