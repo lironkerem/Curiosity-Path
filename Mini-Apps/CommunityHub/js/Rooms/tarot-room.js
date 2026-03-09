@@ -232,7 +232,7 @@ class TarotRoom extends PracticeRoom {
 
     // ── Enriched daily sections ───────────────────────────────────────────────
 
-    _buildEnrichedSections(card) {
+    _buildEnrichedSections(card, showCommunity = true) {
         const data = this.getCardData(card.number, card.suit);
         if (!data) return ''; // enriched data not loaded yet
 
@@ -366,6 +366,7 @@ class TarotRoom extends PracticeRoom {
             </div>
         </div>
 
+        ${showCommunity ? `
         <!-- ── Community Interpretations ── -->
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;">
             <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;margin-bottom:6px;">🌀 Community Interpretations</div>
@@ -384,7 +385,8 @@ class TarotRoom extends PracticeRoom {
             <div id="${roomId}InterpList" style="display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;">
                 <div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px;">Loading interpretations…</div>
             </div>
-        </div>`;
+        </div>
+        ` : ''}`;
     }
 
     _setMeaningTab(tab) {
@@ -636,7 +638,7 @@ class TarotRoom extends PracticeRoom {
         const container = document.getElementById(`${this.roomId}PersonalCardContainer`);
         const enriched  = document.getElementById(`${this.roomId}PersonalEnrichedSections`);
         if (container) container.innerHTML = this._buildCardDisplay(card);
-        if (enriched)  enriched.innerHTML  = this._buildEnrichedSections(card);
+        if (enriched)  enriched.innerHTML  = this._buildEnrichedSections(card, false);
         container?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         // Log draw and refresh progress
         this._logDraw(card);
