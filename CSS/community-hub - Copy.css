@@ -2117,25 +2117,20 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 .chat-input {
     flex: 1;
-    padding: 10px 16px !important;
-    min-height: unset !important;
-    height: 42px !important;
+    padding: 10px 16px;
     border: 2px solid var(--border);
     border-radius: var(--radius-full);
-    font-size: 14px !important;
+    font-size: 14px;
     outline: none;
     background: var(--surface);
     box-shadow: var(--shadow-inset-sm);
-    box-sizing: border-box;
 }
 
 .chat-input:focus { border-color: var(--neuro-accent); }
 
 .chat-send {
-    width: 42px !important;
-    height: 42px !important;
-    min-height: unset !important;
-    padding: 0 !important;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     background: var(--ring-available);
     color: white;
