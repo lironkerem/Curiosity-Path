@@ -86,13 +86,7 @@ class SilentRoom extends PracticeRoom {
                 <div id="${this.roomId}RotatingAffirmation"
                      style="position:relative;max-width:650px;text-align:center;font-size:22px;font-weight:600;letter-spacing:0.02em;line-height:1.6;margin-bottom:30px;z-index:10;opacity:0.7;transition:opacity 0.5s ease;">
                 </div>
-                ${this.buildTimerContainer({
-                    subtitle:   'in silence',
-                    gradientId: 'silentTimerGrad',
-                    color1:     '#a78bfa',
-                    color2:     '#c084fc',
-                    glowColor:  'rgba(167,139,250,0.4)',
-                })}
+                ${this.buildTimerContainer()}
                 ${this.buildTimerControls()}
                 <div class="gratitude-container" id="${this.roomId}GratitudeContainer">
                     <button class="gratitude-btn" onclick="${this.getClassName()}.offerGratitude()">

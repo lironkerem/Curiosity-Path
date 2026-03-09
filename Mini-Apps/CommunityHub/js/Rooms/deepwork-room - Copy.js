@@ -89,7 +89,6 @@ class DeepWorkRoom extends PracticeRoom {
         this._clearInterval();
         this.state.timerRunning = false;
         this._setTimerBtn('paused'); // shows 'Continue' via _BTN_LABEL
-        this._setTimerGlow(false);
         this._switchToBreak();
     }
 
@@ -100,8 +99,6 @@ class DeepWorkRoom extends PracticeRoom {
         // Override btn label to 'Break' instead of mixin's 'Pause'
         const btn = document.getElementById(`${this.roomId}TimerBtn`);
         if (btn) btn.textContent = 'Break';
-
-        this._setTimerGlow(true);
 
         this._timerInterval = setInterval(() => {
             this.state.timeLeft--;
@@ -378,6 +375,7 @@ class DeepWorkRoom extends PracticeRoom {
         const cat     = this.CATEGORIES[this.state.currentCategory];
         const isBreak = this.state.currentStatus === 'break';
         const cn      = this.getClassName();
+        const C       = +(2 * Math.PI * 180).toFixed(2); // circumference
 
         return `
         ${this.buildSoundSettings()}
@@ -408,17 +406,39 @@ class DeepWorkRoom extends PracticeRoom {
                 </div>
 
                 <!-- Timer ring -->
-                ${this.buildTimerContainer({
-                    gradientId:  'deepworkTimerGrad',
-                    color1:      '#f59e0b',
-                    color2:      '#ef4444',
-                    glowColor:   'rgba(245,158,11,0.35)',
-                    subtitleHtml: `<div id="currentStatus" style="font-size:13px;text-transform:uppercase;letter-spacing:0.22em;opacity:0.5;font-weight:500;">${this.getStatusText()}</div>`,
-                })}
+                <div style="position:relative;width:min(400px,85vw);height:min(400px,85vw);margin-bottom:20px;">
+                    <svg width="100%" height="100%" viewBox="0 0 400 400"
+                         style="transform:rotate(-90deg);position:absolute;top:0;left:0;z-index:2;">
+                        <defs>
+                            <linearGradient id="dwGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%"   stop-color="#f59e0b"/>
+                                <stop offset="100%" stop-color="#ef4444"/>
+                            </linearGradient>
+                        </defs>
+                        <circle cx="200" cy="200" r="180" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
+                        <circle cx="200" cy="200" r="180" fill="none" stroke="url(#dwGrad)"
+                                stroke-width="8" stroke-linecap="round"
+                                stroke-dasharray="${C}" stroke-dashoffset="0"
+                                id="${this.roomId}TimerRing"/>
+                    </svg>
+                    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:3;">
+                        <div id="${this.roomId}TimerDisplay" style="font-size:clamp(2.5rem,14vw,5.25rem);font-weight:200;letter-spacing:0.05em;margin-bottom:8px;">
+                            ${this.formatTime(this.state.timeLeft)}
+                        </div>
+                        <div id="currentStatus" style="font-size:16px;text-transform:uppercase;letter-spacing:0.2em;opacity:0.6;">
+                            ${this.getStatusText()}
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Timer controls -->
-                <div style="margin-bottom:40px;">
-                ${this.buildTimerControls()}
+                <div style="margin-bottom:40px;display:flex;gap:12px;">
+                    <button onclick="${cn}.adjustTime(-5)" style="padding:12px 20px;border:2px solid var(--border);border-radius:var(--radius-md);background:var(--surface);cursor:pointer;font-weight:600;">-5m</button>
+                    <button onclick="${cn}.toggleTimer()" id="${this.roomId}TimerBtn"
+                            style="padding:12px 32px;background:var(--accent);border:none;border-radius:var(--radius-md);color:white;cursor:pointer;font-weight:600;font-size:16px;">
+                        ${this.state.timerRunning ? 'Break' : 'Begin'}
+                    </button>
+                    <button onclick="${cn}.adjustTime(5)" style="padding:12px 20px;border:2px solid var(--border);border-radius:var(--radius-md);background:var(--surface);cursor:pointer;font-weight:600;">+5m</button>
                 </div>
             </main>
 

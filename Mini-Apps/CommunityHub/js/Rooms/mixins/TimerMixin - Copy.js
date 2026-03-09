@@ -39,7 +39,6 @@ const TimerMixin = {
         if (this.state.timerRunning) return;
         this.state.timerRunning = true;
         this._setTimerBtn('running');
-        this._setTimerGlow(true);
 
         this._timerInterval = setInterval(() => {
             this.state.timeLeft--;
@@ -59,7 +58,6 @@ const TimerMixin = {
         this._clearInterval();
         this.state.timerRunning = false;
         this._setTimerBtn('paused');
-        this._setTimerGlow(false);
         Core.showToast('Timer paused');
     },
 
@@ -69,7 +67,6 @@ const TimerMixin = {
         this.state.timeLeft     = 0;
         this._setTimerBtn('done');
         this._updateTimer();
-        this._setTimerGlow(false);
         this.playCompletionSound?.();
         Core.showToast('Session complete!');
         this.onTimerComplete?.();
@@ -81,7 +78,6 @@ const TimerMixin = {
         this.state.timeLeft     = this.state.initialTime;
         this._setTimerBtn('idle');
         this._updateTimer();
-        this._setTimerGlow(false);
     },
 
     adjustTime(minutes) {
@@ -126,68 +122,30 @@ const TimerMixin = {
 
     // ── HTML builders ─────────────────────────────────────────────────────────
 
-    /**
-     * Build the timer ring container.
-     * @param {string} subtitle      - Text shown below the time display (e.g. 'in silence' or dynamic status id)
-     * @param {string} gradientId    - Unique SVG gradient id (avoid collisions between rooms)
-     * @param {string} color1        - Gradient start color
-     * @param {string} color2        - Gradient end color
-     * @param {string} glowColor     - CSS color for the running glow (rgba recommended)
-     * @param {string} subtitleHtml  - Raw HTML for subtitle (overrides subtitle string if provided)
-     */
-    buildTimerContainer({
-        subtitle    = 'in practice',
-        gradientId  = `timerGrad_${this.roomId}`,
-        color1      = '#a78bfa',
-        color2      = '#c084fc',
-        glowColor   = 'rgba(167,139,250,0.35)',
-        subtitleHtml = null,
-    } = {}) {
-        const C           = _TIMER_CIRCUMFERENCE;
-        const subtitleEl  = subtitleHtml
-            ?? `<div style="font-size:13px;text-transform:uppercase;letter-spacing:0.22em;opacity:0.5;font-weight:500;">${subtitle}</div>`;
-
+    buildTimerContainer() {
+        const C = _TIMER_CIRCUMFERENCE;
         return `
-        <style>
-            @keyframes timerGlow_${this.roomId} {
-                0%,100% { filter: drop-shadow(0 0 10px ${glowColor}) drop-shadow(0 0 24px ${glowColor}); }
-                50%      { filter: drop-shadow(0 0 20px ${glowColor}) drop-shadow(0 0 48px ${glowColor}); }
-            }
-            #${this.roomId}TimerRingWrap.running svg {
-                animation: timerGlow_${this.roomId} 3s ease-in-out infinite;
-            }
-            #${this.roomId}TimerDisplay {
-                font-variant-numeric: tabular-nums;
-                transition: opacity 0.15s ease;
-            }
-        </style>
-        <div id="${this.roomId}TimerRingWrap"
-             style="position:relative;width:min(380px,82vw);height:min(380px,82vw);margin-bottom:36px;">
+        <div style="position:relative;width:min(400px,85vw);height:min(400px,85vw);margin-bottom:40px;">
             <svg width="100%" height="100%" viewBox="0 0 400 400"
                  style="transform:rotate(-90deg);position:absolute;top:0;left:0;z-index:2;">
                 <defs>
-                    <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%"   stop-color="${color1}"/>
-                        <stop offset="100%" stop-color="${color2}"/>
+                    <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%"   stop-color="#a78bfa"/>
+                        <stop offset="100%" stop-color="#c084fc"/>
                     </linearGradient>
                 </defs>
-                <!-- Track ring -->
-                <circle cx="200" cy="200" r="${_TIMER_RADIUS}"
-                        fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="6"/>
-                <!-- Progress ring -->
-                <circle cx="200" cy="200" r="${_TIMER_RADIUS}"
-                        fill="none" stroke="url(#${gradientId})"
-                        stroke-width="6" stroke-linecap="round"
+                <circle cx="200" cy="200" r="${_TIMER_RADIUS}" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
+                <circle cx="200" cy="200" r="${_TIMER_RADIUS}" fill="none" stroke="url(#timerGradient)"
+                        stroke-width="8" stroke-linecap="round"
                         stroke-dasharray="${C}" stroke-dashoffset="0"
                         id="${this.roomId}TimerRing"/>
             </svg>
-            <!-- Inner content -->
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:3;width:70%;">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:3;">
                 <div id="${this.roomId}TimerDisplay"
-                     style="font-size:clamp(3rem,13vw,5.5rem);font-weight:200;letter-spacing:0.04em;line-height:1;margin-bottom:10px;">
+                     style="font-size:clamp(2.5rem,14vw,5.25rem);font-weight:200;letter-spacing:0.05em;margin-bottom:8px;">
                     ${this.formatTime(this.state.timeLeft)}
                 </div>
-                ${subtitleEl}
+                <div style="font-size:16px;text-transform:uppercase;letter-spacing:0.2em;opacity:0.6;">in silence</div>
             </div>
         </div>`;
     },
@@ -196,16 +154,10 @@ const TimerMixin = {
         const cn = this.getClassName();
         return `
         <div class="timer-controls">
-            <button class="t-btn" onclick="${cn}.adjustTime(-5)">−5m</button>
+            <button class="t-btn" onclick="${cn}.adjustTime(-5)">-5m</button>
             <button class="t-btn primary" onclick="${cn}.toggleTimer()" id="${this.roomId}TimerBtn">${_BTN_LABEL.idle}</button>
             <button class="t-btn" onclick="${cn}.adjustTime(5)">+5m</button>
         </div>`;
-    },
-
-    /** Toggle glow animation on the ring wrap when timer starts/stops. */
-    _setTimerGlow(running) {
-        document.getElementById(`${this.roomId}TimerRingWrap`)
-            ?.classList.toggle('running', running);
     },
 };
 
