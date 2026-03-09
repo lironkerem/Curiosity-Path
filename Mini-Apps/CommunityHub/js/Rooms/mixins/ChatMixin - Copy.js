@@ -23,7 +23,7 @@ function _avatarParts(name, avatarUrl, emoji, userId) {
     const gradient = Core?.getAvatarGradient?.(userId || name)
         ?? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
     const inner = avatarUrl
-        ? `<img src="${avatarUrl}" style="width:100%;height:100%;min-height:32px;object-fit:cover;border-radius:50%;display:block;" alt="${name}">`
+        ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
         : `<span style="color:white;font-size:13px;font-weight:600;line-height:1;">${initial}</span>`;
     const bg = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
     return { inner, bg, gradient, initial };
@@ -177,7 +177,7 @@ const ChatMixin = {
 
     buildMessageHTML(msgData) {
         const avatarInner = msgData.avatarUrl
-            ? `<img src="${msgData.avatarUrl}" style="width:100%;height:100%;min-height:32px;object-fit:cover;border-radius:50%;display:block;" alt="${msgData.name}">`
+            ? `<img src="${msgData.avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${msgData.name}">`
             : `<span style="color:white;font-size:13px;font-weight:600;line-height:1;">${msgData.initial}</span>`;
         const avatarBg = msgData.avatarUrl ? 'background:transparent;' : `background:${msgData.avatarBg};`;
 
