@@ -713,6 +713,34 @@ class ReikiRoom extends PracticeRoom {
         }
     }
 
+    _renderParticipantList(listEl, participants) {
+        if (!participants.length) {
+            listEl.innerHTML = `<div style="color:var(--text-muted);font-size:13px;padding:8px;">Just you here 🕯️</div>`;
+            return;
+        }
+        listEl.innerHTML = participants.map(p => {
+            const profile   = p.profiles || {};
+            const userId    = p.user_id || profile.id || '';
+            const name      = profile.name      || 'Member';
+            const avatarUrl = profile.avatar_url || '';
+            const emoji     = profile.emoji      || '';
+            const gradient  = Core?.getAvatarGradient?.(userId || name) ?? 'linear-gradient(135deg,#667eea,#764ba2)';
+            const inner     = avatarUrl
+                ? `<img src="${avatarUrl}" referrerpolicy="no-referrer" style="width:40px;height:40px;min-width:40px;min-height:40px;object-fit:cover;border-radius:50%;display:block;" alt="${name}">`
+                : `<span style="color:white;font-weight:600;font-size:13px;">${emoji || name.charAt(0).toUpperCase()}</span>`;
+            const bg    = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
+            const click = userId ? `onclick="openMemberProfileAboveRoom('${userId}')"` : '';
+            return `
+            <div class="campfire-participant" ${click} style="${userId ? 'cursor:pointer;' : ''}">
+                <div class="campfire-participant-avatar" style="${bg}width:40px;height:40px;min-width:40px;min-height:40px;display:flex;align-items:center;justify-content:center;overflow:hidden;">${inner}</div>
+                <div class="campfire-participant-info">
+                    <div class="campfire-participant-name">${name}</div>
+                    <div class="campfire-participant-country">${p.activity || '✨ Available'}</div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
     _escapeHtml(str) {
         return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
