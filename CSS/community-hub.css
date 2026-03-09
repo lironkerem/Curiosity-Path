@@ -5035,6 +5035,13 @@ body.solar-room-active[data-season] {
         gap: 3px; padding: 6px 8px;
         min-width: 54px; flex-shrink: 0; margin-bottom: 0;
     }
+    .tarot-daily-grid .campfire-participant-avatar {
+        width: 40px !important; height: 40px !important;
+        min-width: 40px !important; min-height: 40px !important;
+        overflow: hidden !important; border-radius: 50% !important;
+        flex-shrink: 0 !important; display: flex !important;
+        align-items: center !important; justify-content: center !important;
+    }
     .tarot-daily-grid .campfire-participant-name {
         font-size: 10px; white-space: nowrap;
         overflow: hidden; text-overflow: ellipsis; max-width: 52px;
