@@ -1145,6 +1145,12 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    max-height: 500px;
+}
+
 .chat-messages {
     flex: 1;
     overflow-y: auto;
