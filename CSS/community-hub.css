@@ -3837,14 +3837,17 @@ body.solar-room-active[data-season] {
 
 .tarot-daily-grid .campfire-participant {
     flex-direction: row; align-items: center;
-    gap: 8px; padding: 6px 8px;
+    gap: 6px; padding: 3px 4px;
     margin-bottom: 0;
 }
 .tarot-daily-grid .campfire-participant-name {
     font-size: 12px; white-space: nowrap;
     overflow: hidden; text-overflow: ellipsis;
 }
-.tarot-daily-grid .campfire-participant-country { display: inline; }
+.tarot-daily-grid .campfire-participant-country { font-size: 11px; }
+
+.tarot-daily-grid .chat-messages { padding: 8px 4px !important; }
+.tarot-daily-grid .campfire-msg  { padding: 8px 4px !important; gap: 8px; }
 
 
 /* ─── CELESTIAL OUTER CARD BASE STYLES ─── */
