@@ -632,9 +632,9 @@ class PracticeRoom {
 
     buildParticipantSidebarHTML(title, listId, countId, height = '400px') {
         return `
-        <div style="border:1px solid var(--border);border-radius:var(--radius-md);padding:8px 10px;background:var(--background);">
-            <div style="font-weight:600;font-size:14px;margin-bottom:4px;text-align:center;">${title}</div>
-            <div id="${countId}" style="font-size:11px;color:var(--text-muted);margin-bottom:6px;text-align:center;">${this.state.participants} present</div>
+        <div style="border:1px solid var(--border);border-radius:var(--radius-md);padding:6px 8px;background:var(--background);">
+            <div style="font-weight:600;font-size:13px;margin-bottom:2px;text-align:center;">${title}</div>
+            <div id="${countId}" style="font-size:11px;color:var(--text-muted);margin-bottom:4px;text-align:center;">${this.state.participants} present</div>
             <div id="${listId}" class="campfire-participants" style="height:${height};overflow-y:auto;">
                 <div style="color:var(--text-muted);font-size:13px;padding:8px;">Loading...</div>
             </div>
