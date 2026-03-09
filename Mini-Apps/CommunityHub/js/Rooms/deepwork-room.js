@@ -90,8 +90,10 @@ class DeepWorkRoom extends PracticeRoom {
     pauseTimer() {
         this._clearInterval();
         this.state.timerRunning = false;
-        this._setTimerBtn('paused'); // shows 'Continue' via _BTN_LABEL
+        this._setTimerBtn('paused');
         this._setTimerGlow('paused');
+        const btn = document.getElementById(`${this.roomId}TimerBtn`);
+        if (btn) btn.textContent = 'Break';
         this._switchToBreak();
     }
 
@@ -313,10 +315,15 @@ class DeepWorkRoom extends PracticeRoom {
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
                             Break Room Chat
                         </h4>
-                        <div id="${this.roomId}MainChatContainer" style="display:flex;flex-direction:column;height:auto;opacity:${isBreak ? '1' : '0.4'};pointer-events:${isBreak ? 'auto' : 'none'};transition:opacity 0.3s;">
-                            ${this.buildChatContainer('main', isBreak ? 'Share during your break...' : 'Pause timer to chat')}
+                        <div style="position:relative;">
+                            <div id="${this.roomId}MainChatContainer" style="display:flex;flex-direction:column;height:auto;opacity:${isBreak ? '1' : '0.15'};pointer-events:${isBreak ? 'auto' : 'none'};transition:opacity 0.3s;filter:${isBreak ? 'none' : 'grayscale(1)'};">
+                                ${this.buildChatContainer('main', isBreak ? 'Share during your break...' : 'Pause timer to chat')}
+                            </div>
+                            ${!isBreak ? `<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;pointer-events:none;">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:28px;height:28px;opacity:0.5;"><rect width="11" height="11" x="1" y="1" rx="2"/><rect width="11" height="11" x="12" y="1" rx="2"/><rect width="11" height="11" x="1" y="12" rx="2"/><rect width="11" height="11" x="12" y="12" rx="2"/></svg>
+                                <span style="font-size:13px;font-weight:600;opacity:0.6;letter-spacing:0.05em;">☕ Chat opens on Break</span>
+                            </div>` : ''}
                         </div>
-                        ${!isBreak ? '<div style="text-align:center;margin-top:8px;font-size:12px;color:var(--text-muted);font-style:italic;">☕ Chat unlocks during Break</div>' : ''}
                     </div>
                     ${this.buildParticipantSidebarHTML('Working Together', `${this.roomId}ParticipantListEl`, `${this.roomId}ParticipantCount`, 'auto')}
                 </div>
