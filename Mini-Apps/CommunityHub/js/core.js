@@ -129,45 +129,48 @@ const Core = {
                 window._pendingHubScrollTarget = null;
 
                 const doScroll = () => {
-                    const maxAttempts = 40;
+                    const maxAttempts = 60; // 6 seconds max
                     let attempts = 0;
+                    let lastHeight = 0;
+                    let stableCount = 0;
+
                     const poll = setInterval(() => {
                         attempts++;
+
+                        // Wait for ritual overlay to clear first
+                        if (document.body.classList.contains('ritual-active')) {
+                            lastHeight = 0;
+                            stableCount = 0;
+                            return;
+                        }
+
                         const el = document.getElementById(targetId);
-                        const hasContent = el && el.offsetHeight > 10;
-                        if (hasContent) {
+                        const currentHeight = el ? el.offsetHeight : 0;
+
+                        if (currentHeight > 10) {
+                            if (currentHeight === lastHeight) {
+                                stableCount++;
+                            } else {
+                                stableCount = 0; // height still changing, reset
+                            }
+                            lastHeight = currentHeight;
+                        }
+
+                        // Fire scroll once height is stable for 3 consecutive polls (300ms)
+                        const ready = stableCount >= 3 || attempts >= maxAttempts;
+                        if (ready && currentHeight > 0) {
                             clearInterval(poll);
-                            setTimeout(() => {
-                                // Dynamic offset: fixed bottom bar on mobile, small padding otherwise
-                                const bottomBar = document.getElementById('mobile-bottom-bar');
-                                const offset = bottomBar ? bottomBar.offsetHeight + 16 : 16;
-                                const top = el.getBoundingClientRect().top + window.scrollY - offset;
-                                window.scrollTo({ top, behavior: 'smooth' });
-                            }, 100);
+                            const bottomBar = document.getElementById('mobile-bottom-bar');
+                            const offset = bottomBar ? bottomBar.offsetHeight + 16 : 16;
+                            const top = el.getBoundingClientRect().top + window.scrollY - offset;
+                            window.scrollTo({ top, behavior: 'smooth' });
                         } else if (attempts >= maxAttempts) {
                             clearInterval(poll);
-                            if (el) {
-                                const bottomBar = document.getElementById('mobile-bottom-bar');
-                                const offset = bottomBar ? bottomBar.offsetHeight + 16 : 16;
-                                const top = el.getBoundingClientRect().top + window.scrollY - offset;
-                                window.scrollTo({ top, behavior: 'smooth' });
-                            }
                         }
                     }, 100);
                 };
 
-                // Wait for ritual overlay to dismiss before scrolling (it shifts layout)
-                if (document.body.classList.contains('ritual-active')) {
-                    const ritualPoll = setInterval(() => {
-                        if (!document.body.classList.contains('ritual-active')) {
-                            clearInterval(ritualPoll);
-                            doScroll();
-                        }
-                    }, 100);
-                    setTimeout(() => clearInterval(ritualPoll), 8000); // safety timeout
-                } else {
-                    doScroll();
-                }
+                doScroll();
             }
 
         } catch (error) {
