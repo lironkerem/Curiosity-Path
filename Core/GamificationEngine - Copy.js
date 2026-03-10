@@ -188,7 +188,6 @@ export class GamificationEngine {
       weekly: [
         {
           id: 'gratitude_streak_7',
-          tab: 'gratitude',
           icon: '💖',
           name: 'Gratitude Streak',
           inspirational: 'Consistency breeds abundance.',
@@ -201,7 +200,6 @@ export class GamificationEngine {
         },
         {
           id: 'journal_5',
-          tab: 'journal',
           icon: '📝',
           name: 'Journal Writer',
           inspirational: 'Your story matters.',
@@ -214,7 +212,6 @@ export class GamificationEngine {
         },
         {
           id: 'energy_7',
-          tab: 'energy',
           icon: '⚡',
           name: 'Weekly Energy Check-ins',
           inspirational: 'Track your rhythm, honor your cycles.',
@@ -227,7 +224,6 @@ export class GamificationEngine {
         },
         {
           id: 'happiness_boosters_20',
-          tab: 'happiness',
           icon: '🎨',
           name: 'Happy and Motivated Week',
           inspirational: 'Feed your mind with positivity.',
@@ -240,7 +236,6 @@ export class GamificationEngine {
         },
         {
           id: 'tarot_4_days',
-          tab: 'tarot',
           icon: '🔮',
           name: 'Tarot Lover',
           inspirational: 'Seek wisdom in the cards.',
@@ -253,7 +248,6 @@ export class GamificationEngine {
         },
         {
           id: 'meditate_3',
-          tab: 'meditations',
           icon: '🌟',
           name: 'Meditating Adept',
           inspirational: 'Stillness is strength.',
@@ -268,7 +262,6 @@ export class GamificationEngine {
       monthly: [
         {
           id: 'monthly_energy_28',
-          tab: 'energy',
           icon: '⚡',
           name: 'Monthly Energy Check-ins',
           inspirational: 'Know thyself through daily awareness.',
@@ -281,7 +274,6 @@ export class GamificationEngine {
         },
         {
           id: 'monthly_tarot_15',
-          tab: 'tarot',
           icon: '🔮',
           name: 'Tarot Enthusiast',
           inspirational: 'The universe speaks through symbols.',
@@ -294,7 +286,6 @@ export class GamificationEngine {
         },
         {
           id: 'monthly_gratitude_28',
-          tab: 'gratitude',
           icon: '💖',
           name: 'Gratitude Master',
           inspirational: 'Gratitude unlocks the fullness of life.',
@@ -307,7 +298,6 @@ export class GamificationEngine {
         },
         {
           id: 'monthly_journal_20',
-          tab: 'journal',
           icon: '📝',
           name: 'A Journalist',
           inspirational: 'Write to understand, reflect to grow.',
@@ -320,7 +310,6 @@ export class GamificationEngine {
         },
         {
           id: 'monthly_happiness_100',
-          tab: 'happiness',
           icon: '🎨',
           name: 'Super Good Month',
           inspirational: 'Choose joy every single day.',
@@ -333,7 +322,6 @@ export class GamificationEngine {
         },
         {
           id: 'monthly_meditation_15',
-          tab: 'meditations',
           icon: '🌟',
           name: 'Meditating Healer',
           inspirational: 'Through stillness, we find our true power.',
