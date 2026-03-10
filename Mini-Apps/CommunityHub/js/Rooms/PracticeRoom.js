@@ -578,7 +578,7 @@ class PracticeRoom {
                 ${this.buildAdditionalHeaderButtons?.() ?? ''}
                 ${this.buildSafetyDropdown()}
                 <button class="ps-leave" onclick="window['${this.roomId}_gentlyLeave']()" style="padding:10px 16px;white-space:nowrap;">
-                    Gently Leave
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20h9"/><path d="M10 12v.01"/><path d="M13 4l-6 2v14l6 2"/></svg> Gently Leave
                 </button>
             </div>
         </header>`;

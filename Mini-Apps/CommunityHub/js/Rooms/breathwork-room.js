@@ -21,11 +21,12 @@ class BreathworkRoom extends TimedVideoRoom {
         this.scheduleModalTitle = '📅 Upcoming Breathwork Sessions';
 
         this.sessions = [
-            { title: 'Holotropic Breathwork',    duration: '70:00', category: 'Deep',    videoId: 'DqmQFz7aZ8w', emoji: '🌊' },
-            { title: 'Wim Hof Method',           duration: '70:00', category: 'Power',   videoId: 'DqmQFz7aZ8w', emoji: '❄️' },
-            { title: 'Box Breathing (Navy SEAL)', duration: '70:00', category: 'Focus',   videoId: 'DqmQFz7aZ8w', emoji: '⬜' },
-            { title: 'Pranayama - Nadi Shodhana', duration: '70:00', category: 'Balance', videoId: 'DqmQFz7aZ8w', emoji: '🧘' },
-            { title: 'Circular Breathing',        duration: '70:00', category: 'Energy',  videoId: 'DqmQFz7aZ8w', emoji: '🔄' },
+            { title: 'Trauma Release & Emotional Renewal',      duration: '70:00', category: 'Healing',       videoId: 'eocuqWqaKgk', emoji: '💫' },
+            { title: 'Rewire Your Brain',                        duration: '70:00', category: 'Transformation', videoId: '6JrHM6UjVpw', emoji: '🧠' },
+            { title: 'Meet Your Higher Self',                    duration: '70:00', category: 'Spiritual',      videoId: 'DAVdAGn5ELw', emoji: '✨' },
+            { title: 'Deep Sleep Breathing & Affirmations',      duration: '70:00', category: 'Rest',           videoId: 'q3DygsrH9q8', emoji: '🌙' },
+            { title: 'Darkness to Light Breathwork Experience',  duration: '70:00', category: 'Energy',         videoId: 'Kv7GhUpLUE4', emoji: '🌅' },
+            { title: 'Wim Hof Method Breathwork',                duration: '70:00', category: 'Power',          videoId: 'CQnW0rLozww', emoji: '❄️' },
         ];
     }
 
@@ -37,7 +38,7 @@ class BreathworkRoom extends TimedVideoRoom {
                 <li>Sessions open every 1.5 hours from midnight UTC - enter before :10 to join</li>
                 <li>Session runs 80 minutes · Room closes at :10</li>
                 <li>All users worldwide join the same session simultaneously</li>
-                <li>5 techniques rotating each cycle</li>
+                <li>6 techniques rotating each cycle</li>
             </ul>
             <h3>Safety Guidelines:</h3>
             <ul>
@@ -47,11 +48,12 @@ class BreathworkRoom extends TimedVideoRoom {
             </ul>
             <h3>Techniques:</h3>
             <ul>
-                <li>🌊 Holotropic - Deep transformative breathing</li>
+                <li>💫 Trauma Release - Emotional renewal and healing</li>
+                <li>🧠 Rewire Your Brain - Transformational breathwork</li>
+                <li>✨ Higher Self - Spiritual guided breathwork</li>
+                <li>🌙 Deep Sleep - Breathing and affirmations</li>
+                <li>🌅 Darkness to Light - Energy breathwork experience</li>
                 <li>❄️ Wim Hof - Power breathing and breath holds</li>
-                <li>⬜ Box Breathing - Military focus technique</li>
-                <li>🧘 Pranayama - Traditional yogic breathing</li>
-                <li>🔄 Circular - Continuous energy breathing</li>
             </ul>`;
     }
 }
