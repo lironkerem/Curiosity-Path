@@ -185,13 +185,11 @@ class MeditationsEngine {
         cycleSec: 90 * 60,
         openSec:  10 * 60,
         sessions: [
-          { title: 'OSHO Chakra Breathing Meditation', duration: '77:00', category: 'Energy',   emoji: '🌬️' },
-          { title: 'OSHO Chakra Sounds Meditation',    duration: '77:00', category: 'Sound',    emoji: '🎵' },
-          { title: 'OSHO Devavani Meditation',         duration: '77:00', category: 'Voice',    emoji: '🗣️' },
-          { title: 'OSHO Kundalini Meditation',        duration: '77:00', category: 'Movement', emoji: '💃' },
-          { title: 'OSHO Mandala Meditation',          duration: '77:00', category: 'Energy',   emoji: '⭕' },
-          { title: 'OSHO Nadabrahma Meditation',       duration: '77:00', category: 'Humming',  emoji: '🕉️' },
-          { title: 'OSHO Nataraj Meditation',          duration: '77:00', category: 'Dance',    emoji: '🎭' },
+          { title: 'OSHO Dynamic Meditation',    duration: '77:00', category: 'Energy',   emoji: '🔥' },
+          { title: 'OSHO Kundalini Meditation',  duration: '77:00', category: 'Movement', emoji: '💃' },
+          { title: 'OSHO Nadabrahma Meditation', duration: '77:00', category: 'Humming',  emoji: '🕉️' },
+          { title: 'OSHO Nataraj Meditation',    duration: '77:00', category: 'Dance',    emoji: '🎭' },
+          { title: 'OSHO Whirling Meditation',   duration: '77:00', category: 'Spinning', emoji: '🌀' },
         ]
       }
     };
