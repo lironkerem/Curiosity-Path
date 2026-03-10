@@ -490,7 +490,7 @@ class TarotEngine {
             class="btn btn-primary"
             style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;flex:1 1 40%;white-space:nowrap;"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 8l1.5 3h3l-2.5 2 1 3-3-2-3 2 1-3-2.5-2h3z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="13" r="8"/><path d="M5 3 2 6l3 3"/><path d="m19 3 3 3-3 3"/><path d="M5.05 11A7 7 0 0 1 9 6.23c.7-.57 1.37-.85 2-.85"/><path d="M10.44 19.5a7 7 0 0 0 7.5-9"/></svg>
             Enter the Tarot Room
           </button>
         </div>
@@ -562,7 +562,7 @@ class TarotEngine {
               return `
                 <button id="tarot-vision-ai-btn"
                         class="btn w-full inline-flex items-center justify-center gap-3 px-6 py-6 text-xl font-bold text-white rounded-xl shadow transition-transform ${locked ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02]'}">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12s1.5-3 5-3 5 3 5 3-1.5 3-5 3-5-3-5-3Z"/><circle cx="12" cy="12" r="1"/></svg> Tarot Vision AI – Take a picture/upload a tarot card to analyse it
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="13" r="8"/><path d="M5 3 2 6l3 3"/><path d="m19 3 3 3-3 3"/><path d="M5.05 11A7 7 0 0 1 9 6.23c.7-.57 1.37-.85 2-.85"/><path d="M10.44 19.5a7 7 0 0 0 7.5-9"/></svg> Tarot Vision AI – Take a picture/upload a tarot card to analyse it
                   ${locked ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:3rem;height:3rem;opacity:0.3;margin-left:0.5rem;flex-shrink:0;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' : ''}
                   <span class="premium-badge">PREMIUM</span>
                 </button>`;
