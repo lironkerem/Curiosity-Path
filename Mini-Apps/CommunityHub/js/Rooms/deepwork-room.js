@@ -51,8 +51,6 @@ class DeepWorkRoom extends PracticeRoom {
     onEnter() {
         if (this.state.showSetup) {
             setTimeout(() => this.showSetupModal(), 300);
-        } else {
-            setTimeout(() => this.showInstructions(), 300);
         }
 
         this.loadRoomChatFromDB('main');
@@ -227,7 +225,7 @@ class DeepWorkRoom extends PracticeRoom {
         }
 
         Core.showToast('Session set - click Begin!');
-        setTimeout(() => this.showInstructions(), 200);
+
     }
 
     // ── Tile selection ────────────────────────────────────────────────────────
@@ -317,7 +315,7 @@ class DeepWorkRoom extends PracticeRoom {
                 </div>
 
                 <!-- Status buttons (below timer) -->
-                <div style="display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap;justify-content:center;">
+                <div style="display:flex;gap:8px;margin-top:20px;margin-bottom:32px;flex-wrap:wrap;justify-content:center;">
                     ${['deep-focus','light-focus','break'].map(s => `
                     <button class="dw-status-btn" data-status="${s}"
                             onclick="${cn}.changeStatus('${s}')"

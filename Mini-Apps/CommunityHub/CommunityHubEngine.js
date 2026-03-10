@@ -232,6 +232,15 @@ class CommunityHubEngine {
 
     document.body.classList.add('ritual-active');
     overlay.classList.add('active');
+
+    // Auto-dismiss after 5 s (mirrors Rituals.config.OPENING_AUTO_CLOSE_MS)
+    setTimeout(() => {
+      if (window.Rituals) window.Rituals.completeOpening();
+      else {
+        overlay.classList.remove('active');
+        document.body.classList.remove('ritual-active');
+      }
+    }, 5000);
   }
 
   // ---------------------------------------------------------------------------

@@ -24,6 +24,7 @@ const Rituals = {
 
     config: {
         OPENING_AUTO_CLOSE_MS: 5000,
+        CLOSING_AUTO_CLOSE_MS: 3000,
         OPENING_COOLDOWN_MS: 24 * 60 * 60 * 1000, // 24 hours
 
         OPENING_TEXTS: [
@@ -124,19 +125,6 @@ const Rituals = {
     // OPENING RITUAL
     // ============================================================================
 
-    showOpening() {
-        const overlay = document.getElementById('openingOverlay');
-        if (!overlay) { console.warn('Opening overlay not found'); return; }
-
-        const textEl = document.getElementById('openingRitualText');
-        if (textEl) textEl.textContent = `"${this._randomText('OPENING_TEXTS')}"`;
-
-        document.body.classList.add('ritual-active');
-        overlay.classList.add('active');
-        this.state.autoCloseTimer = setTimeout(() => this.completeOpening(), this.config.OPENING_AUTO_CLOSE_MS);
-        console.log('✓ Opening ritual displayed');
-    },
-
     completeOpening() {
         const overlay = document.getElementById('openingOverlay');
         if (!overlay) return;
@@ -170,6 +158,7 @@ const Rituals = {
             container.style.pointerEvents = 'auto';
         }
         overlay.classList.add('active');
+        this.state.autoCloseTimer = setTimeout(() => this.completeClosing(), this.config.CLOSING_AUTO_CLOSE_MS);
         console.log('✓ Closing ritual displayed');
     },
 
@@ -181,6 +170,8 @@ const Rituals = {
         overlay.classList.remove('active');
         document.body.classList.remove('ritual-active');
         document.body.style.overflow = '';
+        clearTimeout(this.state.autoCloseTimer);
+        this.state.autoCloseTimer = null;
         if (container) container.style.display = 'none';
 
         this.cleanupActiveRoom();
