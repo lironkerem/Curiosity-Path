@@ -2,7 +2,15 @@
 :: bump-version.bat — updates ?v= and SW cache version to today's DDMM
 :: Place in project root and double-click or run from Command Prompt
 
-:: Use wmic for reliable date parsing
+:: Get day and month
+for /f "tokens=1-3 delims=/" %%a in ("%date%") do (
+  set DD=%%a
+  set MM=%%b
+  set YYYY=%%c
+)
+
+:: Handle different Windows date formats (some return D/M/YYYY, some M/D/YYYY)
+:: We'll use wmic for reliable date parsing
 for /f "tokens=2 delims==" %%a in ('wmic os get LocalDateTime /value') do set DT=%%a
 set YYYY=%DT:~0,4%
 set MM=%DT:~4,2%
@@ -17,7 +25,7 @@ echo.
 if not exist index.html (
   echo WARNING: index.html not found
 ) else (
-  powershell -NoProfile -Command "(Get-Content 'index.html') -replace '\?v=[a-zA-Z0-9_-]+', '?v=%VERSION%' | Set-Content 'index.html'"
+  powershell -Command "(Get-Content 'index.html') -replace '\?v=[a-zA-Z0-9_-]+', '?v=%VERSION%' | Set-Content 'index.html'"
   echo Done: index.html
 )
 
@@ -25,7 +33,7 @@ if not exist index.html (
 if not exist service-worker.js (
   echo WARNING: service-worker.js not found
 ) else (
-  powershell -NoProfile -Command "$c = Get-Content 'service-worker.js' -Raw; $c = $c -replace \"const CACHE_VERSION = 'tcp-[^']+'\", \"const CACHE_VERSION = 'tcp-%SW_DATE%'\"; Set-Content 'service-worker.js' $c"
+  powershell -Command "(Get-Content 'service-worker.js') -replace \"(const CACHE_VERSION = 'tcp-)[a-zA-Z0-9_-]+('\)\", \"`$1%SW_DATE%`$2\" | Set-Content 'service-worker.js'"
   echo Done: service-worker.js
 )
 
