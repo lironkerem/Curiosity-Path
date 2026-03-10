@@ -409,14 +409,15 @@ const LunarUI = {
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media(max-width:768px){
-    .lunar-top-bar{flex-direction:column;align-items:stretch;padding:1rem;gap:.75rem;}
-    .lunar-phase-left{gap:1rem;}
-    .lunar-moon-icon-large{font-size:2rem;}
+    .lunar-top-bar{flex-wrap:wrap;flex-direction:row;align-items:center;padding:1rem;gap:.75rem;}
+    .lunar-phase-left{flex:1;gap:1rem;min-width:0;}
+    .lunar-moon-icon-large{font-size:2rem;flex-shrink:0;}
+    .lunar-phase-info{min-width:0;}
     .lunar-phase-info h2{font-size:1.1rem;}
     .lunar-phase-info p{font-size:.85rem;}
-    .lunar-live-count-top{width:100%;box-sizing:border-box;justify-content:center;}
+    .lunar-back-hub-btn{position:static;flex-shrink:0;order:1;padding:.5rem 1rem;font-size:.85rem;}
+    .lunar-live-count-top{order:2;width:100%;box-sizing:border-box;justify-content:center;}
     .lunar-live-count-top span{font-size:.85rem;}
-    .lunar-back-hub-btn{position:static;width:100%;box-sizing:border-box;text-align:center;padding:.6rem 1rem;font-size:.85rem;}
     .lunar-wisdom-text{font-size:1.2rem;padding:1.5rem;}
     .lunar-practices-grid{grid-template-columns:1fr;}
     .lunar-timer-display{font-size:3rem;}
