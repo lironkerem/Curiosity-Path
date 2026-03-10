@@ -1,7 +1,7 @@
 // The Curiosity Path - Service Worker
 // Version: 2025-01-23
 
-const CACHE_VERSION = 'tcp-2025-03-08';
+const CACHE_VERSION = 'tcp-2026-03-10';
 const CACHE_NAME = `tcp-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tcp-runtime-${CACHE_VERSION}`;
 const ICON_PATH = './public/Icons/';
@@ -67,8 +67,8 @@ self.addEventListener('fetch', e => {
     // Cache-first for images and icons
     e.respondWith(cacheFirst(request));
   } else if (url.pathname.includes('/CSS/') || url.pathname.endsWith('.css')) {
-    // Cache-first for CSS files
-    e.respondWith(cacheFirst(request));
+    // Network-first for CSS files (supports ?v= cache-busting)
+    e.respondWith(networkFirst(request));
   } else if (request.destination === 'script' || url.pathname.endsWith('.js')) {
     // Network-first for JavaScript files (to get updates)
     e.respondWith(networkFirst(request));

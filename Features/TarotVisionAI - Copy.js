@@ -786,8 +786,7 @@
     if (!btn) return;
 
     // Check if feature is unlocked
-    const isPrivileged = window.app?.state?.currentUser?.isAdmin || window.app?.state?.currentUser?.isVip;
-    const isUnlocked = isPrivileged || window.app?.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
+    const isUnlocked = window.app?.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
     
     if (!isUnlocked) {
       showToast('Purchase Tarot Vision AI in the Karma Shop to use this feature.', 'info');
