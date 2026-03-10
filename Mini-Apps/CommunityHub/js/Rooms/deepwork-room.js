@@ -212,7 +212,13 @@ class DeepWorkRoom extends PracticeRoom {
         this.state.showSetup   = false;
         this.closeSetupModal();
 
-        this._updateTimer();
+        // Update display — rAF ensures DOM is settled post-modal
+        requestAnimationFrame(() => {
+            this._updateTimer();
+            this._setTimerBtn('idle');
+            // Belt-and-suspenders: also update after a tick in case of CSS transition delay
+            setTimeout(() => this._updateTimer(), 50);
+        });
 
         const intentionDiv  = document.getElementById('currentIntention');
         const categoryBadge = document.getElementById('categoryBadge');
