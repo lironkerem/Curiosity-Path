@@ -128,46 +128,20 @@ const Core = {
                 const targetId = window._pendingHubScrollTarget;
                 window._pendingHubScrollTarget = null;
 
-                const doScroll = () => {
-                    const maxAttempts = 40;
-                    let attempts = 0;
-                    const poll = setInterval(() => {
-                        attempts++;
-                        const el = document.getElementById(targetId);
-                        const hasContent = el && el.offsetHeight > 10;
-                        if (hasContent) {
-                            clearInterval(poll);
-                            setTimeout(() => {
-                                // Dynamic offset: fixed bottom bar on mobile, small padding otherwise
-                                const bottomBar = document.getElementById('mobile-bottom-bar');
-                                const offset = bottomBar ? bottomBar.offsetHeight + 16 : 16;
-                                const top = el.getBoundingClientRect().top + window.scrollY - offset;
-                                window.scrollTo({ top, behavior: 'smooth' });
-                            }, 100);
-                        } else if (attempts >= maxAttempts) {
-                            clearInterval(poll);
-                            if (el) {
-                                const bottomBar = document.getElementById('mobile-bottom-bar');
-                                const offset = bottomBar ? bottomBar.offsetHeight + 16 : 16;
-                                const top = el.getBoundingClientRect().top + window.scrollY - offset;
-                                window.scrollTo({ top, behavior: 'smooth' });
-                            }
-                        }
-                    }, 100);
-                };
-
-                // Wait for ritual overlay to dismiss before scrolling (it shifts layout)
-                if (document.body.classList.contains('ritual-active')) {
-                    const ritualPoll = setInterval(() => {
-                        if (!document.body.classList.contains('ritual-active')) {
-                            clearInterval(ritualPoll);
-                            doScroll();
-                        }
-                    }, 100);
-                    setTimeout(() => clearInterval(ritualPoll), 8000); // safety timeout
-                } else {
-                    doScroll();
-                }
+                const maxAttempts = 40; // 4 seconds max (40 × 100ms)
+                let attempts = 0;
+                const poll = setInterval(() => {
+                    attempts++;
+                    const el = document.getElementById(targetId);
+                    const hasContent = el && el.offsetHeight > 10;
+                    if (hasContent) {
+                        clearInterval(poll);
+                        setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+                    } else if (attempts >= maxAttempts) {
+                        clearInterval(poll);
+                        el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 100);
             }
 
         } catch (error) {
