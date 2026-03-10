@@ -9,7 +9,7 @@ class BreathworkRoom extends TimedVideoRoom {
             roomType:        'timed',
             name:            'Breathwork',
             icon:            '💨',
-            description:     'Holotropic, Wim Hof, and more.',
+            description:     'Unique Breathwork Sessions, from different modalities and techniques. View Schedule for details.',
             energy:          'Transformative',
             imageUrl:        '/public/Community/Breathwork.webp',
             participants:    0,

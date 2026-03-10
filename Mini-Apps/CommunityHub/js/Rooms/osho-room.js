@@ -9,7 +9,7 @@ class OshoRoom extends TimedVideoRoom {
             roomType:        'timed',
             name:            'OSHO Active',
             icon:            '💃',
-            description:     '7 OSHO methods. Dynamic practice.',
+            description:     'OSHO Active Meditations practices (with instructions). View Schedule for details.',
             energy:          'Dynamic',
             imageUrl:        '/public/Community/OSHO.webp',
             participants:    0,
@@ -21,14 +21,59 @@ class OshoRoom extends TimedVideoRoom {
         this.scheduleModalTitle = '📅 Upcoming OSHO Sessions';
 
         this.sessions = [
-            { title: 'OSHO Chakra Breathing Meditation', duration: '77:00', category: 'Energy',   videoId: 'DqmQFz7aZ8w', emoji: '🌬️' },
-            { title: 'OSHO Chakra Sounds Meditation',    duration: '77:00', category: 'Sound',    videoId: 'DqmQFz7aZ8w', emoji: '🎵' },
-            { title: 'OSHO Devavani Meditation',         duration: '77:00', category: 'Voice',    videoId: 'DqmQFz7aZ8w', emoji: '🗣️' },
-            { title: 'OSHO Kundalini Meditation',        duration: '77:00', category: 'Movement', videoId: 'DqmQFz7aZ8w', emoji: '💃' },
-            { title: 'OSHO Mandala Meditation',          duration: '77:00', category: 'Energy',   videoId: 'DqmQFz7aZ8w', emoji: '⭕' },
-            { title: 'OSHO Nadabrahma Meditation',       duration: '77:00', category: 'Humming',  videoId: 'DqmQFz7aZ8w', emoji: '🕉️' },
-            { title: 'OSHO Nataraj Meditation',          duration: '77:00', category: 'Dance',    videoId: 'DqmQFz7aZ8w', emoji: '🎭' },
+            { title: 'OSHO Dynamic Meditation',    duration: '77:00', category: 'Energy',   introVideoId: 'Q_PFlkHH7IA', videoId: 'tLUxtq3peR8', emoji: '🔥' },
+            { title: 'OSHO Kundalini Meditation',  duration: '77:00', category: 'Movement', introVideoId: 'O3-wH2VBdN8', videoId: 'vEyageQp6w8', emoji: '💃' },
+            { title: 'OSHO Nadabrahma Meditation', duration: '77:00', category: 'Humming',  introVideoId: 'tnVsMXf88Pw', videoId: 'yVGhzBVT64A', emoji: '🕉️' },
+            { title: 'OSHO Nataraj Meditation',    duration: '77:00', category: 'Dance',    introVideoId: 'pxg3FmOeQhk', videoId: 'grSjP12Q4Oc', emoji: '🎭' },
+            { title: 'OSHO Whirling Meditation',   duration: '77:00', category: 'Spinning', introVideoId: 'Jk2AaABIKTY', videoId: 'EKvLFs9niXY', emoji: '🌀' },
         ];
+    }
+
+    // ── Dual-video: play intro first, then auto-advance to practice ───────────
+
+    onEnter() {
+        this._playingIntro = false;
+        super.onEnter();
+    }
+
+    // Override initPlayer to load the introVideoId first
+    initPlayer() {
+        if (this.state.playerInitialized) return;
+
+        const session = this.getCurrentSession();
+        if (!session?.introVideoId) {
+            super.initPlayer();
+            return;
+        }
+
+        this._playingIntro = true;
+
+        this.state.player = new YT.Player(`${this.roomId}-youtube-player`, {
+            videoId:    session.introVideoId,
+            playerVars: { autoplay: 1, controls: 1, modestbranding: 1, rel: 0, mute: 1 },
+            events: {
+                onReady:       e => this.onPlayerReady(e),
+                onStateChange: e => this.onPlayerStateChange(e),
+            },
+        });
+
+        this.state.playerInitialized = true;
+    }
+
+    // When intro ends, auto-load the practice video
+    onVideoEnded() {
+        if (this._playingIntro) {
+            this._playingIntro = false;
+            const session = this.getCurrentSession();
+            if (session?.videoId && this.state.player) {
+                this.state.player.loadVideoById(session.videoId);
+                this.state.player.playVideo();
+                Core.showToast(`${session.emoji} Practice starting…`);
+            }
+        } else {
+            this.stopProgressTracking();
+            Core.showToast('Session complete');
+        }
     }
 
     getInstructions() {
@@ -39,7 +84,8 @@ class OshoRoom extends TimedVideoRoom {
                 <li>Sessions open every 1.5 hours from midnight UTC - enter before :10 to join</li>
                 <li>Session runs 80 minutes · Room closes at :10</li>
                 <li>All users worldwide join the same session simultaneously</li>
-                <li>7 OSHO methods rotating each cycle</li>
+                <li>Each session begins with guided instructions, then the full practice</li>
+                <li>5 OSHO methods rotating each cycle</li>
             </ul>
             <h3>Practice Guidelines:</h3>
             <ul>
@@ -47,15 +93,13 @@ class OshoRoom extends TimedVideoRoom {
                 <li>Express freely - move, breathe, sound</li>
                 <li>Allow whatever arises</li>
             </ul>
-            <h3>The 7 Methods:</h3>
+            <h3>The 5 Methods:</h3>
             <ul>
-                <li>🌬️ Chakra Breathing - Energy activation</li>
-                <li>🎵 Chakra Sounds - Vocal energy work</li>
-                <li>🗣️ Devavani - Gibberish and silence</li>
+                <li>🔥 Dynamic - Cathartic active meditation</li>
                 <li>💃 Kundalini - Shaking and dancing</li>
-                <li>⭕ Mandala - Running in circles</li>
                 <li>🕉️ Nadabrahma - Humming meditation</li>
                 <li>🎭 Nataraj - Dance meditation</li>
+                <li>🌀 Whirling - Sufi spinning meditation</li>
             </ul>`;
     }
 }
