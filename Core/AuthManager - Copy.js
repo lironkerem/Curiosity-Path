@@ -103,7 +103,7 @@ export default class AuthManager {
   }
 
   _generateFooter() {
-    return `<div class="auth-footer text-center mt-6 text-sm" style="margin-top:14px"><div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span style="font-size:0.85rem">Secure & encrypted • We never share your data</span></div><p class="mb-2">Your account is securely stored in Supabase Cloud</p><div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap"><a href="#" onclick="window.open('Core/Legal/terms.html','_blank','width=800,height=700,scrollbars=yes,resizable=yes'); return false;" class="auth-link">Terms of Service</a><span>•</span><a href="#" onclick="window.open('Core/Legal/privacy.html','_blank','width=800,height=700,scrollbars=yes,resizable=yes'); return false;" class="auth-link">Privacy Policy</a></div></div>`;
+    return `<div class="auth-footer text-center mt-6 text-sm" style="margin-top:14px"><div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span style="font-size:0.85rem">Secure & encrypted • We never share your data</span></div><p class="mb-2">Your account is securely stored in Supabase Cloud</p><div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap"><a href="#" onclick="window.app.auth.showTerms(); return false;" class="auth-link">Terms of Service</a><span>•</span><a href="#" onclick="window.app.auth.showPrivacy(); return false;" class="auth-link">Privacy Policy</a></div></div>`;
   }
 
   _generateStyles() {
@@ -428,6 +428,25 @@ export default class AuthManager {
     location.reload();
   }
 
+  showTerms() { this._showModal('Terms of Service', this._getTermsContent()); }
+  showPrivacy() { this._showModal('Privacy Policy', this._getPrivacyContent()); }
+
+  _getTermsContent() {
+    return `<h3 style="font-weight:600;margin-bottom:16px">1. Acceptance of Terms</h3><p style="margin-bottom:16px">By accessing and using The Curiosity Path, you accept and agree to be bound by the terms and provision of this agreement.</p><h3 style="font-weight:600;margin-bottom:16px">2. Use License</h3><p style="margin-bottom:16px">Permission is granted to temporarily access the materials on The Curiosity Path for personal, non-commercial transitory viewing only.</p><h3 style="font-weight:600;margin-bottom:16px">3. User Account</h3><p style="margin-bottom:16px">You are responsible for maintaining the confidentiality of your account and password. You agree to accept responsibility for all activities that occur under your account.</p><h3 style="font-weight:600;margin-bottom:16px">4. Prohibited Uses</h3><p style="margin-bottom:16px">You may not use our service for any illegal or unauthorized purpose, nor may you violate any laws in your jurisdiction.</p><h3 style="font-weight:600;margin-bottom:16px">5. Modifications</h3><p style="margin-bottom:16px">We reserve the right to modify or replace these Terms at any time. Continued use of the service after changes constitutes acceptance.</p><h3 style="font-weight:600;margin-bottom:16px">6. Contact</h3><p>For questions about these Terms, please contact us through our support channels.</p>`;
+  }
+
+  _getPrivacyContent() {
+    return `<h3 style="font-weight:600;margin-bottom:16px">1. Information We Collect</h3><p style="margin-bottom:16px">We collect information you provide directly to us, including your name, email address, and any other information you choose to provide.</p><h3 style="font-weight:600;margin-bottom:16px">2. How We Use Your Information</h3><p style="margin-bottom:16px">We use the information we collect to provide, maintain, and improve our services, to process your transactions, and to communicate with you.</p><h3 style="font-weight:600;margin-bottom:16px">3. Information Sharing</h3><p style="margin-bottom:16px">We do not share your personal information with third parties except as described in this policy or with your consent.</p><h3 style="font-weight:600;margin-bottom:16px">4. Data Security</h3><p style="margin-bottom:16px">Your data is securely stored in Supabase Cloud with industry-standard encryption. We implement appropriate technical and organizational measures to protect your information.</p><h3 style="font-weight:600;margin-bottom:16px">5. Your Rights</h3><p style="margin-bottom:16px">You have the right to access, update, or delete your personal information at any time through your account settings.</p><h3 style="font-weight:600;margin-bottom:16px">6. Cookies and Tracking</h3><p style="margin-bottom:16px">We use local storage to maintain your session and improve your experience. No third-party tracking cookies are used.</p><h3 style="font-weight:600;margin-bottom:16px">7. Changes to Privacy Policy</h3><p style="margin-bottom:16px">We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new policy on this page.</p><h3 style="font-weight:600;margin-bottom:16px">8. Contact Us</h3><p>If you have questions about this Privacy Policy, please contact us through our support channels.</p>`;
+  }
+
+  _showModal(title, content) {
+    const modal = document.createElement('div');
+    modal.style.cssText = '';
+    modal.className = 'auth-modal-overlay';
+    modal.innerHTML = `<div class="auth-modal-card"><div class="auth-modal-header"><h2>${title}</h2><button class="auth-modal-close" onclick="this.closest('.auth-modal-overlay').remove()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div class="auth-modal-body">${content}</div></div>`;
+    modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+    document.body.appendChild(modal);
+  }
 }
 
 function attachProfileHelpers() {
