@@ -218,15 +218,12 @@ class DeepWorkRoom extends PracticeRoom {
 
         const intentionDiv  = document.getElementById('currentIntention');
         const categoryBadge = document.getElementById('categoryBadge');
-        if (intentionDiv) intentionDiv.textContent = this.state.currentIntention;
+        if (intentionDiv) intentionDiv.textContent = this.state.currentIntention || 'Use this time to focus and get things done';
         if (categoryBadge) {
             const cat = this.CATEGORIES[this.state.currentCategory];
-            if (cat) {
-                categoryBadge.innerHTML        = `${cat.icon} ${cat.label}`;
-                categoryBadge.style.background = cat.gradient;
-                categoryBadge.style.border     = `2px solid ${cat.border}`;
-                categoryBadge.style.display    = 'inline-block';
-            }
+            categoryBadge.innerHTML        = `${cat.icon} ${cat.label}`;
+            categoryBadge.style.background = cat.gradient;
+            categoryBadge.style.border     = `2px solid ${cat.border}`;
         }
 
         Core.showToast('Session set - click Begin!');
@@ -291,26 +288,17 @@ class DeepWorkRoom extends PracticeRoom {
         <div class="ps-body" style="display:flex;flex-direction:column;">
             <main class="ps-main" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;">
 
-                <!-- Status buttons -->
-                <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;justify-content:center;">
-                    ${['deep-focus','light-focus','break'].map(s => `
-                    <button class="dw-status-btn" data-status="${s}"
-                            onclick="${cn}.changeStatus('${s}')"
-                            style="padding:12px 24px;border:2px solid ${this.state.currentStatus===s?'var(--accent)':' var(--border)'};border-radius:var(--radius-md);background:${this.state.currentStatus===s?'var(--accent)':' var(--surface)'};color:${this.state.currentStatus===s?'white':'var(--text)'};cursor:pointer;font-weight:600;transition:all 0.2s;">
-                        ${{ 'deep-focus':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Deep Focus','light-focus':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Light Focus','break':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg> Break Time' }[s]}
-                    </button>`).join('')}
+                <!-- Category pill (always shown, fallback "Focus") -->
+                <div style="margin-bottom:16px;">
+                    <span id="categoryBadge" style="display:inline-flex;align-items:center;gap:6px;padding:8px 20px;background:${cat.gradient};border:2px solid ${cat.border};border-radius:var(--radius-full);font-size:14px;font-weight:700;letter-spacing:0.05em;">
+                        ${cat.icon} ${this.state.currentCategory ? cat.label : 'Focus'}
+                    </span>
                 </div>
 
                 <!-- Intention -->
-                <div style="text-align:center;max-width:600px;margin-bottom:20px;margin-top:16px;">
-                    ${this.state.currentIntention ? `
-                    <div style="margin-bottom:16px;">
-                        <span id="categoryBadge" style="padding:10px 20px;background:${cat.gradient};border:2px solid ${cat.border};border-radius:var(--radius-lg);font-size:15px;font-weight:700;letter-spacing:0.05em;">
-                            ${cat.icon} ${cat.label}
-                        </span>
-                    </div>` : ''}
+                <div style="text-align:center;max-width:600px;margin-bottom:20px;">
                     <div id="currentIntention" style="font-size:clamp(1.1rem,4vw,1.75rem);font-weight:700;letter-spacing:0.02em;line-height:1.4;opacity:0.9;">
-                        ${this.state.currentIntention || 'Set your intention to begin'}
+                        ${this.state.currentIntention || 'Use this time to focus and get things done'}
                     </div>
                 </div>
 
@@ -324,8 +312,18 @@ class DeepWorkRoom extends PracticeRoom {
                 })}
 
                 <!-- Timer controls -->
-                <div style="margin-bottom:40px;">
+                <div style="margin-bottom:24px;">
                 ${this.buildTimerControls()}
+                </div>
+
+                <!-- Status buttons (below timer) -->
+                <div style="display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap;justify-content:center;">
+                    ${['deep-focus','light-focus','break'].map(s => `
+                    <button class="dw-status-btn" data-status="${s}"
+                            onclick="${cn}.changeStatus('${s}')"
+                            style="padding:10px 20px;border:2px solid ${this.state.currentStatus===s?'var(--accent)':'var(--border)'};border-radius:var(--radius-md);background:${this.state.currentStatus===s?'var(--accent)':'var(--surface)'};color:${this.state.currentStatus===s?'white':'var(--text)'};cursor:pointer;font-weight:600;font-size:13px;transition:all 0.2s;">
+                        ${{ 'deep-focus':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Deep Focus','light-focus':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Light Focus','break':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg> Break Time' }[s]}
+                    </button>`).join('')}
                 </div>
             </main>
 
