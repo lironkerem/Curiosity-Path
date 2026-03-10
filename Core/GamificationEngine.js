@@ -96,6 +96,16 @@ export class GamificationEngine {
       this.state.quests = definitions;
       this.saveState();
       console.log('✅ Quests initialized');
+    } else {
+      // Merge definition properties (e.g. tab) into saved quest state
+      ['daily', 'weekly', 'monthly'].forEach(type => {
+        if (this.state.quests[type]) {
+          this.state.quests[type] = this.state.quests[type].map(quest => {
+            const def = definitions[type]?.find(d => d.id === quest.id);
+            return def ? { ...def, ...quest } : quest;
+          });
+        }
+      });
     }
   }
 
