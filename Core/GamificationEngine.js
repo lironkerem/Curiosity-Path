@@ -106,6 +106,7 @@ export class GamificationEngine {
           });
         }
       });
+      this.saveState();
     }
   }
 
