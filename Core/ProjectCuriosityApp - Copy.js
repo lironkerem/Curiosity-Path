@@ -58,17 +58,17 @@ const TAB_NAMES = {
 };
 
 const EMOJI = {
-  LEVEL_UP:    '',
-  ACHIEVEMENT: '',
-  FIRE:        '',
-  TROPHY:      '',
-  MEDAL:       '',
-  BADGE:       '',
-  CHECKMARK:   '',
-  STAR:        '',
-  GEM:         '',
-  SPARKLES:    '',
-  UNLOCK:      ''
+  LEVEL_UP: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  ACHIEVEMENT: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>',
+  FIRE: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',
+  TROPHY: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>',
+  MEDAL: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>',
+  BADGE: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>',
+  CHECKMARK: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+  STAR: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  GEM: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="2" y2="9"/><line x1="12" y1="3" x2="22" y2="9"/></svg>',
+  SPARKLES: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  UNLOCK: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>'
 };
 
 // Initialize dark mode on module load
@@ -324,7 +324,7 @@ export default class ProjectCuriosityApp {
     // Level up
     const unsub1 = g.on('levelUp', ({ level, title }) => {
       showToast(
-        `Level Up! You are now a ${title} (Level ${level})!`,
+        `${EMOJI.LEVEL_UP.slice(0, 2)} Level Up! You are now a ${title} (Level ${level})!`,
         'success'
       );
       this.playLevelUpAnimation();
@@ -333,10 +333,10 @@ export default class ProjectCuriosityApp {
     // Streak updated
     const unsub2 = g.on('streakUpdated', ({ current, best }) => {
       if (current > 1) {
-        showToast(`${current} Day Streak!`, 'success');
+        showToast(`${EMOJI.FIRE} ${current} Day Streak!`, 'success');
       }
       if (current === best && current > 3) {
-        showToast(`New Best Streak: ${best} Days!`, 'success');
+        showToast(`${EMOJI.TROPHY} New Best Streak: ${best} Days!`, 'success');
       }
     });
 
@@ -354,40 +354,40 @@ export default class ProjectCuriosityApp {
 
     // Achievement unlocked
     const unsub5 = g.on('achievementUnlocked', (achievement) => {
-      showToast(`Achievement: ${achievement.name}`, 'success');
+      showToast(`${EMOJI.MEDAL} Achievement: ${achievement.name}`, 'success');
       this.showAchievementModal(achievement);
     });
 
     // Badge unlocked
     const unsub6 = g.on('badgeUnlocked', (badge) => {
-      showToast(`New Badge: ${badge.name}`, 'success');
+      showToast(`${EMOJI.BADGE} New Badge: ${badge.name}`, 'success');
     });
 
     // Quest completed
     const unsub7 = g.on('questCompleted', (quest) => {
-      showToast(`Quest Complete: ${quest.name}`, 'success');
+      showToast(`${EMOJI.CHECKMARK} Quest Complete: ${quest.name}`, 'success');
     });
 
     // All daily quests complete
     const unsub8 = g.on('dailyQuestsComplete', () => {
-      showToast(`All Daily Quests Complete! +50 Bonus XP`, 'success');
+      showToast(`${EMOJI.STAR} All Daily Quests Complete! +50 Bonus XP`, 'success');
     });
 
     // Chakra updated
     const unsub9 = g.on('chakraUpdated', ({ chakra, value }) => {
       if (value >= 100) {
-        showToast(`${chakra} Chakra Mastered!`, 'success');
+        showToast(`${EMOJI.GEM} ${chakra} Chakra Mastered!`, 'success');
       }
     });
 
     // Inspirational message
     const unsub10 = g.on('inspirationalMessage', (message) => {
-      showToast(`${message}`, 'info');
+      showToast(`${EMOJI.SPARKLES} ${message}`, 'info');
     });
 
     // Feature unlocked
     const unsub11 = g.on('featureUnlocked', (featureId) => {
-      showToast(`New Feature Unlocked: ${featureId}`, 'success');
+      showToast(`${EMOJI.UNLOCK} New Feature Unlocked: ${featureId}`, 'success');
     });
 
     // Store unsubscribers for cleanup
@@ -509,7 +509,7 @@ export default class ProjectCuriosityApp {
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
       transition: all 0.3s;
     `;
-    button.textContent = `Awesome! ${EMOJI.LEVEL_UP}`;
+    button.textContent = `Awesome! ${EMOJI.LEVEL_UP.slice(0, 2)}`;
     button.onmouseover = () => (button.style.transform = 'scale(1.05)');
     button.onmouseout = () => (button.style.transform = 'scale(1)');
     button.onclick = () => modalEl.remove();
