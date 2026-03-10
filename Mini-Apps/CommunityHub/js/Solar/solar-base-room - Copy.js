@@ -233,8 +233,6 @@ const BaseSolarRoom = {
   // ============================================================================
 
   renderDashboard() {
-    SolarUIManager.injectStyles();
-
     const container = document.getElementById('dynamicRoomContent');
     if (!container) { console.error('dynamicRoomContent not found'); return; }
 
