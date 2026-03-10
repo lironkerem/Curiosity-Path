@@ -17,7 +17,7 @@ class DeepWorkRoom extends PracticeRoom {
             roomType:    'always-open',
             name:        'Digital Nomads Deep Work',
             icon:        '🎯',
-            description: 'Focused work sessions. Pomodoro together.',
+            description: 'Focus sessions with your community. Do hard things together. Set your intention. Start the timer. Get it done.',
             energy:      'Focused',
             imageUrl:    '/public/Community/Focus.webp',
             participants: 12,

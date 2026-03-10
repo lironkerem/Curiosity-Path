@@ -25,7 +25,7 @@ class ReikiRoom extends PracticeRoom {
             roomType:    'always-open',
             name:        'Reiki Chakra Room',
             icon:        '✨',
-            description: '7-day chakra rhythm with energy healing',
+            description: 'Daily chakra energy work aligned with the planetary cycle. Tune into your energy. Heal, balance, and flow.',
             energy:      'Healing',
             imageUrl:    '/public/Community/Reiki.webp',
             participants: 15,

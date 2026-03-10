@@ -28,7 +28,7 @@ class TarotRoom extends PracticeRoom {
             roomType:    'always-open',
             name:        'Tarot Room',
             icon:        '🔮',
-            description: 'Daily guidance & personal draws with reflection',
+            description: 'Explore the cards, reflect on the messages and share your insights with the community. Guidance, intuition, and community wisdom - one card at a time.',
             energy:      'Intuitive',
             imageUrl:    '/public/Community/Tarot.webp',
             participants: 8,

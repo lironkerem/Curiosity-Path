@@ -13,7 +13,7 @@ class CampfireRoom extends PracticeRoom {
             roomType:    'always-open',
             name:        'Community Campfire',
             icon:        '🔥',
-            description: 'Gather, share, connect. Open chat & inspire.',
+            description: 'A warm space to share, reflect, and connect with the community. Pull up a chair. Real conversations, real people, real connection.',
             energy:      'Social',
             imageUrl:    '/public/Community/Campfire.webp',
             participants: 12,
@@ -26,7 +26,7 @@ class CampfireRoom extends PracticeRoom {
 
     onEnter() {
         this.loadRoomChatFromDB('main');
-        this._refreshParticipantSidebar(`${this.roomId}ParticipantListEl`, `${this.roomId}ParticipantCount`);
+        this._refreshParticipantSidebar(`${this.roomId}ParticipantsList`, `${this.roomId}SidebarCount`);
         this._injectSenderAvatar('main');
     }
 
@@ -42,24 +42,25 @@ class CampfireRoom extends PracticeRoom {
 
     buildBody() {
         return `
-        <div class="ps-body">
-            <main class="campfire-main" style="padding:20px;min-width:0;">
-                <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:12px 8px 24px;" class="tarot-daily-grid">
-                    <div>
-                        <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                            Gather Around the Fire
-                        </h4>
-                        <div style="display:flex;flex-direction:column;height:auto;">
-                            ${this.buildChatContainer('main', 'Share from the heart...')}
-                        </div>
-                        <div style="text-align:center;margin-top:8px;font-size:12px;color:var(--text-muted);font-style:italic;">
-                            💫 Speak from the heart · Listen with presence
-                        </div>
-                    </div>
-                    ${this.buildParticipantSidebarHTML('Around the Fire', `${this.roomId}ParticipantListEl`, `${this.roomId}ParticipantCount`, 'auto')}
+        <div class="ps-body campfire-body" style="display:flex;gap:0;min-height:0;flex:1;">
+            <main class="campfire-main" style="flex:1;display:flex;flex-direction:column;padding:20px;min-width:0;">
+                <h2 style="font-family:var(--serif);text-align:center;margin-bottom:20px;">
+                    Gather Around the Fire
+                </h2>
+                ${this.buildChatContainer('main', 'Share from the heart...')}
+                <div class="campfire-hint" style="text-align:center;margin-top:8px;font-size:12px;color:var(--text-muted);font-style:italic;">
+                    💫 Speak from the heart · Listen with presence
                 </div>
             </main>
+            <aside class="campfire-sidebar-always-visible" id="${this.roomId}Sidebar">
+                <div class="campfire-sidebar-header" style="margin-bottom:20px;">
+                    <div style="font-weight:600;font-size:16px;">Around the Fire</div>
+                    <div id="${this.roomId}SidebarCount" style="font-size:12px;color:var(--text-muted);margin-top:2px;">Loading...</div>
+                </div>
+                <div class="campfire-participants" id="${this.roomId}ParticipantsList">
+                    <div style="color:var(--text-muted);font-size:13px;padding:12px;">Loading...</div>
+                </div>
+            </aside>
         </div>`;
     }
 
