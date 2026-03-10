@@ -92,18 +92,20 @@ class DeepWorkRoom extends PracticeRoom {
         this.state.timerRunning = false;
         this._setTimerBtn('paused');
         this._setTimerGlow('paused');
-        const btn = document.getElementById(`${this.roomId}TimerBtn`);
-        if (btn) btn.textContent = 'Break';
         this._switchToBreak();
+    }
+
+    // Override mixin label so 'running' state always shows 'Break' (not 'Pause')
+    _setTimerBtn(state) {
+        const btn = document.getElementById(`${this.roomId}TimerBtn`);
+        if (!btn) return;
+        const labels = { idle: 'Begin', running: 'Break', paused: 'Continue', done: 'Complete' };
+        btn.textContent = labels[state] ?? state;
     }
 
     startTimer() {
         if (this.state.timerRunning) return;
         this.state.timerRunning = true;
-
-        // Override btn label to 'Break' instead of mixin's 'Pause'
-        const btn = document.getElementById(`${this.roomId}TimerBtn`);
-        if (btn) btn.textContent = 'Break';
 
         this._setTimerGlow('running');
 
@@ -147,21 +149,41 @@ class DeepWorkRoom extends PracticeRoom {
             btn.style.border     = `2px solid ${active ? 'var(--accent)' : 'var(--border)'}`;
         });
 
+        // Drive collapsible chat panel
+        this._setChatPanelOpen(isBreak);
+
+        Core.showToast(isBreak ? 'Break time — chat unlocked!' : `${this.getStatusText()}`);
+    }
+
+    _setChatPanelOpen(open) {
+        const panel   = document.getElementById(`${this.roomId}ChatPanelBody`);
+        const header  = panel?.previousElementSibling;
+        const chevron = document.getElementById(`${this.roomId}ChatChevron`);
+
+        if (panel) {
+            panel.style.maxHeight = open ? '600px' : '0px';
+            panel.style.opacity   = open ? '1'     : '0';
+        }
+        if (header) header.style.opacity = open ? '1' : '0.35';
+        if (chevron) chevron.style.transform = open ? 'rotate(0deg)' : 'rotate(-90deg)';
+
+        // Enable/disable input
         const chatInput = document.getElementById(`${this.roomId}MainInput`);
         const chatSend  = document.getElementById(`${this.roomId}MainSendBtn`);
-        const chatContainer = document.getElementById(`${this.roomId}MainChatContainer`);
-
         if (chatInput) {
-            chatInput.disabled    = !isBreak;
-            chatInput.placeholder = isBreak ? 'Share during your break...' : 'Pause timer to chat';
+            chatInput.disabled    = !open;
+            chatInput.placeholder = open ? 'Share during your break...' : 'Pause timer to chat';
         }
-        if (chatSend) chatSend.disabled = !isBreak;
-        if (chatContainer) {
-            chatContainer.style.opacity        = isBreak ? '1'      : '0.4';
-            chatContainer.style.pointerEvents  = isBreak ? 'auto'   : 'none';
-        }
+        if (chatSend) chatSend.disabled = !open;
+    }
 
-        Core.showToast(isBreak ? 'Break time - chat unlocked!' : `${this.getStatusText()}`);
+    _toggleChatPanel() {
+        // Only allow toggling when on break
+        if (this.state.currentStatus !== 'break') return;
+        const panel = document.getElementById(`${this.roomId}ChatPanelBody`);
+        if (!panel) return;
+        const isOpen = panel.style.maxHeight !== '0px';
+        this._setChatPanelOpen(!isOpen);
     }
 
     getStatusText() {
@@ -275,7 +297,7 @@ class DeepWorkRoom extends PracticeRoom {
                     <button class="dw-status-btn" data-status="${s}"
                             onclick="${cn}.changeStatus('${s}')"
                             style="padding:12px 24px;border:2px solid ${this.state.currentStatus===s?'var(--accent)':' var(--border)'};border-radius:var(--radius-md);background:${this.state.currentStatus===s?'var(--accent)':' var(--surface)'};color:${this.state.currentStatus===s?'white':'var(--text)'};cursor:pointer;font-weight:600;transition:all 0.2s;">
-                        ${{ 'deep-focus':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Deep','light-focus':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Light','break':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg> Break' }[s]}
+                        ${{ 'deep-focus':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Deep Focus','light-focus':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Light Focus','break':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg> Break Time' }[s]}
                     </button>`).join('')}
                 </div>
 
@@ -307,25 +329,33 @@ class DeepWorkRoom extends PracticeRoom {
                 </div>
             </main>
 
-            <!-- Chat below timer -->
+            <!-- Chat below timer — collapsible -->
             <div style="padding:0 20px 20px;">
-                <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:12px 8px 24px;" class="tarot-daily-grid">
-                    <div>
-                        <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
+                <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;">
+                    <!-- Header / toggle row -->
+                    <div onclick="${cn}._toggleChatPanel()"
+                         style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;user-select:none;opacity:${isBreak ? '1' : '0.35'};">
+                        <div style="display:flex;align-items:center;gap:8px;font-family:var(--serif);font-size:17px;font-weight:600;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:18px;height:18px;"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
                             Break Room Chat
-                        </h4>
-                        <div style="position:relative;">
-                            <div id="${this.roomId}MainChatContainer" style="display:flex;flex-direction:column;height:auto;opacity:${isBreak ? '1' : '0.15'};pointer-events:${isBreak ? 'auto' : 'none'};transition:opacity 0.3s;filter:${isBreak ? 'none' : 'grayscale(1)'};">
-                                ${this.buildChatContainer('main', isBreak ? 'Share during your break...' : 'Pause timer to chat')}
-                            </div>
-                            ${!isBreak ? `<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;pointer-events:none;">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:28px;height:28px;opacity:0.5;"><rect width="11" height="11" x="1" y="1" rx="2"/><rect width="11" height="11" x="12" y="1" rx="2"/><rect width="11" height="11" x="1" y="12" rx="2"/><rect width="11" height="11" x="12" y="12" rx="2"/></svg>
-                                <span style="font-size:13px;font-weight:600;opacity:0.6;letter-spacing:0.05em;">☕ Chat opens on Break</span>
-                            </div>` : ''}
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            ${!isBreak ? '<span style="font-size:11px;opacity:0.6;font-style:italic;">☕ Opens on Break</span>' : ''}
+                            <svg id="${this.roomId}ChatChevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;transition:transform 0.25s;transform:${isBreak ? 'rotate(0deg)' : 'rotate(-90deg)'};">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
                         </div>
                     </div>
-                    ${this.buildParticipantSidebarHTML('Working Together', `${this.roomId}ParticipantListEl`, `${this.roomId}ParticipantCount`, 'auto')}
+                    <!-- Collapsible body -->
+                    <div id="${this.roomId}ChatPanelBody"
+                         style="overflow:hidden;max-height:${isBreak ? '600px' : '0px'};transition:max-height 0.3s ease;opacity:${isBreak ? '1' : '0'};transition:max-height 0.3s ease,opacity 0.3s ease;">
+                        <div style="padding:0 8px 24px;" class="tarot-daily-grid">
+                            <div>
+                                ${this.buildChatContainer('main', 'Share during your break...')}
+                            </div>
+                            ${this.buildParticipantSidebarHTML('Working Together', `${this.roomId}ParticipantListEl`, `${this.roomId}ParticipantCount`, 'auto')}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>`;
