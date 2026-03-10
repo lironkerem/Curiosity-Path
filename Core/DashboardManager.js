@@ -1119,8 +1119,9 @@ export default class DashboardManager {
 
         <button onclick="window.app?.nav?.switchTab('community-hub')"
                 class="btn btn-primary"
-                style="width:100%;margin-top:1rem;">
-          Enter the Sanctuary →
+                style="width:100%;margin-top:1rem;display:flex;align-items:center;justify-content:center;gap:0.5rem;">
+          <picture><source srcset="/public/Tabs/Community.webp" type="image/webp"><img src="/public/Tabs/Community.png" alt="" style="width:22px;height:22px;object-fit:contain;border-radius:4px;"></picture>
+          Enter the Community Hub →
         </button>
       </div>`;
   }
