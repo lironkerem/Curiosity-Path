@@ -627,8 +627,10 @@ export default class NavigationManager {
    * @param {number} duration - Vibration duration in ms
    */
   vibrate(duration) {
-    if (navigator.vibrate) {
-      navigator.vibrate(duration);
+    try {
+      if (navigator.vibrate) navigator.vibrate(duration);
+    } catch (e) {
+      // Silently ignore — browser may block vibrate before user gesture
     }
   }
 
