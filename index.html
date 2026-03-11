@@ -3,24 +3,35 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=yes">
-  <meta name="description" content="The Curiosity Path - Step into your next level">
+  <meta name="description" content="The Curiosity Path - Step into your next level of spiritual growth, mindfulness, tarot, and personal transformation.">
+  <meta name="robots" content="index, follow">
   <meta name="permissions-policy" content="camera=(self)">
   <title>The Curiosity Path - by Aanandoham</title>
 
-  <!-- ===== Critical Styles (inline — guaranteed before first paint) ===== -->
+  <!-- ===== Critical Styles (inline) ===== -->
   <style>
+    .skip-nav {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: #6b9b37;
+      color: #fff;
+      padding: 8px 16px;
+      text-decoration: none;
+      font-family: system-ui, sans-serif;
+      font-size: 0.875rem;
+      z-index: 9999;
+      border-radius: 0 0 4px 0;
+    }
+    .skip-nav:focus { top: 0; }
     .lucide-icon {
       width: 32px;
       height: 32px;
       display: inline-block;
       vertical-align: middle;
     }
-    @media (max-width: 768px) {
-      .lucide-icon { width: 24px; height: 24px; }
-    }
-    @media (max-width: 480px) {
-      .lucide-icon { width: 20px; height: 20px; }
-    }
+    @media (max-width: 768px) { .lucide-icon { width: 24px; height: 24px; } }
+    @media (max-width: 480px) { .lucide-icon { width: 20px; height: 20px; } }
   </style>
 
   <!-- ===== CDN Preconnect ===== -->
@@ -28,20 +39,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  <!-- ===== Google Fonts (Journal: Kalam, Crimson Text, Cinzel) ===== -->
-  <!-- Non-blocking: preload the CSS, swap to real fonts when ready -->
+  <!-- ===== Google Fonts (non-blocking) ===== -->
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&display=swap"></noscript>
 
   <!-- ===== CSS ===== -->
-  <!-- 1. base look — includes preflight reset + utility classes (no separate tailwind file needed) -->
   <link rel="stylesheet" href="/CSS/main-styles.css?v=1003">
-
-  <!-- 3. default dark-mode sheet — media="not all" prevents it applying until boot script activates it -->
   <link rel="preload" href="/CSS/dark-mode.css?v=1003" as="style">
   <link rel="stylesheet" href="/CSS/dark-mode.css?v=1003" id="dark-mode-css" media="not all">
 
-  <!-- 4. premium skins — media="not all" prevents them applying until boot script activates them -->
   <link rel="preload" href="/CSS/Skins/champagne-gold.css?v=1003" as="style">
   <link rel="preload" href="/CSS/Skins/royal-indigo.css?v=1003"   as="style">
   <link rel="preload" href="/CSS/Skins/earth-luxury.css?v=1003"   as="style">
@@ -52,10 +58,7 @@
   <link rel="stylesheet" href="/CSS/Skins/earth-luxury.css?v=1003"   id="skin_earth-luxury"   media="not all">
   <link rel="stylesheet" href="/CSS/Skins/matrix-code.css?v=1003"    id="skin_matrix-code"    media="not all">
 
-  <!-- 5. mobile sheet -->
   <link rel="stylesheet" href="/CSS/mobile-styles.css?v=1003" media="(max-width:1024px)">
-
-  <!-- 6. Community Hub — loaded globally so the Active Members dashboard widget has styles -->
   <link rel="stylesheet" href="/CSS/community-hub.css?v=1003">
 
   <!-- ===== PWA / icons ===== -->
@@ -71,26 +74,21 @@
 </head>
 
 <body>
-  <!-- ===== Boot: apply theme & dark mode before first paint (body exists here) ===== -->
-  <!-- This runs synchronously so there is zero flash of unstyled/wrong-theme content -->
+  <!-- Skip navigation for keyboard/screen-reader users -->
+  <a class="skip-nav" href="#main-content">Skip to main content</a>
+
+  <!-- ===== Boot: apply theme & dark mode before first paint ===== -->
   <script>
   (function() {
     var dark = localStorage.getItem('darkMode') === 'enabled';
     var skin = localStorage.getItem('activeTheme') || 'default';
-
-    // Apply skin body class immediately so skin CSS selectors match on first paint
     if (skin !== 'default') {
       document.body.classList.add(skin);
-      // Activate the preloaded skin stylesheet
       var skinLink = document.getElementById('skin_' + skin);
       if (skinLink) skinLink.media = 'all';
-      // Premium skins include their own dark rules — keep default dark sheet off
     } else if (dark) {
-      // Default theme + dark mode: activate the dark stylesheet
       document.getElementById('dark-mode-css').media = 'all';
     }
-
-    // Apply dark-mode body class immediately (what dark-mode.css and all app code target)
     if (dark) document.body.classList.add('dark-mode');
   })();
   </script>
@@ -98,36 +96,35 @@
   <div id="auth-screen"></div>
   <div id="app-container">
     <div id="main-app" class="hidden">
-      <main id="main-content">
-        <div id="dashboard-tab" class="tab-content active"></div>
-        <div id="calculator-tab" class="tab-content hidden" aria-live="polite"></div>
-        <div id="flip-script-tab" class="tab-content hidden"></div>
-        <div id="meditations-tab" class="tab-content hidden"></div>
-        <div id="tarot-tab" class="tab-content hidden"></div>
-        <div id="energy-tab" class="tab-content hidden"></div>
-        <div id="happiness-tab" class="tab-content hidden"></div>
-        <div id="gratitude-tab" class="tab-content hidden"></div>
-        <div id="journal-tab" class="tab-content hidden"></div>
-        <div id="karma-shop-tab" class="tab-content hidden"></div>
-        <div id="shadow-alchemy-tab" class="tab-content hidden"></div>
-        <div id="chatbot-tab" class="tab-content hidden"></div>
-        <div id="community-hub-tab" class="tab-content hidden"></div>
+      <main id="main-content" role="main" aria-label="Application content">
+        <div id="dashboard-tab"      class="tab-content active"  aria-live="polite"></div>
+        <div id="calculator-tab"     class="tab-content hidden"  aria-live="polite"></div>
+        <div id="flip-script-tab"    class="tab-content hidden"  aria-live="polite"></div>
+        <div id="meditations-tab"    class="tab-content hidden"  aria-live="polite"></div>
+        <div id="tarot-tab"          class="tab-content hidden"  aria-live="polite"></div>
+        <div id="energy-tab"         class="tab-content hidden"  aria-live="polite"></div>
+        <div id="happiness-tab"      class="tab-content hidden"  aria-live="polite"></div>
+        <div id="gratitude-tab"      class="tab-content hidden"  aria-live="polite"></div>
+        <div id="journal-tab"        class="tab-content hidden"  aria-live="polite"></div>
+        <div id="karma-shop-tab"     class="tab-content hidden"  aria-live="polite"></div>
+        <div id="shadow-alchemy-tab" class="tab-content hidden"  aria-live="polite"></div>
+        <div id="chatbot-tab"        class="tab-content hidden"  aria-live="polite"></div>
+        <div id="community-hub-tab"  class="tab-content hidden"  aria-live="polite"></div>
       </main>
-      <div id="modal-container"></div>
-      <div id="audio-player" class="hidden"></div>
+      <div id="modal-container" role="region" aria-label="Modals"></div>
+      <div id="audio-player" class="hidden" aria-label="Audio player" aria-hidden="true"></div>
     </div>
   </div>
 
-  <div id="toast-container"></div>
-  <!-- Global toast element for Community Hub Core.showToast() -->
+  <div id="toast-container" role="status" aria-live="polite" aria-atomic="true"></div>
   <div id="toast" role="alert" aria-live="assertive" style="display:none;"></div>
 
-  <!-- ===== External Dependencies ===== -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"
+  <!-- ===== External Dependencies (deferred) ===== -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"
           crossorigin="anonymous"></script>
 
   <!-- ===== Application Scripts ===== -->
-  <script src="/CSS/Skins/MatrixRain.js?v=1003"></script>
+  <script defer src="/CSS/Skins/MatrixRain.js?v=1003"></script>
   <script type="module" src="./Core/Utils.js"></script>
   <script defer src="./Features/TarotVisionAI.js?v=1003"></script>
   <script type="module" src="./Features/TarotEngine.js"></script>
@@ -135,22 +132,17 @@
   <script type="module" src="./Features/KarmaShopEngine.js"></script>
   <script type="module" src="./Features/EnergyTracker.js"></script>
   <script type="module" src="./Core/Features.js"></script>
-  <script src="./Features/WellnessKit.js?v=1003"></script>
+  <script defer src="./Features/WellnessKit.js?v=1003"></script>
 
   <!-- ===== Bootstrap Application ===== -->
   <script type="module">
     async function init() {
-      console.log('[INIT] The Curiosity Path - Aanandoham\'s Spiritual Platform Online');
-
-      // Register Service Worker
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./service-worker.js')
-          .then(reg => console.log('[SW] Service Worker registered:', reg))
           .catch(err => console.error('[SW ERROR] Service Worker registration failed:', err));
       }
 
       try {
-        // Load data modules
         const [aff, {QUOTES, getRandomQuote, getQuoteOfTheDay}] = await Promise.all([
           import('./Features/Data/AffirmationsList.js'),
           import('./Features/Data/QuotesList.js')
@@ -159,11 +151,9 @@
         window.affirmations = aff.default;
         window.QuotesData = {QUOTES, getRandomQuote, getQuoteOfTheDay};
 
-        // Load core modules
         const Core = await import('./Core/Index.js');
         const {default: UserTab} = await import('./Core/User-Tab.js');
 
-        // Initialize application
         window.app = new Core.ProjectCuriosityApp({
           AppState:          Core.AppState,
           AuthManager:       Core.AuthManager,
@@ -179,7 +169,6 @@
       }
     }
 
-    // Start initialization
     document.readyState === 'loading'
       ? document.addEventListener('DOMContentLoaded', init)
       : init();
@@ -187,14 +176,11 @@
 
   <!-- ===== Theme Management ===== -->
   <script>
-  // setSkin — delegates to User-Tab once loaded (full class + stylesheet management),
-  // falls back to direct stylesheet toggle for early/external calls (e.g. shareTheme)
   window.setSkin = function(name) {
     if (window.app?.userTab?.switchTheme) {
       window.app.userTab.switchTheme(name);
       return;
     }
-    // Fallback: stylesheet-only toggle (body class will be set by User-Tab on init)
     document.querySelectorAll('link[id^="skin_"]').forEach(l => l.media = 'not all');
     if (name !== 'default') {
       var wanted = document.getElementById('skin_' + name);
@@ -206,17 +192,14 @@
     localStorage.setItem('activeTheme', name);
   };
 
-  // shareTheme — switches skin without navigation
   window.shareTheme = function(name) {
     localStorage.setItem('activeTheme', name);
     window.setSkin(name);
   };
 
-  // setDark — kept for any external callers; User-Tab.handleDarkModeToggle is the primary path
   window.setDark = function(enable) {
     localStorage.setItem('darkMode', enable ? 'enabled' : 'disabled');
     document.body.classList.toggle('dark-mode', enable);
-    // Only toggle default dark sheet when no premium skin is active
     var premiumActive = document.querySelector('link[id^="skin_"][media="all"]');
     if (!premiumActive) {
       document.getElementById('dark-mode-css').media = enable ? 'all' : 'not all';

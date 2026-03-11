@@ -1,12 +1,11 @@
 // The Curiosity Path - Service Worker
-// Version: 2025-01-23
+// Version: 2026-03-11
 
-const CACHE_VERSION = 'tcp-2026-03-10';
+const CACHE_VERSION = 'tcp-2026-03-11';
 const CACHE_NAME = `tcp-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tcp-runtime-${CACHE_VERSION}`;
 const ICON_PATH = './public/Icons/';
 
-// Core assets to cache immediately
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -19,7 +18,6 @@ const CORE_ASSETS = [
   `${ICON_PATH}badge-96x96.png`
 ];
 
-// Install event - cache core assets
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_NAME)
@@ -29,133 +27,86 @@ self.addEventListener('install', e => {
   );
 });
 
-// Activate event - clean up old caches
 self.addEventListener('activate', e => {
   e.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
+    caches.keys().then(cacheNames =>
+      Promise.all(
         cacheNames.map(cacheName => {
-          // Delete old caches that don't match current version
-          if (cacheName.startsWith('tcp-') && 
-              cacheName !== CACHE_NAME && 
+          if (cacheName.startsWith('tcp-') &&
+              cacheName !== CACHE_NAME &&
               cacheName !== RUNTIME_CACHE) {
             return caches.delete(cacheName);
           }
         })
-      );
-    }).then(() => clients.claim())
+      )
+    ).then(() => self.clients.claim())
   );
 });
 
-// Fetch event - smart caching strategy
 self.addEventListener('fetch', e => {
   const { request } = e;
   const url = new URL(request.url);
 
-  // Skip cross-origin requests
-  if (url.origin !== self.location.origin) {
+  // Skip non-GET and cross-origin — must call respondWith or not at all for bfcache
+  if (request.method !== 'GET' || url.origin !== self.location.origin) {
     return;
   }
 
-  // Normalize URL (remove trailing slashes for consistency)
-  const normalizedUrl = url.pathname.endsWith('/') && url.pathname !== '/' 
-    ? url.pathname.slice(0, -1) 
-    : url.pathname;
+  // Skip chrome-extension and non-http schemes
+  if (!url.protocol.startsWith('http')) {
+    return;
+  }
 
-  // Handle different types of requests
   if (request.destination === 'image' || url.pathname.includes('/Icons/')) {
-    // Cache-first for images and icons
     e.respondWith(cacheFirst(request));
   } else if (url.pathname.includes('/CSS/') || url.pathname.endsWith('.css')) {
-    // Network-first for CSS files (supports ?v= cache-busting)
     e.respondWith(networkFirst(request));
   } else if (request.destination === 'script' || url.pathname.endsWith('.js')) {
-    // Network-first for JavaScript files (to get updates)
     e.respondWith(networkFirst(request));
   } else {
-    // Default: network-first for HTML and other resources
     e.respondWith(networkFirst(request));
   }
 });
 
-// Network-first strategy (fresh content, fallback to cache)
 async function networkFirst(request) {
-  // Skip caching for non-GET requests
-  if (request.method !== 'GET') {
-    return fetch(request);
-  }
-
   try {
     const networkResponse = await fetch(request);
-    
-    // Cache successful responses
     if (networkResponse.ok) {
       const cache = await caches.open(RUNTIME_CACHE);
       cache.put(request, networkResponse.clone());
     }
-    
     return networkResponse;
-  } catch (error) {
-    // Network failed, try cache
+  } catch {
     const cachedResponse = await caches.match(request);
-    
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-    
-    // No cache available - return offline message
-    return new Response(
-      'Offline - Please check your internet connection',
-      {
-        status: 503,
-        statusText: 'Service Unavailable',
-        headers: new Headers({
-          'Content-Type': 'text/plain; charset=utf-8'
-        })
-      }
-    );
-  }
-}
-
-// Cache-first strategy (performance priority)
-async function cacheFirst(request) {
-  // Skip caching for non-GET requests
-  if (request.method !== 'GET') {
-    return fetch(request);
-  }
-
-  // Try cache first
-  const cachedResponse = await caches.match(request);
-  if (cachedResponse) {
-    return cachedResponse;
-  }
-  
-  // Not in cache, fetch from network
-  try {
-    const networkResponse = await fetch(request);
-    
-    // Cache successful responses
-    if (networkResponse.ok) {
-      const cache = await caches.open(RUNTIME_CACHE);
-      cache.put(request, networkResponse.clone());
-    }
-    
-    return networkResponse;
-  } catch (error) {
-    // Return generic offline response for assets
-    return new Response('', {
+    if (cachedResponse) return cachedResponse;
+    return new Response('Offline - Please check your internet connection', {
       status: 503,
-      statusText: 'Service Unavailable'
+      statusText: 'Service Unavailable',
+      headers: new Headers({ 'Content-Type': 'text/plain; charset=utf-8' })
     });
   }
 }
 
-// Push notification listener
+async function cacheFirst(request) {
+  const cachedResponse = await caches.match(request);
+  if (cachedResponse) return cachedResponse;
+
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      const cache = await caches.open(RUNTIME_CACHE);
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch {
+    return new Response('', { status: 503, statusText: 'Service Unavailable' });
+  }
+}
+
 self.addEventListener('push', event => {
   try {
     const data = event.data ? event.data.json() : {};
     const { title = 'The Curiosity Path', body, icon, tag, data: customData } = data;
-    
     event.waitUntil(
       self.registration.showNotification(title, {
         body: body || 'You have a new notification',
@@ -172,25 +123,18 @@ self.addEventListener('push', event => {
   }
 });
 
-// Notification click handler
 self.addEventListener('notificationclick', event => {
   event.notification.close();
-  
   const urlToOpen = event.notification.data?.url || '/';
-  
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true })
       .then(clientList => {
-        // Check if app is already open
         for (const client of clientList) {
           if (client.url === urlToOpen && 'focus' in client) {
             return client.focus();
           }
         }
-        // Open new window if not already open
-        if (clients.openWindow) {
-          return clients.openWindow(urlToOpen);
-        }
+        if (clients.openWindow) return clients.openWindow(urlToOpen);
       })
   );
 });
