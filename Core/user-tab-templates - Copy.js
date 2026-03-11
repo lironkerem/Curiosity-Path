@@ -16,7 +16,8 @@ export const MENU_ITEMS = [
   { id: 'rules', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>', label: 'Rules' },
   { id: 'contact', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>', label: 'Contact Me' },
   { id: 'export', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>', label: 'Export Data' },
-  { id: 'billing', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>', label: 'Pricings' }
+  { id: 'billing', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>', label: 'Pricings' },
+  { id: 'admin', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>', label: 'Admin Hacks', admin: true }
 ];
 
 // ============== AVATAR ICON PICKER ==============
@@ -102,21 +103,8 @@ export const profile = (u = {}) => `
       </label>
       <!-- Hidden input stores the selected icon key -->
       <input type="hidden" id="profile-emoji" value="${EMOJI_TO_KEY[u.emoji] || u.emoji || 'user'}">
-      <button type="button" class="btn" id="open-icon-picker-btn" style="margin-top:4px;font-size:0.85rem;padding:6px 16px;">
-        Choose Icon
-      </button>
-    </div>
-
-    <!-- Icon Picker Modal -->
-    <div id="icon-picker-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;">
-      <div style="background:var(--neuro-bg);border-radius:var(--radius-lg);padding:1.5rem;max-width:360px;width:90%;box-shadow:var(--shadow-raised-lg);max-height:80vh;display:flex;flex-direction:column;gap:1rem;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <strong style="font-size:1rem;">Choose your Icon</strong>
-          <button type="button" id="close-icon-picker-btn" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--neuro-text);">✕</button>
-        </div>
-        <div class="avatar-icon-picker" id="avatar-icon-picker" style="overflow-y:auto;max-height:55vh;">
-          ${ICON_PICKER_OPTIONS}
-        </div>
+      <div class="avatar-icon-picker" id="avatar-icon-picker">
+        ${ICON_PICKER_OPTIONS}
       </div>
     </div>
     <input 
@@ -513,6 +501,16 @@ export const exportData = () => `
     <button class="btn-link" onclick="window.app.exportUserData()">
       Download JSON
     </button>
+  </div>`;
+
+/** Render admin section mount point */
+export const admin = () => `
+  <div class="accordion-inner">
+    <div id="admin-tab-mount" style="min-height: 100px;">
+      <div style="text-align:center;padding:20px;opacity:.7;">
+        Click to load admin panel...
+      </div>
+    </div>
   </div>`;
 
 /** Billing section (handled by pricing modal) */

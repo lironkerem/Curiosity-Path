@@ -55,6 +55,7 @@ export default class UserTab {
 
         <div class="user-dropdown" id="user-dropdown" role="menu">
           ${Templates.MENU_ITEMS.map(item =>
+            item.admin && !u?.isAdmin ? '' :
             `<button class="dropdown-item" data-section="${item.id}">${item.icon} ${item.label}</button>
              <div class="accordion-panel" id="panel-${item.id}"></div>`
           ).join('')}
@@ -245,6 +246,10 @@ export default class UserTab {
       },
       export: () => {
         panel.innerHTML = Templates.exportData();
+      },
+      admin: () => {
+        panel.innerHTML = Templates.admin();
+        this.loadAdminPanel();
       }
     };
 
@@ -255,18 +260,6 @@ export default class UserTab {
   // ============== PROFILE MANAGEMENT ==============
 
   attachProfileHandlers() {
-    // Icon picker modal open/close
-    const modal = document.getElementById('icon-picker-modal');
-    document.getElementById('open-icon-picker-btn')?.addEventListener('click', () => {
-      if (modal) modal.style.display = 'flex';
-    });
-    document.getElementById('close-icon-picker-btn')?.addEventListener('click', () => {
-      if (modal) modal.style.display = 'none';
-    });
-    modal?.addEventListener('click', (e) => {
-      if (e.target === modal) modal.style.display = 'none';
-    });
-
     // Icon picker: clicking an SVG button updates the hidden input + preview
     document.querySelectorAll('.avatar-icon-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -285,9 +278,6 @@ export default class UserTab {
         // Highlight selected
         document.querySelectorAll('.avatar-icon-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
-
-        // Close modal after selection
-        if (modal) modal.style.display = 'none';
       });
     });
 
@@ -937,6 +927,38 @@ export default class UserTab {
         title.parentElement.classList.toggle('open');
       });
     });
+  }
+
+  // ============== ADMIN ==============
+
+  /** Dynamically load admin panel module */
+  async loadAdminPanel() {
+    const mount = document.getElementById('admin-tab-mount');
+    if (!mount) return;
+
+    mount.innerHTML = '<div style="text-align:center;padding:20px;">Loading...</div>';
+
+    try {
+      const adminModule = await import('./Admin-Tab.js');
+      const { supabase } = await import('./Supabase.js');
+
+      const AdminTab = adminModule.AdminTab || adminModule.default;
+      const adminTab = new AdminTab(supabase);
+      const content = await adminTab.render();
+
+      mount.innerHTML = '';
+
+      if (typeof content === 'string') {
+        mount.innerHTML = content;
+      } else if (content instanceof HTMLElement) {
+        mount.appendChild(content);
+      } else {
+        mount.innerHTML = '<div style="color:#ff4757;padding:10px;">Invalid content returned</div>';
+      }
+    } catch (err) {
+      console.error('Admin panel error:', err);
+      mount.innerHTML = `<div style="color:#ff4757;padding:10px;">Failed to load: ${err.message}</div>`;
+    }
   }
 
   // ============== PRICING MODAL ==============
