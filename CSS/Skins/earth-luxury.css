@@ -165,6 +165,7 @@ body.earth-luxury::after{
     radial-gradient(2px 2px at 40% 60%,rgba(139,111,71,.4),transparent);
   background-size:200% 200%;
   animation:breathe 8s ease-in-out infinite;
+  will-change: opacity;
 }
 body.earth-luxury > *{position:relative;z-index:1}
 
@@ -176,6 +177,7 @@ body.earth-luxury .nav-item.active{
   border-color:rgba(157,56,53,.6);
   box-shadow:var(--shadow-inset),0 0 15px rgba(157,56,53,.4);
   animation:leafShimmer 3s linear infinite;
+  will-change: box-shadow;
 }
 
 /* ------  PRIMARY BTN ACCENT  ------ */
@@ -188,6 +190,7 @@ body.earth-luxury .community-link-btn{
   box-shadow:var(--shadow-raised-lg),var(--shadow-glow),inset 0 1px 0 rgba(184,90,82,.4);
   border:1px solid rgba(157,56,53,.5);
   position:relative;overflow:hidden;
+  will-change: box-shadow;
 }
 body.earth-luxury .btn-primary::after{
   content:"";
@@ -213,6 +216,7 @@ body.earth-luxury .lux-footer #cta-toggle{
   animation:earthGlow 6s ease-in-out infinite;
   border:1px solid rgba(157,56,53,.5);
   color:#fff;
+  will-change: box-shadow;
 }
 body.earth-luxury .main-header.project-curiosity h1,
 body.earth-luxury .main-header.project-curiosity h3,
@@ -372,6 +376,7 @@ body.earth-luxury .collective-action-btn {
   border: 1px solid rgba(157,56,53,0.50);
   box-shadow: var(--shadow-raised),var(--shadow-glow);
   animation: leafShimmer 3s linear infinite;
+  will-change: box-shadow;
 }
 body.earth-luxury .join-btn:hover, body.earth-luxury .join-btn-inline:hover,
 body.earth-luxury .event-btn:hover, body.earth-luxury .contrib-btn:hover,

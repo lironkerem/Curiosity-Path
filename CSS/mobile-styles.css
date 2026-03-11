@@ -1768,6 +1768,8 @@ body.sheet-open .lux-footer {
   align-items: center;
   justify-content: space-around;
   z-index: 98;
+  will-change: transform;
+  overscroll-behavior: none;
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 

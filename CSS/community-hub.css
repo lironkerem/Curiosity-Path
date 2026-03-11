@@ -2950,7 +2950,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 /* Remove browser focus ring */
-.ps-header button:focus { outline: none; }
+.ps-header button:focus:not(:focus-visible) { outline: none; }
 
 /* ── YouTube player: always fluid ── */
 .guided-player-container iframe,

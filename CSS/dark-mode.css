@@ -106,6 +106,7 @@ body.dark-mode #calculator-tab .card {
   border: 2px solid rgba(107,155,55,.6);
   box-shadow: var(--shadow-raised-lg), 0 0 20px rgba(107,155,55,.3);
   animation: leafShimmer 4s linear infinite;
+  will-change: box-shadow;
 }
 
 /* ----------  STRONGER GREEN ON INTERACTIVE  ---------- */
@@ -222,6 +223,7 @@ body.dark-mode .lux-footer #cta-toggle {
   border: 2px solid rgba(107,155,55,.7);
   animation: leafShimmer 6s linear infinite;
   color: #fff;
+  will-change: box-shadow;
 }
 body.dark-mode .main-header.project-curiosity h1,
 body.dark-mode .main-header.project-curiosity h3,
@@ -310,6 +312,7 @@ body.dark-mode .collapsible-card.expanded {
   border: 2px solid rgba(107,155,55,.6);
   box-shadow: var(--shadow-raised-lg), 0 0 20px rgba(107,155,55,.3);
   animation: leafShimmer 4s ease-in-out infinite;
+  will-change: box-shadow;
 }
 .pricing-overlay.dark-mode .pricing-card:hover {
   border-color: rgba(139,195,74,.9);
@@ -388,6 +391,7 @@ body.dark-mode .collective-action-btn {
   border: 1px solid rgba(107, 155, 55, 0.6);
   box-shadow: var(--shadow-raised), 0 0 15px rgba(107, 155, 55, 0.3);
   animation: leafShimmer 3s linear infinite;
+  will-change: box-shadow;
 }
 body.dark-mode .join-btn:hover,
 body.dark-mode .join-btn-inline:hover,

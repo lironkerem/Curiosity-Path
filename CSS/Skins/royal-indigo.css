@@ -169,6 +169,7 @@ body.royal-indigo::after{
     radial-gradient(1px 1px at 33% 80%,rgba(157,143,219,.4),transparent);
   background-size:200% 200%;
   animation:starTwinkle 8s ease-in-out infinite;
+  will-change: opacity;
 }
 body.royal-indigo > *{position:relative;z-index:1}
 
@@ -180,6 +181,7 @@ body.royal-indigo .nav-item.active{
   border-color:rgba(125,107,196,.6);
   box-shadow:var(--shadow-inset),0 0 15px rgba(125,107,196,.4);
   animation:purpleShimmer 3s linear infinite;
+  will-change: box-shadow;
 }
 
 /* ------  PRIMARY BTN ACCENT  ------ */
@@ -192,6 +194,7 @@ body.royal-indigo .community-link-btn{
   box-shadow:var(--shadow-raised-lg),var(--shadow-glow),inset 0 1px 0 rgba(157,143,219,.4);
   border:1px solid rgba(125,107,196,.5);
   position:relative;overflow:hidden;
+  will-change: box-shadow;
 }
 body.royal-indigo .btn-primary::after{
   content:"";
@@ -217,6 +220,7 @@ body.royal-indigo .lux-footer #cta-toggle{
   animation:royalPulse 6s ease-in-out infinite;
   border:1px solid rgba(125,107,196,.5);
   color:#fff;
+  will-change: box-shadow;
 }
 body.royal-indigo .main-header.project-curiosity h1,
 body.royal-indigo .main-header.project-curiosity h3,
@@ -232,6 +236,7 @@ body.royal-indigo .lux-footer .lux-text-group{
 body.royal-indigo .gold-accent{
   color:var(--neuro-royal-gold);
   animation:goldAccent 3s ease-in-out infinite;
+  will-change: box-shadow;
 }
 
 /* ------  POPUP MENU TITLE FIX  ------ */
@@ -387,6 +392,7 @@ body.royal-indigo .collective-action-btn {
   border: 1px solid rgba(125,107,196,0.50);
   box-shadow: var(--shadow-raised), var(--shadow-glow);
   animation: purpleShimmer 3s linear infinite;
+  will-change: box-shadow;
 }
 body.royal-indigo .join-btn:hover, body.royal-indigo .join-btn-inline:hover,
 body.royal-indigo .event-btn:hover, body.royal-indigo .contrib-btn:hover,

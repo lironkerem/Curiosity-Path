@@ -37,7 +37,6 @@
       this.createColumns();
       this.isRunning = true;
       this.animate();
-      console.log('✅ Matrix Rain initialized');
     }
 
     createContainer() {
@@ -103,8 +102,6 @@ destroy() {
         col.el.style.color = color;
         col.el.style.textShadow = `0 0 10px ${color}`;
       });
-      
-      console.log(`🎨 Matrix colors updated: ${isDark ? 'RED' : 'GREEN'}`);
     }
   } 
 
@@ -113,7 +110,7 @@ destroy() {
   window.matrixRain = new MatrixRain();
   
   function start() {
-    if (document.body.classList.contains('matrix-code')) {
+    if (document.body.classList.contains('matrix-code') && !window.matrixRain.isRunning) {
       window.matrixRain.init();
     }
   }
@@ -134,8 +131,8 @@ destroy() {
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', start);
+  } else {
+    // DOM already ready - defer one tick to ensure body classes are applied
+    setTimeout(start, 0);
   }
-  setTimeout(start, 100);
-  setTimeout(start, 500);
-  setTimeout(start, 1000);
 })();

@@ -143,6 +143,7 @@ body.champagne-gold .nav-item.active{
   border-color:rgba(212,175,55,.6);
   box-shadow:var(--shadow-inset),0 0 15px rgba(212,175,55,.4);
   animation:luxuryShine 3s linear infinite;
+  will-change: box-shadow;
 }
 
 /* ------  PRIMARY BTN ACCENT  ------ */
@@ -155,6 +156,7 @@ body.champagne-gold .community-link-btn{
   box-shadow:var(--shadow-raised-lg),var(--shadow-glow),inset 0 1px 0 rgba(255,255,255,.4);
   border:1px solid rgba(212,175,55,.6);
   position:relative;overflow:hidden;
+  will-change: box-shadow;
 }
 body.champagne-gold .btn-primary::after{
   content:"";
@@ -180,6 +182,7 @@ body.champagne-gold .lux-footer #cta-toggle{
   animation:goldPulse 6s ease-in-out infinite;
   border:1px solid rgba(212,175,55,.5);
   color:#2a2318;
+  will-change: box-shadow;
 }
 body.champagne-gold .main-header.project-curiosity h1,
 body.champagne-gold .main-header.project-curiosity h3,
@@ -342,6 +345,7 @@ body.champagne-gold .collective-action-btn {
   border: 1px solid rgba(212,175,55,0.60);
   box-shadow: var(--shadow-raised),var(--shadow-glow);
   animation: luxuryShine 3s linear infinite;
+  will-change: box-shadow;
 }
 body.champagne-gold .join-btn:hover, body.champagne-gold .join-btn-inline:hover,
 body.champagne-gold .event-btn:hover, body.champagne-gold .contrib-btn:hover,

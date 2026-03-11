@@ -125,6 +125,7 @@ body.matrix-code::before {
     linear-gradient(0deg, transparent 0%, rgba(0,255,65,.4) 10%, transparent 20%),
     repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(0,255,65,.2) 20px, rgba(0,255,65,.2) 21px);
   animation: digitalRain 20s linear infinite;
+  will-change: opacity;
 }
 
 body.matrix-code > *:not(.matrix-bg) { position: relative; z-index: 2; }
@@ -139,6 +140,7 @@ body.matrix-code .scanline-overlay {
   background: linear-gradient(180deg, transparent 0%, rgba(0,255,65,.3) 50%, transparent 100%);
   height: 200px;
   animation: scanline 8s linear infinite;
+  will-change: opacity;
 }
 
 body.matrix-code #main-app,
@@ -174,6 +176,7 @@ body.matrix-code .nav-item.active::after {
   content: "ONLINE █";
   animation: terminalBlink 1s infinite;
   margin-left: 4px;
+  will-change: box-shadow;
 }
 
 /* ===== BUTTONS ===== */
@@ -228,6 +231,7 @@ body.matrix-code .lux-footer #cta-toggle {
   animation: matrixPulse 6s ease-in-out infinite;
   color: var(--neuro-matrix);
   position: relative;
+  will-change: box-shadow;
 }
 
 body.matrix-code .main-header.project-curiosity::before,
@@ -240,6 +244,7 @@ body.matrix-code .lux-footer #cta-toggle::before {
   background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,65,.03) 2px, rgba(0,255,65,.03) 4px);
   pointer-events: none;
   animation: crtFlicker 3s infinite;
+  will-change: box-shadow;
 }
 
 body.matrix-code .main-header.project-curiosity h1,
@@ -252,6 +257,7 @@ body.matrix-code .lux-footer .lux-text-group {
   font-weight: 700;
   letter-spacing: 2px;
   animation: phosphorGlow 4s ease-in-out infinite;
+  will-change: box-shadow;
 }
 
 /* ===== CARDS ===== */
@@ -343,6 +349,7 @@ body.matrix-code .terminal-cursor::after {
   animation: terminalBlink 1s infinite;
   margin-left: 2px;
   color: var(--neuro-matrix);
+  will-change: box-shadow;
 }
 
 /* ===== MOBILE ELEMENTS ===== */
