@@ -36,9 +36,7 @@ export function openShadowGuidedProcessModal() {
   // FIXED: Wait for DOM to be ready and then start journey
   setTimeout(() => {
     try {
-      console.log('Starting Daily Journey...');
       window.DailyJourneyEngine.startDailyJourney(contentEl);
-      console.log('Daily Journey started successfully');
     } catch (error) {
       console.error('Failed to start Daily Journey:', error);
       contentEl.innerHTML = `

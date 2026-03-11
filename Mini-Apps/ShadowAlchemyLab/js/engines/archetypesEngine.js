@@ -50,7 +50,6 @@ class ArchetypesEngine {
         this.universal = deepClone(window.ARCHETYPES_DATA.universalArchetypes);
         this.shadows = deepClone(window.ARCHETYPES_DATA.shadowArchetypes);
         this.dataLoaded = true;
-        console.log('[ArchetypesEngine] Data loaded from window.ARCHETYPES_DATA');
         return;
       }
 
@@ -63,9 +62,6 @@ class ArchetypesEngine {
       this.shadows = deepClone(data.shadowArchetypes);
       this.dataLoaded = true;
       
-      console.log('[ArchetypesEngine] Data loaded successfully from JSON');
-      console.log('[ArchetypesEngine] Universal archetypes:', Object.keys(this.universal).length);
-      console.log('[ArchetypesEngine] Shadow archetypes:', Object.keys(this.shadows).length);
     } catch (e) {
       console.error('[ArchetypesEngine] Failed to load archetype data:', e);
       // Fallback: use empty data structures

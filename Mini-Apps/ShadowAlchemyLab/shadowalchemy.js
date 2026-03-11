@@ -74,7 +74,6 @@ tab.innerHTML = `
 }
   async initializeShadowAlchemy() {
     try {
-      console.log('🔮 Loading Shadow Alchemy Lab...');
 
       // engines
       await import('/Mini-Apps/ShadowAlchemyLab/js/engines/archetypesEngine.js');
@@ -84,7 +83,6 @@ tab.innerHTML = `
       await import('/Mini-Apps/ShadowAlchemyLab/js/controller.js');
 
       if (window.AppController?.init) await window.AppController.init();
-      console.log('✅ Shadow Alchemy Lab loaded successfully');
     } catch (err) {
       console.error('❌ Failed to load Shadow Alchemy Lab:', err);
       const main = document.getElementById('shadow-alchemy-main-content');
