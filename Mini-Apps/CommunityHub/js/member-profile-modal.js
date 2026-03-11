@@ -326,7 +326,7 @@ const MemberProfileModal = {
                                         `<button onclick="MemberProfileModal._openAdminSub('${key}')"
                                                 style="padding:9px 6px;border-radius:10px;border:none;cursor:pointer;
                                                        font-size:0.82rem;font-weight:600;
-                                                       background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.95);">
+                                                       background:rgba(var(--neuro-accent-rgb, 168,85,247),0.1);color:var(--neuro-accent);">
                                             ${label}
                                         </button>`
                                     ).join('')}
@@ -434,7 +434,7 @@ const MemberProfileModal = {
         return `<div style="display:flex;gap:8px;">
             <button onclick="MemberProfileModal.${action}()"
                     style="flex:1;padding:8px;border-radius:10px;border:none;cursor:pointer;
-                           font-size:0.88rem;font-weight:600;background:rgba(139,92,246,0.85);color:#fff;">
+                           font-size:0.88rem;font-weight:600;background:var(--neuro-accent);color:#fff;">
                 ${label}
             </button>
             <button onclick="MemberProfileModal._closeAdminSubs()"
