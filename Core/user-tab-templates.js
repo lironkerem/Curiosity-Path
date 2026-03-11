@@ -112,7 +112,7 @@ export const profile = (u = {}) => `
       <div style="background:var(--neuro-bg);border-radius:var(--radius-lg);padding:1.5rem;max-width:360px;width:90%;box-shadow:var(--shadow-raised-lg);max-height:80vh;display:flex;flex-direction:column;gap:1rem;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <strong style="font-size:1rem;">Choose your Icon</strong>
-          <button type="button" id="close-icon-picker-btn" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--neuro-text);">✕</button>
+          <button type="button" id="close-icon-picker-btn" style="background:none;border:none;cursor:pointer;font-size:0.85rem;color:var(--neuro-text);padding:4px 8px;border-radius:6px;line-height:1;">✕</button>
         </div>
         <div class="avatar-icon-picker" id="avatar-icon-picker" style="overflow-y:auto;max-height:55vh;">
           ${ICON_PICKER_OPTIONS}
