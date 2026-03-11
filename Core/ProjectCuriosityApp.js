@@ -363,15 +363,9 @@ export default class ProjectCuriosityApp {
       showToast(`New Badge: ${badge.name}`, 'success');
     });
 
-    // Quest completed
-    const unsub7 = g.on('questCompleted', (quest) => {
-      showToast(`Quest Complete: ${quest.name}`, 'success');
-    });
+    // Quest completed - handled by DashboardManager
 
-    // All daily quests complete
-    const unsub8 = g.on('dailyQuestsComplete', () => {
-      showToast(`All Daily Quests Complete! +50 Bonus XP`, 'success');
-    });
+    // All daily quests complete - handled by DashboardManager
 
     // Chakra updated
     const unsub9 = g.on('chakraUpdated', ({ chakra, value }) => {
@@ -380,10 +374,7 @@ export default class ProjectCuriosityApp {
       }
     });
 
-    // Inspirational message
-    const unsub10 = g.on('inspirationalMessage', (message) => {
-      showToast(`${message}`, 'info');
-    });
+    // Inspirational message - handled by DashboardManager
 
     // Feature unlocked
     const unsub11 = g.on('featureUnlocked', (featureId) => {
@@ -393,7 +384,7 @@ export default class ProjectCuriosityApp {
     // Store unsubscribers for cleanup
     this._gamificationUnsubscribers.push(
       unsub1, unsub2, unsub3, unsub4, unsub5, unsub6,
-      unsub7, unsub8, unsub9, unsub10, unsub11
+      unsub9, unsub11
     );
   }
 

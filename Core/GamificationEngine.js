@@ -594,7 +594,7 @@ export class GamificationEngine {
   /**
    * Adds XP with optional boost multiplier
    */
-  addXP(amount, source = 'general') {
+  addXP(amount, source = 'general', skipToast = false) {
     if (!amount || amount <= 0) return;
     
     let final = amount;
@@ -602,7 +602,7 @@ export class GamificationEngine {
     
     this.state.xp += final;
     this.logAction('xp', { amount: final, source, boosted: final !== amount });
-    this.emit('xpGained', { amount: final, source });
+    this.emit('xpGained', { amount: final, source, skipToast });
     this.checkLevelUp();
     this.queueBadgeCheck('currency');
     this.saveState();
@@ -611,12 +611,12 @@ export class GamificationEngine {
   /**
    * Adds karma
    */
-  addKarma(amount, source = 'general') {
+  addKarma(amount, source = 'general', skipToast = false) {
     if (!amount || amount <= 0) return;
     
     this.state.karma += amount;
     this.logAction('karma', { amount, source });
-    this.emit('karmaGained', { amount, source });
+    this.emit('karmaGained', { amount, source, skipToast });
     this.queueBadgeCheck('currency');
     this.saveState();
   }
@@ -704,7 +704,7 @@ export class GamificationEngine {
     if (level > prev) {
       this.state.level = level;
       this.emit('levelUp', { level, title });
-      this.addXP(CONFIG.LEVEL_UP_BONUS_XP, `Level ${level}`);
+      this.addXP(CONFIG.LEVEL_UP_BONUS_XP, `Level ${level}`, true);
       
       if (this.app?.showToast) {
         this.app.showToast(
@@ -1080,7 +1080,7 @@ export class GamificationEngine {
 
     this.emit('badgeUnlocked', badge);
     
-    if (badge.xp) this.addXP(badge.xp, `Badge: ${badge.id}`);
+    if (badge.xp) this.addXP(badge.xp, `Badge: ${badge.id}`, true);
     if (badge.inspirational) this.emit('inspirationalMessage', badge.inspirational);
     
     this.saveState();
@@ -1130,14 +1130,14 @@ export class GamificationEngine {
     quest.subProgress[key] = true;
     quest.progress += 1;
     
-    this.addXP(10, `Energy Check-in (${key})`);
+    this.addXP(10, `Energy Check-in (${key})`, true);
     this.state.karma += 1;
     this.emit('questProgress', quest);
 
     // Check if quest completed
     if (quest.progress >= quest.goal) {
       quest.completed = true;
-      this.addXP(10, 'Energy Check-in Bonus (Both Complete)');
+      this.addXP(10, 'Energy Check-in Bonus (Both Complete)', true);
       this.state.karma += 2;
       
       if (quest.inspirational) {
@@ -1149,7 +1149,7 @@ export class GamificationEngine {
       // Check if all dailies complete
       if (this.state.quests.daily.every(q => q.completed)) {
         const { xp, karma } = CONFIG.QUEST_REWARDS.DAILY_BONUS;
-        this.addXP(xp, 'Daily Quest Streak Bonus');
+        this.addXP(xp, 'Daily Quest Streak Bonus', true);
         this.state.karma += karma;
         
         if (!this.state._bulkMode && this.app?.showToast) {
@@ -1174,7 +1174,7 @@ export class GamificationEngine {
 
     if (quest.progress >= quest.goal) {
       quest.completed = true;
-      this.addXP(quest.xpReward || 50, `Quest: ${quest.name}`);
+      this.addXP(quest.xpReward || 50, `Quest: ${quest.name}`, true);
       
       if (quest.karmaReward) this.state.karma += quest.karmaReward;
       if (quest.badge) this.grantBadge(quest.badge);
@@ -1184,7 +1184,7 @@ export class GamificationEngine {
       // Check if all dailies complete
       if (questType === 'daily' && this.state.quests.daily.every(q => q.completed)) {
         const { xp, karma } = CONFIG.QUEST_REWARDS.DAILY_BONUS;
-        this.addXP(xp, 'Daily Quest Streak Bonus');
+        this.addXP(xp, 'Daily Quest Streak Bonus', true);
         this.state.karma += karma;
         
         if (!this.state._bulkMode && this.app?.showToast) {
@@ -1230,7 +1230,7 @@ export class GamificationEngine {
         this.state.dailyQuestStreak = (this.state.dailyQuestStreak || 0) + 1;
       } else if (type === 'weekly') {
         const { xp, karma } = CONFIG.QUEST_REWARDS.WEEKLY_BONUS;
-        this.addXP(xp, 'Weekly Quest Completion Bonus');
+        this.addXP(xp, 'Weekly Quest Completion Bonus', true);
         this.state.karma += karma;
         
         if (this.app?.showToast) {
@@ -1241,7 +1241,7 @@ export class GamificationEngine {
         this.state.dailyQuestStreak = 0;
       } else if (type === 'monthly') {
         const { xp, karma } = CONFIG.QUEST_REWARDS.MONTHLY_BONUS;
-        this.addXP(xp, 'Monthly Quest Completion Bonus');
+        this.addXP(xp, 'Monthly Quest Completion Bonus', true);
         this.state.karma += karma;
         
         if (this.app?.showToast) {
