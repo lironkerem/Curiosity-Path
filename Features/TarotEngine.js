@@ -405,9 +405,6 @@ class TarotEngine {
         this.app.gamification.progressQuest('daily', 'tarot_spread', 1);
         this.app.gamification.incrementTarotSpreads();
       }
-      if (this.app.showToast) {
-        this.app.showToast(`${spreadType} complete!`, 'success');
-      }
       this.checkAchievements();
     }
   }

@@ -773,7 +773,9 @@ if (window.FeaturesManager) {
    */
   _initDashboardTab() {
     if (this.deps.DashboardManager) {
-      this.dashboard = new this.deps.DashboardManager(this);
+      if (!this.dashboard) {
+        this.dashboard = new this.deps.DashboardManager(this);
+      }
       this.dashboard.render();
     }
   }
