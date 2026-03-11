@@ -58,7 +58,9 @@ tab.innerHTML = `
         <span class="header-sub"></span>
       </header>
 
-      <main id="shadow-alchemy-main-content"></main>
+      <div class="card" style="padding:2rem">
+        <main id="shadow-alchemy-main-content"></main>
+      </div>
 
     </div>
   </div>
