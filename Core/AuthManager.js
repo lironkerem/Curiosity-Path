@@ -424,7 +424,6 @@ export default class AuthManager {
     catch (error) { console.error('Sign out error:', error); }
     this._clearLocalUser();
     Object.values(STORAGE_KEYS).forEach(key => localStorage.removeItem(key));
-    console.log('✅ Logged out and cleared local data');
     location.reload();
   }
 

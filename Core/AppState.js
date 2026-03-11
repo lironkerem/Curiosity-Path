@@ -93,7 +93,6 @@ export default class AppState {
       if (localData) return localData;
       
       // No data found, initialize empty
-      console.log('📊 No cached data - initializing empty model');
       return this.emptyModel();
     } catch (error) {
       console.error('Failed to load app data:', error);
@@ -118,7 +117,6 @@ export default class AppState {
         return this.emptyModel();
       }
       
-      console.log('📊 Loaded user data from cloud');
       return cloudData;
     } catch (error) {
       console.warn('⚠️ Cloud read failed:', error.message);
@@ -136,7 +134,6 @@ export default class AppState {
       if (!raw) return null;
       
       const parsed = JSON.parse(raw);
-      console.log('📊 Loaded user data from localStorage cache');
       return parsed;
     } catch (error) {
       console.warn('⚠️ localStorage parse failed, clearing cache:', error);

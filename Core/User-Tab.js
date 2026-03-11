@@ -47,7 +47,7 @@ export default class UserTab {
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.8-1.36-6.05-3.55C7.35 13.36 9.57 12 12 12s4.65 1.36 6.05 3.65C16.8 17.84 14.5 19.2 12 19.2z"/>
           </svg>
           <span class="disc-avatar">
-            <img class="disc-avatar-img hidden" alt="avatar">
+            <img class="disc-avatar-img hidden" alt="avatar" width="32" height="32">
             <span class="disc-avatar-emoji"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
           </span>
           <span class="disc-dot hidden"></span>
@@ -245,6 +245,7 @@ export default class UserTab {
       },
       export: () => {
         panel.innerHTML = Templates.exportData();
+        this.attachExportHandlers();
       }
     };
 
@@ -984,7 +985,7 @@ export default class UserTab {
       dots.forEach((dot, i) => {
         dot.classList.toggle('active', i === activeIndex);
       });
-    });
+    }, { passive: true });
 
     // Click dots to scroll
     dots.forEach((dot, i) => {
@@ -1153,6 +1154,13 @@ export default class UserTab {
       console.error('Logout error:', err);
       this.app?.showToast('Logout error', 'error');
     }
+  }
+
+  // ============== EXPORT HANDLERS ==============
+
+  attachExportHandlers() {
+    document.querySelector('[data-action="export-data"]')
+      ?.addEventListener('click', () => window.app?.exportUserData?.());
   }
 
   // ============== UTILITY METHODS ==============

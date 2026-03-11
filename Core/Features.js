@@ -82,7 +82,6 @@ class FeaturesManager {
     /** @type {Object} Initialized engine instances */
     this.engines = {};
     
-    console.log('[Features] FeaturesManager initialized');
   }
   
   /**
@@ -108,7 +107,6 @@ class FeaturesManager {
       // Call render if available
       engine.render?.();
       
-      console.log(`[Features] Initialized: ${id}`);
       return true;
       
     } catch (error) {
@@ -132,7 +130,6 @@ class FeaturesManager {
     const successful = results.filter(r => r.success).length;
     const failed = results.filter(r => !r.success).length;
     
-    console.log(`[Features] Batch init: ${successful} succeeded, ${failed} failed`);
     
     return {
       results,
@@ -212,7 +209,6 @@ class FeaturesManager {
       // Remove from registry
       delete this.engines[id];
       
-      console.log(`[Features] Destroyed: ${id}`);
       return true;
       
     } catch (error) {
@@ -236,7 +232,6 @@ class FeaturesManager {
       }
     });
     
-    console.log(`[Features] Destroyed all features: ${destroyed}/${ids.length}`);
     
     return {
       destroyed,

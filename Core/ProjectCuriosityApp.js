@@ -534,7 +534,6 @@ export default class ProjectCuriosityApp {
    */
   async init() {
     try {
-      console.log('🧘 Initializing Project Curiosity...');
 
       // Check authentication
       if (!(await this.auth.checkAuth())) {
@@ -577,7 +576,6 @@ export default class ProjectCuriosityApp {
     this._initialized = true;
 
     try {
-      console.log('✅ User authenticated, loading data...');
 
       // Ensure state is valid
       if (!this._validateState()) {
@@ -643,7 +641,6 @@ export default class ProjectCuriosityApp {
       // Start toast cleanup
       this._startToastCleanup();
 
-      console.log('🎉 Project Curiosity loaded successfully!');
     } catch (error) {
       console.error('App initialization failed:', error);
       this.showToast('Failed to load app. Please refresh.', 'error');
@@ -682,7 +679,6 @@ export default class ProjectCuriosityApp {
     if (lastReset !== today) {
       this.gamification.resetDailyQuests();
       localStorage.setItem(STORAGE_KEYS.LAST_DAILY_RESET, today);
-      console.log('📅 Daily quests reset');
     }
   }
 
@@ -986,6 +982,5 @@ async logout() {
     this._initialized = false;
     this._gamificationListenersReady = false;
 
-    console.log('🧹 ProjectCuriosityApp destroyed');
   }
 }

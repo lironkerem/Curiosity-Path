@@ -41,23 +41,23 @@ const SUPABASE_CONFIGS = {
  * Get Supabase URL - checks Vite env first, then DEV_MODE config
  */
 function getSupabaseUrl() {
-  if (typeof import.meta?.env?.VITE_SUPABASE_URL !== 'undefined') {
-    console.log('✅ Using Supabase URL from environment variable');
-    return import.meta.env.VITE_SUPABASE_URL;
-  }
-  const env = DEV_MODE ? 'dev' : 'prod';
-  console.log(`✅ Using Supabase URL: ${env}`);
-  return SUPABASE_CONFIGS[env].url;
+  try {
+    if (typeof import.meta?.env?.VITE_SUPABASE_URL !== 'undefined') {
+      return import.meta.env.VITE_SUPABASE_URL;
+    }
+  } catch(e) { /* Not a Vite environment */ }
+  return SUPABASE_CONFIGS[DEV_MODE ? 'dev' : 'prod'].url;
 }
 
 /**
  * Get Supabase anon key - checks Vite env first, then DEV_MODE config
  */
 function getSupabaseAnonKey() {
-  if (typeof import.meta?.env?.VITE_SUPABASE_ANON_KEY !== 'undefined') {
-    console.log('✅ Using Supabase anon key from environment variable');
-    return import.meta.env.VITE_SUPABASE_ANON_KEY;
-  }
+  try {
+    if (typeof import.meta?.env?.VITE_SUPABASE_ANON_KEY !== 'undefined') {
+      return import.meta.env.VITE_SUPABASE_ANON_KEY;
+    }
+  } catch(e) { /* Not a Vite environment */ }
   return SUPABASE_CONFIGS[DEV_MODE ? 'dev' : 'prod'].anonKey;
 }
 
@@ -94,7 +94,6 @@ let supabaseClient = null;
 
 try {
   supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, options);
-  console.log('✅ Supabase client initialized');
 } catch (error) {
   console.error('❌ Failed to initialize Supabase client:', error);
 }
@@ -180,7 +179,6 @@ export async function testConnection() {
     if (error && error.code !== 'PGRST116') {
       throw error;
     }
-    console.log('✅ Supabase connection successful');
     return true;
   } catch (error) {
     console.error('❌ Supabase connection failed:', error);
@@ -193,7 +191,7 @@ export async function testConnection() {
  * @returns {Object} Config details
  */
 export function getConfig() {
-  const isUsingEnv = typeof import.meta?.env?.VITE_SUPABASE_URL !== 'undefined';
+  const isUsingEnv = (() => { try { return typeof import.meta?.env?.VITE_SUPABASE_URL !== 'undefined'; } catch(e) { return false; } })();
   
   return {
     url: SUPABASE_URL,
@@ -220,8 +218,6 @@ if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
     url: SUPABASE_URL,
     version: '2.39.0'
   };
-  console.log('🔧 Supabase utilities available at window.__supabase');
-  console.log('   Config:', getConfig());
 }
 
 /* =========================================================

@@ -90,6 +90,7 @@ export const profile = (u = {}) => `
             id="profile-avatar-img" 
             src="${u.avatar_url || ''}" 
             alt="Profile avatar"
+            width="80" height="80"
             loading="lazy"
             decoding="async"
             style="${u.avatar_url ? '' : 'display:none;'}">
@@ -112,7 +113,7 @@ export const profile = (u = {}) => `
       <div style="background:var(--neuro-bg);border-radius:var(--radius-lg);padding:1.5rem;max-width:360px;width:90%;box-shadow:var(--shadow-raised-lg);max-height:80vh;display:flex;flex-direction:column;gap:1rem;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <strong style="font-size:1rem;">Choose your Icon</strong>
-          <button type="button" id="close-icon-picker-btn" style="background:none;border:none;cursor:pointer;font-size:0.85rem;color:var(--neuro-text);padding:4px 8px;border-radius:6px;line-height:1;">✕</button>
+          <button type="button" id="close-icon-picker-btn" aria-label="Close icon picker" style="background:none;border:none;cursor:pointer;font-size:0.85rem;color:var(--neuro-text);padding:4px 8px;border-radius:6px;line-height:1;">✕</button>
         </div>
         <div class="avatar-icon-picker" id="avatar-icon-picker" style="overflow-y:auto;max-height:55vh;">
           ${ICON_PICKER_OPTIONS}
@@ -493,6 +494,7 @@ export const contact = () => `
     <p>Contact for questions, sessions, classes, retreats or technical issues.</p>
     <a href="https://lironkerem.wixsite.com/project-curiosity" 
        target="_blank" 
+       rel="noopener noreferrer"
        style="font-weight:bold;text-decoration:underline;color:var(--neuro-accent);">
       Official website
     </a><br>
@@ -502,6 +504,7 @@ export const contact = () => `
     </a><br>
     <a href="https://www.facebook.com/AanandohamsProjectCuriosity" 
        target="_blank" 
+       rel="noopener noreferrer"
        style="font-weight:bold;text-decoration:underline;color:var(--neuro-accent);">
       Facebook Page
     </a>
@@ -510,7 +513,7 @@ export const contact = () => `
 /** Render export data section */
 export const exportData = () => `
   <div class="accordion-inner">
-    <button class="btn-link" onclick="window.app.exportUserData()">
+    <button class="btn-link" data-action="export-data">
       Download JSON
     </button>
   </div>`;
@@ -527,7 +530,7 @@ export const billing = () => ``;
 export const pricingModal = () => `
   <div id="pricing-modal-overlay" class="pricing-overlay">
     <div class="pricing-modal">
-      <button class="pricing-close" aria-label="Close">✕</button>
+      <button class="pricing-close" aria-label="Close pricing modal">✕</button>
 
       <h2 class="pricing-title">Choose Your Path</h2>
       <p class="pricing-sub">Unlock deeper features and support the journey.</p>

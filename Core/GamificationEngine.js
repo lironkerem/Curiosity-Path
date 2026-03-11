@@ -95,7 +95,6 @@ export class GamificationEngine {
     if (!this.state.quests.daily || this.state.quests.daily.length === 0) {
       this.state.quests = definitions;
       this.saveState();
-      console.log('✅ Quests initialized');
     } else {
       // Merge definition properties (e.g. tab) into saved quest state
       ['daily', 'weekly', 'monthly'].forEach(type => {
@@ -433,7 +432,6 @@ export class GamificationEngine {
       this.state = this.loadState();
       this.emit('stateReloaded', this.state);
       this.checkAllBadges();
-      console.log('✅ Gamification state reloaded from database');
     } catch (error) {
       console.error('Failed to reload gamification state:', error);
     }

@@ -58,7 +58,6 @@ class ToastQueue {
 
     // Deduplicate by key
     if (key && this.queue.some(t => t.key === key)) {
-      console.log(`Toast with key "${key}" already in queue, skipping`);
       return;
     }
 
@@ -336,12 +335,11 @@ export const isToastActive = () => {
    -------------------------------------------------- */
 
 // Expose in development for debugging
-if (typeof window !== 'undefined' && import.meta.url.includes('localhost')) {
+if (typeof window !== 'undefined' && (() => { try { return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'; } catch(e) { return false; } })()) {
   window.__toast = {
     show: showToast,
     clear: clearToasts,
     getQueue: () => getToastQueue(),
     config: TOAST_CONFIG
   };
-  console.log('🔧 Toast system available at window.__toast');
 }

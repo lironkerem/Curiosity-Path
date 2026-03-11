@@ -467,7 +467,6 @@ export default class NavigationManager {
       };
 
       const end = (e) => {
-        e.preventDefault();
         e.stopPropagation();
 
         const duration = Date.now() - this.touchState.startTime;
@@ -493,9 +492,9 @@ export default class NavigationManager {
     const rightHandlers = createTouchHandlers('right', rightArrow);
 
     leftArrow.addEventListener('touchstart', leftHandlers.start, { capture: true });
-    leftArrow.addEventListener('touchend', leftHandlers.end, { capture: true });
+    leftArrow.addEventListener('touchend', leftHandlers.end, { capture: true, passive: true });
     rightArrow.addEventListener('touchstart', rightHandlers.start, { capture: true });
-    rightArrow.addEventListener('touchend', rightHandlers.end, { capture: true });
+    rightArrow.addEventListener('touchend', rightHandlers.end, { capture: true, passive: true });
 
     // Store for cleanup
     leftArrow._touchStart = leftHandlers.start;
@@ -904,6 +903,5 @@ export default class NavigationManager {
     this.listenersAttached = false;
     this.arrowListenersAttached = false;
 
-    console.log('🧹 NavigationManager destroyed');
   }
 }

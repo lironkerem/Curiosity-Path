@@ -121,7 +121,6 @@ export async function fetchProgress(forceRefresh = false) {
   try {
     // Return cached data if valid and not forcing refresh
     if (!forceRefresh && isCacheValid()) {
-      console.log('[DB] Returning cached progress');
       return cachedPayload;
     }
 
@@ -144,7 +143,6 @@ export async function fetchProgress(forceRefresh = false) {
       if (error) {
         // New user case - no row exists yet
         if (error.code === ERROR_CODES.NO_ROWS) {
-          console.log('[DB] New user detected - returning empty payload');
           return {};
         }
         throw new Error(`Database error: ${error.message}`);
@@ -157,7 +155,6 @@ export async function fetchProgress(forceRefresh = false) {
     cachedPayload = result;
     cacheTimestamp = Date.now();
     
-    console.log('[DB] Progress fetched successfully');
     return result;
 
   } catch (error) {
@@ -207,7 +204,6 @@ export async function saveProgress(payload) {
     cachedPayload = payload;
     cacheTimestamp = Date.now();
 
-    console.log('[DB] Progress saved successfully (cloud & cache)');
 
   } catch (error) {
     console.error('[DB] Error in saveProgress:', error);
@@ -224,7 +220,6 @@ export async function saveProgress(payload) {
  */
 export function clearCache() {
   invalidateCache();
-  console.log('[DB] Cache cleared');
 }
 
 /**

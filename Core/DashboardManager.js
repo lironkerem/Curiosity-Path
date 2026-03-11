@@ -1150,6 +1150,5 @@ export default class DashboardManager {
       delete window.app.dashboard.toggleAllBadges;
     }
     
-    console.log('DashboardManager destroyed and cleaned up');
   }
 }
