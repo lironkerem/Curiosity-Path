@@ -306,11 +306,11 @@ const MemberProfileModal = {
                             <div onclick="MemberProfileModal._toggleAdminPanel()"
                                  style="display:flex;align-items:center;justify-content:space-between;
                                         padding:10px 14px;border-radius:12px;cursor:pointer;
-                                        background:rgba(var(--neuro-accent-rgb, 168,85,247),0.08);border:2px dashed rgba(var(--neuro-accent-rgb, 168,85,247),0.4);
+                                        background:rgba(139,92,246,0.08);border:2px dashed rgba(139,92,246,0.4);
                                         user-select:none;">
                                 <span style="font-size:0.78rem;font-weight:700;text-transform:uppercase;
-                                             letter-spacing:1px;color:var(--neuro-accent);"style="display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin Controls</span>
-                                <span id="memberModalAdminToggle" style="font-size:0.75rem;color:var(--neuro-accent);">▶</span>
+                                             letter-spacing:1px;color:rgba(139,92,246,0.9);"style="display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin Controls</span>
+                                <span id="memberModalAdminToggle" style="font-size:0.75rem;color:rgba(139,92,246,0.7);">▶</span>
                             </div>
 
                             <div id="memberModalAdminBody" style="display:none;margin-top:10px;">
@@ -592,7 +592,7 @@ const MemberProfileModal = {
         }
 
         this._setText('memberModalName',        profile.name || 'Member');
-        this._setHTML('memberModalRole',        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${profile.community_role || 'Member'}`);
+        this._setText('memberModalRole',        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${profile.community_role || 'Member'}`);
         this._setText('memberModalInspiration', profile.inspiration ? `"${profile.inspiration}"` : '');
 
         const locationEl = document.getElementById('memberModalLocation');
@@ -696,12 +696,12 @@ const MemberProfileModal = {
         const count    = this.state.appreciationCount ?? '';
         const countStr = count !== '' ? ` (${count})` : '';
         if (this.state.isAppreciated) {
-            btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Appreciated${countStr}`;
+            btn.textContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Appreciated${countStr}`;
             btn.style.background = 'var(--primary,#667eea)';
             btn.style.color      = '#fff';
             btn.style.boxShadow  = 'inset 2px 2px 5px rgba(0,0,0,0.15)';
         } else {
-            btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Appreciate${countStr}`;
+            btn.textContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Appreciate${countStr}`;
             btn.style.background = 'var(--neuro-bg,#f0f0f3)';
             btn.style.color      = 'var(--neuro-text)';
             btn.style.boxShadow  = '3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7)';
@@ -735,7 +735,7 @@ const MemberProfileModal = {
         if (!message) { Core.showToast('Please write a message first'); return; }
         await this._withBtnState('#memberModalWhisperPanel button', 'Sending...', 'Send', async () => {
             const result = await CommunityDB.sendWhisper(this.state.currentUserId, message);
-            if (result) { Core.showToast('Whisper sent'); this.cancelWhisper(); }
+            if (result) { Core.showToast('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Whisper sent'); this.cancelWhisper(); }
             else Core.showToast('Could not send - please try again');
         });
     },
@@ -829,7 +829,7 @@ const MemberProfileModal = {
             const { error } = await CommunityDB._sb.from('profiles')
                 .update(profileUpdate).eq('id', this.state.currentUserId);
             if (error) throw error;
-            this._setHTML('memberModalRole', `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${role}`);
+            this._setText('memberModalRole', `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${role}`);
             Core.showToast(`Role changed to ${role}`);
             this._closeAdminSubs();
         });
@@ -1037,11 +1037,6 @@ const MemberProfileModal = {
     _setText(id, text) {
         const el = document.getElementById(id);
         if (el) el.textContent = text;
-    },
-
-    _setHTML(id, html) {
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = html;
     },
 
     async _withBtnState(selector, busyLabel, idleLabel, fn) {

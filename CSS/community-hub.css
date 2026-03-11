@@ -2266,10 +2266,14 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     font-weight: 600;
     color: var(--text);
     margin-bottom: 4px;
-    white-space: nowrap;
+    white-space: normal;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     max-width: 100%;
+    word-break: break-word;
 }
 
 .member-mini-info {
@@ -3337,6 +3341,8 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
   .member-mini-name {
     font-size: 9px;
     margin-bottom: 1px;
+    white-space: normal;
+    -webkit-line-clamp: 2;
   }
 
   .member-mini-info {
