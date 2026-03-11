@@ -30,8 +30,6 @@ class AffirmationsEngine {
     
     this.currentAffirmation = null;
     this._allAffirmations = null; // Cache for flattened affirmations list
-    
-    console.log('✅ Affirmations loaded:', Object.keys(this.affirmations).length, 'categories');
   }
 
   // ============================================
@@ -92,8 +90,6 @@ class AffirmationsEngine {
     const dayIndex = this._getDayOfYear() % general.length;
     const affirmation = general[dayIndex];
     const text = this._extractText(affirmation);
-    
-    console.log('💫 Daily affirmation selected:', text.substring(0, 50) + '...');
     return text;
   }
 

@@ -117,7 +117,7 @@
             <canvas id="canvas" class="hidden"></canvas>
             
             <!-- Image preview -->
-            <img id="image-preview" class="hidden" alt="Preview">
+            <img id="image-preview" class="hidden" alt="Preview" width="400" height="400">
 
             <!-- Placeholder -->
             <div id="upload-placeholder" class="placeholder-box">

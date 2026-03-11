@@ -40,7 +40,6 @@ export class KarmaShopEngine {
     // Start async init but don't block
     this.init().then(() => {
       this._initialized = true;
-      console.log('[KarmaShop] Initialization complete');
     }).catch(err => {
       console.error('[KarmaShop] init failed:', err);
       this.activeBoosts = [];
@@ -54,12 +53,10 @@ export class KarmaShopEngine {
    * Loads data from cloud/localStorage, initializes skip caps, checks expired boosts, and builds catalog
    */
   async init() {
-    console.log('[KarmaShop] Initializing...');
     await this.loadFromCloud();
     this.initSkipCaps();
     this.checkExpiredBoosts();
     this.buildCatalog();
-    console.log('[KarmaShop] Init complete with', this.activeBoosts.length, 'active boosts');
   }
 
   // Cleanup method to prevent memory leaks
@@ -85,7 +82,6 @@ export class KarmaShopEngine {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        console.log('[KarmaShop] No user, loading from localStorage');
         this.activeBoosts = this.loadActiveBoosts();
         return;
       }
@@ -97,7 +93,6 @@ export class KarmaShopEngine {
         .single();
 
       if (error || !data?.payload) {
-        console.log('[KarmaShop] No cloud data, loading from localStorage');
         this.activeBoosts = this.loadActiveBoosts();
         return;
       }
@@ -112,7 +107,6 @@ export class KarmaShopEngine {
 
       // Cache in localStorage
       localStorage.setItem('karma_active_boosts', JSON.stringify(this.activeBoosts));
-      console.log('[KarmaShop] ☁️ Loaded from cloud:', this.activeBoosts.length, 'boosts');
     } catch (err) {
       console.error('[KarmaShop] Cloud load failed, using localStorage:', err);
       this.activeBoosts = this.loadActiveBoosts();
@@ -130,7 +124,6 @@ export class KarmaShopEngine {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        console.log('[KarmaShop] No user, saving to localStorage only');
         this.saveActiveBoosts();
         return;
       }
@@ -164,7 +157,6 @@ export class KarmaShopEngine {
 
       // Cache locally
       this.saveActiveBoosts();
-      console.log('[KarmaShop] ☁️ Synced to cloud');
     } catch (err) {
       console.error('[KarmaShop] Cloud save failed:', err);
       this.saveActiveBoosts(); // fallback
@@ -467,7 +459,7 @@ export class KarmaShopEngine {
         <h3 class="karma-shop-master-title">Meet the Master</h3>
         <p class="karma-shop-master-message">${msg}</p>
         <p class="karma-shop-master-instructions">Screenshot or save this message, then contact Aanandoham via WhatsApp to schedule your session:</p>
-        <a href="https://wa.me/+972524588767?text=${encodeURIComponent(msg)}" target="_blank" class="btn btn-primary karma-shop-master-btn-wa">Open WhatsApp</a>
+        <a href="https://wa.me/+972524588767?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary karma-shop-master-btn-wa">Open WhatsApp</a>
         <button onclick="this.closest('.karma-shop-master-overlay').remove()" class="btn btn-secondary karma-shop-master-btn-close">Close</button>
       </div>
     `;

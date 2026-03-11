@@ -464,7 +464,7 @@ class TarotEngine {
     return `
       <div class="community-link-card" style="padding-top:0;">
         <div style="display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:0;">
-          <picture><source srcset="/public/Tabs/CommunityHub.webp" type="image/webp"><img src="/public/Tabs/CommunityHub.png" alt="Community" loading="lazy" decoding="async" style="width:30rem;object-fit:contain;margin-top:1rem;margin-bottom:1rem;"></picture>
+          <picture><source srcset="/public/Tabs/CommunityHub.webp" type="image/webp"><img src="/public/Tabs/CommunityHub.png" alt="Community" width="480" height="360" loading="lazy" decoding="async" style="width:30rem;object-fit:contain;margin-top:1rem;margin-bottom:1rem;"></picture>
           <h3 style="margin: 0 0 0.75rem; font-size: 1.15rem; text-align:center;">
             Learn & Practice Tarot with the Community
           </h3>
@@ -828,7 +828,7 @@ class TarotEngine {
           <div class="tarot-card-flip-inner">
             <div class="tarot-card-back">
               <p class="card-reveal-prompt">Click to reveal</p>
-              <img src="${this.CARD_BACK_URL}" alt="Card Back" class="tarot-card-image" loading="lazy" decoding="async">
+              <img src="${this.CARD_BACK_URL}" alt="Card Back" class="tarot-card-image" loading="lazy" decoding="async" width="120" height="200">
             </div>
             <div class="tarot-card-front"></div>
           </div>
