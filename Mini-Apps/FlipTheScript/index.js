@@ -12,7 +12,6 @@ export default class FlipTheScriptApp {
       try {
         const affModule = await import('./data.js');
         window.affirmations = affModule.default || affModule.affirmations;
-        console.log('✅ Affirmations loaded');
       } catch (err) {
         console.error('Failed to load affirmations:', err);
       }
@@ -22,7 +21,6 @@ export default class FlipTheScriptApp {
     if (!window.FlipEngine) {
       try {
         await import('./engine.js');
-        console.log('✅ FlipEngine loaded');
       } catch (err) {
         console.error('Failed to load FlipEngine:', err);
       }

@@ -76,7 +76,6 @@ export function mountUI(app) {
       !("SpeechRecognition" in window)
     ) {
       voiceInputBtn.style.display = "none";
-      console.log("Speech recognition not supported in this browser");
       return;
     }
 
@@ -592,5 +591,4 @@ export function mountUI(app) {
   // ========== Initialize ==========
   renderSaved();
 
-  console.log("🚀 Flip The Script loaded!");
 }

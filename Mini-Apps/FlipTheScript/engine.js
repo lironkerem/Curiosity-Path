@@ -359,7 +359,6 @@ const TONE_STYLES = {
   // AI-Powered Custom Affirmation Generation
   // ---------------------------
   async function generateAIAffirmation(input) {
-    console.log("AI Flip requested for:", input);
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     const intensity = detectIntensity(input);
@@ -845,5 +844,4 @@ const TONE_STYLES = {
   };
   
   buildIndexes();
-  console.log('FlipEngine initialized 🚀');
 })(window);
