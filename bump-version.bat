@@ -1,5 +1,6 @@
 @echo off
 :: bump-version.bat — updates ?v= and SW cache version to today's DDMM
+:: Place in project root and double-click or run from Command Prompt
 
 :: Use PowerShell for reliable date (wmic is deprecated in Win 11)
 for /f %%a in ('powershell -NoProfile -Command "Get-Date -Format ddMM"') do set VERSION=%%a
@@ -26,7 +27,7 @@ if not exist index.html (
 if not exist service-worker.js (
   echo WARNING: service-worker.js not found
 ) else (
-  powershell -NoProfile -Command "$c = Get-Content 'service-worker.js' -Raw; $c = $c -replace \"const CACHE_VERSION = 'tcp-[^']+'\", \"const CACHE_VERSION = 'tcp-%SW_DATE%'\"; Set-Content 'service-worker.js' $c"
+  powershell -NoProfile -Command "$c = [System.IO.File]::ReadAllText('service-worker.js'); $c = $c -replace \"const CACHE_VERSION = 'tcp-[^']+'\", \"const CACHE_VERSION = 'tcp-%SW_DATE%'\"; [System.IO.File]::WriteAllText((Resolve-Path 'service-worker.js'), $c, [System.Text.Encoding]::UTF8)"
   echo Done: service-worker.js
 )
 
