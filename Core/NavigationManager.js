@@ -467,6 +467,7 @@ export default class NavigationManager {
       };
 
       const end = (e) => {
+        e.preventDefault();
         e.stopPropagation();
 
         const duration = Date.now() - this.touchState.startTime;
@@ -491,9 +492,9 @@ export default class NavigationManager {
     const leftHandlers = createTouchHandlers('left', leftArrow);
     const rightHandlers = createTouchHandlers('right', rightArrow);
 
-    leftArrow.addEventListener('touchstart', leftHandlers.start, { capture: true });
+    leftArrow.addEventListener('touchstart', leftHandlers.start, { capture: true, passive: true });
     leftArrow.addEventListener('touchend', leftHandlers.end, { capture: true, passive: true });
-    rightArrow.addEventListener('touchstart', rightHandlers.start, { capture: true });
+    rightArrow.addEventListener('touchstart', rightHandlers.start, { capture: true, passive: true });
     rightArrow.addEventListener('touchend', rightHandlers.end, { capture: true, passive: true });
 
     // Store for cleanup
@@ -627,10 +628,8 @@ export default class NavigationManager {
    * @param {number} duration - Vibration duration in ms
    */
   vibrate(duration) {
-    try {
-      if (navigator.vibrate) navigator.vibrate(duration);
-    } catch (e) {
-      // Silently ignore — browser may block vibrate before user gesture
+    if (navigator.vibrate) {
+      navigator.vibrate(duration);
     }
   }
 
@@ -678,6 +677,7 @@ export default class NavigationManager {
           <img class="header-image"
                src="/public/Tabs/Header.png"
                alt="Aanandoham Header"
+               width="1280" height="400"
                loading="eager"
                fetchpriority="high"
                decoding="async">
@@ -688,41 +688,41 @@ export default class NavigationManager {
       <nav class="main-nav desktop-nav" role="navigation" aria-label="Main navigation">
         <ul class="nav-tabs" id="nav-tabs" role="tablist">
           <li class="nav-item active" data-tab="dashboard" data-label="Main Dashboard" role="tab" aria-selected="true" tabindex="0">
-            <picture><source srcset="/public/Tabs/NavDashboard.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavDashboard.png" alt="Main Dashboard" loading="lazy" decoding="async"></picture>
+            <picture><source srcset="/public/Tabs/NavDashboard.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavDashboard.png" alt="Main Dashboard" width="48" height="48" loading="lazy" decoding="async"></picture>
           </li>
           <li class="nav-item" data-tab="energy" data-label="Daily Energy Tracker" role="tab" aria-selected="false" tabindex="-1">
-            <picture><source srcset="/public/Tabs/NavEnergy.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavEnergy.png" alt="Daily Energy Tracker" loading="lazy" decoding="async"></picture>
+            <picture><source srcset="/public/Tabs/NavEnergy.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavEnergy.png" alt="Daily Energy Tracker" width="48" height="48" loading="lazy" decoding="async"></picture>
           </li>
           <li class="nav-item" data-tab="tarot" data-label="Tarot Cards Guidance" role="tab" aria-selected="false" tabindex="-1">
-            <picture><source srcset="/public/Tabs/NavTarot.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavTarot.png" alt="Tarot Cards Guidance" loading="lazy" decoding="async"></picture>
+            <picture><source srcset="/public/Tabs/NavTarot.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavTarot.png" alt="Tarot Cards Guidance" width="48" height="48" loading="lazy" decoding="async"></picture>
           </li>
           <li class="nav-item" data-tab="gratitude" data-label="Gratitude Practice" role="tab" aria-selected="false" tabindex="-1">
-            <picture><source srcset="/public/Tabs/NavGratitude.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavGratitude.png" alt="Gratitude Practice" loading="lazy" decoding="async"></picture>
+            <picture><source srcset="/public/Tabs/NavGratitude.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavGratitude.png" alt="Gratitude Practice" width="48" height="48" loading="lazy" decoding="async"></picture>
           </li>
           <li class="nav-item" data-tab="happiness" data-label="Happiness Booster" role="tab" aria-selected="false" tabindex="-1">
-            <picture><source srcset="/public/Tabs/NavHappiness.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavHappiness.png" alt="Happiness Booster" loading="lazy" decoding="async"></picture>
+            <picture><source srcset="/public/Tabs/NavHappiness.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavHappiness.png" alt="Happiness Booster" width="48" height="48" loading="lazy" decoding="async"></picture>
           </li>
           <li class="nav-item" data-tab="journal" data-label="My Private Journal" role="tab" aria-selected="false" tabindex="-1">
-            <picture><source srcset="/public/Tabs/NavJournal.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavJournal.png" alt="My Private Journal" loading="lazy" decoding="async"></picture>
+            <picture><source srcset="/public/Tabs/NavJournal.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavJournal.png" alt="My Private Journal" width="48" height="48" loading="lazy" decoding="async"></picture>
           </li>
           <li class="nav-item" data-tab="meditations" data-label="Guided Meditations" role="tab" aria-selected="false" tabindex="-1">
-            <picture><source srcset="/public/Tabs/NavMeditations.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavMeditations.png" alt="Guided Meditations" loading="lazy" decoding="async"></picture>
+            <picture><source srcset="/public/Tabs/NavMeditations.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavMeditations.png" alt="Guided Meditations" width="48" height="48" loading="lazy" decoding="async"></picture>
           </li>
           <li class="nav-item" data-tab="flip-script" data-label="Flip The Script" role="tab" aria-selected="false" tabindex="-1">
-            <picture><source srcset="/public/Tabs/NavFlip.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavFlip.png" alt="Flip The Script" loading="lazy" decoding="async"></picture>
+            <picture><source srcset="/public/Tabs/NavFlip.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavFlip.png" alt="Flip The Script" width="48" height="48" loading="lazy" decoding="async"></picture>
           </li>
           <li class="nav-item" data-tab="calculator" data-label="Self Analysis Pro" role="tab" aria-selected="false" tabindex="-1">
-            <picture><source srcset="/public/Tabs/NavAnalysis.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavAnalysis.png" alt="Self Analysis Pro" loading="lazy" decoding="async"></picture>
+            <picture><source srcset="/public/Tabs/NavAnalysis.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavAnalysis.png" alt="Self Analysis Pro" width="48" height="48" loading="lazy" decoding="async"></picture>
           </li>
           <li class="nav-item" data-tab="shadow-alchemy" data-label="Shadow Alchemy Lab" role="tab" aria-selected="false" tabindex="-1">
-            <picture><source srcset="/public/Tabs/NavShadow.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavShadow.png" alt="Shadow Alchemy Lab" loading="lazy" decoding="async"></picture>
+            <picture><source srcset="/public/Tabs/NavShadow.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavShadow.png" alt="Shadow Alchemy Lab" width="48" height="48" loading="lazy" decoding="async"></picture>
             <span class="premium-badge">PREMIUM</span>
           </li>
           <li class="nav-item" data-tab="karma-shop" data-label="Karma Shop" role="tab" aria-selected="false" tabindex="-1">
-            <picture><source srcset="/public/Tabs/NavShop.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavShop.png" alt="Karma Shop" loading="lazy" decoding="async"></picture>
+            <picture><source srcset="/public/Tabs/NavShop.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/NavShop.png" alt="Karma Shop" width="48" height="48" loading="lazy" decoding="async"></picture>
           </li>
           <li class="nav-item" data-tab="chatbot" data-label="AI Assistant" role="tab" aria-selected="false" tabindex="-1">
-            <picture><source srcset="/public/Tabs/Chat.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/Chat.png" alt="AI Assistant" loading="lazy" decoding="async"></picture>
+            <picture><source srcset="/public/Tabs/Chat.webp" type="image/webp"><img class="nav-image" src="/public/Tabs/Chat.png" alt="AI Assistant" width="48" height="48" loading="lazy" decoding="async"></picture>
           </li>
         </ul>
       </nav>
@@ -733,16 +733,16 @@ export default class NavigationManager {
       <!-- MOBILE 4-BUTTON BAR -->
       <nav id="mobile-bottom-bar" class="mobile-bottom-bar mobile-bottom-bar-4" role="navigation" aria-label="Mobile navigation">
         <button class="mobile-tab" data-popup="miniapps" aria-haspopup="true" aria-expanded="false">
-          <picture><source srcset="/public/Tabs/MiniApps.webp" type="image/webp"><img src="/public/Tabs/MiniApps.png" alt="" loading="lazy" decoding="async"></picture><span>Mini Apps</span>
+          <picture><source srcset="/public/Tabs/MiniApps.webp" type="image/webp"><img src="/public/Tabs/MiniApps.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Mini Apps</span>
         </button>
         <button class="mobile-tab" data-popup="features" aria-haspopup="true" aria-expanded="false">
-          <picture><source srcset="/public/Tabs/Features.webp" type="image/webp"><img src="/public/Tabs/Features.png" alt="" loading="lazy" decoding="async"></picture><span>Features</span>
+          <picture><source srcset="/public/Tabs/Features.webp" type="image/webp"><img src="/public/Tabs/Features.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Features</span>
         </button>
         <button class="mobile-tab" data-tab="dashboard" aria-selected="false">
-          <picture><source srcset="/public/Tabs/Dashboard.webp" type="image/webp"><img src="/public/Tabs/Dashboard.png" alt="" loading="lazy" decoding="async"></picture><span>Home</span>
+          <picture><source srcset="/public/Tabs/Dashboard.webp" type="image/webp"><img src="/public/Tabs/Dashboard.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Home</span>
         </button>
         <button class="mobile-tab" data-tab="community-hub" aria-selected="false">
-          <picture><source srcset="/public/Tabs/Community.webp" type="image/webp"><img src="/public/Tabs/Community.png" alt="" loading="lazy" decoding="async"></picture><span>Community</span>
+          <picture><source srcset="/public/Tabs/Community.webp" type="image/webp"><img src="/public/Tabs/Community.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Community</span>
         </button>
       </nav>
 
@@ -750,23 +750,23 @@ export default class NavigationManager {
       <div id="sheet-miniapps" class="mobile-sheet" role="dialog" aria-modal="true" aria-hidden="true">
         <div class="sheet-grip"></div><div class="sheet-header">Mini Apps</div>
         <div class="sheet-scroller">
-          <div class="sheet-row" data-tab="flip-script" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavFlip.webp" type="image/webp"><img src="/public/Tabs/NavFlip.png" alt="" loading="lazy" decoding="async"></picture><span>Flip Your Thoughts</span></div>
-          <div class="sheet-row" data-tab="calculator" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavAnalysis.webp" type="image/webp"><img src="/public/Tabs/NavAnalysis.png" alt="" loading="lazy" decoding="async"></picture><span>Analyze your 'Self'</span></div>
-          <div class="sheet-row" data-tab="shadow-alchemy" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavShadow.webp" type="image/webp"><img src="/public/Tabs/NavShadow.png" alt="" loading="lazy" decoding="async"></picture><span>Shadow Work</span></div>
-          <div class="sheet-row" data-tab="chatbot" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/Chat.webp" type="image/webp"><img src="/public/Tabs/Chat.png" alt="" loading="lazy" decoding="async"></picture><span>Aanandoham's AI Assistant</span></div>
+          <div class="sheet-row" data-tab="flip-script" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavFlip.webp" type="image/webp"><img src="/public/Tabs/NavFlip.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Flip Your Thoughts</span></div>
+          <div class="sheet-row" data-tab="calculator" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavAnalysis.webp" type="image/webp"><img src="/public/Tabs/NavAnalysis.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Analyze your 'Self'</span></div>
+          <div class="sheet-row" data-tab="shadow-alchemy" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavShadow.webp" type="image/webp"><img src="/public/Tabs/NavShadow.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Shadow Work</span></div>
+          <div class="sheet-row" data-tab="chatbot" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/Chat.webp" type="image/webp"><img src="/public/Tabs/Chat.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Aanandoham's AI Assistant</span></div>
         </div>
       </div>
 
       <div id="sheet-features" class="mobile-sheet" role="dialog" aria-modal="true" aria-hidden="true">
         <div class="sheet-grip"></div><div class="sheet-header">Features</div>
         <div class="sheet-scroller">
-          <div class="sheet-row" data-tab="happiness" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavHappiness.webp" type="image/webp"><img src="/public/Tabs/NavHappiness.png" alt="" loading="lazy" decoding="async"></picture><span>Happiness and Motivation</span></div>
-          <div class="sheet-row" data-tab="gratitude" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavGratitude.webp" type="image/webp"><img src="/public/Tabs/NavGratitude.png" alt="" loading="lazy" decoding="async"></picture><span>Gratitude Enhancer</span></div>
-          <div class="sheet-row" data-tab="journal" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavJournal.webp" type="image/webp"><img src="/public/Tabs/NavJournal.png" alt="" loading="lazy" decoding="async"></picture><span>Write To Yourself</span></div>
-          <div class="sheet-row" data-tab="energy" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavEnergy.webp" type="image/webp"><img src="/public/Tabs/NavEnergy.png" alt="" loading="lazy" decoding="async"></picture><span>Track Your Energies</span></div>
-          <div class="sheet-row" data-tab="tarot" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavTarot.webp" type="image/webp"><img src="/public/Tabs/NavTarot.png" alt="" loading="lazy" decoding="async"></picture><span>Tarot Cards Divinations</span></div>
-          <div class="sheet-row" data-tab="meditations" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavMeditations.webp" type="image/webp"><img src="/public/Tabs/NavMeditations.png" alt="" loading="lazy" decoding="async"></picture><span>Aanandoham's Meditations</span></div>
-          <div class="sheet-row" data-tab="karma-shop" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavShop.webp" type="image/webp"><img src="/public/Tabs/NavShop.png" alt="" loading="lazy" decoding="async"></picture><span>Spend Your Karma</span></div>
+          <div class="sheet-row" data-tab="happiness" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavHappiness.webp" type="image/webp"><img src="/public/Tabs/NavHappiness.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Happiness and Motivation</span></div>
+          <div class="sheet-row" data-tab="gratitude" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavGratitude.webp" type="image/webp"><img src="/public/Tabs/NavGratitude.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Gratitude Enhancer</span></div>
+          <div class="sheet-row" data-tab="journal" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavJournal.webp" type="image/webp"><img src="/public/Tabs/NavJournal.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Write To Yourself</span></div>
+          <div class="sheet-row" data-tab="energy" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavEnergy.webp" type="image/webp"><img src="/public/Tabs/NavEnergy.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Track Your Energies</span></div>
+          <div class="sheet-row" data-tab="tarot" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavTarot.webp" type="image/webp"><img src="/public/Tabs/NavTarot.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Tarot Cards Divinations</span></div>
+          <div class="sheet-row" data-tab="meditations" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavMeditations.webp" type="image/webp"><img src="/public/Tabs/NavMeditations.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Aanandoham's Meditations</span></div>
+          <div class="sheet-row" data-tab="karma-shop" role="menuitem" tabindex="0"><picture><source srcset="/public/Tabs/NavShop.webp" type="image/webp"><img src="/public/Tabs/NavShop.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Spend Your Karma</span></div>
         </div>
       </div>
 
@@ -804,7 +804,7 @@ export default class NavigationManager {
     ];
 
     const dots = tabs.map(t => 
-      `<span class="tab-dot${t.active ? ' active' : ''}" data-tab="${t.tab}" title="${t.title}" style="${baseStyle}"><picture><source srcset="/public/Tabs/Dots/${t.img.replace('.png','.webp')}" type="image/webp"><img src="/public/Tabs/Dots/${t.img}" style="${imgStyle}" loading="lazy" decoding="async"></picture></span>`
+      `<span class="tab-dot${t.active ? ' active' : ''}" data-tab="${t.tab}" title="${t.title}" style="${baseStyle}"><picture><source srcset="/public/Tabs/Dots/${t.img.replace('.png','.webp')}" type="image/webp"><img src="/public/Tabs/Dots/${t.img}" style="${imgStyle}" loading="lazy" decoding="async" width="48" height="48"></picture></span>`
     ).join('\n        ');
 
     return `

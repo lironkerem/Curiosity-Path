@@ -79,7 +79,7 @@ const CommunityModule = {
         const gradient  = Core.getAvatarGradient(user.id || 'me');
 
         const avatarInner = avatarUrl
-            ? `<img src="${avatarUrl}" alt="${name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" loading="lazy">`
+            ? `<img src="${avatarUrl}" alt="${name}" width="40" height="40" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" loading="lazy" decoding="async">`
             : (user.emoji || name.charAt(0).toUpperCase());
         const avatarStyle = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
 
@@ -158,7 +158,7 @@ const CommunityModule = {
         const appreciated = this.state.appreciatedReflections.has(ref.id);
 
         const avatarInner = avatarUrl
-            ? `<img src="${avatarUrl}" alt="${this._esc(name)}" loading="lazy">`
+            ? `<img src="${avatarUrl}" alt="${this._esc(name)}" width="40" height="40" loading="lazy" decoding="async">`
             : this._esc(profile.emoji || name.charAt(0).toUpperCase());
         const avatarStyle = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
 

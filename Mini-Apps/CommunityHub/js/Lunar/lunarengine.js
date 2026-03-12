@@ -69,7 +69,6 @@ const LunarEngine = {
     init() {
         if (this._initialized) return;
         this._initialized = true;
-        console.log('🌙 Lunar Engine Initialized');
 
         if (typeof SunCalc === 'undefined') {
             console.error('❌ SunCalc not loaded - moon visualizations disabled.');
@@ -216,7 +215,6 @@ const LunarEngine = {
         if (!this.currentMoonData) return;
         const room = this.getLunarRoomByPhase(this.currentMoonData.phase);
         if (this.currentLunarRoom?.roomId !== room.roomId) {
-            console.log(`✨ Lunar room → ${room.roomName} (phase: ${this.currentMoonData.phase.toFixed(3)})`);
         }
         this.currentLunarRoom = room;
     },
@@ -254,7 +252,6 @@ const LunarEngine = {
     },
 
     adminJoinRoom(roomId) {
-        console.log(`🛡️ ADMIN: Joining ${roomId}`);
         this._loadAndEnterRoom(roomId);
     },
 

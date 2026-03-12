@@ -232,8 +232,7 @@ const SolarUIManager = {
   showToast(message) {
     Core?.showToast
       ? Core.showToast(message)
-      : console.log('[Toast]', message);
-  },
+      :  },
 
   // ── Styles ───────────────────────────────────────────────────────────────────
   _stylesInjected: false,

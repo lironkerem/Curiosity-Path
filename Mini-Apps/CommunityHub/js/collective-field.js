@@ -628,7 +628,7 @@ const CollectiveField = {
         }
 
         const card    = document.querySelector('.energy-card');
-        const rect    = card?.getBoundingClientRect();
+        const rect    = card ? card.getBoundingClientRect() : null;
         const originX = rect ? rect.left + rect.width  / 2 : window.innerWidth  / 2;
         const originY = rect ? rect.top  + rect.height / 2 : window.innerHeight / 2;
         const size    = Math.hypot(window.innerWidth, window.innerHeight) * 2.2;
@@ -767,7 +767,7 @@ const CollectiveField = {
         if (!senders.length) return '<span style="font-size:11px;color:var(--text-muted);font-style:italic;">No one yet - be first</span>';
         return senders.slice(0, 5).map(s => {
             if (s.avatarUrl) {
-                return `<img src="${s.avatarUrl}" alt="" loading="lazy"
+                return `<img src="${s.avatarUrl}" alt="" width="26" height="26" loading="lazy" decoding="async"
                              style="width:26px;height:26px;border-radius:50%;object-fit:cover;border:1.5px solid var(--border-subtle,rgba(0,0,0,0.1));"
                              onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${s.emoji||'🧘'}',style:'font-size:20px;line-height:26px;'}))">`;
             }

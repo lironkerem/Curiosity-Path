@@ -131,7 +131,6 @@ const BaseSolarRoom = {
 
   init() {
     try {
-      console.log(`🌞 ${this.config.displayName} Solar Room initialized`);
       this.checkIfActive();
       if (this.isActive) {
         this.calculateDates();
@@ -145,7 +144,6 @@ const BaseSolarRoom = {
   checkIfActive() {
     if (Core?.state?.currentUser?.is_admin === true) {
       this.isActive = true;
-      console.log(`🛡️ ADMIN: ${this.config.displayName} room force-enabled`);
       return;
     }
 
@@ -268,7 +266,7 @@ const BaseSolarRoom = {
             <picture>
               <source srcset="${imageUrl}" type="image/webp">
               <img src="${imageUrl.replace('.webp', '.png')}" alt="${this.config.displayName} Season"
-                   class="solar-season-img" loading="lazy" decoding="async">
+                   width="600" height="400" class="solar-season-img" loading="lazy" decoding="async">
             </picture>
             <p>${this.config.wisdom}</p>
           </div>
@@ -557,6 +555,7 @@ const BaseSolarRoom = {
           <p>Choose a single word that captures your ${this.config.displayName} energy or intention.</p>
           <p style="font-size:0.9rem;color:rgba(224,224,255,0.7);margin-bottom:1.5rem;">This word will be shared with the collective field.</p>
           <input type="text" id="collectiveWordInput" class="solar-input"
+                 aria-label="Enter your word for this solar season"
                  placeholder="Your word..." maxlength="50"
                  style="font-size:1.2rem;padding:1rem;text-align:center;margin:1rem 0;width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--text);">
           <p style="font-size:0.85rem;color:rgba(224,224,255,0.6);margin-top:0.5rem;">Examples: Growth, Rest, Joy, Clarity, Strength, Peace</p>
@@ -702,7 +701,7 @@ const BaseSolarRoom = {
 
       let inner;
       if (profile.avatar_url) {
-        inner = `<img src="${profile.avatar_url}" alt="${initial}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+        inner = `<img src="${profile.avatar_url}" alt="${initial}" width="40" height="40" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
       } else if (profile.emoji) {
         inner = `<span style="font-size:18px;">${profile.emoji}</span>`;
       } else {

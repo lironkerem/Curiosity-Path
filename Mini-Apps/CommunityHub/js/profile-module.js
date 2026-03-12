@@ -129,12 +129,10 @@ const ProfileModule = {
             return;
         }
         try {
-            console.log('👤 Profile Module Loaded');
             this.renderHTML();
             this.populateData();
             this.setupCharCounter();
             this.state.isInitialized = true;
-            console.log('✓ ProfileModule initialized');
 
         // Listen for status changes from User Tab
         window.addEventListener('statusChanged', (e) => {
@@ -191,7 +189,7 @@ const ProfileModule = {
                     <div class="profile-avatar-section">
                         <div class="profile-avatar-wrap" style="position:relative;width:fit-content;">
                             <div class="profile-avatar" id="profileAvatar" aria-label="Profile avatar">
-                                <img id="profileAvatarImg"
+                                <img id="profileAvatarImg" width="80" height="80" loading="lazy" decoding="async"
                                      style="display:none;width:100%;height:100%;object-fit:cover;border-radius:inherit;"
                                      alt="Profile photo">
                                 <span id="profileAvatarFallback">?</span>

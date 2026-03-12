@@ -236,7 +236,7 @@ body.royal-indigo .lux-footer .lux-text-group{
 body.royal-indigo .gold-accent{
   color:var(--neuro-royal-gold);
   animation:goldAccent 3s ease-in-out infinite;
-  will-change: box-shadow;
+  will-change: transform;
 }
 
 /* ------  POPUP MENU TITLE FIX  ------ */

@@ -569,7 +569,7 @@ class MeditationsEngine {
           </div>
           
           <div class="player-controls">
-            <button onclick="window.featuresManager.engines.meditations.skipBackward()" class="icon-btn">⏪</button>
+            <button onclick="window.featuresManager.engines.meditations.skipBackward()" class="icon-btn" aria-label="Skip backward 10 seconds">⏪</button>
             <div class="play-pause-wrapper">
               <svg class="progress-ring" width="60" height="60">
                 <circle class="progress-ring-bg" stroke-width="4" fill="transparent" r="28" cx="30" cy="30" />
@@ -578,7 +578,7 @@ class MeditationsEngine {
               <button onclick="window.featuresManager.engines.meditations.togglePlay()" id="play-pause-btn" class="btn btn-primary play-pause-btn">▶️</button>
               <button onclick="window.featuresManager.engines.meditations.stopMeditation()" class="stop-btn" title="Stop">⏹️</button>
             </div>
-            <button onclick="window.featuresManager.engines.meditations.skipForward()" class="icon-btn">⏩</button>
+            <button onclick="window.featuresManager.engines.meditations.skipForward()" class="icon-btn" aria-label="Skip forward 10 seconds">⏩</button>
           </div>
         </div>
       </div>
@@ -1028,7 +1028,7 @@ class MeditationsEngine {
       document.addEventListener('mousemove', move);
       document.addEventListener('mouseup', end);
       document.addEventListener('touchmove', move, { passive: false });
-      document.addEventListener('touchend', end);
+      document.addEventListener('touchend', end, { passive: true });
       e.preventDefault();
     };
 

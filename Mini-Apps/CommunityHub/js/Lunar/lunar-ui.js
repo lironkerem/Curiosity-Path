@@ -72,7 +72,7 @@ const LunarUI = {
             <div class="lunar-intro-card">
                 <picture>
                   <source srcset="${imageUrl}" type="image/webp">
-                  <img src="${imageUrl.replace('.webp', '.png')}" alt="Moon Phase" class="lunar-intro-image" loading="lazy" decoding="async">
+                  <img src="${imageUrl.replace('.webp', '.png')}" alt="Moon Phase" width="400" height="400" class="lunar-intro-image" loading="lazy" decoding="async">
                 </picture>
                 <p>${description}</p>
             </div>`;

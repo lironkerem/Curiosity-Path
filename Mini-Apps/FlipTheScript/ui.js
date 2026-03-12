@@ -47,11 +47,15 @@ export function mountUI(app) {
     } else {
       const textarea = document.createElement("textarea");
       textarea.value = text;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
-      showToast("Copied to clipboard!");
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
+      } else {
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast('Copied to clipboard!');
+      }
     }
   }
 
@@ -245,6 +249,7 @@ export function mountUI(app) {
   // ========== Create halo rings ==========
   function createHaloRings() {
     const outputSection = document.getElementById("output-section");
+    requestAnimationFrame(() => {
     const outputRect = outputSection.getBoundingClientRect();
     const centerX = outputRect.left + outputRect.width / 2;
     const centerY = outputRect.top + outputRect.height / 2;
@@ -269,6 +274,7 @@ export function mountUI(app) {
       "💚", "🦋", "🌸", "✴️", "🎆", "💖", "🌈", "💎",
       "✴️", "🎆", "🎇", "✨", "⭐", "💫", "🌟", "💥",
     ];
+    requestAnimationFrame(() => {
     const inputRect = input.getBoundingClientRect();
     const centerX = inputRect.left + inputRect.width / 2;
     const centerY = inputRect.top + inputRect.height / 2;

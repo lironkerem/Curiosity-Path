@@ -261,6 +261,7 @@ const UpcomingEvents = {
         return `
         <div class="event-flyer" style="position:relative;height:450px;overflow:hidden;background:var(--neuro-bg);">
             <img src="${this.escapeHtml(data.image)}" alt="${this.escapeHtml(data.title)}" id="${imageId}"
+                 width="600" height="400"
                  onclick="UpcomingEvents.openLightbox(this.src)"
                  loading="lazy" decoding="async"
                  style="width:100%;height:100%;object-fit:contain;transition:opacity ${this.config.FADE_DURATION}ms ease;cursor:zoom-in;">
@@ -299,7 +300,7 @@ const UpcomingEvents = {
             display:flex;align-items:center;justify-content:center;
             cursor:zoom-out;opacity:0;transition:opacity 0.25s ease;`;
         lb.innerHTML = `
-            <img src="${src}" style="max-width:94vw;max-height:94vh;object-fit:contain;
+            <img src="${src}" width="800" height="600" decoding="async" style="max-width:94vw;max-height:94vh;object-fit:contain;
                 border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.6);
                 transform:scale(0.95);transition:transform 0.25s ease;">
             <button onclick="UpcomingEvents.closeLightbox()"
@@ -353,7 +354,6 @@ const UpcomingEvents = {
 
         start('classes');
         start('sessions', this.config.ROTATION_INTERVAL / 2);
-        console.log('✓ UpcomingEvents rotation initialized (staggered)');
     },
 
     updateCard(type, index) {
@@ -415,7 +415,6 @@ const UpcomingEvents = {
             container.innerHTML = this.getHTML();
             setTimeout(() => this.initRotation(), 100);
             this.state.isInitialized = true;
-            console.log('✓ UpcomingEvents rendered');
         } catch (error) {
             console.error('UpcomingEvents render error:', error);
         }
@@ -446,7 +445,6 @@ const UpcomingEvents = {
         this.state.classInterval     = null;
         this.state.sessionInterval   = null;
         this.state.isInitialized     = false;
-        console.log('✓ UpcomingEvents destroyed');
     },
 
     // ============================================================================
@@ -540,7 +538,7 @@ const UpcomingEvents = {
                          style="cursor:pointer;border-radius:8px;overflow:hidden;
                                 border:3px solid ${selected ? 'var(--neuro-accent)' : 'transparent'};
                                 transition:border 0.15s;">
-                        <img src="${url}" alt="${f}" loading="lazy" decoding="async" style="width:100%;height:90px;object-fit:cover;display:block;">
+                        <img src="${url}" alt="${f}" width="200" height="90" loading="lazy" decoding="async" style="width:100%;height:90px;object-fit:cover;display:block;">
                         <div style="font-size:10px;text-align:center;padding:2px;color:var(--text-muted);">${f}</div>
                     </div>`;
         }).join('');

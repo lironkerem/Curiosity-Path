@@ -102,6 +102,7 @@ destroy() {
         col.el.style.color = color;
         col.el.style.textShadow = `0 0 10px ${color}`;
       });
+      
     }
   } 
 
@@ -110,7 +111,7 @@ destroy() {
   window.matrixRain = new MatrixRain();
   
   function start() {
-    if (document.body.classList.contains('matrix-code') && !window.matrixRain.isRunning) {
+    if (document.body.classList.contains('matrix-code')) {
       window.matrixRain.init();
     }
   }
@@ -131,8 +132,8 @@ destroy() {
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', start);
-  } else {
-    // DOM already ready - defer one tick to ensure body classes are applied
-    setTimeout(start, 0);
   }
+  setTimeout(start, 100);
+  setTimeout(start, 500);
+  setTimeout(start, 1000);
 })();

@@ -234,7 +234,7 @@ class TarotRoom extends PracticeRoom {
         return `
         <picture style="display:contents;">
           <source srcset="${this.getCardImage(card.number, card.suit)}" type="image/webp">
-          <img src="${this.getCardImage(card.number, card.suit).replace('.webp', '.jpg')}"
+          <img width="280" height="480" loading="lazy" decoding="async" src="${this.getCardImage(card.number, card.suit).replace('.webp', '.jpg')}"
                style="width:min(280px,100%);height:auto;border-radius:12px;box-shadow:var(--shadow);display:block;"
                alt="${this.getCardName(card.number, card.suit)}"
                loading="lazy" decoding="async"
@@ -387,6 +387,7 @@ class TarotRoom extends PracticeRoom {
             <p style="font-size:13px;color:var(--text-muted);margin:0 0 12px 0;">Share a one-line interpretation of today's card.</p>
             <div style="display:flex;gap:8px;margin-bottom:16px;">
                 <input id="${roomId}InterpInput" type="text" maxlength="140"
+                    aria-label="Your interpretation of this card"
                     placeholder="One line — what does this card say to you today?"
                     style="flex:1;min-width:0;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--background);color:var(--text);font-size:14px;font-family:inherit;"
                     onkeydown="if(event.key==='Enter')window.TarotRoom._submitInterpretation()"

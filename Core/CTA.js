@@ -216,7 +216,7 @@ export default class CTA {
       <footer id="cta-footer" class="lux-footer">
         <button id="cta-toggle" class="lux-toggle" aria-expanded="false">
           <img src="/public/Watermarks/Logo.svg"
-               alt="Aanandoham" class="lux-logo">
+               alt="Aanandoham" class="lux-logo" width="120" height="40">
           <div class="lux-text-group">
             <span class="lux-line1">Deepen your life experience with me</span>
             <span class="lux-line2">© 2026 Aanandoham (Liron Kerem)</span>
@@ -334,7 +334,7 @@ export default class CTA {
     a.target = '_blank';
     a.rel = 'noopener';
     a.className = 'lux-card';
-    a.innerHTML = `<div class="lux-img-wrap"><picture><source srcset="${src.replace(/\.(jpg|jpeg|png)$/i, '.webp')}" type="image/webp"><img src="${src}" alt="${alt}" loading="lazy" decoding="async"></picture></div>`;
+    a.innerHTML = `<div class="lux-img-wrap"><picture><source srcset="${src.replace(/\.(jpg|jpeg|png)$/i, '.webp')}" type="image/webp"><img src="${src}" alt="${alt}" loading="lazy" decoding="async" width="300" height="200"></picture></div>`;
     return a;
   }
 

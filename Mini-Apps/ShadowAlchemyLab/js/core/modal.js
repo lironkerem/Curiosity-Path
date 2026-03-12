@@ -14,7 +14,7 @@ export function createModal({ id, title, subtitle, content, actions, onClose }) 
           <h3 style="margin:0">${title}</h3>
           ${subtitle ? `<p class="muted" style="margin-top:var(--spacing-xs)">${subtitle}</p>` : ''}
         </div>
-        <button class="btn modal-close-btn" style="padding:8px 12px;font-size:1.2rem;margin-left:var(--spacing-md);flex-shrink:0">✕</button>
+        <button class="btn modal-close-btn" aria-label="Close modal" style="padding:8px 12px;font-size:1.2rem;margin-left:var(--spacing-md);flex-shrink:0">✕</button>
       </div>
       ${content}
       <div class="modal-actions">${actions}</div>

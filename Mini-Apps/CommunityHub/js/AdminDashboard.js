@@ -149,6 +149,7 @@ const AdminDashboard = {
                       <img src="/public/Community/AdminDashboard.png"
                            onclick="AdminDashboard.openDashboard()"
                            alt="Open Admin Dashboard"
+                           width="48" height="48" loading="lazy" decoding="async"
                            loading="lazy" decoding="async"
                            style="width:100%;border-radius:14px;cursor:pointer;display:block;
                                   transition:opacity 0.15s,transform 0.15s;box-shadow:0 4px 16px rgba(0,0,0,0.1);"
@@ -369,7 +370,7 @@ const AdminDashboard = {
                                 display:flex;align-items:center;justify-content:center;
                                 font-size:0.9rem;color:#fff;flex-shrink:0;overflow:hidden;">
                         ${p.avatar_url
-                            ? `<img src="${p.avatar_url}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">`
+                            ? `<img src="${p.avatar_url}" alt="Member avatar" width="40" height="40" style="width:100%;height:100%;object-fit:cover;" loading="lazy" decoding="async">`
                             : (p.emoji || (p.name || '?').charAt(0))}
                     </div>
                     <div style="flex:1;min-width:0;">
@@ -883,7 +884,6 @@ const AdminDashboard = {
     },
 };
 
-console.log('✅ AdminDashboard loaded');
 
 // Window bridge: preserved for external callers
 window.AdminDashboard = AdminDashboard;

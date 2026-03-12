@@ -26,7 +26,7 @@ function _avatarParts(name, avatarUrl, emoji, userId) {
     const gradient = Core?.getAvatarGradient?.(userId || name)
         ?? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
     const inner = avatarUrl
-        ? `<img src="${avatarUrl}" style="width:36px;height:36px;object-fit:cover;border-radius:50%;display:block;flex-shrink:0;" alt="${name}">`
+        ? `<img src="${avatarUrl}" width="36" height="36" style="width:36px;height:36px;object-fit:cover;border-radius:50%;display:block;flex-shrink:0;" alt="${name}" loading="lazy" decoding="async">`
         : `<span style="color:white;font-size:13px;font-weight:600;line-height:1;">${initial}</span>`;
     const bg = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
     return { inner, bg, gradient, initial };
@@ -221,6 +221,7 @@ const ChatMixin = {
                     <input type="text"
                            class="chat-input"
                            id="${this.roomId}${cap}Input"
+                           aria-label="${placeholder}"
                            placeholder="${placeholder}"
                            onkeypress="if(event.key==='Enter')${className}.sendMessage('${channel}')"
                            style="flex:1;min-width:0;width:100%;">

@@ -86,7 +86,7 @@ const MemberProfileModal = {
             if (!avatarEl) return;
             if (avatarUrl) {
                 avatarEl.style.background = 'transparent';
-                avatarEl.innerHTML = `<img src="${avatarUrl}" loading="lazy"
+                avatarEl.innerHTML = `<img src="${avatarUrl}" loading="lazy" decoding="async" width="80" height="80"
                     style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="avatar">`;
             } else if (emoji) {
                 avatarEl.style.background = '';
@@ -575,7 +575,7 @@ const MemberProfileModal = {
         if (avatarEl) {
             if (profile.avatar_url) {
                 avatarEl.style.background = 'transparent';
-                avatarEl.innerHTML = `<img src="${profile.avatar_url}" loading="lazy"
+                avatarEl.innerHTML = `<img src="${profile.avatar_url}" loading="lazy" decoding="async" width="80" height="80"
                     style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
                     alt="${this._esc(profile.name)}">`;
             } else {

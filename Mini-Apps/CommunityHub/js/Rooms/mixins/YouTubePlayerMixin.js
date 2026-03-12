@@ -191,9 +191,9 @@ const YouTubePlayerMixin = {
         return `
         <div class="guided-controls" id="${this.roomId}Controls" style="display:none;">
             <div class="control-buttons">
-                <button class="control-btn"         onclick="${cn}.skipBackward()"><span style="font-size:20px;">⏪</span></button>
-                <button class="control-btn primary"  onclick="${cn}.togglePlayPause()" id="${this.roomId}PlayBtn"><span style="font-size:24px;">⏸</span></button>
-                <button class="control-btn"         onclick="${cn}.skipForward()"><span style="font-size:20px;">⏩</span></button>
+                <button class="control-btn" aria-label="Skip backward 10 seconds" onclick="${cn}.skipBackward()"><span style="font-size:20px;">⏪</span></button>
+                <button class="control-btn primary" aria-label="Play or pause" onclick="${cn}.togglePlayPause()" id="${this.roomId}PlayBtn"><span style="font-size:24px;">⏸</span></button>
+                <button class="control-btn" aria-label="Skip forward 10 seconds" onclick="${cn}.skipForward()"><span style="font-size:20px;">⏩</span></button>
             </div>
             <div class="time-display" id="${this.roomId}TimeDisplay">0:00 / 0:00</div>
         </div>`;

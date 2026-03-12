@@ -68,7 +68,6 @@ class PracticeRoom {
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     init() {
-        console.log(`${this.config.icon} ${this.config.name} Module Loaded`);
         this.updateRoomCard();
         window[`${this.roomId}_blessRoom`] = () => this._blessRoom();
         this.mountHubModals();
@@ -331,7 +330,7 @@ class PracticeRoom {
             const initial    = emoji || name.charAt(0).toUpperCase();
             const gradient   = Core?.getAvatarGradient?.(row.user_id || name) ?? fallbackGradient;
             const inner      = avatarUrl
-                ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
+                ? `<img src="${avatarUrl}" width="40" height="40" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}" loading="lazy" decoding="async">`
                 : `<span style="color:white;font-size:${fontSize}px;font-weight:700;">${initial}</span>`;
             const bg = avatarUrl ? 'transparent' : gradient;
             return `<div title="${name}" style="width:${size}px;height:${size}px;border-radius:50%;background:${bg};border:2px solid var(--surface);display:flex;align-items:center;justify-content:center;overflow:hidden;margin-left:-6px;flex-shrink:0;">${inner}</div>`;
@@ -358,7 +357,7 @@ class PracticeRoom {
             const emoji     = profile.emoji     || '';
             const gradient  = Core?.getAvatarGradient?.(userId || name) ?? fallbackGradient;
             const inner     = avatarUrl
-                ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}">`
+                ? `<img src="${avatarUrl}" width="40" height="40" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}" loading="lazy" decoding="async">`
                 : `<span>${emoji || name.charAt(0).toUpperCase()}</span>`;
             const bg      = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
             const click   = userId ? `onclick="openMemberProfileAboveRoom('${userId}')"` : '';
@@ -389,7 +388,7 @@ class PracticeRoom {
             const emoji     = profile.emoji     || '';
             const gradient  = Core?.getAvatarGradient?.(userId || name) ?? fallbackGradient;
             const inner     = avatarUrl
-                ? `<img src="${avatarUrl}" referrerpolicy="no-referrer" style="width:40px;height:40px;min-width:40px;min-height:40px;object-fit:cover;border-radius:50%;display:block;" alt="${name}">`
+                ? `<img src="${avatarUrl}" referrerpolicy="no-referrer" width="40" height="40" style="width:40px;height:40px;min-width:40px;min-height:40px;object-fit:cover;border-radius:50%;display:block;" alt="${name}" loading="lazy" decoding="async">`
                 : `<span style="color:white;font-weight:600;font-size:13px;">${emoji || name.charAt(0).toUpperCase()}</span>`;
             const bg    = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
             const click = userId ? `onclick="openMemberProfileAboveRoom('${userId}')"` : '';
@@ -562,7 +561,7 @@ class PracticeRoom {
         <header class="ps-header" style="padding:12px 16px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;${this.getHeaderGradient()}">
             <div class="ps-info" style="display:flex;flex-direction:column;align-items:flex-start;flex:1;min-width:0;">
                 <div style="width:100%;display:flex;justify-content:flex-start;">
-                    <img src="${this.config.imageUrl}" alt="${this.config.name}" style="max-width:600px;width:100%;height:auto;display:block;">
+                    <img src="${this.config.imageUrl}" alt="${this.config.name}" width="600" height="400" loading="lazy" decoding="async" style="max-width:600px;width:100%;height:auto;display:block;">
                 </div>
                 <div style="display:flex;align-items:center;gap:20px;margin-top:16px;flex-wrap:wrap;">
                     <div class="ps-participants" style="display:flex;align-items:center;gap:8px;">
@@ -631,7 +630,7 @@ class PracticeRoom {
         return `
         <div class="modal-overlay" id="${this.roomId}InstructionsModal">
             <div class="modal-card">
-                <button class="modal-close" onclick="${closeKey}()">×</button>
+                <button class="modal-close" aria-label="Close modal" onclick="${closeKey}()">×</button>
                 <div class="modal-content">
                     <h2 style="font-family:var(--serif);margin-top:0;display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> ${this.config.name}</h2>
                     ${this.getInstructions()}
@@ -719,7 +718,7 @@ class PracticeRoom {
 
             ${!isVisuallyOpen && isTimed ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;pointer-events:none;">${_IN_SESSION_BADGE}</div>` : ''}
 
-            <img src="${this.config.imageUrl}" alt="${this.config.name}" style="width:100%;height:auto;display:block;margin-bottom:12px;">
+            <img src="${this.config.imageUrl}" alt="${this.config.name}" width="800" height="450" loading="lazy" decoding="async" style="width:100%;height:auto;display:block;margin-bottom:12px;">
 
             <div class="room-desc" style="text-align:center;margin-bottom:16px;">${this.config.description}</div>
 
@@ -784,7 +783,7 @@ class PracticeRoom {
         }
 
         if (container) {
-            const { bottom, right } = container.getBoundingClientRect();
+            const { bottom, right } = container.getBoundingClientRect(); // inside event handler, layout read is acceptable
             Object.assign(dropdown.style, {
                 position:  'fixed',
                 top:       `${bottom + 6}px`,
@@ -868,14 +867,12 @@ PracticeRoom.startHubPresence = async function(rooms) {
 
     await refreshAll();
     PracticeRoom._hubPresenceSub = CommunityDB.subscribeToPresence(refreshAll);
-    console.log('[PracticeRoom] Hub presence subscription started');
 };
 
 PracticeRoom.stopHubPresence = function() {
     if (!PracticeRoom._hubPresenceSub) return;
     try { PracticeRoom._hubPresenceSub.unsubscribe(); } catch (_) {}
     PracticeRoom._hubPresenceSub = null;
-    console.log('[PracticeRoom] Hub presence subscription stopped');
 };
 
 // ── Global exports ────────────────────────────────────────────────────────────

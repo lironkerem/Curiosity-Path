@@ -48,7 +48,6 @@ const SolarEngine = {
   init() {
     if (this._initialized) return;
     this._initialized = true;
-    console.log('☀️ Solar Engine Initialized');
 
     if (typeof SunCalc === 'undefined') {
       console.error('❌ SunCalc library not loaded! Sun visualizations will not work.');
@@ -315,7 +314,6 @@ const SolarEngine = {
     if (room && room !== this.currentSolarRoom) {
       this.currentSolarRoom = room;
       this.renderSolarRoom(room);
-      console.log(`☀️ Solar room: ${room.roomName}`);
     }
   },
 
@@ -466,7 +464,6 @@ const SolarEngine = {
   },
 
   adminJoinRoom(roomId) {
-    console.log(`🛡️ ADMIN: Joining ${roomId}`);
     this._loadAndEnterRoom(roomId);
   },
 

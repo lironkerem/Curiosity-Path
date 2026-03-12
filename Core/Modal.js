@@ -124,7 +124,7 @@ export class NeumorphicModal {
 
     const inputEl = multiline
       ? `<textarea class="form-input" rows="4" placeholder="${escapeHtml(placeholder)}">${escapeHtml(def || '')}</textarea>`
-      : `<input type="text" class="form-input" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(def || '')}">`;
+      : `<input type="text" class="form-input" aria-label="${escapeHtml(placeholder)}" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(def || '')}">`;
 
     const content = `
       <div class="neuro-modal">
@@ -242,7 +242,7 @@ export function refreshAvatar(app) {
     img.src = u.avatarFile;
     img.style.display = 'block';
     em.style.display = 'none';
-    avatarPreview.innerHTML = `<img src="${u.avatarFile}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+    avatarPreview.innerHTML = `<img src="${u.avatarFile}" alt="User avatar" width="80" height="80" style="width:100%;height:100%;border-radius:50%;object-fit:cover" loading="lazy" decoding="async">`;
   } else {
     img.style.display = 'none';
     em.style.display = 'block';
@@ -378,7 +378,7 @@ export const settingsModalContent = () => `
     <label>Theme</label>
     <select class="form-input"><option>Neumorphic Light</option></select>
     <label>Daily reminder</label>
-    <input type="time" class="form-input">
+    <input type="time" class="form-input" aria-label="Select time">
   </div>
   <div id="privacy" class="tab-pane">
     <label><input type="checkbox"> Allow analytics</label>
@@ -408,7 +408,7 @@ export const aboutModalContent = () => `
  */
 export const contactModalContent = () => `
   <form class="contact-form">
-    <input class="form-input" name="subject" placeholder="Subject" required>
+    <input class="form-input" name="subject" aria-label="Subject" placeholder="Subject" required>
     <textarea class="form-input" name="body" rows="4" placeholder="Your message" required></textarea>
     <button class="btn btn-primary">Send</button>
   </form>

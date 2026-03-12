@@ -187,10 +187,6 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .disc-dot { animation: none; }
-}
-
 /* ========== MOBILE SIZES ========== */
 @media (max-width: 768px) {
   .user-disc {

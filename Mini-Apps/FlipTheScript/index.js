@@ -38,7 +38,7 @@ export default class FlipTheScriptApp {
                      --header-title:'';
                      --header-tag:'Flip your Negative thoughts, into Positive affirmations'">
         <h1>Flip the Script</h1>
-        <h3>Flip your Negative thoughts, into Positive affirmations</h3>
+        <p class="header-subtitle">Flip your Negative thoughts, into Positive affirmations</p>
         <span class="header-sub"></span>
       </header>
 
@@ -49,7 +49,7 @@ export default class FlipTheScriptApp {
             <div class="input-main">
               <div class="textarea-wrapper">
                 <textarea id="negative-input" placeholder="Type or say your negative thought or belief here.." maxlength="500"></textarea>
-                <button id="voice-input-btn" class="voice-input-btn" title="Speak your thought"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M12 11V3"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+                <button id="voice-input-btn" class="voice-input-btn" title="Speak your thought" aria-label="Speak your thought"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M12 11V3"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
                 <div class="char-counter"><span id="char-count">0</span>/500 characters</div>
               </div>
             </div>
@@ -89,8 +89,8 @@ export default class FlipTheScriptApp {
             </div>
             <button id="flip-another-btn" class="btn flip-another-inside" style="display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Flip Another Thought</button>
             <div class="action-icons">
-              <button id="save-extended" class="icon-btn" title="Save"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
-              <button id="audio-extended" class="icon-btn" title="Listen"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+              <button id="save-extended" class="icon-btn" title="Save" aria-label="Save flip"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+              <button id="audio-extended" class="icon-btn" title="Listen" aria-label="Listen to flip"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
             </div>
           </div>
         </section>
@@ -103,7 +103,7 @@ export default class FlipTheScriptApp {
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--neuro-accent); flex-shrink: 0;">
             <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
           </svg>
-          <h3 style="color:var(--neuro-text);margin:0;font-size:1.5rem;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,0.1);letter-spacing:0.025em;">My Flips</h3>
+          <h2 style="color:var(--neuro-text);margin:0;font-size:1.5rem;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,0.1);letter-spacing:0.025em;">My Flips</h2>
         </button>
         <div class="collapse-content collapsed">
           <div style="padding: 0 24px 24px;">

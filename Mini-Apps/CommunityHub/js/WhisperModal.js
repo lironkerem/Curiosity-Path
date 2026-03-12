@@ -435,6 +435,7 @@ const WhisperModal = {
         const s = size + 'px';
         if (profile?.avatar_url) {
             return `<img src="${profile.avatar_url}"
+                         width="48" height="48" loading="lazy" decoding="async"
                          style="width:${s};height:${s};border-radius:50%;object-fit:cover;display:block;"
                          alt="${this._escape(profile.name || '')}">`;
         }
@@ -473,4 +474,3 @@ export { WhisperModal };
 
 // Keep window assignment for classic scripts
 window.WhisperModal = WhisperModal;
-console.log('✓ WhisperModal loaded');

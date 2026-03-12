@@ -368,7 +368,7 @@ class DeepWorkRoom extends PracticeRoom {
         return `
         <div class="modal-overlay" id="${this.roomId}SetupModal" style="z-index:200001;">
             <div class="modal-card" style="max-width:550px;max-height:90vh;overflow-y:auto;">
-                <button class="modal-close" onclick="${cn}.closeSetupModal()">×</button>
+                <button class="modal-close" aria-label="Close setup modal" onclick="${cn}.closeSetupModal()">×</button>
                 <div class="modal-content">
                     <h2 style="font-family:var(--serif);margin-top:0;margin-bottom:8px;text-align:center;">Start Deep Work Session</h2>
                     <p style="text-align:center;color:var(--text-muted);font-size:13px;margin-bottom:24px;">Set your intention. Choose your time. Work in flow.</p>
@@ -376,6 +376,7 @@ class DeepWorkRoom extends PracticeRoom {
                     <div style="margin-bottom:24px;">
                         <label style="display:block;font-weight:600;margin-bottom:8px;font-size:14px;">Your Intention</label>
                         <input type="text" id="${this.roomId}IntentionInput"
+                               aria-label="Set your intention for this session"
                                placeholder="e.g., Finish proposal, Code feature..."
                                style="width:100%;padding:12px;border:2px solid var(--border);border-radius:var(--radius-md);background:var(--surface);font-size:14px;box-sizing:border-box;">
                     </div>

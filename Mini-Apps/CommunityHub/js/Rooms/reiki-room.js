@@ -364,7 +364,7 @@ class ReikiRoom extends PracticeRoom {
         <!-- ── Image carousel ── -->
         <div style="text-align:center;margin-bottom:24px;display:flex;align-items:center;justify-content:center;gap:8px;">
             <button onclick="${onPrev}" style="background:var(--surface);border:2px solid var(--border);border-radius:50%;width:40px;height:40px;min-width:40px;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">‹</button>
-            <img id="${roomId}${prefix}CarouselImg"
+            <img width="500" height="400" id="${roomId}${prefix}CarouselImg"
                  src="${img}" alt="${chakra.name}" loading="lazy" decoding="async"
                  style="max-width:min(500px,calc(100% - 100px));width:100%;height:auto;border-radius:var(--radius-md);box-shadow:0 4px 12px rgba(0,0,0,0.1);display:block;flex:1 1 auto;min-width:0;">
             <button onclick="${onNext}" style="background:var(--surface);border:2px solid var(--border);border-radius:50%;width:40px;height:40px;min-width:40px;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">›</button>
@@ -473,6 +473,7 @@ class ReikiRoom extends PracticeRoom {
             <p style="font-size:13px;color:var(--text-muted);margin:0 0 12px 0;">Share a one-line reflection on today's chakra energy.</p>
             <div style="display:flex;gap:8px;margin-bottom:16px;">
                 <input id="${roomId}EnergyInput" type="text" maxlength="140"
+                    aria-label="Your energy intention"
                     placeholder="One line — what does this chakra energy mean to you today?"
                     style="flex:1;min-width:0;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--background);color:var(--text);font-size:14px;font-family:inherit;"
                     onkeydown="if(event.key==='Enter')${cn}._submitCommunityEnergy()"

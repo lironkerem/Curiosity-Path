@@ -161,9 +161,10 @@ const Core = {
                         if (ready && currentHeight > 0) {
                             clearInterval(poll);
                             const bottomBar = document.getElementById('mobile-bottom-bar');
-                            const offset = bottomBar ? bottomBar.offsetHeight + 16 : 16;
+                            requestAnimationFrame(() => { 
                             const top = el.getBoundingClientRect().top + window.scrollY - offset;
                             window.scrollTo({ top, behavior: 'smooth' });
+                            });
                         } else if (attempts >= maxAttempts) {
                             clearInterval(poll);
                         }
@@ -486,7 +487,7 @@ const Core = {
             <!-- Report Modal -->
             <div class="modal-overlay" id="reportModal">
                 <div class="modal-card">
-                    <button class="modal-close" onclick="CommunityModule.closeReportModal()">×</button>
+                    <button class="modal-close" aria-label="Close report modal" onclick="CommunityModule.closeReportModal()">×</button>
                     <h2 style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> Report Issue</h2>
                     <div class="modal-content">
                         <p style="margin-bottom:16px; color:var(--text-muted);">Help us maintain a safe space. Your report is confidential.</p>
@@ -512,7 +513,7 @@ const Core = {
             <!-- Block Modal -->
             <div class="modal-overlay" id="blockModal">
                 <div class="modal-card">
-                    <button class="modal-close" onclick="CommunityModule.closeBlockModal()">×</button>
+                    <button class="modal-close" aria-label="Close block modal" onclick="CommunityModule.closeBlockModal()">×</button>
                     <h2 style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg> Block User</h2>
                     <div class="modal-content">
                         <p style="margin-bottom:16px; color:var(--text-muted);">Blocking will hide all messages from this user.</p>
@@ -529,7 +530,7 @@ const Core = {
             <!-- Help Modal -->
             <div class="modal-overlay" id="helpModal">
                 <div class="modal-card">
-                    <button class="modal-close" onclick="CommunityModule.closeHelpModal()">×</button>
+                    <button class="modal-close" aria-label="Close help modal" onclick="CommunityModule.closeHelpModal()">×</button>
                     <h2 style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg> Get Help</h2>
                     <div class="modal-content">
                         <p style="margin-bottom:16px;">If you're experiencing a crisis or need immediate support:</p>
@@ -575,4 +576,3 @@ export { Core };
 // Keep window assignment for classic scripts that still reference window.Core
 window.Core = Core;
 
-console.log('✅ Core.js loaded (v2.1.0)');

@@ -30,6 +30,7 @@ class AffirmationsEngine {
     
     this.currentAffirmation = null;
     this._allAffirmations = null; // Cache for flattened affirmations list
+    
   }
 
   // ============================================
@@ -90,6 +91,7 @@ class AffirmationsEngine {
     const dayIndex = this._getDayOfYear() % general.length;
     const affirmation = general[dayIndex];
     const text = this._extractText(affirmation);
+    
     return text;
   }
 

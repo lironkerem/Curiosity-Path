@@ -81,7 +81,6 @@ class LunarRoom {
 
     init() {
         try {
-            console.log(`🌙 ${this.config.name} Room Loaded`);
             this.checkIfWeekActive();
             LunarUI.injectStyles(this.config.cssPrefix);
         } catch (e) {
@@ -93,7 +92,6 @@ class LunarRoom {
         try {
             if (!LunarEngine?.currentMoonData) {
                 if (!this._hasLoggedWaiting) {
-                    console.log(`⏳ ${this.config.name}: Waiting for LunarEngine...`);
                     this._hasLoggedWaiting = true;
                 }
                 if (!this._retryCheckTimeout) {
@@ -107,7 +105,6 @@ class LunarRoom {
 
             const isAdmin = Core?.state?.currentUser?.is_admin === true;
             if (isAdmin) {
-                console.log(`🛡️ ADMIN: ${this.config.name} force-enabled`);
                 this.isActive = true;
                 this.calculateWeekDates();
                 this.loadUserWeekData();
@@ -637,6 +634,7 @@ class LunarRoom {
                     <p>${LunarConfig._escapeHtml(this.userWeekData.privateIntention || 'No intention set')}</p>
                 </div>
                 <input type="text" id="collectiveWordInput" class="lunar-word-input"
+                    aria-label="Enter your word for this lunar phase"
                     placeholder="Your word..." maxlength="${LunarRoom.CONSTANTS.MAX_WORD_LENGTH}">
                 <button class="lunar-popup-btn" data-action="submit-collective-word">Plant Your Word</button>
             </div>`;
@@ -846,7 +844,7 @@ class LunarRoom {
             const initial  = name.charAt(0).toUpperCase();
             const gradient = Core?.getAvatarGradient?.(p.user_id) ?? 'background:#8B7AFF';
             let inner = profile.avatar_url
-                ? `<img src="${profile.avatar_url}" alt="${initial}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                ? `<img src="${profile.avatar_url}" alt="${initial}" width="40" height="40" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
                 : profile.emoji
                     ? `<span style="font-size:18px;">${profile.emoji}</span>`
                     : `<span style="font-size:14px;font-weight:600;">${initial}</span>`;

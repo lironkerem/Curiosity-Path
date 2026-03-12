@@ -335,7 +335,7 @@ export const isToastActive = () => {
    -------------------------------------------------- */
 
 // Expose in development for debugging
-if (typeof window !== 'undefined' && (() => { try { return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'; } catch(e) { return false; } })()) {
+if (typeof window !== 'undefined' && import.meta.url.includes('localhost')) {
   window.__toast = {
     show: showToast,
     clear: clearToasts,

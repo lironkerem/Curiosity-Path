@@ -291,7 +291,6 @@
     _lastSummary: null,
     init() {
       loadAllJourneys();
-      console.info('DailyJourneyEngine initialized (10-area version)');
     },
     getAllJourneys() { return loadAllJourneys(); },
     startDailyJourney(containerOrSelector, options = {}) {

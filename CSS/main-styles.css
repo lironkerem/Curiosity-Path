@@ -106,7 +106,6 @@ html {
   tab-size: 4;
   font-family: ui-sans-serif, system-ui, sans-serif;
   -webkit-tap-highlight-color: transparent;
-  scroll-behavior: smooth;
 }
 
 hr { height: 0; color: inherit; border-top-width: 1px; }
@@ -393,7 +392,6 @@ body {
   -webkit-font-smoothing: antialiased;
   position: relative;
   transition: background 0.5s cubic-bezier(.4,0,.2,1);
-  overflow-anchor: none;
 }
 
 /* ===== SUBTLE EARTH TEXTURE ===== */
@@ -427,7 +425,7 @@ body::after {
     radial-gradient(2px 2px at 40% 60%, rgba(139,115,85,.4), transparent);
   background-size: 200% 200%;
   animation: breathe 8s ease-in-out infinite;
-  will-change: opacity, transform;
+  will-change: opacity;
 }
 
 body > * { position: relative; z-index: 1; }
@@ -502,7 +500,6 @@ body > * { position: relative; z-index: 1; }
   background: var(--neuro-bg);
   min-height: 100vh;
   padding-bottom: 140px;
-  contain: layout style;
 }
 
 .tab-content.active { 
@@ -526,11 +523,11 @@ body > * { position: relative; z-index: 1; }
   background-size: 200% 200%;
   box-shadow: var(--shadow-raised-lg), var(--shadow-intense), inset 0 2px 0 rgba(139,195,74,.4);
   animation: earthGlow 6s ease-in-out infinite;
-  will-change: box-shadow;
   border: 1px solid rgba(107,155,55,.5);
   color: #fff;
   contain: layout style paint;
   overflow: hidden;
+  will-change: box-shadow;
 }
 
 .app-header .header-image {
@@ -567,6 +564,7 @@ body > * { position: relative; z-index: 1; }
   box-shadow: var(--shadow-raised-lg), var(--shadow-intense), inset 0 2px 0 rgba(139,195,74,.4);
   animation: earthGlow 6s ease-in-out infinite;
   border: 1px solid rgba(107,155,55,.5);
+  will-change: box-shadow;
 }
 
 .main-header.project-curiosity h1,
@@ -742,6 +740,7 @@ button:disabled {
   background-size: 200% 200%;
   animation: earthGlow 6s ease-in-out infinite;
   color: #fff;
+  will-change: box-shadow;
 }
 
 .community-link-card h3 {
@@ -959,6 +958,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
   transform: translateX(-100%);
   animation: shimmer 2.2s infinite;
+  will-change: transform;
 }
 
 @keyframes shimmer {
@@ -1070,6 +1070,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   border-color: rgba(107,155,55,.6);
   box-shadow: var(--shadow-inset), 0 0 15px rgba(107,155,55,.4);
   animation: leafShimmer 3s linear infinite;
+  will-change: box-shadow;
 }
 
 .desktop-nav { display: block; }
@@ -2554,7 +2555,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
-.karma-shop-rarity-common { color: #6b7280; }
+.karma-shop-rarity-common { color: #9ca3af; }
 .karma-shop-rarity-uncommon { color: var(--neuro-success); }
 .karma-shop-rarity-rare { color: var(--neuro-info); }
 .karma-shop-rarity-epic { color: #a855f7; }
@@ -2646,6 +2647,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   animation: earthGlow 6s ease-in-out infinite;
   border: 1px solid rgba(107,155,55,.5);
   box-shadow: var(--shadow-raised-lg), var(--shadow-intense), inset 0 2px 0 rgba(139,195,74,.4);
+  will-change: box-shadow;
 }
 
 .dashboard-community-sanctuary .dashboard-wellness-title,
@@ -2862,6 +2864,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   font-size: 1rem;
   transition: all var(--transition-normal);
   margin-bottom: 0;
+  will-change: box-shadow;
 }
 
 .lux-toggle:hover { box-shadow: var(--shadow-raised-hover); }
@@ -3122,6 +3125,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   animation: pulse 1.5s ease-in-out infinite;
   background: linear-gradient(135deg, var(--neuro-error), #b85a4a);
   box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), 6px 6px 12px var(--neuro-shadow-dark), -6px -6px 12px var(--neuro-shadow-light);
+  will-change: box-shadow;
 }
 
 @keyframes pulse {
@@ -4132,7 +4136,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 
 .cta-welcome-title {
   font-size: 1.5rem;
-  color: #2d5c3a;
+  color: #3F7652;
   font-weight: 700;
   display: block;
   margin-bottom: 0.5rem;

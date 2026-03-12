@@ -31,7 +31,6 @@ const SafetyBar = {
     // ============================================================================
 
     init() {
-        console.log('🛡️ SafetyBar Module Loaded');
     },
 
     /**
@@ -46,7 +45,6 @@ const SafetyBar = {
         try {
             document.body.insertAdjacentHTML('beforeend', this.getAllModalsHTML());
             this.state.modalsInjected = true;
-            console.log('✓ SafetyBar modals injected');
         } catch (error) {
             console.error('Failed to inject SafetyBar modals:', error);
         }
@@ -553,10 +551,8 @@ const SafetyBar = {
                 window.CommunityModule[key] = shim[key];
             }
         });
-        console.log('🛡️ SafetyBar: patched missing methods on CommunityModule');
     } else {
         window.CommunityModule = shim;
-        console.log('🛡️ SafetyBar: CommunityModule created as safety shim');
     }
 })();
 

@@ -1102,6 +1102,7 @@ export default class DashboardManager {
     container.innerHTML = `
       <div class="card dashboard-wellness-toolkit dashboard-community-sanctuary mb-8">
         <img src="/public/Tabs/CommunityHub.webp" alt="Community Sanctuary"
+             width="800" height="450"
              style="width:100%;border-radius:var(--radius-md);display:block;">
 
         <div class="wellness-buttons-grid">
@@ -1120,7 +1121,7 @@ export default class DashboardManager {
         <button onclick="window.app?.nav?.switchTab('community-hub')"
                 class="btn btn-primary"
                 style="width:100%;margin-top:1rem;display:flex;align-items:center;justify-content:center;gap:0.5rem;">
-          <picture><source srcset="/public/Tabs/Community.webp" type="image/webp"><img src="/public/Tabs/Community.png" alt="" style="width:44px;height:44px;object-fit:contain;border-radius:4px;"></picture>
+          <picture><source srcset="/public/Tabs/Community.webp" type="image/webp"><img src="/public/Tabs/Community.png" alt="" width="44" height="44" style="width:44px;height:44px;object-fit:contain;border-radius:4px;"></picture>
           Enter the Community Hub →
         </button>
       </div>`;

@@ -41,23 +41,20 @@ const SUPABASE_CONFIGS = {
  * Get Supabase URL - checks Vite env first, then DEV_MODE config
  */
 function getSupabaseUrl() {
-  try {
-    if (typeof import.meta?.env?.VITE_SUPABASE_URL !== 'undefined') {
-      return import.meta.env.VITE_SUPABASE_URL;
-    }
-  } catch(e) { /* Not a Vite environment */ }
-  return SUPABASE_CONFIGS[DEV_MODE ? 'dev' : 'prod'].url;
+  if (typeof import.meta?.env?.VITE_SUPABASE_URL !== 'undefined') {
+    return import.meta.env.VITE_SUPABASE_URL;
+  }
+  const env = DEV_MODE ? 'dev' : 'prod';
+  return SUPABASE_CONFIGS[env].url;
 }
 
 /**
  * Get Supabase anon key - checks Vite env first, then DEV_MODE config
  */
 function getSupabaseAnonKey() {
-  try {
-    if (typeof import.meta?.env?.VITE_SUPABASE_ANON_KEY !== 'undefined') {
-      return import.meta.env.VITE_SUPABASE_ANON_KEY;
-    }
-  } catch(e) { /* Not a Vite environment */ }
+  if (typeof import.meta?.env?.VITE_SUPABASE_ANON_KEY !== 'undefined') {
+    return import.meta.env.VITE_SUPABASE_ANON_KEY;
+  }
   return SUPABASE_CONFIGS[DEV_MODE ? 'dev' : 'prod'].anonKey;
 }
 
@@ -191,7 +188,7 @@ export async function testConnection() {
  * @returns {Object} Config details
  */
 export function getConfig() {
-  const isUsingEnv = (() => { try { return typeof import.meta?.env?.VITE_SUPABASE_URL !== 'undefined'; } catch(e) { return false; } })();
+  const isUsingEnv = typeof import.meta?.env?.VITE_SUPABASE_URL !== 'undefined';
   
   return {
     url: SUPABASE_URL,

@@ -126,6 +126,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 .ritual-card { 
     text-align: center; max-width: 400px; padding: 48px;
     animation: breatheRitual 4s infinite;
+  will-change: transform;
 }
 .ritual-candle {
     width: 140px; height: 140px; margin: 0 auto 32px;
@@ -141,6 +142,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     border-radius: 50%;
     background: radial-gradient(circle, rgba(255, 180, 80, 0.18) 0%, transparent 70%);
     animation: outerGlow 4s ease-in-out infinite;
+  will-change: transform;
 }
 .ritual-candle::after {
     content: '';
@@ -149,6 +151,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     border-radius: 50%;
     background: radial-gradient(circle, rgba(255, 200, 100, 0.25) 0%, transparent 70%);
     animation: innerGlow 3s ease-in-out infinite;
+  will-change: transform;
 }
 .ritual-candle svg {
     position: relative;
@@ -156,10 +159,17 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     width: 72px; height: 100px;
     filter: drop-shadow(0 0 8px rgba(255, 180, 60, 0.6));
     animation: candleFloat 4s ease-in-out infinite;
+  will-change: transform;
 }
-.flame-outer { animation: flameOuter 1.8s ease-in-out infinite; transform-origin: 50% 100%; }
-.flame-inner { animation: flameInner 1.4s ease-in-out infinite; transform-origin: 50% 100%; }
-.flame-core  { animation: flameCore 1s ease-in-out infinite; transform-origin: 50% 100%; }
+.flame-outer { animation: flameOuter 1.8s ease-in-out infinite; transform-origin: 50% 100%;
+  will-change: transform;
+}
+.flame-inner { animation: flameInner 1.4s ease-in-out infinite; transform-origin: 50% 100%;
+  will-change: transform;
+}
+.flame-core  { animation: flameCore 1s ease-in-out infinite; transform-origin: 50% 100%;
+  will-change: transform;
+}
 
 @keyframes flameOuter {
     0%, 100% { transform: scaleX(1) scaleY(1) rotate(-1deg); opacity: 0.9; }
@@ -296,6 +306,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     background: var(--ring-available);
     border-radius: 50%;
     animation: pulse 2s infinite;
+  will-change: transform;
 }
 
 @keyframes pulse { 
@@ -442,6 +453,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     background: var(--ring-available);
     border-radius: 50%;
     animation: pulse 2s infinite;
+  will-change: transform;
 }
 
 .join-btn {
@@ -938,6 +950,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     flex-shrink: 0; margin-left: -6px; overflow: hidden;
     box-shadow: var(--shadow-raised);
     animation: breathe-dot 3s ease-in-out infinite;
+  will-change: box-shadow;
 }
 .p-avatar:first-child { margin-left: 0; }
 
@@ -1340,6 +1353,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     width: 20px;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4));
     animation: shimmer 2s infinite;
+  will-change: transform;
 }
 
 @keyframes shimmer { 
@@ -1759,6 +1773,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     background: var(--ring-available);
     border-radius: 50%;
     animation: breathePulse 3s ease-in-out infinite;
+  will-change: transform;
 }
 
 @keyframes breathePulse {
@@ -1824,6 +1839,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     bottom: 0;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
     animation: shimmerProgress 2.5s infinite;
+  will-change: transform;
 }
 
 @keyframes shimmerProgress {
@@ -2229,18 +2245,22 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 .member-mini-status.online  {
     background: var(--ring-available, #6b9b37);
     animation: pulse-status-online 2s infinite;
+  will-change: transform;
 }
 .member-mini-status.away    {
     background: var(--ring-guiding,   #e53e3e);
     animation: pulse-status-away 2s infinite;
+  will-change: transform;
 }
 .member-mini-status.silent  {
     background: var(--ring-silent,    #7c3aed);
     animation: pulse-status-silent 2s infinite;
+  will-change: transform;
 }
 .member-mini-status.deep    {
     background: var(--ring-deep,      #1e40af);
     animation: pulse-status-deep 2s infinite;
+  will-change: transform;
 }
 .member-mini-status.offline { background: var(--ring-offline,   #9ca3af); }
 
@@ -2334,6 +2354,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     box-shadow: 0 0 0 5px var(--neuro-accent-a20);
     animation: pulse-ring 3s infinite;
     pointer-events: none;
+  will-change: box-shadow;
 }
 
 .edit-avatar {
@@ -2950,7 +2971,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 /* Remove browser focus ring */
-.ps-header button:focus:not(:focus-visible) { outline: none; }
+.ps-header button:focus { outline: none; }
 
 /* ── YouTube player: always fluid ── */
 .guided-player-container iframe,

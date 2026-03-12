@@ -176,7 +176,7 @@ body.matrix-code .nav-item.active::after {
   content: "ONLINE █";
   animation: terminalBlink 1s infinite;
   margin-left: 4px;
-  will-change: box-shadow;
+  will-change: transform;
 }
 
 /* ===== BUTTONS ===== */
@@ -244,7 +244,7 @@ body.matrix-code .lux-footer #cta-toggle::before {
   background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,65,.03) 2px, rgba(0,255,65,.03) 4px);
   pointer-events: none;
   animation: crtFlicker 3s infinite;
-  will-change: box-shadow;
+  will-change: transform;
 }
 
 body.matrix-code .main-header.project-curiosity h1,
@@ -257,7 +257,7 @@ body.matrix-code .lux-footer .lux-text-group {
   font-weight: 700;
   letter-spacing: 2px;
   animation: phosphorGlow 4s ease-in-out infinite;
-  will-change: box-shadow;
+  will-change: transform;
 }
 
 /* ===== CARDS ===== */
@@ -349,7 +349,7 @@ body.matrix-code .terminal-cursor::after {
   animation: terminalBlink 1s infinite;
   margin-left: 2px;
   color: var(--neuro-matrix);
-  will-change: box-shadow;
+  will-change: transform;
 }
 
 /* ===== MOBILE ELEMENTS ===== */
