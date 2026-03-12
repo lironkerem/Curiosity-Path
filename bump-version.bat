@@ -27,7 +27,7 @@ if not exist index.html (
 if not exist service-worker.js (
   echo WARNING: service-worker.js not found
 ) else (
-  powershell -NoProfile -Command "$bytes = [System.IO.File]::ReadAllBytes('service-worker.js'); if ($bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) { $bytes = $bytes[3..($bytes.Length-1)] }; $c = [System.Text.Encoding]::UTF8.GetString($bytes); $c = $c -replace \"const CACHE_VERSION = 'tcp-[^']+'\", \"const CACHE_VERSION = 'tcp-%SW_DATE%'\"; $enc = New-Object System.Text.UTF8Encoding $false; [System.IO.File]::WriteAllText((Resolve-Path 'service-worker.js'), $c, $enc)"
+  powershell -NoProfile -Command "$c = [System.IO.File]::ReadAllText('service-worker.js'); $c = $c -replace 'tcp-\d{4}-\d{2}-\d{2}', 'tcp-%SW_DATE%'; $enc = New-Object System.Text.UTF8Encoding $false; [System.IO.File]::WriteAllText((Resolve-Path 'service-worker.js'), $c, $enc)"
   echo Done: service-worker.js
 )
 
