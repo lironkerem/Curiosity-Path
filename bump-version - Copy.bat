@@ -1,15 +1,14 @@
 @echo off
 :: bump-version.bat — updates ?v= and SW cache version to today's DDMM
+:: Place in project root and double-click or run from Command Prompt
 
-:: Use PowerShell for reliable date (wmic is deprecated in Win 11)
-for /f %%a in ('powershell -NoProfile -Command "Get-Date -Format ddMM"') do set VERSION=%%a
-for /f %%a in ('powershell -NoProfile -Command "Get-Date -Format yyyy-MM-dd"') do set SW_DATE=%%a
-
-if "%VERSION%"=="" (
-  echo ERROR: Could not determine date. Aborting.
-  pause
-  exit /b 1
-)
+:: Use wmic for reliable date parsing
+for /f "tokens=2 delims==" %%a in ('wmic os get LocalDateTime /value') do set DT=%%a
+set YYYY=%DT:~0,4%
+set MM=%DT:~4,2%
+set DD=%DT:~6,2%
+set VERSION=%DD%%MM%
+set SW_DATE=%YYYY%-%MM%-%DD%
 
 echo Bumping version to: %VERSION% (SW date: tcp-%SW_DATE%)
 echo.
