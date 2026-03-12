@@ -715,10 +715,8 @@ if (window.FeaturesManager) {
    * @param {string} tab - Tab name
    */
   initializeTab(tab) {
-    const previousTab = this.currentTab;
-
     // Cleanup previous tab
-    if (previousTab === TAB_NAMES.DASHBOARD && tab !== TAB_NAMES.DASHBOARD) {
+    if (this.currentTab === TAB_NAMES.DASHBOARD && tab !== TAB_NAMES.DASHBOARD) {
       if (this.dashboard) {
         this.dashboard.destroy();
       }
@@ -756,7 +754,7 @@ if (window.FeaturesManager) {
       case TAB_NAMES.SHADOW_ALCHEMY:
       case TAB_NAMES.CHATBOT:
       case TAB_NAMES.COMMUNITY_HUB:
-        this._initFeatureTab(tab, previousTab);
+        this._initFeatureTab(tab);
         break;
 
       default:
@@ -783,24 +781,14 @@ if (window.FeaturesManager) {
    * @private
    * @param {string} tab - Tab name
    */
-  /**
-   * Initialize feature tab
-   * @private
-   * @param {string} tab - Tab name
-   * @param {string|null} previousTab - Previously active tab to destroy
-   */
-  _initFeatureTab(tab, previousTab = null) {
-    if (this.features) {
-      // Destroy previous feature tab to free resources (e.g. YouTube player)
-      if (previousTab && previousTab !== tab && previousTab !== TAB_NAMES.DASHBOARD) {
-        this.features.destroy(previousTab);
-      }
-      this.features.init(tab);
-    } else {
-      console.error('FeaturesManager not available');
-      this.showToast('Feature not available', 'error');
-    }
+  _initFeatureTab(tab) {
+  if (this.features) {
+    this.features.init(tab);
+  } else {
+    console.error('FeaturesManager not available');
+    this.showToast('Feature not available', 'error');
   }
+}
 
   /**
    * Load calculator tab (lazy loaded)

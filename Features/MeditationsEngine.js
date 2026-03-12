@@ -908,11 +908,14 @@ class MeditationsEngine {
     try {
       const videoId = med.embedUrl.match(/embed\/([a-zA-Z0-9_-]{11})/)[1];
       const iframe = document.getElementById('yt-iframe');
-      iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&playsinline=1`;
+      iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&playsinline=1&origin=${encodeURIComponent(window.location.origin)}`;
 
       if (!this.ytPlayer || typeof this.ytPlayer.playVideo !== 'function') {
         // Create new player
         this.ytPlayer = new YT.Player('yt-iframe', {
+          playerVars: {
+            origin: window.location.origin
+          },
           events: {
             onReady: (e) => {
               document.getElementById('play-pause-btn').disabled = false;
@@ -1326,6 +1329,13 @@ class MeditationsEngine {
     } else {
       this.app.showToast('PDF Guide is not yet available.', 'info');
     }
+  }
+
+  /**
+   * Destroy alias for FeaturesManager lifecycle compatibility
+   */
+  destroy() {
+    this.cleanup();
   }
 
   /**
