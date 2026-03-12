@@ -260,6 +260,7 @@ export function mountUI(app) {
         setTimeout(() => ring.remove(), 1500);
       }, i * 300);
     }
+    });
   }
 
   // ========== Create floating particles ==========
