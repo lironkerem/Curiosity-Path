@@ -40,22 +40,17 @@ export function mountUI(app) {
   const showToast = showToastLocal;
 
   function copyToClipboard(text) {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(text).then(() => {
-        showToast("Copied to clipboard!");
-      });
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
     } else {
-      const textarea = document.createElement("textarea");
+      const textarea = document.createElement('textarea');
       textarea.value = text;
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
-      } else {
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        showToast('Copied to clipboard!');
-      }
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try { document.execCommand('copy'); showToast('Copied to clipboard!'); } catch (_) {}
+      document.body.removeChild(textarea);
     }
   }
 

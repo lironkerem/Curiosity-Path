@@ -46,7 +46,6 @@ class CommunityHubEngine {
     if (!this.initialized) {
       await this.initializeCommunityHub();
       this.initialized = true;
-      console.log('✅ Community Hub loaded successfully');
     } else {
       // Re-visit: reset state so sections re-render
       Core.state.initialized = false;
@@ -364,5 +363,4 @@ class CommunityHubEngine {
   }
 }
 
-console.log('🌟 Loading Community Hub...');
 export default CommunityHubEngine;

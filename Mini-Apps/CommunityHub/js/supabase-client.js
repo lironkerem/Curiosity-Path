@@ -10,7 +10,6 @@ if (!CommunitySupabase) {
   console.error('[CommunityHub] window.AppSupabase not found. ' +
     'Make sure window.AppSupabase = supabaseClient is set in /Core/Supabase.js');
 } else {
-  console.log('✅ [CommunityHub] Supabase client ready');
 }
 
 // Named export for ES module consumers
