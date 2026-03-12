@@ -1,4 +1,4 @@
-// The Curiosity Path - Service Worker
+﻿// The Curiosity Path - Service Worker
 // Version: 2025-01-23
 
 const CACHE_VERSION = 'tcp-2026-03-10';
