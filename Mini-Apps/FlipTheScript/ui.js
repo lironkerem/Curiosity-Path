@@ -296,6 +296,7 @@ export function mountUI(app) {
         setTimeout(() => el.remove(), 2000);
       }, i * 30);
     });
+    });
   }
 
   // ========== Enhanced Flip Action ==========
