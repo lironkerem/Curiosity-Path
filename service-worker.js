@@ -1,5 +1,4 @@
 // The Curiosity Path - Service Worker
-// Version: 2025-01-23
 
 const CACHE_VERSION = 'tcp-2026-03-12';
 const CACHE_NAME = `tcp-static-${CACHE_VERSION}`;
