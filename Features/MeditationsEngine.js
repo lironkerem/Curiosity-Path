@@ -907,14 +907,20 @@ class MeditationsEngine {
 
     try {
       const videoId = med.embedUrl.match(/embed\/([a-zA-Z0-9_-]{11})/)[1];
-      const iframe = document.getElementById('yt-iframe');
-      iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&playsinline=1&origin=${encodeURIComponent(window.location.origin)}`;
 
       if (!this.ytPlayer || typeof this.ytPlayer.playVideo !== 'function') {
-        // Create new player
+        // Reset iframe src so YT.Player owns it cleanly
+        const iframe = document.getElementById('yt-iframe');
+        iframe.src = '';
+
+        // Create new player — YT.Player sets src internally with correct origin binding
         this.ytPlayer = new YT.Player('yt-iframe', {
+          videoId,
           playerVars: {
-            origin: window.location.origin
+            origin: window.location.origin,
+            enablejsapi: 1,
+            rel: 0,
+            playsinline: 1
           },
           events: {
             onReady: (e) => {
