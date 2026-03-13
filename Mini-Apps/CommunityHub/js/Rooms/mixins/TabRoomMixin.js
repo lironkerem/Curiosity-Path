@@ -24,6 +24,8 @@ const TabRoomMixin = {
         const isDaily = tabName === 'daily';
         dailyTab.style.display    = isDaily ? 'block' : 'none';
         personalTab.style.display = isDaily ? 'none'  : 'block';
+        dailyBtn.setAttribute('aria-selected', String(isDaily));
+        personalBtn.setAttribute('aria-selected', String(!isDaily));
         this._styleTab(dailyBtn,    isDaily);
         this._styleTab(personalBtn, !isDaily);
         this.state.currentTab = tabName;
@@ -43,12 +45,12 @@ const TabRoomMixin = {
     buildTabNav(dailyLabel, personalLabel) {
         const cn = this.getClassName();
         return `
-        <div style="display:flex;gap:8px;margin-bottom:24px;border-bottom:2px solid var(--border);flex-wrap:wrap;">
-            <button id="${this.roomId}TabDaily" onclick="${cn}.switchTab('daily')"
+        <div role="tablist" style="display:flex;gap:8px;margin-bottom:24px;border-bottom:2px solid var(--border);flex-wrap:wrap;">
+            <button type="button" id="${this.roomId}TabDaily" onclick="${cn}.switchTab('daily')" role="tab" aria-selected="true" aria-controls="${this.roomId}DailyTab"
                     style="padding:10px 16px;background:linear-gradient(135deg,var(--neuro-accent) 0%,var(--neuro-accent-light) 100%);color:white;border:none;border-bottom:3px solid var(--neuro-accent);cursor:pointer;font-weight:600;font-size:14px;border-radius:8px 8px 0 0;white-space:nowrap;">
                 ${dailyLabel}
             </button>
-            <button id="${this.roomId}TabPersonal" onclick="${cn}.switchTab('personal')"
+            <button type="button" id="${this.roomId}TabPersonal" onclick="${cn}.switchTab('personal')" role="tab" aria-selected="false" aria-controls="${this.roomId}PersonalTab"
                     style="padding:10px 16px;background:transparent;color:var(--text);border:none;border-bottom:3px solid transparent;cursor:pointer;font-weight:600;font-size:14px;border-radius:8px 8px 0 0;white-space:nowrap;">
                 ${personalLabel}
             </button>

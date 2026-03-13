@@ -72,7 +72,7 @@ class SilentRoom extends PracticeRoom {
     buildAdditionalHeaderButtons() {
         return `
             ${this.buildSoundButton()}
-            <button class="ps-leave" onclick="${this.getClassName()}.toggleDimMode()"
+            <button type="button" class="ps-leave" onclick="${this.getClassName()}.toggleDimMode()"
                     id="${this.roomId}DimModeBtn" style="padding:10px 16px;white-space:nowrap;">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg> Dim
             </button>`;
@@ -83,7 +83,7 @@ class SilentRoom extends PracticeRoom {
         ${this.buildSoundSettings()}
         <div class="ps-body">
             <main class="ps-main" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;">
-                <div id="${this.roomId}RotatingAffirmation"
+                <div id="${this.roomId}RotatingAffirmation" aria-live="polite" aria-atomic="true"
                      style="position:relative;max-width:650px;text-align:center;font-size:22px;font-weight:600;letter-spacing:0.02em;line-height:1.6;margin-bottom:30px;z-index:10;opacity:0.7;transition:opacity 0.5s ease;">
                 </div>
                 ${this.buildTimerContainer({
@@ -95,7 +95,7 @@ class SilentRoom extends PracticeRoom {
                 })}
                 ${this.buildTimerControls()}
                 <div class="gratitude-container" id="${this.roomId}GratitudeContainer">
-                    <button class="gratitude-btn" onclick="${this.getClassName()}.offerGratitude()">
+                    <button type="button" class="gratitude-btn" onclick="${this.getClassName()}.offerGratitude()">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Offer gratitude to the space
                     </button>
                 </div>

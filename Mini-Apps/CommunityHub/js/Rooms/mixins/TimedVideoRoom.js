@@ -54,7 +54,7 @@ class TimedVideoRoom extends PracticeRoom {
         <div class="ps-body">
             <main class="ps-main">
                 <h2 style="text-align:center;margin:20px 0;font-size:24px;font-weight:600;color:var(--text);"
-                    id="${this.roomId}SessionHeading">
+                    id="${this.roomId}SessionHeading" aria-live="polite">
                     Current Session - ${session?.title || 'Loading…'}
                 </h2>
                 ${this.buildPlayerContainer()}
@@ -67,10 +67,10 @@ class TimedVideoRoom extends PracticeRoom {
 
     _buildScheduleModalShell() {
         return `
-        <div class="modal-overlay" id="${this.roomId}ScheduleModal">
+        <div class="modal-overlay" id="${this.roomId}ScheduleModal" role="dialog" aria-modal="true" aria-labelledby="${this.roomId}ScheduleTitle">
             <div class="modal-card schedule-modal">
-                <button class="modal-close" aria-label="Close schedule modal" onclick="${this.getClassName()}.closeScheduleModal()">×</button>
-                <h2>${this.scheduleModalTitle}</h2>
+                <button type="button" class="modal-close" aria-label="Close schedule modal" onclick="${this.getClassName()}.closeScheduleModal()">×</button>
+                <h2 id="${this.roomId}ScheduleTitle">${this.scheduleModalTitle}</h2>
                 <div class="schedule-content" id="${this.roomId}ScheduleContent"></div>
             </div>
         </div>`;

@@ -276,7 +276,7 @@ class DeepWorkRoom extends PracticeRoom {
     buildAdditionalHeaderButtons() {
         return `
             ${this.buildSoundButton()}
-            <button class="ps-leave" onclick="${this.getClassName()}.toggleDimMode()"
+            <button type="button" class="ps-leave" onclick="${this.getClassName()}.toggleDimMode()"
                     id="${this.roomId}DimModeBtn" style="margin:0;padding:10px 16px;white-space:nowrap;">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg> Dim
             </button>`;
@@ -312,7 +312,7 @@ class DeepWorkRoom extends PracticeRoom {
                     color1:      '#c1705a',
                     color2:      '#8b3a2a',
                     glowColor:   'rgba(193,112,90,0.7)',
-                    subtitleHtml: `<div id="currentStatus" style="font-size:13px;text-transform:uppercase;letter-spacing:0.22em;opacity:0.5;font-weight:500;">${this.getStatusText()}</div>`,
+                    subtitleHtml: `<div id="currentStatus" aria-live="polite" style="font-size:13px;text-transform:uppercase;letter-spacing:0.22em;opacity:0.5;font-weight:500;">${this.getStatusText()}</div>`,
                 })}
 
                 <!-- Timer controls -->
@@ -323,7 +323,7 @@ class DeepWorkRoom extends PracticeRoom {
                 <!-- Status buttons (below timer) -->
                 <div style="display:flex;gap:8px;margin-top:20px;margin-bottom:32px;flex-wrap:wrap;justify-content:center;">
                     ${['deep-focus','light-focus','break'].map(s => `
-                    <button class="dw-status-btn" data-status="${s}"
+                    <button type="button" class="dw-status-btn" data-status="${s}"
                             onclick="${cn}.changeStatus('${s}')"
                             style="padding:10px 20px;border:2px solid ${this.state.currentStatus===s?'var(--accent)':'var(--border)'};border-radius:var(--radius-md);background:${this.state.currentStatus===s?'var(--accent)':'var(--surface)'};color:${this.state.currentStatus===s?'white':'var(--text)'};cursor:pointer;font-weight:600;font-size:13px;transition:all 0.2s;">
                         ${{ 'deep-focus':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Deep Focus','light-focus':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Light Focus','break':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg> Break Time' }[s]}
@@ -368,13 +368,13 @@ class DeepWorkRoom extends PracticeRoom {
         return `
         <div class="modal-overlay" id="${this.roomId}SetupModal" style="z-index:200001;">
             <div class="modal-card" style="max-width:550px;max-height:90vh;overflow-y:auto;">
-                <button class="modal-close" aria-label="Close setup modal" onclick="${cn}.closeSetupModal()">×</button>
+                <button type="button" class="modal-close" aria-label="Close setup modal" onclick="${cn}.closeSetupModal()">×</button>
                 <div class="modal-content">
                     <h2 style="font-family:var(--serif);margin-top:0;margin-bottom:8px;text-align:center;">Start Deep Work Session</h2>
                     <p style="text-align:center;color:var(--text-muted);font-size:13px;margin-bottom:24px;">Set your intention. Choose your time. Work in flow.</p>
 
                     <div style="margin-bottom:24px;">
-                        <label style="display:block;font-weight:600;margin-bottom:8px;font-size:14px;">Your Intention</label>
+                        <label for="${this.roomId}IntentionInput" style="display:block;font-weight:600;margin-bottom:8px;font-size:14px;">Your Intention</label>
                         <input type="text" id="${this.roomId}IntentionInput"
                                aria-label="Set your intention for this session"
                                placeholder="e.g., Finish proposal, Code feature..."
@@ -382,10 +382,10 @@ class DeepWorkRoom extends PracticeRoom {
                     </div>
 
                     <div style="margin-bottom:24px;">
-                        <label style="display:block;font-weight:600;margin-bottom:8px;font-size:14px;">Category</label>
-                        <div id="${this.roomId}CategoryTiles" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+                        <label id="${this.roomId}CategoryLabel" style="display:block;font-weight:600;margin-bottom:8px;font-size:14px;">Category</label>
+                        <div id="${this.roomId}CategoryTiles" role="radiogroup" aria-labelledby="${this.roomId}CategoryLabel" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
                             ${Object.entries(this.CATEGORIES).map(([val, cat], i) => `
-                            <div onclick="${cn}.selectCategory('${val}')" data-cat="${val}"
+                            <div onclick="${cn}.selectCategory('${val}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${cn}.selectCategory('${val}');}" tabindex="0" role="button" data-cat="${val}"
                                  style="padding:12px;text-align:center;border:2px solid ${i===0?'var(--accent)':'var(--border)'};border-radius:var(--radius-md);background:${i===0?'rgba(139,92,246,0.12)':'var(--surface)'};cursor:pointer;font-size:13px;font-weight:600;transition:all 0.15s;user-select:none;">
                                 ${cat.icon} ${cat.label.charAt(0)+cat.label.slice(1).toLowerCase()}
                             </div>`).join('')}
@@ -393,26 +393,27 @@ class DeepWorkRoom extends PracticeRoom {
                     </div>
 
                     <div style="margin-bottom:24px;">
-                        <label style="display:block;font-weight:600;margin-bottom:8px;font-size:14px;">Duration</label>
-                        <div id="${this.roomId}DurationTiles" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+                        <label id="${this.roomId}DurationLabel" style="display:block;font-weight:600;margin-bottom:8px;font-size:14px;">Duration</label>
+                        <div id="${this.roomId}DurationTiles" role="radiogroup" aria-labelledby="${this.roomId}DurationLabel" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
                             ${[25,50,90].map((d, i) => `
-                            <div onclick="${cn}.selectDuration(${d})" data-dur="${d}"
+                            <div onclick="${cn}.selectDuration(${d})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${cn}.selectDuration(${d});}" tabindex="0" role="button" data-dur="${d}"
                                  style="padding:12px;text-align:center;border:2px solid ${i===0?'var(--accent)':'var(--border)'};border-radius:var(--radius-md);background:${i===0?'rgba(139,92,246,0.12)':'var(--surface)'};cursor:pointer;font-size:14px;font-weight:600;transition:all 0.15s;user-select:none;">
                                 ${d} min
                             </div>`).join('')}
-                            <div onclick="${cn}.selectDuration('custom')" data-dur="custom"
+                            <div onclick="${cn}.selectDuration('custom')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${cn}.selectDuration('custom');}" tabindex="0" role="button" data-dur="custom"
                                  style="padding:12px;text-align:center;border:2px solid var(--border);border-radius:var(--radius-md);background:var(--surface);cursor:pointer;font-size:14px;font-weight:600;transition:all 0.15s;user-select:none;">
                                 Custom
                             </div>
                         </div>
                         <div id="${this.roomId}CustomDurationDiv" style="display:none;margin-top:12px;">
+                            <label for="${this.roomId}CustomMinutes" style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:4px;">Custom duration (minutes)</label>
                             <input type="number" id="${this.roomId}CustomMinutes"
                                    placeholder="Minutes (1–180)" min="1" max="180"
                                    style="width:100%;padding:12px;border:2px solid var(--border);border-radius:var(--radius-md);background:var(--surface);font-size:14px;box-sizing:border-box;">
                         </div>
                     </div>
 
-                    <button onclick="${cn}.confirmSetup()"
+                    <button type="button" onclick="${cn}.confirmSetup()"
                             style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:var(--radius-md);color:white;cursor:pointer;font-weight:600;font-size:16px;">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Start Session
                     </button>

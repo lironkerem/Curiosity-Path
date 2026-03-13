@@ -358,10 +358,14 @@ class PracticeRoom {
             const gradient  = Core?.getAvatarGradient?.(userId || name) ?? fallbackGradient;
             const inner     = avatarUrl
                 ? `<img src="${avatarUrl}" width="40" height="40" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}" loading="lazy" decoding="async">`
-                : `<span>${emoji || name.charAt(0).toUpperCase()}</span>`;
+                : `<span aria-hidden="true">${emoji || name.charAt(0).toUpperCase()}</span>`;
             const bg      = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
             const click   = userId ? `onclick="openMemberProfileAboveRoom('${userId}')"` : '';
-            return `<div class="p-avatar" style="${bg}" title="${name}" ${click}>${inner}</div>`;
+            const role    = userId ? 'button' : 'img';
+            const tabIdx  = userId ? 'tabindex="0"' : '';
+            const keydown = userId ? `onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openMemberProfileAboveRoom('${userId}');}"` : '';
+            const ariaLbl = `aria-label="${name}"`;
+            return `<div class="p-avatar" style="${bg}" title="${name}" role="${role}" ${tabIdx} ${ariaLbl} ${click} ${keydown}>${inner}</div>`;
         }).join('');
 
         return html + (overflow > 0
@@ -392,8 +396,10 @@ class PracticeRoom {
                 : `<span style="color:white;font-weight:600;font-size:13px;">${emoji || name.charAt(0).toUpperCase()}</span>`;
             const bg    = avatarUrl ? 'background:transparent;' : `background:${gradient};`;
             const click = userId ? `onclick="openMemberProfileAboveRoom('${userId}')"` : '';
+            const kbEvt = userId ? `onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openMemberProfileAboveRoom('${userId}');}"` : '';
+            const pRole = userId ? 'role="button" tabindex="0"' : '';
             return `
-            <div class="campfire-participant" ${click} style="${userId ? 'cursor:pointer;' : ''}">
+            <div class="campfire-participant" ${click} ${kbEvt} ${pRole} style="${userId ? 'cursor:pointer;' : ''}">
                 <div class="campfire-participant-avatar" style="${bg}width:40px;height:40px;min-width:40px;min-height:40px;display:flex;align-items:center;justify-content:center;overflow:hidden;">${inner}</div>
                 <div class="campfire-participant-info">
                     <div class="campfire-participant-name">${name}</div>
@@ -576,7 +582,7 @@ class PracticeRoom {
             <div style="display:flex;gap:8px;position:relative;flex-wrap:wrap;justify-content:flex-end;align-items:center;">
                 ${this.buildAdditionalHeaderButtons?.() ?? ''}
                 ${this.buildSafetyDropdown()}
-                <button class="ps-leave" onclick="window['${this.roomId}_gentlyLeave']()" style="padding:10px 16px;white-space:nowrap;">
+                <button type="button" class="ps-leave" onclick="window['${this.roomId}_gentlyLeave']()" style="padding:10px 16px;white-space:nowrap;">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20h9"/><path d="M10 12v.01"/><path d="M13 4l-6 2v14l6 2"/></svg> Gently Leave
                 </button>
             </div>
@@ -591,7 +597,7 @@ class PracticeRoom {
 
         return `
         <div style="position:relative;" id="${this.roomId}SafetyDropdownContainer">
-            <button class="ps-leave" onclick="${toggle}(event)"
+            <button type="button" class="ps-leave" onclick="${toggle}(event)" aria-haspopup="true" aria-expanded="false"
                     style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);white-space:nowrap;padding:10px 16px;">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Safety <span style="font-size:12px;">▼</span>
             </button>
@@ -605,7 +611,7 @@ class PracticeRoom {
                     [`CommunityModule.showHelpModal();   ${toggle}(event);`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg>`, 'Get Help'],
                 ].map(([fn, icon, label], i, arr) => {
                     const border = i < arr.length - 1 ? 'border-bottom:1px solid var(--border);' : '';
-                    return `<button onclick="${fn}" style="width:100%;padding:12px 16px;text-align:left;background:none;border:none;${border}cursor:pointer;display:flex;align-items:center;gap:12px;color:var(--text);"><span>${icon}</span> ${label}</button>`;
+                    return `<button type="button" onclick="${fn}" style="width:100%;padding:12px 16px;text-align:left;background:none;border:none;${border}cursor:pointer;display:flex;align-items:center;gap:12px;color:var(--text);"><span aria-hidden="true">${icon}</span> ${label}</button>`;
                 }).join('')}
             </div>
         </div>`;
@@ -615,8 +621,8 @@ class PracticeRoom {
         const [a, b] = this.config.name.split(' ').map(w => w[0]);
         return `
         <div class="participant-stack" id="${this.roomId}ParticipantStack">
-            <div class="p-avatar" style="background:linear-gradient(135deg,#f093fb,#f5576c);">${a || 'P'}</div>
-            <div class="p-avatar" style="background:linear-gradient(135deg,#4facfe,#00f2fe);">${b || 'R'}</div>
+            <div class="p-avatar" style="background:linear-gradient(135deg,#f093fb,#f5576c);" aria-hidden="true">${a || 'P'}</div>
+            <div class="p-avatar" style="background:linear-gradient(135deg,#4facfe,#00f2fe);" aria-hidden="true">${b || 'R'}</div>
         </div>`;
     }
 
@@ -630,11 +636,11 @@ class PracticeRoom {
         return `
         <div class="modal-overlay" id="${this.roomId}InstructionsModal">
             <div class="modal-card">
-                <button class="modal-close" aria-label="Close modal" onclick="${closeKey}()">×</button>
+                <button type="button" class="modal-close" aria-label="Close modal" onclick="${closeKey}()">×</button>
                 <div class="modal-content">
-                    <h2 style="font-family:var(--serif);margin-top:0;display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> ${this.config.name}</h2>
+                    <h2 style="font-family:var(--serif);margin-top:0;display:flex;align-items:center;gap:0.5rem;"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> ${this.config.name}</h2>
                     ${this.getInstructions()}
-                    <button onclick="${closeKey}()" style="width:100%;padding:12px;border:2px solid var(--border);background:var(--surface);border-radius:var(--radius-md);cursor:pointer;font-weight:600;margin-top:16px;">Close</button>
+                    <button type="button" onclick="${closeKey}()" style="width:100%;padding:12px;border:2px solid var(--border);background:var(--surface);border-radius:var(--radius-md);cursor:pointer;font-weight:600;margin-top:16px;">Close</button>
                 </div>
             </div>
         </div>`;
@@ -724,7 +730,7 @@ class PracticeRoom {
 
             ${this.buildCardFooter()}
 
-            <button id="${this.roomId}BlessBtn"
+            <button type="button" id="${this.roomId}BlessBtn"
                     onclick="event.stopPropagation();${this.roomId}_blessRoom()"
                     title="Send a blessing to everyone inside"
                     style="position:absolute;bottom:10px;right:10px;background:rgba(139,92,246,0.10);border:1px solid rgba(139,92,246,0.30);border-radius:16px;padding:3px 10px;font-size:11px;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;transition:all 0.2s;z-index:3;">
@@ -736,7 +742,7 @@ class PracticeRoom {
     buildCardFooter() {
         if (this.roomType === 'timed' && this.getTimerText) {
             const scheduleLink = this.showScheduleModal
-                ? `<button onclick="event.stopPropagation();${this.getClassName()}.showScheduleModal()" style="background:none;border:none;padding:0;font-size:11px;color:var(--text-muted);cursor:pointer;text-decoration:underline;text-align:left;display:inline-flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> View Schedule</button>`
+                ? `<button type="button" onclick="event.stopPropagation();${this.getClassName()}.showScheduleModal()" style="background:none;border:none;padding:0;font-size:11px;color:var(--text-muted);cursor:pointer;text-decoration:underline;text-align:left;display:inline-flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> View Schedule</button>`
                 : '';
             return `
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">

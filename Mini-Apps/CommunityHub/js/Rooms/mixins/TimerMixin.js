@@ -214,9 +214,19 @@ const TimerMixin = {
             #${this.roomId}TimerDisplay {
                 font-variant-numeric: tabular-nums;
             }
+            @media (prefers-reduced-motion: reduce) {
+                #${this.roomId}CometHead,
+                #${this.roomId}CometTrail {
+                    animation: none !important;
+                }
+                #${this.roomId}OuterSvg {
+                    animation: none !important;
+                }
+            }
         </style>
 
         <div id="${this.roomId}TimerRingWrap"
+             aria-hidden="true"
              style="position:relative;width:min(380px,82vw);height:min(380px,82vw);margin-bottom:36px;">
 
             <!-- Outer progress ring (clockwise countdown) -->
@@ -269,6 +279,7 @@ const TimerMixin = {
             <!-- Text content -->
             <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:5;width:65%;">
                 <div id="${this.roomId}TimerDisplay"
+                     role="timer" aria-live="off" aria-label="Timer"
                      style="font-size:clamp(2.8rem,12vw,5rem);font-weight:200;letter-spacing:0.04em;line-height:1;margin-bottom:10px;">
                     ${this.formatTime(this.state.timeLeft)}
                 </div>
@@ -280,10 +291,10 @@ const TimerMixin = {
     buildTimerControls() {
         const cn = this.getClassName();
         return `
-        <div class="timer-controls">
-            <button class="t-btn" onclick="${cn}.adjustTime(-5)">−5m</button>
-            <button class="t-btn primary" onclick="${cn}.toggleTimer()" id="${this.roomId}TimerBtn">${_BTN_LABEL.idle}</button>
-            <button class="t-btn" onclick="${cn}.adjustTime(5)">+5m</button>
+        <div class="timer-controls" role="group" aria-label="Timer controls">
+            <button type="button" class="t-btn" onclick="${cn}.adjustTime(-5)" aria-label="Subtract 5 minutes">−5m</button>
+            <button type="button" class="t-btn primary" onclick="${cn}.toggleTimer()" id="${this.roomId}TimerBtn" aria-live="polite">${_BTN_LABEL.idle}</button>
+            <button type="button" class="t-btn" onclick="${cn}.adjustTime(5)" aria-label="Add 5 minutes">+5m</button>
         </div>`;
     },
 

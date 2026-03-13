@@ -187,12 +187,12 @@ const ChatMixin = {
             : `background:${msgData.avatarBg};`;
 
         const nameEl = msgData.userId
-            ? `<span class="campfire-msg-name" style="cursor:pointer;" onclick="openMemberProfileAboveRoom('${msgData.userId}')">${msgData.name}</span>`
+            ? `<span class="campfire-msg-name" role="button" tabindex="0" style="cursor:pointer;" onclick="openMemberProfileAboveRoom('${msgData.userId}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openMemberProfileAboveRoom('${msgData.userId}');}" aria-label="View profile of ${msgData.name}">${msgData.name}</span>`
             : `<span class="campfire-msg-name">${msgData.name}</span>`;
 
         return `
         <div class="campfire-msg">
-            <div class="campfire-msg-avatar" style="${avatarBg}width:36px;height:36px;min-width:36px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${avatarInner}</div>
+            <div class="campfire-msg-avatar" aria-hidden="true" style="${avatarBg}width:36px;height:36px;min-width:36px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${avatarInner}</div>
             <div class="campfire-msg-content">
                 <div class="campfire-msg-header">
                     ${nameEl}
@@ -225,7 +225,7 @@ const ChatMixin = {
                            placeholder="${placeholder}"
                            onkeypress="if(event.key==='Enter')${className}.sendMessage('${channel}')"
                            style="flex:1;min-width:0;width:100%;">
-                    <button class="chat-send" onclick="${className}.sendMessage('${channel}')" style="flex-shrink:0;">
+                    <button type="button" class="chat-send" onclick="${className}.sendMessage('${channel}')" aria-label="Send message" style="flex-shrink:0;">
                         <span style="font-size:20px;">→</span>
                     </button>
                 </div>

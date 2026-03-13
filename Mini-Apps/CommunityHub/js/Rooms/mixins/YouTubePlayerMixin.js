@@ -173,10 +173,10 @@ const YouTubePlayerMixin = {
     buildPlayerContainer() {
         const s = this.getCurrentSession();
         return `
-        <div class="guided-player-container">
+        <div class="guided-player-container" role="region" aria-label="Video player">
             <div id="${this.roomId}-youtube-player"></div>
             <div class="player-overlay" id="${this.roomId}PlayerOverlay">
-                <div class="session-info">
+                <div class="session-info" aria-live="polite">
                     <div class="session-emoji"    id="${this.roomId}SessionEmoji"   >${s?.emoji    || '🎧'}</div>
                     <div class="session-title"    id="${this.roomId}SessionTitle"   >${s?.title    || 'Loading...'}</div>
                     <div class="session-duration" id="${this.roomId}SessionDuration">${s?.duration || '00:00'}</div>
@@ -191,9 +191,9 @@ const YouTubePlayerMixin = {
         return `
         <div class="guided-controls" id="${this.roomId}Controls" style="display:none;">
             <div class="control-buttons">
-                <button class="control-btn" aria-label="Skip backward 10 seconds" onclick="${cn}.skipBackward()"><span style="font-size:20px;">⏪</span></button>
-                <button class="control-btn primary" aria-label="Play or pause" onclick="${cn}.togglePlayPause()" id="${this.roomId}PlayBtn"><span style="font-size:24px;">⏸</span></button>
-                <button class="control-btn" aria-label="Skip forward 10 seconds" onclick="${cn}.skipForward()"><span style="font-size:20px;">⏩</span></button>
+                <button type="button" class="control-btn" aria-label="Skip backward 10 seconds" onclick="${cn}.skipBackward()"><span style="font-size:20px;">⏪</span></button>
+                <button type="button" class="control-btn primary" aria-label="Play or pause" onclick="${cn}.togglePlayPause()" id="${this.roomId}PlayBtn"><span style="font-size:24px;">⏸</span></button>
+                <button type="button" class="control-btn" aria-label="Skip forward 10 seconds" onclick="${cn}.skipForward()"><span style="font-size:20px;">⏩</span></button>
             </div>
             <div class="time-display" id="${this.roomId}TimeDisplay">0:00 / 0:00</div>
         </div>`;

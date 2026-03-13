@@ -43,7 +43,7 @@ class CampfireRoom extends PracticeRoom {
     buildBody() {
         return `
         <div class="ps-body">
-            <main class="campfire-main" style="padding:20px;min-width:0;">
+            <main class="campfire-main" aria-label="Community Campfire chat" style="padding:20px;min-width:0;">
                 <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:12px 8px 24px;" class="tarot-daily-grid">
                     <div>
                         <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;">Gather Around the Fire</h4>
