@@ -70,7 +70,7 @@ const SolarUIManager = {
             <div class="solar-pulse-dot"></div>
             <span id="solarLiveCountTop">${livingPresenceCount} members practicing with you now</span>
           </div>
-          <button onclick="SolarUIManager.handleBackToHub()" class="solar-back-hub-btn">
+          <button type="button" onclick="SolarUIManager.handleBackToHub()" class="solar-back-hub-btn" aria-label="Leave practice and return to hub">
             Gently Leave
           </button>
         </div>`;
@@ -82,7 +82,7 @@ const SolarUIManager = {
         return `<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>`;
       };
       const btn = (mode, label, active) =>
-        `<button class="solar-mode-btn${active ? ' active' : ''}" data-mode="${mode}">
+        `<button type="button" class="solar-mode-btn${active ? ' active' : ''}" data-mode="${mode}" aria-pressed="${active}">
            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${icon(mode)}</svg>
            <span>${label}</span>
          </button>`;
@@ -91,7 +91,7 @@ const SolarUIManager = {
 
     practiceCard(practice, isLocked) {
       return `
-        <div class="solar-practice-card" data-practice="${practice.id}" data-locked="${isLocked}" style="cursor:pointer;">
+        <div class="solar-practice-card" data-practice="${practice.id}" data-locked="${isLocked}" tabindex="0" role="button" aria-label="${practice.title}${isLocked ? ' - Complete' : ''}" style="cursor:pointer;">
           ${isLocked ? '<div class="solar-lock-icon">✓</div>' : ''}
           <div class="solar-practice-icon" style="background:${practice.color};">${practice.icon}</div>
           <h4 class="solar-practice-title">${practice.title}</h4>
@@ -144,7 +144,7 @@ const SolarUIManager = {
             <li><span>${itemEmoji}</span> Witness the circle's ${collectiveNoun || 'intentions'}</li>
             <li><span>${itemEmoji}</span> 2-minute silent integration practice</li>
           </ul>
-          <button class="solar-btn-primary" onclick="window.currentSolarRoom.showCollectiveIntentionPopup()">
+          <button type="button" class="solar-btn-primary" onclick="window.currentSolarRoom.showCollectiveIntentionPopup()">
             Join ${seasonName} Circle
           </button>
           <p class="solar-group-note">Practice available throughout the ${seasonLc} season</p>
@@ -156,12 +156,13 @@ const SolarUIManager = {
         <div class="solar-closure">
           <h3>${title}</h3>
           <p>${intro}</p>
-          <textarea id="closureReflection" class="solar-textarea" placeholder="${placeholder}"></textarea>
+          <label for="closureReflection" class="sr-only">${title}</label>
+          <textarea id="closureReflection" class="solar-textarea" placeholder="${placeholder}" aria-label="${placeholder}"></textarea>
           ${closingLine ? `
             <div class="solar-popup-highlight" style="margin-top:1rem;">
               <p><em>"${closingLine}"</em></p>
             </div>` : ''}
-          <button data-action="submit-closure" class="solar-btn-secondary" style="margin-top:1.5rem;">
+          <button type="button" data-action="submit-closure" class="solar-btn-secondary" style="margin-top:1.5rem;">
             ${buttonText}
           </button>
         </div>`;
@@ -172,11 +173,11 @@ const SolarUIManager = {
         ? `<button class="solar-popup-btn" data-action="save-practice">Save Practice</button>`
         : `<button class="solar-popup-btn" data-action="close-popup">Complete</button>`;
       return `
-        <div class="solar-popup-overlay" data-action="close-popup">
+        <div class="solar-popup-overlay" data-action="close-popup" role="dialog" aria-modal="true">
           <div class="solar-popup-content" onclick="event.stopPropagation()">
             <div class="solar-popup-header">
               <h2>${title}</h2>
-              <button class="solar-popup-close" data-action="close-popup">×</button>
+              <button type="button" class="solar-popup-close" data-action="close-popup" aria-label="Close practice">×</button>
             </div>
             <div class="solar-popup-body">${content}</div>
             <div class="solar-popup-footer">${footer}</div>
@@ -206,9 +207,11 @@ const SolarUIManager = {
 
   // ── Interaction handlers ────────────────────────────────────────────────────
   switchMode(mode) {
-    document.querySelectorAll('.solar-mode-btn').forEach(btn =>
-      btn.classList.toggle('active', btn.dataset.mode === mode)
-    );
+    document.querySelectorAll('.solar-mode-btn').forEach(btn => {
+      const isActive = btn.dataset.mode === mode;
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-pressed', String(isActive));
+    });
     const solo  = document.getElementById('soloContent');
     const group = document.getElementById('groupContent');
     if (solo)  solo.style.display  = mode === 'solo'  ? 'block' : 'none';
@@ -321,6 +324,8 @@ body.solar-room-active[data-season] {
 /* ── Floating elements ───────────────────────────────────────────────────── */
 .solar-floating-bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;overflow:hidden;}
 .solar-floating-element{position:absolute;font-size:2rem;animation:float linear infinite;opacity:0.6;}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+.solar-word-item:hover{transform:scale(1.2);opacity:1!important;}
 @keyframes float{0%{top:-50px;transform:translateX(0) rotate(0deg);opacity:0.6;}100%{top:100vh;transform:translateX(100px) rotate(360deg);opacity:0.3;}}
 
 /* ── Top bar ─────────────────────────────────────────────────────────────── */

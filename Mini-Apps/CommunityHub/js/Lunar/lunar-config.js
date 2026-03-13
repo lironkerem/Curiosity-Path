@@ -10,7 +10,7 @@ const LunarConfig = {
         const { intention = '', affirmation = '', releaseList = '' } = userData;
 
         const affirmationButtons = affirmations.map(aff => `
-            <button data-affirmation="${this._escapeAttr(aff)}" class="lunar-affirmation-btn">
+            <button type="button" data-affirmation="${this._escapeAttr(aff)}" class="lunar-affirmation-btn">
                 ${this._escapeHtml(aff)}
             </button>`
         ).join('');
@@ -60,7 +60,7 @@ const LunarConfig = {
             </div>
 
             <div class="lunar-popup-footer">
-                <button class="lunar-popup-btn" data-action="save-practice" aria-label="Save your practice">
+                <button type="button" class="lunar-popup-btn" data-action="save-practice" aria-label="Save your practice">
                     Save Practice
                 </button>
             </div>`;

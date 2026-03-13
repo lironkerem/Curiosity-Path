@@ -369,7 +369,7 @@ class LunarRoom {
                     <span>${presenceCount} members in circle</span>
                 </div>
                 <div class="lunar-group-avatars">${LunarUI.renderMockAvatars(presenceCount)}</div>
-                <button class="lunar-join-circle-btn" data-action="enter-group-circle">Enter the Circle</button>
+                <button type="button" class="lunar-join-circle-btn" data-action="enter-group-circle">Enter the Circle</button>
             </div>`;
     }
 
@@ -380,10 +380,12 @@ class LunarRoom {
             <div class="lunar-closure-section">
                 <h3>${this.config.closureTitle}</h3>
                 <p>${this.config.closureDescription}</p>
+                <label for="closureReflection" class="sr-only">${this.config.closureTitle}</label>
                 <textarea id="closureReflection" class="lunar-textarea-large"
                     placeholder="${this.config.closurePlaceholder}"
+                    aria-label="${this.config.closurePlaceholder}"
                     maxlength="${C.MAX_INTENTION_LENGTH}"></textarea>
-                <button class="lunar-popup-btn" data-action="submit-closure">
+                <button type="button" class="lunar-popup-btn" data-action="submit-closure">
                     ${this.config.closureButton}
                 </button>
             </div>`;
@@ -436,8 +438,11 @@ class LunarRoom {
     switchMode(mode) {
         document.querySelectorAll('.lunar-practice-mode').forEach(el =>
             el.classList.toggle('active', el.dataset.mode === mode));
-        document.querySelectorAll('.lunar-mode-btn').forEach(btn =>
-            btn.classList.toggle('active', btn.dataset.mode === mode));
+        document.querySelectorAll('.lunar-mode-btn').forEach(btn => {
+            const isActive = btn.dataset.mode === mode;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-pressed', String(isActive));
+        });
     }
 
     // ── Practice popups ──────────────────────────────────────────────────────────
@@ -853,7 +858,7 @@ class LunarRoom {
 
         const extra = overflow > 0
             ? `<div class="lunar-avatar" style="background:#333;display:flex;align-items:center;justify-content:center;font-size:12px;">+${overflow}</div>`
-            : `<div class="lunar-avatar lunar-join-avatar" aria-label="Join circle"><span>+</span></div>`;
+            : `<div class="lunar-avatar lunar-join-avatar" role="button" tabindex="0" aria-label="Join circle" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><span aria-hidden="true">+</span></div>`;
 
         return html + extra;
     }

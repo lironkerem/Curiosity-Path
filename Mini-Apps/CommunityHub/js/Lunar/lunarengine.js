@@ -276,7 +276,7 @@ const LunarEngine = {
                 <div class="celestial-content-horizontal">
                     <div class="celestial-visual-section">
                         <div class="moon-visual">
-                            <svg width="120" height="120" viewBox="0 0 120 120" id="moonSvg"></svg>
+                            <svg width="120" height="120" viewBox="0 0 120 120" id="moonSvg" aria-hidden="true" focusable="false"></svg>
                         </div>
                     </div>
                     <div class="celestial-info-section">
@@ -325,7 +325,7 @@ const LunarEngine = {
                             <div class="energy-pulse" style="background:var(--ring-silent);"></div>
                             <span id="lunarRoomPresence">0 present</span>
                         </div>
-                        <button class="join-btn-inline" data-action="join-lunar-room">Join Space</button>
+                        <button type="button" class="join-btn-inline" data-action="join-lunar-room">Join Space</button>
                     </div>
                 </div>
             </div>`;
@@ -348,7 +348,7 @@ const LunarEngine = {
         const uniqueRooms = this.lunarRooms.filter(r => seen.has(r.roomId) ? false : seen.add(r.roomId));
 
         const buttons = uniqueRooms.map(r => `
-            <button class="lunar-admin-room-btn" data-room-id="${r.roomId}">
+            <button type="button" class="lunar-admin-room-btn" data-room-id="${r.roomId}">
                 <div style="font-size:24px;margin-bottom:4px;">${r.icon}</div>
                 <div style="font-size:13px;font-weight:600;color:var(--text);">${r.roomName}</div>
                 <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${r.phaseName}</div>
@@ -357,7 +357,7 @@ const LunarEngine = {
 
         return `
             <div class="lunar-admin-wrapper">
-                <div class="lunar-admin-header" data-panel="${panelId}" data-toggle="${toggleId}">
+                <div class="lunar-admin-header" role="button" tabindex="0" aria-expanded="false" data-panel="${panelId}" data-toggle="${toggleId}">
                     <span style="display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> ADMIN: Enter Any Lunar Room</span>
                     <span id="${toggleId}">▶</span>
                 </div>
@@ -371,12 +371,17 @@ const LunarEngine = {
     _attachAdminListeners() {
         const header = document.querySelector('.lunar-admin-header');
         if (header && !header._lunarBound) {
-            header.addEventListener('click', () => {
+            const togglePanel = () => {
                 const panel  = document.getElementById(header.dataset.panel);
                 const toggle = document.getElementById(header.dataset.toggle);
                 const open   = panel.style.display !== 'none';
                 panel.style.display  = open ? 'none' : 'block';
                 toggle.textContent   = open ? '▶' : '▼';
+                header.setAttribute('aria-expanded', String(!open));
+            };
+            header.addEventListener('click', togglePanel);
+            header.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePanel(); }
             });
             header._lunarBound = true;
         }

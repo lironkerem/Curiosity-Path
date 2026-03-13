@@ -353,7 +353,7 @@ const SolarEngine = {
         <div class="celestial-content-horizontal">
           <div class="celestial-visual-section">
             <div class="solar-visual" id="solarVisual">
-              <svg width="280" height="180" viewBox="0 0 280 180" id="solarSvg"></svg>
+              <svg width="280" height="180" viewBox="0 0 280 180" id="solarSvg" aria-hidden="true" focusable="false"></svg>
             </div>
           </div>
           <div class="celestial-info-section">
@@ -391,7 +391,7 @@ const SolarEngine = {
                 <div class="energy-pulse" style="background:var(--ring-guiding);"></div>
                 <span id="solarRoomPresence">0 present</span>
               </div>
-              <button class="join-btn-inline" onclick="SolarEngine.joinSolarRoom()">Join Space</button>
+              <button type="button" class="join-btn-inline" onclick="SolarEngine.joinSolarRoom()">Join Space</button>
             </div>
           </div>
         </div>
@@ -401,15 +401,44 @@ const SolarEngine = {
 
     this.updateSolarVisualization();
     this._refreshOuterCard();
+    this._attachSolarAdminListeners();
+  },
+
+  _attachSolarAdminListeners() {
+    const header = document.querySelector('.solar-admin-header');
+    if (header && !header._solarBound) {
+      const togglePanel = () => {
+        const panel  = document.getElementById(header.dataset.panel);
+        const toggle = document.getElementById(header.dataset.toggle);
+        const open   = panel?.style.display !== 'none';
+        if (panel) panel.style.display = open ? 'none' : 'block';
+        if (toggle) toggle.textContent = open ? '▶' : '▼';
+        header.setAttribute('aria-expanded', String(!open));
+      };
+      header.addEventListener('click', togglePanel);
+      header.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePanel(); }
+      });
+      header._solarBound = true;
+    }
+    document.querySelectorAll('.solar-admin-header ~ div button[data-room-id]').forEach(btn => {
+      if (!btn._solarBound) {
+        btn.addEventListener('click', () => this.adminJoinRoom(btn.dataset.roomId));
+        btn.addEventListener('mouseover', () => btn.style.background = 'var(--border)');
+        btn.addEventListener('mouseout',  () => btn.style.background = 'var(--season-mood)');
+        btn._solarBound = true;
+      }
+    });
   },
 
   _refreshOuterCard() {
     if (!CommunityDB?.ready) {
-      const iv = setInterval(() => {
-        if (!CommunityDB?.ready) return;
-        clearInterval(iv);
-        this._refreshOuterCard();
-      }, 500);
+      if (!this._outerCardRetry) {
+        this._outerCardRetry = setTimeout(() => {
+          this._outerCardRetry = null;
+          this._refreshOuterCard();
+        }, 500);
+      }
       return;
     }
 
@@ -437,23 +466,17 @@ const SolarEngine = {
   renderAdminSection() {
     const panelId  = 'solarAdminPanel';
     const toggleId = 'solarAdminToggle';
-    const toggleFn = `
-      const p=document.getElementById('${panelId}'),t=document.getElementById('${toggleId}'),o=p.style.display!=='none';
-      p.style.display=o?'none':'block';t.textContent=o?'▶':'▼';`;
-
     return `
       <div style="margin-top:24px;border-radius:var(--radius-lg);border:2px dashed var(--neuro-accent-a30);overflow:hidden;">
-        <div onclick="${toggleFn}" class="solar-admin-header">
+        <div class="solar-admin-header" role="button" tabindex="0" aria-expanded="false" data-panel="${panelId}" data-toggle="${toggleId}">
           <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> ADMIN: Enter Any Solar Room</span>
           <span id="${toggleId}" style="font-size:11px;">▶</span>
         </div>
         <div id="${panelId}" style="padding:16px 20px;background:var(--neuro-bg-lighter);border-top:1px solid var(--neuro-accent-a10);display:none;">
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
             ${this.solarRooms.map(r => `
-              <button onclick="SolarEngine.adminJoinRoom('${r.roomId}')"
-                      style="padding:12px;background:var(--season-mood);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;text-align:left;transition:all 0.2s;"
-                      onmouseover="this.style.background='var(--border)'"
-                      onmouseout="this.style.background='var(--season-mood)'">
+              <button type="button" data-room-id="${r.roomId}"
+                      style="padding:12px;background:var(--season-mood);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;text-align:left;transition:all 0.2s;">
                 <div style="font-size:24px;margin-bottom:4px;">${r.icon}</div>
                 <div style="font-size:13px;font-weight:600;color:var(--text);">${r.roomName}</div>
                 <div style="font-size:11px;color:var(--text-muted);margin-top:2px;text-transform:capitalize;">${r.season}</div>

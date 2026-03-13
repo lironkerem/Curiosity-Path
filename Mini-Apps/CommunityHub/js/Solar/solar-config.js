@@ -61,7 +61,7 @@ const SolarConfig = {
   // ── Practice 1: Intention ──────────────────────────────────────────────────
   generateIntentionPracticeContent(userData, affirmations, labels) {
     const affirmationButtons = affirmations.map(aff =>
-      `<button data-affirmation="${this.escapeAttr(aff)}" class="solar-affirmation-btn">
+      `<button type="button" data-affirmation="${this.escapeAttr(aff)}" class="solar-affirmation-btn">
          ${this.escapeHtml(aff)}
        </button>`
     ).join('');
@@ -75,8 +75,10 @@ const SolarConfig = {
       <div class="solar-popup-section">
         <h3>Set Your Intention</h3>
         <p>${labels.intentionPrompt}</p>
+        <label for="intentionText" class="sr-only">Your seasonal intention</label>
         <textarea id="intentionText" class="solar-textarea"
           placeholder="${labels.intentionPlaceholder}" maxlength="500"
+          aria-label="Your seasonal intention"
           style="min-height:100px;margin:1rem 0;"
         >${this.escapeHtml(userData.intention || '')}</textarea>
       </div>
@@ -85,8 +87,10 @@ const SolarConfig = {
         <h3>${labels.affirmationTitle || 'Choose Affirmation'}</h3>
         <p>Select one affirmation or write your own:</p>
         <div class="solar-affirmations-grid">${affirmationButtons}</div>
+        <label for="affirmationText" class="sr-only">Your affirmation</label>
         <textarea id="affirmationText" class="solar-textarea"
           placeholder="Or write your own..." maxlength="300"
+          aria-label="Your affirmation"
           style="min-height:80px;margin-top:1rem;"
         >${this.escapeHtml(userData.affirmation || '')}</textarea>
       </div>
@@ -94,8 +98,10 @@ const SolarConfig = {
       <div class="solar-popup-section">
         <h3>${labels.listTitle}</h3>
         <p>${labels.listPrompt}</p>
+        <label for="releaseListText" class="sr-only">${labels.listTitle}</label>
         <textarea id="releaseListText" class="solar-textarea"
           placeholder="1. &#10;2. &#10;3. " maxlength="1000"
+          aria-label="${labels.listTitle}"
           style="min-height:120px;margin:1rem 0;"
         >${this.escapeHtml(userData.releaseList || '')}</textarea>
       </div>

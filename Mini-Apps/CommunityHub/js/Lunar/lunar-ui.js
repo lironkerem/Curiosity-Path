@@ -52,7 +52,7 @@ const LunarUI = {
                     <div class="lunar-pulse-dot"></div>
                     <span id="lunarLiveCountTop">${livingPresenceCount} members practicing with you now</span>
                 </div>
-                <button data-action="back-to-hub" class="lunar-back-hub-btn" aria-label="Leave practice and return to hub">
+                <button type="button" data-action="back-to-hub" class="lunar-back-hub-btn" aria-label="Leave practice and return to hub">
                     Gently Leave
                 </button>
             </div>`;
@@ -81,13 +81,13 @@ const LunarUI = {
     renderModeToggle({ cssPrefix }) {
         return `
             <div class="${cssPrefix}-mode-toggle lunar-mode-toggle">
-                <button class="lunar-mode-btn active" data-mode="solo" data-action="switch-mode" aria-pressed="true">
+                <button type="button" class="lunar-mode-btn active" data-mode="solo" data-action="switch-mode" aria-pressed="true">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                     </svg>
                     <span>Solo Practice</span>
                 </button>
-                <button class="lunar-mode-btn" data-mode="group" data-action="switch-mode" aria-pressed="false">
+                <button type="button" class="lunar-mode-btn" data-mode="group" data-action="switch-mode" aria-pressed="false">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
                         <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
@@ -104,7 +104,7 @@ const LunarUI = {
             `<div class="lunar-avatar" style="background-color:${AVATAR_COLORS[i]};animation-delay:${i*0.1}s;"
                   aria-label="Member ${AVATAR_INITIALS[i]}">${AVATAR_INITIALS[i]}</div>`
         ).join('');
-        return html + `<div class="lunar-avatar lunar-join-avatar" aria-label="Join circle"><span>+</span></div>`;
+        return html + `<div class="lunar-avatar lunar-join-avatar" role="button" tabindex="0" aria-label="Join circle" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><span aria-hidden="true">+</span></div>`;
     },
 
     /** Deterministic rendering: same word list always produces same visual output. */
@@ -128,12 +128,13 @@ const LunarUI = {
         const popup = document.createElement('div');
         popup.className = `lunar-practice-popup ${cssPrefix}-practice-popup`;
         popup.setAttribute('role', 'dialog');
+        popup.setAttribute('aria-modal', 'true');
         popup.setAttribute('aria-labelledby', 'popup-title');
         popup.setAttribute('aria-describedby', 'popup-subtitle');
 
         popup.innerHTML = `
             <div class="lunar-popup-content ${cssPrefix}-popup-content">
-                <button class="lunar-popup-close" data-action="close-popup" aria-label="Close">✕</button>
+                <button type="button" class="lunar-popup-close" data-action="close-popup" aria-label="Close">✕</button>
                 <div class="lunar-popup-header">
                     <div class="lunar-popup-icon" aria-hidden="true">${icon}</div>
                     <div class="lunar-popup-title">
@@ -142,7 +143,7 @@ const LunarUI = {
                     </div>
                 </div>
                 <div class="lunar-popup-body" id="collectiveIntentionContent">${content}</div>
-                ${hasFooter ? `<div class="lunar-popup-footer"><button class="lunar-popup-btn" data-action="close-popup" aria-label="Close practice">Close Practice</button></div>` : ''}
+                ${hasFooter ? `<div class="lunar-popup-footer"><button type="button" class="lunar-popup-btn" data-action="close-popup" aria-label="Close practice">Close Practice</button></div>` : ''}
             </div>`;
         return popup;
     },
@@ -403,6 +404,7 @@ const LunarUI = {
 .lunar-admin-room-btn:hover{background:var(--border);}
 
 /* ── Animations ──────────────────────────────────────────────────────────── */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 @keyframes lunar-fade-in{from{opacity:0}to{opacity:1}}
 @keyframes lunar-fade-in-up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes lunar-fade-in-scale{from{opacity:0;transform:scale(.8)}to{opacity:.8;transform:scale(1)}}

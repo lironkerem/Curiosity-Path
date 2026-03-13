@@ -103,6 +103,8 @@ const BaseSolarRoom = {
       document.getElementById(startBtnId)?.style && (document.getElementById(startBtnId).style.display = 'none');
       const display = document.getElementById(timerElId);
       if (!display) return;
+      display.setAttribute('role', 'timer');
+      display.setAttribute('aria-live', 'off');
 
       let timeLeft = seconds;
       this._clearTimer();
@@ -321,13 +323,17 @@ const BaseSolarRoom = {
       };
 
       const grid = container.querySelector('#practicesGrid');
-      register(grid, 'click', e => {
+      const cardHandler = e => {
         const card = e.target.closest('.solar-practice-card');
         if (!card) return;
+        if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+        if (e.type === 'keydown') e.preventDefault();
         card.dataset.locked === 'true'
           ? SolarUIManager.showToast('Complete the first practice to unlock others')
           : this.showPracticePopup(card.dataset.practice);
-      });
+      };
+      register(grid, 'click', cardHandler);
+      register(grid, 'keydown', cardHandler);
 
       register(container.querySelector('.solar-mode-toggle'), 'click', e => {
         const btn = e.target.closest('.solar-mode-btn');
@@ -452,17 +458,22 @@ const BaseSolarRoom = {
       popup.id = 'collectivePopup';
       popup.className = 'solar-practice-popup';
       popup.innerHTML = `
-        <div class="solar-popup-overlay" onclick="event.target.closest('#collectivePopup').remove()">
+        <div class="solar-popup-overlay" role="dialog" aria-modal="true" aria-labelledby="collectivePopupTitle">
           <div class="solar-popup-content" onclick="event.stopPropagation()">
             <div class="solar-popup-header">
-              <h2>${this.config.seasonEmoji} ${this.config.displayName} Group Circle</h2>
-              <button class="solar-popup-close" onclick="document.getElementById('collectivePopup').remove()">×</button>
+              <h2 id="collectivePopupTitle">${this.config.seasonEmoji} ${this.config.displayName} Group Circle</h2>
+              <button type="button" class="solar-popup-close" aria-label="Close group circle" data-close-collective>×</button>
             </div>
             <div class="solar-popup-body" id="collectiveIntentionContent">
               ${this._renderCollectiveStep1()}
             </div>
           </div>
         </div>`;
+      // Close on overlay click or close button
+      popup.querySelector('.solar-popup-overlay').addEventListener('click', e => {
+        if (e.target === e.currentTarget) popup.remove();
+      });
+      popup.querySelector('[data-close-collective]').addEventListener('click', () => popup.remove());
       (document.getElementById('communityHubFullscreenContainer') || document.body).appendChild(popup);
     } catch (err) {
       console.error('Error showing collective popup:', err);
@@ -502,9 +513,9 @@ const BaseSolarRoom = {
           <h3>Step 1: Silent Meditation</h3>
           <p>Take 3 minutes to center yourself in the ${this.config.displayName} energy.</p>
           <div id="meditationTimer" class="solar-timer-display">3:00</div>
-          <button id="startMeditationBtn" class="solar-popup-btn"
+          <button type="button" id="startMeditationBtn" class="solar-popup-btn"
                   onclick="window.currentSolarRoom.startMeditationTimer()">Begin Meditation</button>
-          <button id="skipToIntentionBtn" class="solar-popup-btn solar-btn-secondary"
+          <button type="button" id="skipToIntentionBtn" class="solar-popup-btn solar-btn-secondary"
                   onclick="window.currentSolarRoom.startCollectiveStep3()"
                   style="display:none;margin-top:1rem;">Continue to Intention</button>
         </div>`;
@@ -531,13 +542,15 @@ const BaseSolarRoom = {
         <div class="solar-popup-section">
           <h3>Step 2: Your Private Intention</h3>
           <p>Set a personal intention for this ${this.config.displayName} season. This remains private.</p>
+          <label for="privateIntentionText" class="sr-only">Your private seasonal intention</label>
           <textarea id="privateIntentionText" class="solar-textarea"
             placeholder="This ${this.config.displayName}, I intend to..." maxlength="500"
+            aria-label="Your private seasonal intention"
             style="min-height:120px;margin:1.5rem 0;"></textarea>
           <p style="font-size:0.9rem;color:rgba(224,224,255,0.7);">This intention is for you alone. It will not be shared.</p>
         </div>
         <div class="solar-popup-footer">
-          <button class="solar-popup-btn" onclick="window.currentSolarRoom.startCollectiveStep4()">Continue</button>
+          <button type="button" class="solar-popup-btn" onclick="window.currentSolarRoom.startCollectiveStep4()">Continue</button>
         </div>`;
     } catch (err) { console.error('Error starting step 3:', err); }
   },
@@ -561,7 +574,7 @@ const BaseSolarRoom = {
           <p style="font-size:0.85rem;color:rgba(224,224,255,0.6);margin-top:0.5rem;">Examples: Growth, Rest, Joy, Clarity, Strength, Peace</p>
         </div>
         <div class="solar-popup-footer">
-          <button class="solar-popup-btn" onclick="window.currentSolarRoom.submitWordToCollective()">Add to Circle</button>
+          <button type="button" class="solar-popup-btn" onclick="window.currentSolarRoom.submitWordToCollective()">Add to Circle</button>
         </div>`;
     } catch (err) { console.error('Error starting step 4:', err); }
   },
@@ -606,9 +619,9 @@ const BaseSolarRoom = {
         <div style="margin:2rem 0;">
           <h4 style="text-align:center;margin-bottom:1rem;">Step 5: Silent Witnessing (2 min)</h4>
           <div id="witnessingTimer" class="solar-timer-display">2:00</div>
-          <button id="startWitnessingBtn" class="solar-popup-btn"
+          <button type="button" id="startWitnessingBtn" class="solar-popup-btn"
                   onclick="window.currentSolarRoom.startWitnessingTimer()">Begin Silent Witnessing</button>
-          <button id="completeBtn" class="solar-popup-btn"
+          <button type="button" id="completeBtn" class="solar-popup-btn"
                   onclick="window.currentSolarRoom.completeCollectivePractice()"
                   style="display:none;margin-top:1rem;background:var(--season-accent);color:white;">Complete Practice</button>
         </div>`;
@@ -771,9 +784,7 @@ const BaseSolarRoom = {
     return words.map(({ word }) => {
       const size    = (1 + Math.random() * 1.5).toFixed(2);
       const opacity = (0.6 + Math.random() * 0.4).toFixed(2);
-      return `<span style="font-size:${size}rem;opacity:${opacity};color:var(--season-accent,#e0e0ff);font-weight:600;display:inline-block;margin:0.5rem;transition:all 0.3s;"
-                    onmouseover="this.style.transform='scale(1.2)';this.style.opacity='1';"
-                    onmouseout="this.style.transform='scale(1)';this.style.opacity='${opacity}';">${word}</span>`;
+      return `<span class="solar-word-item" style="font-size:${size}rem;opacity:${opacity};color:var(--season-accent,#e0e0ff);font-weight:600;display:inline-block;margin:0.5rem;transition:all 0.3s;">${word}</span>`;
     }).join('');
   },
 };
