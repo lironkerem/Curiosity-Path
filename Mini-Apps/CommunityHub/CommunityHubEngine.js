@@ -92,7 +92,7 @@ class CommunityHubEngine {
                class="whatsapp-float"
                aria-label="Join our Community Chat on WhatsApp">
               <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-                   alt="WhatsApp" width="24" height="24">
+                   alt="" width="24" height="24" aria-hidden="true" role="presentation">
               <span>Join our Community Chat</span>
             </a>
 
@@ -120,7 +120,7 @@ class CommunityHubEngine {
                   <div id="lunarContainer" class="celestial-container"></div>
                 </section>
 
-                <section class="section" id="celestialSolarSection">
+                <section class="section" id="celestialSolarSection" aria-label="Solar Cycles">
                   <div id="solarContainer" class="celestial-container"></div>
                 </section>
 
@@ -246,9 +246,17 @@ class CommunityHubEngine {
   // Script / Style Loading
   // ---------------------------------------------------------------------------
 
-  loadStylesheet(href) {
+  loadStylesheet(href, { critical = false } = {}) {
     if (document.querySelector(`link[href="${href}"]`)) return;
-    const link = Object.assign(document.createElement('link'), { rel: 'stylesheet', href });
+    const link = document.createElement('link');
+    link.rel  = 'stylesheet';
+    link.href = href;
+    if (!critical) {
+      // Non-critical: load async then swap to stylesheet
+      link.rel    = 'preload';
+      link.as     = 'style';
+      link.onload = function () { this.rel = 'stylesheet'; };
+    }
     document.head.appendChild(link);
   }
 
@@ -256,7 +264,7 @@ class CommunityHubEngine {
   loadScript(src) {
     return new Promise((resolve, reject) => {
       if (document.querySelector(`script[src="${src}"]`)) return resolve();
-      const script = Object.assign(document.createElement('script'), { src });
+      const script = Object.assign(document.createElement('script'), { src, async: true });
       script.onload = resolve;
       script.onerror = () => reject(new Error(`Failed to load: ${src}`));
       document.body.appendChild(script);
