@@ -105,7 +105,7 @@ const Core = {
             );
             CommunityDB.startHeartbeat(this.config.HEARTBEAT_INTERVAL);
 
-            window.addEventListener('beforeunload', () => {
+            window.addEventListener('pagehide', () => {
                 CommunityDB.setOffline();
                 CommunityDB.unsubscribeAll();
             });
@@ -161,9 +161,10 @@ const Core = {
                         if (ready && currentHeight > 0) {
                             clearInterval(poll);
                             const bottomBar = document.getElementById('mobile-bottom-bar');
-                            requestAnimationFrame(() => { 
-                            const top = el.getBoundingClientRect().top + window.scrollY - offset;
-                            window.scrollTo({ top, behavior: 'smooth' });
+                            const offset = bottomBar ? bottomBar.offsetHeight + 16 : 16;
+                            requestAnimationFrame(() => {
+                              const top = el.getBoundingClientRect().top + window.scrollY - offset;
+                              window.scrollTo({ top, behavior: 'smooth' });
                             });
                         } else if (attempts >= maxAttempts) {
                             clearInterval(poll);
@@ -487,11 +488,11 @@ const Core = {
             <!-- Report Modal -->
             <div class="modal-overlay" id="reportModal">
                 <div class="modal-card">
-                    <button class="modal-close" aria-label="Close report modal" onclick="CommunityModule.closeReportModal()">×</button>
-                    <h2 style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> Report Issue</h2>
+                    <button type="button" class="modal-close" aria-label="Close report modal" onclick="CommunityModule.closeReportModal()">×</button>
+                    <h2 style="display:flex;align-items:center;gap:0.5rem;"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> Report Issue</h2>
                     <div class="modal-content">
                         <p style="margin-bottom:16px; color:var(--text-muted);">Help us maintain a safe space. Your report is confidential.</p>
-                        <label style="display:block; margin-bottom:8px; font-weight:600;">Reason:</label>
+                        <label for="reportReason" style="display:block; margin-bottom:8px; font-weight:600;">Reason:</label>
                         <select id="reportReason" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface); color:var(--text); margin-bottom:16px;">
                             <option value="">Select a reason...</option>
                             <option value="harassment">Harassment or bullying</option>
@@ -500,11 +501,11 @@ const Core = {
                             <option value="safety">Safety concern</option>
                             <option value="other">Other</option>
                         </select>
-                        <label style="display:block; margin-bottom:8px; font-weight:600;">Details (optional):</label>
+                        <label for="reportDetails" style="display:block; margin-bottom:8px; font-weight:600;">Details (optional):</label>
                         <textarea id="reportDetails" rows="4" placeholder="Please provide any additional context..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface); color:var(--text); resize:vertical; margin-bottom:16px;"></textarea>
                         <div style="display:flex; gap:12px;">
-                            <button onclick="CommunityModule.closeReportModal()" style="flex:1; padding:12px; border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-md); cursor:pointer; font-weight:600;">Cancel</button>
-                            <button onclick="CommunityModule.submitReport()" style="flex:1; padding:12px; background:var(--accent); color:white; border:none; border-radius:var(--radius-md); cursor:pointer; font-weight:600;">Submit Report</button>
+                            <button type="button" onclick="CommunityModule.closeReportModal()" style="flex:1; padding:12px; border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-md); cursor:pointer; font-weight:600;">Cancel</button>
+                            <button type="button" onclick="CommunityModule.submitReport()" style="flex:1; padding:12px; background:var(--accent); color:white; border:none; border-radius:var(--radius-md); cursor:pointer; font-weight:600;">Submit Report</button>
                         </div>
                     </div>
                 </div>
@@ -513,15 +514,15 @@ const Core = {
             <!-- Block Modal -->
             <div class="modal-overlay" id="blockModal">
                 <div class="modal-card">
-                    <button class="modal-close" aria-label="Close block modal" onclick="CommunityModule.closeBlockModal()">×</button>
-                    <h2 style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg> Block User</h2>
+                    <button type="button" class="modal-close" aria-label="Close block modal" onclick="CommunityModule.closeBlockModal()">×</button>
+                    <h2 style="display:flex;align-items:center;gap:0.5rem;"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg> Block User</h2>
                     <div class="modal-content">
                         <p style="margin-bottom:16px; color:var(--text-muted);">Blocking will hide all messages from this user.</p>
-                        <label style="display:block; margin-bottom:8px; font-weight:600;">Username:</label>
-                        <input type="text" id="blockUsername" placeholder="Enter username to block" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface); color:var(--text); margin-bottom:16px;" />
+                        <label for="blockUsername" style="display:block; margin-bottom:8px; font-weight:600;">Username:</label>
+                        <input type="text" id="blockUsername" placeholder="Enter username to block" autocomplete="off" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface); color:var(--text); margin-bottom:16px;" />
                         <div style="display:flex; gap:12px;">
-                            <button onclick="CommunityModule.closeBlockModal()" style="flex:1; padding:12px; border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-md); cursor:pointer; font-weight:600;">Cancel</button>
-                            <button onclick="CommunityModule.confirmBlock()" style="flex:1; padding:12px; background:#e74c3c; color:white; border:none; border-radius:var(--radius-md); cursor:pointer; font-weight:600;">Block User</button>
+                            <button type="button" onclick="CommunityModule.closeBlockModal()" style="flex:1; padding:12px; border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-md); cursor:pointer; font-weight:600;">Cancel</button>
+                            <button type="button" onclick="CommunityModule.confirmBlock()" style="flex:1; padding:12px; background:#e74c3c; color:white; border:none; border-radius:var(--radius-md); cursor:pointer; font-weight:600;">Block User</button>
                         </div>
                     </div>
                 </div>
@@ -530,7 +531,7 @@ const Core = {
             <!-- Help Modal -->
             <div class="modal-overlay" id="helpModal">
                 <div class="modal-card">
-                    <button class="modal-close" aria-label="Close help modal" onclick="CommunityModule.closeHelpModal()">×</button>
+                    <button type="button" class="modal-close" aria-label="Close help modal" onclick="CommunityModule.closeHelpModal()">×</button>
                     <h2 style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg> Get Help</h2>
                     <div class="modal-content">
                         <p style="margin-bottom:16px;">If you're experiencing a crisis or need immediate support:</p>
@@ -545,7 +546,7 @@ const Core = {
                             <p style="margin:8px 0;">Contact our moderators for non-emergency concerns</p>
                             <p style="margin:8px 0;"><strong>Email:</strong> support@community.example.com</p>
                         </div>
-                        <button onclick="CommunityModule.closeHelpModal()" style="width:100%; padding:12px; border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-md); cursor:pointer; font-weight:600;">Close</button>
+                        <button type="button" onclick="CommunityModule.closeHelpModal()" style="width:100%; padding:12px; border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-md); cursor:pointer; font-weight:600;">Close</button>
                     </div>
                 </div>
             </div>

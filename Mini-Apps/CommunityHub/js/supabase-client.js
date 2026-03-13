@@ -9,7 +9,6 @@ const CommunitySupabase = window.AppSupabase || null;
 if (!CommunitySupabase) {
   console.error('[CommunityHub] window.AppSupabase not found. ' +
     'Make sure window.AppSupabase = supabaseClient is set in /Core/Supabase.js');
-} else {
 }
 
 // Named export for ES module consumers

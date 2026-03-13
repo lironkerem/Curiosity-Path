@@ -158,7 +158,11 @@ const Rituals = {
             container.style.pointerEvents = 'auto';
         }
         overlay.classList.add('active');
-        this.state.autoCloseTimer = setTimeout(() => this.completeClosing(), this.config.CLOSING_AUTO_CLOSE_MS);
+        // Announce to screen readers
+        overlay.setAttribute('aria-hidden', 'false');
+        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const closingDelay = prefersReduced ? 1000 : this.config.CLOSING_AUTO_CLOSE_MS;
+        this.state.autoCloseTimer = setTimeout(() => this.completeClosing(), closingDelay);
         console.log('✓ Closing ritual displayed');
     },
 
@@ -168,6 +172,7 @@ const Rituals = {
         if (!overlay) { console.warn('Closing overlay not found'); return; }
 
         overlay.classList.remove('active');
+        overlay.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('ritual-active');
         document.body.style.overflow = '';
         clearTimeout(this.state.autoCloseTimer);

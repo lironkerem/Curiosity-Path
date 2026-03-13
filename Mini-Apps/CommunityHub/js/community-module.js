@@ -93,7 +93,10 @@ const CommunityModule = {
             <div class="reflection" style="margin-bottom:16px;">
                 <div class="ref-header">
                     <div class="ref-avatar" style="${avatarStyle}cursor:pointer;"
-                         onclick="CommunityModule.viewMember('${user.id}')">
+                         role="button" tabindex="0"
+                         aria-label="View profile"
+                         onclick="CommunityModule.viewMember('${user.id}')"
+                         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();CommunityModule.viewMember('${user.id}');}">
                         ${avatarInner}
                     </div>
                     <div class="ref-meta" style="flex:1;">
@@ -102,6 +105,7 @@ const CommunityModule = {
                     </div>
                 </div>
                 <textarea id="reflectionInput"
+                          aria-label="Write a reflection"
                           placeholder="Share a reflection with the community..."
                           maxlength="${this.config.MAX_REFLECTION_LENGTH}"
                           style="width:100%;padding:10px 12px;border:1px solid var(--border);
@@ -110,7 +114,7 @@ const CommunityModule = {
                                  font-size:14px;line-height:1.6;box-sizing:border-box;margin-top:4px;"></textarea>
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:10px;border-top:2px solid var(--border);">
                     <span style="font-size:11px;color:var(--text-muted);"><span id="charCount">0</span>/${this.config.MAX_REFLECTION_LENGTH}</span>
-                    <button onclick="CommunityModule.shareReflection()"
+                    <button type="button" onclick="CommunityModule.shareReflection()"
                             class="btn btn-primary" style="padding:7px 20px;font-size:13px;">
                         Share
                     </button>
@@ -164,11 +168,11 @@ const CommunityModule = {
 
         const ownerActions = isOwn ? `
             <div style="margin-left:auto;display:flex;gap:4px;">
-                <button onclick="CommunityModule.editReflection('${ref.id}')"   class="ref-action" title="Edit"           style="font-size:14px;opacity:0.6;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></button>
-                <button onclick="CommunityModule.deleteReflection('${ref.id}')" class="ref-action" title="Delete"         style="font-size:14px;opacity:0.6;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
+                <button type="button" onclick="CommunityModule.editReflection('${ref.id}')"   class="ref-action" title="Edit"           style="font-size:14px;opacity:0.6;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></button>
+                <button type="button" onclick="CommunityModule.deleteReflection('${ref.id}')" class="ref-action" title="Delete"         style="font-size:14px;opacity:0.6;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
             </div>` : isAdmin ? `
             <div style="margin-left:auto;display:flex;gap:4px;">
-                <button onclick="CommunityModule.deleteReflection('${ref.id}')" class="ref-action" title="Delete (Admin)" style="font-size:14px;opacity:0.6;color:var(--neuro-accent);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
+                <button type="button" onclick="CommunityModule.deleteReflection('${ref.id}')" class="ref-action" title="Delete (Admin)" style="font-size:14px;opacity:0.6;color:var(--neuro-accent);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
             </div>` : '';
 
         return `
@@ -188,12 +192,12 @@ const CommunityModule = {
                 </div>
                 <div class="ref-content">${this._esc(ref.content)}</div>
                 <div class="ref-actions">
-                    <button class="ref-action ${appreciated ? 'appreciated' : ''}"
+                    <button type="button" class="ref-action ${appreciated ? 'appreciated' : ''}"
                             onclick="CommunityModule.appreciate(this, '${ref.id}')">
                         <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg></span>
                         <span class="appreciation-count">Appreciate (${ref.appreciation_count || 0})</span>
                     </button>
-                    <button class="ref-action" onclick="CommunityModule.whisper('${profile.id}')">
+                    <button type="button" class="ref-action" onclick="CommunityModule.whisper('${profile.id}')">
                         <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span>Whisper</span>
                     </button>
                     ${ownerActions}
@@ -291,10 +295,10 @@ const CommunityModule = {
                     <span id="editCharCount_${reflectionId}">${original.length}</span>/500
                 </span>
                 <div style="display:flex;gap:8px;">
-                    <button onclick="CommunityModule.saveEditReflection('${reflectionId}')"
+                    <button type="button" onclick="CommunityModule.saveEditReflection('${reflectionId}')"
                             style="padding:5px 14px;background:var(--accent);color:#fff;border:none;
                                    border-radius:var(--radius-md);cursor:pointer;font-size:13px;font-weight:600;">Save</button>
-                    <button onclick="CommunityModule.cancelEditReflection('${reflectionId}')"
+                    <button type="button" onclick="CommunityModule.cancelEditReflection('${reflectionId}')"
                             style="padding:5px 12px;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
                                    color:var(--neuro-text);border:none;border-radius:var(--radius-md);cursor:pointer;font-size:13px;">Cancel</button>
                 </div>
@@ -420,7 +424,7 @@ const CommunityModule = {
                 <div class="prog-bar">
                     <div class="prog-fill" style="width:${Math.min(100, Math.max(0, w.progress))}%"></div>
                 </div>
-                <button class="contrib-btn" onclick="CommunityModule.contributeWave(${w.id})">
+                <button type="button" class="contrib-btn" onclick="CommunityModule.contributeWave(${w.id})">
                     Contribute 20 Minutes
                 </button>
             </div>`).join('');

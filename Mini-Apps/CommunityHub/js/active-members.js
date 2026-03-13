@@ -102,7 +102,7 @@ const ActiveMembers = {
             <div class="active-members-grid">
                 ${this._buildMemberCards(members)}
             </div>
-            <button onclick="window.WhisperModal?.open()"
+            <button type="button" onclick="window.WhisperModal?.open()"
                     style="width:100%;margin-top:12px;padding:12px;border-radius:12px;border:none;
                            cursor:pointer;font-size:0.88rem;font-weight:600;
                            background:var(--neuro-bg,#f0f0f3);color:var(--neuro-text);
@@ -117,9 +117,9 @@ const ActiveMembers = {
             </button>`;
 
         return `
-            <section class="section">
+            <section class="section" aria-labelledby="activeMembersTitle">
                 <div class="section-header">
-                    <div class="section-title">Active Members</div>
+                    <div class="section-title" id="activeMembersTitle">Active Members</div>
                     <div class="active-members-online-count" style="font-size:12px; color:var(--text-muted);">${subtitle}</div>
                 </div>
                 ${body}
@@ -169,7 +169,8 @@ const ActiveMembers = {
                  data-member-id="${userId}"
                  role="button"
                  tabindex="0"
-                 aria-label="View ${safeName}'s profile">
+                 aria-label="View ${safeName}'s profile"
+                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();ActiveMembers.handleViewMember('${userId}');}">
                 <div class="member-mini-avatar"
                      style="${avatarUrl ? 'background:transparent;' : `background:${gradient};`}"
                      aria-hidden="true">
@@ -267,7 +268,7 @@ window.addEventListener('avatarChanged', (e) => {
     if (!avatarEl) return;
     if (avatarUrl) {
         avatarEl.style.background = 'transparent';
-        avatarEl.innerHTML = `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" loading="lazy">`;
+        avatarEl.innerHTML = `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" alt="" loading="lazy" decoding="async">`;
     } else if (emoji) {
         avatarEl.style.background = '';
         avatarEl.innerHTML = `<span class="member-avatar-icon">${renderAvatarIcon(emoji)}</span>`;

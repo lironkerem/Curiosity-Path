@@ -284,7 +284,7 @@ const CollectiveFieldDB = {
     },
 };
 
-window.addEventListener('beforeunload', () => CollectiveFieldDB.destroy());
+window.addEventListener('pagehide', () => CollectiveFieldDB.destroy());
 
 // Window bridge: preserved for external callers
 window.CollectiveFieldDB = CollectiveFieldDB;

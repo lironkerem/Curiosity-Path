@@ -31,7 +31,7 @@ const UpcomingEvents = {
             type:     '🎴 Online Zoom Class',
             datetime: 'Monday, 10:00 AM (GMT+2)',
             image:    '/public/CTA/Sessions/Sessions4.jpg',
-            whatsapp: 'http://wa.me/+972524588767',
+            whatsapp: 'https://wa.me/+972524588767',
         },
         {
             title:    'Classic Meditation Masterclass',
@@ -40,7 +40,7 @@ const UpcomingEvents = {
             type:     '🧘 Online Zoom Class',
             datetime: 'Thursday, 12:00 PM (GMT+2)',
             image:    '/public/CTA/Sessions/Sessions3.jpg',
-            whatsapp: 'http://wa.me/+972524588767',
+            whatsapp: 'https://wa.me/+972524588767',
         },
     ],
 
@@ -52,7 +52,7 @@ const UpcomingEvents = {
             type:     '🎴 In-Person or Online',
             datetime: 'Daily • Flexible Hours',
             image:    '/public/CTA/Sessions/Sessions1.jpg',
-            whatsapp: 'http://wa.me/+972524588767',
+            whatsapp: 'https://wa.me/+972524588767',
         },
         {
             title:    'Private Reiki Healing Session',
@@ -61,7 +61,7 @@ const UpcomingEvents = {
             type:     '✨ In-Person or Online',
             datetime: 'Daily • Flexible Hours',
             image:    '/public/CTA/Sessions/Sessions2.jpg',
-            whatsapp: 'http://wa.me/+972524588767',
+            whatsapp: 'https://wa.me/+972524588767',
         },
     ],
 
@@ -228,9 +228,9 @@ const UpcomingEvents = {
 
     getHTML() {
         return `
-        <section class="section">
+        <section class="section" aria-labelledby="upcomingEventsTitle">
             <div class="section-header">
-                <div class="section-title">Upcoming Events</div>
+                <div class="section-title" id="upcomingEventsTitle">Upcoming Events</div>
                 <div style="display:flex;align-items:center;gap:12px;">
                     <div style="font-size:12px;color:var(--text-muted);">Group classes & private sessions</div>
                 </div>
@@ -281,8 +281,8 @@ const UpcomingEvents = {
                 ${this.escapeHtml(data.info)}
             </div>
             <div class="event-datetime" style="font-size:13px;color:var(--text-muted);margin-bottom:16px;display:flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> ${this.escapeHtml(data.datetime)}</div>
-            <button class="event-btn" onclick="UpcomingEvents.openWhatsApp('${this.escapeHtml(data.whatsapp)}')"
-                    >
+            <button type="button" class="event-btn" onclick="UpcomingEvents.openWhatsApp('${this.escapeHtml(data.whatsapp)}')"
+                    aria-label="${this.escapeHtml(ctaText)} for ${this.escapeHtml(data.title)}">
                 ${this.escapeHtml(ctaText)}
             </button>
         </div>`;
@@ -296,6 +296,9 @@ const UpcomingEvents = {
         if (document.getElementById('flyerLightbox')) return;
         const lb = document.createElement('div');
         lb.id = 'flyerLightbox';
+        lb.setAttribute('role', 'dialog');
+        lb.setAttribute('aria-modal', 'true');
+        lb.setAttribute('aria-label', 'Flyer image');
         lb.style.cssText = `position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.92);
             display:flex;align-items:center;justify-content:center;
             cursor:zoom-out;opacity:0;transition:opacity 0.25s ease;`;
@@ -303,7 +306,8 @@ const UpcomingEvents = {
             <img src="${src}" width="800" height="600" decoding="async" style="max-width:94vw;max-height:94vh;object-fit:contain;
                 border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.6);
                 transform:scale(0.95);transition:transform 0.25s ease;">
-            <button onclick="UpcomingEvents.closeLightbox()"
+            <button type="button" onclick="UpcomingEvents.closeLightbox()"
+                    aria-label="Close lightbox"
                     style="position:absolute;top:18px;right:22px;background:none;border:none;
                            cursor:pointer;font-size:28px;color:#fff;opacity:0.7;line-height:1;">✕</button>`;
         document.body.appendChild(lb);
@@ -431,6 +435,8 @@ const UpcomingEvents = {
 
         const btn = document.createElement('button');
         btn.id = 'upcomingAdminBtn';
+        btn.type = 'button';
+        btn.setAttribute('aria-label', 'Update event flyers');
         btn.onclick = () => UpcomingEvents.openAdminModal();
         btn.style.cssText = 'font-size:11px;font-weight:700;padding:4px 12px;border-radius:99px;border:none;cursor:pointer;background:var(--neuro-accent-a10);color:var(--neuro-accent);text-transform:uppercase;letter-spacing:0.5px;';
         btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Update Flyers`;
@@ -483,13 +489,14 @@ const UpcomingEvents = {
         <div style="background:var(--neuro-bg,#f0f0f3);border-radius:20px;padding:24px;
                     max-width:560px;width:94%;max-height:90vh;overflow-y:auto;position:relative;
                     box-shadow:8px 8px 20px rgba(0,0,0,0.2);">
-            <button onclick="UpcomingEvents.closeAdminModal()"
+            <button type="button" onclick="UpcomingEvents.closeAdminModal()"
+                    aria-label="Close admin modal"
                     style="position:absolute;top:14px;right:16px;background:none;border:none;cursor:pointer;font-size:18px;opacity:0.5;">✕</button>
             <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
                         color:var(--neuro-accent);margin-bottom:16px;" style="display:flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Update Flyers</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;">
                 ${tabs.map((t, i) => `
-                <button id="adminTab_${t.id}" onclick="UpcomingEvents._switchAdminTab('${t.id}')"
+                <button type="button" id="adminTab_${t.id}" onclick="UpcomingEvents._switchAdminTab('${t.id}')" aria-pressed="${i === 0}"
                         style="padding:9px;border-radius:10px;border:none;cursor:pointer;font-size:0.82rem;font-weight:600;
                                ${i === 0 ? 'background:var(--neuro-accent);color:#fff;' : 'background:var(--neuro-accent-a10);color:var(--neuro-accent);'}">
                     ${t.label}
@@ -497,12 +504,12 @@ const UpcomingEvents = {
             </div>
             <div id="adminTabContent"></div>
             <div style="display:flex;gap:10px;margin-top:20px;">
-                <button onclick="UpcomingEvents._adminSave()"
+                <button type="button" onclick="UpcomingEvents._adminSave()"
                         style="flex:1;padding:11px;border-radius:12px;border:none;cursor:pointer;
                                font-size:0.92rem;font-weight:700;background:var(--neuro-accent);color:#fff;">
                     Save & Publish
                 </button>
-                <button onclick="UpcomingEvents.closeAdminModal()"
+                <button type="button" onclick="UpcomingEvents.closeAdminModal()"
                         style="padding:11px 18px;border-radius:12px;border:none;cursor:pointer;
                                font-size:0.92rem;background:rgba(0,0,0,0.06);color:var(--neuro-text);">
                     Cancel
@@ -534,13 +541,13 @@ const UpcomingEvents = {
         const flyerGrid = (folder, files) => files.map(f => {
             const url      = this._flyerBase + folder + '/' + f;
             const selected = draft.image === url;
-            return `<div onclick="UpcomingEvents._selectFlyer('${tab}','${url}','${f}')"
+            return `<button type="button" onclick="UpcomingEvents._selectFlyer('${tab}','${url}','${f}')"
                          style="cursor:pointer;border-radius:8px;overflow:hidden;
                                 border:3px solid ${selected ? 'var(--neuro-accent)' : 'transparent'};
                                 transition:border 0.15s;">
                         <img src="${url}" alt="${f}" width="200" height="90" loading="lazy" decoding="async" style="width:100%;height:90px;object-fit:cover;display:block;">
                         <div style="font-size:10px;text-align:center;padding:2px;color:var(--text-muted);">${f}</div>
-                    </div>`;
+                    </button>`;
         }).join('');
 
         const TAB_LABELS = { classes0:'Left Card - Flyer 1', classes1:'Left Card - Flyer 2', sessions0:'Right Card - Flyer 1', sessions1:'Right Card - Flyer 2' };

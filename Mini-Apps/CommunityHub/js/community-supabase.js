@@ -902,7 +902,7 @@ const CommunityDB = {
     },
 };
 
-window.addEventListener('beforeunload', () => CommunityDB._cleanup());
+window.addEventListener('pagehide', () => CommunityDB._cleanup());
 
 // Named export for ES module consumers
 export { CommunityDB };

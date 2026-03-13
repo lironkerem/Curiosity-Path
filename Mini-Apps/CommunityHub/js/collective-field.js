@@ -161,7 +161,7 @@ const CollectiveField = {
                         <span class="progress-label">Energy Level</span>
                         <span class="progress-value" id="energyValue">${energyLevel}%</span>
                         <span id="adminEnergyBtn" style="display:none;margin-left:8px;">
-                            <button onclick="CollectiveField.adminAddEnergy()" title="Admin: Add Energy"
+                            <button type="button" onclick="CollectiveField.adminAddEnergy()" title="Admin: Add Energy"
                                     style="width:22px;height:22px;border-radius:50%;border:none;cursor:pointer;
                                            font-size:13px;font-weight:700;line-height:1;
                                            background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);
@@ -170,7 +170,7 @@ const CollectiveField = {
                     </div>
                 </div>
 
-                <button class="collective-action-btn" id="pulseBtn"
+                <button type="button" class="collective-action-btn" id="pulseBtn"
                         onmousedown="CollectiveField.handleHoldStart()"
                         ontouchstart="CollectiveField.handleHoldStart()"
                         onmouseup="CollectiveField.handleHoldEnd()"
@@ -255,7 +255,7 @@ const CollectiveField = {
                         <span class="progress-label">Wave Building</span>
                         <span class="progress-value" id="waveProgressValue">${progress}%</span>
                         <span id="adminWaveBtn" style="display:none;margin-left:8px;">
-                            <button onclick="CollectiveField.adminAddWaveMinutes()" title="Admin: Add 60 minutes to Wave"
+                            <button type="button" onclick="CollectiveField.adminAddWaveMinutes()" title="Admin: Add 60 minutes to Wave"
                                     style="width:22px;height:22px;border-radius:50%;border:none;cursor:pointer;
                                            font-size:13px;font-weight:700;line-height:1;
                                            background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);
@@ -264,7 +264,7 @@ const CollectiveField = {
                     </div>
                 </div>
 
-                <button class="collective-action-btn" id="waveBtn"
+                <button type="button" class="collective-action-btn" id="waveBtn"
                         onclick="CollectiveField.handleContributeWave()"
                         aria-label="Contribute silence to the calm wave">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">

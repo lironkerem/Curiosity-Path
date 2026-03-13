@@ -33,9 +33,9 @@ const Resonance = {
             return `<div id="resonanceContent" style="display:none;"></div>`;
         }
         return `
-            <section class="section" id="resonanceContent">
+            <section class="section" id="resonanceContent" aria-labelledby="resonanceSectionTitle">
                 <div class="section-header">
-                    <div class="section-title">Resonance</div>
+                    <div class="section-title" id="resonanceSectionTitle">Resonance</div>
                     <div style="font-size:12px;color:var(--text-muted);">Community energy field</div>
                 </div>
                 <div class="resonance-container"></div>
