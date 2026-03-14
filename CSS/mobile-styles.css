@@ -1609,16 +1609,18 @@ textarea {
    TOAST NOTIFICATIONS - MOBILE (PATCHED FOR TOP-CENTER)
    ========================================================= */
 
+/* =========================================================
+   TOAST NOTIFICATIONS - MOBILE (PATCHED FOR TOP-CENTER)
+   ========================================================= */
+
 #toast-container {
   position: fixed;
   top: 20px;
-  left: 50vw;
-  right: auto;
-  bottom: auto;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  margin: 0 auto;
   width: 90%;
   max-width: 400px;
-  margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1632,9 +1634,10 @@ body.cta-open #toast-container {
 }
 
 #toast-container .toast {
-  width: 100%;
+  width: 100%;              /* Fill the container */
   max-width: 400px;
   min-height: 56px;
+  margin: 0;                /* Remove any margins */
   padding: 14px 18px !important;
   border-radius: 16px !important;
   font-size: clamp(0.875rem, 3vw, 1rem) !important;
@@ -1643,6 +1646,7 @@ body.cta-open #toast-container {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2), var(--shadow-raised-lg) !important;
   backdrop-filter: blur(10px);
   pointer-events: auto;
+  box-sizing: border-box;
 }
 
 /* =========================================================
