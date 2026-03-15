@@ -337,14 +337,14 @@ class HappinessEngine {
   _formatBooster(booster) {
     return `
       <div class="flex items-center" style="margin-bottom: 1rem;">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="margin-right:0.5rem;flex-shrink:0;"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        <span class="text-3xl" style="margin-right:0.25rem">${booster.emoji}</span>
         <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> A Quick Happiness Booster</h2>
       </div>
       <div class="text-center">
         <h3 class="text-2xl font-bold" style="color: var(--neuro-accent);">${booster.title}</h3>
         <p class="mt-2 text-lg">${booster.description}</p>
         <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
-          <span>${booster.duration}</span> • <span>${booster.category}</span> • <span>${booster.emoji}</span>
+          <span>${booster.duration}</span> • <span>${booster.category}</span>
         </div>
       </div>
       <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
@@ -402,7 +402,7 @@ class HappinessEngine {
     const emoji = HappinessEngine.INTENSITY_EMOJIS[inquiry.intensity] || '💭';
     return `
       <div class="flex items-center" style="margin-bottom: 1rem;">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="margin-right:0.5rem;flex-shrink:0;"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+        <span class="text-3xl" style="margin-right:0.25rem">${emoji}</span>
         <h2 class="text-2xl font-bold" style="color: var(--neuro-text);"> Self Inquiry</h2>
       </div>
       <div class="text-center">
@@ -418,7 +418,7 @@ class HappinessEngine {
           ${inquiry.holding}
         </p>
         <div class="mt-4 text-sm" style="color: var(--neuro-text-light);">
-          <span>Level ${inquiry.intensity}</span> • <span>${emoji} Self-Inquiry</span>
+          <span>Level ${inquiry.intensity}</span> • <span>Self-Inquiry</span>
         </div>
       </div>
       <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
