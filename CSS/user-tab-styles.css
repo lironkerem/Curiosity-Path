@@ -1079,40 +1079,44 @@ button[type="button"].avatar-icon-btn {
 
 /* ========== DELETE ACCOUNT ========== */
 
+/* ========== DELETE ACCOUNT ========== */
+
 .delete-account-section {
-  margin-top: 18px;
+  margin-top: 14px;
   padding-top: 14px;
   border-top: 1px solid rgba(220, 38, 38, 0.15);
-  display: flex;
-  justify-content: center;
 }
 
 .btn-delete-account {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
-  background: none;
-  border: 1px solid rgba(220, 38, 38, 0.35);
-  color: #dc2626;
-  font-size: 0.8rem;
-  font-weight: 500;
-  padding: 7px 16px;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: #dc2626;
+  border: none;
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 10px 16px;
   border-radius: var(--border-radius-button, 10px);
   cursor: pointer;
-  opacity: 0.75;
-  transition: opacity 0.2s, background 0.2s, border-color 0.2s;
+  white-space: nowrap;
+  transition: background 0.2s, transform 0.15s;
 }
 
 .btn-delete-account:hover {
-  opacity: 1;
-  background: rgba(220, 38, 38, 0.07);
-  border-color: #dc2626;
+  background: #b91c1c;
 }
 
-.btn-delete-account .lucide-icon {
-  width: 14px;
-  height: 14px;
-  stroke: currentColor;
+.btn-delete-account:active {
+  transform: scale(0.97);
+}
+
+.btn-delete-account svg {
+  width: 18px;
+  height: 18px;
+  stroke: #fff;
   flex-shrink: 0;
 }
 

@@ -148,14 +148,6 @@ export const profile = (u = {}) => `
       value="${u.country || ''}">
     <button class="btn-link" id="save-profile-btn">Save changes</button>
 
-    <!-- Delete Account -->
-    <div class="delete-account-section">
-      <button type="button" class="btn-delete-account" id="delete-account-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-        Delete Account
-      </button>
-    </div>
-
     <!-- Status Picker -->
     <div class="status-picker-section">
       <div class="status-picker-label">My Status</div>
@@ -177,6 +169,14 @@ export const profile = (u = {}) => `
             <span class="status-option-text">${s.label}</span>
           </button>`).join('')}
       </div>
+    </div>
+
+    <!-- Delete Account -->
+    <div class="delete-account-section">
+      <button type="button" class="btn-delete-account" id="delete-account-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        Delete Account
+      </button>
     </div>
   </div>`;
 
