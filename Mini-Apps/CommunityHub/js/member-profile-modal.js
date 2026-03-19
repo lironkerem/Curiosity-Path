@@ -484,7 +484,7 @@ const MemberProfileModal = {
 
             // Fix 2: live ring updates for other users while modal is open
             if (!isSelf) {
-                this._presenceUnsub = CommunityDB.subscribeToPresence((members) => {
+                const presenceCh = CommunityDB.subscribeToPresence((members) => {
                     const updated = members.find(m => m.user_id === userId);
                     if (!updated || !this.state.isOpen) return;
                     const ring = document.getElementById('memberModalStatusRing');
@@ -493,6 +493,8 @@ const MemberProfileModal = {
                     ring.style.borderColor = cfg.c;
                     ring.style.boxShadow   = `0 0 0 3px ${cfg.s}`;
                 });
+                // Store as a callable unsubscribe function, not the channel object
+                this._presenceUnsub = () => { try { presenceCh?.unsubscribe(); } catch (_) {} };
             }
 
             const actionsRow    = document.getElementById('memberModalActions');
@@ -873,17 +875,18 @@ const MemberProfileModal = {
             description: opt.dataset.desc   || '',
         };
         await this._withBtnState('#adminSubBadge button', 'Awarding...', 'Award Badge', async () => {
-            // Use the atomic RPC so badge grant + XP award happen in one operation,
-            // avoiding race conditions from the old fetch → merge → update pattern.
-            const ok = await CommunityDB.adminUpdateGamification(this.state.currentUserId, {
-                badgeId:    badge.id,
-                badgeName:  badge.name,
-                badgeIcon:  badge.icon,
-                badgeRarity: badge.rarity,
-                badgeXp:    badge.xp,
-                badgeDesc:  badge.description,
-            });
-            if (!ok) throw new Error('Badge grant failed');
+            const { data: prog } = await CommunityDB._sb.from('user_progress')
+                .select('payload').eq('user_id', this.state.currentUserId).single();
+            const payload = prog?.payload || {};
+            const badges  = payload.badges || [];
+            if (badges.find(b => b.id === badge.id)) {
+                Core.showToast('Member already has this badge'); return;
+            }
+            badges.push({ ...badge, date: new Date().toISOString(), unlocked: true });
+            const { error } = await CommunityDB._sb.from('user_progress')
+                .update({ payload: { ...payload, badges }, updated_at: new Date().toISOString() })
+                .eq('user_id', this.state.currentUserId);
+            if (error) throw error;
             await this._adminPushNotify(this.state.currentUserId, '🎖️ New Badge Earned!', `You received the ${badge.name} badge!`);
             Core.showToast(`Awarded ${badge.icon} ${badge.name}`);
             this._closeAdminSubs();
@@ -937,19 +940,35 @@ const MemberProfileModal = {
         const isSelf = targetUserId === myId;
 
         if (isSelf) {
-            // Cancel any pending debounced save so our fresh cloud data isn't
-            // immediately overwritten by a stale in-flight write.
             const ge = window.app?.gamification;
+
             if (ge?.saveTimeout) {
                 clearTimeout(ge.saveTimeout);
                 ge.saveTimeout = null;
             }
-            // Clear DB cache so the next read goes to Supabase, not stale cache.
+
             window.DB?.clearCache?.();
             window.app?.state?.clearCache?.();
-            // Full reload via engine — this fetches fresh Supabase data, rebuilds
-            // engine state, calls checkAllBadges(), and fires level-up if needed.
-            await window.app?.gamification?.reloadFromDatabase?.();
+
+            try {
+                const fresh = await CommunityDB.getUserProgress(targetUserId);
+                if (fresh && ge?.state) {
+                    if (fresh.xp !== undefined)               ge.state.xp               = fresh.xp;
+                    if (fresh.karma !== undefined)            ge.state.karma            = fresh.karma;
+                    if (fresh.level !== undefined)            ge.state.level            = fresh.level;
+                    if (Array.isArray(fresh.badges))          ge.state.badges           = fresh.badges;
+                    if (Array.isArray(fresh.unlockedFeatures)) ge.state.unlockedFeatures = fresh.unlockedFeatures;
+                }
+                if (fresh && window.app?.state?.data) {
+                    if (fresh.xp !== undefined)               window.app.state.data.xp               = fresh.xp;
+                    if (fresh.karma !== undefined)            window.app.state.data.karma            = fresh.karma;
+                    if (fresh.level !== undefined)            window.app.state.data.level            = fresh.level;
+                    if (Array.isArray(fresh.badges))          window.app.state.data.badges           = fresh.badges;
+                    if (Array.isArray(fresh.unlockedFeatures)) window.app.state.data.unlockedFeatures = fresh.unlockedFeatures;
+                }
+            } catch (e) {
+                console.warn('[_safeRefresh] pre-patch failed:', e);
+            }
         }
 
         await this._refreshMainProfileStats(targetUserId);

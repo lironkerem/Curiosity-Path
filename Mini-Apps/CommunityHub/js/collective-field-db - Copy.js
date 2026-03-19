@@ -58,11 +58,7 @@ const CollectiveFieldDB = {
     // HELPERS
     // =========================================================================
 
-    // Read window.AppSupabase directly — window.CommunitySupabase may be null
-    // because supabase-client.js captures window.AppSupabase at module parse time
-    // (before Supabase.js has run). AppSupabase is always set by the time any
-    // DB method is called (after auth + CommunityHub init).
-    get _sb() { return window.AppSupabase || window.CommunitySupabase || null; },
+    get _sb() { return window.CommunitySupabase; },
 
     _todayUTC() {
         return new Date().toISOString().slice(0, 10);
