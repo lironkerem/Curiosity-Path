@@ -15,7 +15,10 @@
     "personal-growth"
   ],
   "scripts": {
-    "build": "exit 0"
+    "build": "exit 0",
+    "start": "npx serve . --listen 3000",
+    "lint": "npx eslint . --ext .js --ignore-pattern 'node_modules/' --ignore-pattern 'CSS/'",
+    "audit-deps": "npm audit --audit-level=moderate"
   },
   "engines": {
     "node": ">=18.0.0",

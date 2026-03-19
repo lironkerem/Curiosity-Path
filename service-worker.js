@@ -1,11 +1,11 @@
-// The Curiosity Path - Service Worker
+// The Curiosity Path — Service Worker
 
-const CACHE_VERSION = 'tcp-2026-03-12';
-const CACHE_NAME = `tcp-static-${CACHE_VERSION}`;
-const RUNTIME_CACHE = `tcp-runtime-${CACHE_VERSION}`;
-const ICON_PATH = './public/Icons/';
+const CACHE_VERSION  = 'tcp-2026-03-19';
+const CACHE_NAME     = `tcp-static-${CACHE_VERSION}`;
+const RUNTIME_CACHE  = `tcp-runtime-${CACHE_VERSION}`;
+const ICON_PATH      = './public/Icons/';
 
-// Core assets to cache immediately
+// Core assets to pre-cache on install
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -18,179 +18,183 @@ const CORE_ASSETS = [
   `${ICON_PATH}badge-96x96.png`
 ];
 
-// Install event - cache core assets
-self.addEventListener('install', e => {
-  e.waitUntil(
+// Minimal offline HTML — shown when page fetch fails and no cache available
+const OFFLINE_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Offline — The Curiosity Path</title>
+  <style>
+    body{margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;
+         font-family:system-ui,sans-serif;background:#f8f5f0;color:#333;text-align:center;padding:2rem}
+    h1{font-size:1.5rem;margin-bottom:0.75rem}
+    p{color:#666;max-width:320px;line-height:1.5}
+    button{margin-top:1.5rem;padding:0.75rem 2rem;background:#6b9b37;color:#fff;
+           border:none;border-radius:8px;font-size:1rem;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div>
+    <h1>You're offline</h1>
+    <p>Please check your internet connection and try again.</p>
+    <button onclick="location.reload()">Retry</button>
+  </div>
+</body>
+</html>`;
+
+// ─── Install ────────────────────────────────────────────────────────────────
+self.addEventListener('install', event => {
+  event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(CORE_ASSETS))
       .then(() => self.skipWaiting())
-      .catch(err => console.error('[SW] Cache install failed:', err))
+      .catch(err => console.error('[SW] Install cache failed:', err))
   );
 });
 
-// Activate event - clean up old caches
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          // Delete old caches that don't match current version
-          if (cacheName.startsWith('tcp-') && 
-              cacheName !== CACHE_NAME && 
-              cacheName !== RUNTIME_CACHE) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => clients.claim())
+// ─── Activate ───────────────────────────────────────────────────────────────
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys()
+      .then(cacheNames => Promise.all(
+        cacheNames
+          .filter(name => name.startsWith('tcp-') && name !== CACHE_NAME && name !== RUNTIME_CACHE)
+          .map(name => caches.delete(name))
+      ))
+      .then(() => self.clients.claim())
   );
 });
 
-// Fetch event - smart caching strategy
-self.addEventListener('fetch', e => {
-  const { request } = e;
+// ─── Fetch ───────────────────────────────────────────────────────────────────
+self.addEventListener('fetch', event => {
+  const { request } = event;
+
+  // Only handle GET requests
+  if (request.method !== 'GET') return;
+
   const url = new URL(request.url);
 
-  // Skip cross-origin requests
-  if (url.origin !== self.location.origin) {
-    return;
-  }
+  // Skip cross-origin (CDN, Supabase, APIs — let them go direct)
+  if (url.origin !== self.location.origin) return;
 
-  // Normalize URL (remove trailing slashes for consistency)
-  const normalizedUrl = url.pathname.endsWith('/') && url.pathname !== '/' 
-    ? url.pathname.slice(0, -1) 
-    : url.pathname;
+  // Skip WebSocket upgrade requests (cannot be intercepted)
+  if (request.headers.get('upgrade') === 'websocket') return;
 
-  // Handle different types of requests
-  if (request.destination === 'image' || url.pathname.includes('/Icons/')) {
-    // Cache-first for images and icons
-    e.respondWith(cacheFirst(request));
-  } else if (url.pathname.includes('/CSS/') || url.pathname.endsWith('.css')) {
-    // Network-first for CSS files (supports ?v= cache-busting)
-    e.respondWith(networkFirst(request));
-  } else if (request.destination === 'script' || url.pathname.endsWith('.js')) {
-    // Network-first for JavaScript files (to get updates)
-    e.respondWith(networkFirst(request));
+  const path = url.pathname;
+
+  if (request.destination === 'image' || path.includes('/Icons/')) {
+    // Images: cache-first for speed
+    event.respondWith(cacheFirst(request));
+  } else if (path.includes('/CSS/') || path.endsWith('.css')) {
+    // CSS: network-first (supports ?v= versioning)
+    event.respondWith(networkFirst(request, false));
+  } else if (request.destination === 'script' || path.endsWith('.js')) {
+    // JS: network-first (stay fresh)
+    event.respondWith(networkFirst(request, false));
+  } else if (request.destination === 'document' || path === '/' || path.endsWith('.html')) {
+    // HTML pages: network-first, serve offline page on failure
+    event.respondWith(networkFirst(request, true));
   } else {
-    // Default: network-first for HTML and other resources
-    e.respondWith(networkFirst(request));
+    event.respondWith(networkFirst(request, false));
   }
 });
 
-// Network-first strategy (fresh content, fallback to cache)
-async function networkFirst(request) {
-  // Skip caching for non-GET requests
-  if (request.method !== 'GET') {
-    return fetch(request);
-  }
-
+// ─── Network-first strategy ──────────────────────────────────────────────────
+async function networkFirst(request, serveOfflinePage) {
   try {
-    const networkResponse = await fetch(request);
-    
-    // Cache successful responses
-    if (networkResponse.ok) {
+    const response = await fetch(request);
+    if (response.ok) {
       const cache = await caches.open(RUNTIME_CACHE);
-      cache.put(request, networkResponse.clone());
+      cache.put(request, response.clone()); // background update
     }
-    
-    return networkResponse;
-  } catch (error) {
-    // Network failed, try cache
-    const cachedResponse = await caches.match(request);
-    
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-    
-    // No cache available - return offline message
-    return new Response(
-      'Offline - Please check your internet connection',
-      {
-        status: 503,
-        statusText: 'Service Unavailable',
-        headers: new Headers({
-          'Content-Type': 'text/plain; charset=utf-8'
-        })
-      }
-    );
-  }
-}
+    return response;
+  } catch {
+    const cached = await caches.match(request);
+    if (cached) return cached;
 
-// Cache-first strategy (performance priority)
-async function cacheFirst(request) {
-  // Skip caching for non-GET requests
-  if (request.method !== 'GET') {
-    return fetch(request);
-  }
-
-  // Try cache first
-  const cachedResponse = await caches.match(request);
-  if (cachedResponse) {
-    return cachedResponse;
-  }
-  
-  // Not in cache, fetch from network
-  try {
-    const networkResponse = await fetch(request);
-    
-    // Cache successful responses
-    if (networkResponse.ok) {
-      const cache = await caches.open(RUNTIME_CACHE);
-      cache.put(request, networkResponse.clone());
+    if (serveOfflinePage) {
+      return new Response(OFFLINE_HTML, {
+        status: 200,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
     }
-    
-    return networkResponse;
-  } catch (error) {
-    // Return generic offline response for assets
-    return new Response('', {
+
+    return new Response('Offline', {
       status: 503,
-      statusText: 'Service Unavailable'
+      statusText: 'Service Unavailable',
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' }
     });
   }
 }
 
-// Push notification listener
+// ─── Cache-first strategy ────────────────────────────────────────────────────
+async function cacheFirst(request) {
+  const cached = await caches.match(request);
+  if (cached) return cached;
+
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      const cache = await caches.open(RUNTIME_CACHE);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    return new Response('', { status: 503, statusText: 'Service Unavailable' });
+  }
+}
+
+// ─── Push Notifications ──────────────────────────────────────────────────────
 self.addEventListener('push', event => {
   try {
-    const data = event.data ? event.data.json() : {};
-    const { title = 'The Curiosity Path', body, icon, tag, data: customData } = data;
-    
+    const data  = event.data ? event.data.json() : {};
+    const title = typeof data.title === 'string' ? data.title.slice(0, 100) : 'The Curiosity Path';
+    const body  = typeof data.body  === 'string' ? data.body.slice(0, 200)  : 'You have a new notification';
+
     event.waitUntil(
       self.registration.showNotification(title, {
-        body: body || 'You have a new notification',
-        icon: icon || `${ICON_PATH}icon-512-maskable.png`,
-        badge: `${ICON_PATH}badge-96x96.png`,
-        tag: tag || 'default',
-        data: customData || {},
-        vibrate: [200, 100, 200],
+        body,
+        icon:               data.icon  || `${ICON_PATH}icon-512-maskable.png`,
+        badge:              `${ICON_PATH}badge-96x96.png`,
+        tag:                typeof data.tag === 'string' ? data.tag : 'default',
+        data:               data.data && typeof data.data === 'object' ? data.data : {},
+        vibrate:            [200, 100, 200],
         requireInteraction: false
       })
     );
-  } catch (error) {
-    console.error('[SW] Push notification error:', error);
+  } catch (err) {
+    console.error('[SW] Push error:', err);
   }
 });
 
-// Notification click handler
+// ─── Notification Click ──────────────────────────────────────────────────────
 self.addEventListener('notificationclick', event => {
   event.notification.close();
-  
-  const urlToOpen = event.notification.data?.url || '/';
-  
+
+  // Validate URL — only allow same-origin navigation
+  let urlToOpen = '/';
+  const dataUrl = event.notification.data && event.notification.data.url;
+  if (typeof dataUrl === 'string') {
+    try {
+      const parsed = new URL(dataUrl, self.location.origin);
+      if (parsed.origin === self.location.origin) {
+        urlToOpen = parsed.pathname + parsed.search + parsed.hash;
+      }
+    } catch { /* malformed URL — fall back to '/' */ }
+  }
+
+  const fullUrl = self.location.origin + urlToOpen;
+
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true })
       .then(clientList => {
-        // Check if app is already open
         for (const client of clientList) {
-          if (client.url === urlToOpen && 'focus' in client) {
+          if (client.url === fullUrl && 'focus' in client) {
             return client.focus();
           }
         }
-        // Open new window if not already open
-        if (clients.openWindow) {
-          return clients.openWindow(urlToOpen);
-        }
+        if (clients.openWindow) return clients.openWindow(fullUrl);
       })
   );
 });
-
