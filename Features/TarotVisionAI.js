@@ -104,7 +104,7 @@
         <div class="vision-popup-card">
           <!-- Header -->
           <header class="vision-popup-header">
-            <h3 class="vision-popup-title">📸 Tarot Vision AI</h3>
+            <h3 class="vision-popup-title" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:1.25rem;height:1.25rem;flex-shrink:0;"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> Tarot Vision AI</h3>
             <button id="vision-close" class="vision-close-btn" aria-label="Close">&times;</button>
           </header>
 
@@ -117,11 +117,11 @@
             <canvas id="canvas" class="hidden"></canvas>
             
             <!-- Image preview -->
-            <img id="image-preview" class="hidden" alt="Preview">
+            <img id="image-preview" class="hidden" alt="Preview" width="400" height="400" loading="lazy" decoding="async">
 
             <!-- Placeholder -->
             <div id="upload-placeholder" class="placeholder-box">
-              <span class="placeholder-icon">📷</span>
+              <span class="placeholder-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:2rem;height:2rem;"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg></span>
               <p>Take a photo or upload an image of your cards</p>
             </div>
 
@@ -133,7 +133,7 @@
               <button id="upload-btn" type="button" class="vision-btn">
                 ${getIcon('photo')} Upload
               </button>
-              <button id="analyze-btn" type="button" class="vision-btn" disabled>
+              <button id="analyze-btn" type="button" class="vision-btn btn-primary" disabled>
                 ${getIcon('search')} Analyze
               </button>
             </div>
@@ -576,35 +576,39 @@
     const style = document.createElement('style');
     style.id = 'vision-popup-styles';
     style.textContent = `
-      /* Popup Overlay */
+      /* Popup Overlay — matches .modal-overlay */
       #tarot-vision-popup {
         position: fixed;
         inset: 0;
-        z-index: 9999;
+        z-index: 10000;
         display: none;
         align-items: center;
         justify-content: center;
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(196, 173, 145, 0.85);
         backdrop-filter: blur(4px);
-        padding: 1rem;
+        padding: var(--spacing-md);
+        animation: fadeIn 0.3s ease;
       }
 
       #tarot-vision-popup.active {
         display: flex;
       }
 
-      /* Popup Card */
+      /* Popup Card — matches .modal-card */
       .vision-popup-card {
-        background: var(--neuro-bg, #1f2937);
-        border-radius: 12px;
+        background: var(--neuro-bg);
+        border-radius: var(--radius-2xl);
         width: 90%;
         max-width: 600px;
         max-height: 90vh;
         display: flex;
         flex-direction: column;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        box-shadow: var(--shadow-raised-lg);
         overflow: hidden;
         margin: auto;
+        animation: slideUpShadow 0.4s ease;
+        position: relative;
+        z-index: 10001;
       }
 
       /* Header */
@@ -612,121 +616,111 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 1rem 1.25rem;
-        border-bottom: 1px solid var(--neuro-border, #374151);
-        background: var(--neuro-header-bg, #111827);
+        padding: var(--spacing-md) var(--spacing-lg);
+        border-bottom: 1px solid var(--neuro-shadow-dark);
+        background: var(--neuro-bg);
       }
 
       .vision-popup-title {
         font-size: 1.25rem;
         font-weight: 700;
-        color: var(--neuro-text, #f3f4f6);
+        color: var(--neuro-text);
+        margin: 0;
       }
 
+      /* Close btn — matches .modal-close-btn */
       .vision-close-btn {
-        background: none;
+        background: var(--neuro-bg);
         border: none;
         font-size: 1.5rem;
         line-height: 1;
         cursor: pointer;
-        color: var(--neuro-text-light, #9ca3af);
-        transition: color 0.2s;
+        color: var(--neuro-text-light);
+        box-shadow: var(--shadow-raised);
+        border-radius: var(--radius-sm);
+        padding: 0.4rem 0.65rem;
+        transition: box-shadow var(--transition-fast);
       }
 
       .vision-close-btn:hover {
-        color: var(--neuro-text, #f3f4f6);
+        box-shadow: var(--shadow-inset);
+        color: var(--neuro-text);
       }
 
       /* Body */
       .vision-popup-body {
-        padding: 1.25rem;
+        padding: var(--spacing-lg);
         flex: 1 1 auto;
         overflow-y: auto;
-        color: var(--neuro-text, #f3f4f6);
+        color: var(--neuro-text);
       }
 
-      /* Placeholder */
+      /* Placeholder box */
       .placeholder-box {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 2rem;
-        border: 2px dashed var(--neuro-border, #374151);
-        border-radius: 8px;
-        margin-bottom: 1rem;
-        background: var(--neuro-placeholder-bg, #111827);
+        padding: var(--spacing-xl);
+        border: 2px dashed var(--neuro-shadow-dark);
+        border-radius: var(--radius-lg);
+        margin-bottom: var(--spacing-md);
+        background: var(--neuro-bg-lighter);
+        box-shadow: var(--shadow-inset-sm);
       }
 
       .placeholder-icon {
         font-size: 2rem;
-        margin-bottom: 0.5rem;
+        margin-bottom: var(--spacing-sm);
+        color: var(--neuro-text-lighter);
       }
 
       .placeholder-text {
-        color: var(--neuro-text-light, #9ca3af);
+        color: var(--neuro-text-light);
         text-align: center;
       }
 
       /* Controls */
       .vision-controls {
         display: flex;
-        gap: 0.75rem;
+        gap: var(--spacing-sm);
         flex-wrap: wrap;
-        margin-bottom: 1rem;
+        margin-bottom: var(--spacing-md);
       }
 
+      /* Buttons — inherit .btn + .btn-primary from main styles */
       .vision-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 6px;
-        background: var(--neuro-accent, #8b5cf6);
-        color: #fff;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.2s;
-      }
-
-      .vision-btn:hover:not(:disabled) {
-        background: var(--neuro-accent-hover, #7c3aed);
-      }
-
-      .vision-btn:disabled {
-        background: #4b5563;
-        cursor: not-allowed;
-        opacity: 0.6;
+        /* inherits from global .btn via button[type="button"] */
       }
 
       .vision-btn svg {
-        width: 18px;
-        height: 18px;
+        width: 1.1rem;
+        height: 1.1rem;
       }
 
-      /* Media Elements */
+      /* Media elements */
       #video,
       #image-preview {
         max-width: 100%;
-        border-radius: 8px;
-        margin-bottom: 1rem;
+        border-radius: var(--radius-md);
+        margin-bottom: var(--spacing-md);
         display: block;
+        box-shadow: var(--shadow-raised);
       }
 
-      /* Result */
+      /* Result area */
       .vision-result {
-        margin-top: 1rem;
-        padding: 1rem;
-        background: var(--neuro-result-bg, #111827);
-        border-radius: 8px;
-        border: 1px solid var(--neuro-border, #374151);
+        margin-top: var(--spacing-md);
+        padding: var(--spacing-md);
+        background: var(--neuro-bg-lighter);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-inset);
       }
 
       .result-content {
         white-space: pre-wrap;
         line-height: 1.6;
-        color: var(--neuro-text, #f3f4f6);
+        color: var(--neuro-text);
       }
 
       /* Loading Spinner */
@@ -734,25 +728,21 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 1rem;
-        margin-top: 1rem;
-        padding: 2rem;
+        gap: var(--spacing-md);
+        margin-top: var(--spacing-md);
+        padding: var(--spacing-xl);
         text-align: center;
         font-weight: 600;
-        color: var(--neuro-accent, #8b5cf6);
+        color: var(--neuro-accent);
       }
 
       .spinner {
         width: 40px;
         height: 40px;
-        border: 4px solid rgba(139, 92, 246, 0.2);
-        border-top-color: #8b5cf6;
+        border: 4px solid var(--neuro-shadow-light);
+        border-top-color: var(--neuro-accent);
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
-      }
-
-      @keyframes spin {
-        to { transform: rotate(360deg); }
       }
 
       /* Utility */
@@ -786,10 +776,11 @@
     if (!btn) return;
 
     // Check if feature is unlocked
-    const isUnlocked = window.app?.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
+    const isPrivileged = window.app?.state?.currentUser?.isAdmin || window.app?.state?.currentUser?.isVip;
+    const isUnlocked = isPrivileged || window.app?.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
     
     if (!isUnlocked) {
-      showToast('🔒 Purchase Tarot Vision AI in the Karma Shop to use this feature.', 'info');
+      showToast('Purchase Tarot Vision AI in the Karma Shop to use this feature.', 'info');
       return;
     }
 

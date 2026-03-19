@@ -85,7 +85,7 @@ const affirmations = {
       "tags": []
     },
     {
-      "text": "I trust my intuition—it always leads me in the right direction.",
+      "text": "I trust my intuition-it always leads me in the right direction.",
       "tags": ["trust", "purpose"]
     },
     {

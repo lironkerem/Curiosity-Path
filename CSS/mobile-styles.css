@@ -148,11 +148,13 @@
 }
 .swipe-arrow.left { 
   left: -25px; 
-  animation: slideRight 2s ease-in-out infinite; 
+  animation: slideRight 2s ease-in-out infinite;
+  will-change: transform;
 }
 .swipe-arrow.right { 
   right: -25px; 
-  animation: slideLeft 2s ease-in-out infinite; 
+  animation: slideLeft 2s ease-in-out infinite;
+  will-change: transform;
 }
 .swipe-arrow svg {
   width: 88px;
@@ -1546,6 +1548,10 @@ textarea {
   overflow-y: auto;
 }
 
+.avatar-icon-picker {
+  grid-template-columns: repeat(6, 1fr) !important;
+}
+
 .dropdown-item {
   width: calc(100% - 24px) !important;
   margin: 0 auto 10px auto !important;
@@ -1600,29 +1606,38 @@ textarea {
 }
 
 /* =========================================================
-   TOAST NOTIFICATIONS - MOBILE
+   TOAST NOTIFICATIONS - MOBILE (PATCHED FOR TOP-CENTER)
+   ========================================================= */
+
+/* =========================================================
+   TOAST NOTIFICATIONS - MOBILE (PATCHED FOR TOP-CENTER)
    ========================================================= */
 
 #toast-container {
   position: fixed;
-  inset: auto 12px 84px 12px;
-  width: auto;
-  max-width: none;
+  top: 20px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: 90%;
+  max-width: 400px;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: center;
   gap: 8px;
   z-index: 9999;
 }
 
 body.cta-open #toast-container {
-  bottom: 50vh !important;
+  top: 50vh !important;
+  bottom: auto !important;
 }
 
 #toast-container .toast {
-  width: 100%;
+  width: 100%;              /* Fill the container */
   max-width: 400px;
   min-height: 56px;
+  margin: 0;                /* Remove any margins */
   padding: 14px 18px !important;
   border-radius: 16px !important;
   font-size: clamp(0.875rem, 3vw, 1rem) !important;
@@ -1631,6 +1646,7 @@ body.cta-open #toast-container {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2), var(--shadow-raised-lg) !important;
   backdrop-filter: blur(10px);
   pointer-events: auto;
+  box-sizing: border-box;
 }
 
 /* =========================================================
@@ -2285,8 +2301,10 @@ body.sheet-open .lux-footer {
   }
   
   #toast-container {
-    width: calc(100% - 16px);
-    max-width: 100%;
+    width: 90%;
+    max-width: 400px;
+    left: 50vw;
+    transform: translateX(-50%);
   }
   
   #toast-container .toast {
@@ -2302,7 +2320,11 @@ body.sheet-open .lux-footer {
 @media (max-height: 500px) and (orientation: landscape) and (max-width: 767px) {
   
   #toast-container {
-    bottom: 16px !important;
+    top: 16px !important;
+    bottom: auto !important;
+    left: 50vw !important;
+    transform: translateX(-50%) !important;
+    width: 90% !important;
     max-width: 300px;
   }
   
@@ -2330,10 +2352,12 @@ body.sheet-open .lux-footer {
 @media (min-width: 768px) and (max-width: 1024px) {
   
   #toast-container {
-    bottom: 24px;
-    left: 50%;
+    top: 20px;
+    bottom: auto;
+    left: 50vw;
     right: auto;
     transform: translateX(-50%);
+    width: 90%;
     max-width: 500px;
   }
   

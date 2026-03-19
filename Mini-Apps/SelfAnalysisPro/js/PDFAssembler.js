@@ -19,10 +19,7 @@ class PDFAssembler {
       opts.options || {}
     );
 
-    this.pdfLib = window.PDFLib || window.pdfLib || null;
-    if (!this.pdfLib) {
-      console.error("pdf-lib not found. Include it first.");
-    }
+    this.pdfLib = null; // loaded lazily on first assemble()
 
     // Updated mapping with new Source PDF layout
     this.maps = {
@@ -227,6 +224,14 @@ class PDFAssembler {
   }
 
   async assemble(appState = {}) {
+    // Lazy-load pdf-lib if not yet loaded
+    if (!this.pdfLib) {
+      if (typeof window.loadPdfLib === 'function') {
+        await window.loadPdfLib();
+      }
+      this.pdfLib = window.PDFLib || window.pdfLib || null;
+      if (!this.pdfLib) throw new Error('pdf-lib failed to load');
+    }
     try {
       this._report(5, "Loading source PDF");
 

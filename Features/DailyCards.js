@@ -10,7 +10,7 @@ import { InquiryEngine } from '../Features/InquiryEngine.js';
  */
 export default class DailyCards {
   // Constants
-  static CARD_BACK_URL = 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tarot%20Cards%20images/CardBacks.jpg';
+  static CARD_BACK_URL = '/public/Tarot%20Cards%20images/CardBacks.webp';
   
   static STORAGE_KEYS = {
     BOOSTER: 'daily_booster',
@@ -48,10 +48,10 @@ export default class DailyCards {
   };
 
   static FLIP_MESSAGES = {
-    tarot: '✨ Tarot card revealed!',
-    affirmation: '💫 Affirmation revealed!',
-    booster: '😊 Booster revealed!',
-    inquiry: '💭 Daily inquiry revealed!'
+    tarot: 'Tarot card revealed!',
+    affirmation: 'Affirmation revealed!',
+    booster: 'Booster revealed!',
+    inquiry: 'Daily inquiry revealed!'
   };
 
   static TODAY_CACHE_DURATION = 60000; // 1 minute
@@ -474,9 +474,7 @@ export default class DailyCards {
               <!-- Card Back -->
               <div class="daily-card-back">
                 <p class="card-reveal-prompt">Click to reveal</p>
-                <img src="${DailyCards.CARD_BACK_URL}" 
-                     alt="Card Back" 
-                     class="dashboard-card-image">
+                <img src="${DailyCards.CARD_BACK_URL}" alt="Card Back" class="dashboard-card-image" loading="lazy" decoding="async" width="120" height="200">
               </div>
               
               <!-- Card Front -->
@@ -513,9 +511,7 @@ export default class DailyCards {
       frontTitle: 'Daily Vibe',
       frontContent: `
         <div style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
-          <img src="${card.image}" 
-               alt="${card.name}" 
-               style="width: 100%; max-height: 70%; flex-shrink: 0; object-fit: contain;">
+          <img src="${card.image}" alt="${card.name}" loading="lazy" decoding="async" width="300" height="500" style="width: 100%; max-height: 70%; flex-shrink: 0; object-fit: contain;">
           <div style="text-align: center; overflow-y: auto; padding: 0.75rem; flex: 1;">
             <h4 class="tarot-card-name">${card.name}</h4>
             <p class="tarot-card-meaning">${card.meaning}</p>
@@ -611,7 +607,7 @@ export default class DailyCards {
       <div class="card dashboard-quest-hub mb-8" style="position: relative;">
         <span id="daily-cards-timer" class="countdown-badge"></span>
         <div class="dashboard-quest-header">
-          <h3 class="dashboard-quest-title">🎴 Your Daily Cards</h3>
+          <h3 class="dashboard-quest-title" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M9 12c0 0 1.5-2 3-2s3 2 3 2-1.5 2-3 2-3-2-3-2z"/><circle cx="12" cy="12" r="1"/></svg> Your Daily Cards</h3>
         </div>
         <div class="grid grid-cols-2 gap-6" id="daily-cards-container">
           ${this.renderDailyCard(DailyCards.CARD_TYPES.TAROT, dailyCard)}

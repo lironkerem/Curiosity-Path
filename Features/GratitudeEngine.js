@@ -109,6 +109,32 @@ export default class GratitudeEngine {
   /**
    * Renders the gratitude interface
    */
+  buildCommunityCTA() {
+    return `
+      <div class="community-link-card" style="padding-top:0;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:0;">
+          <picture><source srcset="/public/Tabs/CommunityHub.webp" type="image/webp"><img src="/public/Tabs/CommunityHub.png" alt="Community" width="480" height="360" style="width:30rem;object-fit:contain;margin-top:1rem;margin-bottom:1rem;" loading="lazy" decoding="async"></picture>
+          <h3 style="margin: 0 0 0.75rem; font-size: 1.15rem; text-align:center;">
+            Mingle & Practice, Chat and Be one with the Community
+          </h3>
+        </div>
+        <p style="margin: 0 0 1.5rem; font-size: 0.92rem; line-height: 1.6;">
+          Deepen your connection with the community. Join live practice rooms, Sync with the Sun and Moon, Learn and Evolve - all in one place.
+        </p>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+          <button
+            onclick="document.activeElement?.blur(); window.app.nav.switchTab('community-hub')"
+            class="btn btn-primary"
+            style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;flex:1 1 100%;white-space:nowrap;"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Enter the Community Hub
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
   render() {
     const tab = document.getElementById('gratitude-tab');
     if (!tab) {
@@ -138,6 +164,7 @@ export default class GratitudeEngine {
           <div class="space-y-6">
             ${this._getInputCardHTML(todayTotal, isQuestComplete)}
             ${this._getHistoryCardHTML(allEntries)}
+            ${this.buildCommunityCTA()}
           </div>
 
         </div>
@@ -152,7 +179,7 @@ export default class GratitudeEngine {
   _getHeaderHTML() {
     return `
       <header class="main-header project-curiosity"
-              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavGratitude.png');
+              style="--header-img:url('/public/Tabs/NavGratitude.webp');
                      --header-title:'';
                      --header-tag:'Log in your gratitudes, as much as possible, to open-up for abundance'">
         <h1>Gratitude Practice</h1>
@@ -191,11 +218,13 @@ export default class GratitudeEngine {
           >1. </textarea>
           
           <div class="flex gap-3" style="margin-top: 1rem;">
-            <button type="button" id="add-one-more-btn" class="btn btn-secondary flex-1">
-              ➕ Add 1 More
+            <button type="button" id="add-one-more-btn" class="btn btn-secondary flex-1" style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+              Add 1 More
             </button>
-            <button type="submit" class="btn btn-primary flex-1">
-              💾 Save my Gratitudes
+            <button type="submit" class="btn btn-primary flex-1" style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
+              Save my Gratitudes
             </button>
           </div>
         </form>
@@ -211,8 +240,9 @@ export default class GratitudeEngine {
   _getQuestCompleteHTML() {
     return `
       <div style="margin-bottom: 2rem;padding:1rem;border-radius:0.5rem;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);">
-        <p class="text-center" style="color: #22c55e;">
-          🎉 Daily quest complete! Keep going if you'd like!
+        <p class="text-center" style="color: #22c55e;display:flex;align-items:center;justify-content:center;gap:0.5rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/></svg>
+          Daily quest complete! Keep going if you'd like!
         </p>
       </div>
     `;
@@ -224,7 +254,7 @@ export default class GratitudeEngine {
   _getInspirationHTML() {
     return `
       <div class="gratitude-inspiration-container">
-        <p class="suggestion-label">💭 Need Inspiration?</p>
+        <p class="suggestion-label" style="display:flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg> Need Inspiration?</p>
         <div class="gratitude-inspiration-grid" id="inspiration-grid">
           ${GratitudeEngine.INSPIRATION_PROMPTS.map(prompt => `
             <button 
@@ -269,7 +299,9 @@ export default class GratitudeEngine {
   _getEmptyStateHTML() {
     return `
       <div class="text-center py-12" style="color: var(--neuro-text-light);">
-        <p class="text-4xl" style="margin-bottom: 1rem;">📖</p>
+        <div style="display:flex;justify-content:center;margin-bottom:1rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:48px;height:48px;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
         <p>Your gratitude list will appear here</p>
       </div>
     `;
@@ -336,7 +368,7 @@ export default class GratitudeEngine {
             class="hover:text-white"
             type="button"
             aria-label="Edit entry"
-          >✏️</button>
+          ><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg></button>
           <button 
             data-action="delete-history" 
             data-timestamp="${timestamp}" 
@@ -345,7 +377,7 @@ export default class GratitudeEngine {
             class="hover:text-red-400"
             type="button"
             aria-label="Delete entry"
-          >🗑️</button>
+          ><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
         </div>
       </div>
     `;
@@ -571,7 +603,7 @@ export default class GratitudeEngine {
       },
       {
         title: 'Edit Gratitude',
-        icon: '💚',
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>',
         placeholder: 'I am grateful for...'
       }
     );
@@ -601,7 +633,7 @@ export default class GratitudeEngine {
       },
       {
         title: 'Delete Gratitude',
-        icon: '🗑️',
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>',
         confirmText: 'Delete',
         isDanger: true
       }
@@ -618,21 +650,17 @@ export default class GratitudeEngine {
     const gratitudes = this.parseGratitudes(textarea.value);
     
     if (gratitudes.length === 0) {
-      this.app.showToast('⚠️ Please write at least one gratitude', 'warning');
+      this.app.showToast('Please write at least one gratitude', 'warning');
       return;
     }
     
-    // Save entries
+    // Save entries — this triggers handleGratitudeGamification in AppState which
+    // awards XP and progresses daily/weekly/monthly quests. No direct quest call needed.
     this.app.state.addEntry(GratitudeEngine.TYPE, { entries: gratitudes });
-    
+
     // Show success message
     const plural = gratitudes.length > 1 ? 's' : '';
-    this.app.showToast(`✅ ${gratitudes.length} gratitude${plural} saved!`, 'success');
-
-    // Update gamification
-    if (this.app.gamification) {
-      this.app.gamification.progressQuest('daily', 'gratitude_entry', gratitudes.length);
-    }
+    this.app.showToast(`${gratitudes.length} gratitude${plural} saved!`, 'success');
 
     // Reset form and re-render
     textarea.value = '1. ';

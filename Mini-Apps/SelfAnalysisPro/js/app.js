@@ -312,7 +312,7 @@ renderResults() {
     try {
       const PDFAssembler = await loadPDFAssembler();
       const pdf = new PDFAssembler({
-        sourcePdfUrl: 'https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Source_PDF/Self%20Analysis%20Pro%20Guidebook.pdf',
+        sourcePdfUrl: '/public/Source_PDF/Self%20Analysis%20Pro%20Guidebook.pdf',
         options: { 
           autoDownload: true, 
           downloadFilename: `${formData.firstName}_Self-Analysis.pdf` 

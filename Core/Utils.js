@@ -690,8 +690,6 @@ if (typeof window !== 'undefined') {
       ProgressManager,
       DarkMode
     };
-    console.log('🔧 Utils available at window.__utils');
-    console.log('   Try: window.__utils.Utils.sanitizeInput("test")');
   }
 }
 

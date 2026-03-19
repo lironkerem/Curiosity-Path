@@ -62,7 +62,7 @@ export class GamificationEngine {
       xp: 0,
       level: 1,
       karma: 0,
-      streak: { current: 0, lastCheckIn: null },
+      streak: { current: 0, best: 0, lastCheckIn: null },
       completedSessions: { daily: 0, weekly: 0 },
       badges: [],
       unlockedFeatures: [],
@@ -77,7 +77,8 @@ export class GamificationEngine {
       dailyQuestCompletions: 0,
       totalQuestCompletions: 0,
       dailyQuestStreak: 0,
-      _bulkMode: false,
+      activeBoosts: [],
+      skipCaps: {},
       settings: {
         xpPerAction: 10,
         xpPerLevel: 100,
@@ -88,14 +89,37 @@ export class GamificationEngine {
   }
 
   /**
-   * Initialize quest definitions if not already present
+   * Initialize quest definitions if not already present.
+   * For new users: sets full definitions.
+   * For existing users: merges definition properties into saved state
+   * AND appends any new quests not yet present (e.g. after app updates).
    */
   initializeQuests() {
     const definitions = this.getQuestDefinitions();
     if (!this.state.quests.daily || this.state.quests.daily.length === 0) {
       this.state.quests = definitions;
       this.saveState();
-      console.log('✅ Quests initialized');
+    } else {
+      ['daily', 'weekly', 'monthly'].forEach(type => {
+        const saved = this.state.quests[type] || [];
+        const defs = definitions[type] || [];
+
+        // Merge definition properties into existing saved quests
+        const merged = saved.map(quest => {
+          const def = defs.find(d => d.id === quest.id);
+          return def ? { ...def, ...quest } : quest;
+        });
+
+        // Append any new quests from definitions not yet in saved state
+        defs.forEach(def => {
+          if (!merged.find(q => q.id === def.id)) {
+            merged.push({ ...def });
+          }
+        });
+
+        this.state.quests[type] = merged;
+      });
+      this.saveState();
     }
   }
 
@@ -183,11 +207,25 @@ export class GamificationEngine {
           xpReward: 15,
           completed: false,
           karmaReward: 1
+        },
+        {
+          id: 'flip_script',
+          tab: 'flip-script',
+          icon: '🔄',
+          name: 'Flip The Script',
+          inspirational: 'Every negative thought holds the seed of its opposite.',
+          target: 'Flip 1 negative thought',
+          goal: 1,
+          progress: 0,
+          xpReward: 40,
+          completed: false,
+          karmaReward: 4
         }
       ],
       weekly: [
         {
           id: 'gratitude_streak_7',
+          tab: 'gratitude',
           icon: '💖',
           name: 'Gratitude Streak',
           inspirational: 'Consistency breeds abundance.',
@@ -200,6 +238,7 @@ export class GamificationEngine {
         },
         {
           id: 'journal_5',
+          tab: 'journal',
           icon: '📝',
           name: 'Journal Writer',
           inspirational: 'Your story matters.',
@@ -212,6 +251,7 @@ export class GamificationEngine {
         },
         {
           id: 'energy_7',
+          tab: 'energy',
           icon: '⚡',
           name: 'Weekly Energy Check-ins',
           inspirational: 'Track your rhythm, honor your cycles.',
@@ -224,6 +264,7 @@ export class GamificationEngine {
         },
         {
           id: 'happiness_boosters_20',
+          tab: 'happiness',
           icon: '🎨',
           name: 'Happy and Motivated Week',
           inspirational: 'Feed your mind with positivity.',
@@ -236,6 +277,7 @@ export class GamificationEngine {
         },
         {
           id: 'tarot_4_days',
+          tab: 'tarot',
           icon: '🔮',
           name: 'Tarot Lover',
           inspirational: 'Seek wisdom in the cards.',
@@ -248,6 +290,7 @@ export class GamificationEngine {
         },
         {
           id: 'meditate_3',
+          tab: 'meditations',
           icon: '🌟',
           name: 'Meditating Adept',
           inspirational: 'Stillness is strength.',
@@ -257,11 +300,38 @@ export class GamificationEngine {
           xpReward: 120,
           completed: false,
           karmaReward: 12
+        },
+        {
+          id: 'flip_script_5',
+          tab: 'flip-script',
+          icon: '🔄',
+          name: 'Script Flipper',
+          inspirational: 'Rewire your mind one thought at a time.',
+          target: 'Flip 5 negative thoughts across the week to complete this quest.',
+          goal: 5,
+          progress: 0,
+          xpReward: 150,
+          completed: false,
+          karmaReward: 15
         }
       ],
       monthly: [
         {
+          id: 'monthly_flip_15',
+          tab: 'flip-script',
+          icon: '🔄',
+          name: 'Master Script Flipper',
+          inspirational: 'You are the author of your own story.',
+          target: 'Flip 15 negative thoughts during the month to complete this quest.',
+          goal: 15,
+          progress: 0,
+          xpReward: 400,
+          completed: false,
+          karmaReward: 40
+        },
+        {
           id: 'monthly_energy_28',
+          tab: 'energy',
           icon: '⚡',
           name: 'Monthly Energy Check-ins',
           inspirational: 'Know thyself through daily awareness.',
@@ -274,6 +344,7 @@ export class GamificationEngine {
         },
         {
           id: 'monthly_tarot_15',
+          tab: 'tarot',
           icon: '🔮',
           name: 'Tarot Enthusiast',
           inspirational: 'The universe speaks through symbols.',
@@ -286,6 +357,7 @@ export class GamificationEngine {
         },
         {
           id: 'monthly_gratitude_28',
+          tab: 'gratitude',
           icon: '💖',
           name: 'Gratitude Master',
           inspirational: 'Gratitude unlocks the fullness of life.',
@@ -298,6 +370,7 @@ export class GamificationEngine {
         },
         {
           id: 'monthly_journal_20',
+          tab: 'journal',
           icon: '📝',
           name: 'A Journalist',
           inspirational: 'Write to understand, reflect to grow.',
@@ -310,6 +383,7 @@ export class GamificationEngine {
         },
         {
           id: 'monthly_happiness_100',
+          tab: 'happiness',
           icon: '🎨',
           name: 'Super Good Month',
           inspirational: 'Choose joy every single day.',
@@ -322,6 +396,7 @@ export class GamificationEngine {
         },
         {
           id: 'monthly_meditation_15',
+          tab: 'meditations',
           icon: '🌟',
           name: 'Meditating Healer',
           inspirational: 'Through stillness, we find our true power.',
@@ -342,6 +417,7 @@ export class GamificationEngine {
 
   /**
    * Saves state to localStorage and cloud (debounced)
+   * Logs are excluded from cloud save to prevent payload bloat.
    */
   saveState() {
     clearTimeout(this.saveTimeout);
@@ -349,7 +425,9 @@ export class GamificationEngine {
       try {
         localStorage.setItem('gamificationState', JSON.stringify(this.state));
         if (this.app?.state) {
-          this.app.state.data = { ...this.app.state.data, ...this.state };
+          // Exclude logs from cloud payload — kept in localStorage only
+          const { logs: _logs, ...cloudState } = this.state;
+          this.app.state.data = { ...this.app.state.data, ...cloudState };
           this.app.state.saveAppData();
         }
       } catch (error) {
@@ -369,7 +447,6 @@ export class GamificationEngine {
         
         // Remove deprecated fields
         const deprecated = [
-          'streak.best',
           'streak.lastCheckIn',
           'energyLevel',
           'alignmentScore',
@@ -406,11 +483,10 @@ export class GamificationEngine {
   async reloadFromDatabase() {
     if (!this.app?.state) return;
     try {
-      await this.app.state.loadAppData();
+      await this.app.state.loadData(); // loadData() assigns result to this.data
       this.state = this.loadState();
       this.emit('stateReloaded', this.state);
       this.checkAllBadges();
-      console.log('✅ Gamification state reloaded from database');
     } catch (error) {
       console.error('Failed to reload gamification state:', error);
     }
@@ -558,7 +634,7 @@ export class GamificationEngine {
       journal: (data.journalEntries || []).length,
       energy: (data.energyEntries || []).length,
       tarot: this.state.totalTarotSpreads || 0,
-      meditation: (data.meditationHistory || []).length,
+      meditation: (data.meditationEntries || []).length,
       happiness: this.state.totalHappinessViews || 0,
       wellness: this.state.totalWellnessRuns || 0
     };
@@ -571,7 +647,7 @@ export class GamificationEngine {
   /**
    * Adds XP with optional boost multiplier
    */
-  addXP(amount, source = 'general') {
+  addXP(amount, source = 'general', skipToast = false) {
     if (!amount || amount <= 0) return;
     
     let final = amount;
@@ -579,7 +655,7 @@ export class GamificationEngine {
     
     this.state.xp += final;
     this.logAction('xp', { amount: final, source, boosted: final !== amount });
-    this.emit('xpGained', { amount: final, source });
+    this.emit('xpGained', { amount: final, source, skipToast });
     this.checkLevelUp();
     this.queueBadgeCheck('currency');
     this.saveState();
@@ -588,12 +664,15 @@ export class GamificationEngine {
   /**
    * Adds karma
    */
-  addKarma(amount, source = 'general') {
+  addKarma(amount, source = 'general', skipToast = false) {
     if (!amount || amount <= 0) return;
-    
-    this.state.karma += amount;
-    this.logAction('karma', { amount, source });
-    this.emit('karmaGained', { amount, source });
+
+    let final = amount;
+    if (this.hasActiveKarmaBoost()) final = amount * 2;
+
+    this.state.karma += final;
+    this.logAction('karma', { amount: final, source, boosted: final !== amount });
+    this.emit('karmaGained', { amount: final, source, skipToast });
     this.queueBadgeCheck('currency');
     this.saveState();
   }
@@ -604,28 +683,31 @@ export class GamificationEngine {
   addBoth(xp, karma, source = 'general') {
     if (!xp && !karma) return;
 
+    let finalXP = xp;
+    let finalKarma = karma;
+
     // Add XP
     if (xp > 0) {
-      let final = xp;
-      if (this.hasActiveXPBoost()) final = xp * 2;
-      this.state.xp += final;
-      this.logAction('xp', { amount: final, source, boosted: final !== xp });
-      this.emit('xpGained', { amount: final, source, skipToast: true });
+      if (this.hasActiveXPBoost()) finalXP = xp * 2;
+      this.state.xp += finalXP;
+      this.logAction('xp', { amount: finalXP, source, boosted: finalXP !== xp });
+      this.emit('xpGained', { amount: finalXP, source, skipToast: true });
     }
 
     // Add Karma
     if (karma > 0) {
-      this.state.karma += karma;
-      this.logAction('karma', { amount: karma, source });
-      this.emit('karmaGained', { amount: karma, source, skipToast: true });
+      if (this.hasActiveKarmaBoost()) finalKarma = karma * 2;
+      this.state.karma += finalKarma;
+      this.logAction('karma', { amount: finalKarma, source, boosted: finalKarma !== karma });
+      this.emit('karmaGained', { amount: finalKarma, source, skipToast: true });
     }
 
-    // Single combined toast
+    // Single combined toast showing actual awarded amounts
     if (this.app?.showToast) {
       const parts = [];
-      if (xp > 0) parts.push(`+${xp} XP`);
-      if (karma > 0) parts.push(`+${karma} Karma`);
-      this.app.showToast(`✅ ${parts.join(' • ')} from ${source}`, 'success');
+      if (xp > 0) parts.push(`+${finalXP} XP`);
+      if (karma > 0) parts.push(`+${finalKarma} Karma`);
+      this.app.showToast(`${parts.join(' • ')} from ${source}`, 'success');
     }
 
     if (xp > 0) this.checkLevelUp();
@@ -634,16 +716,48 @@ export class GamificationEngine {
   }
 
   /**
-   * Checks if XP boost is active in Karma Shop
+   * Checks if XP boost (xp_multiplier or double_boost) is active
    */
   hasActiveXPBoost() {
     try {
-      const boosts = JSON.parse(localStorage.getItem('karma_active_boosts')) || [];
+      const boosts = this.state.activeBoosts || [];
       const now = Date.now();
-      return boosts.some(b => b.id === 'xp_multiplier' && b.expiresAt > now);
+      return boosts.some(b =>
+        (b.id === 'xp_multiplier' || b.id === 'double_boost') && b.expiresAt > now
+      );
     } catch {
       return false;
     }
+  }
+
+  /**
+   * Checks if a karma boost (karma_multiplier or double_boost) is active
+   */
+  hasActiveKarmaBoost() {
+    try {
+      const boosts = this.state.activeBoosts || [];
+      const now = Date.now();
+      return boosts.some(b =>
+        (b.id === 'karma_multiplier' || b.id === 'double_boost') && b.expiresAt > now
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Activates a boost and persists it to state (replaces localStorage-only approach)
+   * @param {string} id - Boost ID (e.g. 'xp_multiplier')
+   * @param {number} durationMs - Duration in milliseconds
+   */
+  activateBoost(id, durationMs) {
+    if (!this.state.activeBoosts) this.state.activeBoosts = [];
+    // Remove existing boost of same type
+    this.state.activeBoosts = this.state.activeBoosts.filter(b => b.id !== id);
+    const expiresAt = Date.now() + durationMs;
+    this.state.activeBoosts.push({ id, expiresAt });
+    this.saveState();
+    this.emit('boostActivated', { id, expiresAt });
   }
 
   // =========================================================
@@ -681,7 +795,7 @@ export class GamificationEngine {
     if (level > prev) {
       this.state.level = level;
       this.emit('levelUp', { level, title });
-      this.addXP(CONFIG.LEVEL_UP_BONUS_XP, `Level ${level}`);
+      this.addXP(CONFIG.LEVEL_UP_BONUS_XP, `Level ${level}`, true);
       
       if (this.app?.showToast) {
         this.app.showToast(
@@ -725,8 +839,16 @@ export class GamificationEngine {
       this.state.streak.current += 1;
     }
 
+    // Track best streak
+    if (this.state.streak.current > (this.state.streak.best || 0)) {
+      this.state.streak.best = this.state.streak.current;
+    }
+
     this.state.streak.lastCheckIn = today;
-    this.emit('streakUpdated', { current: this.state.streak.current });
+    this.emit('streakUpdated', { 
+      current: this.state.streak.current,
+      best: this.state.streak.best
+    });
     this.queueBadgeCheck('streak');
     this.saveState();
   }
@@ -911,7 +1033,7 @@ export class GamificationEngine {
 
   checkStreakBadges(badges) {
     const streak = this.state.streak?.current || 0;
-    if (streak >= 7) this.checkAndGrantBadge('perfect_week', badges);
+    if (this.state.dailyQuestStreak >= 7) this.checkAndGrantBadge('perfect_week', badges);
     if (streak >= 30) this.checkAndGrantBadge('dedication_streak', badges);
     if (streak >= 60) this.checkAndGrantBadge('unstoppable', badges);
     if (streak >= 100) this.checkAndGrantBadge('legendary_streak', badges);
@@ -960,7 +1082,7 @@ export class GamificationEngine {
     const todayTarot = (data.tarotReadings || []).some(
       e => new Date(e.timestamp).toDateString() === today
     );
-    const todayMeditation = (data.meditationHistory || []).some(
+    const todayMeditation = (data.meditationEntries || []).some(
       e => new Date(e.timestamp).toDateString() === today
     );
 
@@ -1057,7 +1179,7 @@ export class GamificationEngine {
 
     this.emit('badgeUnlocked', badge);
     
-    if (badge.xp) this.addXP(badge.xp, `Badge: ${badge.id}`);
+    if (badge.xp) this.addXP(badge.xp, `Badge: ${badge.id}`, true);
     if (badge.inspirational) this.emit('inspirationalMessage', badge.inspirational);
     
     this.saveState();
@@ -1107,14 +1229,14 @@ export class GamificationEngine {
     quest.subProgress[key] = true;
     quest.progress += 1;
     
-    this.addXP(10, `Energy Check-in (${key})`);
+    this.addXP(10, `Energy Check-in (${key})`, true);
     this.state.karma += 1;
     this.emit('questProgress', quest);
 
     // Check if quest completed
     if (quest.progress >= quest.goal) {
       quest.completed = true;
-      this.addXP(10, 'Energy Check-in Bonus (Both Complete)');
+      this.addXP(10, 'Energy Check-in Bonus (Both Complete)', true);
       this.state.karma += 2;
       
       if (quest.inspirational) {
@@ -1126,11 +1248,11 @@ export class GamificationEngine {
       // Check if all dailies complete
       if (this.state.quests.daily.every(q => q.completed)) {
         const { xp, karma } = CONFIG.QUEST_REWARDS.DAILY_BONUS;
-        this.addXP(xp, 'Daily Quest Streak Bonus');
+        this.addXP(xp, 'Daily Quest Streak Bonus', true);
         this.state.karma += karma;
         
         if (!this.state._bulkMode && this.app?.showToast) {
-          this.app.showToast(`🎉 Daily quests finished! +${xp} XP +${karma} Karma`, 'success');
+          this.app.showToast(`Daily quests finished! +${xp} XP +${karma} Karma`, 'success');
         }
         
         this.emit('dailyQuestsComplete', null);
@@ -1151,7 +1273,7 @@ export class GamificationEngine {
 
     if (quest.progress >= quest.goal) {
       quest.completed = true;
-      this.addXP(quest.xpReward || 50, `Quest: ${quest.name}`);
+      this.addXP(quest.xpReward || 50, `Quest: ${quest.name}`, true);
       
       if (quest.karmaReward) this.state.karma += quest.karmaReward;
       if (quest.badge) this.grantBadge(quest.badge);
@@ -1161,11 +1283,11 @@ export class GamificationEngine {
       // Check if all dailies complete
       if (questType === 'daily' && this.state.quests.daily.every(q => q.completed)) {
         const { xp, karma } = CONFIG.QUEST_REWARDS.DAILY_BONUS;
-        this.addXP(xp, 'Daily Quest Streak Bonus');
+        this.addXP(xp, 'Daily Quest Streak Bonus', true);
         this.state.karma += karma;
         
         if (!this.state._bulkMode && this.app?.showToast) {
-          this.app.showToast(`🎉 Daily quests finished! +${xp} XP +${karma} Karma`, 'success');
+          this.app.showToast(`Daily quests finished! +${xp} XP +${karma} Karma`, 'success');
         }
         
         if (!this.state._bulkMode) this.emit('dailyQuestsComplete', null);
@@ -1207,22 +1329,22 @@ export class GamificationEngine {
         this.state.dailyQuestStreak = (this.state.dailyQuestStreak || 0) + 1;
       } else if (type === 'weekly') {
         const { xp, karma } = CONFIG.QUEST_REWARDS.WEEKLY_BONUS;
-        this.addXP(xp, 'Weekly Quest Completion Bonus');
+        this.addXP(xp, 'Weekly Quest Completion Bonus', true);
         this.state.karma += karma;
         
         if (this.app?.showToast) {
-          this.app.showToast(`🎉 Weekly quests finished! +${xp} XP +${karma} Karma`, 'success');
+          this.app.showToast(`Weekly quests finished! +${xp} XP +${karma} Karma`, 'success');
         }
         
         this.state.weeklyQuestCompletions = (this.state.weeklyQuestCompletions || 0) + 1;
         this.state.dailyQuestStreak = 0;
       } else if (type === 'monthly') {
         const { xp, karma } = CONFIG.QUEST_REWARDS.MONTHLY_BONUS;
-        this.addXP(xp, 'Monthly Quest Completion Bonus');
+        this.addXP(xp, 'Monthly Quest Completion Bonus', true);
         this.state.karma += karma;
         
         if (this.app?.showToast) {
-          this.app.showToast(`🎉 Monthly quests finished! +${xp} XP +${karma} Karma`, 'success');
+          this.app.showToast(`Monthly quests finished! +${xp} XP +${karma} Karma`, 'success');
         }
         
         this.state.monthlyQuestCompletions = (this.state.monthlyQuestCompletions || 0) + 1;

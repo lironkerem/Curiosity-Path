@@ -19,6 +19,7 @@ import AffirmationsEngine   from '../Features/AffirmationsEngine.js';
 import GamificationEngine   from './GamificationEngine.js';
 import JournalEngine        from '../Features/JournalEngine.js';
 import ShadowAlchemyEngine  from '../Mini-Apps/ShadowAlchemyLab/shadowalchemy.js';
+import CommunityHubEngine   from '../Mini-Apps/CommunityHub/CommunityHubEngine.js';
 import { ChatBotAI }        from '../Features/ChatBotAI.js';
 
 /* ---------- Apps ---------- */
@@ -38,7 +39,8 @@ export const FEATURE_IDS = {
   JOURNAL: 'journal',
   SHADOW_ALCHEMY: 'shadow-alchemy',
   KARMA_SHOP: 'karma-shop',
-  CHATBOT: 'chatbot'
+  CHATBOT: 'chatbot',
+  COMMUNITY_HUB: 'community-hub'
 };
 
 /** Feature registry mapping IDs to engine classes */
@@ -55,7 +57,8 @@ const FEATURE_MAP = {
   [FEATURE_IDS.JOURNAL]: JournalEngine,
   [FEATURE_IDS.SHADOW_ALCHEMY]: ShadowAlchemyEngine,
   [FEATURE_IDS.KARMA_SHOP]: KarmaShopEngine,
-  [FEATURE_IDS.CHATBOT]: ChatBotAI
+  [FEATURE_IDS.CHATBOT]: ChatBotAI,
+  [FEATURE_IDS.COMMUNITY_HUB]: CommunityHubEngine
 };
 
 /**
@@ -79,7 +82,6 @@ class FeaturesManager {
     /** @type {Object} Initialized engine instances */
     this.engines = {};
     
-    console.log('[Features] FeaturesManager initialized');
   }
   
   /**
@@ -105,7 +107,6 @@ class FeaturesManager {
       // Call render if available
       engine.render?.();
       
-      console.log(`[Features] Initialized: ${id}`);
       return true;
       
     } catch (error) {
@@ -129,7 +130,6 @@ class FeaturesManager {
     const successful = results.filter(r => r.success).length;
     const failed = results.filter(r => !r.success).length;
     
-    console.log(`[Features] Batch init: ${successful} succeeded, ${failed} failed`);
     
     return {
       results,
@@ -209,7 +209,6 @@ class FeaturesManager {
       // Remove from registry
       delete this.engines[id];
       
-      console.log(`[Features] Destroyed: ${id}`);
       return true;
       
     } catch (error) {
@@ -233,7 +232,6 @@ class FeaturesManager {
       }
     });
     
-    console.log(`[Features] Destroyed all features: ${destroyed}/${ids.length}`);
     
     return {
       destroyed,

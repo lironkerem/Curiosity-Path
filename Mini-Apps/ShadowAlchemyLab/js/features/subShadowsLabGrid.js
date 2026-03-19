@@ -52,7 +52,7 @@ function openFilteredShadowList(archetypeId) {
   const completed = engine.getCompletedShadows();
 
   if (!shadows.length) {
-    import('/js/utils.js').then(m => m.showToast('No sub-shadows for this archetype yet.', 'info'));
+    import('/Mini-Apps/ShadowAlchemyLab/js/core/utils.js').then(m => m.showToast('No sub-shadows for this archetype yet.', 'info'));
     return;
   }
 
@@ -87,7 +87,7 @@ function openFilteredShadowList(archetypeId) {
     item.addEventListener('click', () => {
       const shadowId = item.dataset.shadowId;
       closeModal();
-      import('./subShadowJourney.js').then(m => m.openSubShadowJourneyModal(shadowId));
+      import('/Mini-Apps/ShadowAlchemyLab/js/features/subShadowJourney.js').then(m => m.openSubShadowJourneyModal(shadowId));
     });
   });
   modal.querySelector('#close-filtered-btn').addEventListener('click', closeModal);

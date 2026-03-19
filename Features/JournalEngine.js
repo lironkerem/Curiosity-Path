@@ -99,7 +99,7 @@ class JournalEngine {
       <div class="journal-container">
         <div class="universal-content">
           <header class="main-header project-curiosity"
-                  style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavJournal.png');
+                  style="--header-img:url('/public/Tabs/NavJournal.webp');
                          --header-title:'';
                          --header-tag:'Your safe, private, secret space, to open up, vent and write down your emotions and thoughts'">
             <h1>My Personal Journal</h1>
@@ -143,7 +143,7 @@ class JournalEngine {
    */
   renderClosedBook(wrapper, hasPin) {
     const userName = this.app.state.currentUser?.name || 'My';
-    const lockIcon = hasPin && this.isLocked ? '🔒' : '';
+    const lockIcon = hasPin && this.isLocked ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' : '';
     
     wrapper.innerHTML = `
       <div class="journal-closed" id="open-journal" style="opacity: 0; transform: scale(0.95);">
@@ -179,15 +179,15 @@ class JournalEngine {
         <!-- Top Navigation Bar -->
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
           <div class="mode-toggle">
-            <button class="journal-btn-neuro mode-btn active" data-mode="write">✏️ Write</button>
-            <button class="journal-btn-neuro mode-btn" data-mode="read">📖 Read</button>
+            <button class="journal-btn-neuro mode-btn active" data-mode="write" style="display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg> Write</button>
+            <button class="journal-btn-neuro mode-btn" data-mode="read" style="display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Read</button>
           </div>
           <div style="display:flex;gap:.5rem;align-items:center;">
-            <button class="journal-btn-neuro lock-toggle-btn" id="lock-toggle">
-              ${hasPin ? (this.isLocked ? '🔒 Lock Journal' : '🔓 Lock Journal') : '🔓 Lock Journal'}
+            <button class="journal-btn-neuro lock-toggle-btn" id="lock-toggle" style="display:inline-flex;align-items:center;gap:0.4rem;">
+              ${hasPin ? (this.isLocked ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>') : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>'} Lock Journal
             </button>
-            ${hasPin ? '<button class="journal-btn-neuro" id="pin-settings" title="PIN Settings">⚙️</button>' : ''}
-            <button class="journal-btn-neuro close-book-btn" id="close-journal">📕 Close</button>
+            ${hasPin ? '<button class="journal-btn-neuro" id="pin-settings" title="PIN Settings" style="display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>' : ''}
+            <button class="journal-btn-neuro close-book-btn" id="close-journal" style="display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Close</button>
           </div>
         </div>
 
@@ -202,7 +202,7 @@ class JournalEngine {
             <button class="journal-btn-neuro" id="next-page" disabled>Next →</button>
           </div>
           <div style="display:flex;justify-content:center;margin-top:1rem;">
-            <button class="journal-btn-neuro save-btn" id="save-entry" style="display:none;">💾 Save Entry</button>
+            <button class="journal-btn-neuro save-btn" id="save-entry" style="display:none;display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg> Save Entry</button>
           </div>
         </div>
       </div>`;
@@ -243,7 +243,7 @@ class JournalEngine {
                   placeholder="Dear Journal, ${randomPrompt}"></textarea>
 
         <div class="prompt-box">
-          <div class="prompt-text">💭 Writing prompt: ${randomPrompt}</div>
+          <div class="prompt-text" style="display:flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg> Writing prompt: ${randomPrompt}</div>
         </div>
 
         <div class="prompt-box">
@@ -285,8 +285,8 @@ class JournalEngine {
     pagesContainer.innerHTML = `
       <div class="journal-page read-mode ${flipClass}">
         <div class="entry-actions">
-          <button class="action-btn" onclick="window.featuresManager.engines.journal.editEntry(${originalIndex})">✏️ Edit</button>
-          <button class="action-btn" onclick="window.featuresManager.engines.journal.deleteEntry(${originalIndex})">🗑️ Delete</button>
+          <button class="action-btn" onclick="window.featuresManager.engines.journal.editEntry(${originalIndex})" style="display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg> Edit</button>
+          <button class="action-btn" onclick="window.featuresManager.engines.journal.deleteEntry(${originalIndex})" style="display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg> Delete</button>
         </div>
         <div class="journal-date">
           ${moodEmoji ? moodEmoji + ' ' : ''}
@@ -305,7 +305,7 @@ class JournalEngine {
     container.innerHTML = `
       <div class="journal-page">
         <div class="empty-journal">
-          <div class="empty-journal-icon">📔</div>
+          <div class="empty-journal-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:48px;height:48px;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
           <p>Your journal is empty</p>
           <p style="font-size:.9rem;margin-top:.5rem;">Switch to Write mode to create your first entry</p>
         </div>
@@ -340,7 +340,7 @@ class JournalEngine {
    */
   promptSetPin() {
     const modal = this.createModal({
-      icon: '🔒',
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
       title: 'Set Journal PIN',
       content: `
         <div class="modal-input-wrapper">
@@ -362,11 +362,11 @@ class JournalEngine {
         const confirm = confirmInput.value;
 
         if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
-          this.app.showToast('⚠️ PIN must be 4 digits', 'warning');
+          this.app.showToast('PIN must be 4 digits', 'warning');
           return false;
         }
         if (pin !== confirm) {
-          this.app.showToast('⚠️ PINs do not match', 'warning');
+          this.app.showToast('PINs do not match', 'warning');
           return false;
         }
 
@@ -374,7 +374,7 @@ class JournalEngine {
         this.app.state.data.journalPin = btoa(pin);
         this.app.state.saveAppData();
         this.isLocked = true;
-        this.app.showToast('✅ PIN set successfully!', 'success');
+        this.app.showToast('PIN set successfully!', 'success');
         this.renderJournal();
         return true;
       }
@@ -389,7 +389,7 @@ class JournalEngine {
    */
   promptUnlock() {
     const modal = this.createModal({
-      icon: '🔓',
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>',
       title: 'Unlock Journal',
       content: `
         <div class="modal-input-wrapper">
@@ -409,11 +409,11 @@ class JournalEngine {
         if (pin === savedPin) {
           this.isLocked = false;
           this.isOpen = true;
-          this.app.showToast('✅ Journal unlocked!', 'success');
+          this.app.showToast('Journal unlocked!', 'success');
           this.openBook();
           return true;
         } else {
-          this.app.showToast('❌ Incorrect PIN', 'error');
+          this.app.showToast('Incorrect PIN', 'error');
           pinInput.value = '';
           pinInput.focus();
           return false;
@@ -443,7 +443,7 @@ class JournalEngine {
    */
   async resetPinWithAuth() {
     const modal = this.createModal({
-      icon: '🔑',
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>',
       title: 'Reset PIN',
       content: `
         <div class="modal-input-wrapper">
@@ -457,7 +457,7 @@ class JournalEngine {
         const password = passwordInput.value;
         
         if (!password) {
-          this.app.showToast('⚠️ Please enter your password', 'warning');
+          this.app.showToast('Please enter your password', 'warning');
           return false;
         }
 
@@ -469,7 +469,7 @@ class JournalEngine {
           });
 
           if (error) {
-            this.app.showToast('❌ Incorrect password', 'error');
+            this.app.showToast('Incorrect password', 'error');
             passwordInput.value = '';
             passwordInput.focus();
             return false;
@@ -479,7 +479,7 @@ class JournalEngine {
           delete this.app.state.data.journalPin;
           this.app.state.saveAppData();
           this.isLocked = false;
-          this.app.showToast('✅ PIN reset! Set a new one', 'success');
+          this.app.showToast('PIN reset! Set a new one', 'success');
           
           // Prompt for new PIN after modal closes
           setTimeout(() => this.promptSetPin(), 300);
@@ -487,7 +487,7 @@ class JournalEngine {
 
         } catch (err) {
           console.error('Authentication error:', err);
-          this.app.showToast('❌ Authentication failed', 'error');
+          this.app.showToast('Authentication failed', 'error');
           return false;
         }
       }
@@ -509,7 +509,7 @@ class JournalEngine {
    */
   showPinSettings() {
     const modal = this.createModal({
-      icon: '⚙️',
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>',
       title: 'PIN Settings',
       content: `
         <div class="modal-input-wrapper">
@@ -537,10 +537,10 @@ class JournalEngine {
           delete this.app.state.data.journalPin;
           this.app.state.saveAppData();
           this.isLocked = false;
-          this.app.showToast('✅ PIN removed', 'success');
+          this.app.showToast('PIN removed', 'success');
           this.renderJournal();
         },
-        { title: 'Remove PIN?', icon: '🔓', confirmText: 'Remove PIN' }
+        { title: 'Remove PIN?', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>', confirmText: 'Remove PIN' }
       );
     });
   }
@@ -557,7 +557,7 @@ class JournalEngine {
     const text = textArea?.value.trim();
     
     if (!text) {
-      this.app.showToast('⚠️ Please write something in your journal', 'warning');
+      this.app.showToast('Please write something in your journal', 'warning');
       return;
     }
 
@@ -572,15 +572,17 @@ class JournalEngine {
       date: this.formatDate(new Date())
     };
 
+    // Save entry — this triggers handleJournalGamification in AppState which awards
+    // XP and progresses daily/weekly/monthly quests. Do NOT also call progressQuest
+    // here or it will double-count.
     this.app.state.addEntry('journal', entry);
-    
-    // Update gamification if available
+
+    // Increment badge-tracking counter (separate from quest progress)
     if (this.app.gamification) {
-      this.app.gamification.progressQuest('daily', 'journal_entry', 1);
       this.app.gamification.incrementJournalEntries();
     }
     
-    this.app.showToast('✅ Journal entry saved!', 'success');
+    this.app.showToast('Journal entry saved!', 'success');
 
     // Clear form
     textArea.value = '';
@@ -602,7 +604,7 @@ class JournalEngine {
     if (!entry) return;
 
     const modal = this.createModal({
-      icon: '✏️',
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>',
       title: 'Edit Journal Entry',
       content: `
         <div class="modal-input-wrapper">
@@ -623,7 +625,7 @@ class JournalEngine {
         const newText = entryInput.value.trim();
         
         if (!newText) {
-          this.app.showToast('⚠️ Please write something', 'warning');
+          this.app.showToast('Please write something', 'warning');
           return false;
         }
         
@@ -637,7 +639,7 @@ class JournalEngine {
 
         this.app.state.data.journalEntries = entries;
         this.app.state.saveAppData();
-        this.app.showToast('✅ Journal entry updated!', 'success');
+        this.app.showToast('Journal entry updated!', 'success');
         this.renderCurrentView();
         return true;
       }
@@ -661,7 +663,7 @@ class JournalEngine {
         entries.splice(index, 1);
         this.app.state.data.journalEntries = entries;
         this.app.state.saveAppData();
-        this.app.showToast('🗑️ Journal entry deleted', 'info');
+        this.app.showToast('Journal entry deleted', 'info');
         
         // Adjust current page if needed
         if (this.currentPage >= entries.length) {
@@ -670,7 +672,7 @@ class JournalEngine {
         
         this.renderCurrentView();
       },
-      { title: 'Delete Journal Entry', icon: '🗑️', confirmText: 'Delete', isDanger: true }
+      { title: 'Delete Journal Entry', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>', confirmText: 'Delete', isDanger: true }
     );
   }
 
@@ -855,7 +857,7 @@ class JournalEngine {
       this.isLocked = true;
       this.app.state.data.journalLocked = true;
       this.app.state.saveAppData();
-      this.app.showToast('🔒 Journal locked', 'info');
+      this.app.showToast('Journal locked', 'info');
       this.renderJournal();
     }
   }
@@ -878,35 +880,20 @@ class JournalEngine {
   // ============================================
 
   /**
-   * Checks and grants achievements based on journal entry count
+   * Checks and grants badges based on journal entry count
    */
   checkAchievements() {
-    const total = this.app.state.data.journalEntries?.length || 0;
+    const total = this.app.gamification?.state?.totalJournalEntries || 0;
     const gm = this.app.gamification;
     if (!gm) return;
 
-    const achievements = [
-      { count: 1, id: 'first_journal', name: 'First Reflection', xp: 50, icon: '📔', 
-        message: 'You\'ve begun your journey of self-reflection!' },
-      { count: 10, id: 'journal_10', name: 'Reflective Writer', xp: 100, icon: '✏️', 
-        message: '10 journal entries! Your self-awareness is growing!' },
-      { count: 50, id: 'journal_50', name: 'Master Journaler', xp: 250, icon: '📖', 
-        message: '50 entries! You are a master of introspection!' },
-      { count: 100, id: 'journal_100', name: 'Chronicle Keeper', xp: 500, icon: '📚', 
-        message: '100 journal entries! Your wisdom is documented!' }
-    ];
-
-    achievements.forEach(ach => {
-      if (total === ach.count) {
-        gm.grantAchievement({
-          id: ach.id,
-          name: ach.name,
-          xp: ach.xp,
-          icon: ach.icon,
-          inspirational: ach.message
-        });
-      }
-    });
+    // Map milestones to existing badge definitions in GamificationEngine
+    const badges = gm.getBadgeDefinitions();
+    if (total >= 1)   gm.checkAndGrantBadge('first_journal',  badges);
+    if (total >= 20)  gm.checkAndGrantBadge('journal_keeper', badges);
+    if (total >= 75)  gm.checkAndGrantBadge('journal_master', badges);
+    if (total >= 150) gm.checkAndGrantBadge('journal_150',    badges);
+    if (total >= 400) gm.checkAndGrantBadge('journal_400',    badges);
   }
 
   // ============================================

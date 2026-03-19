@@ -359,7 +359,6 @@ const TONE_STYLES = {
   // AI-Powered Custom Affirmation Generation
   // ---------------------------
   async function generateAIAffirmation(input) {
-    console.log("AI Flip requested for:", input);
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     const intensity = detectIntensity(input);
@@ -701,11 +700,11 @@ const TONE_STYLES = {
   function showReminderNotification() {
     if (Notification.permission === 'granted') {
       const affirmations = [
-        "Time to flip your thoughts! 💭",
-        "Ready to transform negativity into positivity? 🌟",
-        "Let's turn today's challenges into affirmations! ✨",
-        "Your daily flip awaits! 🔄",
-        "Time for some positive self-talk! 💚"
+        "Time to flip your thoughts!",
+        "Ready to transform negativity into positivity?",
+        "Let's turn today's challenges into affirmations!",
+        "Your daily flip awaits!",
+        "Time for some positive self-talk!"
       ];
       
       const randomAffirmation = affirmations[Math.floor(Math.random() * affirmations.length)];
@@ -845,5 +844,4 @@ const TONE_STYLES = {
   };
   
   buildIndexes();
-  console.log('FlipEngine initialized 🚀');
 })(window);

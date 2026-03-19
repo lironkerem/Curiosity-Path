@@ -27,11 +27,26 @@ export function mountUI(app) {
 
   const voiceInputBtn = document.getElementById("voice-input-btn");
 
+  // ========== Saved Flips Persistence ==========
+  // Saves both to localStorage (fast) and to Supabase via AppState (cross-device)
+  function persistSavedFlips() {
+    persistSavedFlips();
+    if (app.state) {
+      app.state.data.flipEntries = savedFlips;
+      app.state.saveAppData();
+    }
+  }
+
   // ========== State ==========
   let savedFlips = JSON.parse(localStorage.getItem("savedFlips") || "[]");
   let isListening = false;
   let recognition = null;
   let wasVoiceInput = false;
+
+  // On mount: prefer Supabase data over localStorage if available
+  if (app.state?.data?.flipEntries?.length) {
+    savedFlips = app.state.data.flipEntries;
+  }
 
   // ========== Helper Functions ==========
   function showToastLocal(message, duration = 2000) {
@@ -40,18 +55,17 @@ export function mountUI(app) {
   const showToast = showToastLocal;
 
   function copyToClipboard(text) {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(text).then(() => {
-        showToast("📋 Copied to clipboard!");
-      });
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
     } else {
-      const textarea = document.createElement("textarea");
+      const textarea = document.createElement('textarea');
       textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
       document.body.appendChild(textarea);
       textarea.select();
-      document.execCommand("copy");
+      try { document.execCommand('copy'); showToast('Copied to clipboard!'); } catch (_) {}
       document.body.removeChild(textarea);
-      showToast("📋 Copied to clipboard!");
     }
   }
 
@@ -63,9 +77,9 @@ export function mountUI(app) {
       utterance.pitch = 1;
       utterance.volume = 1;
       window.speechSynthesis.speak(utterance);
-      showToast("🔊 Playing audio...");
+      showToast("Playing audio...");
     } else {
-      showToast("⚠️ Audio not supported");
+      showToast("Audio not supported");
     }
   }
 
@@ -76,7 +90,6 @@ export function mountUI(app) {
       !("SpeechRecognition" in window)
     ) {
       voiceInputBtn.style.display = "none";
-      console.log("Speech recognition not supported in this browser");
       return;
     }
 
@@ -91,15 +104,15 @@ export function mountUI(app) {
     recognition.onstart = () => {
       isListening = true;
       voiceInputBtn.classList.add("listening");
-      voiceInputBtn.textContent = "🔴";
-      showToast("🎤 Listening... Speak now!");
+      voiceInputBtn.innerHTML = "🔴";
+      showToast("Listening... Speak now!");
     };
 
     recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
       input.value = transcript;
       charCount.textContent = transcript.length;
-      showToast("✅ Got it! Flipping now...");
+      showToast("Got it! Flipping now...");
       wasVoiceInput = true;
 
       // Auto-trigger flip after 500ms
@@ -114,31 +127,31 @@ export function mountUI(app) {
       console.error("Speech recognition error:", event.error);
       isListening = false;
       voiceInputBtn.classList.remove("listening");
-      voiceInputBtn.textContent = "🎤";
+      voiceInputBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 19v3"/><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>`;
 
       if (event.error === "no-speech") {
-        showToast("⚠️ No speech detected. Try again!");
+        showToast("No speech detected. Try again!");
       } else if (event.error === "not-allowed") {
         showToast(
-          "⚠️ Microphone access denied. Please allow microphone access in browser settings."
+          "Microphone access denied. Please allow microphone access in browser settings."
         );
       } else if (event.error === "network") {
-        showToast("⚠️ Network error. Check your internet connection.");
+        showToast("Network error. Check your internet connection.");
       } else {
-        showToast("⚠️ Could not recognize speech. Try again.");
+        showToast("Could not recognize speech. Try again.");
       }
     };
 
     recognition.onend = () => {
       isListening = false;
       voiceInputBtn.classList.remove("listening");
-      voiceInputBtn.textContent = "🎤";
+      voiceInputBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 19v3"/><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>`;
     };
   }
 
   voiceInputBtn.addEventListener("click", async () => {
     if (!recognition) {
-      showToast("⚠️ Speech recognition not supported in this browser");
+      showToast("Speech recognition not supported in this browser");
       return;
     }
 
@@ -154,7 +167,7 @@ export function mountUI(app) {
       window.location.hostname !== "127.0.0.1"
     ) {
       showToast(
-        "⚠️ Microphone requires HTTPS. Voice input only works on secure pages."
+        "Microphone requires HTTPS. Voice input only works on secure pages."
       );
       return;
     }
@@ -164,7 +177,7 @@ export function mountUI(app) {
       recognition.start();
     } catch (error) {
       console.error("Error starting recognition:", error);
-      showToast("⚠️ Could not start voice input. Please try again.");
+      showToast("Could not start voice input. Please try again.");
     }
   });
 
@@ -246,6 +259,7 @@ export function mountUI(app) {
   // ========== Create halo rings ==========
   function createHaloRings() {
     const outputSection = document.getElementById("output-section");
+    requestAnimationFrame(() => {
     const outputRect = outputSection.getBoundingClientRect();
     const centerX = outputRect.left + outputRect.width / 2;
     const centerY = outputRect.top + outputRect.height / 2;
@@ -261,6 +275,7 @@ export function mountUI(app) {
         setTimeout(() => ring.remove(), 1500);
       }, i * 300);
     }
+    });
   }
 
   // ========== Create floating particles ==========
@@ -270,6 +285,7 @@ export function mountUI(app) {
       "💚", "🦋", "🌸", "✴️", "🎆", "💖", "🌈", "💎",
       "✴️", "🎆", "🎇", "✨", "⭐", "💫", "🌟", "💥",
     ];
+    requestAnimationFrame(() => {
     const inputRect = input.getBoundingClientRect();
     const centerX = inputRect.left + inputRect.width / 2;
     const centerY = inputRect.top + inputRect.height / 2;
@@ -295,13 +311,14 @@ export function mountUI(app) {
         setTimeout(() => el.remove(), 2000);
       }, i * 30);
     });
+    });
   }
 
   // ========== Enhanced Flip Action ==========
   async function performFlip() {
     const text = input.value.trim();
     if (!text) {
-      showToast("⚠️ Please enter a thought first");
+      showToast("Please enter a thought first");
       return;
     }
 
@@ -362,6 +379,16 @@ export function mountUI(app) {
       extendedFlipEl.textContent =
         result.expandedAffirmation || result.basicAffirmation || "No result";
 
+      // Wire gamification — triggers handleFlipGamification in AppState:
+      // awards 40 XP, progresses daily/weekly/monthly flip quests,
+      // updates streak, and checks all badges.
+      if (app.state) {
+        app.state.addEntry('flip', {
+          original: text,
+          flipped: result.expandedAffirmation || result.basicAffirmation || ''
+        });
+      }
+
       extendedFlipEl.classList.add("text-reveal");
 
       await new Promise((resolve) => setTimeout(resolve, 600));
@@ -382,7 +409,7 @@ export function mountUI(app) {
     } catch (err) {
       console.error(err);
       extendedFlipEl.textContent = "Error generating flip.";
-      showToast("⚠️ Error occurred");
+      showToast("Error occurred");
     } finally {
       clearInterval(interval);
       setTimeout(() => {
@@ -394,7 +421,7 @@ export function mountUI(app) {
         }
       }, 1500);
       flipBtn.disabled = false;
-      flipBtn.textContent = "✨ Flip It Now✨";
+      flipBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9"/><path d="m15 3 3 3-3 3"/><path d="M18 6H9"/></svg> Flip It Now`;
     }
   }
 
@@ -424,7 +451,7 @@ export function mountUI(app) {
     const t = text.trim();
     if (!t || t.includes("will appear here")) return;
     if (savedFlips.some((f) => f.text === t)) {
-      showToast("⚠️ Already saved");
+      showToast("Already saved");
       return;
     }
     savedFlips.unshift({
@@ -432,9 +459,9 @@ export function mountUI(app) {
       favorite: false,
       timestamp: new Date().toISOString(),
     });
-    localStorage.setItem("savedFlips", JSON.stringify(savedFlips));
+    persistSavedFlips();
     renderSaved();
-    showToast("💾 Saved!");
+    showToast("Saved!");
   }
 
   saveExtendedBtn.addEventListener("click", () =>
@@ -481,14 +508,14 @@ export function mountUI(app) {
 
       li.querySelector(".delete").addEventListener("click", () => {
         savedFlips.splice(actualIdx, 1);
-        localStorage.setItem("savedFlips", JSON.stringify(savedFlips));
+        persistSavedFlips();
         renderSaved(filter);
-        showToast("🗑️ Deleted");
+        showToast("Deleted");
       });
 
       li.querySelector(".favorite").addEventListener("click", () => {
         savedFlips[actualIdx].favorite = !savedFlips[actualIdx].favorite;
-        localStorage.setItem("savedFlips", JSON.stringify(savedFlips));
+        persistSavedFlips();
         renderSaved(filter);
         showToast(
           savedFlips[actualIdx].favorite ? "⭐ Favorited" : "☆ Unfavorited"
@@ -506,7 +533,7 @@ export function mountUI(app) {
 
         inputEl.addEventListener("blur", () => {
           savedFlips[actualIdx].text = inputEl.value.trim();
-          localStorage.setItem("savedFlips", JSON.stringify(savedFlips));
+          persistSavedFlips();
           renderSaved(filter);
         });
 
@@ -540,7 +567,7 @@ export function mountUI(app) {
       "FlipTheScript_Backup_" + new Date().toISOString().split("T")[0] + ".json";
     a.click();
     URL.revokeObjectURL(url);
-    showToast("📥 Backup downloaded!");
+    showToast("Backup downloaded!");
   });
 
   restoreBtn.addEventListener("click", () => {
@@ -556,12 +583,12 @@ export function mountUI(app) {
           const backup = JSON.parse(reader.result);
           if (backup.savedFlips) {
             savedFlips = backup.savedFlips;
-            localStorage.setItem("savedFlips", JSON.stringify(savedFlips));
+            persistSavedFlips();
           }
           renderSaved();
-          showToast("📤 Backup restored!");
+          showToast("Backup restored!");
         } catch {
-          showToast("⚠️ Invalid backup file");
+          showToast("Invalid backup file");
         }
       };
       reader.readAsText(file);
@@ -592,5 +619,4 @@ export function mountUI(app) {
   // ========== Initialize ==========
   renderSaved();
 
-  console.log("🚀 Flip The Script loaded!");
 }

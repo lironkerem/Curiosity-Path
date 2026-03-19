@@ -2,6 +2,7 @@
  * User-Tab.js – Optimized & Consolidated 2026-01-26
  * Manages user menu, profile, settings, notifications, and themes
  */
+import { renderAvatarIcon, EMOJI_TO_KEY } from './avatar-icons.js';
 import { supabase } from './Supabase.js';
 import * as Templates from './user-tab-templates.js';
 
@@ -46,20 +47,19 @@ export default class UserTab {
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.8-1.36-6.05-3.55C7.35 13.36 9.57 12 12 12s4.65 1.36 6.05 3.65C16.8 17.84 14.5 19.2 12 19.2z"/>
           </svg>
           <span class="disc-avatar">
-            <img class="disc-avatar-img hidden" alt="avatar">
-            <span class="disc-avatar-emoji">👤</span>
+            <img class="disc-avatar-img hidden" alt="avatar" width="32" height="32" decoding="async">
+            <span class="disc-avatar-emoji"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
           </span>
           <span class="disc-dot hidden"></span>
         </button>
 
         <div class="user-dropdown" id="user-dropdown" role="menu">
           ${Templates.MENU_ITEMS.map(item =>
-            item.admin && !u?.isAdmin ? '' :
             `<button class="dropdown-item" data-section="${item.id}">${item.icon} ${item.label}</button>
              <div class="accordion-panel" id="panel-${item.id}"></div>`
           ).join('')}
           <div class="dropdown-divider"></div>
-          <button class="dropdown-item" data-action="logout">🚪 Logout</button>
+          <button class="dropdown-item" data-action="logout"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20h9"/><path d="M10 12v.01"/><path d="M13 4l-6 2v14l6 2V4z"/></svg> Logout</button>
         </div>
       </div>`;
   }
@@ -92,6 +92,21 @@ export default class UserTab {
     this.restoreDarkMode();
     await this.hydrateUserProfile();
     await this.initPricingModal();
+
+    // Listen for status changes from Community Hub Hero Profile
+    window.addEventListener('statusChanged', (e) => {
+      const { status } = e.detail || {};
+      if (!status) return;
+      if (this.currentUser) {
+        this.currentUser.community_status = status;
+        this.currentUser.status = status; // keep both in sync
+      }
+      this.updateStatusRing(status);
+      // Sync active state in picker if it's open
+      document.querySelectorAll('.status-option-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.status === status);
+      });
+    });
   }
 
   /** Attach handlers to dropdown menu */
@@ -230,10 +245,6 @@ export default class UserTab {
       },
       export: () => {
         panel.innerHTML = Templates.exportData();
-      },
-      admin: () => {
-        panel.innerHTML = Templates.admin();
-        this.loadAdminPanel();
       }
     };
 
@@ -244,15 +255,40 @@ export default class UserTab {
   // ============== PROFILE MANAGEMENT ==============
 
   attachProfileHandlers() {
-    this.attachListener('profile-emoji', 'change', (e) => {
-      const emojiSpan = document.querySelector('.profile-avatar-emoji');
-      const img = document.getElementById('profile-avatar-img');
-      
-      if (emojiSpan) emojiSpan.textContent = e.target.value;
-      if (img) {
-        img.style.display = 'none';
-        emojiSpan.style.display = 'block';
-      }
+    // Icon picker modal open/close
+    const modal = document.getElementById('icon-picker-modal');
+    document.getElementById('open-icon-picker-btn')?.addEventListener('click', () => {
+      if (modal) modal.style.display = 'flex';
+    });
+    document.getElementById('close-icon-picker-btn')?.addEventListener('click', () => {
+      if (modal) modal.style.display = 'none';
+    });
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) modal.style.display = 'none';
+    });
+
+    // Icon picker: clicking an SVG button updates the hidden input + preview
+    document.querySelectorAll('.avatar-icon-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.value;
+        const hiddenInput = document.getElementById('profile-emoji');
+        const emojiSpan = document.querySelector('.profile-avatar-emoji');
+        const img = document.getElementById('profile-avatar-img');
+
+        if (hiddenInput) hiddenInput.value = key;
+        if (emojiSpan) emojiSpan.innerHTML = renderAvatarIcon(key);
+        if (img) {
+          img.style.display = 'none';
+          emojiSpan.style.display = 'block';
+        }
+
+        // Highlight selected
+        document.querySelectorAll('.avatar-icon-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+
+        // Close modal after selection
+        if (modal) modal.style.display = 'none';
+      });
     });
 
     this.attachListener('avatar-upload', 'change', () => {
@@ -262,31 +298,94 @@ export default class UserTab {
     this.attachListener('save-profile-btn', 'click', () => {
       this.saveQuickProfile();
     });
+
+    // Delete account
+    this.attachListener('delete-account-btn', 'click', () => {
+      this.showDeleteAccountModal();
+    });
+
+    // Status picker
+    document.querySelectorAll('.status-option-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.setStatus(btn.dataset.status, btn.dataset.color, btn.dataset.label);
+      });
+    });
+
+    // Highlight current status on open
+    this.updateStatusRing(this.currentUser?.community_status || 'offline');
   }
 
-  /** Handle avatar image upload */
-  handleAvatarUpload() {
+  /** Handle avatar image upload - uploads to Supabase Storage, saves public URL */
+  async handleAvatarUpload() {
     const file = document.getElementById('avatar-upload').files[0];
     if (!file) return;
 
-    // Validate file size
     if (file.size > UserTab.CONFIG.MAX_AVATAR_SIZE) {
       this.app.showToast('Image > 5 MB', 'error');
       return;
     }
 
+    // Optimistic preview
     const reader = new FileReader();
     reader.onload = (e) => {
-      const img = document.getElementById('profile-avatar-img');
+      const img   = document.getElementById('profile-avatar-img');
       const emoji = document.querySelector('.profile-avatar-emoji');
-      
-      if (img) {
-        img.src = e.target.result;
-        img.style.display = 'block';
-      }
+      if (img)   { img.src = e.target.result; img.style.display = 'block'; }
       if (emoji) emoji.style.display = 'none';
     };
     reader.readAsDataURL(file);
+
+    this.app.showToast('Uploading photo...', 'info');
+
+    try {
+      const uid = this.currentUser?.id;
+      if (!uid) { this.app.showToast('Not logged in', 'error'); return; }
+
+      const ext  = file.name.split('.').pop().toLowerCase() || 'jpg';
+      const path = `avatars/${uid}.${ext}`;
+
+      const { error: upErr } = await supabase.storage
+        .from('community-avatars')
+        .upload(path, file, { upsert: true, contentType: file.type });
+
+      if (upErr) {
+        console.warn('Avatar upload error:', upErr.message);
+        this.app.showToast('Upload failed - please try again', 'error');
+        return;
+      }
+
+      const { data } = supabase.storage.from('community-avatars').getPublicUrl(path);
+      const publicUrl = data?.publicUrl ? `${data.publicUrl}?t=${Date.now()}` : null;
+      if (!publicUrl) { this.app.showToast('Upload failed - please try again', 'error'); return; }
+
+      // Update img element to real URL (replace base64 preview)
+      const img = document.getElementById('profile-avatar-img');
+      if (img) img.src = publicUrl;
+
+      // Save to profiles table
+      const { error: saveErr } = await supabase
+        .from('profiles')
+        .upsert({ id: uid, avatar_url: publicUrl }, { onConflict: 'id' });
+
+      if (saveErr) {
+        console.warn('Profile avatar_url save error:', saveErr.message);
+        this.app.showToast('Photo uploaded but profile save failed', 'warning');
+        return;
+      }
+
+      // Sync into app state
+      if (this.currentUser) this.currentUser.avatar_url = publicUrl;
+      localStorage.setItem(`profile_${uid}`, JSON.stringify({
+        ...JSON.parse(localStorage.getItem(`profile_${uid}`) || '{}'),
+        avatar_url: publicUrl
+      }));
+      this.syncAvatar();
+      this.app.showToast('Profile photo updated', 'success');
+
+    } catch (err) {
+      console.error('handleAvatarUpload error:', err);
+      this.app.showToast('Upload failed - please try again', 'error');
+    }
   }
 
   /** Save user profile (with lock to prevent double-save) */
@@ -305,8 +404,11 @@ export default class UserTab {
       email: document.getElementById('profile-email')?.value.trim() || null,
       phone: document.getElementById('profile-phone')?.value.trim() || null,
       birthday: document.getElementById('profile-birthday')?.value || null,
-      emoji: document.getElementById('profile-emoji')?.value || '👤',
-      avatar_url: document.getElementById('profile-avatar-img')?.src || ''
+      emoji: document.getElementById('profile-emoji')?.value || '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+      country: document.getElementById('profile-country')?.value.trim() || null,
+      // Preserve community_status - managed by setStatus(), not a form field
+      community_status: this.currentUser?.community_status || 'online',
+      // avatar_url is managed separately by handleAvatarUpload (Supabase Storage)
     };
 
     let savedOnServer = false;
@@ -325,8 +427,11 @@ export default class UserTab {
     Object.assign(this.currentUser, payload);
     
     this.syncAvatar();
+    window.dispatchEvent(new CustomEvent('avatarChanged', {
+        detail: { userId: uid, emoji: payload.emoji, avatarUrl: payload.avatar_url || this.currentUser?.avatar_url || null }
+    }));
     this.app.showToast(
-      savedOnServer ? '✅ Profile saved' : '⚠️ Saved locally',
+      savedOnServer ? '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Profile saved' : '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Saved locally',
       savedOnServer ? 'success' : 'warning'
     );
     
@@ -364,13 +469,14 @@ export default class UserTab {
 
     // Merge data into current user
     if (data) {
-      const fields = ['name', 'email', 'phone', 'birthday', 'emoji', 'avatar_url'];
+      const fields = ['name', 'email', 'phone', 'birthday', 'emoji', 'avatar_url', 'country', 'community_status'];
       fields.forEach(field => {
         if (data[field] !== undefined) {
           this.currentUser[field] = data[field];
         }
       });
       this.syncAvatar();
+      this.updateStatusRing(this.currentUser.community_status || 'offline');
     }
   }
 
@@ -404,7 +510,7 @@ export default class UserTab {
     document.body.classList.toggle('dark-mode', enabled);
     
     const link = document.getElementById('dark-mode-css');
-    if (link) link.disabled = !enabled;
+    if (link) link.media = enabled ? 'all' : 'not all';
     
     localStorage.setItem('darkMode', enabled ? 'enabled' : 'disabled');
 
@@ -421,13 +527,14 @@ export default class UserTab {
   switchTheme(name) {
     // Disable dark mode CSS for non-default themes
     if (name !== 'default') {
-      document.getElementById('dark-mode-css')?.setAttribute('disabled', 'true');
+      document.getElementById('dark-mode-css')?.style && (document.getElementById('dark-mode-css').media = 'not all');
     }
 
     // Remove all theme classes
     document.body.classList.remove(...UserTab.THEME_CLASSES);
 
-    // Remove theme stylesheets
+    // Disable all preloaded skin stylesheets and remove any dynamically injected ones
+    document.querySelectorAll('link[id^="skin_"]').forEach(l => l.media = 'not all');
     document.querySelectorAll('link[data-premium-theme]').forEach(l => l.remove());
 
     // Clean up matrix rain
@@ -439,18 +546,25 @@ export default class UserTab {
 
     // Handle default theme
     if (name === 'default') {
-      document.getElementById('dark-mode-css')?.removeAttribute('disabled');
+      const darkLink = document.getElementById('dark-mode-css');
+      if (darkLink) darkLink.media = localStorage.getItem('darkMode') === 'enabled' ? 'all' : 'not all';
       return;
     }
 
-    // Apply premium theme
+    // Apply premium theme body class
     document.body.classList.add(name);
-    
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = `./CSS/Skins/${name}.css`;
-    link.setAttribute('data-premium-theme', name);
-    document.head.appendChild(link);
+
+    // Reuse the preloaded skin_ stylesheet if available; otherwise inject dynamically
+    const preloaded = document.getElementById('skin_' + name);
+    if (preloaded) {
+      preloaded.media = 'all';
+    } else {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = `./CSS/Skins/${name}.css`;
+      link.setAttribute('data-premium-theme', name);
+      document.head.appendChild(link);
+    }
 
     // Initialize matrix rain if needed
     if (name === 'matrix-code') {
@@ -481,7 +595,7 @@ export default class UserTab {
     const link = document.getElementById('dark-mode-css');
     const toggle = document.getElementById('dark-mode-toggle');
     
-    if (link) link.disabled = !dark;
+    if (link) link.media = dark ? 'all' : 'not all';
     if (toggle) toggle.checked = dark;
   }
 
@@ -602,7 +716,7 @@ export default class UserTab {
     if (warning) warning.style.display = isValid ? 'none' : 'block';
     
     if (!isValid) {
-      this.app.showToast('⚠️ Start time must be before end time', 'warning');
+      this.app.showToast('Start time must be before end time', 'warning');
     }
 
     return isValid;
@@ -632,14 +746,14 @@ export default class UserTab {
   /** Enable push notifications */
   async enablePushNotifications() {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      this.app.showToast('❌ Push not supported', 'error');
+      this.app.showToast('Push not supported', 'error');
       return false;
     }
 
     try {
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
-        this.app.showToast('❌ Permission denied', 'error');
+        this.app.showToast('Permission denied', 'error');
         return false;
       }
 
@@ -675,11 +789,11 @@ export default class UserTab {
         if (!res.ok) throw new Error('Save failed');
       }
 
-      this.app.showToast('✅ Notifications enabled', 'success');
+      this.app.showToast('Notifications enabled', 'success');
       return true;
     } catch (err) {
       console.error(err);
-      this.app.showToast('❌ Enable failed: ' + err.message, 'error');
+      this.app.showToast('Enable failed: ' + err.message, 'error');
       return false;
     }
   }
@@ -692,7 +806,7 @@ export default class UserTab {
       
       if (sub) {
         await sub.unsubscribe();
-        this.app.showToast('🔕 Notifications disabled', 'success');
+        this.app.showToast('Notifications disabled', 'success');
       }
     } catch (e) {
       console.error(e);
@@ -735,9 +849,9 @@ export default class UserTab {
       .then(({ error }) => {
         if (error) {
           console.error('Save error:', error);
-          this.app.showToast('⚠️ Saved locally only', 'warning');
+          this.app.showToast('Saved locally only', 'warning');
         } else {
-          this.app.showToast('✅ Settings saved', 'success');
+          this.app.showToast('Settings saved', 'success');
         }
       });
   }
@@ -830,38 +944,6 @@ export default class UserTab {
     });
   }
 
-  // ============== ADMIN ==============
-
-  /** Dynamically load admin panel module */
-  async loadAdminPanel() {
-    const mount = document.getElementById('admin-tab-mount');
-    if (!mount) return;
-
-    mount.innerHTML = '<div style="text-align:center;padding:20px;">Loading...</div>';
-
-    try {
-      const adminModule = await import('./Admin-Tab.js');
-      const { supabase } = await import('./Supabase.js');
-
-      const AdminTab = adminModule.AdminTab || adminModule.default;
-      const adminTab = new AdminTab(supabase);
-      const content = await adminTab.render();
-
-      mount.innerHTML = '';
-
-      if (typeof content === 'string') {
-        mount.innerHTML = content;
-      } else if (content instanceof HTMLElement) {
-        mount.appendChild(content);
-      } else {
-        mount.innerHTML = '<div style="color:#ff4757;padding:10px;">Invalid content returned</div>';
-      }
-    } catch (err) {
-      console.error('Admin panel error:', err);
-      mount.innerHTML = `<div style="color:#ff4757;padding:10px;">Failed to load: ${err.message}</div>`;
-    }
-  }
-
   // ============== PRICING MODAL ==============
 
   /** Show pricing modal with theme inheritance */
@@ -899,20 +981,26 @@ export default class UserTab {
     container.scrollTo({ left: 0, behavior: 'smooth' });
 
     // Update dots on scroll
+    // Cache card width once to avoid layout thrash in scroll handler
+    let _cachedCardWidth = null;
+    const getCardWidth = () => {
+      if (!_cachedCardWidth) _cachedCardWidth = cards[0].offsetWidth + 20;
+      return _cachedCardWidth;
+    };
     container.addEventListener('scroll', () => {
       const scrollLeft = container.scrollLeft;
-      const cardWidth = cards[0].offsetWidth + 20;
+      const cardWidth = getCardWidth();
       const activeIndex = Math.round(scrollLeft / cardWidth);
 
       dots.forEach((dot, i) => {
         dot.classList.toggle('active', i === activeIndex);
       });
-    });
+    }, { passive: true });
 
     // Click dots to scroll
     dots.forEach((dot, i) => {
       dot.addEventListener('click', () => {
-        const cardWidth = cards[0].offsetWidth + 20;
+        const cardWidth = getCardWidth();
         container.scrollTo({ left: cardWidth * i, behavior: 'smooth' });
       });
     });
@@ -939,11 +1027,106 @@ export default class UserTab {
     );
   }
 
+  // ============== STATUS ==============
+
+  static STATUS_COLORS = {
+    online:  '#6b9b37',
+    available: '#6b9b37',
+    away:    '#e53e3e',
+    guiding: '#e53e3e',
+    silent:  '#7c3aed',
+    deep:    '#1e40af',
+    offline: '#9ca3af',
+  };
+
+  /**
+   * Update the status ring color around the avatar button
+   * @param {string} status - Status key
+   */
+  updateStatusRing(status = 'offline') {
+    const color = UserTab.STATUS_COLORS[status] || UserTab.STATUS_COLORS.offline;
+    if (this.btn) {
+      this.btn.style.setProperty('--status-ring-color', color);
+      this.btn.classList.add('has-status-ring');
+    }
+    // Highlight the active status button in the picker (if open)
+    document.querySelectorAll('.status-option-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.status === status);
+    });
+  }
+
+  /**
+   * Set user status - updates ring, saves to Supabase, updates local state
+   * @param {string} status - Status key
+   * @param {string} color  - Hex color
+   * @param {string} label  - Display label
+   */
+  async setStatus(status, color, label) {
+    // Normalize: keep both field names in sync on the user object
+    if (this.currentUser) {
+      this.currentUser.community_status = status;
+      this.currentUser.status = status; // core.js maps community_status → .status
+    }
+    this.updateStatusRing(status);
+
+    // Highlight active button
+    document.querySelectorAll('.status-option-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.status === status);
+    });
+
+    // Optimistic instant update: update own dot in Active Members grid immediately
+    const uid = this.currentUser?.id;
+    if (uid && window.ActiveMembers) {
+      window.ActiveMembers.updateMemberStatus(uid, status);
+    }
+
+    const STATUS_ACTIVITIES = {
+      online:    '✨ Available',
+      available: '✨ Available',
+      away:      '🌿 Away',
+      silent:    '🤫 In Silence',
+      deep:      '🧘 Deep Practice',
+      offline:   '💤 Offline',
+    };
+    const activity = STATUS_ACTIVITIES[status] || '✨ Available';
+
+    try {
+      const uid = this.currentUser?.id;
+      if (!uid) throw new Error('Not logged in');
+
+      // Write to both tables so all listeners (presence + profile) stay in sync
+      const writes = [
+        supabase.from('profiles').update({ community_status: status }).eq('id', uid),
+      ];
+      // CommunityDB.setPresence updates community_presence table (what ActiveMembers reads)
+      if (window.CommunityDB?.ready) {
+        writes.push(
+          window.CommunityDB.setPresence(
+            status,
+            activity,
+            window.Core?.state?.currentRoom || null
+          )
+        );
+      }
+      const results = await Promise.all(writes);
+      const profileErr = results[0]?.error;
+      if (profileErr) throw profileErr;
+
+      this.app.showToast(`Status set to ${label}`, 'success');
+    } catch (err) {
+      console.error('setStatus error:', err);
+      this.app.showToast('Could not update status', 'error');
+    }
+
+    // Notify other modules (e.g. Community Hub Hero Profile)
+    window.dispatchEvent(new CustomEvent('statusChanged', { detail: { status } }));
+  }
+
   // ============== AVATAR SYNC ==============
 
   /** Synchronize avatar display in user button */
   syncAvatar() {
-    const { avatar_url, emoji = '👤' } = this.currentUser || {};
+    const { avatar_url, emoji = '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' } = this.currentUser || {};
     const avImg = this.btn?.querySelector('.disc-avatar-img');
     const avEmoji = this.btn?.querySelector('.disc-avatar-emoji');
 
@@ -960,7 +1143,107 @@ export default class UserTab {
     if (hasAvatar) {
       avImg.src = avatar_url;
     } else {
-      avEmoji.textContent = emoji;
+      avEmoji.innerHTML = renderAvatarIcon(emoji);
+    }
+  }
+
+  // ============== DELETE ACCOUNT ==============
+
+  /** Inject and show the delete account confirmation modal */
+  showDeleteAccountModal() {
+    // Inject modal once
+    if (!document.getElementById('delete-account-modal-overlay')) {
+      document.documentElement.insertAdjacentHTML('afterbegin', Templates.deleteAccountModal());
+    }
+
+    const overlay = document.getElementById('delete-account-modal-overlay');
+    const input   = document.getElementById('delete-account-confirm-input');
+    const confirmBtn = document.getElementById('delete-account-confirm-btn');
+    const cancelBtn  = document.getElementById('delete-account-cancel-btn');
+
+    // Reset state each open
+    input.value = '';
+    confirmBtn.disabled = true;
+    overlay.classList.add('show');
+
+    // Enable confirm button only when user types DELETE exactly
+    const onInput = () => {
+      confirmBtn.disabled = input.value.trim() !== 'DELETE';
+    };
+    input.addEventListener('input', onInput);
+
+    const close = () => {
+      overlay.classList.remove('show');
+      input.removeEventListener('input', onInput);
+    };
+
+    cancelBtn.addEventListener('click', close, { once: true });
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) close();
+    }, { once: true });
+
+    confirmBtn.addEventListener('click', async () => {
+      if (input.value.trim() !== 'DELETE') return;
+      close();
+      await this.handleDeleteAccount();
+    }, { once: true });
+
+    // Focus input for faster UX
+    setTimeout(() => input.focus(), 100);
+  }
+
+  /** Execute full account deletion */
+  async handleDeleteAccount() {
+    const uid = this.currentUser?.id;
+    if (!uid) return;
+
+    this.toggleDropdown(false);
+    this.app.showToast('Deleting your account…', 'info');
+
+    try {
+      // Get session token to pass to Edge Function
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error('No active session');
+
+      const res = await fetch(
+        `${supabase.supabaseUrl}/functions/v1/delete-account`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': supabase.supabaseKey,
+          },
+        }
+      );
+
+      const body = await res.json();
+
+      if (!res.ok) {
+        throw new Error(body?.error || 'Deletion failed');
+      }
+
+      // Clear all local state
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // Sign out (session is already gone server-side, but clean up client)
+      await supabase.auth.signOut();
+
+      this.app.showToast('Account deleted. Goodbye 🙏', 'success');
+
+      // Redirect or reload after brief delay
+      setTimeout(() => {
+        if (typeof this.app.logout === 'function') {
+          this.app.logout();
+        } else {
+          window.location.reload();
+        }
+      }, 1500);
+
+    } catch (err) {
+      console.error('handleDeleteAccount error:', err);
+      this.app.showToast(`Deletion failed: ${err.message}`, 'error');
     }
   }
 
@@ -975,11 +1258,11 @@ export default class UserTab {
         await this.app.logout();
       } else {
         console.error('app.logout() not available');
-        this.app?.showToast('❌ Logout failed', 'error');
+        this.app?.showToast('Logout failed', 'error');
       }
     } catch (err) {
       console.error('Logout error:', err);
-      this.app?.showToast('❌ Logout error', 'error');
+      this.app?.showToast('Logout error', 'error');
     }
   }
 

@@ -7,6 +7,7 @@
 
 import { InquiryEngine } from '../Features/InquiryEngine.js';
 import DailyCards from '../Features/DailyCards.js';
+import { ActiveMembers } from '/Mini-Apps/CommunityHub/js/active-members.js';
 
 const CONSTANTS = {
   BADGES_PREVIEW_COUNT: 9,
@@ -65,6 +66,14 @@ const KNOWN_ADMIN_BADGE_IDS = new Set([
   'community_hero'
 ]);
 
+// Global helper: navigate to Community Hub tab then scroll to a specific section.
+// Used by the Sanctuary widget on the Dashboard.
+window._navigateToHubSection = function(targetId) {
+  // Store the desired scroll target - Core.init() will scroll after the Hub finishes rendering
+  window._pendingHubScrollTarget = targetId;
+  window.app?.nav?.switchTab('community-hub');
+};
+
 export default class DashboardManager {
   /** @type {Object} Fallback quote when QuotesData unavailable */
   static FALLBACK_QUOTE = {
@@ -82,21 +91,15 @@ export default class DashboardManager {
     this.dailyCards = new DailyCards(app);
     this.intervals = [];
     this.cachedElements = {};
-    this.lastWellnessXP = {};
-    
+
     // Cache global function references
     this.globals = {
-      QuotesData: () => window.QuotesData,
-      getSelfResetStats: () => window.getSelfResetStats,
-      getFullBodyScanStats: () => window.getFullBodyScanStats,
-      getNervousResetStats: () => window.getNervousResetStats,
-      getTensionSweepStats: () => window.getTensionSweepStats
+      QuotesData: () => window.QuotesData
     };
     
     if (window.app) window.app.dailyCards = this.dailyCards;
-    
+
     this.setupQuestListeners();
-    this.setupWellnessTracking();
     this.startCountdown();
     
     // Bind methods for external calls
@@ -258,13 +261,13 @@ export default class DashboardManager {
     if (!this.app.gamification) return;
     
     this.app.gamification.on('questCompleted', quest => {
-      if (this.app.gamification._bulkMode) return;
+      if (this.app.gamification.state._bulkMode) return;
       
-      this.app.showToast(`✅ Quest Complete: ${quest.name}! +${quest.xpReward} XP`, 'success');
+      this.app.showToast(`Quest Complete: ${quest.name}! +${quest.xpReward} XP`, 'success');
       
       if (quest.inspirational) {
         setTimeout(() => {
-          this.app.showToast(`💫 ${quest.inspirational}`, 'info');
+          this.app.showToast(`${quest.inspirational}`, 'info');
         }, 1500);
       }
       
@@ -273,96 +276,15 @@ export default class DashboardManager {
     
     this.app.gamification.on('bulkQuestsComplete', ({ type, done, xp, karma }) => {
       const typeCapitalized = type.charAt(0).toUpperCase() + type.slice(1);
-      const message = `✅ ${typeCapitalized} quests complete! +${xp} XP${karma ? ` +${karma} Karma` : ''}`;
+      const message = `${typeCapitalized} quests complete! +${xp} XP${karma ? ` +${karma} Karma` : ''}`;
       this.app.showToast(message, 'success');
     });
     
     this.app.gamification.on('questProgress', () => this.render());
-    
+
     this.app.gamification.on('dailyQuestsComplete', () => {
-      this.app.showToast(`🌟 All Daily Quests Complete! +${UI_CONSTANTS.DAILY_BONUS_XP} Bonus XP 🌟`, 'success');
+      this.app.showToast(`All Daily Quests Complete! +${UI_CONSTANTS.DAILY_BONUS_XP} Bonus XP `, 'success');
     });
-    
-    this.checkDailyReset();
-  }
-
-  /**
-   * Checks if daily quests need to be reset
-   * @private
-   */
-  checkDailyReset() {
-    try {
-      const today = new Date().toDateString();
-      const lastReset = localStorage.getItem('last_quest_reset');
-      
-      if (lastReset !== today) {
-        this.app.gamification.resetDailyQuests();
-        localStorage.setItem('last_quest_reset', today);
-      }
-    } catch (error) {
-      console.error('Error checking daily reset:', error);
-    }
-  }
-
-  /* ---------- Wellness Tracking ---------- */
-  
-  /**
-   * Sets up wellness tool tracking with XP/Karma rewards
-   * @private
-   */
-  setupWellnessTracking() {
-    const tools = [
-      { name: 'Self Reset', getStats: this.globals.getSelfResetStats },
-      { name: 'Full Body Scan', getStats: this.globals.getFullBodyScanStats },
-      { name: 'Nervous System Reset', getStats: this.globals.getNervousResetStats },
-      { name: 'Tension Sweep', getStats: this.globals.getTensionSweepStats }
-    ];
-    
-    // Initialize tracking
-    tools.forEach(tool => {
-      if (tool.getStats()) {
-        try {
-          const stats = tool.getStats()();
-          this.lastWellnessXP[tool.name] = stats.xp || 0;
-        } catch (error) {
-          console.error(`Error initializing ${tool.name}:`, error);
-          this.lastWellnessXP[tool.name] = 0;
-        }
-      }
-    });
-    
-    const interval = setInterval(() => {
-      tools.forEach(tool => {
-        const getStats = tool.getStats();
-        if (!getStats) return;
-        
-        try {
-          const stats = getStats();
-          const prev = this.lastWellnessXP[tool.name] || 0;
-          
-          if (stats.xp > prev) {
-            const gained = stats.xp - prev;
-            const karma = Math.floor(gained / 10);
-            this.lastWellnessXP[tool.name] = stats.xp;
-            
-            if (this.app.gamification) {
-              this.app.gamification.addXP(gained, tool.name);
-              this.app.gamification.addKarma(karma, tool.name);
-            }
-            
-            this.app.showToast(
-              `✅ ${tool.name} Complete! +${gained} XP, +${karma} Karma`,
-              'success'
-            );
-            this.render();
-          }
-        } catch (error) {
-          console.error(`Error tracking ${tool.name}:`, error);
-        }
-      });
-    }, CONSTANTS.WELLNESS_POLL_INTERVAL);
-    
-    this.intervals.push(interval);
   }
 
   /* ---------- Quote Card ---------- */
@@ -384,19 +306,19 @@ export default class DashboardManager {
           <div class="flip-card-front flex flex-col justify-between">
             <div>
               <div class="flex items-center mb-8">
-                <span class="text-3xl mr-4">📜</span>
+                <span class="text-3xl mr-4"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
                 <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2>
               </div>
               <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent); line-height: 1.5; padding-top: 2rem; padding-bottom: 2rem;">
                 "${this.currentQuote.text}"
               </p>
               <p class="mt-6 text-center text-lg" style="color: var(--neuro-text);">
-                — ${this.currentQuote.author}
+                - ${this.currentQuote.author}
               </p>
             </div>
             <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
               <button onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">
-                🔄 Refresh Quote
+                <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Refresh Quote
               </button>
             </div>
           </div>
@@ -420,19 +342,19 @@ export default class DashboardManager {
         <div class="flex flex-col justify-between">
           <div>
             <div class="flex items-center mb-8">
-              <span class="text-3xl mr-4">📜</span>
+              <span class="text-3xl mr-4"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
               <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2>
             </div>
             <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent); line-height: 1.5; padding-top: 2rem; padding-bottom: 2rem;">
               "${this.currentQuote.text}"
             </p>
             <p class="mt-6 text-center text-lg" style="color: var(--neuro-text);">
-              — ${this.currentQuote.author}
+              - ${this.currentQuote.author}
             </p>
           </div>
           <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
             <button onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">
-              🔄 Refresh Quote
+              <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Refresh Quote
             </button>
           </div>
         </div>`;
@@ -440,7 +362,7 @@ export default class DashboardManager {
       this._flipCard('dashboard-quote-card', html);
       
       if (this.app.showToast) {
-        this.app.showToast('📜 New quote revealed!', 'success');
+        this.app.showToast('New quote revealed!', 'success');
       }
     } catch (error) {
       console.error('Error refreshing quote:', error);
@@ -468,14 +390,14 @@ export default class DashboardManager {
     }
 
     const statItems = [
-      { value: status.karma, label: 'Karma', emoji: '💎' },
-      { value: stats.totalGratitudes || 0, label: 'Gratitudes', emoji: '❤️' },
-      { value: status.totalJournalEntries, label: 'Journaling', emoji: '📔' },
-      { value: status.totalHappinessViews, label: 'Boosters', emoji: '💡' },
-      { value: status.totalTarotSpreads, label: 'Tarot Spreads', emoji: '🔮' },
-      { value: stats.weeklyMeditations || 0, label: 'Meditations', emoji: '🧘' },
-      { value: status.totalWellnessRuns, label: 'Wellness Kit', emoji: '🌿' },
-      { value: status.badges.length, label: 'Badges', emoji: '🎖️' }
+      { value: status.karma, label: 'Karma', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="2" y2="9"/><line x1="12" y1="3" x2="22" y2="9"/></svg>' },
+      { value: stats.totalGratitudes || 0, label: 'Gratitudes', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' },
+      { value: status.totalJournalEntries, label: 'Journaling', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' },
+      { value: status.totalHappinessViews, label: 'Boosters', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>' },
+      { value: status.totalTarotSpreads, label: 'Tarot Spreads', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="11" height="14" rx="2"/><path d="M15.5 5.5 18 3l4 4-5.5 5.5"/><path d="m13 13 4.5 4.5"/><path d="m17.5 17.5 1 1"/></svg>' },
+      { value: stats.weeklyMeditations || 0, label: 'Meditations', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>' },
+      { value: status.totalWellnessRuns, label: 'Wellness Kit', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22c1.25-1.25 2.5-2.5 3.75-3.75"/><path d="M22 2C11 2 2 11 2 22c5.5 0 11-2.5 14.5-6S22 7.5 22 2z"/></svg>' },
+      { value: status.badges.length, label: 'Badges', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>' }
     ];
 
     const article = levelInfo.title.match(/^[aeiou]/i) ? 'an' : 'a';
@@ -483,7 +405,7 @@ export default class DashboardManager {
     return `
       <div class="card dashboard-gamification mb-6">
         <div class="dashboard-wellness-header">
-          <h3 class="dashboard-wellness-title">🧬 Your Online Spiritual Progress</h3>
+          <h3 class="dashboard-wellness-title"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Your Online Spiritual Progress</h3>
           <p class="dashboard-wellness-subtitle">Track your online journey and celebrate every milestone</p>
         </div>
         <div class="dashboard-progress-track">
@@ -523,51 +445,51 @@ export default class DashboardManager {
     return `
       <div class="card dashboard-wellness-toolkit mb-8">
         <div class="dashboard-wellness-header">
-          <h3 class="dashboard-wellness-title">🌟 Wellness Toolkit</h3>
+          <h3 class="dashboard-wellness-title"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg> Wellness Toolkit</h3>
           <p class="dashboard-wellness-subtitle">Quick access to your daily reset practices</p>
         </div>
         <div class="wellness-buttons-grid">
           <button class="wellness-tool-btn wellness-tool-active" onclick="window.openSelfReset()" aria-label="60-Second Self Reset">
-            <div class="wellness-tool-icon">🧘</div>
+            <div class="wellness-tool-icon"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></div>
             <div class="wellness-tool-content">
               <h4 class="wellness-tool-name">Self Reset</h4>
               <p class="wellness-tool-description">Short Breathing practice</p>
               <div class="wellness-tool-stats">
-                <span class="wellness-stat-xp">✨ +10 XP</span>
-                <span class="wellness-stat-karma">💎 +1 Karma</span>
+                <span class="wellness-stat-xp"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> +10 XP</span>
+                <span class="wellness-stat-karma"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="2" y2="9"/><line x1="12" y1="3" x2="22" y2="9"/></svg> +1 Karma</span>
               </div>
             </div>
           </button>
           <button class="wellness-tool-btn wellness-tool-active" onclick="window.openFullBodyScan()" aria-label="Full Body Scan">
-            <div class="wellness-tool-icon">🌊</div>
+            <div class="wellness-tool-icon"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg></div>
             <div class="wellness-tool-content">
               <h4 class="wellness-tool-name">Full Body Scan</h4>
               <p class="wellness-tool-description">Progressive relaxation</p>
               <div class="wellness-tool-stats">
-                <span class="wellness-stat-xp">✨ +10 XP</span>
-                <span class="wellness-stat-karma">💎 +1 Karma</span>
+                <span class="wellness-stat-xp"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> +10 XP</span>
+                <span class="wellness-stat-karma"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="2" y2="9"/><line x1="12" y1="3" x2="22" y2="9"/></svg> +1 Karma</span>
               </div>
             </div>
           </button>
           <button class="wellness-tool-btn wellness-tool-active" onclick="window.openNervousReset()" aria-label="Nervous System Reset">
-            <div class="wellness-tool-icon">⚡</div>
+            <div class="wellness-tool-icon"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
             <div class="wellness-tool-content">
               <h4 class="wellness-tool-name">Nervous System</h4>
               <p class="wellness-tool-description">Balance & regulation</p>
               <div class="wellness-tool-stats">
-                <span class="wellness-stat-xp">✨ +10 XP</span>
-                <span class="wellness-stat-karma">💎 +1 Karma</span>
+                <span class="wellness-stat-xp"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> +10 XP</span>
+                <span class="wellness-stat-karma"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="2" y2="9"/><line x1="12" y1="3" x2="22" y2="9"/></svg> +1 Karma</span>
               </div>
             </div>
           </button>
           <button class="wellness-tool-btn wellness-tool-active" onclick="window.openTensionSweep()" aria-label="Tension Sweep">
-            <div class="wellness-tool-icon">🌀</div>
+            <div class="wellness-tool-icon"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg></div>
             <div class="wellness-tool-content">
               <h4 class="wellness-tool-name">Tension Sweep</h4>
               <p class="wellness-tool-description">Release stored tension</p>
               <div class="wellness-tool-stats">
-                <span class="wellness-stat-xp">✨ +10 XP</span>
-                <span class="wellness-stat-karma">💎 +1 Karma</span>
+                <span class="wellness-stat-xp"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> +10 XP</span>
+                <span class="wellness-stat-karma"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="2" y2="9"/><line x1="12" y1="3" x2="22" y2="9"/></svg> +1 Karma</span>
               </div>
             </div>
           </button>
@@ -595,19 +517,19 @@ export default class DashboardManager {
       return `
         <div class="card dashboard-quest-hub mb-8">
           <div class="dashboard-quest-header" style="text-align:center;">
-            <h3 class="dashboard-quest-title">🎯 Quest Hub</h3>
+            <h3 class="dashboard-quest-title"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Quest Hub</h3>
           </div>
           <div class="quest-tabs">
             <button class="quest-tab-btn active" data-quest-tab="daily" onclick="window.app.dashboard.switchQuestTab('daily')">
-              📋 Daily <span class="quest-count">(${dailyCompleted}/${dailyTotal})</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8.01" y2="14"/><line x1="12" y1="14" x2="12.01" y2="14"/><line x1="16" y1="14" x2="16.01" y2="14"/></svg> Daily <span class="quest-count">(${dailyCompleted}/${dailyTotal})</span>
               <span id="countdown-daily" class="countdown-badge"></span>
             </button>
             <button class="quest-tab-btn" data-quest-tab="weekly" onclick="window.app.dashboard.switchQuestTab('weekly')">
-              🌟 Weekly <span class="quest-count">(${weeklyCompleted}/${weeklyTotal})</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h2v4H8z"/><path d="M14 14h2v4h-2z"/></svg> Weekly <span class="quest-count">(${weeklyCompleted}/${weeklyTotal})</span>
               <span id="countdown-weekly" class="countdown-badge"></span>
             </button>
             <button class="quest-tab-btn" data-quest-tab="monthly" onclick="window.app.dashboard.switchQuestTab('monthly')">
-              ✨ Monthly <span class="quest-count">(${monthlyCompleted}/${monthlyTotal})</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg> Monthly <span class="quest-count">(${monthlyCompleted}/${monthlyTotal})</span>
               <span id="countdown-monthly" class="countdown-badge"></span>
             </button>
           </div>
@@ -615,19 +537,19 @@ export default class DashboardManager {
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               ${status.quests.daily.map(q => this.renderQuestCard(q, 'daily')).join('')}
             </div>
-            ${this.renderQuestCompleteMessage('daily', dailyCompleted, dailyTotal, '🌟', `All Daily Quests Complete! +${UI_CONSTANTS.DAILY_BONUS_XP} Bonus XP`)}
+            ${this.renderQuestCompleteMessage('daily', dailyCompleted, dailyTotal, '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>', `All Daily Quests Complete! +${UI_CONSTANTS.DAILY_BONUS_XP} Bonus XP`)}
           </div>
           <div class="quest-tab-content" id="quest-content-weekly" style="display:none">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               ${status.quests.weekly.map(q => this.renderQuestCard(q, 'weekly')).join('')}
             </div>
-            ${this.renderQuestCompleteMessage('weekly', weeklyCompleted, weeklyTotal, '⭐', 'All Weekly Quests Complete! Amazing!')}
+            ${this.renderQuestCompleteMessage('weekly', weeklyCompleted, weeklyTotal, '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>', 'All Weekly Quests Complete! Amazing!')}
           </div>
           <div class="quest-tab-content" id="quest-content-monthly" style="display:none">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               ${status.quests.monthly.map(q => this.renderQuestCard(q, 'monthly')).join('')}
             </div>
-            ${this.renderQuestCompleteMessage('monthly', monthlyCompleted, monthlyTotal, '🎉', 'All Monthly Quests Complete! Legendary!')}
+            ${this.renderQuestCompleteMessage('monthly', monthlyCompleted, monthlyTotal, '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>', 'All Monthly Quests Complete! Legendary!')}
           </div>
         </div>`;
     } catch (error) {
@@ -685,7 +607,7 @@ export default class DashboardManager {
     
     const completedClass = quest.completed ? 'dashboard-quest-completed' : '';
     const clickableClass = (!quest.completed && quest.tab) ? 'dashboard-quest-clickable' : '';
-    const hintHtml = (!quest.completed && quest.tab) ? '<div class="dashboard-quest-hint">👆 Click to start</div>' : '';
+    const hintHtml = (!quest.completed && quest.tab) ? '<div class="dashboard-quest-hint"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041-1.041 4.35a.5.5 0 0 1-.949.074z"/></svg> Click to start</div>' : '';
     const clickHandler = (!quest.completed && quest.tab) 
       ? `onclick="window.app.nav.switchTab('${quest.tab}'); window.scrollTo({top:0,behavior:'smooth'});"` 
       : '';
@@ -705,8 +627,8 @@ export default class DashboardManager {
           <div class="dashboard-quest-progress">
             ${isEnergy ? `
               <div class="dashboard-energy-checkin">
-                <span class="${quest.subProgress?.day ? 'dashboard-energy-done' : ''}">☀️ Day ${quest.subProgress?.day ? '✓' : ''}</span>
-                <span class="${quest.subProgress?.night ? 'dashboard-energy-done' : ''}">🌙 Night ${quest.subProgress?.night ? '✓' : ''}</span>
+                <span class="${quest.subProgress?.day ? 'dashboard-energy-done' : ''}"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg> Day ${quest.subProgress?.day ? '✓' : ''}</span>
+                <span class="${quest.subProgress?.night ? 'dashboard-energy-done' : ''}"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Night ${quest.subProgress?.night ? '✓' : ''}</span>
               </div>` : `
               <div class="dashboard-quest-progress-header">
                 <span>Progress</span>
@@ -715,7 +637,7 @@ export default class DashboardManager {
               <div class="dashboard-quest-bar">
                 <div class="dashboard-quest-fill" data-width="${progressPercent}"></div>
               </div>`}
-          </div>` : '<div class="dashboard-quest-complete-msg">Quest Complete! 🎉</div>'}
+          </div>` : '<div class="dashboard-quest-complete-msg">Quest Complete! <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div>'}
         <div class="dashboard-quest-footer">
           <span class="dashboard-quest-xp">+${quest.xpReward} XP</span>
           ${quest.karmaReward ? `<span class="dashboard-quest-karma">+${quest.karmaReward} Karma</span>` : ''}
@@ -774,7 +696,7 @@ export default class DashboardManager {
       return `
         <div class="card dashboard-achievements mb-8">
           <div style="text-align:center;">
-            <h3 class="dashboard-achievements-title">🏆 Earned Badges</h3>
+            <h3 class="dashboard-achievements-title"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg> Earned Badges</h3>
             <div class="badges-grid" style="display: grid; grid-template-columns: repeat(auto-fill,minmax(140px,1fr)); gap: 1rem; margin-bottom: 1rem;">
               ${previewHtml}
             </div>
@@ -841,7 +763,7 @@ export default class DashboardManager {
   getAdminBadgeDefaults(badge) {
     return {
       name: badge.name || 'Special Badge',
-      icon: badge.icon || '🏆',
+      icon: badge.icon || '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>',
       description: badge.description || 'Admin awarded',
       xp: badge.xp || 50,
       rarity: badge.rarity || 'epic'
@@ -876,7 +798,7 @@ export default class DashboardManager {
       .map(b => ({
         id: b.id,
         name: b.name || 'Special Badge',
-        icon: b.icon || '🏆',
+        icon: b.icon || '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>',
         description: b.description || 'Admin awarded',
         xp: b.xp || 50,
         rarity: b.rarity || 'epic',
@@ -945,7 +867,7 @@ export default class DashboardManager {
   renderBadgeCard(badge) {
     const cardClass = badge.earned ? '' : 'badge-locked';
     const gradient = CONSTANTS.RARITY_GRADIENTS[badge.rarity] || CONSTANTS.RARITY_GRADIENTS.common;
-    const icon = badge.earned ? badge.icon : '🔒';
+    const icon = badge.earned ? badge.icon : '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
     
     return `
       <div class="dashboard-badge-card ${cardClass}" style="background:${gradient};">
@@ -1014,7 +936,7 @@ export default class DashboardManager {
         <div class="dashboard-container">
           <div class="dashboard-content">
             <header class="main-header project-curiosity"
-                    style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavDashboard.png');
+                    style="--header-img:url('/public/Tabs/NavDashboard.webp');
                            --header-title:'${userName}';
                            --header-tag:'Your journey inward begins here, so practice. explore. transform.'">
               <h1>${userName}'s Spiritual Dashboard</h1>
@@ -1022,7 +944,9 @@ export default class DashboardManager {
               <span class="header-sub"></span>
             </header>
             ${this.renderGamificationWidget(status, stats)}
+            <div id="dashboardActiveMembersContainer"></div>
             ${this.dailyCards.renderDailyCardsSection()}
+            <div id="sanctuaryContainer"></div>
             ${this.renderWellnessToolkit()}
             ${this.renderQuestHub(status)}
             ${this.renderRecentAchievements(status)}
@@ -1032,12 +956,25 @@ export default class DashboardManager {
 
       // Animate progress bars
       this.animateProgressBars();
+
+      // Render Active Members widget into the dashboard container.
+      // ActiveMembers.render() always targets #activeMembersContainer, so we
+      // briefly give our dashboard div that ID, render, then restore it.
+      const dashEl = document.getElementById('dashboardActiveMembersContainer');
+      if (dashEl) {
+        dashEl.id = 'activeMembersContainer';
+        await ActiveMembers.render();
+        dashEl.id = 'dashboardActiveMembersContainer';
+      }
+
+      // Render Sanctuary / Community Hub invite section
+      this._renderSanctuarySection();
       
     } catch (error) {
       console.error('Error rendering dashboard:', error);
       dashboard.innerHTML = `
         <div class="card" style="padding: 2rem; text-align: center;">
-          <h2 style="color: var(--neuro-accent);">⚠️ Error Loading Dashboard</h2>
+          <h2 style="color: var(--neuro-accent);"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Error Loading Dashboard</h2>
           <p>Please refresh the page or contact support if the issue persists.</p>
         </div>`;
     }
@@ -1058,6 +995,51 @@ export default class DashboardManager {
     });
   }
 
+  /* ---------- Sanctuary / Community Hub Invite ---------- */
+
+  /**
+   * Renders the Community Hub invite section in dashboard card style.
+   * @private
+   */
+  _renderSanctuarySection() {
+    const container = document.getElementById('sanctuaryContainer');
+    if (!container) return;
+
+    const features = [
+      { emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>', title: '8 Practice & Study Rooms', desc: 'Join live rooms with other practitioners', target: 'roomsGrid' },
+      { emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>', title: 'Chat & Connect',           desc: 'Talk, study and share with the community', target: 'communityReflectionsContainer' },
+      { emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>', title: 'Lunar Cycle Room',         desc: 'Practice in rhythm with the moon',        target: 'celestialLunarSection' },
+      { emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>', title: 'Solar Cycle Room',         desc: 'Align your practice with the sun',        target: 'celestialSolarSection' },
+    ];
+
+    container.innerHTML = `
+      <div class="card dashboard-wellness-toolkit dashboard-community-sanctuary mb-8">
+        <img src="/public/Tabs/CommunityHub.webp" alt="Community Sanctuary"
+             width="800" height="450"
+             style="width:100%;border-radius:var(--radius-md);display:block;">
+
+        <div class="wellness-buttons-grid">
+          ${features.map(f => `
+            <button class="wellness-tool-btn wellness-tool-active"
+                    onclick="window._navigateToHubSection('${f.target}')"
+                    aria-label="${f.title}">
+              <div class="wellness-tool-icon">${f.emoji}</div>
+              <div class="wellness-tool-content">
+                <h4 class="wellness-tool-name">${f.title}</h4>
+                <p class="wellness-tool-description">${f.desc}</p>
+              </div>
+            </button>`).join('')}
+        </div>
+
+        <button onclick="window.app?.nav?.switchTab('community-hub')"
+                class="btn btn-primary"
+                style="width:100%;margin-top:1rem;display:flex;align-items:center;justify-content:center;gap:0.5rem;">
+          <picture><source srcset="/public/Tabs/Community.webp" type="image/webp"><img src="/public/Tabs/Community.png" alt="" width="44" height="44" style="width:44px;height:44px;object-fit:contain;border-radius:4px;"></picture>
+          Enter the Community Hub →
+        </button>
+      </div>`;
+  }
+
   /* ---------- Cleanup ---------- */
   
   /**
@@ -1068,12 +1050,9 @@ export default class DashboardManager {
     // Clear all intervals
     this.intervals.forEach(interval => clearInterval(interval));
     this.intervals = [];
-    
+
     // Clear cached elements
     this.cachedElements = {};
-    
-    // Clear wellness tracking
-    this.lastWellnessXP = {};
     
     // Remove global references
     if (window.app?.dashboard) {
@@ -1082,6 +1061,5 @@ export default class DashboardManager {
       delete window.app.dashboard.toggleAllBadges;
     }
     
-    console.log('DashboardManager destroyed and cleaned up');
   }
 }

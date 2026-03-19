@@ -2,7 +2,7 @@
  * TarotEngine.js - Complete Tarot Integration
  */
 
-const TAROT_BASE_URL = 'https://raw.githubusercontent.com/lironkerem/self-analysis-pro/main/assets/Tarot%20Cards%20images/';
+const TAROT_BASE_URL = '/public/Tarot%20Cards%20images/';
 
 class TarotEngine {
   constructor() {
@@ -11,13 +11,13 @@ class TarotEngine {
 
   getMajorArcanaImage(number) {
     const num = String(number).padStart(2, '0');
-    return `${this.baseUrl}${num}-${this.getMajorArcanaName(number).replace(/\s+/g, '')}.jpg`;
+    return `${this.baseUrl}${num}-${this.getMajorArcanaName(number).replace(/\s+/g, '')}.webp`;
   }
 
   getMinorArcanaImage(suit, number) {
     const num = String(number).padStart(2, '0');
     const suitCap = suit.charAt(0).toUpperCase() + suit.slice(1);
-    return `${this.baseUrl}${suitCap}${num}.jpg`;
+    return `${this.baseUrl}${suitCap}${num}.webp`;
   }
 
   getMajorArcanaName(number) {
@@ -255,6 +255,8 @@ class TarotEngine {
                  src="${card.image}" 
                  alt="${card.name}" 
                  title="${card.name}" 
+                 loading="lazy"
+                 decoding="async"
                  style="width: 100%; height: auto; border-radius: 4px; display: block; opacity: 0; position: relative; z-index: 5; transition: opacity 0.3s ease;"
                  onload="this.style.opacity='1'; var loader = document.getElementById('loading-${uniqueId}'); if (loader) loader.style.display='none';"
                  onerror="this.style.opacity='1'; var loader = document.getElementById('loading-${uniqueId}'); if (loader) loader.innerHTML='<span style=\\'color:#999;font-size:12px;\\'>Image unavailable</span>';">

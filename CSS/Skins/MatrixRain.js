@@ -37,7 +37,6 @@
       this.createColumns();
       this.isRunning = true;
       this.animate();
-      console.log('✅ Matrix Rain initialized');
     }
 
     createContainer() {
@@ -104,7 +103,6 @@ destroy() {
         col.el.style.textShadow = `0 0 10px ${color}`;
       });
       
-      console.log(`🎨 Matrix colors updated: ${isDark ? 'RED' : 'GREEN'}`);
     }
   } 
 

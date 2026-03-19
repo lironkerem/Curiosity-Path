@@ -1,6 +1,6 @@
 /* js/features/triggerRelease.js  – patched & production-ready */
 import { createModal } from '/Mini-Apps/ShadowAlchemyLab/js/core/modal.js';
-import { showToast, showConfirmDialog } from '/Mini-Apps/ShadowAlchemyLab//js/core/utils.js';
+import { showToast, showConfirmDialog } from '/Mini-Apps/ShadowAlchemyLab/js/core/utils.js';
 import { state, saveState } from '/Mini-Apps/ShadowAlchemyLab/js/core/state.js';
 
 export function openTriggerReleaseModal(entry = null) {

@@ -16,7 +16,7 @@
 
 /* global window, console, localStorage */
 
-import { fetchProgress, saveProgress } from '/Core/DB.js';
+import { fetchProgress, saveProgress, clearCache } from '/Core/DB.js';
 
 // ============================================================================
 // CONSTANTS
@@ -60,15 +60,17 @@ export default class AppState {
     this.isAuthenticated = false;
     this.activeTab = 'dashboard';
     this.data = null;
-    this.ready = this.init();
+    this.ready = Promise.resolve(this); // Don't load data until auth is confirmed
   }
 
   /**
-   * Initializes the app state by loading data
+   * Loads data after authentication is confirmed.
+   * Call this explicitly after checkAuth() succeeds.
    * @returns {Promise<AppState>} This instance when ready
    */
-  async init() {
+  async loadData() {
     this.data = await this.loadAppData();
+    this.ready = Promise.resolve(this);
     return this;
   }
 
@@ -91,7 +93,6 @@ export default class AppState {
       if (localData) return localData;
       
       // No data found, initialize empty
-      console.log('📊 No cached data — initializing empty model');
       return this.emptyModel();
     } catch (error) {
       console.error('Failed to load app data:', error);
@@ -105,7 +106,7 @@ export default class AppState {
    */
   async loadFromCloud() {
     try {
-      const cloudData = fetchProgress(true);
+      const cloudData = await fetchProgress(true);
       
       if (cloudData == null) {
         throw new Error('Cloud fetch returned null');
@@ -116,7 +117,6 @@ export default class AppState {
         return this.emptyModel();
       }
       
-      console.log('📊 Loaded user data from cloud');
       return cloudData;
     } catch (error) {
       console.warn('⚠️ Cloud read failed:', error.message);
@@ -134,7 +134,6 @@ export default class AppState {
       if (!raw) return null;
       
       const parsed = JSON.parse(raw);
-      console.log('📊 Loaded user data from localStorage cache');
       return parsed;
     } catch (error) {
       console.warn('⚠️ localStorage parse failed, clearing cache:', error);
@@ -197,6 +196,16 @@ export default class AppState {
     }
   }
 
+  /**
+   * Clears the DB.js cloud fetch cache.
+   * Call this before reloading after an admin write so the next
+   * fetchProgress() goes to Supabase instead of returning stale data.
+   */
+  clearCache() {
+    clearCache();
+    this.clearLocalStorage();
+  }
+
   // ==========================================================================
   // DATA MODEL
   // ==========================================================================
@@ -211,7 +220,7 @@ export default class AppState {
       energyEntries: [],
       gratitudeEntries: [],
       tarotReadings: [],
-      meditationHistory: [],
+      meditationEntries: [],
       journalEntries: [],
       flipEntries: [],
       
@@ -233,19 +242,9 @@ export default class AppState {
         totalReadings: 0
       },
       
-      // Gamification data
-      gamification: {
-        xp: 0,
-        level: 1,
-        achievements: [],
-        badges: [],
-        quests: {},
-        streaks: {
-          current: 0,
-          longest: 0,
-          lastActive: null
-        }
-      }
+      // Gamification data is managed flat by GamificationEngine
+      // and persisted via saveState() → saveAppData(). No nested
+      // gamification block here to avoid dual-shape conflicts.
     };
   }
 
@@ -294,7 +293,7 @@ export default class AppState {
     weekAgo.setDate(weekAgo.getDate() - STATS_WINDOW_DAYS);
     
     // Calculate weekly meditations
-    const weeklyMeditations = (this.data.meditationHistory || [])
+    const weeklyMeditations = (this.data.meditationEntries || [])
       .filter(m => new Date(m.timestamp) >= weekAgo)
       .length;
     
@@ -420,7 +419,8 @@ export default class AppState {
    */
   handleEnergyGamification(gamification) {
     gamification.addXP(XP_REWARDS[ENTRY_TYPES.ENERGY], 'Energy Check-in');
-    gamification.progressQuest('daily', 'energy_checkin', 1);
+    gamification.progressQuest('weekly', 'energy_7', 1);
+    gamification.progressQuest('monthly', 'monthly_energy_28', 1);
     gamification.updateStreak();
     gamification.checkAllBadges();
   }
@@ -433,7 +433,9 @@ export default class AppState {
     const xp = XP_REWARDS[ENTRY_TYPES.GRATITUDE] * count;
     
     gamification.addXP(xp, 'Gratitude Journal');
-    gamification.progressQuest('daily', 'gratitude_1', count);
+    gamification.progressQuest('daily', 'gratitude_entry', count);
+    gamification.progressQuest('weekly', 'gratitude_streak_7', count);
+    gamification.progressQuest('monthly', 'monthly_gratitude_28', count);
     gamification.updateStreak();
     gamification.checkAllBadges();
   }
@@ -446,8 +448,9 @@ export default class AppState {
     const xp = duration * XP_REWARDS[ENTRY_TYPES.MEDITATION];
     
     gamification.addXP(xp, 'Meditation');
-    gamification.progressQuest('daily', 'meditate_10', duration);
-    gamification.progressQuest('weekly', 'meditate_5', 1);
+    gamification.progressQuest('daily', 'meditation_session', 1);
+    gamification.progressQuest('weekly', 'meditate_3', 1);
+    gamification.progressQuest('monthly', 'monthly_meditation_15', 1);
     gamification.updateStreak();
     gamification.checkAllBadges();
     
@@ -462,6 +465,9 @@ export default class AppState {
    */
   handleTarotGamification(gamification) {
     gamification.addXP(XP_REWARDS[ENTRY_TYPES.TAROT], 'Tarot Reading');
+    gamification.progressQuest('daily', 'tarot_spread', 1);
+    gamification.progressQuest('weekly', 'tarot_4_days', 1);
+    gamification.progressQuest('monthly', 'monthly_tarot_15', 1);
     gamification.updateStreak();
     gamification.checkAllBadges();
   }
@@ -471,6 +477,9 @@ export default class AppState {
    */
   handleFlipGamification(gamification) {
     gamification.addXP(XP_REWARDS[ENTRY_TYPES.FLIP], 'Flip The Script');
+    gamification.progressQuest('daily', 'flip_script', 1);
+    gamification.progressQuest('weekly', 'flip_script_5', 1);
+    gamification.progressQuest('monthly', 'monthly_flip_15', 1);
     gamification.updateStreak();
     gamification.checkAllBadges();
   }
@@ -480,7 +489,9 @@ export default class AppState {
    */
   handleJournalGamification(gamification) {
     gamification.addXP(XP_REWARDS[ENTRY_TYPES.JOURNAL], 'Journal Entry');
-    gamification.progressQuest('daily', 'journal_1', 1);
+    gamification.progressQuest('daily', 'journal_entry', 1);
+    gamification.progressQuest('weekly', 'journal_5', 1);
+    gamification.progressQuest('monthly', 'monthly_journal_20', 1);
     gamification.updateStreak();
     gamification.checkAllBadges();
   }

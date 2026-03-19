@@ -23,32 +23,39 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
    CONFIGURATION - FUTURE-PROOF
    ========================================================= */
 
+// ⚙️ ENVIRONMENT SWITCH - set to false before deploying to production
+const DEV_MODE = false;
+
+const SUPABASE_CONFIGS = {
+  dev: {
+    url:     'https://caayiswyoynmeuimvwyn.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNhYXlpc3d5b3lubWV1aW12d3luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwOTUzNjksImV4cCI6MjA4NjY3MTM2OX0.AZ0btubjs18KMXlrTFlPKqBwSOV8t7KTrbiLo3XxoQ0'
+  },
+  prod: {
+    url:     'https://qfbarhxfmzpgbgkaymuk.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmYmFyaHhmbXpwZ2Jna2F5bXVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODg4MjEsImV4cCI6MjA4MDE2NDgyMX0.twBWw0dZnLRTWTHav0sJ77GXyvsGR3ZgPplRO2vVSFk'
+  }
+};
+
 /**
- * Get Supabase URL - checks Vite env first, then hardcoded fallback
+ * Get Supabase URL - checks Vite env first, then DEV_MODE config
  */
 function getSupabaseUrl() {
-  // Check if running with Vite (future)
   if (typeof import.meta?.env?.VITE_SUPABASE_URL !== 'undefined') {
-    console.log('✅ Using Supabase URL from environment variable');
     return import.meta.env.VITE_SUPABASE_URL;
   }
-  
-  // Fallback for non-Vite setup (current)
-  return 'https://qfbarhxfmzpgbgkaymuk.supabase.co';
+  const env = DEV_MODE ? 'dev' : 'prod';
+  return SUPABASE_CONFIGS[env].url;
 }
 
 /**
- * Get Supabase anon key - checks Vite env first, then hardcoded fallback
+ * Get Supabase anon key - checks Vite env first, then DEV_MODE config
  */
 function getSupabaseAnonKey() {
-  // Check if running with Vite (future)
   if (typeof import.meta?.env?.VITE_SUPABASE_ANON_KEY !== 'undefined') {
-    console.log('✅ Using Supabase anon key from environment variable');
     return import.meta.env.VITE_SUPABASE_ANON_KEY;
   }
-  
-  // Fallback for non-Vite setup (current)
-  return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmYmFyaHhmbXpwZ2Jna2F5bXVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODg4MjEsImV4cCI6MjA4MDE2NDgyMX0.twBWw0dZnLRTWTHav0sJ77GXyvsGR3ZgPplRO2vVSFk';
+  return SUPABASE_CONFIGS[DEV_MODE ? 'dev' : 'prod'].anonKey;
 }
 
 const SUPABASE_URL = getSupabaseUrl();
@@ -84,7 +91,6 @@ let supabaseClient = null;
 
 try {
   supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, options);
-  console.log('✅ Supabase client initialized');
 } catch (error) {
   console.error('❌ Failed to initialize Supabase client:', error);
 }
@@ -95,6 +101,10 @@ try {
  */
 export const supabase = supabaseClient;
 
+// Expose globally so Community Hub can reuse the same authenticated session
+if (typeof window !== 'undefined') {
+  window.AppSupabase = supabaseClient;
+}
 /* =========================================================
    HELPER FUNCTIONS
    ========================================================= */
@@ -166,7 +176,6 @@ export async function testConnection() {
     if (error && error.code !== 'PGRST116') {
       throw error;
     }
-    console.log('✅ Supabase connection successful');
     return true;
   } catch (error) {
     console.error('❌ Supabase connection failed:', error);
@@ -206,8 +215,6 @@ if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
     url: SUPABASE_URL,
     version: '2.39.0'
   };
-  console.log('🔧 Supabase utilities available at window.__supabase');
-  console.log('   Config:', getConfig());
 }
 
 /* =========================================================

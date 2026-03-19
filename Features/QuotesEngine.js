@@ -72,7 +72,7 @@ class QuotesEngine {
           <div class="bg-gradient-to-r from-purple-900 to-blue-900 rounded-3xl p-12 text-center border border-purple-500/30" style="margin-bottom: 3rem;">
             <p class="text-purple-200 text-sm uppercase tracking-wider" style="margin-bottom: 1.5rem;">Quote of the Day</p>
             <p class="text-white text-4xl font-light italic" style="margin-bottom: 2rem;">"${dailyQuote.text}"</p>
-            <p class="text-purple-300 text-xl">— ${dailyQuote.author}</p>
+            <p class="text-purple-300 text-xl">- ${dailyQuote.author}</p>
           </div>
 
           <!-- All Quotes Gallery -->
@@ -94,7 +94,7 @@ class QuotesEngine {
     return this.quotes.map(quote => `
       <div class="card">
         <p class="text-white text-lg italic" style="margin-bottom: 1rem;">"${quote.text}"</p>
-        <p class="text-purple-400">— ${quote.author}</p>
+        <p class="text-purple-400">- ${quote.author}</p>
       </div>
     `).join('');
   }

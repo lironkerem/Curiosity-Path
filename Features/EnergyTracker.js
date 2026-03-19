@@ -252,14 +252,14 @@ class EnergyEngineEnhanced {
       }
       
       this.app.showToast(
-        `✅ ${period === 'day' ? 'Day' : 'Night'} energy check-in saved!`, 
+        `${period === 'day' ? 'Day' : 'Night'} energy check-in saved!`, 
         'success'
       );
       this.render();
       
     } catch (err) {
       console.error('Error saving check-in:', err);
-      this.app.showToast('❌ Failed to save check-in', 'error');
+      this.app.showToast('Failed to save check-in', 'error');
     }
   }
 
@@ -385,6 +385,7 @@ class EnergyEngineEnhanced {
         <div class="universal-content">
           ${this.buildHeader()}
           ${this.buildCheckinCard(stats, greeting, period, checkinStatus)}
+          ${this.buildReikiCTA()}
           ${this.buildChartsSection(weeklyData, chakraAvg)}
           ${this.buildJournalSection(filteredJournal)}
         </div>
@@ -413,12 +414,48 @@ class EnergyEngineEnhanced {
   buildHeader() {
     return `
       <header class="main-header project-curiosity" 
-              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavEnergy.png');
+              style="--header-img:url('/public/Tabs/NavEnergy.webp');
                      --header-title:'';
                      --header-tag:'Check, review, track and learn your energy patterns - Overall and Chakras'">
         <h1>Energy Tracker</h1>
         <h3>Check, review, track and learn your energy patterns - Overall and Chakras</h3>
       </header>
+    `;
+  }
+
+  /**
+   * Builds Reiki & Chakras Community CTA section
+   */
+  buildReikiCTA() {
+    return `
+      <div class="community-link-card" style="padding-top:0;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:0;">
+          <picture><source srcset="/public/Tabs/CommunityHub.webp" type="image/webp"><img src="/public/Tabs/CommunityHub.png" alt="Community" width="480" height="360" style="width:30rem;object-fit:contain;margin-top:1rem;margin-bottom:1rem;" loading="lazy" decoding="async"></picture>
+          <h3 style="margin:0;font-size:1.15rem;text-align:center;">
+            Learn & Practice Reiki and Chakras with the Community
+          </h3>
+        </div>
+        <p style="margin: 0 0 1.5rem; font-size: 0.92rem; line-height: 1.6;">
+          Deepen your energy practice together. Join live sessions, guided meditations,
+          and group healing circles - all in one place.
+        </p>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+          <button
+            onclick="document.activeElement?.blur(); window.app.nav.switchTab('community-hub')"
+            class="btn btn-primary"
+            style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;flex:1 1 40%;white-space:nowrap;"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Enter the Community Hub
+          </button>
+          <button
+            onclick="document.activeElement?.blur(); window._pendingRoomOpen = 'reiki'; window.app.nav.switchTab('community-hub')"
+            class="btn btn-primary"
+            style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;flex:1 1 40%;white-space:nowrap;"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>Enter the Reiki Room
+          </button>
+        </div>
+      </div>
     `;
   }
 
@@ -464,12 +501,14 @@ class EnergyEngineEnhanced {
           </p>
           <div class="flex gap-2 mt-2 justify-end text-xs">
             <span class="${this.currentCheckin.dayCheckin ? 'badge badge-success' : 'badge'}" 
-                  style="padding:4px 8px;">
-              ☀️ Day ${this.currentCheckin.dayCheckin ? '✓' : ''}
+                  style="padding:4px 8px;display:inline-flex;align-items:center;gap:4px;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:12px;height:12px;"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+              ${this.currentCheckin.dayCheckin ? '✓' : ''}
             </span>
             <span class="${this.currentCheckin.nightCheckin ? 'badge badge-success' : 'badge'}" 
-                  style="padding:4px 8px;">
-              🌙 Night ${this.currentCheckin.nightCheckin ? '✓' : ''}
+                  style="padding:4px 8px;display:inline-flex;align-items:center;gap:4px;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:12px;height:12px;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+              ${this.currentCheckin.nightCheckin ? '✓' : ''}
             </span>
           </div>
         </div>
@@ -565,11 +604,13 @@ class EnergyEngineEnhanced {
   buildActionButtons(period) {
     return `
       <div class="flex gap-3 flex-wrap">
-        <button id="btn-save-checkin" class="btn btn-primary">
-          💾 Save ${period === 'day' ? 'Day' : 'Night'} Check-in
+        <button id="btn-save-checkin" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:0.5rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
+          Save ${period === 'day' ? 'Day' : 'Night'} Check-in
         </button>
-        <button id="btn-reset-today" class="btn btn-secondary">
-          🔄 Reset Form
+        <button id="btn-reset-today" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:0.5rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Reset Form
         </button>
       </div>
     `;
@@ -697,7 +738,9 @@ class EnergyEngineEnhanced {
     if (filteredJournal.length === 0) {
       return `
         <div class="card text-center" style="padding:4rem;">
-          <div class="text-7xl" style="margin-bottom: 1rem;">📋</div>
+          <div style="display:flex;justify-content:center;margin-bottom:1rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:56px;height:56px;color:var(--neuro-text-light);"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
+          </div>
           <p style="color:var(--neuro-text-light);">
             ${this.searchQuery 
               ? 'No entries found matching your search' 
@@ -741,10 +784,10 @@ class EnergyEngineEnhanced {
 
     const badges = [];
     if (entry.dayCheckin) {
-      badges.push('<span class="badge badge-success" style="font-size:0.75rem">☀️ Day</span>');
+      badges.push('<span class="badge badge-success" style="font-size:0.75rem;display:inline-flex;align-items:center;gap:4px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:11px;height:11px;"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Day</span>');
     }
     if (entry.nightCheckin) {
-      badges.push('<span class="badge badge-success" style="font-size:0.75rem">🌙 Night</span>');
+      badges.push('<span class="badge badge-success" style="font-size:0.75rem;display:inline-flex;align-items:center;gap:4px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:11px;height:11px;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg> Night</span>');
     }
 
     return `
@@ -893,7 +936,7 @@ class EnergyEngineEnhanced {
     const nonZero = points.filter(v => v > 0);
     const average = nonZero.length 
       ? (nonZero.reduce((sum, v) => sum + v, 0) / nonZero.length).toFixed(1) 
-      : '—';
+      : '-';
     
     svg += `<text x="${WIDTH / 2}" y="${HEIGHT + 85}" font-size="14" font-weight="bold" 
                   fill="var(--neuro-text)" text-anchor="middle">

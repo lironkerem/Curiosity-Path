@@ -33,7 +33,7 @@ export function openSubShadowsLabModal() {
                   ${done ? '<span style="color:var(--neuro-success);margin-left:auto">✓ Complete</span>' : ''}
                 </div>
                 <div class="muted" style="font-size:0.85rem;margin-bottom:var(--spacing-xs)">${s.tagline}</div>
-                <div class="muted" style="font-size:0.8rem">⏱️ ${s.estimatedTime}</div>
+                <div class="muted" style="font-size:0.8rem;display:flex;align-items:center;gap:0.25rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:0.85rem;height:0.85rem;vertical-align:middle;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> ${s.estimatedTime}</div>
               </div>`;
           }).join('')}
         </div>

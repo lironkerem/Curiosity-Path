@@ -15,6 +15,10 @@ import { DarkMode } from '/Core/Utils.js';
 import DailyCards from '../Features/DailyCards.js';
 import CTA from './CTA.js';
 import { fetchProgress, saveProgress, clearCache } from '/Core/DB.js';
+import { CommunityDB } from '/Mini-Apps/CommunityHub/js/community-supabase.js';
+import { Core as CommunityCore } from '/Mini-Apps/CommunityHub/js/core.js';
+import { MemberProfileModal } from '/Mini-Apps/CommunityHub/js/member-profile-modal.js';
+import { WhisperModal } from '/Mini-Apps/CommunityHub/js/WhisperModal.js';
 
 /* =========================================================
    CONSTANTS
@@ -49,25 +53,29 @@ const TAB_NAMES = {
   GRATITUDE: 'gratitude',
   JOURNAL: 'journal',
   SHADOW_ALCHEMY: 'shadow-alchemy',
-  CHATBOT: 'chatbot'
+  CHATBOT: 'chatbot',
+  COMMUNITY_HUB: 'community-hub'
 };
 
 const EMOJI = {
-  LEVEL_UP: '🎉✨🌟⭐💫',
-  ACHIEVEMENT: '🏆',
-  FIRE: '🔥',
-  TROPHY: '🏆',
-  MEDAL: '🏅',
-  BADGE: '🏖️',
-  CHECKMARK: '✅',
-  STAR: '🌟',
-  GEM: '💎',
-  SPARKLES: '💫',
-  UNLOCK: '🔓'
+  LEVEL_UP:    '',
+  ACHIEVEMENT: '',
+  FIRE:        '',
+  TROPHY:      '',
+  MEDAL:       '',
+  BADGE:       '',
+  CHECKMARK:   '',
+  STAR:        '',
+  GEM:         '',
+  SPARKLES:    '',
+  UNLOCK:      ''
 };
 
 // Initialize dark mode on module load
 DarkMode.init();
+
+// Expose Supabase client globally for Community Hub scripts
+window.AppSupabase = supabase;
 
 /* =========================================================
    MAIN APPLICATION CLASS
@@ -83,7 +91,7 @@ export default class ProjectCuriosityApp {
    */
   constructor(deps) {
     this.deps = deps;
-    this.state = new deps.AppState();
+    this.state = new deps.AppState(this);
     this.auth = new deps.AuthManager(this);
     this.nav = null;
     this.dashboard = null;
@@ -227,7 +235,7 @@ export default class ProjectCuriosityApp {
       email: emailEl?.value.trim() || '',
       phone: phoneEl?.value.trim() || '',
       birthday: bdayEl?.value || null,
-      emoji: emojiEl?.value || '👤',
+      emoji: emojiEl?.value || '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
       file: fileEl?.files[0] || null
     };
   }
@@ -313,22 +321,21 @@ export default class ProjectCuriosityApp {
 
     const g = this.gamification;
 
-    // Level up
+    // Level up — showLevelUpSpectacle in the engine handles the visual celebration
     const unsub1 = g.on('levelUp', ({ level, title }) => {
       showToast(
-        `${EMOJI.LEVEL_UP.slice(0, 2)} Level Up! You are now a ${title} (Level ${level})!`,
+        `Level Up! You are now a ${title} (Level ${level})!`,
         'success'
       );
-      this.playLevelUpAnimation();
     });
 
     // Streak updated
     const unsub2 = g.on('streakUpdated', ({ current, best }) => {
       if (current > 1) {
-        showToast(`${EMOJI.FIRE} ${current} Day Streak!`, 'success');
+        showToast(`${current} Day Streak!`, 'success');
       }
       if (current === best && current > 3) {
-        showToast(`${EMOJI.TROPHY} New Best Streak: ${best} Days!`, 'success');
+        showToast(`New Best Streak: ${best} Days!`, 'success');
       }
     });
 
@@ -346,46 +353,37 @@ export default class ProjectCuriosityApp {
 
     // Achievement unlocked
     const unsub5 = g.on('achievementUnlocked', (achievement) => {
-      showToast(`${EMOJI.MEDAL} Achievement: ${achievement.name}`, 'success');
+      showToast(`Achievement: ${achievement.name}`, 'success');
       this.showAchievementModal(achievement);
     });
 
     // Badge unlocked
     const unsub6 = g.on('badgeUnlocked', (badge) => {
-      showToast(`${EMOJI.BADGE} New Badge: ${badge.name}`, 'success');
+      showToast(`New Badge: ${badge.name}`, 'success');
     });
 
-    // Quest completed
-    const unsub7 = g.on('questCompleted', (quest) => {
-      showToast(`${EMOJI.CHECKMARK} Quest Complete: ${quest.name}`, 'success');
-    });
+    // Quest completed - handled by DashboardManager
 
-    // All daily quests complete
-    const unsub8 = g.on('dailyQuestsComplete', () => {
-      showToast(`${EMOJI.STAR} All Daily Quests Complete! +50 Bonus XP`, 'success');
-    });
+    // All daily quests complete - handled by DashboardManager
 
     // Chakra updated
     const unsub9 = g.on('chakraUpdated', ({ chakra, value }) => {
       if (value >= 100) {
-        showToast(`${EMOJI.GEM} ${chakra} Chakra Mastered!`, 'success');
+        showToast(`${chakra} Chakra Mastered!`, 'success');
       }
     });
 
-    // Inspirational message
-    const unsub10 = g.on('inspirationalMessage', (message) => {
-      showToast(`${EMOJI.SPARKLES} ${message}`, 'info');
-    });
+    // Inspirational message - handled by DashboardManager
 
     // Feature unlocked
     const unsub11 = g.on('featureUnlocked', (featureId) => {
-      showToast(`${EMOJI.UNLOCK} New Feature Unlocked: ${featureId}`, 'success');
+      showToast(`New Feature Unlocked: ${featureId}`, 'success');
     });
 
     // Store unsubscribers for cleanup
     this._gamificationUnsubscribers.push(
       unsub1, unsub2, unsub3, unsub4, unsub5, unsub6,
-      unsub7, unsub8, unsub9, unsub10, unsub11
+      unsub9, unsub11
     );
   }
 
@@ -501,7 +499,7 @@ export default class ProjectCuriosityApp {
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
       transition: all 0.3s;
     `;
-    button.textContent = `Awesome! ${EMOJI.LEVEL_UP.slice(0, 2)}`;
+    button.textContent = `Awesome! ${EMOJI.LEVEL_UP}`;
     button.onmouseover = () => (button.style.transform = 'scale(1.05)');
     button.onmouseout = () => (button.style.transform = 'scale(1)');
     button.onclick = () => modalEl.remove();
@@ -535,12 +533,14 @@ export default class ProjectCuriosityApp {
    */
   async init() {
     try {
-      console.log('🧘 Initializing Project Curiosity...');
 
       // Check authentication
       if (!(await this.auth.checkAuth())) {
         return this.auth.renderAuthScreen();
       }
+
+      // Load data now that auth is confirmed
+      await this.state.loadData();
 
       // Wait for state to be ready
       await this.state.ready;
@@ -575,7 +575,6 @@ export default class ProjectCuriosityApp {
     this._initialized = true;
 
     try {
-      console.log('✅ User authenticated, loading data...');
 
       // Ensure state is valid
       if (!this._validateState()) {
@@ -593,6 +592,29 @@ export default class ProjectCuriosityApp {
       this.dailyCards = new DailyCards(this);
       await this.dailyCards.initializeBoosters();
 
+      // Initialize CommunityDB + load current user profile for the Active Members dashboard widget.
+      // We call CommunityDB.init() and CommunityCore.loadCurrentUser() directly - intentionally
+      // NOT calling CommunityCore.init() - so Core.state.initialized stays false and
+      // CommunityHubEngine can run it in full when the user navigates to the Community Hub tab.
+      if (!CommunityCore.state.initialized) {
+        const communityReady = await CommunityDB.init();
+        if (!communityReady) {
+          console.warn('[App] CommunityDB.init() failed - Active Members widget will be unavailable');
+        } else {
+          // Load the current user's community profile (avatar, name, status) so that
+          // the Active Members dashboard widget renders the correct avatar immediately,
+          // without requiring the user to visit the Community Hub tab first.
+          await CommunityCore.loadCurrentUser();
+
+          // Write presence to Supabase so the user appears in Active Members on dashboard load.
+          await CommunityDB.setPresence(
+            CommunityCore.state.currentUser?.status   || 'online',
+            CommunityCore.state.currentUser?.activity || '✨ Available',
+            null
+          );
+        }
+      }
+
       // Show main app UI
       this._hideAuthScreen();
       this._showMainApp();
@@ -606,19 +628,18 @@ export default class ProjectCuriosityApp {
       this.footerCTA = new CTA();
       this.footerCTA.render();
 
+      // Check if daily quests need reset BEFORE rendering dashboard
+      this.checkDailyReset();
+
       // Load feature modules
       this.loadModules();
 
       // Restore last active tab
       this.restoreLastTab();
 
-      // Check if daily quests need reset
-      this.checkDailyReset();
-
       // Start toast cleanup
       this._startToastCleanup();
 
-      console.log('🎉 Project Curiosity loaded successfully!');
     } catch (error) {
       console.error('App initialization failed:', error);
       this.showToast('Failed to load app. Please refresh.', 'error');
@@ -657,7 +678,6 @@ export default class ProjectCuriosityApp {
     if (lastReset !== today) {
       this.gamification.resetDailyQuests();
       localStorage.setItem(STORAGE_KEYS.LAST_DAILY_RESET, today);
-      console.log('📅 Daily quests reset');
     }
   }
 
@@ -694,8 +714,10 @@ if (window.FeaturesManager) {
    * @param {string} tab - Tab name
    */
   initializeTab(tab) {
+    const previousTab = this.currentTab;
+
     // Cleanup previous tab
-    if (this.currentTab === TAB_NAMES.DASHBOARD && tab !== TAB_NAMES.DASHBOARD) {
+    if (previousTab === TAB_NAMES.DASHBOARD && tab !== TAB_NAMES.DASHBOARD) {
       if (this.dashboard) {
         this.dashboard.destroy();
       }
@@ -732,7 +754,8 @@ if (window.FeaturesManager) {
       case TAB_NAMES.JOURNAL:
       case TAB_NAMES.SHADOW_ALCHEMY:
       case TAB_NAMES.CHATBOT:
-        this._initFeatureTab(tab);
+      case TAB_NAMES.COMMUNITY_HUB:
+        this._initFeatureTab(tab, previousTab);
         break;
 
       default:
@@ -747,7 +770,9 @@ if (window.FeaturesManager) {
    */
   _initDashboardTab() {
     if (this.deps.DashboardManager) {
-      this.dashboard = new this.deps.DashboardManager(this);
+      if (!this.dashboard) {
+        this.dashboard = new this.deps.DashboardManager(this);
+      }
       this.dashboard.render();
     }
   }
@@ -757,14 +782,24 @@ if (window.FeaturesManager) {
    * @private
    * @param {string} tab - Tab name
    */
-  _initFeatureTab(tab) {
-  if (this.features) {
-    this.features.init(tab);
-  } else {
-    console.error('FeaturesManager not available');
-    this.showToast('Feature not available', 'error');
+  /**
+   * Initialize feature tab
+   * @private
+   * @param {string} tab - Tab name
+   * @param {string|null} previousTab - Previously active tab to destroy
+   */
+  _initFeatureTab(tab, previousTab = null) {
+    if (this.features) {
+      // Destroy previous feature tab to free resources (e.g. YouTube player)
+      if (previousTab && previousTab !== tab && previousTab !== TAB_NAMES.DASHBOARD) {
+        this.features.destroy(previousTab);
+      }
+      this.features.init(tab);
+    } else {
+      console.error('FeaturesManager not available');
+      this.showToast('Feature not available', 'error');
+    }
   }
-}
 
   /**
    * Load calculator tab (lazy loaded)
@@ -958,6 +993,5 @@ async logout() {
     this._initialized = false;
     this._gamificationListenersReady = false;
 
-    console.log('🧹 ProjectCuriosityApp destroyed');
   }
 }

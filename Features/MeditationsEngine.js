@@ -21,7 +21,7 @@ class MeditationsEngine {
     this.eventCleanup = [];
     
     // Configuration
-    this.pdfGuideUrl = 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Source_PDF/Meditation_Demo.pdf';
+    this.pdfGuideUrl = '/public/Source_PDF/Meditation_Demo.pdf';
     this.SKIP_SECONDS = 15;
     this.MIN_PLAYER_WIDTH = 380;
     this.PROGRESS_UPDATE_MS = 1000;
@@ -156,6 +156,249 @@ class MeditationsEngine {
   }
 
   /**
+   * Builds the Community Meditation Rooms CTA card
+   */
+  /**
+   * Shows a self-contained schedule modal for a timed room.
+   * Works without Community Hub being loaded.
+   */
+  showMeditationSchedule(roomKey) {
+    const configs = {
+      guided: {
+        title:    "Today's Meditation Schedule",
+        cycleSec: 60 * 60,
+        openSec:  15 * 60,
+        sessions: [
+          { title: 'Grounding to the Center of Earth', duration: '29:56', category: 'Grounding',     emoji: '🌍' },
+          { title: 'Aura Adjustment and Cleaning',     duration: '29:56', category: 'Energy',        emoji: '✨' },
+          { title: 'Chakra Cleaning',                  duration: '39:58', category: 'Chakras',       emoji: '🌈' },
+          { title: 'The Center of the Universe',       duration: '29:56', category: 'Spiritual',     emoji: '🌌' },
+          { title: 'Blowing Roses Healing Technique',  duration: '29:56', category: 'Healing',       emoji: '🌹' },
+          { title: '3 Wishes Manifestation',           duration: '29:52', category: 'Manifestation', emoji: '⭐' },
+          { title: 'Meeting your Higher Self',         duration: '29:56', category: 'Premium',       emoji: '💎' },
+          { title: 'Inner Temple',                     duration: '29:46', category: 'Premium',       emoji: '🔮' },
+          { title: 'Gratitude Practice',               duration: '29:56', category: 'Premium',       emoji: '👑' },
+        ]
+      },
+      osho: {
+        title:    'Upcoming OSHO Sessions',
+        cycleSec: 90 * 60,
+        openSec:  10 * 60,
+        sessions: [
+          { title: 'OSHO Dynamic Meditation',    duration: '77:00', category: 'Energy',   emoji: '🔥' },
+          { title: 'OSHO Kundalini Meditation',  duration: '77:00', category: 'Movement', emoji: '💃' },
+          { title: 'OSHO Nadabrahma Meditation', duration: '77:00', category: 'Humming',  emoji: '🕉️' },
+          { title: 'OSHO Nataraj Meditation',    duration: '77:00', category: 'Dance',    emoji: '🎭' },
+          { title: 'OSHO Whirling Meditation',   duration: '77:00', category: 'Spinning', emoji: '🌀' },
+        ]
+      }
+    };
+
+    const cfg     = configs[roomKey];
+    if (!cfg) return;
+
+    const now     = Date.now();
+    const cycleMs = cfg.cycleSec * 1000;
+    const openMs  = cfg.openSec  * 1000;
+    const base    = Math.floor(now / cycleMs);
+    const fmt     = ms => new Date(ms).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+    const rows = Array.from({ length: 6 }, (_, i) => {
+      const idx        = (base + i) % cfg.sessions.length;
+      const session    = cfg.sessions[idx];
+      const cycleStart = (base + i) * cycleMs;
+      const cycleClose = cycleStart + openMs;
+      const timeInto   = now - cycleStart;
+      const isOpen     = i === 0 && timeInto >= 0 && timeInto < openMs;
+      const isInSess   = i === 0 && timeInto >= openMs;
+
+      const badge = isOpen
+        ? `<span style="background:#22c55e;color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px;">OPEN NOW</span>`
+        : isInSess
+          ? `<span style="background:rgba(239,68,68,0.15);color:#ef4444;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px;">IN SESSION</span>`
+          : '';
+
+      const rowBg = isOpen ? 'background:var(--neuro-accent);color:white;' : 'background:var(--neuro-bg);';
+
+      return `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:12px;margin-bottom:8px;${rowBg}
+                    box-shadow:4px 4px 10px var(--neuro-shadow-dark),-4px -4px 10px var(--neuro-shadow-light);">
+          <div style="display:flex;align-items:center;gap:12px;flex:1;">
+            <span style="font-size:24px;">${session.emoji}</span>
+            <div>
+              <div style="font-weight:600;font-size:14px;">${session.title}${badge}</div>
+              <div style="font-size:11px;opacity:0.7;">${[session.category, session.duration].filter(Boolean).join(' · ')}</div>
+            </div>
+          </div>
+          <div style="text-align:right;font-size:12px;white-space:nowrap;margin-left:12px;">
+            <div style="font-weight:600;">${fmt(cycleStart)}</div>
+            <div style="opacity:0.6;">closes ${fmt(cycleClose)}</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    // Remove any existing instance
+    document.getElementById('meditationScheduleModal')?.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'meditationScheduleModal';
+    modal.style.cssText = `
+      position:fixed;inset:0;z-index:99999;
+      background:rgba(0,0,0,0.5);
+      display:flex;align-items:center;justify-content:center;
+      padding:1rem;
+    `;
+    modal.innerHTML = `
+      <div style="background:var(--neuro-bg);border-radius:16px;padding:1.5rem;max-width:520px;width:100%;
+                  max-height:80vh;overflow-y:auto;
+                  box-shadow:12px 12px 24px var(--neuro-shadow-dark),-12px -12px 24px var(--neuro-shadow-light);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="margin:0;font-size:1.1rem;color:var(--neuro-text);">${cfg.title}</h2>
+          <button onclick="document.getElementById('meditationScheduleModal')?.remove()"
+                  style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--neuro-text-light);line-height:1;">×</button>
+        </div>
+        <div>${rows}</div>
+      </div>
+    `;
+
+    modal.addEventListener('click', e => {
+      if (e.target === modal) modal.remove();
+    });
+
+    document.body.appendChild(modal);
+  }
+
+  buildMeditationCTA() {
+    // Calculate cycle state directly from the clock - works before Community Hub loads
+    const calcCycle = (cycleSec, openSec) => {
+      const now          = Date.now();
+      const cycleMs      = cycleSec * 1000;
+      const openMs       = openSec  * 1000;
+      const timeInCycle  = now % cycleMs;
+      if (timeInCycle < openMs) return null; // currently open
+      const msUntilOpen  = cycleMs - timeInCycle;
+      const m = Math.floor(msUntilOpen / 60000);
+      const s = Math.floor((msUntilOpen % 60000) / 1000);
+      return `Opens in ${m}:${String(s).padStart(2, '0')}`;
+    };
+
+    const guidedCountdown = calcCycle(60 * 60, 15 * 60);  // 60-min cycle, 15-min open
+    const oshoCountdown   = calcCycle(90 * 60, 10 * 60);  // 90-min cycle, 10-min open
+
+    const btnStyle = null; // replaced by community-link-btn class
+
+    const disabledStyle = `
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 999px;
+      border: none;
+      background: var(--neuro-bg);
+      color: var(--neuro-text-light);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: not-allowed;
+      opacity: 0.55;
+      box-shadow: inset 4px 4px 8px var(--neuro-shadow-dark), inset -4px -4px 8px var(--neuro-shadow-light);
+    `;
+
+    return `
+      <div class="community-link-card" style="padding-top:0;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:0;">
+          <picture><source srcset="/public/Tabs/CommunityHub.webp" type="image/webp"><img src="/public/Tabs/CommunityHub.png" alt="Community" width="480" height="360" style="width:30rem;object-fit:contain;margin-top:1rem;margin-bottom:1rem;" loading="lazy" decoding="async"></picture>
+          <h3 style="margin: 0 0 0.75rem; font-size: 1.15rem; text-align:center;">
+            Meditate Together with the Community
+          </h3>
+        </div>
+        <p style="margin: 0 0 1.5rem; font-size: 0.92rem; line-height: 1.6;">
+          Practice in real time with others. Choose silence, guided visualization, or active OSHO techniques -
+          all in shared, live spaces.
+        </p>
+        <div class="meditation-cta-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+
+          <button
+            onclick="document.activeElement?.blur(); window.app.nav.switchTab('community-hub')"
+            class="btn btn-primary"
+            style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;white-space:nowrap;"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Enter the Community Hub
+          </button>
+
+          <button
+            onclick="document.activeElement?.blur(); window._pendingRoomOpen = 'silent'; window.app.nav.switchTab('community-hub')"
+            class="btn btn-primary"
+            style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;white-space:nowrap;"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+            Silent Meditation
+          </button>
+
+          ${guidedCountdown ? `
+          <div style="display:flex;flex-direction:column;gap:0.35rem;">
+            <button type="button" disabled style="${disabledStyle}" style="display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg>
+              Guided - ${guidedCountdown}
+            </button>
+            <button type="button" onclick="event.stopPropagation(); window.featuresManager.engines.meditations.showMeditationSchedule('guided')"
+              style="background:none;border:none;padding:0;font-size:11px;color:var(--neuro-text-light);cursor:pointer;text-decoration:underline;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:0.3rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:11px;height:11px;"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+              View Schedule
+            </button>
+          </div>
+          ` : `
+          <div style="display:flex;flex-direction:column;gap:0.35rem;">
+            <button
+              onclick="document.activeElement?.blur(); window._pendingRoomOpen = 'guided'; window.app.nav.switchTab('community-hub')"
+              class="btn btn-primary"
+              style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;white-space:nowrap;"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg>
+              Guided Visualizations
+            </button>
+            <button type="button" onclick="event.stopPropagation(); window.featuresManager.engines.meditations.showMeditationSchedule('guided')"
+              style="background:none;border:none;padding:0;font-size:11px;color:var(--neuro-text-light);cursor:pointer;text-decoration:underline;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:0.3rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:11px;height:11px;"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+              View Schedule
+            </button>
+          </div>
+          `}
+
+          ${oshoCountdown ? `
+          <div style="display:flex;flex-direction:column;gap:0.35rem;">
+            <button type="button" disabled style="${disabledStyle}" style="display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22V12"/><path d="M12 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" fill="currentColor"/><path d="M9 22v-4l3-2 3 2v4"/><path d="M7 15l5-3 5 3"/></svg>
+              OSHO Active - ${oshoCountdown}
+            </button>
+            <button type="button" onclick="event.stopPropagation(); window.featuresManager.engines.meditations.showMeditationSchedule('osho')"
+              style="background:none;border:none;padding:0;font-size:11px;color:var(--neuro-text-light);cursor:pointer;text-decoration:underline;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:0.3rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:11px;height:11px;"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+              View Schedule
+            </button>
+          </div>
+          ` : `
+          <div style="display:flex;flex-direction:column;gap:0.35rem;">
+            <button
+              onclick="document.activeElement?.blur(); window._pendingRoomOpen = 'osho'; window.app.nav.switchTab('community-hub')"
+              class="btn btn-primary"
+              style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;white-space:nowrap;"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22V12"/><path d="M12 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" fill="currentColor"/><path d="M9 22v-4l3-2 3 2v4"/><path d="M7 15l5-3 5 3"/></svg>
+              OSHO Active Meditations
+            </button>
+            <button type="button" onclick="event.stopPropagation(); window.featuresManager.engines.meditations.showMeditationSchedule('osho')"
+              style="background:none;border:none;padding:0;font-size:11px;color:var(--neuro-text-light);cursor:pointer;text-decoration:underline;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:0.3rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:11px;height:11px;"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+              View Schedule
+            </button>
+          </div>
+          `}
+
+        </div>
+      </div>
+    `;
+  }
+
+  /**
    * Main render method - builds the complete meditation interface
    */
   render() {
@@ -165,7 +408,7 @@ class MeditationsEngine {
         <div class="universal-content">
 
           <header class="main-header project-curiosity"
-                  style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavMeditations.png');
+                  style="--header-img:url('/public/Tabs/NavMeditations.webp');
                          --header-title:'';
                          --header-tag:'Aanandoham\\'s curated, unique collection of guided meditations'">
             <h1>Guided Meditations</h1>
@@ -177,66 +420,69 @@ class MeditationsEngine {
             <button onclick="window.featuresManager.engines.meditations.openPDFGuide()" 
                     class="btn btn-primary" 
                     style="padding: 12px 32px; display: inline-flex; align-items: center; gap: 8px;">
-              📖 A Demo from the 'Art of Meditation' Workbook - Free For you (PDF)
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              A Demo from the 'Art of Meditation' Workbook - Free For you (PDF)
             </button>
           </div>
 
           <div class="card dashboard-wellness-toolkit" style="margin-bottom: 2rem;">
             <div class="dashboard-wellness-header">
-              <h3 class="dashboard-wellness-title">🌟 Wellness Toolkit</h3>
+              <h3 class="dashboard-wellness-title" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg> Wellness Toolkit</h3>
               <p class="dashboard-wellness-subtitle">Quick access to your daily reset practices</p>
             </div>
             <div class="wellness-buttons-grid">
               <button class="wellness-tool-btn wellness-tool-active" onclick="window.openSelfReset()" aria-label="Open 60-Second Self Reset">
-                <div class="wellness-tool-icon">🧘</div>
+                <div class="wellness-tool-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></div>
                 <div class="wellness-tool-content">
                   <h4 class="wellness-tool-name">Self Reset</h4>
                   <p class="wellness-tool-description">Short Breathing practice</p>
                   <div class="wellness-tool-stats">
-                    <span class="wellness-stat-xp">✨ +10 XP</span>
-                    <span class="wellness-stat-karma">💎 +1 Karma</span>
+                    <span class="wellness-stat-xp">+10 XP</span>
+                    <span class="wellness-stat-karma">+1 Karma</span>
                   </div>
                 </div>
               </button>
               <button class="wellness-tool-btn wellness-tool-active" onclick="window.openFullBodyScan()" aria-label="Full Body Scan">
-                <div class="wellness-tool-icon">🌊</div>
+                <div class="wellness-tool-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg></div>
                 <div class="wellness-tool-content">
                   <h4 class="wellness-tool-name">Full Body Scan</h4>
                   <p class="wellness-tool-description">Progressive relaxation</p>
                   <div class="wellness-tool-stats">
-                    <span class="wellness-stat-xp">✨ +10 XP</span>
-                    <span class="wellness-stat-karma">💎 +1 Karma</span>
+                    <span class="wellness-stat-xp">+10 XP</span>
+                    <span class="wellness-stat-karma">+1 Karma</span>
                   </div>
                 </div>
               </button>
               <button class="wellness-tool-btn wellness-tool-active" onclick="window.openNervousReset()" aria-label="Nervous System Reset">
-                <div class="wellness-tool-icon">⚡</div>
+                <div class="wellness-tool-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
                 <div class="wellness-tool-content">
                   <h4 class="wellness-tool-name">Nervous System</h4>
                   <p class="wellness-tool-description">Balance & regulation</p>
                   <div class="wellness-tool-stats">
-                    <span class="wellness-stat-xp">✨ +10 XP</span>
-                    <span class="wellness-stat-karma">💎 +1 Karma</span>
+                    <span class="wellness-stat-xp">+10 XP</span>
+                    <span class="wellness-stat-karma">+1 Karma</span>
                   </div>
                 </div>
               </button>
               <button class="wellness-tool-btn wellness-tool-active" onclick="window.openTensionSweep()" aria-label="Tension Sweep">
-                <div class="wellness-tool-icon">🌀</div>
+                <div class="wellness-tool-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20"/><path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12"/><circle cx="12" cy="12" r="2"/></svg></div>
                 <div class="wellness-tool-content">
                   <h4 class="wellness-tool-name">Tension Sweep</h4>
                   <p class="wellness-tool-description">Release stored tension</p>
                   <div class="wellness-tool-stats">
-                    <span class="wellness-stat-xp">✨ +10 XP</span>
-                    <span class="wellness-stat-karma">💎 +1 Karma</span>
+                    <span class="wellness-stat-xp">+10 XP</span>
+                    <span class="wellness-stat-karma">+1 Karma</span>
                   </div>
                 </div>
               </button>
             </div>
           </div>
 
+          ${this.buildMeditationCTA()}
+
           <div class="card" style="margin-bottom: 2rem;">
             <div class="dashboard-wellness-header" style="margin-bottom:1.5rem;">
-              <h3 class="dashboard-wellness-title">🎧 Guided Meditations</h3>
+              <h3 class="dashboard-wellness-title" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg> Guided Meditations</h3>
               <p class="dashboard-wellness-subtitle">Aanandoham's private, curated, unique collection</p>
             </div>
 
@@ -263,13 +509,14 @@ class MeditationsEngine {
   renderMeditationCards() {
     return this.meditations.map(med => {
       const isPremium = med.premium;
-      const isLocked = isPremium && !this.app.gamification?.state?.unlockedFeatures?.includes('advanced_meditations');
+      const isPrivileged = this.app.state?.currentUser?.isAdmin || this.app.state?.currentUser?.isVip;
+      const isLocked = isPremium && !isPrivileged && !this.app.gamification?.state?.unlockedFeatures?.includes('advanced_meditations');
       
       return `
         <div class="meditation-card ${isLocked ? 'locked' : ''}" 
-             title="${isLocked ? '🔒 Purchase Advanced Meditations in Karma Shop to unlock' : ''}">
+             title="${isLocked ? 'Purchase Advanced Meditations in Karma Shop to unlock' : ''}">
           ${isPremium ? '<span class="premium-badge">PREMIUM</span>' : ''}
-          ${isLocked ? '<div class="lock-icon">🔒</div>' : ''}
+          ${isLocked ? '<div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>' : ''}
           
           <div class="meditation-header">
             <span class="meditation-emoji">${med.emoji}</span>
@@ -280,8 +527,9 @@ class MeditationsEngine {
           <p class="meditation-description">${med.description}</p>
 
           <div class="meditation-actions">
-            <button class="btn btn-secondary flex-1" onclick="window.featuresManager.engines.meditations.playAudio(${med.id})">
-              🎧 Audio
+            <button class="btn btn-secondary flex-1" onclick="window.featuresManager.engines.meditations.playAudio(${med.id})" style="display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg>
+              Audio
             </button>
             <button class="btn btn-primary flex-1" onclick="window.featuresManager.engines.meditations.playVideo(${med.id})">
               ▶️ Video
@@ -313,7 +561,7 @@ class MeditationsEngine {
           </div>
           
           <div class="player-info">
-            <div id="player-emoji" class="player-emoji">🎧</div>
+            <div id="player-emoji" class="player-emoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg></div>
             <div class="player-text">
               <h4 id="player-title" class="font-bold">No Meditation Selected</h4>
               <p id="player-time" class="text-sm">0:00 / 0:00</p>
@@ -321,7 +569,7 @@ class MeditationsEngine {
           </div>
           
           <div class="player-controls">
-            <button onclick="window.featuresManager.engines.meditations.skipBackward()" class="icon-btn">⏪</button>
+            <button onclick="window.featuresManager.engines.meditations.skipBackward()" class="icon-btn" aria-label="Skip backward 10 seconds">⏪</button>
             <div class="play-pause-wrapper">
               <svg class="progress-ring" width="60" height="60">
                 <circle class="progress-ring-bg" stroke-width="4" fill="transparent" r="28" cx="30" cy="30" />
@@ -330,7 +578,7 @@ class MeditationsEngine {
               <button onclick="window.featuresManager.engines.meditations.togglePlay()" id="play-pause-btn" class="btn btn-primary play-pause-btn">▶️</button>
               <button onclick="window.featuresManager.engines.meditations.stopMeditation()" class="stop-btn" title="Stop">⏹️</button>
             </div>
-            <button onclick="window.featuresManager.engines.meditations.skipForward()" class="icon-btn">⏩</button>
+            <button onclick="window.featuresManager.engines.meditations.skipForward()" class="icon-btn" aria-label="Skip forward 10 seconds">⏩</button>
           </div>
         </div>
       </div>
@@ -344,6 +592,9 @@ class MeditationsEngine {
   renderStyles() {
     return `
       <style>
+        @media (max-width: 600px) {
+          .meditation-cta-grid { grid-template-columns: 1fr !important; }
+        }
         /* Meditation Cards */
         .meditation-card {
           flex: 0 1 320px;
@@ -586,8 +837,9 @@ class MeditationsEngine {
     if (!med) return;
     
     // Check premium access
-    if (med.premium && !this.app.gamification?.state?.unlockedFeatures?.includes('advanced_meditations')) {
-      this.app.showToast('🔒 Unlock Advanced Meditations in the Karma Shop!', 'info');
+    const isPrivileged = this.app.state?.currentUser?.isAdmin || this.app.state?.currentUser?.isVip;
+    if (med.premium && !isPrivileged && !this.app.gamification?.state?.unlockedFeatures?.includes('advanced_meditations')) {
+      this.app.showToast('Unlock Advanced Meditations in the Karma Shop!', 'info');
       return;
     }
     
@@ -603,8 +855,9 @@ class MeditationsEngine {
     if (!med) return;
     
     // Check premium access
-    if (med.premium && !this.app.gamification?.state?.unlockedFeatures?.includes('advanced_meditations')) {
-      this.app.showToast('🔒 Unlock Advanced Meditations in the Karma Shop!', 'info');
+    const isPrivileged2 = this.app.state?.currentUser?.isAdmin || this.app.state?.currentUser?.isVip;
+    if (med.premium && !isPrivileged2 && !this.app.gamification?.state?.unlockedFeatures?.includes('advanced_meditations')) {
+      this.app.showToast('Unlock Advanced Meditations in the Karma Shop!', 'info');
       return;
     }
     
@@ -623,7 +876,7 @@ class MeditationsEngine {
 
       // Update player UI
       const playerBox = document.getElementById('meditation-audio-player');
-      document.getElementById('player-emoji').textContent = med.emoji;
+      document.getElementById('player-emoji').innerHTML = med.emoji;
       document.getElementById('player-title').textContent = med.title;
       playerBox.classList.remove('hidden');
 
@@ -633,7 +886,7 @@ class MeditationsEngine {
       }
     } catch (error) {
       console.error('Error starting meditation:', error);
-      this.app.showToast('❌ Error starting meditation', 'error');
+      this.app.showToast('Error starting meditation', 'error');
     }
   }
 
@@ -644,7 +897,7 @@ class MeditationsEngine {
    */
   _startYouTubePlayer(med, showVideo) {
     if (!window.ytReady) {
-      this.app.showToast('🎧 Initializing player… please tap again.', 'info');
+      this.app.showToast('Initializing player… please tap again.', 'info');
       window.onYouTubeIframeAPIReady = () => {
         window.ytReady = true;
         this._startYouTubePlayer(med, showVideo);
@@ -654,18 +907,27 @@ class MeditationsEngine {
 
     try {
       const videoId = med.embedUrl.match(/embed\/([a-zA-Z0-9_-]{11})/)[1];
-      const iframe = document.getElementById('yt-iframe');
-      iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&playsinline=1`;
 
       if (!this.ytPlayer || typeof this.ytPlayer.playVideo !== 'function') {
-        // Create new player
+        // Reset iframe src so YT.Player owns it cleanly
+        const iframe = document.getElementById('yt-iframe');
+        iframe.src = '';
+
+        // Create new player — YT.Player sets src internally with correct origin binding
         this.ytPlayer = new YT.Player('yt-iframe', {
+          videoId,
+          playerVars: {
+            origin: window.location.origin,
+            enablejsapi: 1,
+            rel: 0,
+            playsinline: 1
+          },
           events: {
             onReady: (e) => {
               document.getElementById('play-pause-btn').disabled = false;
               if (!showVideo) {
                 this.ytPlayer.playVideo();
-                this.app.showToast('🎧 Audio playing', 'success');
+                this.app.showToast('Audio playing', 'success');
               } else {
                 this.app.showToast('Ready – tap play to start', 'info');
               }
@@ -673,7 +935,7 @@ class MeditationsEngine {
             onStateChange: (e) => this._handleYouTubeStateChange(e),
             onError: (e) => {
               console.error('YouTube player error:', e);
-              this.app.showToast('❌ Video error', 'error');
+              this.app.showToast('Video error', 'error');
             }
           }
         });
@@ -697,7 +959,7 @@ class MeditationsEngine {
       this._startProgressUpdates();
     } catch (error) {
       console.error('Error initializing YouTube player:', error);
-      this.app.showToast('❌ Error loading video', 'error');
+      this.app.showToast('Error loading video', 'error');
     }
   }
 
@@ -775,7 +1037,7 @@ class MeditationsEngine {
       document.addEventListener('mousemove', move);
       document.addEventListener('mouseup', end);
       document.addEventListener('touchmove', move, { passive: false });
-      document.addEventListener('touchend', end);
+      document.addEventListener('touchend', end, { passive: true });
       e.preventDefault();
     };
 
@@ -820,7 +1082,7 @@ class MeditationsEngine {
         }
       } catch (error) {
         console.error('Error toggling playback:', error);
-        this.app.showToast('⏸️ Player not ready', 'info');
+        this.app.showToast('Player not ready', 'info');
       }
     }
   }
@@ -931,17 +1193,19 @@ class MeditationsEngine {
     try {
       this.isPlaying = false;
       document.getElementById('play-pause-btn').textContent = '▶️';
-      this.app.showToast('🎉 Meditation complete! Well done.', 'success');
+      this.app.showToast('Meditation complete! Well done.', 'success');
       
       if (!this.currentMeditation) return;
 
-      // Calculate duration in minutes
-      const duration = this.ytPlayer 
+      // Calculate duration in minutes — use a minimum of 1 min if player hasn't
+      // reported a full duration yet (e.g. mid-session completion or non-YouTube)
+      const rawDuration = this.ytPlayer
         ? Math.floor((this.ytPlayer.getDuration() || 0) / 60)
         : 0;
-      
+      const duration = Math.max(rawDuration, 1);
+
       const chakra = this.getChakraFromMeditation(this.currentMeditation.category);
-      
+
       // Create session data
       const sessionData = {
         type: this.currentMeditation.type || 'guided',
@@ -955,17 +1219,14 @@ class MeditationsEngine {
         completedAt: Date.now()
       };
 
-      // Save to state
+      // Save to state — this triggers handleMeditationGamification in AppState which
+      // awards XP (duration-based), progresses daily/weekly/monthly quests, updates
+      // streak, chakra, and badges. Do NOT also call progressQuest here — double-count.
       if (this.app.state) {
         this.app.state.addEntry('meditation', sessionData);
       }
 
-      // Update quest progress
-      if (sessionData.type === 'guided' && this.app.gamification) {
-        this.app.gamification.progressQuest('daily', 'meditation_session', 1);
-      }
-
-      // Check for achievements
+      // Check for badge milestones
       this.checkAchievements();
       this.sessionStartTime = null;
     } catch (error) {
@@ -974,60 +1235,23 @@ class MeditationsEngine {
   }
 
   /**
-   * Check and grant meditation-related achievements
+   * Check and grant meditation badges based on total sessions completed
    */
   checkAchievements() {
     try {
-      const total = this.app.state?.data?.meditationEntries?.length || 0;
+      // Use the engine's own counter (totalWellnessRuns tracks via incrementWellnessRuns,
+      // but meditation sessions are tracked separately via meditationHistory length)
+      const total = (this.app.state?.data?.meditationHistory || []).length;
       const gm = this.app.gamification;
       if (!gm) return;
 
-      const achievements = [
-        { 
-          count: 1, 
-          id: 'first_meditation', 
-          name: 'First Journey Within', 
-          xp: 50, 
-          icon: '🧘', 
-          msg: 'You have begun the sacred practice of meditation!' 
-        },
-        { 
-          count: 10, 
-          id: 'meditation_10', 
-          name: 'Meditation Practitioner', 
-          xp: 100, 
-          icon: '🕉️', 
-          msg: '10 meditations! Your inner light grows brighter!' 
-        },
-        { 
-          count: 50, 
-          id: 'meditation_50', 
-          name: 'Meditation Master', 
-          xp: 250, 
-          icon: '✨', 
-          msg: '50 meditations! You are a beacon of inner peace!' 
-        },
-        { 
-          count: 100, 
-          id: 'meditation_100', 
-          name: 'Enlightened One', 
-          xp: 500, 
-          icon: '🌟', 
-          msg: '100 meditations! You walk in pure awareness!' 
-        }
-      ];
-
-      achievements.forEach(ach => {
-        if (total === ach.count) {
-          gm.grantAchievement({
-            id: ach.id,
-            name: ach.name,
-            xp: ach.xp,
-            icon: ach.icon,
-            inspirational: ach.msg
-          });
-        }
-      });
+      // Map milestones to existing badge definitions in GamificationEngine
+      const badges = gm.getBadgeDefinitions();
+      if (total >= 1)   gm.checkAndGrantBadge('first_meditation',    badges);
+      if (total >= 20)  gm.checkAndGrantBadge('meditation_devotee',  badges);
+      if (total >= 60)  gm.checkAndGrantBadge('meditation_master',   badges);
+      if (total >= 100) gm.checkAndGrantBadge('meditation_100',      badges);
+      if (total >= 200) gm.checkAndGrantBadge('meditation_200',      badges);
     } catch (error) {
       console.error('Error checking achievements:', error);
     }
@@ -1071,8 +1295,15 @@ class MeditationsEngine {
     if (this.pdfGuideUrl && this.pdfGuideUrl !== 'YOUR_PDF_URL_HERE') {
       window.open(this.pdfGuideUrl, '_blank');
     } else {
-      this.app.showToast('ℹ️ PDF Guide is not yet available.', 'info');
+      this.app.showToast('PDF Guide is not yet available.', 'info');
     }
+  }
+
+  /**
+   * Destroy alias for FeaturesManager lifecycle compatibility
+   */
+  destroy() {
+    this.cleanup();
   }
 
   /**

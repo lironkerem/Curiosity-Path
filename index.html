@@ -7,50 +7,56 @@
   <meta name="permissions-policy" content="camera=(self)">
   <title>The Curiosity Path - by Aanandoham</title>
 
+  <!-- ===== Critical Styles (inline — guaranteed before first paint) ===== -->
+  <style>
+    .lucide-icon {
+      width: 32px;
+      height: 32px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    @media (max-width: 768px) {
+      .lucide-icon { width: 24px; height: 24px; }
+    }
+    @media (max-width: 480px) {
+      .lucide-icon { width: 20px; height: 20px; }
+    }
+  </style>
+
   <!-- ===== CDN Preconnect ===== -->
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- ===== Google Fonts (Journal: Kalam, Crimson Text, Cinzel) ===== -->
+  <!-- Non-blocking: preload the CSS, swap to real fonts when ready -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&display=swap"></noscript>
 
   <!-- ===== CSS ===== -->
-  <!-- 1. base look (always on) -->
-  <link rel="stylesheet" href="/CSS/main-styles.css?v=1.0.2">
+  <!-- 1. base look — includes preflight reset + utility classes (no separate tailwind file needed) -->
+  <link rel="stylesheet" href="/CSS/main-styles.css?v=1203">
 
-  <!-- 2. default dark-mode sheet (disabled by default) -->
-  <link rel="preload" href="/CSS/dark-mode.css" as="style">
-  <link rel="stylesheet" href="/CSS/dark-mode.css" id="dark-mode-css" disabled>
+  <!-- 3. default dark-mode sheet — media="not all" prevents it applying until boot script activates it -->
+  <link rel="preload" href="/CSS/dark-mode.css?v=1203" as="style">
+  <link rel="stylesheet" href="/CSS/dark-mode.css?v=1203" id="dark-mode-css" media="not all">
 
-  <!-- 3. premium skins – preload + disabled -->
-  <link rel="preload" href="/CSS/Skins/champagne-gold.css" as="style">
-  <link rel="preload" href="/CSS/Skins/royal-indigo.css"   as="style">
-  <link rel="preload" href="/CSS/Skins/earth-luxury.css"   as="style">
-  <link rel="preload" href="/CSS/Skins/matrix-code.css"    as="style">
+  <!-- 4. premium skins — media="not all" prevents them applying until boot script activates them -->
+  <link rel="preload" href="/CSS/Skins/champagne-gold.css?v=1203" as="style">
+  <link rel="preload" href="/CSS/Skins/royal-indigo.css?v=1203"   as="style">
+  <link rel="preload" href="/CSS/Skins/earth-luxury.css?v=1203"   as="style">
+  <link rel="preload" href="/CSS/Skins/matrix-code.css?v=1203"    as="style">
 
-  <link rel="stylesheet" href="/CSS/Skins/champagne-gold.css" id="skin_champagne-gold" disabled>
-  <link rel="stylesheet" href="/CSS/Skins/royal-indigo.css"   id="skin_royal-indigo"   disabled>
-  <link rel="stylesheet" href="/CSS/Skins/earth-luxury.css"   id="skin_earth-luxury"   disabled>
-  <link rel="stylesheet" href="/CSS/Skins/matrix-code.css"    id="skin_matrix-code"    disabled>
+  <link rel="stylesheet" href="/CSS/Skins/champagne-gold.css?v=1203" id="skin_champagne-gold" media="not all">
+  <link rel="stylesheet" href="/CSS/Skins/royal-indigo.css?v=1203"   id="skin_royal-indigo"   media="not all">
+  <link rel="stylesheet" href="/CSS/Skins/earth-luxury.css?v=1203"   id="skin_earth-luxury"   media="not all">
+  <link rel="stylesheet" href="/CSS/Skins/matrix-code.css?v=1203"    id="skin_matrix-code"    media="not all">
 
-  <!-- 4. mobile sheet -->
-  <link rel="stylesheet" href="/CSS/mobile-styles.css" media="(max-width:1024px)">
+  <!-- 5. mobile sheet -->
+  <link rel="stylesheet" href="/CSS/mobile-styles.css?v=1203" media="(max-width:1024px)">
 
-  <!-- 5. tailwind (if still needed) -->
-  <link rel="stylesheet" href="/CSS/tailwind-output.css">
-
-  <!-- ===== Theme activation before first paint ===== -->
-  <script>
-  (function(){
-    const dark = localStorage.getItem('darkMode') === 'enabled';
-    const skin = localStorage.getItem('activeTheme') || 'default';
-    document.documentElement.classList.toggle('dark', dark);
-
-    if (skin !== 'default') {
-      const l = document.getElementById('skin_' + skin);
-      if (l) l.disabled = false;          // premium skin on
-      // premium CSS has its own dark rules → keep default dark sheet off
-    } else if (dark) {
-      document.getElementById('dark-mode-css').disabled = false; // default dark on
-    }
-  })();
-  </script>
+  <!-- 6. Community Hub — loaded globally so the Active Members dashboard widget has styles -->
+  <link rel="stylesheet" href="/CSS/community-hub.css?v=1203">
 
   <!-- ===== PWA / icons ===== -->
   <link rel="manifest" href="manifest.json">
@@ -59,20 +65,36 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="The Curiosity Path">
-  <link rel="apple-touch-icon" href="Public/Icons/apple-touch-icon.png">
-  <link rel="icon" href="Public/Icons/favicon.svg" type="image/svg+xml">
-  <link rel="icon" href="Public/Icons/favicon.ico">
-
-  <script>
-  // Share theme function - switches theme without navigation
-  window.shareTheme = function(name) {
-    localStorage.setItem('activeTheme', name);
-    window.setSkin(name);
-  };
-  </script>
+  <link rel="apple-touch-icon" href="public/Icons/apple-touch-icon.png">
+  <link rel="icon" href="public/Icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="public/Icons/favicon.ico">
 </head>
 
 <body>
+  <!-- ===== Boot: apply theme & dark mode before first paint (body exists here) ===== -->
+  <!-- This runs synchronously so there is zero flash of unstyled/wrong-theme content -->
+  <script>
+  (function() {
+    var dark = localStorage.getItem('darkMode') === 'enabled';
+    var skin = localStorage.getItem('activeTheme') || 'default';
+
+    // Apply skin body class immediately so skin CSS selectors match on first paint
+    if (skin !== 'default') {
+      document.body.classList.add(skin);
+      // Activate the preloaded skin stylesheet
+      var skinLink = document.getElementById('skin_' + skin);
+      if (skinLink) skinLink.media = 'all';
+      // Premium skins include their own dark rules — keep default dark sheet off
+    } else if (dark) {
+      // Default theme + dark mode: activate the dark stylesheet
+      document.getElementById('dark-mode-css').media = 'all';
+    }
+
+    // Apply dark-mode body class immediately (what dark-mode.css and all app code target)
+    if (dark) document.body.classList.add('dark-mode');
+  })();
+  </script>
+
   <div id="auth-screen"></div>
   <div id="app-container">
     <div id="main-app" class="hidden">
@@ -89,6 +111,7 @@
         <div id="karma-shop-tab" class="tab-content hidden"></div>
         <div id="shadow-alchemy-tab" class="tab-content hidden"></div>
         <div id="chatbot-tab" class="tab-content hidden"></div>
+        <div id="community-hub-tab" class="tab-content hidden"></div>
       </main>
       <div id="modal-container"></div>
       <div id="audio-player" class="hidden"></div>
@@ -96,31 +119,32 @@
   </div>
 
   <div id="toast-container"></div>
+  <!-- Global toast element for Community Hub Core.showToast() -->
+  <div id="toast" role="alert" aria-live="assertive" style="display:none;"></div>
 
   <!-- ===== External Dependencies ===== -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"
           crossorigin="anonymous"></script>
 
   <!-- ===== Application Scripts ===== -->
-  <script src="/CSS/Skins/MatrixRain.js?v=1.0.4"></script>
+  <script src="/CSS/Skins/MatrixRain.js?v=1203"></script>
   <script type="module" src="./Core/Utils.js"></script>
-  <script defer src="./Features/TarotVisionAI.js"></script>
+  <script defer src="./Features/TarotVisionAI.js?v=1203"></script>
   <script type="module" src="./Features/TarotEngine.js"></script>
   <script type="module" src="./Core/GamificationEngine.js"></script>
   <script type="module" src="./Features/KarmaShopEngine.js"></script>
   <script type="module" src="./Features/EnergyTracker.js"></script>
   <script type="module" src="./Core/Features.js"></script>
-  <script src="./Features/WellnessKit.js"></script>
+  <script src="./Features/WellnessKit.js?v=1203"></script>
 
   <!-- ===== Bootstrap Application ===== -->
   <script type="module">
     async function init() {
-      console.log('[INIT] The Curiosity Path - Aanandoham\'s Spiritual Platform Online');
-      
+
       // Register Service Worker
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./service-worker.js')
-          .then(reg => console.log('[SW] Service Worker registered:', reg))
+          .then(() => {})
           .catch(err => console.error('[SW ERROR] Service Worker registration failed:', err));
       }
 
@@ -130,7 +154,7 @@
           import('./Features/Data/AffirmationsList.js'),
           import('./Features/Data/QuotesList.js')
         ]);
-        
+
         window.affirmations = aff.default;
         window.QuotesData = {QUOTES, getRandomQuote, getQuoteOfTheDay};
 
@@ -146,7 +170,7 @@
           DashboardManager:  Core.DashboardManager,
           UserTab
         });
-        
+
         window.app.init();
       } catch(e) {
         console.error('[FATAL] Bootstrap failed:', e);
@@ -162,31 +186,39 @@
 
   <!-- ===== Theme Management ===== -->
   <script>
-  // Set active skin theme
+  // setSkin — delegates to User-Tab once loaded (full class + stylesheet management),
+  // falls back to direct stylesheet toggle for early/external calls (e.g. shareTheme)
   window.setSkin = function(name) {
-    // Disable all premium skins
-    document.querySelectorAll('link[id^="skin_"]').forEach(l => l.disabled = true);
-    document.getElementById('dark-mode-css').disabled = true; // premium on → default dark off
-    
-    if (name !== 'default') {
-      const wanted = document.getElementById('skin_' + name);
-      if (wanted) wanted.disabled = false;
-    } else if (localStorage.getItem('darkMode') === 'enabled') {
-      document.getElementById('dark-mode-css').disabled = false; // back to default
+    if (window.app?.userTab?.switchTheme) {
+      window.app.userTab.switchTheme(name);
+      return;
     }
-    
+    // Fallback: stylesheet-only toggle (body class will be set by User-Tab on init)
+    document.querySelectorAll('link[id^="skin_"]').forEach(l => l.media = 'not all');
+    if (name !== 'default') {
+      var wanted = document.getElementById('skin_' + name);
+      if (wanted) wanted.media = 'all';
+      document.getElementById('dark-mode-css').media = 'not all';
+    } else if (localStorage.getItem('darkMode') === 'enabled') {
+      document.getElementById('dark-mode-css').media = 'all';
+    }
     localStorage.setItem('activeTheme', name);
   };
 
-  // Toggle dark mode
+  // shareTheme — switches skin without navigation
+  window.shareTheme = function(name) {
+    localStorage.setItem('activeTheme', name);
+    window.setSkin(name);
+  };
+
+  // setDark — kept for any external callers; User-Tab.handleDarkModeToggle is the primary path
   window.setDark = function(enable) {
     localStorage.setItem('darkMode', enable ? 'enabled' : 'disabled');
-    document.documentElement.classList.toggle('dark', enable);
-    
-    // Only toggle default dark when no premium skin is active
-    const premiumActive = document.querySelector('link[id^="skin_"]:not([disabled])');
+    document.body.classList.toggle('dark-mode', enable);
+    // Only toggle default dark sheet when no premium skin is active
+    var premiumActive = document.querySelector('link[id^="skin_"][media="all"]');
     if (!premiumActive) {
-      document.getElementById('dark-mode-css').disabled = !enable;
+      document.getElementById('dark-mode-css').media = enable ? 'all' : 'not all';
     }
   };
   </script>

@@ -12,7 +12,6 @@ export default class FlipTheScriptApp {
       try {
         const affModule = await import('./data.js');
         window.affirmations = affModule.default || affModule.affirmations;
-        console.log('✅ Affirmations loaded');
       } catch (err) {
         console.error('Failed to load affirmations:', err);
       }
@@ -22,7 +21,6 @@ export default class FlipTheScriptApp {
     if (!window.FlipEngine) {
       try {
         await import('./engine.js');
-        console.log('✅ FlipEngine loaded');
       } catch (err) {
         console.error('Failed to load FlipEngine:', err);
       }
@@ -36,11 +34,11 @@ export default class FlipTheScriptApp {
 
       <!--  MOBILE-ONLY IMAGE + SUBTITLE HEADER  -->
       <header class="main-header project-curiosity"
-              style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavFlip.png');
+              style="--header-img:url('/public/Tabs/NavFlip.webp');
                      --header-title:'';
                      --header-tag:'Flip your Negative thoughts, into Positive affirmations'">
         <h1>Flip the Script</h1>
-        <h3>Flip your Negative thoughts, into Positive affirmations</h3>
+        <p class="header-subtitle">Flip your Negative thoughts, into Positive affirmations</p>
         <span class="header-sub"></span>
       </header>
 
@@ -51,12 +49,12 @@ export default class FlipTheScriptApp {
             <div class="input-main">
               <div class="textarea-wrapper">
                 <textarea id="negative-input" placeholder="Type or say your negative thought or belief here.." maxlength="500"></textarea>
-                <button id="voice-input-btn" class="voice-input-btn" title="Speak your thought">🎤</button>
+                <button id="voice-input-btn" class="voice-input-btn" title="Speak your thought" aria-label="Speak your thought"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 19v3"/><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></button>
                 <div class="char-counter"><span id="char-count">0</span>/500 characters</div>
               </div>
             </div>
             <div class="flip-suggestions">
-              <p class="suggestion-label">💭 Try being more specific:</p>
+              <p class="suggestion-label" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Try being more specific:</p>
               <div class="suggestion-buttons-grid">
                 <button class="suggestion-btn" data-text="I feel ">I feel...</button>
                 <button class="suggestion-btn" data-text="I can't ">I can't...</button>
@@ -70,7 +68,7 @@ export default class FlipTheScriptApp {
 
           <!--  buttons with roomy gap  -->
           <div class="btn-group-vertical" style="gap:1.25rem;">
-            <button id="flip-btn" class="btn primary flip-main-btn">✨ Flip It Now ✨</button>
+            <button id="flip-btn" class="btn primary flip-main-btn" style="display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9"/><path d="m15 3 3 3-3 3"/><path d="M18 6H9"/></svg> Flip It Now</button>
             <button id="clear-btn" class="btn secondary clear-small-btn">Clear</button>
           </div>
 
@@ -84,15 +82,15 @@ export default class FlipTheScriptApp {
         <section id="output-section" class="output-main-event hidden">
           <div class="output-card">
             <div class="output-header">
-              <h2>✨ Your Flipped Script</h2>
+              <h2 style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9"/><path d="m15 3 3 3-3 3"/><path d="M18 6H9"/></svg> Your Flipped Script</h2>
             </div>
             <div class="output-content">
               <p id="extended-flip" class="flipped-text">Your Flipped Script will appear here...</p>
             </div>
-            <button id="flip-another-btn" class="btn flip-another-inside">🔄 Flip Another Thought</button>
+            <button id="flip-another-btn" class="btn flip-another-inside" style="display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Flip Another Thought</button>
             <div class="action-icons">
-              <button id="save-extended" class="icon-btn" title="Save">💾</button>
-              <button id="audio-extended" class="icon-btn" title="Listen">🔊</button>
+              <button id="save-extended" class="icon-btn" title="Save" aria-label="Save flip"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+              <button id="audio-extended" class="icon-btn" title="Listen" aria-label="Listen to flip"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
             </div>
           </div>
         </section>
@@ -105,17 +103,17 @@ export default class FlipTheScriptApp {
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--neuro-accent); flex-shrink: 0;">
             <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
           </svg>
-          <h3 style="color:var(--neuro-text);margin:0;font-size:1.5rem;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,0.1);letter-spacing:0.025em;">My Flips</h3>
+          <h2 style="color:var(--neuro-text);margin:0;font-size:1.5rem;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,0.1);letter-spacing:0.025em;">My Flips</h2>
         </button>
         <div class="collapse-content collapsed">
           <div style="padding: 0 24px 24px;">
             <div class="saved-controls" style="margin-bottom: 1rem;">
-              <input type="text" id="search-saved" class="search-input w-full" placeholder="🔍 Search saved flips...">
+              <input type="text" id="search-saved" class="search-input w-full" placeholder="Search saved flips...">
             </div>
             <ul id="saved-list" style="margin-bottom: 1rem;"></ul>
             <div class="backup-restore flex gap-3">
-              <button id="backup-id" class="btn flex-1">📥 Backup</button>
-              <button id="restore-id" class="btn flex-1">📤 Restore</button>
+              <button id="backup-id" class="btn flex-1" style="display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Backup</button>
+              <button id="restore-id" class="btn flex-1" style="display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Restore</button>
             </div>
           </div>
         </div>

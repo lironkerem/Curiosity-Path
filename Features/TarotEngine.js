@@ -85,7 +85,7 @@ const MINOR_ARCANA_MEANINGS = {
     6: "Victory and recognition. Success earned through perseverance.",
     7: "Standing your ground. Defending your position with courage.",
     8: "Swift action and momentum. Things move quickly now.",
-    9: "Resilience and persistence. Nearly there—don't give up.",
+    9: "Resilience and persistence. Nearly there-don't give up.",
     10: "Burden of responsibility. Carrying weight that may not be yours."
   }
 };
@@ -140,8 +140,8 @@ const ANIMATION_TIMING = {
 class TarotEngine {
   constructor(app) {
     this.app = app;
-    this.TAROT_BASE_URL = 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tarot%20Cards%20images/';
-    this.CARD_BACK_URL = 'https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tarot%20Cards%20images/CardBacks.jpg';
+    this.TAROT_BASE_URL = '/public/Tarot Cards images/';
+    this.CARD_BACK_URL = '/public/Tarot Cards images/CardBacks.webp';
 
     // Spread configurations
     this.spreads = {
@@ -224,12 +224,12 @@ class TarotEngine {
     if (suit === 'major') {
       const num = String(number).padStart(2, '0');
       const name = this.getTarotCardName(number, 'major').replace(/\s+/g, '');
-      return `${this.TAROT_BASE_URL}${num}-${name}.jpg`;
+      return `${this.TAROT_BASE_URL}${num}-${name}.webp`;
     }
     
     const suitCap = suit.charAt(0).toUpperCase() + suit.slice(1);
     const num = String(number).padStart(2, '0');
-    return `${this.TAROT_BASE_URL}${suitCap}${num}.jpg`;
+    return `${this.TAROT_BASE_URL}${suitCap}${num}.webp`;
   }
 
   /**
@@ -352,7 +352,7 @@ class TarotEngine {
     }
 
     // Set card image with error handling
-    front.innerHTML = `<img src="${card.imageUrl}" alt="${card.name}" class="tarot-card-image" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'tarot-card-error\\'>🃏</div>'">`;
+    front.innerHTML = `<img src="${card.imageUrl}" alt="${card.name}" class="tarot-card-image" loading="lazy" decoding="async" width="200" height="350" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'tarot-card-error\'>🃏</div>'">`;
     
     // Update card details
     details.innerHTML = `<h4 class="font-bold mt-4 mb-2" style="color: var(--neuro-text);">${card.name}</h4><p style="color: var(--neuro-text-light);" class="text-sm leading-relaxed">${card.meaning}</p>`;
@@ -381,81 +381,52 @@ class TarotEngine {
   completeTarotSpread() {
     const spreadType = this.spreads[this.selectedSpread].name;
     
-    // Save reading to app state
-    if (this.app.state) {
-      const reading = {
-        spreadType,
-        spreadKey: this.selectedSpread,
-        cards: this.currentReading.map(c => ({ name: c.name, meaning: c.meaning })),
-        timestamp: new Date().toISOString(),
-        date: new Date().toLocaleDateString('en-US', { 
-          weekday: 'long', 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' 
-        })
-      };
-      this.app.state.addEntry('tarot', reading);
-    }
-    
-    // Update progress for non-trivial spreads
+    // Only record and reward non-trivial spreads (single/three-card are practice draws)
     const excludedSpreads = ['single', 'three'];
     if (!excludedSpreads.includes(this.selectedSpread)) {
+      // Save reading — this triggers handleTarotGamification in AppState which awards
+      // XP and progresses daily/weekly/monthly quests. Do NOT also call progressQuest
+      // here or it will double-count.
+      if (this.app.state) {
+        const reading = {
+          spreadType,
+          spreadKey: this.selectedSpread,
+          cards: this.currentReading.map(c => ({ name: c.name, meaning: c.meaning })),
+          timestamp: new Date().toISOString(),
+          date: new Date().toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })
+        };
+        this.app.state.addEntry('tarot', reading);
+      }
+
+      // Increment badge-tracking counter (separate from quest progress)
       if (this.app.gamification) {
-        this.app.gamification.progressQuest('daily', 'tarot_spread', 1);
         this.app.gamification.incrementTarotSpreads();
       }
-      if (this.app.showToast) {
-        this.app.showToast(`✨ ${spreadType} complete!`, 'success');
-      }
+
       this.checkAchievements();
     }
   }
 
   /**
-   * Check and grant achievements based on total readings
+   * Check and grant badges based on total tarot spreads completed
    */
   checkAchievements() {
-    const total = this.app.state?.data?.tarotEntries?.length || 0;
+    const total = this.app.gamification?.state?.totalTarotSpreads || 0;
     const gm = this.app.gamification;
     if (!gm) return;
 
-    if (total === 1) {
-      gm.grantAchievement({ 
-        id: 'first_tarot', 
-        name: 'First Reading', 
-        xp: 50, 
-        icon: '🃏', 
-        inspirational: 'You\'ve opened the door to divine guidance!' 
-      });
-    }
-    if (total === 10) {
-      gm.grantAchievement({ 
-        id: 'tarot_10', 
-        name: 'Tarot Apprentice', 
-        xp: 100, 
-        icon: '🔮', 
-        inspirational: '10 readings! The cards speak to you clearly!' 
-      });
-    }
-    if (total === 50) {
-      gm.grantAchievement({ 
-        id: 'tarot_50', 
-        name: 'Tarot Master', 
-        xp: 250, 
-        icon: '✨', 
-        inspirational: '50 readings! You are attuned to cosmic wisdom!' 
-      });
-    }
-    if (total === 100) {
-      gm.grantAchievement({ 
-        id: 'tarot_100', 
-        name: 'Oracle of the Cards', 
-        xp: 500, 
-        icon: '🌟', 
-        inspirational: '100 readings! The universe speaks through you!' 
-      });
-    }
+    // Map milestones to existing badge definitions in GamificationEngine
+    if (total >= 1)   gm.checkAndGrantBadge('first_tarot',        gm.getBadgeDefinitions());
+    if (total >= 10)  gm.checkAndGrantBadge('tarot_apprentice',   gm.getBadgeDefinitions());
+    if (total >= 25)  gm.checkAndGrantBadge('tarot_mystic',       gm.getBadgeDefinitions());
+    if (total >= 75)  gm.checkAndGrantBadge('tarot_oracle',       gm.getBadgeDefinitions());
+    if (total >= 150) gm.checkAndGrantBadge('tarot_150',          gm.getBadgeDefinitions());
+    if (total >= 400) gm.checkAndGrantBadge('tarot_400',          gm.getBadgeDefinitions());
   }
 
   /* ==================== RENDERING ==================== */
@@ -463,6 +434,41 @@ class TarotEngine {
   /**
    * Render the tarot interface
    */
+  buildTarotCTA() {
+    return `
+      <div class="community-link-card" style="padding-top:0;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:0;">
+          <picture><source srcset="/public/Tabs/CommunityHub.webp" type="image/webp"><img src="/public/Tabs/CommunityHub.png" alt="Community" width="480" height="360" loading="lazy" decoding="async" style="width:30rem;object-fit:contain;margin-top:1rem;margin-bottom:1rem;"></picture>
+          <h3 style="margin: 0 0 0.75rem; font-size: 1.15rem; text-align:center;">
+            Learn & Practice Tarot with the Community
+          </h3>
+        </div>
+        <p style="margin: 0 0 1.5rem; font-size: 0.92rem; line-height: 1.6;">
+          Explore the cards together. Join live readings, share interpretations,
+          and deepen your intuition in a space of collective wisdom.
+        </p>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+          <button
+            onclick="document.activeElement?.blur(); window.app.nav.switchTab('community-hub')"
+            class="btn btn-primary"
+            style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;flex:1 1 40%;white-space:nowrap;"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Enter the Community Hub
+          </button>
+          <button
+            onclick="document.activeElement?.blur(); window._pendingRoomOpen = 'tarot'; window.app.nav.switchTab('community-hub')"
+            class="btn btn-primary"
+            style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;flex:1 1 40%;white-space:nowrap;"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 8l1.5 3h3l-2.5 2 1 3-3-2-3 2 1-3-2.5-2h3z"/></svg>
+            Enter the Tarot Room
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
   render() {
     // Clean up any previous event handlers
     if (this.cleanup) this.cleanup();
@@ -493,7 +499,7 @@ class TarotEngine {
         <div class="universal-content">
 
           <header class="main-header project-curiosity"
-                  style="--header-img:url('https://raw.githubusercontent.com/lironkerem/Digital-Curiosiry/main/Public/Tabs/NavTarot.png');
+                  style="--header-img:url('/public/Tabs/NavTarot.webp');
                          --header-title:'';
                          --header-tag:'Self divination, through different Tarot spreads, to assist you in understanding yourself better'">
             <h1>Tarot Cards Guidance</h1>
@@ -504,14 +510,15 @@ class TarotEngine {
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6" style="margin-bottom: 3rem;">
             ${Object.entries(this.spreads).map(([key, sp]) => {
               const isPremium = ['options', 'pyramid', 'cross'].includes(key);
-              const isLocked = isPremium && !this.app.gamification?.state?.unlockedFeatures?.includes('advance_tarot_spreads');
+              const isPrivileged = this.app.state?.currentUser?.isAdmin || this.app.state?.currentUser?.isVip;
+              const isLocked = isPremium && !isPrivileged && !this.app.gamification?.state?.unlockedFeatures?.includes('advance_tarot_spreads');
               return `
               <div onclick="window.featuresManager.engines.tarot.selectSpread('${key}')"
                    class="card cursor-pointer relative ${this.selectedSpread === key ? 'border-4' : ''} ${isLocked ? 'opacity-75' : ''}"
                    style="${this.selectedSpread === key ? 'border-color: var(--neuro-accent);' : ''} padding: 1.5rem;"
-                   title="${isLocked ? '🔒 Purchase Advanced Tarot Spreads in Karma Shop to unlock' : ''}">
+                   title="${isLocked ? 'Purchase Advanced Tarot Spreads in Karma Shop to unlock' : ''}">
                 ${isPremium ? '<span class="premium-badge-tr">PREMIUM</span>' : ''}
-                ${isLocked ? '<div style="position: absolute; top: 50%; right: 1rem; transform: translateY(-50%); font-size: 3rem; opacity: 0.3;">🔒</div>' : ''}
+                ${isLocked ? '<div style="position: absolute; top: 50%; right: 1rem; transform: translateY(-50%); font-size: 3rem; opacity: 0.3;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:3rem;height:3rem;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>' : ''}
                 <h4 class="text-xl font-bold" style="color: var(--neuro-text);margin-bottom: 0.5rem;">${sp.name}</h4>
                 <p style="color: var(--neuro-text-light);" class="text-sm">${sp.desc}</p>
               </div>`;
@@ -520,19 +527,22 @@ class TarotEngine {
 
           <div class="flex justify-center" style="margin-bottom: 3rem;padding:0 1.5rem;">
             ${(() => {
-              const has = this.app?.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
+              const isPrivileged = this.app?.state?.currentUser?.isAdmin || this.app?.state?.currentUser?.isVip;
+              const has = isPrivileged || this.app?.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
               const locked = !has;
               return `
                 <button id="tarot-vision-ai-btn"
                         class="btn w-full inline-flex items-center justify-center gap-3 px-6 py-6 text-xl font-bold text-white rounded-xl shadow transition-transform ${locked ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02]'}">
-                  🔮 Tarot Vision AI – Take a picture/upload a tarot card to analyse it
-                  ${locked ? '<span style="font-size: 3rem; opacity: .3; margin-left: .5rem;">🔒</span>' : ''}
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12s1.5-3 5-3 5 3 5 3-1.5 3-5 3-5-3-5-3Z"/><circle cx="12" cy="12" r="1"/></svg> Tarot Vision AI – Take a picture/upload a tarot card to analyse it
+                  ${locked ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:3rem;height:3rem;opacity:0.3;margin-left:0.5rem;flex-shrink:0;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' : ''}
                   <span class="premium-badge">PREMIUM</span>
                 </button>`;
             })()}
           </div>
 
-          <div class="card" style="padding: 2rem;">
+          ${this.buildTarotCTA()}
+
+          <div class="card" id="tarot-cards-result" style="padding: 2rem;">
             <div class="flex items-center justify-between" style="margin-bottom: 5rem;">
               <h3 class="text-2xl font-bold" style="color: var(--neuro-text);">${spread.name}</h3>
             </div>
@@ -792,7 +802,7 @@ class TarotEngine {
           <div class="tarot-card-flip-inner">
             <div class="tarot-card-back">
               <p class="card-reveal-prompt">Click to reveal</p>
-              <img src="${this.CARD_BACK_URL}" alt="Card Back" class="tarot-card-image">
+              <img src="${this.CARD_BACK_URL}" alt="Card Back" class="tarot-card-image" loading="lazy" decoding="async" width="200" height="350">
             </div>
             <div class="tarot-card-front"></div>
           </div>
@@ -858,11 +868,12 @@ class TarotEngine {
       const visionBtn = document.getElementById('tarot-vision-ai-btn');
       if (visionBtn) {
         const handler = () => {
-          const locked = !this.app?.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
+          const isPrivileged = this.app?.state?.currentUser?.isAdmin || this.app?.state?.currentUser?.isVip;
+          const locked = !isPrivileged && !this.app?.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
           if (locked) {
-            this.app?.showToast?.('🔒 Unlock Tarot Vision AI in the Karma Shop!', 'info');
+            this.app?.showToast?.('Unlock Tarot Vision AI in the Karma Shop!', 'info');
           } else {
-            this.app?.showToast?.('📸 Tarot Vision AI opening...', 'info');
+            this.app?.showToast?.('Tarot Vision AI opening...', 'info');
             // Add your AI vision feature trigger here
           }
         };
@@ -880,9 +891,10 @@ class TarotEngine {
     const premiumSpreads = ['options', 'pyramid', 'cross'];
     
     // Check if spread is locked
-    if (premiumSpreads.includes(spreadKey) && 
+    const isPrivileged = this.app?.state?.currentUser?.isAdmin || this.app?.state?.currentUser?.isVip;
+    if (!isPrivileged && premiumSpreads.includes(spreadKey) && 
         !this.app?.gamification?.state?.unlockedFeatures?.includes('advance_tarot_spreads')) {
-      this.app?.showToast?.('🔒 Unlock Advanced Tarot Spreads in the Karma Shop!', 'info');
+      this.app?.showToast?.('Unlock Advanced Tarot Spreads in the Karma Shop!', 'info');
       return;
     }
     
@@ -892,7 +904,7 @@ class TarotEngine {
     
     // Scroll to cards section
     setTimeout(() => {
-      const cardsSection = document.querySelector('#tarot-tab .card:last-child');
+      const cardsSection = document.querySelector('#tarot-cards-result');
       if (cardsSection) {
         cardsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }

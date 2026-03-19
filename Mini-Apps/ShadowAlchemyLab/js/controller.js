@@ -15,7 +15,6 @@ window.AppController = {                                  // public API (unchang
 
 /* ---------- bootstrap ---------- */
 async function init() {
-  console.info('[Shadow Alchemy Lab] bootstrapping');
   await archetypesEngine.ensureDataLoaded();
   loadState();                                           // hydrate state
   renderDashboard();                                     // first paint
