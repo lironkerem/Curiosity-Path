@@ -23,9 +23,13 @@ const CommunityDB = {
     // =========================================================================
 
     async init() {
-        this._sb = CommunitySupabase;
+        // Read window.AppSupabase at call time — not at module parse time.
+        // supabase-client.js may have been evaluated before Supabase.js set
+        // window.AppSupabase, so CommunitySupabase (the import) may be null.
+        // By the time init() is called (after auth), window.AppSupabase is ready.
+        this._sb = window.AppSupabase || CommunitySupabase;
         if (!this._sb) {
-            console.error('[CommunityDB] CommunitySupabase not ready');
+            console.error('[CommunityDB] CommunitySupabase not ready — window.AppSupabase is null');
             return false;
         }
 

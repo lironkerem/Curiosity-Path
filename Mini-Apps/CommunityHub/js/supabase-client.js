@@ -2,17 +2,14 @@
  * supabase-client.js - Community Hub
  * Reuses the main app's already-authenticated Supabase client.
  * The main app exposes it via window.AppSupabase (set in /Core/Supabase.js).
+ *
+ * NOTE: window.AppSupabase may not be set at module parse time (timing race).
+ * CommunityDB.init() reads window.AppSupabase directly at call time — after
+ * auth is confirmed — so the value captured here is only used as a fallback.
  */
 
 const CommunitySupabase = window.AppSupabase || null;
 
-if (!CommunitySupabase) {
-  console.error('[CommunityHub] window.AppSupabase not found. ' +
-    'Make sure window.AppSupabase = supabaseClient is set in /Core/Supabase.js');
-}
-
-// Named export for ES module consumers
 export { CommunitySupabase };
 
-// Keep window assignment for classic scripts that still reference window.CommunitySupabase
 window.CommunitySupabase = CommunitySupabase;
