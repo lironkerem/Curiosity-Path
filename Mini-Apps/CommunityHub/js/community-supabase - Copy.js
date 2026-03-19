@@ -554,12 +554,10 @@ const CommunityDB = {
             if (error || !data) return null;
             const p = typeof data.payload === 'string' ? JSON.parse(data.payload) : data.payload;
             return {
-                journalEntries:    p.journalEntries    || [],
-                energyEntries:     p.energyEntries     || [],
-                gratitudeEntries:  p.gratitudeEntries  || [],
-                flipEntries:       p.flipEntries       || [],
-                tarotReadings:     p.tarotReadings     || [],
-                meditationEntries: p.meditationEntries || [],
+                journalEntries:   p.journalEntries   || [],
+                energyEntries:    p.energyEntries    || [],
+                gratitudeEntries: p.gratitudeEntries || [],
+                flipEntries:      p.flipEntries      || [],
             };
         } catch (err) {
             this._err('getOwnFullProgress', err); return null;
@@ -756,11 +754,8 @@ const CommunityDB = {
 
     async getLeaderboard() {
         if (!this.ready) return { xp: [], karma: [] };
-        // Select only the fields needed — avoids exposing full payload (journal/gratitude entries etc.)
         const { data: progress, error } = await this._sb
-            .from('user_progress')
-            .select('user_id, payload->xp, payload->karma, payload->level')
-            .limit(50);
+            .from('user_progress').select('user_id, payload').limit(50);
         if (error) { this._err('getLeaderboard', error); return { xp: [], karma: [] }; }
 
         const userIds = (progress || []).map(r => r.user_id);
@@ -772,11 +767,7 @@ const CommunityDB = {
 
         const enriched = (progress || [])
             .filter(r => profileMap[r.user_id])
-            .map(r => ({
-                user_id:  r.user_id,
-                profiles: profileMap[r.user_id],
-                payload:  { xp: r.xp ?? 0, karma: r.karma ?? 0, level: r.level ?? 1 }
-            }));
+            .map(r => ({ ...r, profiles: profileMap[r.user_id] }));
 
         const top = (key) => [...enriched]
             .sort((a, b) => (b.payload?.[key] || 0) - (a.payload?.[key] || 0))
@@ -864,50 +855,24 @@ const CommunityDB = {
         return data || [];
     },
 
-    /**
-     * Admin-only: update a user's gamification state atomically via Postgres RPC.
-     * Uses update_user_gamification() which handles XP, Karma, feature unlocks,
-     * and badge grants in a single atomic operation — no race conditions.
-     *
-     * @param {string} targetUserId
-     * @param {Object} opts
-     * @param {number}  [opts.xpDelta=0]
-     * @param {number}  [opts.karmaDelta=0]
-     * @param {string}  [opts.unlockFeature=null]
-     * @param {string}  [opts.badgeId=null]
-     * @param {string}  [opts.badgeName=null]
-     * @param {string}  [opts.badgeIcon='🏅']
-     * @param {string}  [opts.badgeRarity='common']
-     * @param {number}  [opts.badgeXp=0]
-     * @param {string}  [opts.badgeDesc='']
-     * @returns {Promise<boolean>}
-     */
-    async adminUpdateGamification(targetUserId, {
-        xpDelta       = 0,
-        karmaDelta    = 0,
-        unlockFeature = null,
-        badgeId       = null,
-        badgeName     = null,
-        badgeIcon     = '🏅',
-        badgeRarity   = 'common',
-        badgeXp       = 0,
-        badgeDesc     = '',
-    } = {}) {
+    async adminUpdateGamification(targetUserId, { xpDelta = 0, karmaDelta = 0, unlockFeature = null } = {}) {
         if (!this.ready) return false;
         try {
-            const { error } = await this._sb.rpc('update_user_gamification', {
-                target_user_id: targetUserId,
-                xp_delta:       xpDelta,
-                karma_delta:    karmaDelta,
-                unlock_feature: unlockFeature,
-                badge_id:       badgeId,
-                badge_name:     badgeName,
-                badge_icon:     badgeIcon,
-                badge_rarity:   badgeRarity,
-                badge_xp:       badgeXp,
-                badge_desc:     badgeDesc,
-            });
-            if (error) throw new Error(error.message);
+            const { data, error: readErr } = await this._sb
+                .from('user_progress').select('payload').eq('user_id', targetUserId).single();
+            if (readErr || !data) throw new Error(readErr?.message || 'User progress not found');
+
+            const p = typeof data.payload === 'string' ? JSON.parse(data.payload) : { ...data.payload };
+            p.xp    = (p.xp    ?? 0) + xpDelta;
+            p.karma = (p.karma ?? 0) + karmaDelta;
+            if (unlockFeature && !p.unlockedFeatures?.includes(unlockFeature)) {
+                (p.unlockedFeatures ??= []).push(unlockFeature);
+            }
+
+            const { error: saveErr } = await this._sb.from('user_progress')
+                .update({ payload: p, updated_at: new Date().toISOString() })
+                .eq('user_id', targetUserId);
+            if (saveErr) throw new Error(saveErr.message);
             return true;
         } catch (err) {
             this._err('adminUpdateGamification', err); return false;

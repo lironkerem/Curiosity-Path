@@ -91,15 +91,21 @@ export default class DashboardManager {
     this.dailyCards = new DailyCards(app);
     this.intervals = [];
     this.cachedElements = {};
-
+    this.lastWellnessXP = {};
+    
     // Cache global function references
     this.globals = {
-      QuotesData: () => window.QuotesData
+      QuotesData: () => window.QuotesData,
+      getSelfResetStats: () => window.getSelfResetStats,
+      getFullBodyScanStats: () => window.getFullBodyScanStats,
+      getNervousResetStats: () => window.getNervousResetStats,
+      getTensionSweepStats: () => window.getTensionSweepStats
     };
     
     if (window.app) window.app.dailyCards = this.dailyCards;
-
+    
     this.setupQuestListeners();
+    this.setupWellnessTracking();
     this.startCountdown();
     
     // Bind methods for external calls
@@ -261,7 +267,7 @@ export default class DashboardManager {
     if (!this.app.gamification) return;
     
     this.app.gamification.on('questCompleted', quest => {
-      if (this.app.gamification.state._bulkMode) return;
+      if (this.app.gamification._bulkMode) return;
       
       this.app.showToast(`Quest Complete: ${quest.name}! +${quest.xpReward} XP`, 'success');
       
@@ -281,10 +287,91 @@ export default class DashboardManager {
     });
     
     this.app.gamification.on('questProgress', () => this.render());
-
+    
     this.app.gamification.on('dailyQuestsComplete', () => {
       this.app.showToast(`All Daily Quests Complete! +${UI_CONSTANTS.DAILY_BONUS_XP} Bonus XP `, 'success');
     });
+    
+    this.checkDailyReset();
+  }
+
+  /**
+   * Checks if daily quests need to be reset
+   * @private
+   */
+  checkDailyReset() {
+    try {
+      const today = new Date().toDateString();
+      const lastReset = localStorage.getItem('last_quest_reset');
+      
+      if (lastReset !== today) {
+        this.app.gamification.resetDailyQuests();
+        localStorage.setItem('last_quest_reset', today);
+      }
+    } catch (error) {
+      console.error('Error checking daily reset:', error);
+    }
+  }
+
+  /* ---------- Wellness Tracking ---------- */
+  
+  /**
+   * Sets up wellness tool tracking with XP/Karma rewards
+   * @private
+   */
+  setupWellnessTracking() {
+    const tools = [
+      { name: 'Self Reset', getStats: this.globals.getSelfResetStats },
+      { name: 'Full Body Scan', getStats: this.globals.getFullBodyScanStats },
+      { name: 'Nervous System Reset', getStats: this.globals.getNervousResetStats },
+      { name: 'Tension Sweep', getStats: this.globals.getTensionSweepStats }
+    ];
+    
+    // Initialize tracking
+    tools.forEach(tool => {
+      if (tool.getStats()) {
+        try {
+          const stats = tool.getStats()();
+          this.lastWellnessXP[tool.name] = stats.xp || 0;
+        } catch (error) {
+          console.error(`Error initializing ${tool.name}:`, error);
+          this.lastWellnessXP[tool.name] = 0;
+        }
+      }
+    });
+    
+    const interval = setInterval(() => {
+      tools.forEach(tool => {
+        const getStats = tool.getStats();
+        if (!getStats) return;
+        
+        try {
+          const stats = getStats();
+          const prev = this.lastWellnessXP[tool.name] || 0;
+          
+          if (stats.xp > prev) {
+            const gained = stats.xp - prev;
+            const karma = Math.floor(gained / 10);
+            this.lastWellnessXP[tool.name] = stats.xp;
+            
+            if (this.app.gamification) {
+              this.app.gamification.addXP(gained, tool.name);
+              this.app.gamification.addKarma(karma, tool.name);
+            }
+            
+            this.app.showToast(
+              `${tool.name} Complete! +${gained} XP, +${karma} Karma`,
+              'success'
+            );
+            this.render();
+          }
+        } catch (error) {
+          console.error(`Error tracking ${tool.name}:`, error);
+        }
+      });
+    }, CONSTANTS.WELLNESS_POLL_INTERVAL);
+    
+    this.intervals.push(interval);
   }
 
   /* ---------- Quote Card ---------- */
@@ -1050,9 +1137,12 @@ export default class DashboardManager {
     // Clear all intervals
     this.intervals.forEach(interval => clearInterval(interval));
     this.intervals = [];
-
+    
     // Clear cached elements
     this.cachedElements = {};
+    
+    // Clear wellness tracking
+    this.lastWellnessXP = {};
     
     // Remove global references
     if (window.app?.dashboard) {

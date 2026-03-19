@@ -172,18 +172,12 @@ class HappinessEngine {
     let data = this._getStorageData(today);
     data.count += 1;
     localStorage.setItem('daily_booster_views', JSON.stringify(data));
-
-    if (this.app.gamification) {
-      const gm = this.app.gamification;
-
-      // Daily quest: progress each view; complete fires automatically when goal reached
-      gm.progressQuest('daily', 'daily_booster', 1);
-
-      // Weekly & monthly quests: progress every view
-      gm.progressQuest('weekly', 'happiness_boosters_20', 1);
-      gm.progressQuest('monthly', 'monthly_happiness_100', 1);
+    
+    // Update quest progress when target reached
+    if (data.count === HappinessEngine.QUEST_TARGET && this.app.gamification) {
+      this.app.gamification.progressQuest('daily', 'daily_booster', HappinessEngine.QUEST_TARGET);
     }
-
+    
     return data.count;
   }
 

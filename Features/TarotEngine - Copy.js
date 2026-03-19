@@ -381,52 +381,78 @@ class TarotEngine {
   completeTarotSpread() {
     const spreadType = this.spreads[this.selectedSpread].name;
     
-    // Only record and reward non-trivial spreads (single/three-card are practice draws)
+    // Save reading to app state
+    if (this.app.state) {
+      const reading = {
+        spreadType,
+        spreadKey: this.selectedSpread,
+        cards: this.currentReading.map(c => ({ name: c.name, meaning: c.meaning })),
+        timestamp: new Date().toISOString(),
+        date: new Date().toLocaleDateString('en-US', { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        })
+      };
+      this.app.state.addEntry('tarot', reading);
+    }
+    
+    // Update progress for non-trivial spreads
     const excludedSpreads = ['single', 'three'];
     if (!excludedSpreads.includes(this.selectedSpread)) {
-      // Save reading — this triggers handleTarotGamification in AppState which awards
-      // XP and progresses daily/weekly/monthly quests. Do NOT also call progressQuest
-      // here or it will double-count.
-      if (this.app.state) {
-        const reading = {
-          spreadType,
-          spreadKey: this.selectedSpread,
-          cards: this.currentReading.map(c => ({ name: c.name, meaning: c.meaning })),
-          timestamp: new Date().toISOString(),
-          date: new Date().toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })
-        };
-        this.app.state.addEntry('tarot', reading);
-      }
-
-      // Increment badge-tracking counter (separate from quest progress)
       if (this.app.gamification) {
+        this.app.gamification.progressQuest('daily', 'tarot_spread', 1);
         this.app.gamification.incrementTarotSpreads();
       }
-
       this.checkAchievements();
     }
   }
 
   /**
-   * Check and grant badges based on total tarot spreads completed
+   * Check and grant achievements based on total readings
    */
   checkAchievements() {
-    const total = this.app.gamification?.state?.totalTarotSpreads || 0;
+    const total = this.app.state?.data?.tarotEntries?.length || 0;
     const gm = this.app.gamification;
     if (!gm) return;
 
-    // Map milestones to existing badge definitions in GamificationEngine
-    if (total >= 1)   gm.checkAndGrantBadge('first_tarot',        gm.getBadgeDefinitions());
-    if (total >= 10)  gm.checkAndGrantBadge('tarot_apprentice',   gm.getBadgeDefinitions());
-    if (total >= 25)  gm.checkAndGrantBadge('tarot_mystic',       gm.getBadgeDefinitions());
-    if (total >= 75)  gm.checkAndGrantBadge('tarot_oracle',       gm.getBadgeDefinitions());
-    if (total >= 150) gm.checkAndGrantBadge('tarot_150',          gm.getBadgeDefinitions());
-    if (total >= 400) gm.checkAndGrantBadge('tarot_400',          gm.getBadgeDefinitions());
+    if (total === 1) {
+      gm.grantAchievement({ 
+        id: 'first_tarot', 
+        name: 'First Reading', 
+        xp: 50, 
+        icon: '🃏', 
+        inspirational: 'You\'ve opened the door to divine guidance!' 
+      });
+    }
+    if (total === 10) {
+      gm.grantAchievement({ 
+        id: 'tarot_10', 
+        name: 'Tarot Apprentice', 
+        xp: 100, 
+        icon: '🔮', 
+        inspirational: '10 readings! The cards speak to you clearly!' 
+      });
+    }
+    if (total === 50) {
+      gm.grantAchievement({ 
+        id: 'tarot_50', 
+        name: 'Tarot Master', 
+        xp: 250, 
+        icon: '✨', 
+        inspirational: '50 readings! You are attuned to cosmic wisdom!' 
+      });
+    }
+    if (total === 100) {
+      gm.grantAchievement({ 
+        id: 'tarot_100', 
+        name: 'Oracle of the Cards', 
+        xp: 500, 
+        icon: '🌟', 
+        inspirational: '100 readings! The universe speaks through you!' 
+      });
+    }
   }
 
   /* ==================== RENDERING ==================== */

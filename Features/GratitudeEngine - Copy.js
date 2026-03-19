@@ -654,13 +654,17 @@ export default class GratitudeEngine {
       return;
     }
     
-    // Save entries — this triggers handleGratitudeGamification in AppState which
-    // awards XP and progresses daily/weekly/monthly quests. No direct quest call needed.
+    // Save entries
     this.app.state.addEntry(GratitudeEngine.TYPE, { entries: gratitudes });
-
+    
     // Show success message
     const plural = gratitudes.length > 1 ? 's' : '';
     this.app.showToast(`${gratitudes.length} gratitude${plural} saved!`, 'success');
+
+    // Update gamification
+    if (this.app.gamification) {
+      this.app.gamification.progressQuest('daily', 'gratitude_entry', gratitudes.length);
+    }
 
     // Reset form and re-render
     textarea.value = '1. ';

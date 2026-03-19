@@ -91,7 +91,7 @@ export default class ProjectCuriosityApp {
    */
   constructor(deps) {
     this.deps = deps;
-    this.state = new deps.AppState();
+    this.state = new deps.AppState(this);
     this.auth = new deps.AuthManager(this);
     this.nav = null;
     this.dashboard = null;
@@ -321,13 +321,12 @@ export default class ProjectCuriosityApp {
 
     const g = this.gamification;
 
-    // Level up
+    // Level up — showLevelUpSpectacle in the engine handles the visual celebration
     const unsub1 = g.on('levelUp', ({ level, title }) => {
       showToast(
         `Level Up! You are now a ${title} (Level ${level})!`,
         'success'
       );
-      this.playLevelUpAnimation();
     });
 
     // Streak updated
@@ -629,14 +628,14 @@ export default class ProjectCuriosityApp {
       this.footerCTA = new CTA();
       this.footerCTA.render();
 
+      // Check if daily quests need reset BEFORE rendering dashboard
+      this.checkDailyReset();
+
       // Load feature modules
       this.loadModules();
 
       // Restore last active tab
       this.restoreLastTab();
-
-      // Check if daily quests need reset
-      this.checkDailyReset();
 
       // Start toast cleanup
       this._startToastCleanup();

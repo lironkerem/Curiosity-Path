@@ -2,6 +2,8 @@
 // Features/KarmaShopEngine.js (OPTIMIZED + SUPABASE SYNC + BUGFIX)
 // ============================================
 
+import { supabase } from '../Core/Supabase.js';
+
 export class KarmaShopEngine {
   // Class constants - extracted to avoid duplication
   static NICE_NAMES = {
@@ -73,54 +75,91 @@ export class KarmaShopEngine {
   /* ---------- CLOUD SYNC ---------- */
   
   /**
-   * Load active boosts and purchase history from app state (already fetched by AppState/DB.js)
-   * Falls back to localStorage if app state is unavailable.
+   * Load active boosts and purchase history from Supabase cloud storage
+   * Falls back to localStorage if user is not logged in or cloud data is unavailable
    */
   async loadFromCloud() {
     try {
-      const data = this.app?.state?.data;
-      if (data?.karmaShop) {
-        const shop = data.karmaShop;
-        this.activeBoosts = shop.activeBoosts || [];
-        if (shop.purchaseHistory) {
-          localStorage.setItem('karma_purchase_history', JSON.stringify(shop.purchaseHistory));
-        }
-        // Keep localStorage in sync
-        localStorage.setItem('karma_active_boosts', JSON.stringify(this.activeBoosts));
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        this.activeBoosts = this.loadActiveBoosts();
         return;
       }
-      // Fallback to localStorage if app state has no karmaShop data yet
-      this.activeBoosts = this.loadActiveBoosts();
+
+      const { data, error } = await supabase
+        .from('user_progress')
+        .select('payload')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error || !data?.payload) {
+        this.activeBoosts = this.loadActiveBoosts();
+        return;
+      }
+
+      const cloudData = data.payload.karmaShop || {};
+      this.activeBoosts = cloudData.activeBoosts || [];
+
+      // Also load purchase history from cloud
+      if (cloudData.purchaseHistory) {
+        localStorage.setItem('karma_purchase_history', JSON.stringify(cloudData.purchaseHistory));
+      }
+
+      // Cache in localStorage
+      localStorage.setItem('karma_active_boosts', JSON.stringify(this.activeBoosts));
     } catch (err) {
-      console.error('[KarmaShop] Load failed, using localStorage:', err);
+      console.error('[KarmaShop] Cloud load failed, using localStorage:', err);
       this.activeBoosts = this.loadActiveBoosts();
     }
   }
 
   /**
-   * Persists KarmaShop state (boosts + purchase history) through AppState/DB.js
-   * so it shares the same save path as the rest of the app, avoiding cache races.
+   * Save active boosts and purchase history to Supabase cloud storage
+   * Prevents concurrent sync operations and always caches to localStorage as fallback
    */
   async saveToCloud() {
     if (this._syncInProgress) return;
     this._syncInProgress = true;
+
     try {
-      if (this.app?.state) {
-        this.app.state.data = {
-          ...this.app.state.data,
-          karmaShop: {
-            activeBoosts: this.activeBoosts,
-            purchaseHistory: this.getPurchaseHistory(),
-            lastSync: new Date().toISOString()
-          }
-        };
-        await this.app.state.saveAppData();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        this.saveActiveBoosts();
+        return;
       }
-      // Always keep localStorage in sync as fallback
-      this.saveActiveBoostsLocal();
+
+      // Get current payload
+      const { data: current, error: fetchError } = await supabase
+        .from('user_progress')
+        .select('payload')
+        .eq('user_id', user.id)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+
+      const payload = current?.payload || {};
+      // Update karma shop data
+      payload.karmaShop = {
+        activeBoosts: this.activeBoosts,
+        purchaseHistory: this.getPurchaseHistory(),
+        lastSync: new Date().toISOString()
+      };
+
+      // Save to cloud
+      const { error: saveError } = await supabase
+        .from('user_progress')
+        .upsert(
+          { user_id: user.id, payload, updated_at: new Date().toISOString() },
+          { onConflict: 'user_id' }
+        );
+
+      if (saveError) throw saveError;
+
+      // Cache locally
+      this.saveActiveBoosts();
     } catch (err) {
-      console.error('[KarmaShop] Save failed:', err);
-      this.saveActiveBoostsLocal();
+      console.error('[KarmaShop] Cloud save failed:', err);
+      this.saveActiveBoosts(); // fallback
     } finally {
       this._syncInProgress = false;
     }
@@ -131,40 +170,21 @@ export class KarmaShopEngine {
     return Boolean(this.app.state.currentUser?.isAdmin);
   }
 
-  /* ---------- Cap Helpers (persisted via engine state for cross-device sync) ---------- */
+  /* ---------- Cap Helpers (Optimized with cache) ---------- */
   initSkipCaps() {
     const now = Date.now();
     const periods = {
-      dailySkips: { key: this._weekKey(now) },
-      weeklySkips: { key: this._monthKey(now) },
-      monthlySkips: { key: this._yearKey(now) }
+      dailySkips: { key: this._weekKey(now), type: 'dailySkips' },
+      weeklySkips: { key: this._monthKey(now), type: 'weeklySkips' },
+      monthlySkips: { key: this._yearKey(now), type: 'monthlySkips' }
     };
 
-    // Try loading from engine state (Supabase-backed) first, fall back to localStorage
-    const savedCaps = this.app?.gamification?.state?.skipCaps || {};
-
     Object.entries(periods).forEach(([type, { key }]) => {
-      const fromState = savedCaps[type];
-      let obj = (fromState?.key === key) ? fromState : null;
-      if (!obj) {
-        // Try localStorage fallback
-        const fromLocal = this._getLocalStorage(`karma_skip_caps_${type}`, {});
-        obj = (fromLocal.key === key) ? fromLocal : { key, used: 0 };
-      }
-      this.skipCaps[type] = obj;
-    });
-
-    this._persistSkipCaps();
-  }
-
-  /** Persist current skip caps to engine state + localStorage */
-  _persistSkipCaps() {
-    if (this.app?.gamification?.state) {
-      this.app.gamification.state.skipCaps = { ...this.skipCaps };
-      this.app.gamification.saveState();
-    }
-    Object.entries(this.skipCaps).forEach(([type, obj]) => {
-      localStorage.setItem(`karma_skip_caps_${type}`, JSON.stringify(obj));
+      const storageKey = `karma_skip_caps_${type}`;
+      let obj = this._getLocalStorage(storageKey, {});
+      if (obj.key !== key) obj = { key, used: 0 };
+      this.skipCaps[type] = obj; // Cache in memory
+      localStorage.setItem(storageKey, JSON.stringify(obj));
     });
   }
 
@@ -186,7 +206,7 @@ export class KarmaShopEngine {
   _useSkipCap(type) {
     if (this._isAdmin()) return;
     this.skipCaps[type].used += 1;
-    this._persistSkipCaps();
+    localStorage.setItem(`karma_skip_caps_${type}`, JSON.stringify(this.skipCaps[type]));
     this.queueRender();
   }
 
@@ -254,15 +274,8 @@ export class KarmaShopEngine {
   }
 
   loadActiveBoosts() { return this._getLocalStorage('karma_active_boosts', []); }
-
-  /** Write boosts to localStorage only (no cloud call) */
-  saveActiveBoostsLocal() {
-    localStorage.setItem('karma_active_boosts', JSON.stringify(this.activeBoosts));
-  }
-
-  /** Write boosts to localStorage + cloud */
   saveActiveBoosts() {
-    this.saveActiveBoostsLocal();
+    localStorage.setItem('karma_active_boosts', JSON.stringify(this.activeBoosts));
     this.saveToCloud();
   }
 
@@ -309,12 +322,6 @@ export class KarmaShopEngine {
   }
 
   activateBoost(boostId, duration) {
-    // Persist through GamificationEngine so boost is saved to Supabase via engine state
-    if (this.app?.gamification?.activateBoost) {
-      this.app.gamification.activateBoost(boostId, duration);
-    }
-    // Also keep local activeBoosts in sync for UI rendering (ticker, isBoostActive checks)
-    this.activeBoosts = this.activeBoosts.filter(b => b.id !== boostId);
     this.activeBoosts.push({ id: boostId, expiresAt: Date.now() + duration });
     this.saveActiveBoosts();
   }
@@ -379,8 +386,9 @@ export class KarmaShopEngine {
     // First purchase badge
     const history = this.getPurchaseHistory();
     if (history.length === 1) this.app.gamification.grantBadge({ id: 'first_purchase', name: 'First Purchase', icon: '🛒', description: 'First purchase in the Karma Shop', xp: 50, rarity: 'epic' });
-    // Apply effect (each branch shows its own specific toast)
+    // Apply effect
     this.applyItemEffect(itemId, item);
+    this.app.showToast(`Purchased: ${item.name}!`, 'success');
     this.queueRender();
     return true;
   }
@@ -414,7 +422,7 @@ export class KarmaShopEngine {
     } catch (err) { console.error('[KarmaShop] applyItemEffect error:', err); this.app.showToast('Could not apply item – please reload', 'error'); }
   }
 
-  // Unified quest skip logic
+  // Unified quest skip logic - BUGFIX: store resetAt once
   _applyQuestSkip(skipType) {
     const config = {
       skip_all_daily: { period: 'daily', minXP: 200, minKarma: 50, resetFn: this._nextQuestDailyReset, label: 'daily' },
@@ -423,36 +431,19 @@ export class KarmaShopEngine {
     };
     const cfg = config[skipType];
     if (!cfg) return;
-
-    const g = this.app.gamification;
-    const todo = g.state.quests[cfg.period].filter(q => !q.completed);
-
-    // Tally rewards using correct field names
+    const todo = this.app.gamification.state.quests[cfg.period].filter(q => !q.completed);
     let xp = 0, karma = 0;
-    todo.forEach(q => {
-      xp += q.xpReward ?? 0;
-      karma += q.karmaReward ?? 0;
-      q.completed = true;
-    });
-
-    // Ensure minimum rewards
+    this.app.gamification._bulkMode = true;
+    todo.forEach(q => { xp += q.xp ?? 0; karma += q.karma ?? 0; q.completed = true; });
+    this.app.gamification._bulkMode = false;
     xp = Math.max(xp, cfg.minXP);
     karma = Math.max(karma, cfg.minKarma);
-
-    // Use engine methods so multipliers, level-up, badges and logs all fire correctly
-    g.state._bulkMode = true;
-    g.addXP(xp, `Skip ${cfg.label} quests`, true);
-    g.addKarma(karma, `Skip ${cfg.label} quests`, true);
-    g.state._bulkMode = false;
-
-    g.checkLevelUp();
-    g.queueBadgeCheck('quest');
-    g.saveState();
-
-    const resetAt = cfg.resetFn.call(this);
-    this.activeBoosts.push({ id: skipType, resetAt });
+    this.app.gamification.state.xp += xp;
+    this.app.gamification.state.karma += karma;
+    this.app.gamification.saveState();
+    const resetAt = cfg.resetFn.call(this); // compute once
+    this.activeBoosts.push({ id: skipType, resetAt }); // BUGFIX: store resetAt
     this.saveActiveBoosts();
-
     this.app.showToast(`All ${cfg.label} quests completed! (+${xp} XP | +${karma} Karma)`, 'success');
   }
 

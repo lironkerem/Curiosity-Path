@@ -572,13 +572,11 @@ class JournalEngine {
       date: this.formatDate(new Date())
     };
 
-    // Save entry — this triggers handleJournalGamification in AppState which awards
-    // XP and progresses daily/weekly/monthly quests. Do NOT also call progressQuest
-    // here or it will double-count.
     this.app.state.addEntry('journal', entry);
-
-    // Increment badge-tracking counter (separate from quest progress)
+    
+    // Update gamification if available
     if (this.app.gamification) {
+      this.app.gamification.progressQuest('daily', 'journal_entry', 1);
       this.app.gamification.incrementJournalEntries();
     }
     
@@ -880,20 +878,35 @@ class JournalEngine {
   // ============================================
 
   /**
-   * Checks and grants badges based on journal entry count
+   * Checks and grants achievements based on journal entry count
    */
   checkAchievements() {
-    const total = this.app.gamification?.state?.totalJournalEntries || 0;
+    const total = this.app.state.data.journalEntries?.length || 0;
     const gm = this.app.gamification;
     if (!gm) return;
 
-    // Map milestones to existing badge definitions in GamificationEngine
-    const badges = gm.getBadgeDefinitions();
-    if (total >= 1)   gm.checkAndGrantBadge('first_journal',  badges);
-    if (total >= 20)  gm.checkAndGrantBadge('journal_keeper', badges);
-    if (total >= 75)  gm.checkAndGrantBadge('journal_master', badges);
-    if (total >= 150) gm.checkAndGrantBadge('journal_150',    badges);
-    if (total >= 400) gm.checkAndGrantBadge('journal_400',    badges);
+    const achievements = [
+      { count: 1, id: 'first_journal', name: 'First Reflection', xp: 50, icon: '📔', 
+        message: 'You\'ve begun your journey of self-reflection!' },
+      { count: 10, id: 'journal_10', name: 'Reflective Writer', xp: 100, icon: '✏️', 
+        message: '10 journal entries! Your self-awareness is growing!' },
+      { count: 50, id: 'journal_50', name: 'Master Journaler', xp: 250, icon: '📖', 
+        message: '50 entries! You are a master of introspection!' },
+      { count: 100, id: 'journal_100', name: 'Chronicle Keeper', xp: 500, icon: '📚', 
+        message: '100 journal entries! Your wisdom is documented!' }
+    ];
+
+    achievements.forEach(ach => {
+      if (total === ach.count) {
+        gm.grantAchievement({
+          id: ach.id,
+          name: ach.name,
+          xp: ach.xp,
+          icon: ach.icon,
+          inspirational: ach.message
+        });
+      }
+    });
   }
 
   // ============================================

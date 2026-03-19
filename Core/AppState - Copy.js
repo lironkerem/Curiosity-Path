@@ -220,7 +220,7 @@ export default class AppState {
       energyEntries: [],
       gratitudeEntries: [],
       tarotReadings: [],
-      meditationEntries: [],
+      meditationHistory: [],
       journalEntries: [],
       flipEntries: [],
       
@@ -242,9 +242,19 @@ export default class AppState {
         totalReadings: 0
       },
       
-      // Gamification data is managed flat by GamificationEngine
-      // and persisted via saveState() → saveAppData(). No nested
-      // gamification block here to avoid dual-shape conflicts.
+      // Gamification data
+      gamification: {
+        xp: 0,
+        level: 1,
+        achievements: [],
+        badges: [],
+        quests: {},
+        streaks: {
+          current: 0,
+          longest: 0,
+          lastActive: null
+        }
+      }
     };
   }
 
@@ -293,7 +303,7 @@ export default class AppState {
     weekAgo.setDate(weekAgo.getDate() - STATS_WINDOW_DAYS);
     
     // Calculate weekly meditations
-    const weeklyMeditations = (this.data.meditationEntries || [])
+    const weeklyMeditations = (this.data.meditationHistory || [])
       .filter(m => new Date(m.timestamp) >= weekAgo)
       .length;
     
@@ -419,8 +429,7 @@ export default class AppState {
    */
   handleEnergyGamification(gamification) {
     gamification.addXP(XP_REWARDS[ENTRY_TYPES.ENERGY], 'Energy Check-in');
-    gamification.progressQuest('weekly', 'energy_7', 1);
-    gamification.progressQuest('monthly', 'monthly_energy_28', 1);
+    gamification.progressQuest('daily', 'energy_checkin', 1);
     gamification.updateStreak();
     gamification.checkAllBadges();
   }
@@ -433,9 +442,7 @@ export default class AppState {
     const xp = XP_REWARDS[ENTRY_TYPES.GRATITUDE] * count;
     
     gamification.addXP(xp, 'Gratitude Journal');
-    gamification.progressQuest('daily', 'gratitude_entry', count);
-    gamification.progressQuest('weekly', 'gratitude_streak_7', count);
-    gamification.progressQuest('monthly', 'monthly_gratitude_28', count);
+    gamification.progressQuest('daily', 'gratitude_1', count);
     gamification.updateStreak();
     gamification.checkAllBadges();
   }
@@ -448,9 +455,8 @@ export default class AppState {
     const xp = duration * XP_REWARDS[ENTRY_TYPES.MEDITATION];
     
     gamification.addXP(xp, 'Meditation');
-    gamification.progressQuest('daily', 'meditation_session', 1);
-    gamification.progressQuest('weekly', 'meditate_3', 1);
-    gamification.progressQuest('monthly', 'monthly_meditation_15', 1);
+    gamification.progressQuest('daily', 'meditate_10', duration);
+    gamification.progressQuest('weekly', 'meditate_5', 1);
     gamification.updateStreak();
     gamification.checkAllBadges();
     
@@ -465,9 +471,6 @@ export default class AppState {
    */
   handleTarotGamification(gamification) {
     gamification.addXP(XP_REWARDS[ENTRY_TYPES.TAROT], 'Tarot Reading');
-    gamification.progressQuest('daily', 'tarot_spread', 1);
-    gamification.progressQuest('weekly', 'tarot_4_days', 1);
-    gamification.progressQuest('monthly', 'monthly_tarot_15', 1);
     gamification.updateStreak();
     gamification.checkAllBadges();
   }
@@ -477,9 +480,6 @@ export default class AppState {
    */
   handleFlipGamification(gamification) {
     gamification.addXP(XP_REWARDS[ENTRY_TYPES.FLIP], 'Flip The Script');
-    gamification.progressQuest('daily', 'flip_script', 1);
-    gamification.progressQuest('weekly', 'flip_script_5', 1);
-    gamification.progressQuest('monthly', 'monthly_flip_15', 1);
     gamification.updateStreak();
     gamification.checkAllBadges();
   }
@@ -489,9 +489,7 @@ export default class AppState {
    */
   handleJournalGamification(gamification) {
     gamification.addXP(XP_REWARDS[ENTRY_TYPES.JOURNAL], 'Journal Entry');
-    gamification.progressQuest('daily', 'journal_entry', 1);
-    gamification.progressQuest('weekly', 'journal_5', 1);
-    gamification.progressQuest('monthly', 'monthly_journal_20', 1);
+    gamification.progressQuest('daily', 'journal_1', 1);
     gamification.updateStreak();
     gamification.checkAllBadges();
   }

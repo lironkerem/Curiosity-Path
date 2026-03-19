@@ -723,35 +723,43 @@ const AdminDashboard = {
 
     async _bulkSendBadge() {
         if (!this._bulkGuard()) return;
-        const sel        = document.getElementById('bulkBadgeSelect');
+        const sel = document.getElementById('bulkBadgeSelect');
         const badgeId    = sel?.value;
-        const opt        = sel?.options[sel.selectedIndex];
-        const badgeLabel = opt?.text || badgeId;
+        const badgeLabel = sel?.options[sel.selectedIndex]?.text || badgeId;
         if (!badgeId) { Core.showToast('Select a badge'); return; }
-
-        // Read real badge metadata from the select option's data attributes
-        const badgeName   = badgeLabel.replace(/^[^\s]+\s/, '').trim();
-        const badgeIcon   = opt?.dataset?.icon   || '🏅';
-        const badgeRarity = opt?.dataset?.rarity || 'common';
-        const badgeXp     = parseInt(opt?.dataset?.xp, 10) || 0;
-        const badgeDesc   = opt?.dataset?.desc   || '';
 
         const ids = [...this._bulkSelected];
         Core.showToast(`Sending badge to ${ids.length} members...`);
         let ok = 0;
 
         for (const uid of ids) {
-            // Use atomic RPC — avoids race conditions from the old
-            // fetch → merge → update pattern, and correctly awards badge XP.
-            const success = await CommunityDB.adminUpdateGamification(uid, {
-                badgeId,
-                badgeName,
-                badgeIcon,
-                badgeRarity,
-                badgeXp,
-                badgeDesc,
-            });
-            if (success) {
+            // Fetch raw payload directly - getUserProgress strips it to parsed fields only,
+            // which would lose all other payload data (quests, logs, etc.) on save.
+            const { data: raw } = await CommunityDB._sb
+                .from('user_progress').select('payload').eq('user_id', uid).single();
+            if (!raw) continue;
+
+            const payload = typeof raw.payload === 'string' ? JSON.parse(raw.payload) : { ...raw.payload };
+            const badges  = payload.badges || [];
+
+            if (!badges.find(b => b.id === badgeId)) {
+                badges.push({
+                    id:          badgeId,
+                    name:        badgeLabel.replace(/^[^\s]+\s/, '').trim(),
+                    icon:        '🏅',
+                    rarity:      'common',
+                    xp:          0,
+                    description: '',
+                    date:        new Date().toISOString(),
+                    unlocked:    true,
+                });
+            }
+
+            const { error } = await CommunityDB._sb
+                .from('user_progress')
+                .update({ payload: { ...payload, badges }, updated_at: new Date().toISOString() })
+                .eq('user_id', uid);
+            if (!error) {
                 ok++;
                 window.MemberProfileModal?._adminPushNotify?.(uid, '🏅 New Badge!', `You earned the ${badgeLabel} badge!`);
             }

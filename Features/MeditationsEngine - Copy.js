@@ -1197,15 +1197,13 @@ class MeditationsEngine {
       
       if (!this.currentMeditation) return;
 
-      // Calculate duration in minutes — use a minimum of 1 min if player hasn't
-      // reported a full duration yet (e.g. mid-session completion or non-YouTube)
-      const rawDuration = this.ytPlayer
+      // Calculate duration in minutes
+      const duration = this.ytPlayer 
         ? Math.floor((this.ytPlayer.getDuration() || 0) / 60)
         : 0;
-      const duration = Math.max(rawDuration, 1);
-
+      
       const chakra = this.getChakraFromMeditation(this.currentMeditation.category);
-
+      
       // Create session data
       const sessionData = {
         type: this.currentMeditation.type || 'guided',
@@ -1219,14 +1217,17 @@ class MeditationsEngine {
         completedAt: Date.now()
       };
 
-      // Save to state — this triggers handleMeditationGamification in AppState which
-      // awards XP (duration-based), progresses daily/weekly/monthly quests, updates
-      // streak, chakra, and badges. Do NOT also call progressQuest here — double-count.
+      // Save to state
       if (this.app.state) {
         this.app.state.addEntry('meditation', sessionData);
       }
 
-      // Check for badge milestones
+      // Update quest progress
+      if (sessionData.type === 'guided' && this.app.gamification) {
+        this.app.gamification.progressQuest('daily', 'meditation_session', 1);
+      }
+
+      // Check for achievements
       this.checkAchievements();
       this.sessionStartTime = null;
     } catch (error) {
@@ -1235,23 +1236,60 @@ class MeditationsEngine {
   }
 
   /**
-   * Check and grant meditation badges based on total sessions completed
+   * Check and grant meditation-related achievements
    */
   checkAchievements() {
     try {
-      // Use the engine's own counter (totalWellnessRuns tracks via incrementWellnessRuns,
-      // but meditation sessions are tracked separately via meditationHistory length)
-      const total = (this.app.state?.data?.meditationHistory || []).length;
+      const total = this.app.state?.data?.meditationEntries?.length || 0;
       const gm = this.app.gamification;
       if (!gm) return;
 
-      // Map milestones to existing badge definitions in GamificationEngine
-      const badges = gm.getBadgeDefinitions();
-      if (total >= 1)   gm.checkAndGrantBadge('first_meditation',    badges);
-      if (total >= 20)  gm.checkAndGrantBadge('meditation_devotee',  badges);
-      if (total >= 60)  gm.checkAndGrantBadge('meditation_master',   badges);
-      if (total >= 100) gm.checkAndGrantBadge('meditation_100',      badges);
-      if (total >= 200) gm.checkAndGrantBadge('meditation_200',      badges);
+      const achievements = [
+        { 
+          count: 1, 
+          id: 'first_meditation', 
+          name: 'First Journey Within', 
+          xp: 50, 
+          icon: '🧘', 
+          msg: 'You have begun the sacred practice of meditation!' 
+        },
+        { 
+          count: 10, 
+          id: 'meditation_10', 
+          name: 'Meditation Practitioner', 
+          xp: 100, 
+          icon: '🕉️', 
+          msg: '10 meditations! Your inner light grows brighter!' 
+        },
+        { 
+          count: 50, 
+          id: 'meditation_50', 
+          name: 'Meditation Master', 
+          xp: 250, 
+          icon: '✨', 
+          msg: '50 meditations! You are a beacon of inner peace!' 
+        },
+        { 
+          count: 100, 
+          id: 'meditation_100', 
+          name: 'Enlightened One', 
+          xp: 500, 
+          icon: '🌟', 
+          msg: '100 meditations! You walk in pure awareness!' 
+        }
+      ];
+
+      achievements.forEach(ach => {
+        if (total === ach.count) {
+          gm.grantAchievement({
+            id: ach.id,
+            name: ach.name,
+            xp: ach.xp,
+            icon: ach.icon,
+            inspirational: ach.msg
+          });
+        }
+      });
     } catch (error) {
       console.error('Error checking achievements:', error);
     }

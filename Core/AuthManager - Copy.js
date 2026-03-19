@@ -7,28 +7,7 @@ import { EMOJI_TO_KEY } from './avatar-icons.js';
 import { supabase } from './Supabase.js';
 
 const CONFIG = {MAX_FAILED_ATTEMPTS:5,LOCKOUT_TIME:900000,PASSWORD_MIN_LENGTH:6,PASSWORD_DEBOUNCE:300,TOAST_DURATION:3000,REDIRECT_DELAY:2000};
-const STORAGE_KEYS = {
-  USER: 'pc_user',
-  APPDATA: 'pc_appdata',
-  ACTIVE_TAB: 'pc_active_tab',
-  LOCKOUT: 'login_lockout',
-  REMEMBER_ME: 'remember_me',
-  DAILY_RESET: 'lastDailyReset',
-  QUEST_RESET: 'last_quest_reset',
-  DAILY_TAROT: 'daily_tarot_card',
-  THEME: 'activeTheme',
-  // Gamification keys — must be cleared on sign-out to prevent data leaking to next user
-  GAMIFICATION_STATE: 'gamificationState',
-  KARMA_BOOSTS: 'karma_active_boosts',
-  KARMA_HISTORY: 'karma_purchase_history',
-  KARMA_CAPS_DAILY: 'karma_skip_caps_dailySkips',
-  KARMA_CAPS_WEEKLY: 'karma_skip_caps_weeklySkips',
-  KARMA_CAPS_MONTHLY: 'karma_skip_caps_monthlySkips',
-  SAVED_FLIPS: 'savedFlips',
-  BOOSTER_VIEWS: 'daily_booster_views',
-  REMINDER_SETTINGS: 'reminderSettings',
-  CUSTOM_AFFIRMATIONS: 'customAffirmations'
-};
+const STORAGE_KEYS = {USER:'pc_user',APPDATA:'pc_appdata',ACTIVE_TAB:'pc_active_tab',LOCKOUT:'login_lockout',REMEMBER_ME:'remember_me',DAILY_RESET:'lastDailyReset',QUEST_RESET:'last_quest_reset',DAILY_TAROT:'daily_tarot_card',THEME:'activeTheme'};
 const ASSETS = {LOGO_URL:'/public/Tabs/Header.png'};
 
 export default class AuthManager {
@@ -429,12 +408,8 @@ export default class AuthManager {
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
     const authScreen = document.getElementById('auth-screen');
     if (authScreen) { authScreen.style.display = 'none'; authScreen.innerHTML = ''; }
-    // Ensure user_progress row exists for all providers (not just Google)
-    await this._ensureUserProgress(user.id);
+    if (isGoogle) await this._ensureUserProgress(user.id);
     document.documentElement.classList.add('theme-loaded');
-    // Load Supabase data BEFORE initializeApp so GamificationEngine.loadState()
-    // finds cloud data in state.data instead of falling back to localStorage.
-    await this.app.state.loadData();
     await this.app.initializeApp();
   }
 
@@ -445,11 +420,8 @@ export default class AuthManager {
   }
 
   async signOut() {
-    try {
-      // Destroy app first — cleans up gamification engine, intervals, event listeners
-      if (this.app?.destroy) this.app.destroy();
-      await supabase.auth.signOut();
-    } catch (error) { console.error('Sign out error:', error); }
+    try { await supabase.auth.signOut(); }
+    catch (error) { console.error('Sign out error:', error); }
     this._clearLocalUser();
     Object.values(STORAGE_KEYS).forEach(key => localStorage.removeItem(key));
     location.reload();

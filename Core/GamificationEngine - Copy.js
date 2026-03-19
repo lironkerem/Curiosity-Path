@@ -62,7 +62,7 @@ export class GamificationEngine {
       xp: 0,
       level: 1,
       karma: 0,
-      streak: { current: 0, best: 0, lastCheckIn: null },
+      streak: { current: 0, lastCheckIn: null },
       completedSessions: { daily: 0, weekly: 0 },
       badges: [],
       unlockedFeatures: [],
@@ -77,8 +77,7 @@ export class GamificationEngine {
       dailyQuestCompletions: 0,
       totalQuestCompletions: 0,
       dailyQuestStreak: 0,
-      activeBoosts: [],
-      skipCaps: {},
+      _bulkMode: false,
       settings: {
         xpPerAction: 10,
         xpPerLevel: 100,
@@ -89,10 +88,7 @@ export class GamificationEngine {
   }
 
   /**
-   * Initialize quest definitions if not already present.
-   * For new users: sets full definitions.
-   * For existing users: merges definition properties into saved state
-   * AND appends any new quests not yet present (e.g. after app updates).
+   * Initialize quest definitions if not already present
    */
   initializeQuests() {
     const definitions = this.getQuestDefinitions();
@@ -100,24 +96,14 @@ export class GamificationEngine {
       this.state.quests = definitions;
       this.saveState();
     } else {
+      // Merge definition properties (e.g. tab) into saved quest state
       ['daily', 'weekly', 'monthly'].forEach(type => {
-        const saved = this.state.quests[type] || [];
-        const defs = definitions[type] || [];
-
-        // Merge definition properties into existing saved quests
-        const merged = saved.map(quest => {
-          const def = defs.find(d => d.id === quest.id);
-          return def ? { ...def, ...quest } : quest;
-        });
-
-        // Append any new quests from definitions not yet in saved state
-        defs.forEach(def => {
-          if (!merged.find(q => q.id === def.id)) {
-            merged.push({ ...def });
-          }
-        });
-
-        this.state.quests[type] = merged;
+        if (this.state.quests[type]) {
+          this.state.quests[type] = this.state.quests[type].map(quest => {
+            const def = definitions[type]?.find(d => d.id === quest.id);
+            return def ? { ...def, ...quest } : quest;
+          });
+        }
       });
       this.saveState();
     }
@@ -207,19 +193,6 @@ export class GamificationEngine {
           xpReward: 15,
           completed: false,
           karmaReward: 1
-        },
-        {
-          id: 'flip_script',
-          tab: 'flip-script',
-          icon: '🔄',
-          name: 'Flip The Script',
-          inspirational: 'Every negative thought holds the seed of its opposite.',
-          target: 'Flip 1 negative thought',
-          goal: 1,
-          progress: 0,
-          xpReward: 40,
-          completed: false,
-          karmaReward: 4
         }
       ],
       weekly: [
@@ -300,35 +273,9 @@ export class GamificationEngine {
           xpReward: 120,
           completed: false,
           karmaReward: 12
-        },
-        {
-          id: 'flip_script_5',
-          tab: 'flip-script',
-          icon: '🔄',
-          name: 'Script Flipper',
-          inspirational: 'Rewire your mind one thought at a time.',
-          target: 'Flip 5 negative thoughts across the week to complete this quest.',
-          goal: 5,
-          progress: 0,
-          xpReward: 150,
-          completed: false,
-          karmaReward: 15
         }
       ],
       monthly: [
-        {
-          id: 'monthly_flip_15',
-          tab: 'flip-script',
-          icon: '🔄',
-          name: 'Master Script Flipper',
-          inspirational: 'You are the author of your own story.',
-          target: 'Flip 15 negative thoughts during the month to complete this quest.',
-          goal: 15,
-          progress: 0,
-          xpReward: 400,
-          completed: false,
-          karmaReward: 40
-        },
         {
           id: 'monthly_energy_28',
           tab: 'energy',
@@ -417,7 +364,6 @@ export class GamificationEngine {
 
   /**
    * Saves state to localStorage and cloud (debounced)
-   * Logs are excluded from cloud save to prevent payload bloat.
    */
   saveState() {
     clearTimeout(this.saveTimeout);
@@ -425,9 +371,7 @@ export class GamificationEngine {
       try {
         localStorage.setItem('gamificationState', JSON.stringify(this.state));
         if (this.app?.state) {
-          // Exclude logs from cloud payload — kept in localStorage only
-          const { logs: _logs, ...cloudState } = this.state;
-          this.app.state.data = { ...this.app.state.data, ...cloudState };
+          this.app.state.data = { ...this.app.state.data, ...this.state };
           this.app.state.saveAppData();
         }
       } catch (error) {
@@ -447,6 +391,7 @@ export class GamificationEngine {
         
         // Remove deprecated fields
         const deprecated = [
+          'streak.best',
           'streak.lastCheckIn',
           'energyLevel',
           'alignmentScore',
@@ -483,7 +428,7 @@ export class GamificationEngine {
   async reloadFromDatabase() {
     if (!this.app?.state) return;
     try {
-      await this.app.state.loadData(); // loadData() assigns result to this.data
+      await this.app.state.loadAppData();
       this.state = this.loadState();
       this.emit('stateReloaded', this.state);
       this.checkAllBadges();
@@ -634,7 +579,7 @@ export class GamificationEngine {
       journal: (data.journalEntries || []).length,
       energy: (data.energyEntries || []).length,
       tarot: this.state.totalTarotSpreads || 0,
-      meditation: (data.meditationEntries || []).length,
+      meditation: (data.meditationHistory || []).length,
       happiness: this.state.totalHappinessViews || 0,
       wellness: this.state.totalWellnessRuns || 0
     };
@@ -666,13 +611,10 @@ export class GamificationEngine {
    */
   addKarma(amount, source = 'general', skipToast = false) {
     if (!amount || amount <= 0) return;
-
-    let final = amount;
-    if (this.hasActiveKarmaBoost()) final = amount * 2;
-
-    this.state.karma += final;
-    this.logAction('karma', { amount: final, source, boosted: final !== amount });
-    this.emit('karmaGained', { amount: final, source, skipToast });
+    
+    this.state.karma += amount;
+    this.logAction('karma', { amount, source });
+    this.emit('karmaGained', { amount, source, skipToast });
     this.queueBadgeCheck('currency');
     this.saveState();
   }
@@ -683,30 +625,27 @@ export class GamificationEngine {
   addBoth(xp, karma, source = 'general') {
     if (!xp && !karma) return;
 
-    let finalXP = xp;
-    let finalKarma = karma;
-
     // Add XP
     if (xp > 0) {
-      if (this.hasActiveXPBoost()) finalXP = xp * 2;
-      this.state.xp += finalXP;
-      this.logAction('xp', { amount: finalXP, source, boosted: finalXP !== xp });
-      this.emit('xpGained', { amount: finalXP, source, skipToast: true });
+      let final = xp;
+      if (this.hasActiveXPBoost()) final = xp * 2;
+      this.state.xp += final;
+      this.logAction('xp', { amount: final, source, boosted: final !== xp });
+      this.emit('xpGained', { amount: final, source, skipToast: true });
     }
 
     // Add Karma
     if (karma > 0) {
-      if (this.hasActiveKarmaBoost()) finalKarma = karma * 2;
-      this.state.karma += finalKarma;
-      this.logAction('karma', { amount: finalKarma, source, boosted: finalKarma !== karma });
-      this.emit('karmaGained', { amount: finalKarma, source, skipToast: true });
+      this.state.karma += karma;
+      this.logAction('karma', { amount: karma, source });
+      this.emit('karmaGained', { amount: karma, source, skipToast: true });
     }
 
-    // Single combined toast showing actual awarded amounts
+    // Single combined toast
     if (this.app?.showToast) {
       const parts = [];
-      if (xp > 0) parts.push(`+${finalXP} XP`);
-      if (karma > 0) parts.push(`+${finalKarma} Karma`);
+      if (xp > 0) parts.push(`+${xp} XP`);
+      if (karma > 0) parts.push(`+${karma} Karma`);
       this.app.showToast(`${parts.join(' • ')} from ${source}`, 'success');
     }
 
@@ -716,48 +655,16 @@ export class GamificationEngine {
   }
 
   /**
-   * Checks if XP boost (xp_multiplier or double_boost) is active
+   * Checks if XP boost is active in Karma Shop
    */
   hasActiveXPBoost() {
     try {
-      const boosts = this.state.activeBoosts || [];
+      const boosts = JSON.parse(localStorage.getItem('karma_active_boosts')) || [];
       const now = Date.now();
-      return boosts.some(b =>
-        (b.id === 'xp_multiplier' || b.id === 'double_boost') && b.expiresAt > now
-      );
+      return boosts.some(b => b.id === 'xp_multiplier' && b.expiresAt > now);
     } catch {
       return false;
     }
-  }
-
-  /**
-   * Checks if a karma boost (karma_multiplier or double_boost) is active
-   */
-  hasActiveKarmaBoost() {
-    try {
-      const boosts = this.state.activeBoosts || [];
-      const now = Date.now();
-      return boosts.some(b =>
-        (b.id === 'karma_multiplier' || b.id === 'double_boost') && b.expiresAt > now
-      );
-    } catch {
-      return false;
-    }
-  }
-
-  /**
-   * Activates a boost and persists it to state (replaces localStorage-only approach)
-   * @param {string} id - Boost ID (e.g. 'xp_multiplier')
-   * @param {number} durationMs - Duration in milliseconds
-   */
-  activateBoost(id, durationMs) {
-    if (!this.state.activeBoosts) this.state.activeBoosts = [];
-    // Remove existing boost of same type
-    this.state.activeBoosts = this.state.activeBoosts.filter(b => b.id !== id);
-    const expiresAt = Date.now() + durationMs;
-    this.state.activeBoosts.push({ id, expiresAt });
-    this.saveState();
-    this.emit('boostActivated', { id, expiresAt });
   }
 
   // =========================================================
@@ -839,16 +746,8 @@ export class GamificationEngine {
       this.state.streak.current += 1;
     }
 
-    // Track best streak
-    if (this.state.streak.current > (this.state.streak.best || 0)) {
-      this.state.streak.best = this.state.streak.current;
-    }
-
     this.state.streak.lastCheckIn = today;
-    this.emit('streakUpdated', { 
-      current: this.state.streak.current,
-      best: this.state.streak.best
-    });
+    this.emit('streakUpdated', { current: this.state.streak.current });
     this.queueBadgeCheck('streak');
     this.saveState();
   }
@@ -1033,7 +932,7 @@ export class GamificationEngine {
 
   checkStreakBadges(badges) {
     const streak = this.state.streak?.current || 0;
-    if (this.state.dailyQuestStreak >= 7) this.checkAndGrantBadge('perfect_week', badges);
+    if (streak >= 7) this.checkAndGrantBadge('perfect_week', badges);
     if (streak >= 30) this.checkAndGrantBadge('dedication_streak', badges);
     if (streak >= 60) this.checkAndGrantBadge('unstoppable', badges);
     if (streak >= 100) this.checkAndGrantBadge('legendary_streak', badges);
@@ -1082,7 +981,7 @@ export class GamificationEngine {
     const todayTarot = (data.tarotReadings || []).some(
       e => new Date(e.timestamp).toDateString() === today
     );
-    const todayMeditation = (data.meditationEntries || []).some(
+    const todayMeditation = (data.meditationHistory || []).some(
       e => new Date(e.timestamp).toDateString() === today
     );
 

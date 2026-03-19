@@ -170,12 +170,10 @@ const ProfileModule = {
         ];
 
         const activityCards = [
-            { type:'journal',    icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`, label:'Journal',          count:'entries'   },
-            { type:'gratitude',  icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg>`, label:'Gratitude',        count:'entries'   },
-            { type:'energy',     icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>`, label:'Energy',           count:'check-ins' },
-            { type:'flip',       icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`, label:'Flip the Script',  count:'entries'   },
-            { type:'tarot',      icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect x="2" y="5" width="11" height="14" rx="2"/><path d="M15.5 5.5 18 3l4 4-5.5 5.5"/><path d="m13 13 4.5 4.5"/><path d="m17.5 17.5 1 1"/></svg>`, label:'Tarot Spreads',    count:'readings'  },
-            { type:'meditation', icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`, label:'Meditations',      count:'sessions'  },
+            { type:'journal',   icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`, label:'Journal',          count:'entries'   },
+            { type:'gratitude', icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg>`, label:'Gratitude',        count:'entries'   },
+            { type:'energy',    icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>`, label:'Energy',           count:'check-ins' },
+            { type:'flip',      icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`, label:'Flip the Script',  count:'entries'   },
         ];
 
         const cardStyle = `background:var(--neuro-bg,#f0f0f3);border-radius:14px;padding:14px;
@@ -708,28 +706,24 @@ const ProfileModule = {
 
         if (appData) {
             data = {
-                journalEntries:    appData.journalEntries    || [],
-                energyEntries:     appData.energyEntries     || [],
-                gratitudeEntries:  appData.gratitudeEntries  || [],
-                flipEntries:       appData.flipEntries       || [],
-                tarotEntries:      appData.tarotReadings     || [],  // stored as tarotReadings
-                meditationEntries: appData.meditationEntries || [],
+                journalEntries:   appData.journalEntries   || [],
+                energyEntries:    appData.energyEntries    || [],
+                gratitudeEntries: appData.gratitudeEntries || [],
+                flipEntries:      appData.flipEntries      || [],
             };
         }
 
-        // Fallback: fetch from DB only if app state hasn't loaded yet (not just empty)
-        if (!data) {
+        // Fallback: fetch from DB if all arrays empty
+        if (!data || Object.values(data).every(arr => arr.length === 0)) {
             try {
                 if (CommunityDB?.ready) {
                     const payload = await CommunityDB.getOwnFullProgress();
                     if (payload) {
                         data = {
-                            journalEntries:    payload.journalEntries    || [],
-                            energyEntries:     payload.energyEntries     || [],
-                            gratitudeEntries:  payload.gratitudeEntries  || [],
-                            flipEntries:       payload.flipEntries       || [],
-                            tarotEntries:      payload.tarotReadings     || [],
-                            meditationEntries: payload.meditationEntries || [],
+                            journalEntries:   payload.journalEntries   || [],
+                            energyEntries:    payload.energyEntries    || [],
+                            gratitudeEntries: payload.gratitudeEntries || [],
+                            flipEntries:      payload.flipEntries      || [],
                         };
                     }
                 }
@@ -741,17 +735,10 @@ const ProfileModule = {
         if (!data) return;
         this._activityData = data;
 
-        // Gratitude: count individual entries across all daily submissions
-        const totalGratitudes = data.gratitudeEntries.reduce(
-            (sum, e) => sum + (e.entries?.length || 0), 0
-        );
-
-        this._setActivityCount('journal',    data.journalEntries.length,    'entries');
-        this._setActivityCount('gratitude',  totalGratitudes,               'entries');
-        this._setActivityCount('energy',     data.energyEntries.length,     'check-ins');
-        this._setActivityCount('flip',       data.flipEntries.length,       'entries');
-        this._setActivityCount('tarot',      data.tarotEntries.length,      'readings');
-        this._setActivityCount('meditation', data.meditationEntries.length, 'sessions');
+        this._setActivityCount('journal',   data.journalEntries.length,   'entries');
+        this._setActivityCount('gratitude', data.gratitudeEntries.length, 'entries');
+        this._setActivityCount('energy',    data.energyEntries.length,    'check-ins');
+        this._setActivityCount('flip',      data.flipEntries.length,      'entries');
     },
 
     _setActivityCount(type, count, label) {
@@ -763,12 +750,10 @@ const ProfileModule = {
         if (!this._activityData) await this.loadActivityData();
 
         const MODAL_CONFIG = {
-            journal:    { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Journal Entries`   },
-            gratitude:  { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Gratitude Entries` },
-            energy:     { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg> Energy Check-ins`   },
-            flip:       { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Flip the Script`   },
-            tarot:      { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect x="2" y="5" width="11" height="14" rx="2"/><path d="M15.5 5.5 18 3l4 4-5.5 5.5"/><path d="m13 13 4.5 4.5"/><path d="m17.5 17.5 1 1"/></svg> Tarot Spreads`      },
-            meditation: { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg> Meditation Sessions` },
+            journal:   { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Journal Entries`   },
+            gratitude: { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Gratitude Entries` },
+            energy:    { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg> Energy Check-ins`   },
+            flip:      { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Flip the Script`   },
         };
 
         const cfg     = MODAL_CONFIG[type];
@@ -776,7 +761,7 @@ const ProfileModule = {
 
         const titleEl = document.getElementById('activityModalTitle');
         const bodyEl  = document.getElementById('activityModalBody');
-        if (titleEl) titleEl.innerHTML = cfg.title;  // innerHTML — title contains SVG markup
+        if (titleEl) titleEl.textContent = cfg.title;
         if (bodyEl)  bodyEl.innerHTML = entries.length
             ? entries.map(e => this._renderActivityEntry(type, e)).join('')
             : `<div style="text-align:center;color:var(--text-muted);padding:2rem;">No entries yet</div>`;
@@ -846,36 +831,12 @@ const ProfileModule = {
                 </div>`;
             }
             case 'flip': {
-                const text    = entry.original  || entry.flipped_from || entry.situation || entry.text || entry.content || '';
-                const reframe = entry.flipped   || entry.reframe || '';
+                const text    = entry.situation || entry.original || entry.text || entry.content || '';
+                const reframe = entry.reframe   || entry.flipped  || '';
                 return `<div style="${base}">
                     <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">${date}</div>
                     ${text    ? `<div style="color:var(--neuro-text);display:flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> ${this._esc(text)}</div>` : ''}
                     ${reframe ? `<div style="margin-top:6px;color:var(--neuro-accent);display:flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> ${this._esc(reframe)}</div>` : ''}
-                </div>`;
-            }
-            case 'tarot': {
-                const spread = entry.spreadType || entry.spreadKey || 'Spread';
-                const cards  = (entry.cards || []).slice(0, 3);
-                return `<div style="${base}">
-                    <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">${date}</div>
-                    <div style="font-weight:700;color:var(--neuro-accent);margin-bottom:4px;">🃏 ${this._esc(spread)}</div>
-                    ${cards.length ? `<div style="font-size:0.8rem;color:var(--neuro-text);opacity:0.8;">
-                        ${cards.map(c => `<div style="margin-bottom:2px;">• ${this._esc(c.name || '')}</div>`).join('')}
-                        ${entry.cards?.length > 3 ? `<div style="opacity:0.6;">+${entry.cards.length - 3} more cards</div>` : ''}
-                    </div>` : ''}
-                </div>`;
-            }
-            case 'meditation': {
-                const title    = entry.title    || entry.category || 'Session';
-                const duration = entry.duration ? `${entry.duration} min` : '';
-                const chakra   = entry.chakra   ? `· ${entry.chakra} chakra` : '';
-                return `<div style="${base}">
-                    <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">${date}</div>
-                    <div style="font-weight:700;color:var(--neuro-accent);display:flex;align-items:center;gap:0.4rem;">
-                        🧘 ${this._esc(title)}
-                    </div>
-                    ${(duration || chakra) ? `<div style="font-size:0.8rem;margin-top:3px;opacity:0.75;">${duration}${chakra}</div>` : ''}
                 </div>`;
             }
             default: return '';

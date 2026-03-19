@@ -27,26 +27,11 @@ export function mountUI(app) {
 
   const voiceInputBtn = document.getElementById("voice-input-btn");
 
-  // ========== Saved Flips Persistence ==========
-  // Saves both to localStorage (fast) and to Supabase via AppState (cross-device)
-  function persistSavedFlips() {
-    persistSavedFlips();
-    if (app.state) {
-      app.state.data.flipEntries = savedFlips;
-      app.state.saveAppData();
-    }
-  }
-
   // ========== State ==========
   let savedFlips = JSON.parse(localStorage.getItem("savedFlips") || "[]");
   let isListening = false;
   let recognition = null;
   let wasVoiceInput = false;
-
-  // On mount: prefer Supabase data over localStorage if available
-  if (app.state?.data?.flipEntries?.length) {
-    savedFlips = app.state.data.flipEntries;
-  }
 
   // ========== Helper Functions ==========
   function showToastLocal(message, duration = 2000) {
@@ -379,16 +364,6 @@ export function mountUI(app) {
       extendedFlipEl.textContent =
         result.expandedAffirmation || result.basicAffirmation || "No result";
 
-      // Wire gamification — triggers handleFlipGamification in AppState:
-      // awards 40 XP, progresses daily/weekly/monthly flip quests,
-      // updates streak, and checks all badges.
-      if (app.state) {
-        app.state.addEntry('flip', {
-          original: text,
-          flipped: result.expandedAffirmation || result.basicAffirmation || ''
-        });
-      }
-
       extendedFlipEl.classList.add("text-reveal");
 
       await new Promise((resolve) => setTimeout(resolve, 600));
@@ -459,7 +434,7 @@ export function mountUI(app) {
       favorite: false,
       timestamp: new Date().toISOString(),
     });
-    persistSavedFlips();
+    localStorage.setItem("savedFlips", JSON.stringify(savedFlips));
     renderSaved();
     showToast("Saved!");
   }
@@ -508,14 +483,14 @@ export function mountUI(app) {
 
       li.querySelector(".delete").addEventListener("click", () => {
         savedFlips.splice(actualIdx, 1);
-        persistSavedFlips();
+        localStorage.setItem("savedFlips", JSON.stringify(savedFlips));
         renderSaved(filter);
         showToast("Deleted");
       });
 
       li.querySelector(".favorite").addEventListener("click", () => {
         savedFlips[actualIdx].favorite = !savedFlips[actualIdx].favorite;
-        persistSavedFlips();
+        localStorage.setItem("savedFlips", JSON.stringify(savedFlips));
         renderSaved(filter);
         showToast(
           savedFlips[actualIdx].favorite ? "⭐ Favorited" : "☆ Unfavorited"
@@ -533,7 +508,7 @@ export function mountUI(app) {
 
         inputEl.addEventListener("blur", () => {
           savedFlips[actualIdx].text = inputEl.value.trim();
-          persistSavedFlips();
+          localStorage.setItem("savedFlips", JSON.stringify(savedFlips));
           renderSaved(filter);
         });
 
@@ -583,7 +558,7 @@ export function mountUI(app) {
           const backup = JSON.parse(reader.result);
           if (backup.savedFlips) {
             savedFlips = backup.savedFlips;
-            persistSavedFlips();
+            localStorage.setItem("savedFlips", JSON.stringify(savedFlips));
           }
           renderSaved();
           showToast("Backup restored!");
