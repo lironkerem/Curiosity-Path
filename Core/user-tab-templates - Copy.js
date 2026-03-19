@@ -148,14 +148,6 @@ export const profile = (u = {}) => `
       value="${u.country || ''}">
     <button class="btn-link" id="save-profile-btn">Save changes</button>
 
-    <!-- Delete Account -->
-    <div class="delete-account-section">
-      <button type="button" class="btn-delete-account" id="delete-account-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-        Delete Account
-      </button>
-    </div>
-
     <!-- Status Picker -->
     <div class="status-picker-section">
       <div class="status-picker-label">My Status</div>
@@ -176,41 +168,6 @@ export const profile = (u = {}) => `
             <span class="status-option-dot" style="background:${s.color};"></span>
             <span class="status-option-text">${s.label}</span>
           </button>`).join('')}
-      </div>
-    </div>
-  </div>`;
-
-// ============== DELETE ACCOUNT MODAL ==============
-
-/**
- * Confirmation modal for account deletion
- * @returns {string} HTML string
- */
-export const deleteAccountModal = () => `
-  <div id="delete-account-modal-overlay" class="delete-account-overlay" role="dialog" aria-modal="true" aria-labelledby="delete-account-title">
-    <div class="delete-account-modal">
-      <div class="delete-account-modal-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      </div>
-      <h3 id="delete-account-title" class="delete-account-modal-title">Delete Your Account?</h3>
-      <p class="delete-account-modal-body">
-        This will permanently delete your profile, all your data, messages, and activity.<br>
-        <strong>This cannot be undone.</strong>
-      </p>
-      <p class="delete-account-modal-confirm-label">Type <strong>DELETE</strong> to confirm:</p>
-      <input
-        type="text"
-        id="delete-account-confirm-input"
-        class="delete-account-confirm-input"
-        placeholder="DELETE"
-        autocomplete="off"
-        maxlength="6">
-      <div class="delete-account-modal-actions">
-        <button type="button" class="btn-delete-cancel" id="delete-account-cancel-btn">Cancel</button>
-        <button type="button" class="btn-delete-confirm" id="delete-account-confirm-btn" disabled>
-          <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-          Yes, Delete My Account
-        </button>
       </div>
     </div>
   </div>`;

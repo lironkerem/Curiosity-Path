@@ -299,11 +299,6 @@ export default class UserTab {
       this.saveQuickProfile();
     });
 
-    // Delete account
-    this.attachListener('delete-account-btn', 'click', () => {
-      this.showDeleteAccountModal();
-    });
-
     // Status picker
     document.querySelectorAll('.status-option-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1144,106 +1139,6 @@ export default class UserTab {
       avImg.src = avatar_url;
     } else {
       avEmoji.innerHTML = renderAvatarIcon(emoji);
-    }
-  }
-
-  // ============== DELETE ACCOUNT ==============
-
-  /** Inject and show the delete account confirmation modal */
-  showDeleteAccountModal() {
-    // Inject modal once
-    if (!document.getElementById('delete-account-modal-overlay')) {
-      document.documentElement.insertAdjacentHTML('afterbegin', Templates.deleteAccountModal());
-    }
-
-    const overlay = document.getElementById('delete-account-modal-overlay');
-    const input   = document.getElementById('delete-account-confirm-input');
-    const confirmBtn = document.getElementById('delete-account-confirm-btn');
-    const cancelBtn  = document.getElementById('delete-account-cancel-btn');
-
-    // Reset state each open
-    input.value = '';
-    confirmBtn.disabled = true;
-    overlay.classList.add('show');
-
-    // Enable confirm button only when user types DELETE exactly
-    const onInput = () => {
-      confirmBtn.disabled = input.value.trim() !== 'DELETE';
-    };
-    input.addEventListener('input', onInput);
-
-    const close = () => {
-      overlay.classList.remove('show');
-      input.removeEventListener('input', onInput);
-    };
-
-    cancelBtn.addEventListener('click', close, { once: true });
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) close();
-    }, { once: true });
-
-    confirmBtn.addEventListener('click', async () => {
-      if (input.value.trim() !== 'DELETE') return;
-      close();
-      await this.handleDeleteAccount();
-    }, { once: true });
-
-    // Focus input for faster UX
-    setTimeout(() => input.focus(), 100);
-  }
-
-  /** Execute full account deletion */
-  async handleDeleteAccount() {
-    const uid = this.currentUser?.id;
-    if (!uid) return;
-
-    this.toggleDropdown(false);
-    this.app.showToast('Deleting your account…', 'info');
-
-    try {
-      // Get session token to pass to Edge Function
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) throw new Error('No active session');
-
-      const res = await fetch(
-        `${supabase.supabaseUrl}/functions/v1/delete-account`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
-            'apikey': supabase.supabaseKey,
-          },
-        }
-      );
-
-      const body = await res.json();
-
-      if (!res.ok) {
-        throw new Error(body?.error || 'Deletion failed');
-      }
-
-      // Clear all local state
-      localStorage.clear();
-      sessionStorage.clear();
-
-      // Sign out (session is already gone server-side, but clean up client)
-      await supabase.auth.signOut();
-
-      this.app.showToast('Account deleted. Goodbye 🙏', 'success');
-
-      // Redirect or reload after brief delay
-      setTimeout(() => {
-        if (typeof this.app.logout === 'function') {
-          this.app.logout();
-        } else {
-          window.location.reload();
-        }
-      }, 1500);
-
-    } catch (err) {
-      console.error('handleDeleteAccount error:', err);
-      this.app.showToast(`Deletion failed: ${err.message}`, 'error');
     }
   }
 
