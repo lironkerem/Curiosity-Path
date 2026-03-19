@@ -24,7 +24,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
    ========================================================= */
 
 // ⚙️ ENVIRONMENT SWITCH - set to false before deploying to production
-const DEV_MODE = true;
+const DEV_MODE = false;
 
 const SUPABASE_CONFIGS = {
   dev: {
