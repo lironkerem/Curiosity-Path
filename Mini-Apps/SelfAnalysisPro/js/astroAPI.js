@@ -1,76 +1,51 @@
-// js/astroApi.js - client wrapper for the Vercel astro-proxy
-// DEBUG VERSION - with detailed logging
+// Mini-Apps/SelfAnalysisPro/js/astroAPI.js
+// Client wrapper for the Vercel astro-proxy
 
-const PROXY = '/api/astro-proxy';
+const PROXY   = '/api/astro-proxy';
+const TIMEOUT = 15000; // 15 s per attempt
 
 async function callAstroWithRetry(endpoint, params, retries = 2) {
-  console.log(`📞 Calling astro-proxy: ${endpoint}`);
-  console.log('📦 Request payload:', { endpoint, params });
-  
   for (let attempt = 0; attempt < retries; attempt++) {
     try {
-      const requestBody = JSON.stringify({ endpoint, params });
-      console.log(`🔄 Attempt ${attempt + 1}/${retries}`);
-      console.log('📤 Full request body:', requestBody);
-      
       const res = await fetch(PROXY, {
-        method: 'POST',
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: requestBody
+        body:    JSON.stringify({ endpoint, params }),
+        signal:  AbortSignal.timeout(TIMEOUT)
       });
-      
-      console.log(`📥 Response status: ${res.status}`);
-      
+
       if (!res.ok) {
         const errorText = await res.text();
-        console.error('❌ Error response body:', errorText);
-        
-        let err;
-        try {
-          const errorJson = JSON.parse(errorText);
-          err = new Error(errorJson.message || 'Astrology API error');
-          console.error('❌ Parsed error:', errorJson);
-        } catch {
-          err = new Error(errorText || 'Unknown error');
-        }
-        throw err;
+        let message;
+        try   { message = JSON.parse(errorText).message || 'Astrology API error'; }
+        catch { message = errorText || 'Unknown error'; }
+        throw new Error(message);
       }
-      
-      const data = await res.json();
-      console.log('✅ Success response:', data);
-      return data;
-      
+
+      return await res.json();
+
     } catch (error) {
-      console.error(`❌ Astrology API attempt ${attempt + 1} failed:`, error.message);
-      
-      if (attempt === retries - 1) {
-        console.error('💥 All retries exhausted, throwing error');
-        throw error;
-      }
-      
-      const waitTime = 1000 * (attempt + 1);
-      console.log(`⏳ Retrying in ${waitTime}ms...`);
-      await new Promise(resolve => setTimeout(resolve, waitTime));
+      console.error(`Astrology API attempt ${attempt + 1}/${retries} failed:`, error.message);
+
+      if (attempt === retries - 1) throw error;
+
+      await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
     }
   }
 }
 
 export async function getPlanets(params) {
-  console.log('🪐 getPlanets() called');
   return callAstroWithRetry('western/planets', params);
 }
 
 export async function getHouses(params) {
-  console.log('🏠 getHouses() called');
   return callAstroWithRetry('western/houses', params);
 }
 
 export async function getAspects(params) {
-  console.log('🔺 getAspects() called');
   return callAstroWithRetry('western/aspects', params);
 }
 
 export async function getNatalWheelChart(params) {
-  console.log('🎡 getNatalWheelChart() called');
   return callAstroWithRetry('western/natal-wheel-chart', params);
 }

@@ -1,46 +1,51 @@
 // Mini-Apps/FlipTheScript/ui.js
+
 export function mountUI(app) {
-  
-  // ========== DOM Elements ==========
-  const input = document.getElementById("negative-input");
-  const flipBtn = document.getElementById("flip-btn");
-  const clearBtn = document.getElementById("clear-btn");
-  const progressWrapper = document.getElementById("progress-wrapper");
-  const progressInner = document.getElementById("progress-inner");
 
-  const extendedFlipEl = document.getElementById("extended-flip");
+  // ---------------------------
+  // Safe localStorage wrapper
+  // ---------------------------
+  const ls = {
+    get:    k      => { try { return localStorage.getItem(k); }  catch { return null; } },
+    set:    (k, v) => { try { localStorage.setItem(k, v); }      catch { /* noop */  } },
+    remove: k      => { try { localStorage.removeItem(k); }      catch { /* noop */  } }
+  };
 
-  const saveExtendedBtn = document.getElementById("save-extended");
-  const audioExtendedBtn = document.getElementById("audio-extended");
-
-  const savedList = document.getElementById("saved-list");
-  const searchSaved = document.getElementById("search-saved");
-
-  const backupBtn = document.getElementById("backup-id");
-  const restoreBtn = document.getElementById("restore-id");
-
-  const charCount = document.getElementById("char-count");
-
-  const inputSection = document.getElementById("input-section");
-  const outputSection = document.getElementById("output-section");
-  const flipAnotherBtn = document.getElementById("flip-another-btn");
-
-  const voiceInputBtn = document.getElementById("voice-input-btn");
-
-  // ========== Saved Flips Persistence ==========
-  // Saves both to localStorage (fast) and to Supabase via AppState (cross-device)
-  function persistSavedFlips() {
-    persistSavedFlips();
-    if (app.state) {
-      app.state.data.flipEntries = savedFlips;
-      app.state.saveAppData();
-    }
+  // ---------------------------
+  // XSS escape helper
+  // ---------------------------
+  function esc(v) {
+    return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
+  // ========== DOM Elements ==========
+  const input           = document.getElementById('negative-input');
+  const flipBtn         = document.getElementById('flip-btn');
+  const clearBtn        = document.getElementById('clear-btn');
+  const progressWrapper = document.getElementById('progress-wrapper');
+  const progressInner   = document.getElementById('progress-inner');
+  const extendedFlipEl  = document.getElementById('extended-flip');
+  const saveExtendedBtn = document.getElementById('save-extended');
+  const audioExtendedBtn= document.getElementById('audio-extended');
+  const savedList       = document.getElementById('saved-list');
+  const searchSaved     = document.getElementById('search-saved');
+  const backupBtn       = document.getElementById('backup-id');
+  const restoreBtn      = document.getElementById('restore-id');
+  const charCount       = document.getElementById('char-count');
+  const inputSection    = document.getElementById('input-section');
+  const outputSection   = document.getElementById('output-section');
+  const flipAnotherBtn  = document.getElementById('flip-another-btn');
+  const voiceInputBtn   = document.getElementById('voice-input-btn');
+
   // ========== State ==========
-  let savedFlips = JSON.parse(localStorage.getItem("savedFlips") || "[]");
-  let isListening = false;
-  let recognition = null;
+  let savedFlips = [];
+  try {
+    const raw = ls.get('savedFlips');
+    savedFlips = raw ? JSON.parse(raw) : [];
+  } catch { savedFlips = []; }
+
+  let isListening   = false;
+  let recognition   = null;
   let wasVoiceInput = false;
 
   // On mount: prefer Supabase data over localStorage if available
@@ -48,209 +53,184 @@ export function mountUI(app) {
     savedFlips = app.state.data.flipEntries;
   }
 
+  // ========== Persistence ==========
+  // Fixed: removed infinite self-call; persists to localStorage + Supabase
+  function persistSavedFlips() {
+    ls.set('savedFlips', JSON.stringify(savedFlips));
+    if (app.state) {
+      app.state.data.flipEntries = savedFlips;
+      app.state.saveAppData();
+    }
+  }
+
+  // bfcache: use pagehide in addition to any existing handlers
+  window.addEventListener('pagehide', persistSavedFlips);
+
   // ========== Helper Functions ==========
-  function showToastLocal(message, duration = 2000) {
+  function showToast(message) {
     app.showToast(message);
   }
-  const showToast = showToastLocal;
 
   function copyToClipboard(text) {
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
     } else {
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.select();
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;opacity:0;';
+      document.body.appendChild(ta);
+      ta.select();
       try { document.execCommand('copy'); showToast('Copied to clipboard!'); } catch (_) {}
-      document.body.removeChild(textarea);
+      document.body.removeChild(ta);
     }
   }
 
   function speakText(text) {
-    if ("speechSynthesis" in window) {
+    if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.9;
-      utterance.pitch = 1;
+      utterance.rate   = 0.9;
+      utterance.pitch  = 1;
       utterance.volume = 1;
       window.speechSynthesis.speak(utterance);
-      showToast("Playing audio...");
+      showToast('Playing audio...');
     } else {
-      showToast("Audio not supported");
+      showToast('Audio not supported');
     }
   }
 
+  // ========== Mic SVG ==========
+  const MIC_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M12 19v3"/><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>`;
+
   // ========== Voice Input (Speech Recognition) ==========
   function initSpeechRecognition() {
-    if (
-      !("webkitSpeechRecognition" in window) &&
-      !("SpeechRecognition" in window)
-    ) {
-      voiceInputBtn.style.display = "none";
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      voiceInputBtn.style.display = 'none';
       return;
     }
-
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
-
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = "en-US";
+    recognition.continuous      = false;
+    recognition.interimResults  = false;
+    recognition.lang            = 'en-US';
 
     recognition.onstart = () => {
       isListening = true;
-      voiceInputBtn.classList.add("listening");
-      voiceInputBtn.innerHTML = "🔴";
-      showToast("Listening... Speak now!");
+      voiceInputBtn.classList.add('listening');
+      voiceInputBtn.setAttribute('aria-label', 'Stop listening');
+      voiceInputBtn.textContent = '🔴';
+      showToast('Listening... Speak now!');
     };
 
-    recognition.onresult = (event) => {
+    recognition.onresult = event => {
       const transcript = event.results[0][0].transcript;
-      input.value = transcript;
-      charCount.textContent = transcript.length;
-      showToast("Got it! Flipping now...");
+      input.value = transcript.slice(0, 500); // enforce max
+      charCount.textContent = input.value.length;
+      showToast('Got it! Flipping now...');
       wasVoiceInput = true;
-
-      // Auto-trigger flip after 500ms
       setTimeout(() => {
-        if (transcript.trim()) {
-          flipBtn.click();
-        }
+        if (transcript.trim()) flipBtn.click();
       }, 500);
     };
 
-    recognition.onerror = (event) => {
-      console.error("Speech recognition error:", event.error);
+    recognition.onerror = event => {
+      console.error('Speech recognition error:', event.error);
       isListening = false;
-      voiceInputBtn.classList.remove("listening");
-      voiceInputBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 19v3"/><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>`;
-
-      if (event.error === "no-speech") {
-        showToast("No speech detected. Try again!");
-      } else if (event.error === "not-allowed") {
-        showToast(
-          "Microphone access denied. Please allow microphone access in browser settings."
-        );
-      } else if (event.error === "network") {
-        showToast("Network error. Check your internet connection.");
-      } else {
-        showToast("Could not recognize speech. Try again.");
-      }
+      voiceInputBtn.classList.remove('listening');
+      voiceInputBtn.setAttribute('aria-label', 'Speak your thought');
+      voiceInputBtn.innerHTML = MIC_SVG;
+      const msgs = {
+        'no-speech':   'No speech detected. Try again!',
+        'not-allowed': 'Microphone access denied. Please allow microphone access in browser settings.',
+        'network':     'Network error. Check your internet connection.'
+      };
+      showToast(msgs[event.error] || 'Could not recognize speech. Try again.');
     };
 
     recognition.onend = () => {
       isListening = false;
-      voiceInputBtn.classList.remove("listening");
-      voiceInputBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 19v3"/><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>`;
+      voiceInputBtn.classList.remove('listening');
+      voiceInputBtn.setAttribute('aria-label', 'Speak your thought');
+      voiceInputBtn.innerHTML = MIC_SVG;
     };
   }
 
-  voiceInputBtn.addEventListener("click", async () => {
+  voiceInputBtn.addEventListener('click', async () => {
     if (!recognition) {
-      showToast("Speech recognition not supported in this browser");
+      showToast('Speech recognition not supported in this browser');
       return;
     }
-
-    if (isListening) {
-      recognition.stop();
+    if (isListening) { recognition.stop(); return; }
+    if (window.location.protocol !== 'https:' &&
+        window.location.hostname !== 'localhost' &&
+        window.location.hostname !== '127.0.0.1') {
+      showToast('Microphone requires HTTPS. Voice input only works on secure pages.');
       return;
     }
-
-    // Check if page is served over HTTPS (required for mic access)
-    if (
-      window.location.protocol !== "https:" &&
-      window.location.hostname !== "localhost" &&
-      window.location.hostname !== "127.0.0.1"
-    ) {
-      showToast(
-        "Microphone requires HTTPS. Voice input only works on secure pages."
-      );
-      return;
-    }
-
-    // Try to start recognition
     try {
       recognition.start();
     } catch (error) {
-      console.error("Error starting recognition:", error);
-      showToast("Could not start voice input. Please try again.");
+      console.error('Error starting recognition:', error);
+      showToast('Could not start voice input. Please try again.');
     }
   });
 
   initSpeechRecognition();
 
   // ========== Character Counter ==========
-  input.addEventListener("input", () => {
+  input.addEventListener('input', () => {
     const count = input.value.length;
     charCount.textContent = count;
     const counter = charCount.parentElement;
-
-    counter.classList.remove("warning", "danger");
-    if (count > 400) {
-      counter.classList.add("danger");
-    } else if (count > 350) {
-      counter.classList.add("warning");
-    }
+    counter.classList.remove('warning', 'danger');
+    if (count > 400)      counter.classList.add('danger');
+    else if (count > 350) counter.classList.add('warning');
   });
 
   // ========== Flip Suggestions ==========
-  document.querySelectorAll(".suggestion-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const text = btn.getAttribute("data-text");
-      input.value = text;
+  document.querySelectorAll('.suggestion-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const text = btn.getAttribute('data-text') || '';
+      input.value = text.slice(0, 500);
+      charCount.textContent = input.value.length;
       input.focus();
     });
   });
 
   // ========== Collapsible Behavior ==========
-  document.querySelectorAll(".collapsible-card").forEach((card) => {
-    const toggle = card.querySelector(".collapse-toggle");
-    const content = card.querySelector(".collapse-content");
-    const icon = toggle.querySelector(".collapse-icon");
-
+  document.querySelectorAll('.collapsible-card').forEach(card => {
+    const toggle  = card.querySelector('.collapse-toggle');
+    const content = card.querySelector('.collapse-content');
+    const icon    = toggle ? toggle.querySelector('.collapse-icon') : null;
     if (!toggle || !content) return;
 
-    toggle.addEventListener("click", () => {
-      const expanded = toggle.getAttribute("aria-expanded") === "true";
-      toggle.setAttribute("aria-expanded", !expanded);
-
+    toggle.addEventListener('click', () => {
+      const expanded = toggle.getAttribute('aria-expanded') === 'true';
+      toggle.setAttribute('aria-expanded', String(!expanded));
       if (expanded) {
-        content.classList.add("collapsed");
-        icon.textContent = "▶";
+        content.classList.add('collapsed');
+        if (icon) icon.textContent = '▶';
       } else {
-        content.classList.remove("collapsed");
-        icon.textContent = "▼";
+        content.classList.remove('collapsed');
+        if (icon) icon.textContent = '▼';
       }
     });
   });
 
   // ========== Flip Another Button ==========
-  flipAnotherBtn.addEventListener("click", () => {
-    // Hide output section
-    outputSection.classList.add("hidden");
-    outputSection.classList.remove("show");
-
-    // Show input section
-    inputSection.classList.remove("minimized");
-
-    // Clear input
-    input.value = "";
-    charCount.textContent = "0";
-
-    // Scroll to input
-    inputSection.scrollIntoView({ behavior: "smooth", block: "start" });
-
-    // Focus input
+  flipAnotherBtn.addEventListener('click', () => {
+    outputSection.classList.add('hidden');
+    outputSection.classList.remove('show');
+    inputSection.classList.remove('minimized');
+    input.value = '';
+    charCount.textContent = '0';
+    inputSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setTimeout(() => input.focus(), 300);
   });
 
   // ========== Handle Enter Key ==========
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       flipBtn.click();
     }
@@ -258,130 +238,106 @@ export function mountUI(app) {
 
   // ========== Create halo rings ==========
   function createHaloRings() {
-    const outputSection = document.getElementById("output-section");
+    const section = document.getElementById('output-section');
     requestAnimationFrame(() => {
-    const outputRect = outputSection.getBoundingClientRect();
-    const centerX = outputRect.left + outputRect.width / 2;
-    const centerY = outputRect.top + outputRect.height / 2;
-
-    for (let i = 0; i < 3; i++) {
-      setTimeout(() => {
-        const ring = document.createElement("div");
-        ring.className = "halo-ring";
-        ring.style.left = centerX + "px";
-        ring.style.top = centerY + "px";
-
-        document.body.appendChild(ring);
-        setTimeout(() => ring.remove(), 1500);
-      }, i * 300);
-    }
+      const rect = section.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top  + rect.height / 2;
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+          const ring = document.createElement('div');
+          ring.className = 'halo-ring';
+          ring.style.left = centerX + 'px';
+          ring.style.top  = centerY + 'px';
+          document.body.appendChild(ring);
+          setTimeout(() => ring.remove(), 1500);
+        }, i * 300);
+      }
     });
   }
 
   // ========== Create floating particles ==========
   function createFlipParticles() {
-    const particles = [
-      "✨", "⭐", "💫", "🌟", "💥", "⚡", "🌠", "💎",
-      "💚", "🦋", "🌸", "✴️", "🎆", "💖", "🌈", "💎",
-      "✴️", "🎆", "🎇", "✨", "⭐", "💫", "🌟", "💥",
-    ];
+    const particles = ['✨','⭐','💫','🌟','💥','⚡','🌠','💎','💚','🦋','🌸','✴️','🎆','💖','🌈','💎','✴️','🎆','🎇','✨','⭐','💫','🌟','💥'];
     requestAnimationFrame(() => {
-    const inputRect = input.getBoundingClientRect();
-    const centerX = inputRect.left + inputRect.width / 2;
-    const centerY = inputRect.top + inputRect.height / 2;
-
-    particles.forEach((particle, i) => {
-      setTimeout(() => {
-        const el = document.createElement("div");
-        el.className = "flip-particle";
-        el.textContent = particle;
-        el.style.left = centerX + "px";
-        el.style.top = centerY + "px";
-
-        const angle = (i / particles.length) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
-        const distance = 350 + Math.random() * 200;
-        const tx = Math.cos(angle) * distance;
-        const ty = Math.sin(angle) * distance;
-
-        el.style.setProperty("--tx", tx + "px");
-        el.style.setProperty("--ty", ty + "px");
-
-        document.body.appendChild(el);
-
-        setTimeout(() => el.remove(), 2000);
-      }, i * 30);
-    });
+      const rect = input.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top  + rect.height / 2;
+      particles.forEach((particle, i) => {
+        setTimeout(() => {
+          const el = document.createElement('div');
+          el.className  = 'flip-particle';
+          el.textContent = particle;
+          el.setAttribute('aria-hidden', 'true');
+          el.style.left = centerX + 'px';
+          el.style.top  = centerY + 'px';
+          const angle    = (i / particles.length) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
+          const distance = 350 + Math.random() * 200;
+          el.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+          el.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), 2000);
+        }, i * 30);
+      });
     });
   }
+
+  // ========== Flip It Now SVG ==========
+  const FLIP_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9"/><path d="m15 3 3 3-3 3"/><path d="M18 6H9"/></svg>`;
 
   // ========== Enhanced Flip Action ==========
   async function performFlip() {
     const text = input.value.trim();
-    if (!text) {
-      showToast("Please enter a thought first");
-      return;
-    }
+    if (!text) { showToast('Please enter a thought first'); return; }
 
     flipBtn.disabled = true;
-    flipBtn.textContent = "Flipping...";
+    flipBtn.textContent = 'Flipping...';
 
-    const appContainer = document.querySelector(".app-container");
-    if (appContainer) {
-      appContainer.classList.add("animating");
-    }
+    const appContainer = document.querySelector('.app-container');
+    if (appContainer) appContainer.classList.add('animating');
 
-    const whooshOverlay1 = document.createElement("div");
-    whooshOverlay1.className = "whoosh-overlay";
-    document.body.appendChild(whooshOverlay1);
+    const whoosh1 = document.createElement('div');
+    whoosh1.className = 'whoosh-overlay';
+    document.body.appendChild(whoosh1);
 
-    const whooshOverlay2 = document.createElement("div");
-    whooshOverlay2.className = "whoosh-overlay-2";
-    document.body.appendChild(whooshOverlay2);
+    const whoosh2 = document.createElement('div');
+    whoosh2.className = 'whoosh-overlay-2';
+    document.body.appendChild(whoosh2);
 
     createHaloRings();
     createFlipParticles();
 
-    progressWrapper.classList.remove("hidden");
-    progressInner.style.width = "0%";
+    progressWrapper.classList.remove('hidden');
+    progressInner.style.width = '0%';
 
     let progress = 0;
     const interval = setInterval(() => {
       progress = Math.min(progress + 10, 100);
-      progressInner.style.width = progress + "%";
-      progressInner.textContent = progress + "%";
+      progressInner.style.width = progress + '%';
+      progressInner.textContent = progress + '%';
     }, 150);
 
-    extendedFlipEl.textContent = "Generating...";
+    // Use textContent — never innerHTML for AI/user content
+    extendedFlipEl.textContent = 'Generating...';
 
     try {
-      const result = await FlipEngine.flip(text);
+      const result = await window.FlipEngine.flip(text);
 
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 100));
+      inputSection.classList.add('minimized');
+      outputSection.classList.remove('hidden');
+      await new Promise(resolve => setTimeout(resolve, 200));
+      outputSection.classList.add('show');
 
-      // Minimize input section
-      inputSection.classList.add("minimized");
-
-      // Show output section as main event
-      outputSection.classList.remove("hidden");
-
-      await new Promise((resolve) => setTimeout(resolve, 200));
-
-      // Add show class for animation
-      outputSection.classList.add("show");
-
-      // Scroll to output
       setTimeout(() => {
-        outputSection.scrollIntoView({ behavior: "smooth", block: "center" });
+        outputSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 300);
 
-      await new Promise((resolve) => setTimeout(resolve, 750));
+      await new Promise(resolve => setTimeout(resolve, 750));
 
-      extendedFlipEl.textContent =
-        result.expandedAffirmation || result.basicAffirmation || "No result";
+      // Set result via textContent — XSS safe
+      extendedFlipEl.textContent = result.expandedAffirmation || result.basicAffirmation || 'No result';
 
-      // Wire gamification — triggers handleFlipGamification in AppState:
-      // awards 40 XP, progresses daily/weekly/monthly flip quests,
-      // updates streak, and checks all badges.
       if (app.state) {
         app.state.addEntry('flip', {
           original: text,
@@ -389,15 +345,10 @@ export function mountUI(app) {
         });
       }
 
-      extendedFlipEl.classList.add("text-reveal");
+      extendedFlipEl.classList.add('text-reveal');
+      await new Promise(resolve => setTimeout(resolve, 600));
+      setTimeout(() => extendedFlipEl.classList.remove('text-reveal'), 600);
 
-      await new Promise((resolve) => setTimeout(resolve, 600));
-
-      setTimeout(() => {
-        extendedFlipEl.classList.remove("text-reveal");
-      }, 600);
-
-      // Auto-speak the flipped result if voice input was used
       if (wasVoiceInput) {
         setTimeout(() => {
           speakText(extendedFlipEl.textContent);
@@ -408,137 +359,136 @@ export function mountUI(app) {
       }
     } catch (err) {
       console.error(err);
-      extendedFlipEl.textContent = "Error generating flip.";
-      showToast("Error occurred");
+      extendedFlipEl.textContent = 'Error generating flip.';
+      showToast('Error occurred');
     } finally {
       clearInterval(interval);
       setTimeout(() => {
-        progressWrapper.classList.add("hidden");
-        whooshOverlay1.remove();
-        whooshOverlay2.remove();
-        if (appContainer) {
-          appContainer.classList.remove("animating");
-        }
+        progressWrapper.classList.add('hidden');
+        whoosh1.remove();
+        whoosh2.remove();
+        if (appContainer) appContainer.classList.remove('animating');
       }, 1500);
       flipBtn.disabled = false;
-      flipBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9"/><path d="m15 3 3 3-3 3"/><path d="M18 6H9"/></svg> Flip It Now`;
+      flipBtn.innerHTML = `${FLIP_SVG} Flip It Now`;
     }
   }
 
-  flipBtn.addEventListener("click", performFlip);
+  flipBtn.addEventListener('click', performFlip);
 
   // ========== Clear ==========
-  clearBtn.addEventListener("click", () => {
-    input.value = "";
-    extendedFlipEl.textContent = "Your Flipped Script will appear here...";
-    charCount.textContent = "0";
-
-    // Hide output if shown
-    if (!outputSection.classList.contains("hidden")) {
-      outputSection.classList.add("hidden");
-      outputSection.classList.remove("show");
-      inputSection.classList.remove("minimized");
+  clearBtn.addEventListener('click', () => {
+    input.value = '';
+    extendedFlipEl.textContent = 'Your Flipped Script will appear here...';
+    charCount.textContent = '0';
+    if (!outputSection.classList.contains('hidden')) {
+      outputSection.classList.add('hidden');
+      outputSection.classList.remove('show');
+      inputSection.classList.remove('minimized');
     }
   });
 
-  // ========== Copy & Audio ==========
-  audioExtendedBtn.addEventListener("click", () =>
-    speakText(extendedFlipEl.textContent)
-  );
+  // ========== Audio ==========
+  audioExtendedBtn.addEventListener('click', () => speakText(extendedFlipEl.textContent));
 
   // ========== Save ==========
   function addSaved(text) {
-    const t = text.trim();
-    if (!t || t.includes("will appear here")) return;
-    if (savedFlips.some((f) => f.text === t)) {
-      showToast("Already saved");
-      return;
-    }
-    savedFlips.unshift({
-      text: t,
-      favorite: false,
-      timestamp: new Date().toISOString(),
-    });
+    const t = text.trim().slice(0, 500);
+    if (!t || t.includes('will appear here')) return;
+    if (savedFlips.some(f => f.text === t)) { showToast('Already saved'); return; }
+    savedFlips.unshift({ text: t, favorite: false, timestamp: new Date().toISOString() });
     persistSavedFlips();
     renderSaved();
-    showToast("Saved!");
+    showToast('Saved!');
   }
 
-  saveExtendedBtn.addEventListener("click", () =>
-    addSaved(extendedFlipEl.textContent)
-  );
+  saveExtendedBtn.addEventListener('click', () => addSaved(extendedFlipEl.textContent));
 
   // ========== Saved Flips Rendering ==========
-  function renderSaved(filter = "") {
-    savedList.innerHTML = "";
+  function renderSaved(filter = '') {
+    savedList.innerHTML = '';
 
     let filtered = savedFlips;
     if (filter) {
       const lower = filter.toLowerCase();
-      filtered = savedFlips.filter((f) =>
-        f.text.toLowerCase().includes(lower)
-      );
+      filtered = savedFlips.filter(f => f.text.toLowerCase().includes(lower));
     }
 
     if (filtered.length === 0) {
-      const li = document.createElement("li");
-      li.className = "saved-item";
-      li.innerHTML = '<p class="placeholder">No saved flips yet.</p>';
+      const li = document.createElement('li');
+      li.className = 'saved-item';
+      const p = document.createElement('p');
+      p.className = 'placeholder';
+      p.textContent = 'No saved flips yet.';
+      li.appendChild(p);
       savedList.appendChild(li);
       return;
     }
 
-    filtered.forEach((item) => {
+    filtered.forEach(item => {
       const actualIdx = savedFlips.indexOf(item);
-      const li = document.createElement("li");
-      li.className = "saved-item";
-      if (item.favorite) li.classList.add("favorite");
+      const li = document.createElement('li');
+      li.className = 'saved-item';
+      if (item.favorite) li.classList.add('favorite');
 
-      li.innerHTML = `
-        <div style="flex: 1;">
-          <p>${item.text}</p>
-        </div>
-        <div class="action-icons">
-          <button class="small-btn edit">Edit</button>
-          <button class="small-btn delete">Delete</button>
-          <button class="small-btn favorite">${
-            item.favorite ? "★" : "☆"
-          }</button>
-        </div>`;
+      // Build DOM safely — no innerHTML with user content
+      const textDiv = document.createElement('div');
+      textDiv.style.flex = '1';
+      const p = document.createElement('p');
+      p.textContent = item.text; // XSS safe
+      textDiv.appendChild(p);
 
-      li.querySelector(".delete").addEventListener("click", () => {
+      const actions = document.createElement('div');
+      actions.className = 'action-icons';
+
+      const editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.className = 'small-btn edit';
+      editBtn.textContent = 'Edit';
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'small-btn delete';
+      deleteBtn.textContent = 'Delete';
+
+      const favBtn = document.createElement('button');
+      favBtn.type = 'button';
+      favBtn.className = 'small-btn favorite';
+      favBtn.textContent = item.favorite ? '★' : '☆';
+      favBtn.setAttribute('aria-label', item.favorite ? 'Unfavorite' : 'Favorite');
+
+      actions.append(editBtn, deleteBtn, favBtn);
+      li.append(textDiv, actions);
+
+      deleteBtn.addEventListener('click', () => {
         savedFlips.splice(actualIdx, 1);
         persistSavedFlips();
         renderSaved(filter);
-        showToast("Deleted");
+        showToast('Deleted');
       });
 
-      li.querySelector(".favorite").addEventListener("click", () => {
+      favBtn.addEventListener('click', () => {
         savedFlips[actualIdx].favorite = !savedFlips[actualIdx].favorite;
         persistSavedFlips();
         renderSaved(filter);
-        showToast(
-          savedFlips[actualIdx].favorite ? "⭐ Favorited" : "☆ Unfavorited"
-        );
+        showToast(savedFlips[actualIdx].favorite ? '⭐ Favorited' : '☆ Unfavorited');
       });
 
-      li.querySelector(".edit").addEventListener("click", () => {
-        const p = li.querySelector("p");
-        const inputEl = document.createElement("input");
-        inputEl.type = "text";
+      editBtn.addEventListener('click', () => {
+        const inputEl = document.createElement('input');
+        inputEl.type = 'text';
         inputEl.value = p.textContent;
-        inputEl.className = "edit-input";
+        inputEl.className = 'edit-input';
+        inputEl.maxLength = 500;
         p.replaceWith(inputEl);
         inputEl.focus();
-
-        inputEl.addEventListener("blur", () => {
-          savedFlips[actualIdx].text = inputEl.value.trim();
+        inputEl.addEventListener('blur', () => {
+          savedFlips[actualIdx].text = inputEl.value.trim().slice(0, 500);
           persistSavedFlips();
           renderSaved(filter);
         });
-
-        inputEl.addEventListener("keypress", (e) => {
-          if (e.key === "Enter") inputEl.blur();
+        inputEl.addEventListener('keypress', e => {
+          if (e.key === 'Enter') inputEl.blur();
         });
       });
 
@@ -546,49 +496,46 @@ export function mountUI(app) {
     });
   }
 
-  searchSaved.addEventListener("input", (e) => {
-    renderSaved(e.target.value);
-  });
+  searchSaved.addEventListener('input', e => renderSaved(e.target.value));
 
   // ========== Backup / Restore ==========
-  backupBtn.addEventListener("click", () => {
-    const backup = {
-      savedFlips,
-      version: "2.0",
-      exportDate: new Date().toISOString(),
-    };
-    const blob = new Blob([JSON.stringify(backup, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download =
-      "FlipTheScript_Backup_" + new Date().toISOString().split("T")[0] + ".json";
+  backupBtn.addEventListener('click', () => {
+    const backup = { savedFlips, version: '2.0', exportDate: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `FlipTheScript_Backup_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast("Backup downloaded!");
+    showToast('Backup downloaded!');
   });
 
-  restoreBtn.addEventListener("click", () => {
-    const inputFile = document.createElement("input");
-    inputFile.type = "file";
-    inputFile.accept = "application/json";
-    inputFile.onchange = (e) => {
+  restoreBtn.addEventListener('click', () => {
+    const inputFile = document.createElement('input');
+    inputFile.type   = 'file';
+    inputFile.accept = 'application/json';
+    inputFile.onchange = e => {
       const file = e.target.files[0];
       if (!file) return;
+      // File size guard (5 MB)
+      if (file.size > 5 * 1024 * 1024) { showToast('File too large'); return; }
+      // MIME type guard
+      if (file.type !== 'application/json') { showToast('Invalid file type — JSON only'); return; }
       const reader = new FileReader();
       reader.onload = () => {
         try {
           const backup = JSON.parse(reader.result);
-          if (backup.savedFlips) {
+          if (Array.isArray(backup.savedFlips)) {
             savedFlips = backup.savedFlips;
             persistSavedFlips();
           }
           renderSaved();
-          showToast("Backup restored!");
+          showToast('Backup restored!');
         } catch {
-          showToast("Invalid backup file");
+          showToast('Invalid backup file');
         }
       };
       reader.readAsText(file);
@@ -597,26 +544,20 @@ export function mountUI(app) {
   });
 
   // ========== Keyboard Shortcuts ==========
-  document.addEventListener("keydown", (e) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+  document.addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
       e.preventDefault();
       flipBtn.click();
     }
-    if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+    if ((e.metaKey || e.ctrlKey) && e.key === 's') {
       e.preventDefault();
-      if (
-        extendedFlipEl.textContent &&
-        !extendedFlipEl.textContent.includes("will appear here")
-      ) {
+      if (extendedFlipEl.textContent && !extendedFlipEl.textContent.includes('will appear here')) {
         addSaved(extendedFlipEl.textContent);
       }
     }
-    if (e.key === "Escape") {
-      clearBtn.click();
-    }
+    if (e.key === 'Escape') clearBtn.click();
   });
 
   // ========== Initialize ==========
   renderSaved();
-
 }

@@ -1,216 +1,79 @@
+// Mini-Apps/SelfAnalysisPro/js/meanings.js
 // Data Meanings and Interpretations Database
+
+// XSS escape helper (used in dynamic HTML methods below)
+function esc(v) {
+  return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 const DataMeanings = {
-  numbers: {
-    "1": "Number Symbolism - The first creation, beginning, activity and dynamism.\nRepresents - Entrepreneurship, leadership, new beginnings, individuality, masculine and pioneering energy.",
-    "2": "Number Symbolism - Polarity, contrast, the maternal side, emotions and feelings, partnership and love.\nRepresents - Passivity, receptivity, femininity, gentleness, sensitivity, tolerance, cooperation.",
-    "3": "Number Symbolism - The child in the sacred triangle, the balance of creation, extroverted and social.\nRepresents - Balance between masculine and feminine, social relationships, expression, communication, joy of life, optimism, creativity.",
-    "4": "Number Symbolism - The physical plane, framework and work, discipline, order and organization.\nRepresents - Stability and practicality, laws and norms, morality, conscience and integrity.",
-    "5": "Number Symbolism - Movement and freedom, change, travels and dynamic aspect.\nRepresents - Spiritual change, desire to advance beyond routine with spontaneity, need for new experiences.",
-    "6": "Number Symbolism - The energy behind natural evolution, balance and harmony, love and beauty.\nRepresents - Art, aesthetics and creativity, ability to accept responsibility, nurturing family.",
-    "7": "Number Symbolism - Deep inner world, self-investigation, meditation, philosophy, spirituality.\nRepresents - Mysticism, philosophy, wisdom and spirituality, great inner depth, need for solitude and research.",
-    "8": "Number Symbolism - Achieving goals through determination and logic, attraction to power and status.\nRepresents - Practical, ambitious and focused, ability for material world success, seeing the big picture.",
-    "9": "Number Symbolism - The bridge between ending and new beginning, universal number, altruism.\nRepresents - Service to others wholeheartedly, interested in humanitarian problems, generosity and honesty.",
+  numbers: Object.freeze({
+    "1":  "Number Symbolism - The first creation, beginning, activity and dynamism.\nRepresents - Entrepreneurship, leadership, new beginnings, individuality, masculine and pioneering energy.",
+    "2":  "Number Symbolism - Polarity, contrast, the maternal side, emotions and feelings, partnership and love.\nRepresents - Passivity, receptivity, femininity, gentleness, sensitivity, tolerance, cooperation.",
+    "3":  "Number Symbolism - The child in the sacred triangle, the balance of creation, extroverted and social.\nRepresents - Balance between masculine and feminine, social relationships, expression, communication, joy of life, optimism, creativity.",
+    "4":  "Number Symbolism - The physical plane, framework and work, discipline, order and organization.\nRepresents - Stability and practicality, laws and norms, morality, conscience and integrity.",
+    "5":  "Number Symbolism - Movement and freedom, change, travels and dynamic aspect.\nRepresents - Spiritual change, desire to advance beyond routine with spontaneity, need for new experiences.",
+    "6":  "Number Symbolism - The energy behind natural evolution, balance and harmony, love and beauty.\nRepresents - Art, aesthetics and creativity, ability to accept responsibility, nurturing family.",
+    "7":  "Number Symbolism - Deep inner world, self-investigation, meditation, philosophy, spirituality.\nRepresents - Mysticism, philosophy, wisdom and spirituality, great inner depth, need for solitude and research.",
+    "8":  "Number Symbolism - Achieving goals through determination and logic, attraction to power and status.\nRepresents - Practical, ambitious and focused, ability for material world success, seeing the big picture.",
+    "9":  "Number Symbolism - The bridge between ending and new beginning, universal number, altruism.\nRepresents - Service to others wholeheartedly, interested in humanitarian problems, generosity and honesty.",
     "10": "Number Symbolism - Completeness, ready to begin a new cycle from a complete place.\nRepresents - The end of the circle, return to unity, complete evolutionary development.",
     "11": "Number Symbolism - High inspiration, connections with higher dimensions, spiritual teacher.\nRepresents - Master number, enhanced mystical abilities, enlightened people, high spiritual energy.",
     "22": "Number Symbolism - The master builder, ability to execute enormous projects with others.\nRepresents - Master number, innovative ideas and high ambition, ability to lead large groups and projects.",
     "33": "Number Symbolism - Master Teacher, most spiritually evolved Master Number.\nRepresents - Master number, humanitarian purpose, highest form of teaching and service."
-  },
+  }),
 
-  zodiac: {
-    "Aries": {
-      expression: "I am",
-      title: "Energy bursting outward, pioneer",
-      keywords: "Beginning of action, breaking barriers, breakthrough"
-    },
-    "Taurus": {
-      expression: "I have",
-      title: "Peaceful lovers of earthly beauty",
-      keywords: "Grounded, stable, continuous, calm, secure"
-    },
-    "Gemini": {
-      expression: "I think",
-      title: "Restless intelligence of the mind",
-      keywords: "Power of mind, adaptive, dual understanding"
-    },
-    "Cancer": {
-      expression: "I feel",
-      title: "Hard outside, soft inside",
-      keywords: "Strong emotions, deep subconscious connection, secretive"
-    },
-    "Leo": {
-      expression: "I will be",
-      title: "Center of attention and power",
-      keywords: "Energetic, helpful, supportive, encouraging, noble"
-    },
-    "Virgo": {
-      expression: "I analyze",
-      title: "Mad scientist, laser mind",
-      keywords: "Analysis into details, focused precision, organized"
-    },
-    "Libra": {
-      expression: "I balance",
-      title: "Iron fist in velvet glove",
-      keywords: "Strong energy in refined way, desire for balance and harmony"
-    },
-    "Scorpio": {
-      expression: "I desire",
-      title: "Desire to experience everything intensely",
-      keywords: "Temptation to know more, transformation versus destruction"
-    },
-    "Sagittarius": {
-      expression: "I see",
-      title: "Utopian vision, aim high",
-      keywords: "Aspiration upward, adaptable, flexible, philosophical"
-    },
-    "Capricorn": {
-      expression: "I use",
-      title: "Knowledge to use tools at disposal",
-      keywords: "Very practical, high ambition step by step"
-    },
-    "Aquarius": {
-      expression: "I know",
-      title: "Spreader of knowledge",
-      keywords: "Self-expression and communication, logical rather than emotional"
-    },
-    "Pisces": {
-      expression: "I believe",
-      title: "Very deep inner and emotional world",
-      keywords: "Hypersensitivity to environment, functioning from another dimension"
-    }
-  },
+  zodiac: Object.freeze({
+    "Aries":       Object.freeze({ expression: "I am",       title: "Energy bursting outward, pioneer",                  keywords: "Beginning of action, breaking barriers, breakthrough" }),
+    "Taurus":      Object.freeze({ expression: "I have",     title: "Peaceful lovers of earthly beauty",                 keywords: "Grounded, stable, continuous, calm, secure" }),
+    "Gemini":      Object.freeze({ expression: "I think",    title: "Restless intelligence of the mind",                 keywords: "Power of mind, adaptive, dual understanding" }),
+    "Cancer":      Object.freeze({ expression: "I feel",     title: "Hard outside, soft inside",                        keywords: "Strong emotions, deep subconscious connection, secretive" }),
+    "Leo":         Object.freeze({ expression: "I will be",  title: "Center of attention and power",                    keywords: "Energetic, helpful, supportive, encouraging, noble" }),
+    "Virgo":       Object.freeze({ expression: "I analyze",  title: "Mad scientist, laser mind",                        keywords: "Analysis into details, focused precision, organized" }),
+    "Libra":       Object.freeze({ expression: "I balance",  title: "Iron fist in velvet glove",                        keywords: "Strong energy in refined way, desire for balance and harmony" }),
+    "Scorpio":     Object.freeze({ expression: "I desire",   title: "Desire to experience everything intensely",        keywords: "Temptation to know more, transformation versus destruction" }),
+    "Sagittarius": Object.freeze({ expression: "I see",      title: "Utopian vision, aim high",                        keywords: "Aspiration upward, adaptable, flexible, philosophical" }),
+    "Capricorn":   Object.freeze({ expression: "I use",      title: "Knowledge to use tools at disposal",              keywords: "Very practical, high ambition step by step" }),
+    "Aquarius":    Object.freeze({ expression: "I know",     title: "Spreader of knowledge",                           keywords: "Self-expression and communication, logical rather than emotional" }),
+    "Pisces":      Object.freeze({ expression: "I believe",  title: "Very deep inner and emotional world",             keywords: "Hypersensitivity to environment, functioning from another dimension" })
+  }),
 
-  planets: {
-    "Sun": {
-      keywords: "360-degree angle of vision and control over the environment, center of the universe, the savior, nourishment.",
-      advantages: "Light, wisdom, intuition, knowledge, service, giving life, love for humanity, responsibility, authority, rulership, leadership, confidence, organization, loyalty and reliability.",
-      disadvantages: "Selfishness, egoism, arrogance, conceit, boasting, know-it-alls, doing everything alone, big-headedness, everything revolves around them."
-    },
-    "Mercury": {
-      keywords: "Intellect, logic, communication, intelligence, information, languages, science, learning, logic, drawing conclusions.",
-      advantages: "Practical, intelligent, quick understanding, analysis, logic, intellectual, scientific, high learning ability, open-minded.",
-      disadvantages: "Mental illness, mental instability, nervous, confused, argumentative, cynicism, over-criticism, over-analysis and worry, inconsistent."
-    },
-    "Venus": {
-      keywords: "Power of attraction, instincts, emotions, femininity, beauty, art creation, acting from love, forces of nature.",
-      advantages: "Love, beauty, charm, gentleness, harmony, art, emotionality, sensitivity, creativity, sentimentality, sophistication, the ability to express emotion without inhibitions, friendliness, power of persuasion, good taste.",
-      disadvantages: "Emotional imbalance, jealousy, vengefulness, resentment, lack of morality, lack of responsibility, flirtatiousness."
-    },
-    "Moon": {
-      keywords: "Cyclicality, subconscious, reflection of light, mysterious, hidden, concealed, purification, imagination, intuition, memory, feminine energy.",
-      advantages: "Extrasensory abilities, dreams, developed imagination, deep soul, idealist, showing affection, high ability to learn metaphysics and esoterics, ability to receive and contain, deep inner contemplation.",
-      disadvantages: "Ungrounded, impractical, superficial, lazy, stubborn, lunatic, inconsistent, changeable, moving from one state to another, lack of concentration, changing moods, fits of rage, madness."
-    },
-    "Mars": {
-      keywords: "To execute, activity, defense, war, courage, motivation, daring, drive, masculinity, inner fire, destruction for the sake of progress.",
-      advantages: "Action, initiative, taking risks, changing negative conditions, energy, movement, will, determination, leadership, authority, efficiency, decision, courage.",
-      disadvantages: "Tyranny, arrogance, violence, aggression, lack of tact, without thinking, impulsiveness, aggressiveness, rudeness, lack of sensitivity."
-    },
-    "Jupiter": {
-      keywords: "Movement and progress, rising above the current situation, protection, inspiration, help, new experiences, broad heart, abundance.",
-      advantages: "Compassion, charity, good-heartedness, kindness, grace, generosity, broad-heartedness, joy, loyalty, open soul, optimism, tolerance, faith, service to others, balanced response, true love for all humanity.",
-      disadvantages: "Passivity, lack of energy, lack of honesty, difficulty refusing people, pride, arrogance, boastfulness."
-    },
-    "Saturn": {
-      keywords: "Limitations, obstacles, persistence, endurance power, stubbornness, maintaining form, focusing energy, slowness.",
-      advantages: "Stability, slowness, calmness, tranquility, systematicness, discipline, responsibility, traditionalism, ideas, inner contemplation, patience, focus, concentration, systematic and detailed persistence.",
-      disadvantages: "Conservative, withdrawal, rigidity, sadness, closed-minded, finding obstacles and negativity in everything, seriousness, excessive routine, pessimism, delay, limitation, repression, impatience."
-    },
-    "Neptune": {
-      keywords: "Dissolution of boundaries, dreams, illusions, spirituality, transcendence, the unseen realm, mysticism, compassion, imagination.",
-      advantages: "Spiritual insight, psychic abilities, deep compassion, artistic inspiration, selfless service, connection to the divine, healing abilities, ability to merge with the greater whole, visionary imagination.",
-      disadvantages: "Confusion, deception, escapism, addiction, lack of boundaries, unrealistic expectations, victimization, losing touch with reality, delusion, susceptibility to manipulation."
-    },
-    "Pluto": {
-      keywords: "Transformation, regeneration, power, death and rebirth, hidden depths, elimination, renewal, the shadow, deep psychology.",
-      advantages: "Ability to transform fundamentally, penetrating insight, healing powers, regeneration, psychological depth, ability to eliminate what is no longer needed, facing the shadow, profound renewal.",
-      disadvantages: "Destructiveness, obsession, compulsion, manipulation, power struggles, extremism, vindictiveness, inability to let go, transforming through crisis and pain."
-    },
-    "Uranus": {
-      keywords: "Revolution, innovation, sudden change, independence, originality, rebellion, awakening, freedom, electricity, genius.",
-      advantages: "Originality, inventiveness, independence, humanitarian ideals, ability to break free from limitations, progressive thinking, sudden insights, revolutionary spirit, unique perspective.",
-      disadvantages: "Rebelliousness, unpredictability, erratic behavior, detachment, stubbornness, revolutionary extremism, inability to cooperate, chaos, disruption for its own sake."
-    },
-    "Earth": {
-      keywords: "Grounding, embodiment, physical presence, manifestation, the body, material reality, rootedness, the here and now.",
-      advantages: "Ability to manifest vision into reality, grounded presence, practical wisdom, connection to the physical body, appreciation of material beauty, stability, reliability, bringing spirit into form.",
-      disadvantages: "Materialism, heaviness, resistance to change, being stuck in the mundane, inability to transcend physical limitations, excessive attachment to security, difficulty with abstract thinking."
-    }
-  },
+  planets: Object.freeze({
+    "Sun":     Object.freeze({ keywords: "360-degree angle of vision and control over the environment, center of the universe, the savior, nourishment.", advantages: "Light, wisdom, intuition, knowledge, service, giving life, love for humanity, responsibility, authority, rulership, leadership, confidence, organization, loyalty and reliability.", disadvantages: "Selfishness, egoism, arrogance, conceit, boasting, know-it-alls, doing everything alone, big-headedness, everything revolves around them." }),
+    "Mercury": Object.freeze({ keywords: "Intellect, logic, communication, intelligence, information, languages, science, learning, logic, drawing conclusions.", advantages: "Practical, intelligent, quick understanding, analysis, logic, intellectual, scientific, high learning ability, open-minded.", disadvantages: "Mental illness, mental instability, nervous, confused, argumentative, cynicism, over-criticism, over-analysis and worry, inconsistent." }),
+    "Venus":   Object.freeze({ keywords: "Power of attraction, instincts, emotions, femininity, beauty, art creation, acting from love, forces of nature.", advantages: "Love, beauty, charm, gentleness, harmony, art, emotionality, sensitivity, creativity, sentimentality, sophistication, the ability to express emotion without inhibitions, friendliness, power of persuasion, good taste.", disadvantages: "Emotional imbalance, jealousy, vengefulness, resentment, lack of morality, lack of responsibility, flirtatiousness." }),
+    "Moon":    Object.freeze({ keywords: "Cyclicality, subconscious, reflection of light, mysterious, hidden, concealed, purification, imagination, intuition, memory, feminine energy.", advantages: "Extrasensory abilities, dreams, developed imagination, deep soul, idealist, showing affection, high ability to learn metaphysics and esoterics, ability to receive and contain, deep inner contemplation.", disadvantages: "Ungrounded, impractical, superficial, lazy, stubborn, lunatic, inconsistent, changeable, moving from one state to another, lack of concentration, changing moods, fits of rage, madness." }),
+    "Mars":    Object.freeze({ keywords: "To execute, activity, defense, war, courage, motivation, daring, drive, masculinity, inner fire, destruction for the sake of progress.", advantages: "Action, initiative, taking risks, changing negative conditions, energy, movement, will, determination, leadership, authority, efficiency, decision, courage.", disadvantages: "Tyranny, arrogance, violence, aggression, lack of tact, without thinking, impulsiveness, aggressiveness, rudeness, lack of sensitivity." }),
+    "Jupiter": Object.freeze({ keywords: "Movement and progress, rising above the current situation, protection, inspiration, help, new experiences, broad heart, abundance.", advantages: "Compassion, charity, good-heartedness, kindness, grace, generosity, broad-heartedness, joy, loyalty, open soul, optimism, tolerance, faith, service to others, balanced response, true love for all humanity.", disadvantages: "Passivity, lack of energy, lack of honesty, difficulty refusing people, pride, arrogance, boastfulness." }),
+    "Saturn":  Object.freeze({ keywords: "Limitations, obstacles, persistence, endurance power, stubbornness, maintaining form, focusing energy, slowness.", advantages: "Stability, slowness, calmness, tranquility, systematicness, discipline, responsibility, traditionalism, ideas, inner contemplation, patience, focus, concentration, systematic and detailed persistence.", disadvantages: "Conservative, withdrawal, rigidity, sadness, closed-minded, finding obstacles and negativity in everything, seriousness, excessive routine, pessimism, delay, limitation, repression, impatience." }),
+    "Neptune": Object.freeze({ keywords: "Dissolution of boundaries, dreams, illusions, spirituality, transcendence, the unseen realm, mysticism, compassion, imagination.", advantages: "Spiritual insight, psychic abilities, deep compassion, artistic inspiration, selfless service, connection to the divine, healing abilities, ability to merge with the greater whole, visionary imagination.", disadvantages: "Confusion, deception, escapism, addiction, lack of boundaries, unrealistic expectations, victimization, losing touch with reality, delusion, susceptibility to manipulation." }),
+    "Pluto":   Object.freeze({ keywords: "Transformation, regeneration, power, death and rebirth, hidden depths, elimination, renewal, the shadow, deep psychology.", advantages: "Ability to transform fundamentally, penetrating insight, healing powers, regeneration, psychological depth, ability to eliminate what is no longer needed, facing the shadow, profound renewal.", disadvantages: "Destructiveness, obsession, compulsion, manipulation, power struggles, extremism, vindictiveness, inability to let go, transforming through crisis and pain." }),
+    "Uranus":  Object.freeze({ keywords: "Revolution, innovation, sudden change, independence, originality, rebellion, awakening, freedom, electricity, genius.", advantages: "Originality, inventiveness, independence, humanitarian ideals, ability to break free from limitations, progressive thinking, sudden insights, revolutionary spirit, unique perspective.", disadvantages: "Rebelliousness, unpredictability, erratic behavior, detachment, stubbornness, revolutionary extremism, inability to cooperate, chaos, disruption for its own sake." }),
+    "Earth":   Object.freeze({ keywords: "Grounding, embodiment, physical presence, manifestation, the body, material reality, rootedness, the here and now.", advantages: "Ability to manifest vision into reality, grounded presence, practical wisdom, connection to the physical body, appreciation of material beauty, stability, reliability, bringing spirit into form.", disadvantages: "Materialism, heaviness, resistance to change, being stuck in the mundane, inability to transcend physical limitations, excessive attachment to security, difficulty with abstract thinking." })
+  }),
 
-  elements: {
-    "Earth": {
-      represents: "Tangible physical world, matter, density, solidity, security, basic needs, foundation stone, practical action, work, health.",
-      traits: "<strong>Positive:</strong> Patience, stability, efficiency, action, practicality, perseverance, conservatism, caution, steadiness, methodicalness, modesty.<br><strong>Negative:</strong> Rigidity, coldness, slowness, stubbornness, laziness, perfectionism, selectiveness, routine-bound."
-    },
-    "Air": {
-      represents: "Mental world, thoughts, logic, intellect, communication, information, science, mathematics, analytical analysis, communication.",
-      traits: "<strong>Positive:</strong> Intelligence, speech, diplomacy, mental balance, idealistic, inventiveness, learning ability, logical, curious, investigative, sharp, expressive, communicative, sharing knowledge.<br><strong>Negative:</strong> Compromising, naive, indecisive, flirtatious, stubborn in their opinions, outsiders, rebellious, lacking motivation, all talk and no action, pressured, restless, scattered, superficial, changing opinions quickly."
-    },
-    "Water": {
-      represents: "World of emotions, intuition, imagination, creation, association, inner feminine energy, desires, empathy, containment.",
-      traits: "<strong>Positive:</strong> Sensitivity, developed imagination, talent, artistry, openness, identification, empathy, intuitive, full of passion, active, healing powers, sympathetic, humble, mystical.<br><strong>Negative:</strong> Changing moods, unrealistic, living in illusion, elusive, stubborn, vindictive, jealous, self-centered, vulnerable, influenced, living in a bubble."
-    },
-    "Fire": {
-      represents: "Abstract spiritual world, energy, life force, development, change, burning, expansion, dynamism, independence, sexuality.",
-      traits: "<strong>Positive:</strong> Adventurousness, courage, activity, enthusiasm, happiness, honesty, generosity, leadership, nobility, determination, strong willpower, optimism, aspiration for expansion, independence, freedom, responsibility.<br><strong>Negative:</strong> Audacity, lack of tact, selfishness, snobbery, condescension, dominance, arrogance, boastfulness, conceit, lack of perseverance, lack of consistency."
-    }
-  },
+  elements: Object.freeze({
+    "Earth": Object.freeze({ represents: "Tangible physical world, matter, density, solidity, security, basic needs, foundation stone, practical action, work, health.", traits: "<strong>Positive:</strong> Patience, stability, efficiency, action, practicality, perseverance, conservatism, caution, steadiness, methodicalness, modesty.<br><strong>Negative:</strong> Rigidity, coldness, slowness, stubbornness, laziness, perfectionism, selectiveness, routine-bound." }),
+    "Air":   Object.freeze({ represents: "Mental world, thoughts, logic, intellect, communication, information, science, mathematics, analytical analysis, communication.", traits: "<strong>Positive:</strong> Intelligence, speech, diplomacy, mental balance, idealistic, inventiveness, learning ability, logical, curious, investigative, sharp, expressive, communicative, sharing knowledge.<br><strong>Negative:</strong> Compromising, naive, indecisive, flirtatious, stubborn in their opinions, outsiders, rebellious, lacking motivation, all talk and no action, pressured, restless, scattered, superficial, changing opinions quickly." }),
+    "Water": Object.freeze({ represents: "World of emotions, intuition, imagination, creation, association, inner feminine energy, desires, empathy, containment.", traits: "<strong>Positive:</strong> Sensitivity, developed imagination, talent, artistry, openness, identification, empathy, intuitive, full of passion, active, healing powers, sympathetic, humble, mystical.<br><strong>Negative:</strong> Changing moods, unrealistic, living in illusion, elusive, stubborn, vindictive, jealous, self-centered, vulnerable, influenced, living in a bubble." }),
+    "Fire":  Object.freeze({ represents: "Abstract spiritual world, energy, life force, development, change, burning, expansion, dynamism, independence, sexuality.", traits: "<strong>Positive:</strong> Adventurousness, courage, activity, enthusiasm, happiness, honesty, generosity, leadership, nobility, determination, strong willpower, optimism, aspiration for expansion, independence, freedom, responsibility.<br><strong>Negative:</strong> Audacity, lack of tact, selfishness, snobbery, condescension, dominance, arrogance, boastfulness, conceit, lack of perseverance, lack of consistency." })
+  }),
 
-  sefira: {
-    "Keter (Crown)": {
-      symbols: "The Point, The Crown, The Swastika.",
-      titles: "Existence of Existences, Concealed of the Concealed, Ancient of Ancients, Ancient of Days, The Primordial Point, The Point within the Circle, The Most High, The Vast Countenance, The White Head, The Head which is Not, Macroprosopos, Amen, Lux Occulta, Lux Interna, He, The Divine Spark, The Thousand-petalled Lotus, The Sah, Yechida.",
-      keywords: "All that Is, the breath of that which is not, the Source of Energy from the Infinite Unmanifest, Crystallization, The First Motion, That from which we come and to which we shall return, Ascension, Space, Unity, Union."
-    },
-    "Chokhmah (Wisdom)": {
-      symbols: "The Lingam, The Phallus, The Tower, Yod (י), The Inner Robe of Glory, The Standing Stone, The Straight Line, The Uplifted Rod of Power.",
-      titles: "Av, Abba, The Supernal Father, Tetragramaton, Power of Yetzira.",
-      keywords: "Pure Creative Force, Dynamic Outpouring Energy, The Wellspring, The Fountain and Water of Life, The Great Stimulator, The First Positive, Unorganized and Uncompensated Force, Ejaculation."
-    },
-    "Binah (Understanding)": {
-      symbols: "The Yoni, The Vesica Picis, The Cup, The Chalice, The Outer Robe of Concealment, The Kteis.",
-      titles: "Ama, The Dark sterile mother, Ima, The Bright fertile mother, Kursiya, The Throne, Marah, The Great Sea, The Fifty Gates of Understanding, The Mother of Form, The Superior Mother, The Organizer and Compensator.",
-      keywords: "Form, Limitation, Constraint, Heaviness, Slowness, Inertia, Incarnation, Fate, Time, Space, Natural Law, The Womb, Enclosure, Containment, Death, Annihilation."
-    },
-    "Chesed (Kindness)": {
-      symbols: "The Solid Figure, The Pyramid, The Square, The Equal-Armed Cross, The Orb, The Wand, The Scepter, The Crook.",
-      titles: "Gedulah, Magnificence, Love, Majesty, The Builder, The kindly shepherd, The loving father who is king, The Framework of Manifestation, The receptacle of all Powers.",
-      keywords: "Authority, Leadership, Creativity, Inspiration, Vision, Excess, Waste, Birth, Service, Spiritual Love, Mercy, Compassion, Submission, Obliteration, The Annihilation Myth, The Atom Bomb."
-    },
-    "Gevurah (Strength)": {
-      symbols: "The Pentagon, The Five-petalled Tudor Rose, The Sword, The Spear, The Scourge, The Chain.",
-      titles: "Din - Justice, Pachad - Fear, The warrior King, The Destroyer, The Eliminator of the Useless, The Clarifier, The Power of Judgment.",
-      keywords: "Power, Strength, Severity, Justice, Cruelty, Oppression, Catabolism, Necessary Destruction, Domination, Retribution, Execution."
-    },
-    "Tiferet (Beauty)": {
-      symbols: "The Cube, The truncated pyramid, The Lamen, The rose-cross, The Calvary cross, Vav (ו).",
-      titles: "Zair anpin - the Lesser Countenance, the Microprospus, Melech - King, Adam - Man, the Son, Rachamim - Compassion, Charity, the scarified Gods, Redemption, Healing.",
-      keywords: "Harmony, Integrity, Balance, Wholeness, Centrality, the Solar-Plexus, the Sun, Gold, the Son of God, a King, the Great Work, the Elemental Kings, the Higher Self, Self-importance, Self-sacrifice, the Philosopher's Stone."
-    },
-    "Netzach (Victory)": {
-      symbols: "The Rose, the Lamp, the Girdle.",
-      titles: "Nature, Love, the Arts, The group-mind, Feelings, Emotions, Moods, Instincts, Intuition, Firmness.",
-      keywords: "Life-Force, Beauty, Passion, Pleasure, Luxury, Sensuality, Desire, Joy, Excitement, Lust, Libido, Nurture, Drive, Empathy, Sympathy, Ecstatic Magic, Dance."
-    },
-    "Hod (Splendor)": {
-      symbols: "Names and Versicles, the Apron.",
-      titles: "Reason, the Individual-Mind, Science, Magic, Language, Visualization.",
-      keywords: "Logic, the Sciences, Mathematics, Speech, Words, Communication, Conceptualization, the Law, Protocol, Trickery, Philosophy, Ownership, Territory, Ritual Magic, Occult Knowledge, Esoteric Philosophy."
-    },
-    "Yesod (Foundation)": {
-      symbols: "The Perfumes, the Sandals.",
-      titles: "The Astral-Light, the Treasure-house of images, the Receptacle of the Emanations, the Cyclic energies underlying Matter, the Aether-Currents.",
-      keywords: "Imagination, the Unconscious-Mind, Dreams, the Astral-Plane, the Aether, Glue, Interface, Perception, Cosmetics, Appearance, Instinct, Illusion, Hidden Infrastructure, Divination, Mirrors and Crystals, Psychism, the Genitals, Secret Door, Tunnel, the Shamanic Tunnel, Sex and Reproduction."
-    },
-    "Malkuth (Kingdom)": {
-      symbols: "The Altar of the Double-Cube, the Equal-armed Cross, The Magic circle, the Mystic circle, the Triangle of art, He final (ה).",
-      titles: "The Gate, the Gate of Death, the Gate of the Shadow of Death, the Gate of Tears, the Gate of Justice, the Gate of Prayer, the Gate of the Daughter of the Mighty-ones, the Gate of the Garden of Eden, the Inferior Mother, Malka - Queen, Kala - Bride, the Virgin, Keter below, the Completion.",
-      keywords: "The Real-World, Physical Matter, The Earth on which we walk, Mother Earth, Planet Earth, the 4 Elements, what we perceive with our 5 Senses, Practicality, Stability, Solidity, Heaviness, Dense Matter."
-    }
-  },
+  sefira: Object.freeze({
+    "Keter (Crown)":        Object.freeze({ symbols: "The Point, The Crown, The Swastika.", titles: "Existence of Existences, Concealed of the Concealed, Ancient of Ancients, Ancient of Days, The Primordial Point, The Point within the Circle, The Most High, The Vast Countenance, The White Head, The Head which is Not, Macroprosopos, Amen, Lux Occulta, Lux Interna, He, The Divine Spark, The Thousand-petalled Lotus, The Sah, Yechida.", keywords: "All that Is, the breath of that which is not, the Source of Energy from the Infinite Unmanifest, Crystallization, The First Motion, That from which we come and to which we shall return, Ascension, Space, Unity, Union." }),
+    "Chokhmah (Wisdom)":    Object.freeze({ symbols: "The Lingam, The Phallus, The Tower, Yod (\u05D9), The Inner Robe of Glory, The Standing Stone, The Straight Line, The Uplifted Rod of Power.", titles: "Av, Abba, The Supernal Father, Tetragramaton, Power of Yetzira.", keywords: "Pure Creative Force, Dynamic Outpouring Energy, The Wellspring, The Fountain and Water of Life, The Great Stimulator, The First Positive, Unorganized and Uncompensated Force, Ejaculation." }),
+    "Binah (Understanding)": Object.freeze({ symbols: "The Yoni, The Vesica Picis, The Cup, The Chalice, The Outer Robe of Concealment, The Kteis.", titles: "Ama, The Dark sterile mother, Ima, The Bright fertile mother, Kursiya, The Throne, Marah, The Great Sea, The Fifty Gates of Understanding, The Mother of Form, The Superior Mother, The Organizer and Compensator.", keywords: "Form, Limitation, Constraint, Heaviness, Slowness, Inertia, Incarnation, Fate, Time, Space, Natural Law, The Womb, Enclosure, Containment, Death, Annihilation." }),
+    "Chesed (Kindness)":    Object.freeze({ symbols: "The Solid Figure, The Pyramid, The Square, The Equal-Armed Cross, The Orb, The Wand, The Scepter, The Crook.", titles: "Gedulah, Magnificence, Love, Majesty, The Builder, The kindly shepherd, The loving father who is king, The Framework of Manifestation, The receptacle of all Powers.", keywords: "Authority, Leadership, Creativity, Inspiration, Vision, Excess, Waste, Birth, Service, Spiritual Love, Mercy, Compassion, Submission, Obliteration, The Annihilation Myth, The Atom Bomb." }),
+    "Gevurah (Strength)":   Object.freeze({ symbols: "The Pentagon, The Five-petalled Tudor Rose, The Sword, The Spear, The Scourge, The Chain.", titles: "Din - Justice, Pachad - Fear, The warrior King, The Destroyer, The Eliminator of the Useless, The Clarifier, The Power of Judgment.", keywords: "Power, Strength, Severity, Justice, Cruelty, Oppression, Catabolism, Necessary Destruction, Domination, Retribution, Execution." }),
+    "Tiferet (Beauty)":     Object.freeze({ symbols: "The Cube, The truncated pyramid, The Lamen, The rose-cross, The Calvary cross, Vav (\u05D5).", titles: "Zair anpin - the Lesser Countenance, the Microprospus, Melech - King, Adam - Man, the Son, Rachamim - Compassion, Charity, the scarified Gods, Redemption, Healing.", keywords: "Harmony, Integrity, Balance, Wholeness, Centrality, the Solar-Plexus, the Sun, Gold, the Son of God, a King, the Great Work, the Elemental Kings, the Higher Self, Self-importance, Self-sacrifice, the Philosopher's Stone." }),
+    "Netzach (Victory)":    Object.freeze({ symbols: "The Rose, the Lamp, the Girdle.", titles: "Nature, Love, the Arts, The group-mind, Feelings, Emotions, Moods, Instincts, Intuition, Firmness.", keywords: "Life-Force, Beauty, Passion, Pleasure, Luxury, Sensuality, Desire, Joy, Excitement, Lust, Libido, Nurture, Drive, Empathy, Sympathy, Ecstatic Magic, Dance." }),
+    "Hod (Splendor)":       Object.freeze({ symbols: "Names and Versicles, the Apron.", titles: "Reason, the Individual-Mind, Science, Magic, Language, Visualization.", keywords: "Logic, the Sciences, Mathematics, Speech, Words, Communication, Conceptualization, the Law, Protocol, Trickery, Philosophy, Ownership, Territory, Ritual Magic, Occult Knowledge, Esoteric Philosophy." }),
+    "Yesod (Foundation)":   Object.freeze({ symbols: "The Perfumes, the Sandals.", titles: "The Astral-Light, the Treasure-house of images, the Receptacle of the Emanations, the Cyclic energies underlying Matter, the Aether-Currents.", keywords: "Imagination, the Unconscious-Mind, Dreams, the Astral-Plane, the Aether, Glue, Interface, Perception, Cosmetics, Appearance, Instinct, Illusion, Hidden Infrastructure, Divination, Mirrors and Crystals, Psychism, the Genitals, Secret Door, Tunnel, the Shamanic Tunnel, Sex and Reproduction." }),
+    "Malkuth (Kingdom)":    Object.freeze({ symbols: "The Altar of the Double-Cube, the Equal-armed Cross, The Magic circle, the Mystic circle, the Triangle of art, He final (\u05D4).", titles: "The Gate, the Gate of Death, the Gate of the Shadow of Death, the Gate of Tears, the Gate of Justice, the Gate of Prayer, the Gate of the Daughter of the Mighty-ones, the Gate of the Garden of Eden, the Inferior Mother, Malka - Queen, Kala - Bride, the Virgin, Keter below, the Completion.", keywords: "The Real-World, Physical Matter, The Earth on which we walk, Mother Earth, Planet Earth, the 4 Elements, what we perceive with our 5 Senses, Practicality, Stability, Solidity, Heaviness, Dense Matter." })
+  }),
 
-  tarot: {
-    major: {
+  tarot: Object.freeze({
+    major: Object.freeze({
       0: "A sacred beginning, full of faith and curiosity. Trust the unknown path before you. Every step forward reveals the next truth—life rewards those who dare to leap.",
       1: "All the tools are in your hands. You are the bridge between spirit and matter. Focus your will, and creation will respond to your intention.",
       2: "Silence holds the answers you seek. Intuition speaks through stillness and symbols. Trust your inner knowing—it guides beyond logic.",
@@ -233,8 +96,8 @@ const DataMeanings = {
       19: "Joy, clarity, and vitality fill your being. Life celebrates you when you live openly. Let your light shine without apology.",
       20: "Awakening through self-realization. The past calls for resolution, not regret. Rise into your higher purpose and answer the soul's invitation.",
       21: "Completion, integration, and mastery. You've come full circle, wiser and freer. Celebrate how far you've come—the journey now begins anew."
-    },
-    wands: {
+    }),
+    wands: Object.freeze({
       1: "A spark of inspiration ignites. New energy and purpose surge forward. Say yes to creation—this is your green light from spirit.",
       2: "Vision and decision meet. The world expands when you dare to plan boldly. Step beyond comfort—your horizon awaits.",
       3: "Your efforts begin to take form. Trust the momentum you've created. What you've set in motion is coming back multiplied.",
@@ -249,8 +112,8 @@ const DataMeanings = {
       12: "Passion drives you forward fast. Pursue what excites your soul. Just remember—impulse without direction burns out quickly.",
       13: "Confident, radiant, magnetic. You lead through authenticity and joy. Trust your intuition—it's your greatest power.",
       14: "Visionary leadership in motion. Inspire others through your clarity and courage. When you commit, destiny aligns with you."
-    },
-    cups: {
+    }),
+    cups: Object.freeze({
       1: "A new emotional beginning. Love, healing, and creativity overflow. Open your heart—the universe is offering more.",
       2: "A sacred union of hearts. Mutual understanding deepens connection. Love flourishes when both souls meet in truth.",
       3: "Community and celebration uplift your spirit. Share joy, friendship, and creative energy. Togetherness amplifies abundance.",
@@ -265,8 +128,8 @@ const DataMeanings = {
       12: "The romantic, the dreamer, the believer. Follow your ideals with grace and devotion. Let your heart lead your next quest.",
       13: "Empathy and intuition flow naturally. You heal through compassion and understanding. Emotional depth is your quiet strength.",
       14: "Emotional mastery through balance. Lead with kindness, not control. Wisdom grows from knowing your own heart."
-    },
-    swords: {
+    }),
+    swords: Object.freeze({
       1: "Clarity slices through confusion. A breakthrough in truth or awareness emerges. Speak and act with precision—the mind is your tool.",
       2: "A stalemate between logic and feeling. Pause before deciding—inner peace brings clarity. Balance both sides before you choose.",
       3: "Pain opens the heart to truth. Though sorrow cuts deep, healing follows honesty. This is the soul's purification through loss.",
@@ -281,8 +144,8 @@ const DataMeanings = {
       12: "Decisive, bold, unstoppable. Take action but beware of haste. True strength is precision guided by purpose.",
       13: "Clarity through wisdom and detachment. Speak truth even when it cuts. Compassion and honesty must walk together.",
       14: "Authority through intellect and fairness. Lead with logic, integrity, and discernment. Master the mind, and the world follows."
-    },
-    pentacles: {
+    }),
+    pentacles: Object.freeze({
       1: "A seed of prosperity takes root. Ground your vision through consistent effort. The material world now supports your growth.",
       2: "Balance the dance of priorities. Flexibility keeps life flowing. Adapt, juggle, and stay centered through change.",
       3: "Collaboration builds mastery. Work with others in harmony and respect. Shared vision creates tangible success.",
@@ -297,47 +160,52 @@ const DataMeanings = {
       12: "Steady progress and reliability win the race. Persistence turns plans into reality. Stay patient—consistency is your magic.",
       13: "Nurture life through care and practicality. Abundance grows under your touch. You create comfort by living in alignment with nature.",
       14: "Master of stability and material success. Lead through generosity and grounded wisdom. Prosperity expands when shared with purpose."
-    }
-  },
+    })
+  }),
 
-  // Helper methods to retrieve meanings
+  // ---------------------------
+  // Helper methods
+  // ---------------------------
   getNumberMeaning(number) {
     return this.numbers[String(number)] || "Meaning not available for this number.";
   },
 
   getZodiacMeaning(sign) {
     const m = this.zodiac[sign];
-    return m ? `<strong>Expression:</strong> ${m.expression}<br><strong>Title:</strong> ${m.title}<br><strong>Keywords:</strong> ${m.keywords}` : "";
+    if (!m) return "";
+    return `<strong>Expression:</strong> ${esc(m.expression)}<br><strong>Title:</strong> ${esc(m.title)}<br><strong>Keywords:</strong> ${esc(m.keywords)}`;
   },
 
   getPlanetMeaning(planet) {
     const m = this.planets[planet];
-    return m ? `<strong>Keywords:</strong> ${m.keywords}<br><strong>Advantages:</strong> ${m.advantages}<br><strong>Disadvantages:</strong> ${m.disadvantages}` : "";
+    if (!m) return "";
+    return `<strong>Keywords:</strong> ${esc(m.keywords)}<br><strong>Advantages:</strong> ${esc(m.advantages)}<br><strong>Disadvantages:</strong> ${esc(m.disadvantages)}`;
   },
 
   getElementMeaning(element) {
     const m = this.elements[element];
-    return m ? `<strong>Represents:</strong> ${m.represents}<br><strong>Character Traits:</strong><br>${m.traits}` : "";
+    if (!m) return "";
+    // traits already contain <strong> tags from frozen data — those are trusted static strings
+    return `<strong>Represents:</strong> ${esc(m.represents)}<br><strong>Character Traits:</strong><br>${m.traits}`;
   },
 
   getSefiraMeaning(sefira) {
     const m = this.sefira[sefira];
-    return m ? `<strong>Symbols:</strong> ${m.symbols}<br><strong>Associated Titles:</strong> ${m.titles}<br><strong>Keywords:</strong> ${m.keywords}` : "";
+    if (!m) return "";
+    return `<strong>Symbols:</strong> ${esc(m.symbols)}<br><strong>Associated Titles:</strong> ${esc(m.titles)}<br><strong>Keywords:</strong> ${esc(m.keywords)}`;
   },
 
   getTarotMeaning(suit, number) {
-    // Major Arcana (0-21)
     if (suit === 'major') {
       return this.tarot.major[number] || "Tarot meaning not available.";
     }
-    
-    // Minor Arcana
-    const suitName = suit.toLowerCase();
+    const suitName = String(suit || '').toLowerCase();
     if (this.tarot[suitName]) {
       return this.tarot[suitName][number] || "Tarot meaning not available.";
     }
-    
     return "Tarot meaning not available.";
   }
 };
+
+window.DataMeanings = DataMeanings;
 export default DataMeanings;

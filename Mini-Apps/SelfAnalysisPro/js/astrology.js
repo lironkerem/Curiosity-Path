@@ -1,45 +1,42 @@
-// js/astrology.js
-// AstrologyEngine for Free Astrology API
-// DEBUG VERSION - Add logging
+// Mini-Apps/SelfAnalysisPro/js/astrology.js
+// AstrologyEngine — Free Astrology API integration
 
-import { getPlanets, getHouses, getAspects, getNatalWheelChart } from './astroAPI.js';
+import { getPlanets, getHouses, getNatalWheelChart } from './astroAPI.js';
 
 export class AstrologyEngine {
   constructor() {
-    console.log('AstrologyEngine initialized (Free Astrology API)');
-    
-    // Updated zodiac data with dual planets
-    this.zodiacData = [
-      ["Capricorn", 1, 1, "Saturn", "Earth"],
-      ["Aquarius", 1, 20, "Saturn, Uranus", "Air"],
-      ["Pisces", 2, 19, "Jupiter, Neptune", "Water"],
-      ["Aries", 3, 21, "Mars", "Fire"],
-      ["Taurus", 4, 20, "Venus", "Earth"],
-      ["Gemini", 5, 21, "Mercury", "Air"],
-      ["Cancer", 6, 21, "Moon", "Water"],
-      ["Leo", 7, 23, "Sun", "Fire"],
-      ["Virgo", 8, 23, "Mercury", "Earth"],
-      ["Libra", 9, 23, "Venus", "Air"],
-      ["Scorpio", 10, 23, "Mars, Pluto", "Water"],
-      ["Sagittarius", 11, 22, "Jupiter", "Fire"],
-      ["Capricorn", 12, 22, "Saturn", "Earth"]
-    ];
-    
-    this.sefiraMapping = {
-      "Sun": "Tiferet (Beauty)",
-      "Moon": "Yesod (Foundation)",
+    // [name, startMonth, startDay, planet, element]
+    this.zodiacData = Object.freeze([
+      Object.freeze(["Capricorn",   1,  1,  "Saturn",          "Earth"]),
+      Object.freeze(["Aquarius",    1,  20, "Saturn, Uranus",   "Air"]),
+      Object.freeze(["Pisces",      2,  19, "Jupiter, Neptune", "Water"]),
+      Object.freeze(["Aries",       3,  21, "Mars",             "Fire"]),
+      Object.freeze(["Taurus",      4,  20, "Venus",            "Earth"]),
+      Object.freeze(["Gemini",      5,  21, "Mercury",          "Air"]),
+      Object.freeze(["Cancer",      6,  21, "Moon",             "Water"]),
+      Object.freeze(["Leo",         7,  23, "Sun",              "Fire"]),
+      Object.freeze(["Virgo",       8,  23, "Mercury",          "Earth"]),
+      Object.freeze(["Libra",       9,  23, "Venus",            "Air"]),
+      Object.freeze(["Scorpio",     10, 23, "Mars, Pluto",      "Water"]),
+      Object.freeze(["Sagittarius", 11, 22, "Jupiter",          "Fire"]),
+      Object.freeze(["Capricorn",   12, 22, "Saturn",           "Earth"])
+    ]);
+
+    this.sefiraMapping = Object.freeze({
+      "Sun":     "Tiferet (Beauty)",
+      "Moon":    "Yesod (Foundation)",
       "Mercury": "Hod (Splendor)",
-      "Venus": "Netzach (Victory)",
-      "Mars": "Gevurah (Strength)",
+      "Venus":   "Netzach (Victory)",
+      "Mars":    "Gevurah (Strength)",
       "Jupiter": "Chesed (Kindness)",
-      "Saturn": "Binah (Understanding)",
+      "Saturn":  "Binah (Understanding)",
       "Neptune": "Chokhmah (Wisdom)",
-      "Pluto": "Keter (Crown)",
-      "Earth": "Malkuth (Kingdom)",
-      "Uranus": "Chokhmah (Wisdom)"
-    };
+      "Pluto":   "Keter (Crown)",
+      "Earth":   "Malkuth (Kingdom)",
+      "Uranus":  "Chokhmah (Wisdom)"
+    });
   }
-  
+
   getZodiacSign(month, day) {
     for (let i = this.zodiacData.length - 1; i >= 0; i--) {
       const [name, m, d, planet, element] = this.zodiacData[i];
@@ -47,95 +44,78 @@ export class AstrologyEngine {
         return { name, planet, element };
       }
     }
-    return { 
-      name: this.zodiacData[0][0], 
-      planet: this.zodiacData[0][3], 
-      element: this.zodiacData[0][4] 
+    return {
+      name:    this.zodiacData[0][0],
+      planet:  this.zodiacData[0][3],
+      element: this.zodiacData[0][4]
     };
   }
-  
+
   getSefiraFromPlanet(planet) {
-    const primaryPlanet = planet.split(',')[0].trim();
+    const primaryPlanet = String(planet || '').split(',')[0].trim();
     return this.sefiraMapping[primaryPlanet] || "Malkuth (Kingdom)";
   }
 
   async analyze(formData) {
     try {
-      console.log('🔍 AstrologyEngine.analyze() called with formData:', formData);
-      
       const { dateOfBirth, timeOfBirth, locationLat, locationLon, tzone } = formData;
-      
-      if (!dateOfBirth) {
-        throw new Error("Date of birth is required.");
+
+      if (!dateOfBirth) throw new Error('Date of birth is required.');
+
+      const parts = dateOfBirth.split('-').map(Number);
+      const year  = parts[0];
+      const month = parts[1];
+      const day   = parts[2];
+
+      if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) {
+        throw new Error('Invalid date of birth format.');
       }
-      
-      // Parse DOB and get basic astrology (always works)
-      const [year, month, day] = dateOfBirth.split('-').map(Number);
-      console.log('📅 Parsed date:', { year, month, day });
-      
+
       const zodiac = this.getZodiacSign(month, day);
       const sefira = this.getSefiraFromPlanet(zodiac.planet);
-      
-      console.log('♈ Basic astrology:', { zodiac, sefira });
-      
-      // If no time/location, return basic astrology only
-      if (!timeOfBirth || !locationLat || !locationLon || 
-          locationLat === "" || locationLon === "" || timeOfBirth === "") {
-        console.warn("⚠️ Missing time/location - returning basic astrology only");
-        console.log('Missing data:', { 
-          timeOfBirth: timeOfBirth || 'MISSING', 
-          locationLat: locationLat || 'MISSING', 
-          locationLon: locationLon || 'MISSING' 
-        });
-        return {
-          zodiac: zodiac,
-          sefira: sefira,
-          planets: null,
-          houses: null,
-          aspects: null,
-          natalChart: null
-        };
+
+      // Basic-only path — no time/location
+      if (!timeOfBirth || !locationLat || !locationLon ||
+          locationLat === '' || locationLon === '' || timeOfBirth === '') {
+        console.warn('Missing time/location — returning basic astrology only');
+        return { zodiac, sefira, planets: null, houses: null, aspects: null, natalChart: null };
       }
-      
-      // Full natal chart with API - FREE ASTROLOGY API FORMAT
-      const [hour, minute] = timeOfBirth.split(':').map(Number);
+
+      // Validate coordinates
+      const lat = parseFloat(locationLat);
+      const lon = parseFloat(locationLon);
+      if (!isFinite(lat) || !isFinite(lon)) {
+        throw new Error('Invalid location coordinates.');
+      }
+
+      const timeParts = timeOfBirth.split(':').map(Number);
+      const hour   = timeParts[0];
+      const minute = timeParts[1];
+
+      if (!Number.isInteger(hour) || !Number.isInteger(minute)) {
+        throw new Error('Invalid time of birth format.');
+      }
+
       const params = {
-        year, 
-        month, 
-        date: day,  // FREE API uses "date" not "day"
-        hours: hour,  // FREE API uses "hours" not "hour"
-        minutes: minute,  // FREE API uses "minutes" not "min"
-        seconds: 0,  // Always include seconds
-        latitude: parseFloat(locationLat),  // FREE API uses "latitude" not "lat"
-        longitude: parseFloat(locationLon),  // FREE API uses "longitude" not "lon"
-        timezone: tzone || 0  // FREE API uses "timezone" not "tzone"
+        year,
+        month,
+        date:      day,
+        hours:     hour,
+        minutes:   minute,
+        seconds:   0,
+        latitude:  lat,
+        longitude: lon,
+        timezone:  typeof tzone === 'number' ? tzone : 0
       };
-      
-      console.log('🌍 Full natal chart params:', params);
-      console.log('📡 Calling Free Astrology API...');
-      
-      const planets = await getPlanets(params);
-      console.log('✅ Planets received:', planets);
-      
-      const houses = await getHouses(params);
-      console.log('✅ Houses received:', houses);
-      
+
+      const planets    = await getPlanets(params);
+      const houses     = await getHouses(params);
       const natalChart = await getNatalWheelChart(params);
-      console.log('✅ Natal chart received:', natalChart);
-      
-      return {
-        zodiac: zodiac,
-        sefira: sefira,
-        planets,
-        houses,
-        natalChart
-      };
+
+      return { zodiac, sefira, planets, houses, natalChart };
+
     } catch (err) {
-      console.error("❌ AstrologyEngine analyze() failed:", err);
-      console.error("Error details:", {
-        message: err.message,
-        stack: err.stack
-      });
+      console.error('AstrologyEngine.analyze() failed:', err.message);
       throw err;
     }
   }
