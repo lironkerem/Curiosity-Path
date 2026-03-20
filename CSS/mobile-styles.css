@@ -1610,30 +1610,27 @@ textarea {
    ========================================================= */
 
 #toast-container {
-  top: 20px;
-  left: 0;
-  right: 0;
-  width: 100%;
-  transform: none; /* Clears the translateX that was causing the offset */
-  padding: 0 20px;
+  top: 20px !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  transform: none !important; /* Kills the translateX offset */
+  padding: 0 15px;
   box-sizing: border-box;
 }
 
-/* Adjusts position if a CTA/Modal is active on mobile */
 body.cta-open #toast-container {
-  top: 50vh !important;
-  transform: translateY(-50%) !important;
+  top: 40vh !important; /* Adjusted slightly for mobile keyboards/modals */
 }
 
 #toast-container .toast {
   width: 100%;
-  max-width: 400px;
-  min-height: 56px;
-  margin: 0;
-  padding: 14px 18px !important;
-  border-radius: 16px !important;
-  font-size: clamp(0.875rem, 3vw, 1rem) !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+  max-width: 360px;
+  min-height: 50px;
+  padding: 12px 16px !important;
+  font-size: 0.9rem !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
 }
 
 /* =========================================================

@@ -2780,49 +2780,48 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 }
 
 /* =========================================================
-   TOAST NOTIFICATIONS - CENTERED & STABLE
+   TOAST NOTIFICATIONS - FIXED ALIGNMENT
    ========================================================= */
 
 #toast-container {
   position: fixed;
   top: 20px;
-  /* Use full-width flex centering instead of left:50vw/transform */
-  left: 0;
-  right: 0;
-  width: 100%;
-  pointer-events: none; /* Allows clicking elements behind the container */
-  
-  z-index: 9999;
+  left: 0;           /* Anchor to far left */
+  right: 0;          /* Anchor to far right */
+  width: 100vw;      /* Explicitly full viewport width */
+  margin: 0;
   display: flex;
   flex-direction: column;
-  align-items: center; /* This handles the horizontal centering perfectly */
+  align-items: center; /* This is the ONLY thing centering it now */
   gap: 10px;
+  z-index: 10000;
+  pointer-events: none;
+  transform: none !important; /* Block any inherited transforms */
 }
 
 #toast-container .toast {
-  pointer-events: auto; /* Re-enable clicks for the actual toast */
+  pointer-events: auto;
   color: white;
   padding: 1rem 1.5rem;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-raised-lg);
   opacity: 0;
-  /* Animation only uses Y-axis to avoid clashing with centering */
-  transform: translateY(-20px);
+  /* We use translateY only for the entrance effect */
+  transform: translateY(-20px); 
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   font-weight: 500;
-  min-width: 250px;
-  max-width: 90%; /* Responsive safety */
+  min-width: 280px;
+  max-width: 400px;
   text-align: center;
   backdrop-filter: blur(10px);
-  border: none;
 }
 
 #toast-container .toast.show {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) !important;
 }
 
-/* Theme Gradients */
+/* Gradients */
 #toast-container .toast.info    { background: linear-gradient(135deg, var(--neuro-info), #2563eb); }
 #toast-container .toast.success { background: linear-gradient(135deg, var(--neuro-success), #16a34a); }
 #toast-container .toast.warning { background: linear-gradient(135deg, var(--neuro-warning), #ea580c); }
