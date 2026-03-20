@@ -2780,58 +2780,58 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 }
 
 /* =========================================================
-   TOAST NOTIFICATIONS - FIXED CENTER ALIGNMENT
+   TOAST NOTIFICATIONS
    ========================================================= */
 
 #toast-container {
   position: fixed;
   top: 20px;
-  /* Use left/right 0 to span the full screen width */
-  left: 0 !important;
-  right: 0 !important;
-  width: 100% !important;
-  margin: 0;
-  
-  /* Disable transforms on the container to prevent horizontal shifts */
-  transform: none !important;
-  
+  left: 50vw;
+  transform: translateX(-50%);
+  z-index: 9999;
   display: flex;
   flex-direction: column;
-  align-items: center; /* This handles the horizontal centering */
+  align-items: center;
   gap: 10px;
-  z-index: 10000;
-  pointer-events: none; /* Allows clicking "through" the empty space */
+  width: 90%;
+  max-width: 400px;
 }
 
 #toast-container .toast {
-  pointer-events: auto; /* Makes the actual toast clickable */
   color: white;
   padding: 1rem 1.5rem;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-raised-lg);
   opacity: 0;
-  /* Animation only affects vertical movement */
-  transform: translateY(-20px); 
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform: translateY(-20px);
+  transition: all 0.4s ease;
   font-weight: 500;
-  min-width: 280px;
-  max-width: 400px;
+  min-width: 250px;
   text-align: center;
   backdrop-filter: blur(10px);
   border: none;
-  box-sizing: border-box;
 }
 
 #toast-container .toast.show {
   opacity: 1;
-  transform: translateY(0) !important;
+  transform: translateY(0);
 }
 
-/* Theme Gradients */
-#toast-container .toast.info    { background: linear-gradient(135deg, var(--neuro-info), #2563eb); }
-#toast-container .toast.success { background: linear-gradient(135deg, var(--neuro-success), #16a34a); }
-#toast-container .toast.warning { background: linear-gradient(135deg, var(--neuro-warning), #ea580c); }
-#toast-container .toast.error   { background: linear-gradient(135deg, var(--neuro-error), #dc2626); }
+#toast-container .toast.info {
+  background: linear-gradient(135deg, var(--neuro-info), #2563eb);
+}
+
+#toast-container .toast.success {
+  background: linear-gradient(135deg, var(--neuro-success), #16a34a);
+}
+
+#toast-container .toast.warning {
+  background: linear-gradient(135deg, var(--neuro-warning), #ea580c);
+}
+
+#toast-container .toast.error {
+  background: linear-gradient(135deg, var(--neuro-error), #dc2626);
+}
 
 /* =========================================================
    CTA FOOTER
