@@ -1614,8 +1614,8 @@ textarea {
   left: 0 !important;
   right: 0 !important;
   width: 100% !important;
-  transform: none !important; /* Crucial: Kills the horizontal shift */
-  padding: 0 20px;
+  transform: none !important; /* Forces the removal of any translateX shift */
+  padding: 0 15px;
   box-sizing: border-box;
 }
 
@@ -1625,14 +1625,23 @@ body.cta-open #toast-container {
 }
 
 #toast-container .toast {
-  width: 100%;           /* On mobile, it fills the 90% space (due to container padding) */
+  width: 100%;
   max-width: 380px;
-  min-height: 56px;
+  min-height: 54px;
   margin: 0;
   padding: 14px 18px !important;
-  border-radius: 16px !important;
-  font-size: clamp(0.875rem, 3vw, 1rem) !important;
+  font-size: 0.9rem !important;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* FIX: Specifically override the Landscape rule that was using 50vw */
+@media (max-height: 500px) and (orientation: landscape) {
+  #toast-container {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    transform: none !important;
+  }
 }
 
 /* =========================================================

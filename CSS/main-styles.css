@@ -2780,36 +2780,42 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 }
 
 /* =========================================================
-   TOAST NOTIFICATIONS - UNIVERSAL CENTERED
+   TOAST NOTIFICATIONS - FIXED CENTER ALIGNMENT
    ========================================================= */
+
 #toast-container {
   position: fixed;
   top: 20px;
-  left: 0;
-  right: 0;
-  width: 100%;           /* The container spans the whole screen */
-  pointer-events: none;  /* Allows clicking "through" the empty space */
-  z-index: 10000;
+  /* Use left/right 0 to span the full screen width */
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  margin: 0;
+  
+  /* Disable transforms on the container to prevent horizontal shifts */
+  transform: none !important;
+  
   display: flex;
   flex-direction: column;
-  align-items: center;    /* This centers the toast content */
+  align-items: center; /* This handles the horizontal centering */
   gap: 10px;
-  transform: none !important; /* Prevents any inherited offsets */
+  z-index: 10000;
+  pointer-events: none; /* Allows clicking "through" the empty space */
 }
 
 #toast-container .toast {
-  pointer-events: auto;  /* Makes the actual toast clickable */
+  pointer-events: auto; /* Makes the actual toast clickable */
   color: white;
   padding: 1rem 1.5rem;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-raised-lg);
   opacity: 0;
-  /* Animating ONLY Y-axis to avoid horizontal "jitter" or offsets */
+  /* Animation only affects vertical movement */
   transform: translateY(-20px); 
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   font-weight: 500;
-  min-width: 250px;       /* The toast stays a normal size */
-  max-width: 400px;       /* The toast stays a normal size */
+  min-width: 280px;
+  max-width: 400px;
   text-align: center;
   backdrop-filter: blur(10px);
   border: none;
@@ -2818,7 +2824,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 
 #toast-container .toast.show {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) !important;
 }
 
 /* Theme Gradients */
