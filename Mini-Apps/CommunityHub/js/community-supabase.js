@@ -5,16 +5,16 @@
  * Single source of truth for all DB operations and realtime subscriptions.
  * No other module talks to Supabase directly.
  *
- * @version 2.1.0
+ * @version 2.2.0
  */
 
 import { CommunitySupabase } from './supabase-client.js';
 
 const CommunityDB = {
 
-    _sb:   null,   // Supabase client
-    _uid:  null,   // Current user UUID
-    _subs: {},     // Active realtime subscriptions { key → channel }
+    _sb:   null,
+    _uid:  null,
+    _subs: {},
 
     _heartbeatTimer: null,
 
@@ -23,19 +23,15 @@ const CommunityDB = {
     // =========================================================================
 
     async init() {
-        // Read window.AppSupabase at call time — not at module parse time.
-        // supabase-client.js may have been evaluated before Supabase.js set
-        // window.AppSupabase, so CommunitySupabase (the import) may be null.
-        // By the time init() is called (after auth), window.AppSupabase is ready.
         this._sb = window.AppSupabase || CommunitySupabase;
         if (!this._sb) {
-            console.error('[CommunityDB] CommunitySupabase not ready — window.AppSupabase is null');
+            console.error('[CommunityDB] Supabase client not ready');
             return false;
         }
 
         const { data: { user }, error } = await this._sb.auth.getUser();
         if (error || !user) {
-            console.error('[CommunityDB] No authenticated user:', error?.message);
+            console.error('[CommunityDB] No authenticated user');
             return false;
         }
 
@@ -50,21 +46,14 @@ const CommunityDB = {
     // INTERNAL HELPERS
     // =========================================================================
 
-    /** Centralised error log - keeps call sites terse */
     _err(label, err) {
-        console.error(`[CommunityDB] ${label}:`, err?.message ?? err);
+        console.error(`[CommunityDB] ${label}:`, err?.message ?? String(err));
     },
 
-    /**
-     * Shared profile select string used across multiple queries.
-     * Keeps the column list consistent and avoids typo drift.
-     */
     _profileSelect: 'id, name, emoji, avatar_url',
 
-    /** Returns ISO string for "N milliseconds ago" */
     _ago(ms) { return new Date(Date.now() - ms).toISOString(); },
 
-    /** UTC midnight for today - reused in engagement/room stats */
     _todayUTC() {
         const d = new Date();
         d.setUTCHours(0, 0, 0, 0);
@@ -93,7 +82,6 @@ const CommunityDB = {
         return data;
     },
 
-    /** Parse a user_progress payload - shared logic for getUserProgress + getOwnGamificationState */
     _parseProgress(raw) {
         const p = typeof raw === 'string' ? JSON.parse(raw) : raw;
         return {
@@ -126,7 +114,6 @@ const CommunityDB = {
         }
     },
 
-    /** Read own gamification state from in-memory GamificationEngine (falls back to null if unavailable) */
     getOwnGamificationState() {
         const g = window.app?.gamification;
         if (!g) return null;
@@ -193,7 +180,7 @@ const CommunityDB = {
             .select(`user_id, status, activity, room_id, is_phantom, last_seen, profiles ( ${this._profileSelect} )`)
             .neq('status', 'offline')
             .gte('last_seen', this._ago(5 * 60_000))
-            .order('is_phantom', { ascending: false }) // phantoms always first
+            .order('is_phantom', { ascending: false })
             .order('last_seen', { ascending: false });
         if (error) { this._err('getActiveMembers', error); return []; }
         return data || [];
@@ -204,10 +191,10 @@ const CommunityDB = {
         const { data, error } = await this._sb
             .from('community_presence')
             .select(`user_id, status, activity, room_id, is_phantom, last_seen, profiles ( ${this._profileSelect} )`)
-            .or(`room_id.eq.${roomId},is_phantom.eq.true`) // real room members OR phantoms
+            .or(`room_id.eq.${roomId},is_phantom.eq.true`)
             .neq('status', 'offline')
             .gte('last_seen', this._ago(5 * 60_000))
-            .order('is_phantom', { ascending: false }) // phantoms always first
+            .order('is_phantom', { ascending: false })
             .order('last_seen', { ascending: true });
         if (error) { this._err('getRoomParticipants', error); return []; }
         return data || [];
@@ -231,7 +218,6 @@ const CommunityDB = {
         this.stopHeartbeat();
         this._heartbeatTimer = setInterval(async () => {
             if (!this.ready) return;
-            // Use imported Core if available, fall back to window.Core for classic-script compat
             const coreState = (typeof Core !== 'undefined' ? Core : window.Core)?.state;
             await this.setPresence(
                 coreState?.currentUser?.status   || 'online',
@@ -239,6 +225,8 @@ const CommunityDB = {
                 coreState?.currentRoom           || null,
             );
         }, intervalMs);
+        // bfcache-compatible: pagehide + beforeunload
+        window.addEventListener('pagehide',     () => this._cleanup());
         window.addEventListener('beforeunload', () => this._cleanup());
     },
 
@@ -616,7 +604,7 @@ const CommunityDB = {
                 });
             }
         } catch (e) {
-            console.warn('[CommunityDB] blessRoom broadcast failed (non-fatal):', e);
+            console.warn('[CommunityDB] blessRoom broadcast failed (non-fatal)');
         }
 
         return data;
@@ -760,7 +748,6 @@ const CommunityDB = {
 
     async getLeaderboard() {
         if (!this.ready) return { xp: [], karma: [] };
-        // Select only the fields needed — avoids exposing full payload (journal/gratitude entries etc.)
         const { data: progress, error } = await this._sb
             .from('user_progress')
             .select('user_id, payload->xp, payload->karma, payload->level')
@@ -829,7 +816,7 @@ const CommunityDB = {
         const lastWeekIds = new Set((activeLastWeek.data || []).map(r => r.user_id));
         const twoWeekIds  = new Set((activeTwoWeeks.data  || []).map(r => r.user_id));
 
-        const quietMembers = [...twoWeekIds].filter(id => !lastWeekIds.has(id)).slice(0, 5);
+        const quietMembers  = [...twoWeekIds].filter(id => !lastWeekIds.has(id)).slice(0, 5);
         const streakMembers = (recentlyActive.data || [])
             .filter(r => r.profiles).slice(0, 5)
             .map(r => ({ user_id: r.user_id, name: r.profiles?.name, emoji: r.profiles?.emoji }));
@@ -868,24 +855,6 @@ const CommunityDB = {
         return data || [];
     },
 
-    /**
-     * Admin-only: update a user's gamification state atomically via Postgres RPC.
-     * Uses update_user_gamification() which handles XP, Karma, feature unlocks,
-     * and badge grants in a single atomic operation — no race conditions.
-     *
-     * @param {string} targetUserId
-     * @param {Object} opts
-     * @param {number}  [opts.xpDelta=0]
-     * @param {number}  [opts.karmaDelta=0]
-     * @param {string}  [opts.unlockFeature=null]
-     * @param {string}  [opts.badgeId=null]
-     * @param {string}  [opts.badgeName=null]
-     * @param {string}  [opts.badgeIcon='🏅']
-     * @param {string}  [opts.badgeRarity='common']
-     * @param {number}  [opts.badgeXp=0]
-     * @param {string}  [opts.badgeDesc='']
-     * @returns {Promise<boolean>}
-     */
     async adminUpdateGamification(targetUserId, {
         xpDelta       = 0,
         karmaDelta    = 0,
@@ -922,14 +891,13 @@ const CommunityDB = {
     // CLEANUP
     // =========================================================================
 
-    /** Shared unsub helper - unsubscribes and removes a keyed subscription */
     _unsub(key) {
         if (this._subs[key]) { this._subs[key].unsubscribe(); delete this._subs[key]; }
     },
 
     unsubscribeAll() {
         for (const sub of Object.values(this._subs)) {
-            try { sub.unsubscribe(); } catch (_) {}
+            try { sub.unsubscribe(); } catch { /* noop */ }
         }
         this._subs = {};
     },
@@ -941,10 +909,9 @@ const CommunityDB = {
     },
 };
 
-window.addEventListener('pagehide', () => CommunityDB._cleanup());
+// bfcache-compatible: pagehide + beforeunload
+window.addEventListener('pagehide',     () => CommunityDB._cleanup());
+window.addEventListener('beforeunload', () => CommunityDB._cleanup());
 
-// Named export for ES module consumers
 export { CommunityDB };
-
-// Keep window assignment for classic scripts that still reference window.CommunityDB
 window.CommunityDB = CommunityDB;

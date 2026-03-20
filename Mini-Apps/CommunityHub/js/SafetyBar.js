@@ -46,7 +46,7 @@ const SafetyBar = {
             document.body.insertAdjacentHTML('beforeend', this.getAllModalsHTML());
             this.state.modalsInjected = true;
         } catch (error) {
-            console.error('Failed to inject SafetyBar modals:', error);
+            console.error('Failed to inject SafetyBar modals');
         }
     },
 
@@ -68,11 +68,11 @@ const SafetyBar = {
 
     getCrisisModalHTML() {
         return `
-    <div class="modal-overlay" id="crisisModal" onclick="SafetyBar.handleOverlayClick(event,'crisis')">
+    <div class="modal-overlay" id="crisisModal" role="dialog" aria-modal="true" aria-label="Crisis Resources" onclick="SafetyBar.handleOverlayClick(event,'crisis')">
         <div class="modal-card" style="max-width:500px;">
-            <button class="modal-close" onclick="SafetyBar.closeModal('crisis')" aria-label="Close crisis resources">×</button>
+            <button type="button" class="modal-close" onclick="SafetyBar.closeModal('crisis')" aria-label="Close crisis resources">×</button>
             <div class="modal-content" style="text-align:left;">
-                <h2 style="font-family:var(--serif);margin-top:0;margin-bottom:20px;text-align:center;" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg> Crisis Resources</h2>
+                <h2 style="font-family:var(--serif);margin-top:0;margin-bottom:20px;text-align:center;" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg> Crisis Resources</h2>
                 <div style="line-height:1.8;color:var(--text);font-size:14px;">
                     <p style="margin-bottom:20px;"><strong>If you're in crisis, please reach out immediately.</strong></p>
                     <div style="background:#fee;border-left:4px solid #c33;padding:16px;margin-bottom:20px;border-radius:var(--radius-md);">
@@ -85,7 +85,7 @@ const SafetyBar = {
                         <li style="margin-bottom:12px;"><strong>SAMHSA National Helpline:</strong><br>1-800-662-4357</li>
                     </ul>
                 </div>
-                <button onclick="SafetyBar.closeModal('crisis')"
+                <button type="button" onclick="SafetyBar.closeModal('crisis')"
                         style="width:100%;padding:12px 24px;border:2px solid var(--border);background:var(--surface);border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:14px;margin-top:16px;">
                     Close
                 </button>
@@ -96,11 +96,11 @@ const SafetyBar = {
 
     getReportModalHTML() {
         return `
-    <div class="modal-overlay" id="reportModal" onclick="SafetyBar.handleOverlayClick(event,'report')">
+    <div class="modal-overlay" id="reportModal" role="dialog" aria-modal="true" aria-label="Report Issue" onclick="SafetyBar.handleOverlayClick(event,'report')">
         <div class="modal-card" style="max-width:500px;">
-            <button class="modal-close" onclick="SafetyBar.closeModal('report')" aria-label="Close report modal">×</button>
+            <button type="button" class="modal-close" onclick="SafetyBar.closeModal('report')" aria-label="Close report modal">×</button>
             <div class="modal-content" style="text-align:left;">
-                <h2 style="font-family:var(--serif);margin-top:0;margin-bottom:20px;text-align:center;" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> Report Issue</h2>
+                <h2 style="font-family:var(--serif);margin-top:0;margin-bottom:20px;text-align:center;" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> Report Issue</h2>
                 <div style="margin-bottom:20px;">
                     <label for="reportReason" style="display:block;font-weight:600;margin-bottom:8px;font-size:14px;">What happened?</label>
                     <select id="reportReason" style="width:100%;padding:12px;border:2px solid var(--border);border-radius:var(--radius-md);background:var(--surface);font-size:14px;">
@@ -114,18 +114,18 @@ const SafetyBar = {
                 </div>
                 <div style="margin-bottom:20px;">
                     <label for="reportDetails" style="display:block;font-weight:600;margin-bottom:8px;font-size:14px;">Details (optional)</label>
-                    <textarea id="reportDetails" placeholder="Please provide any additional context..."
+                    <textarea id="reportDetails" placeholder="Please provide any additional context..." maxlength="1000"
                               style="width:100%;min-height:100px;padding:12px;border:2px solid var(--border);border-radius:var(--radius-md);background:var(--surface);font-size:14px;resize:vertical;"></textarea>
                 </div>
                 <div style="padding:16px;background:var(--season-mood);border-radius:var(--radius-md);margin-bottom:20px;font-size:13px;line-height:1.6;">
                     Reports are reviewed within 24 hours. Serious violations are addressed immediately.
                 </div>
                 <div style="display:flex;gap:12px;">
-                    <button onclick="SafetyBar.closeModal('report')"
+                    <button type="button" onclick="SafetyBar.closeModal('report')"
                             style="flex:1;padding:12px 24px;border:2px solid var(--border);background:var(--surface);border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:14px;">
                         Cancel
                     </button>
-                    <button onclick="SafetyBar.submitReport()"
+                    <button type="button" onclick="SafetyBar.submitReport()"
                             style="flex:1;padding:12px 24px;border:none;background:var(--text);color:var(--season-mood);border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:14px;">
                         Submit Report
                     </button>
@@ -137,26 +137,26 @@ const SafetyBar = {
 
     getBlockModalHTML() {
         return `
-    <div class="modal-overlay" id="blockModal" onclick="SafetyBar.handleOverlayClick(event,'block')">
+    <div class="modal-overlay" id="blockModal" role="dialog" aria-modal="true" aria-label="Block User" onclick="SafetyBar.handleOverlayClick(event,'block')">
         <div class="modal-card" style="max-width:450px;">
-            <button class="modal-close" onclick="SafetyBar.closeModal('block')" aria-label="Close block modal">×</button>
+            <button type="button" class="modal-close" onclick="SafetyBar.closeModal('block')" aria-label="Close block modal">×</button>
             <div class="modal-content" style="text-align:left;">
-                <h2 style="font-family:var(--serif);margin-top:0;margin-bottom:20px;text-align:center;" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg> Block User</h2>
+                <h2 style="font-family:var(--serif);margin-top:0;margin-bottom:20px;text-align:center;" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg> Block User</h2>
                 <p style="margin-bottom:20px;line-height:1.6;">Blocked users won't be able to see your messages or interact with you.</p>
                 <div style="margin-bottom:20px;">
                     <label for="blockUsername" style="display:block;font-weight:600;margin-bottom:8px;font-size:14px;">Username to block</label>
-                    <input type="text" id="blockUsername" placeholder="Enter username..."
+                    <input type="text" id="blockUsername" placeholder="Enter username..." maxlength="120"
                            style="width:100%;padding:12px;border:2px solid var(--border);border-radius:var(--radius-md);background:var(--surface);font-size:14px;">
                 </div>
                 <div style="padding:16px;background:var(--season-mood);border-radius:var(--radius-md);margin-bottom:20px;font-size:13px;line-height:1.6;">
                     <strong>Note:</strong> You can unblock users anytime from your settings.
                 </div>
                 <div style="display:flex;gap:12px;">
-                    <button onclick="SafetyBar.closeModal('block')"
+                    <button type="button" onclick="SafetyBar.closeModal('block')"
                             style="flex:1;padding:12px 24px;border:2px solid var(--border);background:var(--surface);border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:14px;">
                         Cancel
                     </button>
-                    <button onclick="SafetyBar.confirmBlock()"
+                    <button type="button" onclick="SafetyBar.confirmBlock()"
                             style="flex:1;padding:12px 24px;border:none;background:var(--text);color:var(--season-mood);border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:14px;">
                         Block User
                     </button>
@@ -168,48 +168,48 @@ const SafetyBar = {
 
     getHelpModalHTML() {
         return `
-    <div class="modal-overlay" id="helpModal" onclick="SafetyBar.handleOverlayClick(event,'help')">
+    <div class="modal-overlay" id="helpModal" role="dialog" aria-modal="true" aria-label="Get Help" onclick="SafetyBar.handleOverlayClick(event,'help')">
         <div class="modal-card" style="max-width:500px;">
-            <button class="modal-close" onclick="SafetyBar.closeModal('help')" aria-label="Close help modal">×</button>
+            <button type="button" class="modal-close" onclick="SafetyBar.closeModal('help')" aria-label="Close help modal">×</button>
             <div class="modal-content" style="text-align:left;">
-                <h2 style="font-family:var(--serif);margin-top:0;margin-bottom:20px;text-align:center;" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Get Help</h2>
+                <h2 style="font-family:var(--serif);margin-top:0;margin-bottom:20px;text-align:center;" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Get Help</h2>
                 <div style="line-height:1.6;font-size:14px;">
                     <p style="margin-bottom:16px;">Choose the support you need:</p>
-                    <button onclick="SafetyBar._switchModal('help','crisis')"
+                    <button type="button" onclick="SafetyBar._switchModal('help','crisis')"
                             style="width:100%;padding:16px;margin-bottom:12px;text-align:left;background:#fee;border:2px solid #c33;border-radius:var(--radius-md);cursor:pointer;font-size:14px;">
                         <strong>🆘 Crisis Resources</strong><br>
                         <span style="font-size:12px;color:#666;">24/7 hotlines and emergency support</span>
                     </button>
                     <div style="margin-bottom:12px;border:2px solid var(--border);border-radius:var(--radius-md);overflow:hidden;">
-                        <button onclick="SafetyBar.toggleHelpMePanel()"
+                        <button type="button" onclick="SafetyBar.toggleHelpMePanel()"
                                 style="width:100%;padding:16px;text-align:left;background:var(--surface);border:none;cursor:pointer;font-size:14px;">
                             <strong>🆘 Help Me</strong><br>
                             <span style="font-size:12px;color:var(--text-muted);">Send a quick message directly to the admin</span>
                         </button>
                         <div id="helpMePanel" style="display:none;padding:12px 16px 16px;background:var(--surface);border-top:1px solid var(--border);">
-                            <textarea id="helpMeText" placeholder="What's happening? We're here..." rows="3"
+                            <textarea id="helpMeText" placeholder="What's happening? We're here..." rows="3" maxlength="500"
                                       style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);
                                              background:var(--season-mood);font-size:13px;resize:none;
                                              box-sizing:border-box;margin-bottom:10px;"></textarea>
-                            <button onclick="SafetyBar.submitHelpMe()"
+                            <button type="button" onclick="SafetyBar.submitHelpMe()"
                                     style="width:100%;padding:10px;border:none;border-radius:8px;cursor:pointer;
                                            font-size:13px;font-weight:700;background:var(--text);color:var(--season-mood);">
                                 Send to Admin
                             </button>
                         </div>
                     </div>
-                    <button onclick="SafetyBar._switchModal('help','technical')"
+                    <button type="button" onclick="SafetyBar._switchModal('help','technical')"
                             style="width:100%;padding:16px;margin-bottom:12px;text-align:left;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-md);cursor:pointer;font-size:14px;">
                         <strong>🔧 Technical Issue</strong><br>
                         <span style="font-size:12px;color:var(--text-muted);">Report bugs or problems</span>
                     </button>
-                    <button onclick="SafetyBar._switchModal('help','guidelines')"
+                    <button type="button" onclick="SafetyBar._switchModal('help','guidelines')"
                             style="width:100%;padding:16px;text-align:left;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-md);cursor:pointer;font-size:14px;">
                         <strong>📜 Community Guidelines</strong><br>
                         <span style="font-size:12px;color:var(--text-muted);">Learn about our values and rules</span>
                     </button>
                 </div>
-                <button onclick="SafetyBar.closeModal('help')"
+                <button type="button" onclick="SafetyBar.closeModal('help')"
                         style="width:100%;padding:12px 24px;border:2px solid var(--border);background:var(--surface);border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:14px;margin-top:16px;">
                     Close
                 </button>
@@ -220,11 +220,11 @@ const SafetyBar = {
 
     getModeratorModalHTML() {
         return `
-    <div class="modal-overlay" id="moderatorModal" onclick="SafetyBar.handleOverlayClick(event,'moderator')">
+    <div class="modal-overlay" id="moderatorModal" role="dialog" aria-modal="true" aria-label="Contact Moderator" onclick="SafetyBar.handleOverlayClick(event,'moderator')">
         <div class="modal-card" style="max-width:500px;">
-            <button class="modal-close" onclick="SafetyBar.closeModal('moderator')" aria-label="Close moderator contact">×</button>
+            <button type="button" class="modal-close" onclick="SafetyBar.closeModal('moderator')" aria-label="Close moderator contact">×</button>
             <div class="modal-content" style="text-align:left;">
-                <h2 style="font-family:var(--serif);margin-top:0;margin-bottom:20px;text-align:center;" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Contact Moderator</h2>
+                <h2 style="font-family:var(--serif);margin-top:0;margin-bottom:20px;text-align:center;" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Contact Moderator</h2>
                 <div style="margin-bottom:20px;">
                     <label for="moderatorUrgency" style="display:block;font-weight:600;margin-bottom:8px;font-size:14px;">Urgency Level</label>
                     <select id="moderatorUrgency" style="width:100%;padding:12px;border:2px solid var(--border);border-radius:var(--radius-md);background:var(--surface);font-size:14px;">
@@ -236,18 +236,18 @@ const SafetyBar = {
                 </div>
                 <div style="margin-bottom:20px;">
                     <label for="moderatorMessage" style="display:block;font-weight:600;margin-bottom:8px;font-size:14px;">How can we help?</label>
-                    <textarea id="moderatorMessage" placeholder="Describe your situation..."
+                    <textarea id="moderatorMessage" placeholder="Describe your situation..." maxlength="1000"
                               style="width:100%;min-height:120px;padding:12px;border:2px solid var(--border);border-radius:var(--radius-md);background:var(--surface);font-size:14px;resize:vertical;"></textarea>
                 </div>
                 <div style="padding:16px;background:var(--season-mood);border-radius:var(--radius-md);margin-bottom:20px;font-size:13px;line-height:1.6;">
                     <strong>Available 24/7</strong> - A moderator will respond based on your urgency level. For immediate safety concerns, select "Immediate" above.
                 </div>
                 <div style="display:flex;gap:12px;">
-                    <button onclick="SafetyBar.closeModal('moderator')"
+                    <button type="button" onclick="SafetyBar.closeModal('moderator')"
                             style="flex:1;padding:12px 24px;border:2px solid var(--border);background:var(--surface);border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:14px;">
                         Cancel
                     </button>
-                    <button onclick="SafetyBar.submitModeratorRequest()"
+                    <button type="button" onclick="SafetyBar.submitModeratorRequest()"
                             style="flex:1;padding:12px 24px;border:none;background:var(--text);color:var(--season-mood);border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:14px;">
                         Send Request
                     </button>
@@ -259,11 +259,11 @@ const SafetyBar = {
 
     getTechnicalModalHTML() {
         return `
-    <div class="modal-overlay" id="technicalModal" onclick="SafetyBar.handleOverlayClick(event,'technical')">
+    <div class="modal-overlay" id="technicalModal" role="dialog" aria-modal="true" aria-label="Report Technical Issue" onclick="SafetyBar.handleOverlayClick(event,'technical')">
         <div class="modal-card" style="max-width:500px;">
-            <button class="modal-close" onclick="SafetyBar.closeModal('technical')" aria-label="Close technical issue modal">×</button>
+            <button type="button" class="modal-close" onclick="SafetyBar.closeModal('technical')" aria-label="Close technical issue modal">×</button>
             <div class="modal-content" style="text-align:left;">
-                <h2 style="font-family:var(--serif);margin-top:0;margin-bottom:20px;text-align:center;" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Report Technical Issue</h2>
+                <h2 style="font-family:var(--serif);margin-top:0;margin-bottom:20px;text-align:center;" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Report Technical Issue</h2>
                 <div style="margin-bottom:20px;">
                     <label for="technicalType" style="display:block;font-weight:600;margin-bottom:8px;font-size:14px;">Issue Type</label>
                     <select id="technicalType" style="width:100%;padding:12px;border:2px solid var(--border);border-radius:var(--radius-md);background:var(--surface);font-size:14px;">
@@ -278,7 +278,7 @@ const SafetyBar = {
                 </div>
                 <div style="margin-bottom:20px;">
                     <label for="technicalDescription" style="display:block;font-weight:600;margin-bottom:8px;font-size:14px;">Description</label>
-                    <textarea id="technicalDescription" placeholder="What happened? What were you trying to do?"
+                    <textarea id="technicalDescription" placeholder="What happened? What were you trying to do?" maxlength="1000"
                               style="width:100%;min-height:100px;padding:12px;border:2px solid var(--border);border-radius:var(--radius-md);background:var(--surface);font-size:14px;resize:vertical;"></textarea>
                 </div>
                 <div style="margin-bottom:20px;">
@@ -287,11 +287,11 @@ const SafetyBar = {
                            style="width:100%;padding:12px;border:2px solid var(--border);border-radius:var(--radius-md);background:var(--surface);font-size:14px;">
                 </div>
                 <div style="display:flex;gap:12px;">
-                    <button onclick="SafetyBar.closeModal('technical')"
+                    <button type="button" onclick="SafetyBar.closeModal('technical')"
                             style="flex:1;padding:12px 24px;border:2px solid var(--border);background:var(--surface);border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:14px;">
                         Cancel
                     </button>
-                    <button onclick="SafetyBar.submitTechnicalIssue()"
+                    <button type="button" onclick="SafetyBar.submitTechnicalIssue()"
                             style="flex:1;padding:12px 24px;border:none;background:var(--text);color:var(--season-mood);border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:14px;">
                         Submit Issue
                     </button>
@@ -303,21 +303,21 @@ const SafetyBar = {
 
     getGuidelinesModalHTML() {
         return `
-    <div class="modal-overlay" id="guidelinesModal" onclick="SafetyBar.handleOverlayClick(event,'guidelines')">
+    <div class="modal-overlay" id="guidelinesModal" role="dialog" aria-modal="true" aria-label="Community Guidelines" onclick="SafetyBar.handleOverlayClick(event,'guidelines')">
         <div class="modal-card" style="max-width:600px;">
-            <button class="modal-close" onclick="SafetyBar.closeModal('guidelines')" aria-label="Close guidelines">×</button>
+            <button type="button" class="modal-close" onclick="SafetyBar.closeModal('guidelines')" aria-label="Close guidelines">×</button>
             <div class="modal-content" style="text-align:left;">
-                <h2 style="font-family:var(--serif);margin-top:0;margin-bottom:20px;text-align:center;" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/><path d="M19 3H8a2 2 0 0 0-2 2v12"/><path d="M14 11h4"/><path d="M14 15h4"/><path d="M10 11h.01"/><path d="M10 15h.01"/></svg> Community Guidelines</h2>
+                <h2 style="font-family:var(--serif);margin-top:0;margin-bottom:20px;text-align:center;" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/><path d="M19 3H8a2 2 0 0 0-2 2v12"/><path d="M14 11h4"/><path d="M14 15h4"/><path d="M10 11h.01"/><path d="M10 15h.01"/></svg> Community Guidelines</h2>
                 <div style="line-height:1.8;color:var(--text);font-size:14px;">
                     <p style="margin-bottom:20px;"><strong>Welcome to our mindful community.</strong> These guidelines help us create a safe, supportive space for everyone.</p>
-                    <h3 style="font-size:16px;margin-top:20px;margin-bottom:10px;" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Our Core Values</h3>
+                    <h3 style="font-size:16px;margin-top:20px;margin-bottom:10px;" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Our Core Values</h3>
                     <ul style="padding-left:20px;">
                         <li style="margin-bottom:8px;"><strong>Kindness:</strong> Treat all members with compassion and respect</li>
                         <li style="margin-bottom:8px;"><strong>Presence:</strong> Be fully here, authentic and engaged</li>
                         <li style="margin-bottom:8px;"><strong>Non-judgment:</strong> Honor each person's unique journey</li>
                         <li style="margin-bottom:8px;"><strong>Confidentiality:</strong> What's shared in spaces stays in spaces</li>
                     </ul>
-                    <h3 style="font-size:16px;margin-top:20px;margin-bottom:10px;" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg> Expected Behavior</h3>
+                    <h3 style="font-size:16px;margin-top:20px;margin-bottom:10px;" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg> Expected Behavior</h3>
                     <ul style="padding-left:20px;">
                         <li style="margin-bottom:8px;">Use respectful, inclusive language</li>
                         <li style="margin-bottom:8px;">Honor the intention of each space (silence in silent rooms)</li>
@@ -325,7 +325,7 @@ const SafetyBar = {
                         <li style="margin-bottom:8px;">Respect boundaries and consent</li>
                         <li style="margin-bottom:8px;">Report concerns to moderators</li>
                     </ul>
-                    <h3 style="font-size:16px;margin-top:20px;margin-bottom:10px;" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg> Not Permitted</h3>
+                    <h3 style="font-size:16px;margin-top:20px;margin-bottom:10px;" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg> Not Permitted</h3>
                     <ul style="padding-left:20px;">
                         <li style="margin-bottom:8px;">Harassment, bullying, or hate speech</li>
                         <li style="margin-bottom:8px;">Spam or commercial solicitation</li>
@@ -337,7 +337,7 @@ const SafetyBar = {
                         <strong>Questions?</strong> Contact our moderators anytime. Violations may result in warnings, temporary suspension, or permanent removal.
                     </p>
                 </div>
-                <button onclick="SafetyBar.closeModal('guidelines')"
+                <button type="button" onclick="SafetyBar.closeModal('guidelines')"
                         style="width:100%;padding:12px 24px;border:2px solid var(--border);background:var(--surface);border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:14px;margin-top:16px;">
                     Close
                 </button>
@@ -387,7 +387,7 @@ const SafetyBar = {
             await this._pushAdmins('⚠️ New Report',
                 `${this._senderName()} reported: ${reason}${details ? ' - ' + details.substring(0, 60) : ''}`);
         } catch (err) {
-            console.error('submitReport admin notify error:', err);
+            console.error('submitReport admin notify error');
         }
     },
 
@@ -420,7 +420,7 @@ const SafetyBar = {
             document.getElementById('helpMePanel').style.display = 'none';
             this.closeModal('help');
         } catch (err) {
-            console.error('submitHelpMe error:', err);
+            console.error('submitHelpMe error');
             Core.showToast('Could not send - please try again');
         } finally {
             if (btn) { btn.disabled = false; btn.textContent = 'Send to Admin'; }
@@ -438,7 +438,7 @@ const SafetyBar = {
             Core.showToast('Moderator contacted');
             this.closeModal('moderator');
         } catch (err) {
-            console.error('submitModeratorRequest error:', err);
+            console.error('submitModeratorRequest error');
             Core.showToast('Could not send - please try again');
         }
     },
@@ -455,7 +455,7 @@ const SafetyBar = {
             await this._pushAdmins('🔧 Technical Issue',
                 `${this._senderName()}: ${type || 'issue'}${description ? ' - ' + description.substring(0, 60) : ''}`);
         } catch (err) {
-            console.error('submitTechnicalIssue admin notify error:', err);
+            console.error('submitTechnicalIssue admin notify error');
         }
     },
 
@@ -500,7 +500,7 @@ const SafetyBar = {
                 }).catch(() => {})
             ));
         } catch (err) {
-            console.error('[SafetyBar] _pushAdmins error:', err);
+            console.error('[SafetyBar] _pushAdmins error');
         }
     },
 
@@ -555,6 +555,11 @@ const SafetyBar = {
         window.CommunityModule = shim;
     }
 })();
+
+// bfcache: nothing to clean up (no intervals), but reset modalsInjected flag
+window.addEventListener('pagehide', () => {
+    SafetyBar.state.modalsInjected = false;
+});
 
 // Window bridge: preserved for external callers
 window.SafetyBar = SafetyBar;

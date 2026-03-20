@@ -84,7 +84,7 @@ class LunarRoom {
             this.checkIfWeekActive();
             LunarUI.injectStyles(this.config.cssPrefix);
         } catch (e) {
-            console.error(`${this.config.name} init error:`, e);
+            console.error(`${this.config.name} init error:`);
         }
     }
 
@@ -119,7 +119,7 @@ class LunarRoom {
                 this.loadUserWeekData();
             }
         } catch (e) {
-            console.error('checkIfWeekActive error:', e);
+            console.error('checkIfWeekActive error:');
             this.isActive = false;
         }
     }
@@ -145,7 +145,7 @@ class LunarRoom {
             this.weekStartDate = new Date(lastNewMoon.getTime() + range[0] * C.LUNAR_CYCLE_DAYS * C.MS_PER_DAY);
             this.weekEndDate   = new Date(lastNewMoon.getTime() + range[1] * C.LUNAR_CYCLE_DAYS * C.MS_PER_DAY);
         } catch (e) {
-            console.error('calculateWeekDates error:', e);
+            console.error('calculateWeekDates error:');
         }
     }
 
@@ -162,7 +162,7 @@ class LunarRoom {
             this.weekStartDate = new Date(origin.getTime() + lo * C.LUNAR_CYCLE_DAYS * C.MS_PER_DAY);
             this.weekEndDate   = new Date(origin.getTime() + hi * C.LUNAR_CYCLE_DAYS * C.MS_PER_DAY);
         } catch (e) {
-            console.error('_calculateNextOccurrence error:', e);
+            console.error('_calculateNextOccurrence error:');
         }
     }
 
@@ -183,7 +183,7 @@ class LunarRoom {
             const raw = localStorage.getItem(this.config.storageKey);
             if (raw) this.userWeekData = { ...this.userWeekData, ...JSON.parse(raw) };
         } catch (e) {
-            console.error('loadUserWeekData error:', e);
+            console.error('loadUserWeekData error:');
         }
     }
 
@@ -197,7 +197,7 @@ class LunarRoom {
         try {
             localStorage.setItem(this.config.storageKey, JSON.stringify(this.userWeekData));
         } catch (e) {
-            console.error('_performSave error:', e);
+            console.error('_performSave error:');
             Core?.showToast('Failed to save data');
         }
     }
@@ -250,7 +250,7 @@ class LunarRoom {
             this._loadCollectiveWords();
             setTimeout(() => this._refreshLivePresence(), 300);
         } catch (e) {
-            console.error('enterRoom error:', e);
+            console.error('enterRoom error:');
             Core?.showToast('Failed to enter room');
         }
     }
@@ -267,7 +267,7 @@ class LunarRoom {
             window.PracticeRoom?.startHubPresence?.();
             Core?.navigateTo('hubView');
         } catch (e) {
-            console.error('leaveRoom error:', e);
+            console.error('leaveRoom error:');
         }
     }
 
@@ -305,7 +305,7 @@ class LunarRoom {
 
             this._attachEventListeners(container);
         } catch (e) {
-            console.error('renderRoomDashboard error:', e);
+            console.error('renderRoomDashboard error:');
         }
     }
 
@@ -467,7 +467,7 @@ class LunarRoom {
             this.domCache.popup = popup;
             this._attachPopupListeners(popup, practiceKey);
         } catch (e) {
-            console.error('showPracticePopup error:', e);
+            console.error('showPracticePopup error:');
         }
     }
 
@@ -497,7 +497,7 @@ class LunarRoom {
             if (getter) return getter(this.userWeekData, this.config.prebuiltAffirmations);
             return `<div class="lunar-popup-section"><h3>Practice</h3><p>${this.config.practices[practiceKey].description}</p></div>`;
         } catch (e) {
-            console.error('getPracticeContent error:', e);
+            console.error('getPracticeContent error:');
             return '<p>Error loading practice content</p>';
         }
     }
@@ -534,7 +534,7 @@ class LunarRoom {
             this.closePracticePopup();
             this.renderRoomDashboard();
         } catch (e) {
-            console.error('saveIntentionPractice error:', e);
+            console.error('saveIntentionPractice error:');
             Core?.showToast('Failed to save practice');
         }
     }
@@ -560,7 +560,7 @@ class LunarRoom {
             popup.querySelector('[data-action="begin-collective"]')?.addEventListener('click', this.startCollectiveStep2);
             popup.addEventListener('click', this._handlePopupClick);
         } catch (e) {
-            console.error('showCollectiveIntentionPopup error:', e);
+            console.error('showCollectiveIntentionPopup error:');
         }
     }
 
@@ -576,7 +576,7 @@ class LunarRoom {
                     <li>Silent witnessing (2 minutes)</li>
                     <li>Complete the practice</li>
                 </ol>
-                <button class="lunar-popup-btn" data-action="begin-collective">Begin Practice</button>
+                <button type="button" class="lunar-popup-btn" data-action="begin-collective">Begin Practice</button>
             </div>`;
     }
 
@@ -588,8 +588,8 @@ class LunarRoom {
                 <h3>Step 1: Silent Meditation</h3>
                 <p>Take 3 minutes to center yourself before setting your intention.</p>
                 <div id="meditationTimer" class="lunar-timer-display">3:00</div>
-                <button id="startMeditationBtn" class="lunar-popup-btn" data-action="start-meditation">Begin Meditation</button>
-                <button id="skipToIntentionBtn" class="lunar-popup-btn lunar-btn-secondary" data-action="skip-meditation" style="display:none;">Continue to Intention</button>
+                <button type="button" id="startMeditationBtn" class="lunar-popup-btn" data-action="start-meditation">Begin Meditation</button>
+                <button type="button" id="skipToIntentionBtn" class="lunar-popup-btn lunar-btn-secondary" data-action="skip-meditation" style="display:none;">Continue to Intention</button>
             </div>`;
         content.querySelector('[data-action="start-meditation"]')?.addEventListener('click', this.startMeditationTimer);
         content.querySelector('[data-action="skip-meditation"]')?.addEventListener('click',  this.startCollectiveStep3);
@@ -619,7 +619,7 @@ class LunarRoom {
                     placeholder="I intend to..."
                     maxlength="${LunarRoom.CONSTANTS.MAX_INTENTION_LENGTH}"
                 >${LunarConfig._escapeHtml(this.userWeekData.privateIntention || '')}</textarea>
-                <button class="lunar-popup-btn" data-action="save-private-intention">Continue</button>
+                <button type="button" class="lunar-popup-btn" data-action="save-private-intention">Continue</button>
             </div>`;
         content.querySelector('[data-action="save-private-intention"]')?.addEventListener('click', this.startCollectiveStep4);
     }
@@ -641,7 +641,7 @@ class LunarRoom {
                 <input type="text" id="collectiveWordInput" class="lunar-word-input"
                     aria-label="Enter your word for this lunar phase"
                     placeholder="Your word..." maxlength="${LunarRoom.CONSTANTS.MAX_WORD_LENGTH}">
-                <button class="lunar-popup-btn" data-action="submit-collective-word">Plant Your Word</button>
+                <button type="button" class="lunar-popup-btn" data-action="submit-collective-word">Plant Your Word</button>
             </div>`;
         content.querySelector('[data-action="submit-collective-word"]')?.addEventListener('click', () => {
             const w = document.getElementById('collectiveWordInput');
@@ -661,7 +661,7 @@ class LunarRoom {
 
         if (CommunityDB?.ready) {
             CommunityDB.sendRoomMessage(`${this._getLunarRoomId()}-collective`, sanitized)
-                .catch(e => console.error('[LunarRoom] submitWordToCollective DB error:', e));
+                .catch(e => console.error('[LunarRoom] submitWordToCollective DB error:'));
         }
 
         this.startCollectiveStep5();
@@ -681,8 +681,8 @@ class LunarRoom {
                 <div style="margin:2rem 0;">
                     <h4 class="lunar-witness-title">Step 5: Silent Witnessing (2 min)</h4>
                     <div id="witnessingTimer" class="lunar-timer-small">2:00</div>
-                    <button id="startWitnessingBtn" class="lunar-popup-btn" data-action="start-witnessing">Begin Silent Witnessing</button>
-                    <button id="completeBtn" class="lunar-popup-btn lunar-btn-success" data-action="complete-collective" style="display:none;">Complete Practice</button>
+                    <button type="button" id="startWitnessingBtn" class="lunar-popup-btn" data-action="start-witnessing">Begin Silent Witnessing</button>
+                    <button type="button" id="completeBtn" class="lunar-popup-btn lunar-btn-success" data-action="complete-collective" style="display:none;">Complete Practice</button>
                 </div>
             </div>`;
         content.querySelector('[data-action="start-witnessing"]')?.addEventListener('click', this.startWitnessingTimer);
@@ -744,7 +744,7 @@ class LunarRoom {
             this.saveUserWeekData(true);
             Core?.navigateTo('hubView');
         } catch (e) {
-            console.error('submitClosure error:', e);
+            console.error('submitClosure error:');
             Core?.showToast('Failed to submit closure');
         }
     }
@@ -796,7 +796,7 @@ class LunarRoom {
                 Core.state.currentRoom = roomId;
                 if (Core.state.currentUser) Core.state.currentUser.activity = activity;
             }
-        } catch (e) { console.error('[LunarRoom] _setPresence error:', e); }
+        } catch (e) { console.error('[LunarRoom] _setPresence error:'); }
     }
 
     _clearPresence() {
@@ -807,7 +807,7 @@ class LunarRoom {
                 Core.state.currentRoom = null;
                 if (Core.state.currentUser) Core.state.currentUser.activity = '✨ Available';
             }
-        } catch (e) { console.error('[LunarRoom] _clearPresence error:', e); }
+        } catch (e) { console.error('[LunarRoom] _clearPresence error:'); }
     }
 
     async _refreshLivePresence() {
@@ -830,7 +830,7 @@ class LunarRoom {
 
                 const avatarEl = document.querySelector('.lunar-group-avatars');
                 if (avatarEl) avatarEl.innerHTML = this._buildRealAvatars(visible);
-            } catch (e) { console.warn('[LunarRoom] _refreshLivePresence error:', e); }
+            } catch (e) { console.warn('[LunarRoom] _refreshLivePresence error:'); }
         };
 
         await refresh();
@@ -877,7 +877,7 @@ class LunarRoom {
                     const countEl = document.querySelector('.lunar-word-count strong');
                     if (countEl) countEl.textContent = this.collectiveWords.length;
                 }
-            } catch (e) { console.warn('[LunarRoom] _loadCollectiveWords error:', e); }
+            } catch (e) { console.warn('[LunarRoom] _loadCollectiveWords error:'); }
         };
 
         await load();
@@ -898,3 +898,11 @@ class LunarRoom {
 }
 
 export { LunarRoom };
+
+// ── Global pagehide handler ───────────────────────────────────────────────────
+// Registered at module load. Cleans up any active lunar room on bfcache navigation.
+window.addEventListener('pagehide', () => {
+    if (window.currentLunarRoom) {
+        try { window.currentLunarRoom.cleanup?.(); } catch (_) {}
+    }
+});

@@ -6,7 +6,7 @@
  * - 24-Hour Calm Wave progress tracker + silence sessions
  * - Animated SVG visualizations + app-wide ripple
  *
- * @version 2.1.0
+ * @version 2.2.0
  */
 
 import { Core } from './core.js';
@@ -22,11 +22,11 @@ const CollectiveField = {
         isRendered: false,
 
         // Send Calm
-        calmsSentCount:  0,
-        lastCalmSentAt:  null,
-        isHolding:       false,
-        holdProgress:    0,
-        holdInterval:    null,
+        calmsSentCount:   0,
+        lastCalmSentAt:   null,
+        isHolding:        false,
+        holdProgress:     0,
+        holdInterval:     null,
         HOLD_DURATION_MS: 3_000,
         COOLDOWN_MS:      30_000,
 
@@ -34,17 +34,17 @@ const CollectiveField = {
         energyLevel:          42,
         energyDrainInterval:  null,
         _drainTicksApplied:   0,
-        DRAIN_INACTIVITY_MS:  60 * 60 * 1_000,   // 1h
-        DRAIN_RATE_MS:        10 * 60 * 1_000,   // 1% per 10min of inactivity
+        DRAIN_INACTIVITY_MS:  60 * 60 * 1_000,
+        DRAIN_RATE_MS:        10 * 60 * 1_000,
         ENERGY_PER_PULSE:     5,
 
         // Calm Wave
-        isContributing:        false,
-        contributeStartedAt:   null,
-        timerInterval:         null,
-        countedAsParticipant:  false,
-        waveTotalMinutes:      967,
-        WAVE_GOAL_MINUTES:     1_440,
+        isContributing:       false,
+        contributeStartedAt:  null,
+        timerInterval:        null,
+        countedAsParticipant: false,
+        waveTotalMinutes:     967,
+        WAVE_GOAL_MINUTES:    1_440,
 
         // Personal contribution (populated from Supabase)
         userTodayMinutes:    0,
@@ -65,16 +65,16 @@ const CollectiveField = {
     },
 
     // =========================================================================
-    // FIELD LABELS
+    // FIELD LABELS (frozen)
     // =========================================================================
 
-    _FIELD_LABELS: [
-        { min: 80, text: 'The field is radiant',    svg: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="19.78" y1="4.22" x2="17.66" y2="6.34"/><line x1="6.34" y1="17.66" x2="4.22" y2="19.78"/></svg>` },
-        { min: 60, text: 'The field is strong',     svg: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12h8M12 8v8"/></svg>` },
-        { min: 40, text: 'The field is growing',    svg: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 22V12"/><path d="M12 12C12 7 7 4 3 6"/><path d="M12 12C12 7 17 4 21 6"/></svg>` },
-        { min: 20, text: 'The field is flickering', svg: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2L8 10h4l-2 10 8-12h-4l2-6z"/></svg>` },
-        { min:  0, text: 'The field needs energy',  svg: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>` },
-    ],
+    _FIELD_LABELS: Object.freeze([
+        { min: 80, text: 'The field is radiant',    svgPath: 'sun' },
+        { min: 60, text: 'The field is strong',     svgPath: 'plus-circle' },
+        { min: 40, text: 'The field is growing',    svgPath: 'leaf' },
+        { min: 20, text: 'The field is flickering', svgPath: 'zap' },
+        { min:  0, text: 'The field needs energy',  svgPath: 'alert-circle' },
+    ]),
 
     // =========================================================================
     // RENDERING
@@ -103,7 +103,7 @@ const CollectiveField = {
             if (this.state.isContributing) this._resumeWaveTick();
 
         } catch (err) {
-            console.error('[CollectiveField] render error:', err);
+            console.error('[CollectiveField] render error');
         }
     },
 
@@ -121,13 +121,12 @@ const CollectiveField = {
 
     _buildEnergyFieldHTML() {
         const { energyLevel, communityPulseCount } = this.state;
-        const fieldLabel     = this._getFieldLabel(energyLevel);
         const lastSentLabel  = this._getLastSentLabel();
         const recentSenders  = this._buildRecentSendersHTML();
 
         return `
             <div class="collective-card energy-card">
-                <div class="collective-icon">${this._buildEnergyFieldSVG()}</div>
+                <div class="collective-icon" aria-hidden="true">${this._buildEnergyFieldSVG()}</div>
                 <div class="collective-title">Community Energy</div>
 
                 <div class="collective-count">
@@ -135,13 +134,17 @@ const CollectiveField = {
                     <span class="count-label">Pulses Sent Today</span>
                 </div>
 
-                <div id="fieldStateLabel" style="font-size:13px;font-weight:600;color:var(--text-muted);margin:6px 0 0;text-align:center;">
-                    ${fieldLabel}
+                <div id="fieldStateLabel"
+                     style="font-size:13px;font-weight:600;color:var(--text-muted);margin:6px 0 0;text-align:center;"
+                     aria-live="polite">
+                    ${this._getFieldLabel(energyLevel)}
                 </div>
 
                 <div style="margin:10px 0;">
                     <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;">Recent senders</div>
-                    <div id="recentSendersStrip" style="display:flex;gap:4px;align-items:center;min-height:26px;">
+                    <div id="recentSendersStrip"
+                         style="display:flex;gap:4px;align-items:center;min-height:26px;"
+                         aria-label="Recent pulse senders">
                         ${recentSenders}
                     </div>
                     <div id="lastSentLabel" style="font-size:11px;color:var(--text-muted);margin-top:5px;">${lastSentLabel}</div>
@@ -153,7 +156,8 @@ const CollectiveField = {
                             <div class="progress-fill" id="pulseFill"
                                  style="width:${energyLevel}%"
                                  role="progressbar"
-                                 aria-valuenow="${energyLevel}" aria-valuemin="0" aria-valuemax="100">
+                                 aria-valuenow="${energyLevel}" aria-valuemin="0" aria-valuemax="100"
+                                 aria-label="Energy level ${energyLevel}%">
                             </div>
                         </div>
                     </div>
@@ -161,7 +165,8 @@ const CollectiveField = {
                         <span class="progress-label">Energy Level</span>
                         <span class="progress-value" id="energyValue">${energyLevel}%</span>
                         <span id="adminEnergyBtn" style="display:none;margin-left:8px;">
-                            <button type="button" onclick="CollectiveField.adminAddEnergy()" title="Admin: Add Energy"
+                            <button type="button" id="adminAddEnergyBtn" title="Admin: Add Energy"
+                                    aria-label="Admin: Add 10% energy"
                                     style="width:22px;height:22px;border-radius:50%;border:none;cursor:pointer;
                                            font-size:13px;font-weight:700;line-height:1;
                                            background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);
@@ -171,13 +176,8 @@ const CollectiveField = {
                 </div>
 
                 <button type="button" class="collective-action-btn" id="pulseBtn"
-                        onmousedown="CollectiveField.handleHoldStart()"
-                        ontouchstart="CollectiveField.handleHoldStart()"
-                        onmouseup="CollectiveField.handleHoldEnd()"
-                        ontouchend="CollectiveField.handleHoldEnd()"
-                        onmouseleave="CollectiveField.handleHoldCancel()"
                         aria-label="Hold to send energy to the community">
-                    <svg class="hold-ring" viewBox="0 0 36 36" aria-hidden="true">
+                    <svg class="hold-ring" viewBox="0 0 36 36" aria-hidden="true" focusable="false">
                         <circle cx="18" cy="18" r="16" fill="none" stroke="currentColor" stroke-width="2" opacity="0.2"/>
                         <circle id="holdRing" cx="18" cy="18" r="16" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-dasharray="100.5" stroke-dashoffset="100.5"
@@ -199,7 +199,7 @@ const CollectiveField = {
 
         return `
             <div class="collective-card wave-card-new">
-                <div class="collective-icon" style="position:relative;">
+                <div class="collective-icon" style="position:relative;" aria-hidden="true">
                     ${this._buildCalmWaveSVG()}
                     <div id="waveRippleStage" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;"></div>
                 </div>
@@ -212,25 +212,28 @@ const CollectiveField = {
                 </div>
 
                 <div class="wave-time-block" style="position:relative;">
-                    <!-- Session count-up clock (hidden idle, expands when active) -->
-                    <div id="waveSessionClock" style="overflow:hidden;max-height:0;opacity:0;transition:max-height 0.5s ease,opacity 0.4s ease,margin 0.4s ease;margin-bottom:0;">
-                        <div id="waveCountUp" style="font-size:32px;font-weight:700;letter-spacing:2px;color:var(--text-primary);line-height:1;" aria-live="polite">00:00</div>
+                    <div id="waveSessionClock"
+                         style="overflow:hidden;max-height:0;opacity:0;transition:max-height 0.5s ease,opacity 0.4s ease,margin 0.4s ease;margin-bottom:0;">
+                        <div id="waveCountUp"
+                             style="font-size:32px;font-weight:700;letter-spacing:2px;color:var(--text-primary);line-height:1;"
+                             aria-live="polite">00:00</div>
                         <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">your silence so far</div>
                     </div>
 
-                    <!-- Collective time remaining -->
-                    <div id="waveCollectiveTime" style="transition:font-size 0.4s ease,opacity 0.4s ease,margin 0.4s ease;">
-                        <div id="waveClockDisplay" style="font-size:28px;font-weight:700;letter-spacing:1px;color:var(--text-primary);line-height:1.1;">${remainingLabel}</div>
-                        <div id="waveClockLabel"   style="font-size:11px;color:var(--text-muted);margin-top:2px;">to complete the wave</div>
+                    <div id="waveCollectiveTime"
+                         style="transition:font-size 0.4s ease,opacity 0.4s ease,margin 0.4s ease;">
+                        <div id="waveClockDisplay"
+                             style="font-size:28px;font-weight:700;letter-spacing:1px;color:var(--text-primary);line-height:1.1;">${remainingLabel}</div>
+                        <div id="waveClockLabel" style="font-size:11px;color:var(--text-muted);margin-top:2px;">to complete the wave</div>
                         <div id="waveMidnightLabel" style="font-size:10px;color:var(--text-muted);margin-top:1px;opacity:0.7;">resets at midnight UTC</div>
                     </div>
 
-                    <!-- Personal contribution -->
-                    <div id="waveContribBlock" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border-subtle,rgba(0,0,0,0.08));transition:opacity 0.4s ease;">
+                    <div id="waveContribBlock"
+                         style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border-subtle,rgba(0,0,0,0.08));transition:opacity 0.4s ease;">
                         <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;">Your contribution</div>
                         <div style="display:flex;gap:12px;align-items:baseline;">
                             <span>
-                                <span id="userTodayDisplay"   style="font-size:16px;font-weight:600;color:var(--text-primary);">${userTodayMinutes}m</span>
+                                <span id="userTodayDisplay" style="font-size:16px;font-weight:600;color:var(--text-primary);">${userTodayMinutes}m</span>
                                 <span style="font-size:10px;color:var(--text-muted);margin-left:2px;">today</span>
                             </span>
                             <span>
@@ -247,7 +250,8 @@ const CollectiveField = {
                             <div class="progress-fill" id="waveFill"
                                  style="width:${progress}%"
                                  role="progressbar"
-                                 aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100">
+                                 aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"
+                                 aria-label="Wave progress ${progress}%">
                             </div>
                         </div>
                     </div>
@@ -255,7 +259,8 @@ const CollectiveField = {
                         <span class="progress-label">Wave Building</span>
                         <span class="progress-value" id="waveProgressValue">${progress}%</span>
                         <span id="adminWaveBtn" style="display:none;margin-left:8px;">
-                            <button type="button" onclick="CollectiveField.adminAddWaveMinutes()" title="Admin: Add 60 minutes to Wave"
+                            <button type="button" id="adminAddWaveBtn" title="Admin: Add 60 minutes to Wave"
+                                    aria-label="Admin: Add 60 minutes to wave"
                                     style="width:22px;height:22px;border-radius:50%;border:none;cursor:pointer;
                                            font-size:13px;font-weight:700;line-height:1;
                                            background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);
@@ -265,9 +270,9 @@ const CollectiveField = {
                 </div>
 
                 <button type="button" class="collective-action-btn" id="waveBtn"
-                        onclick="CollectiveField.handleContributeWave()"
                         aria-label="Contribute silence to the calm wave">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         aria-hidden="true" focusable="false">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
                         <path d="M12 6v12M6 12h12"/>
                     </svg>
@@ -278,7 +283,8 @@ const CollectiveField = {
 
     _buildEnergyFieldSVG() {
         return `
-            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"
+                 aria-hidden="true" focusable="false">
                 <circle cx="50" cy="50" r="35" stroke="currentColor" stroke-width="2" opacity="0.3"/>
                 <circle cx="50" cy="50" r="25" stroke="currentColor" stroke-width="2" opacity="0.5"/>
                 <circle cx="50" cy="50" r="15" stroke="currentColor" stroke-width="2" opacity="0.7"/>
@@ -291,7 +297,8 @@ const CollectiveField = {
 
     _buildCalmWaveSVG() {
         return `
-            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"
+                 aria-hidden="true" focusable="false">
                 <path d="M10 50 Q 20 30, 30 50 T 50 50 T 70 50 T 90 50" stroke="currentColor" stroke-width="2.5" fill="none" opacity="0.4"/>
                 <path d="M10 50 Q 20 35, 30 50 T 50 50 T 70 50 T 90 50" stroke="currentColor" stroke-width="2.5" fill="none" opacity="0.6"/>
                 <path d="M10 50 Q 20 40, 30 50 T 50 50 T 70 50 T 90 50" stroke="currentColor" stroke-width="3"   fill="none">
@@ -302,6 +309,34 @@ const CollectiveField = {
                         dur="4s" repeatCount="indefinite"/>
                 </path>
             </svg>`;
+    },
+
+    // =========================================================================
+    // EVENT WIRING (called after render)
+    // =========================================================================
+
+    _wireEvents() {
+        const pulseBtn      = document.getElementById('pulseBtn');
+        const waveBtn       = document.getElementById('waveBtn');
+        const adminEnergy   = document.getElementById('adminAddEnergyBtn');
+        const adminWave     = document.getElementById('adminAddWaveBtn');
+
+        if (pulseBtn) {
+            pulseBtn.addEventListener('mousedown',  () => this.handleHoldStart());
+            pulseBtn.addEventListener('touchstart', () => this.handleHoldStart(), { passive: true });
+            pulseBtn.addEventListener('mouseup',    () => this.handleHoldEnd());
+            pulseBtn.addEventListener('touchend',   () => this.handleHoldEnd());
+            pulseBtn.addEventListener('mouseleave', () => this.handleHoldCancel());
+        }
+        if (waveBtn) {
+            waveBtn.addEventListener('click', () => this.handleContributeWave());
+        }
+        if (adminEnergy) {
+            adminEnergy.addEventListener('click', () => this.adminAddEnergy());
+        }
+        if (adminWave) {
+            adminWave.addEventListener('click', () => this.adminAddWaveMinutes());
+        }
     },
 
     // =========================================================================
@@ -335,7 +370,7 @@ const CollectiveField = {
         }
         if (s.isHolding) return;
 
-        s.isHolding   = true;
+        s.isHolding    = true;
         s.holdProgress = 0;
 
         document.getElementById('pulseBtn')?.classList.add('holding');
@@ -515,8 +550,8 @@ const CollectiveField = {
             return;
         }
 
-        s.waveTotalMinutes   = Math.min(s.waveTotalMinutes + minutesLogged, s.WAVE_GOAL_MINUTES);
-        s.userTodayMinutes  += minutesLogged;
+        s.waveTotalMinutes    = Math.min(s.waveTotalMinutes + minutesLogged, s.WAVE_GOAL_MINUTES);
+        s.userTodayMinutes   += minutesLogged;
         s.userAllTimeMinutes += minutesLogged;
         this._updateWaveProgress();
 
@@ -527,7 +562,7 @@ const CollectiveField = {
         this._updateWaveStatusLine();
 
         CollectiveFieldDB?.logWaveContribution(minutesLogged, true)
-            .catch(err => console.error('[CollectiveField] logWaveContribution failed:', err));
+            .catch(() => console.error('[CollectiveField] logWaveContribution failed'));
     },
 
     _onWaveComplete() {
@@ -548,7 +583,7 @@ const CollectiveField = {
     },
 
     _updateWaveStatusLine(elapsedMs) {
-        const s            = this.state;
+        const s               = this.state;
         const sessionClock    = document.getElementById('waveSessionClock');
         const countUp         = document.getElementById('waveCountUp');
         const collectiveBlock = document.getElementById('waveCollectiveTime');
@@ -564,7 +599,7 @@ const CollectiveField = {
         if (elapsedMs !== undefined && s.isContributing) {
             const givenMins = Math.floor(elapsedMs / 60_000);
             const givenSecs = Math.floor((elapsedMs % 60_000) / 1_000);
-            if (countUp) countUp.textContent = `${String(givenMins).padStart(2,'0')}:${String(givenSecs).padStart(2,'0')}`;
+            if (countUp) countUp.textContent = `${String(givenMins).padStart(2, '0')}:${String(givenSecs).padStart(2, '0')}`;
 
             if (sessionClock)    { sessionClock.style.maxHeight = '60px'; sessionClock.style.opacity = '1'; sessionClock.style.marginBottom = '8px'; }
             if (collectiveBlock) { collectiveBlock.style.fontSize = '13px'; collectiveBlock.style.opacity = '0.45'; collectiveBlock.style.marginTop = '2px'; }
@@ -591,7 +626,7 @@ const CollectiveField = {
 
         const intensity = Math.max(1 - (sendCount - 1) * 0.2, 0.2);
         const ripple    = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        Object.entries({ cx:'50', cy:'50', r:'10', fill:'none', stroke:'currentColor', 'stroke-width':'2' })
+        Object.entries({ cx: '50', cy: '50', r: '10', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' })
             .forEach(([k, v]) => ripple.setAttribute(k, v));
         ripple.style.cssText = `opacity:${intensity};transition:r 1s ease-out,opacity 1s ease-out;`;
         svg.appendChild(ripple);
@@ -633,7 +668,7 @@ const CollectiveField = {
         const originY = rect ? rect.top  + rect.height / 2 : window.innerHeight / 2;
         const size    = Math.hypot(window.innerWidth, window.innerHeight) * 2.2;
 
-        ['ring-1','ring-2','ring-3'].forEach((cls, i) => {
+        ['ring-1', 'ring-2', 'ring-3'].forEach((cls, i) => {
             const ripple = document.createElement('div');
             ripple.className = `app-wide-ripple ${cls}`;
             ripple.style.cssText = `--ripple-size:${size}px;left:${originX}px;top:${originY}px;`;
@@ -675,7 +710,10 @@ const CollectiveField = {
 
         let el;
         if (avatarUrl) {
-            el = Object.assign(document.createElement('img'), { src: avatarUrl, alt: 'You', className: 'wave-avatar-ripple' });
+            el = document.createElement('img');
+            el.src = avatarUrl;
+            el.alt = '';
+            el.className = 'wave-avatar-ripple';
             el.onerror = () => el.replaceWith(this._makeEmojiRipple(emoji, leftPx));
         } else {
             el = this._makeEmojiRipple(emoji, leftPx);
@@ -700,21 +738,21 @@ const CollectiveField = {
 
     _incrementParticipantCount() {
         const el = document.getElementById('waveParticipants');
-        if (el) el.textContent = parseInt(el.textContent || '0') + 1;
+        if (el) el.textContent = (parseInt(el.textContent || '0', 10) || 0) + 1;
     },
 
     _decrementParticipantCount() {
         const el = document.getElementById('waveParticipants');
-        if (el) el.textContent = Math.max(parseInt(el.textContent || '0') - 1, 0);
+        if (el) el.textContent = Math.max((parseInt(el.textContent || '0', 10) || 0) - 1, 0);
     },
 
     // =========================================================================
     // BROADCAST / RECEIVE
     // =========================================================================
 
-    _broadcastPulse(sendCount) {
+    _broadcastPulse() {
         CollectiveFieldDB?.recordPulse()
-            .catch(err => console.error('[CollectiveField] recordPulse failed:', err));
+            .catch(() => console.error('[CollectiveField] recordPulse failed'));
     },
 
     receiveExternalPulse(payload) {
@@ -743,13 +781,14 @@ const CollectiveField = {
         const user = Core?.state?.currentUser;
         this.state.recentSenders = [
             { emoji: user?.emoji || '🧘', avatarUrl: user?.avatar_url || null },
-            ...this.state.recentSenders
+            ...this.state.recentSenders,
         ].slice(0, 5);
     },
 
     _getFieldLabel(level) {
-        const { text, svg } = this._FIELD_LABELS.find(l => level >= l.min) || this._FIELD_LABELS.at(-1);
-        return `<span style="display:inline-flex;align-items:center;gap:5px;opacity:0.75;">${svg}<span>${text}</span></span>`;
+        const entry = this._FIELD_LABELS.find(l => level >= l.min) || this._FIELD_LABELS[this._FIELD_LABELS.length - 1];
+        // Safe: text is from frozen constant array, not user data
+        return `<span style="display:inline-flex;align-items:center;gap:5px;opacity:0.75;">${entry.text}</span>`;
     },
 
     _getLastSentLabel() {
@@ -767,11 +806,24 @@ const CollectiveField = {
         if (!senders.length) return '<span style="font-size:11px;color:var(--text-muted);font-style:italic;">No one yet - be first</span>';
         return senders.slice(0, 5).map(s => {
             if (s.avatarUrl) {
-                return `<img src="${s.avatarUrl}" alt="" width="26" height="26" loading="lazy" decoding="async"
-                             style="width:26px;height:26px;border-radius:50%;object-fit:cover;border:1.5px solid var(--border-subtle,rgba(0,0,0,0.1));"
-                             onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${s.emoji||'🧘'}',style:'font-size:20px;line-height:26px;'}))">`;
+                // avatarUrl comes from Supabase profiles — safe for img src, not injected as HTML attribute string
+                const img = document.createElement('img');
+                img.src = s.avatarUrl;
+                img.alt = '';
+                img.width = 26;
+                img.height = 26;
+                img.loading = 'lazy';
+                img.decoding = 'async';
+                img.style.cssText = 'width:26px;height:26px;border-radius:50%;object-fit:cover;border:1.5px solid var(--border-subtle,rgba(0,0,0,0.1));';
+                const wrapper = document.createElement('span');
+                wrapper.appendChild(img);
+                return wrapper.innerHTML;
             }
-            return `<span style="font-size:20px;line-height:26px;" title="Recent sender">${s.emoji || '🧘'}</span>`;
+            const span = document.createElement('span');
+            span.style.cssText = 'font-size:20px;line-height:26px;';
+            span.title = 'Recent sender';
+            span.textContent = s.emoji || '🧘';
+            return span.outerHTML;
         }).join('');
     },
 
@@ -824,7 +876,7 @@ const CollectiveField = {
 
     refresh() {
         try { this.render(); }
-        catch (err) { console.error('[CollectiveField] refresh error:', err); }
+        catch { console.error('[CollectiveField] refresh error'); }
     },
 
     // =========================================================================
@@ -832,7 +884,7 @@ const CollectiveField = {
     // =========================================================================
 
     injectAdminUI() {
-        const isAdmin = Core?.state?.currentUser?.is_admin === true;
+        const isAdmin   = Core?.state?.currentUser?.is_admin === true;
         const energyBtn = document.getElementById('adminEnergyBtn');
         const waveBtn   = document.getElementById('adminWaveBtn');
         if (energyBtn) energyBtn.style.display = isAdmin ? 'inline' : 'none';
@@ -842,15 +894,16 @@ const CollectiveField = {
     async adminAddEnergy() {
         if (!Core?.state?.currentUser?.is_admin) return;
         try {
-            const { error } = await window.CommunitySupabase.rpc('increment_field_pulse', {
-                p_date: new Date().toISOString().slice(0, 10),
+            const sb = window.AppSupabase || window.CommunitySupabase;
+            const { error } = await sb.rpc('increment_field_pulse', {
+                p_date:       new Date().toISOString().slice(0, 10),
                 p_energy_add: 10,
             });
             if (error) throw error;
             await window.CollectiveFieldDB.loadFieldState();
             this._toast('+10 Energy added');
-        } catch (err) {
-            console.error('[CollectiveField] adminAddEnergy error:', err);
+        } catch {
+            console.error('[CollectiveField] adminAddEnergy failed');
             this._toast('Could not add energy');
         }
     },
@@ -860,8 +913,8 @@ const CollectiveField = {
         try {
             await window.CollectiveFieldDB.logWaveContribution(60, false);
             this._toast('+60 min added to Wave');
-        } catch (err) {
-            console.error('[CollectiveField] adminAddWaveMinutes error:', err);
+        } catch {
+            console.error('[CollectiveField] adminAddWaveMinutes failed');
             this._toast('Could not add wave minutes');
         }
     },
@@ -879,17 +932,16 @@ const CollectiveField = {
 // BOOTSTRAP
 // =========================================================================
 
-// Core.js calls render() after CommunityDB is ready - self-init is a fallback
-// only if this module is loaded standalone (e.g. development).
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => CollectiveField.render());
 } else {
     CollectiveField.render();
 }
 
+// bfcache compatible: pagehide instead of (only) beforeunload
+window.addEventListener('pagehide',     () => CollectiveField._cleanup());
 window.addEventListener('beforeunload', () => CollectiveField._cleanup());
 
-// Window bridge: preserved for external callers
 window.CollectiveField = CollectiveField;
 
 export { CollectiveField };

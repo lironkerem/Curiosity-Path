@@ -58,4 +58,9 @@ class GuidedRoom extends TimedVideoRoom {
 const guidedRoom = new GuidedRoom();
 window.GuidedRoom = guidedRoom;
 
+// bfcache: run cleanup on pagehide
+window.addEventListener('pagehide', () => {
+    guidedRoom.onCleanup?.();
+});
+
 export { GuidedRoom, guidedRoom };

@@ -232,7 +232,7 @@ const TimerMixin = {
             <!-- Outer progress ring (clockwise countdown) -->
             <svg id="${this.roomId}OuterSvg"
                  width="100%" height="100%" viewBox="0 0 400 400"
-                 style="transform:rotate(-90deg);position:absolute;top:0;left:0;z-index:2;">
+                 style="transform:rotate(-90deg);position:absolute;top:0;left:0;z-index:2;" aria-hidden="true" focusable="false">
                 <defs>
                     <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%"   stop-color="${color1}"/>
@@ -252,7 +252,7 @@ const TimerMixin = {
 
             <!-- Inner dark track (always visible) -->
             <svg width="100%" height="100%" viewBox="0 0 400 400"
-                 style="position:absolute;top:0;left:0;z-index:3;">
+                 style="position:absolute;top:0;left:0;z-index:3;" aria-hidden="true" focusable="false">
                 <circle cx="200" cy="200" r="${_INNER_R}"
                         fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="6"/>
             </svg>
@@ -260,7 +260,7 @@ const TimerMixin = {
             <!-- Inner comet ring (hidden until Start) -->
             <svg id="${this.roomId}CometSvg"
                  width="100%" height="100%" viewBox="0 0 400 400"
-                 style="transform:rotate(-90deg);position:absolute;top:0;left:0;z-index:4;">
+                 style="transform:rotate(-90deg);position:absolute;top:0;left:0;z-index:4;" aria-hidden="true" focusable="false">
                 <!-- Fading trail (neon blue, low opacity) -->
                 <circle cx="200" cy="200" r="${_INNER_R}"
                         fill="none" stroke="#00cfff"

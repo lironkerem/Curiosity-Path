@@ -54,7 +54,6 @@ const Resonance = {
         }
         container.innerHTML = this.getHTML();
         this.state.isRendered = true;
-        console.log(`✓ Resonance ${this.config.FEATURE_ENABLED ? 'rendered (enabled)' : 'placeholder rendered (disabled)'}`);
     },
 
     // ============================================================================
@@ -67,7 +66,6 @@ const Resonance = {
         this.state.isEnabled = true;
         if (this.state.isRendered) this.render();
         else document.getElementById('resonanceContent')?.style.setProperty('display', 'block');
-        console.log('✓ Resonance feature enabled');
     },
 
     disable() {
@@ -75,7 +73,6 @@ const Resonance = {
         this.config.FEATURE_ENABLED = false;
         this.state.isEnabled = false;
         document.getElementById('resonanceContent')?.style.setProperty('display', 'none');
-        console.log('✓ Resonance feature disabled');
     },
 
     toggle() {
@@ -109,6 +106,11 @@ if (document.readyState === 'loading') {
 } else {
     Resonance.render();
 }
+
+// bfcache: reset rendered state on pagehide
+window.addEventListener('pagehide', () => {
+    Resonance.state.isRendered = false;
+});
 
 // Window bridge: preserved for external callers
 window.Resonance = Resonance;

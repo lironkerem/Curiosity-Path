@@ -108,4 +108,9 @@ class OshoRoom extends TimedVideoRoom {
 const oshoRoom = new OshoRoom();
 window.OshoRoom = oshoRoom;
 
+// bfcache: run cleanup on pagehide
+window.addEventListener('pagehide', () => {
+    oshoRoom.onCleanup?.();
+});
+
 export { OshoRoom, oshoRoom };
