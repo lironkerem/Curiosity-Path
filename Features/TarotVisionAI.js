@@ -1,191 +1,174 @@
 /**
  * TarotVisionAI.js - AI-Powered Tarot Card Reading via Camera/Upload
- * Provides popup interface for capturing/uploading tarot card images and analyzing them with AI
+ * Popup interface for capturing/uploading tarot card images and analysing with AI
  */
 
 (() => {
   'use strict';
 
   /* ==================== CONFIGURATION ==================== */
-  
-  const CONFIG = {
-    MAX_FILE_SIZE: 4 * 1024 * 1024,                    // 4 MB limit
-    ALLOWED_TYPES: ['image/jpeg', 'image/png'],        // Accepted image formats
-    API_ROUTE: '/api/tarot-vision',                    // Serverless function endpoint
-    RETRY_COUNT: 3,                                     // Number of retry attempts
-    TIMEOUT_MS: 25000,                                 // 25 second timeout
-    CAMERA_CONSTRAINTS: {
-      video: {
-        facingMode: 'environment',                     // Use back camera on mobile
-        width: { ideal: 1920 },
-        height: { ideal: 1080 }
-      },
+
+  const CONFIG = Object.freeze({
+    MAX_FILE_SIZE:      4 * 1024 * 1024,               // 4 MB
+    ALLOWED_TYPES:      Object.freeze(['image/jpeg', 'image/png']),
+    API_ROUTE:          '/api/tarot-vision',
+    RETRY_COUNT:        3,
+    TIMEOUT_MS:         25000,
+    CAMERA_CONSTRAINTS: Object.freeze({
+      video: Object.freeze({ facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }),
       audio: false
-    },
-    IMAGE_QUALITY: 0.92                                // JPEG quality (0-1)
-  };
+    }),
+    IMAGE_QUALITY: 0.92
+  });
 
   /* ==================== STATE ==================== */
-  
+
   let state = {
-    imageBase64: null,                                  // Current image data
-    stream: null,                                       // Camera stream reference
-    isAnalyzing: false                                  // Analysis in progress flag
+    imageBase64: null,
+    stream:      null,
+    isAnalyzing: false
   };
 
-  /* ==================== DOM ELEMENTS (lazy loaded) ==================== */
-  
+  /* ==================== DOM ELEMENTS ==================== */
+
   let elements = {
-    video: null,
-    canvas: null,
-    preview: null,
-    placeholder: null,
-    captureBtn: null,
-    uploadBtn: null,
-    uploadInput: null,
-    analyzeBtn: null,
-    resetBtn: null,
-    result: null,
-    loader: null
+    video:        null,
+    canvas:       null,
+    preview:      null,
+    placeholder:  null,
+    captureBtn:   null,
+    uploadBtn:    null,
+    uploadInput:  null,
+    analyzeBtn:   null,
+    resetBtn:     null,
+    result:       null,
+    loader:       null
   };
 
   /* ==================== INITIALIZATION ==================== */
 
-  /**
-   * Initialize DOM references and event listeners
-   * Called after popup is rendered
-   */
   async function init() {
-    // Wait for next tick to ensure DOM is ready
-    await Promise.resolve();
-    
-    // Cache DOM elements
-    const $ = (sel) => document.querySelector(sel);
-    elements.video = $('#video');
-    elements.canvas = $('#canvas');
-    elements.preview = $('#image-preview');
-    elements.placeholder = $('#upload-placeholder');
-    elements.captureBtn = $('#capture-btn');
-    elements.uploadBtn = $('#upload-btn');
-    elements.uploadInput = $('#upload-input');
-    elements.analyzeBtn = $('#analyze-btn');
-    elements.resetBtn = $('#reset-btn');
-    elements.result = $('#result');
-    elements.loader = $('#loading-spinner');
+    await Promise.resolve(); // wait for DOM tick
 
-    // Bind event listeners
+    const $ = sel => document.querySelector(sel);
+    elements.video       = $('#tvai-video');
+    elements.canvas      = $('#tvai-canvas');
+    elements.preview     = $('#tvai-image-preview');
+    elements.placeholder = $('#tvai-upload-placeholder');
+    elements.captureBtn  = $('#tvai-capture-btn');
+    elements.uploadBtn   = $('#tvai-upload-btn');
+    elements.uploadInput = $('#tvai-upload-input');
+    elements.analyzeBtn  = $('#tvai-analyze-btn');
+    elements.resetBtn    = $('#tvai-reset-btn');
+    elements.result      = $('#tvai-result');
+    elements.loader      = $('#tvai-loading-spinner');
+
     bindEventListeners();
   }
 
-  /**
-   * Bind all event listeners with passive mode for better performance
-   */
   function bindEventListeners() {
-    elements.uploadInput.addEventListener('change', handleFileUpload, { passive: true });
-    elements.captureBtn.addEventListener('click', toggleCamera, { passive: true });
-    elements.uploadBtn.addEventListener('click', () => elements.uploadInput.click(), { passive: true });
-    elements.analyzeBtn.addEventListener('click', analyzeImage, { passive: true });
-    elements.resetBtn.addEventListener('click', resetInterface, { passive: true });
+    elements.uploadInput.addEventListener('change',  handleFileUpload,                  { passive: true });
+    elements.captureBtn.addEventListener('click',    toggleCamera,                      { passive: true });
+    elements.uploadBtn.addEventListener('click',     () => elements.uploadInput.click(),{ passive: true });
+    elements.analyzeBtn.addEventListener('click',    analyzeImage,                      { passive: true });
+    elements.resetBtn.addEventListener('click',      resetInterface,                    { passive: true });
   }
 
   /* ==================== POPUP MANAGEMENT ==================== */
 
-  /**
-   * Build popup HTML structure
-   * Only creates if not already in DOM
-   */
   function buildPopup() {
     if (document.getElementById('tarot-vision-popup')) return;
-    
+
     const overlay = document.createElement('div');
     overlay.id = 'tarot-vision-popup';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', 'Tarot Vision AI');
+
+    // Build popup using DOM API to avoid any innerHTML XSS risk from external data
     overlay.innerHTML = `
       <div class="vision-popup-overlay">
         <div class="vision-popup-card">
+
           <!-- Header -->
           <header class="vision-popup-header">
-            <h3 class="vision-popup-title" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:1.25rem;height:1.25rem;flex-shrink:0;"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> Tarot Vision AI</h3>
-            <button id="vision-close" class="vision-close-btn" aria-label="Close">&times;</button>
+            <h3 class="vision-popup-title" style="display:flex;align-items:center;gap:0.5rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:1.25rem;height:1.25rem;flex-shrink:0;" aria-hidden="true" focusable="false"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+              Tarot Vision AI
+            </h3>
+            <button type="button" id="tvai-vision-close" class="vision-close-btn" aria-label="Close Tarot Vision AI">&times;</button>
           </header>
 
           <!-- Body -->
           <section class="vision-popup-body">
-            <!-- Camera video stream -->
-            <video id="video" class="hidden" playsinline autoplay muted></video>
-            
-            <!-- Canvas for photo capture -->
-            <canvas id="canvas" class="hidden"></canvas>
-            
-            <!-- Image preview -->
-            <img id="image-preview" class="hidden" alt="Preview" width="400" height="400" loading="lazy" decoding="async">
 
-            <!-- Placeholder -->
-            <div id="upload-placeholder" class="placeholder-box">
-              <span class="placeholder-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:2rem;height:2rem;"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg></span>
+            <video id="tvai-video" class="hidden" playsinline autoplay muted aria-label="Camera feed"></video>
+            <canvas id="tvai-canvas" class="hidden"></canvas>
+            <img id="tvai-image-preview" class="hidden" alt="Captured or uploaded card preview"
+                 width="400" height="400" loading="lazy" decoding="async">
+
+            <div id="tvai-upload-placeholder" class="placeholder-box">
+              <span class="placeholder-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:2rem;height:2rem;" aria-hidden="true" focusable="false"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+              </span>
               <p>Take a photo or upload an image of your cards</p>
             </div>
 
-            <!-- Control buttons -->
             <div class="vision-controls">
-              <button id="capture-btn" type="button" class="vision-btn">
+              <button id="tvai-capture-btn" type="button" class="vision-btn btn" aria-label="Open camera">
                 ${getIcon('camera')} Camera
               </button>
-              <button id="upload-btn" type="button" class="vision-btn">
+              <button id="tvai-upload-btn" type="button" class="vision-btn btn" aria-label="Upload image">
                 ${getIcon('photo')} Upload
               </button>
-              <button id="analyze-btn" type="button" class="vision-btn btn-primary" disabled>
+              <button id="tvai-analyze-btn" type="button" class="vision-btn btn btn-primary" disabled aria-label="Analyze card">
                 ${getIcon('search')} Analyze
               </button>
             </div>
 
-            <!-- Hidden file input -->
-            <input id="upload-input" type="file" accept="image/jpeg,image/png" class="hidden">
-            
-            <!-- Reset button (hidden by default) -->
-            <button id="reset-btn" type="button" class="vision-btn hidden">🔄 Reset</button>
+            <!-- Hidden file input — accept attribute restricts MIME on the browser side -->
+            <input id="tvai-upload-input" type="file" accept="image/jpeg,image/png" class="hidden"
+                   aria-label="Upload card image">
 
-            <!-- Results display -->
-            <div id="result" class="vision-result">
+            <button id="tvai-reset-btn" type="button" class="vision-btn btn hidden" aria-label="Reset and start over">
+              🔄 Reset
+            </button>
+
+            <div id="tvai-result" class="vision-result" aria-live="polite">
               <p class="placeholder-text">Your tarot reading will appear here...</p>
             </div>
-            
-            <!-- Loading spinner -->
-            <div id="loading-spinner" class="hidden">
+
+            <div id="tvai-loading-spinner" class="hidden" role="status" aria-label="Analyzing cards, please wait">
               <div class="spinner"></div>
               <p>Analyzing cards...</p>
             </div>
+
           </section>
         </div>
       </div>
     `;
-    
+
     document.body.appendChild(overlay);
     setupPopupEventListeners(overlay);
   }
 
-  /**
-   * Setup popup-specific event listeners (close handlers)
-   * @param {HTMLElement} overlay - Popup overlay element
-   */
   function setupPopupEventListeners(overlay) {
     // Close on overlay click or close button
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay || e.target.id === 'vision-close') {
-        closePopup();
-      }
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay || e.target.id === 'tvai-vision-close') closePopup();
     });
 
-    // Close on Escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
+    // Close on Escape — scoped to this popup being open
+    const escHandler = e => {
+      if (e.key === 'Escape' && document.getElementById('tarot-vision-popup')?.classList.contains('active')) {
         closePopup();
       }
-    });
+    };
+    document.addEventListener('keydown', escHandler);
+    // Store for cleanup
+    overlay._escHandler = escHandler;
   }
 
-  /**
-   * Open the popup and initialize
-   */
   async function openPopup() {
     buildPopup();
     const popup = document.getElementById('tarot-vision-popup');
@@ -194,57 +177,35 @@
     await init();
   }
 
-  /**
-   * Close the popup and cleanup
-   */
   function closePopup() {
     const popup = document.getElementById('tarot-vision-popup');
     if (!popup) return;
-    
+    if (popup._escHandler) document.removeEventListener('keydown', popup._escHandler);
     popup.classList.remove('active');
     document.body.style.overflow = '';
     resetInterface();
     stopCameraStream();
   }
 
-  /* ==================== CAMERA FUNCTIONALITY ==================== */
+  /* ==================== CAMERA ==================== */
 
-  /**
-   * Toggle camera on/off or capture photo if camera is active
-   */
   async function toggleCamera() {
-    // If camera is active, take photo
-    if (state.stream) {
-      capturePhoto();
-      return;
-    }
+    if (state.stream) { capturePhoto(); return; }
 
-    // Otherwise, start camera
     try {
       showLoader(true);
-      
-      // Check browser support
-      if (!navigator.mediaDevices?.getUserMedia) {
-        throw new Error('Camera API not supported in this browser');
-      }
+      if (!navigator.mediaDevices?.getUserMedia) throw new Error('Camera API not supported in this browser');
 
-      // Request camera access
       state.stream = await navigator.mediaDevices.getUserMedia(CONFIG.CAMERA_CONSTRAINTS);
-      
-      // Configure video element
       elements.video.srcObject = state.stream;
-      elements.video.muted = true;
+      elements.video.muted     = true;
       elements.video.setAttribute('playsinline', '');
-      
-      // Wait for video to be ready
       await elements.video.play();
-      
-      // Update UI
+
       elements.video.classList.remove('hidden');
       elements.placeholder.classList.add('hidden');
       elements.preview.classList.add('hidden');
       elements.captureBtn.innerHTML = `${getIcon('photo')} Take Photo`;
-      
     } catch (error) {
       handleCameraError(error);
     } finally {
@@ -252,138 +213,101 @@
     }
   }
 
-  /**
-   * Capture photo from video stream
-   */
   function capturePhoto() {
     const ctx = elements.canvas.getContext('2d');
-    
-    // Set canvas dimensions to match video
-    elements.canvas.width = elements.video.videoWidth;
+    elements.canvas.width  = elements.video.videoWidth;
     elements.canvas.height = elements.video.videoHeight;
-    
-    // Draw current video frame to canvas
     ctx.drawImage(elements.video, 0, 0);
-    
-    // Convert to base64 JPEG
     state.imageBase64 = elements.canvas.toDataURL('image/jpeg', CONFIG.IMAGE_QUALITY);
-    
-    // Update preview
+
+    // Set preview src — data URL from canvas, not from untrusted external input
     elements.preview.src = state.imageBase64;
-    
-    // Cleanup and update UI
+
     stopCameraStream();
     showPreview();
     enableAnalyzeButton();
     elements.captureBtn.innerHTML = `${getIcon('camera')} Use Camera`;
   }
 
-  /**
-   * Stop active camera stream
-   */
   function stopCameraStream() {
     if (state.stream) {
-      state.stream.getTracks().forEach(track => track.stop());
-      state.stream = null;
+      state.stream.getTracks().forEach(t => t.stop());
+      state.stream          = null;
       elements.video.srcObject = null;
     }
   }
 
-  /**
-   * Handle camera errors with user-friendly messages
-   * @param {Error} error - Error object
-   */
   function handleCameraError(error) {
-    console.error('Camera error:', error);
-    
+    console.error('TarotVisionAI: Camera error:', error);
     let message = 'Unable to access camera. ';
-    
-    if (error.name === 'NotAllowedError') {
-      message += 'Please grant camera permissions and try again.';
-    } else if (error.name === 'NotFoundError') {
-      message += 'No camera found on this device.';
-    } else if (error.name === 'NotReadableError') {
-      message += 'Camera is already in use by another application.';
-    } else {
-      message += error.message || 'Please try again.';
-    }
-    
+    if      (error.name === 'NotAllowedError')   message += 'Please grant camera permissions and try again.';
+    else if (error.name === 'NotFoundError')     message += 'No camera found on this device.';
+    else if (error.name === 'NotReadableError')  message += 'Camera is already in use by another application.';
+    else                                          message += error.message || 'Please try again.';
     showToast(message, 'error');
   }
 
   /* ==================== FILE UPLOAD ==================== */
 
-  /**
-   * Handle file upload from input
-   * @param {Event} event - Change event
-   */
   function handleFileUpload(event) {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
+    // Validate MIME type against whitelist
     if (!CONFIG.ALLOWED_TYPES.includes(file.type)) {
       showToast('Only JPEG and PNG images are allowed.', 'warning');
+      event.target.value = '';
       return;
     }
 
     // Validate file size
     if (file.size > CONFIG.MAX_FILE_SIZE) {
       showToast('Image must be 4 MB or smaller.', 'warning');
+      event.target.value = '';
       return;
     }
 
-    // Read file
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      processUploadedImage(e.target.result);
-    };
-    reader.onerror = () => {
-      showToast('Failed to read image file.', 'error');
-    };
+    const reader    = new FileReader();
+    reader.onload   = e => processUploadedImage(e.target.result);
+    reader.onerror  = ()  => showToast('Failed to read image file.', 'error');
     reader.readAsDataURL(file);
   }
 
-  /**
-   * Process uploaded image data
-   * @param {string} dataUrl - Base64 data URL
-   */
   function processUploadedImage(dataUrl) {
-    const img = new Image();
-    
-    img.onload = () => {
-      state.imageBase64 = dataUrl;
+    // Validate it's actually an image data URL before using as src
+    if (!dataUrl.startsWith('data:image/')) {
+      showToast('Invalid image data.', 'error');
+      return;
+    }
+
+    const img    = new Image();
+    img.onload   = () => {
+      state.imageBase64   = dataUrl;
       elements.preview.src = dataUrl;
       showPreview();
       enableAnalyzeButton();
     };
-    
-    img.onerror = () => {
-      showToast('Failed to load image.', 'error');
-    };
-    
-    img.src = dataUrl;
+    img.onerror  = ()  => showToast('Failed to load image.', 'error');
+    img.src      = dataUrl;
   }
 
   /* ==================== IMAGE ANALYSIS ==================== */
 
-  /**
-   * Send image to AI for analysis
-   */
   async function analyzeImage() {
-    if (!state.imageBase64) {
-      showToast('No image to analyze.', 'warning');
-      return;
-    }
+    if (!state.imageBase64) { showToast('No image to analyze.', 'warning'); return; }
+    if (state.isAnalyzing)  return;
 
-    if (state.isAnalyzing) return;
-    
-    state.isAnalyzing = true;
+    state.isAnalyzing         = true;
     showLoader(true);
     elements.analyzeBtn.disabled = true;
-    elements.result.innerHTML = '<p class="placeholder-text">Interpreting the cards...</p>';
 
-    // Retry loop
+    // Show "working" message via textContent — safe
+    const workingP = document.createElement('p');
+    workingP.className   = 'placeholder-text';
+    workingP.textContent = 'Interpreting the cards...';
+    elements.result.innerHTML = '';
+    elements.result.appendChild(workingP);
+
     for (let attempt = 1; attempt <= CONFIG.RETRY_COUNT; attempt++) {
       try {
         const result = await sendAnalysisRequest();
@@ -391,8 +315,7 @@
         showResetUI();
         return;
       } catch (error) {
-        console.error(`Analysis attempt ${attempt} failed:`, error);
-        
+        console.error(`TarotVisionAI: Analysis attempt ${attempt} failed:`, error);
         if (attempt === CONFIG.RETRY_COUNT) {
           displayResult('Sorry, we could not complete the reading. Please try again later.');
           elements.analyzeBtn.disabled = false;
@@ -404,31 +327,24 @@
     state.isAnalyzing = false;
   }
 
-  /**
-   * Send analysis request to API with timeout
-   * @returns {Promise<Object>} API response
-   */
   async function sendAnalysisRequest() {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT_MS);
+    const timeoutId  = setTimeout(() => controller.abort(), CONFIG.TIMEOUT_MS);
 
     try {
-      // Extract base64 data (remove data URL prefix)
+      // Extract base64 — remove data URL prefix
       const base64Data = state.imageBase64.split(',')[1];
+      if (!base64Data) throw new Error('Invalid image data');
 
       const response = await fetch(CONFIG.API_ROUTE, {
-        method: 'POST',
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: base64Data }),
-        signal: controller.signal
+        body:    JSON.stringify({ image: base64Data }),
+        signal:  controller.signal
       });
 
       clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        throw new Error(`Network error: ${response.status} ${response.statusText}`);
-      }
-
+      if (!response.ok) throw new Error(`Network error: ${response.status} ${response.statusText}`);
       return await response.json();
     } catch (error) {
       clearTimeout(timeoutId);
@@ -438,353 +354,170 @@
 
   /* ==================== UI UPDATES ==================== */
 
-  /**
-   * Show image preview and hide other elements
-   */
   function showPreview() {
     elements.video.classList.add('hidden');
     elements.preview.classList.remove('hidden');
     elements.placeholder.classList.add('hidden');
   }
 
-  /**
-   * Display analysis result
-   * @param {string} text - Result text to display
-   */
   function displayResult(text) {
     showLoader(false);
-    const sanitizedText = sanitizeHTML(text);
-    elements.result.innerHTML = `<div class="result-content">${sanitizedText}</div>`;
+    // Escape AI response before injecting into DOM
+    const div         = document.createElement('div');
+    div.className     = 'result-content';
+    div.textContent   = text; // textContent — safe; no XSS
+    elements.result.innerHTML = '';
+    elements.result.appendChild(div);
     state.isAnalyzing = false;
   }
 
-  /**
-   * Show reset UI state (hide capture/upload buttons)
-   */
   function showResetUI() {
-    [elements.captureBtn, elements.uploadBtn, elements.analyzeBtn].forEach(btn => {
-      btn.classList.add('hidden');
-    });
+    [elements.captureBtn, elements.uploadBtn, elements.analyzeBtn].forEach(btn => btn.classList.add('hidden'));
     elements.resetBtn.classList.remove('hidden');
   }
 
-  /**
-   * Enable analyze button
-   */
-  function enableAnalyzeButton() {
-    elements.analyzeBtn.disabled = false;
-  }
+  function enableAnalyzeButton() { elements.analyzeBtn.disabled = false; }
 
-  /**
-   * Show/hide loading spinner
-   * @param {boolean} show - Whether to show loader
-   */
   function showLoader(show) {
-    if (show) {
-      elements.loader.classList.remove('hidden');
-    } else {
-      elements.loader.classList.add('hidden');
-    }
+    if (show) elements.loader.classList.remove('hidden');
+    else      elements.loader.classList.add('hidden');
   }
 
-  /**
-   * Reset interface to initial state
-   */
   function resetInterface() {
-    // Clear state
     state.imageBase64 = null;
     state.isAnalyzing = false;
-    
-    // Clear file input
-    elements.uploadInput.value = '';
-    
-    // Stop camera if active
+
+    if (elements.uploadInput) elements.uploadInput.value = '';
     stopCameraStream();
-    
-    // Reset preview
-    elements.preview.src = '';
-    elements.preview.classList.add('hidden');
-    
-    // Show placeholder
-    elements.placeholder.classList.remove('hidden');
-    
-    // Reset result display
-    elements.result.innerHTML = '<p class="placeholder-text">Your tarot reading will appear here...</p>';
-    
-    // Reset buttons
-    [elements.captureBtn, elements.uploadBtn, elements.analyzeBtn].forEach(btn => {
-      btn.classList.remove('hidden');
-      btn.disabled = false;
-    });
-    
-    elements.analyzeBtn.disabled = true;
-    elements.resetBtn.classList.add('hidden');
-    elements.captureBtn.innerHTML = `${getIcon('camera')} Camera`;
+
+    if (elements.preview) {
+      elements.preview.src = '';
+      elements.preview.classList.add('hidden');
+    }
+    if (elements.placeholder) elements.placeholder.classList.remove('hidden');
+
+    // Reset result safely
+    if (elements.result) {
+      const p       = document.createElement('p');
+      p.className   = 'placeholder-text';
+      p.textContent = 'Your tarot reading will appear here...';
+      elements.result.innerHTML = '';
+      elements.result.appendChild(p);
+    }
+
+    if (elements.captureBtn && elements.uploadBtn && elements.analyzeBtn) {
+      [elements.captureBtn, elements.uploadBtn, elements.analyzeBtn].forEach(btn => {
+        btn.classList.remove('hidden');
+        btn.disabled = false;
+      });
+      elements.analyzeBtn.disabled = true;
+      elements.captureBtn.innerHTML = `${getIcon('camera')} Camera`;
+    }
+    if (elements.resetBtn) elements.resetBtn.classList.add('hidden');
   }
 
   /* ==================== UTILITIES ==================== */
 
   /**
-   * Sanitize HTML to prevent XSS
-   * @param {string} str - String to sanitize
-   * @returns {string} Sanitized string
-   */
-  function sanitizeHTML(str) {
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
-  /**
-   * Get SVG icon by name
-   * @param {string} name - Icon name (camera, photo, search)
-   * @returns {string} SVG markup
+   * Get SVG icon by name — static markup, no user data
    */
   function getIcon(name) {
     const icons = {
-      camera: `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 12c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm0-10c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg>`,
-      photo: `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h4.05l1.83-2h4.24l1.83 2H20v12zM12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"/></svg>`,
-      search: `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>`
+      camera: `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 12c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm0-10c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg>`,
+      photo:  `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h4.05l1.83-2h4.24l1.83 2H20v12zM12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"/></svg>`,
+      search: `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>`
     };
     return icons[name] || '';
   }
 
-  /**
-   * Show toast notification (uses global app toast if available)
-   * @param {string} message - Message to display
-   * @param {string} type - Message type (info, warning, error)
-   */
   function showToast(message, type = 'info') {
-    if (window.app?.showToast) {
-      window.app.showToast(message, type);
-    } else {
-      alert(message);
-    }
+    if (window.app?.showToast) window.app.showToast(message, type);
+    else alert(message);
   }
 
   /* ==================== STYLES ==================== */
 
-  /**
-   * Inject popup styles into document head
-   */
   function injectStyles() {
     if (document.getElementById('vision-popup-styles')) return;
-    
-    const style = document.createElement('style');
-    style.id = 'vision-popup-styles';
+    const style    = document.createElement('style');
+    style.id       = 'vision-popup-styles';
     style.textContent = `
-      /* Popup Overlay — matches .modal-overlay */
       #tarot-vision-popup {
-        position: fixed;
-        inset: 0;
-        z-index: 10000;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        background: rgba(196, 173, 145, 0.85);
-        backdrop-filter: blur(4px);
-        padding: var(--spacing-md);
-        animation: fadeIn 0.3s ease;
+        position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;
+        background:rgba(196,173,145,0.85);backdrop-filter:blur(4px);padding:var(--spacing-md);animation:fadeIn 0.3s ease;
       }
-
-      #tarot-vision-popup.active {
-        display: flex;
-      }
-
-      /* Popup Card — matches .modal-card */
+      #tarot-vision-popup.active { display:flex; }
       .vision-popup-card {
-        background: var(--neuro-bg);
-        border-radius: var(--radius-2xl);
-        width: 90%;
-        max-width: 600px;
-        max-height: 90vh;
-        display: flex;
-        flex-direction: column;
-        box-shadow: var(--shadow-raised-lg);
-        overflow: hidden;
-        margin: auto;
-        animation: slideUpShadow 0.4s ease;
-        position: relative;
-        z-index: 10001;
+        background:var(--neuro-bg);border-radius:var(--radius-2xl);width:90%;max-width:600px;max-height:90vh;
+        display:flex;flex-direction:column;box-shadow:var(--shadow-raised-lg);overflow:hidden;
+        margin:auto;animation:slideUpShadow 0.4s ease;position:relative;z-index:10001;
       }
-
-      /* Header */
       .vision-popup-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: var(--spacing-md) var(--spacing-lg);
-        border-bottom: 1px solid var(--neuro-shadow-dark);
-        background: var(--neuro-bg);
+        display:flex;align-items:center;justify-content:space-between;
+        padding:var(--spacing-md) var(--spacing-lg);border-bottom:1px solid var(--neuro-shadow-dark);background:var(--neuro-bg);
       }
-
-      .vision-popup-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--neuro-text);
-        margin: 0;
-      }
-
-      /* Close btn — matches .modal-close-btn */
+      .vision-popup-title { font-size:1.25rem;font-weight:700;color:var(--neuro-text);margin:0; }
       .vision-close-btn {
-        background: var(--neuro-bg);
-        border: none;
-        font-size: 1.5rem;
-        line-height: 1;
-        cursor: pointer;
-        color: var(--neuro-text-light);
-        box-shadow: var(--shadow-raised);
-        border-radius: var(--radius-sm);
-        padding: 0.4rem 0.65rem;
-        transition: box-shadow var(--transition-fast);
+        background:var(--neuro-bg);border:none;font-size:1.5rem;line-height:1;cursor:pointer;
+        color:var(--neuro-text-light);box-shadow:var(--shadow-raised);border-radius:var(--radius-sm);
+        padding:0.4rem 0.65rem;transition:box-shadow var(--transition-fast);
       }
-
-      .vision-close-btn:hover {
-        box-shadow: var(--shadow-inset);
-        color: var(--neuro-text);
-      }
-
-      /* Body */
-      .vision-popup-body {
-        padding: var(--spacing-lg);
-        flex: 1 1 auto;
-        overflow-y: auto;
-        color: var(--neuro-text);
-      }
-
-      /* Placeholder box */
+      .vision-close-btn:hover { box-shadow:var(--shadow-inset);color:var(--neuro-text); }
+      .vision-popup-body { padding:var(--spacing-lg);flex:1 1 auto;overflow-y:auto;color:var(--neuro-text); }
       .placeholder-box {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: var(--spacing-xl);
-        border: 2px dashed var(--neuro-shadow-dark);
-        border-radius: var(--radius-lg);
-        margin-bottom: var(--spacing-md);
-        background: var(--neuro-bg-lighter);
-        box-shadow: var(--shadow-inset-sm);
+        display:flex;flex-direction:column;align-items:center;justify-content:center;
+        padding:var(--spacing-xl);border:2px dashed var(--neuro-shadow-dark);border-radius:var(--radius-lg);
+        margin-bottom:var(--spacing-md);background:var(--neuro-bg-lighter);box-shadow:var(--shadow-inset-sm);
       }
-
-      .placeholder-icon {
-        font-size: 2rem;
-        margin-bottom: var(--spacing-sm);
-        color: var(--neuro-text-lighter);
+      .placeholder-icon { font-size:2rem;margin-bottom:var(--spacing-sm);color:var(--neuro-text-lighter); }
+      .placeholder-text { color:var(--neuro-text-light);text-align:center; }
+      .vision-controls { display:flex;gap:var(--spacing-sm);flex-wrap:wrap;margin-bottom:var(--spacing-md); }
+      .vision-btn svg { width:1.1rem;height:1.1rem; }
+      #tvai-video,#tvai-image-preview {
+        max-width:100%;border-radius:var(--radius-md);margin-bottom:var(--spacing-md);
+        display:block;box-shadow:var(--shadow-raised);
       }
-
-      .placeholder-text {
-        color: var(--neuro-text-light);
-        text-align: center;
-      }
-
-      /* Controls */
-      .vision-controls {
-        display: flex;
-        gap: var(--spacing-sm);
-        flex-wrap: wrap;
-        margin-bottom: var(--spacing-md);
-      }
-
-      /* Buttons — inherit .btn + .btn-primary from main styles */
-      .vision-btn {
-        /* inherits from global .btn via button[type="button"] */
-      }
-
-      .vision-btn svg {
-        width: 1.1rem;
-        height: 1.1rem;
-      }
-
-      /* Media elements */
-      #video,
-      #image-preview {
-        max-width: 100%;
-        border-radius: var(--radius-md);
-        margin-bottom: var(--spacing-md);
-        display: block;
-        box-shadow: var(--shadow-raised);
-      }
-
-      /* Result area */
       .vision-result {
-        margin-top: var(--spacing-md);
-        padding: var(--spacing-md);
-        background: var(--neuro-bg-lighter);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-inset);
+        margin-top:var(--spacing-md);padding:var(--spacing-md);
+        background:var(--neuro-bg-lighter);border-radius:var(--radius-lg);box-shadow:var(--shadow-inset);
       }
-
-      .result-content {
-        white-space: pre-wrap;
-        line-height: 1.6;
-        color: var(--neuro-text);
+      .result-content { white-space:pre-wrap;line-height:1.6;color:var(--neuro-text); }
+      #tvai-loading-spinner {
+        display:flex;flex-direction:column;align-items:center;gap:var(--spacing-md);
+        margin-top:var(--spacing-md);padding:var(--spacing-xl);text-align:center;
+        font-weight:600;color:var(--neuro-accent);
       }
-
-      /* Loading Spinner */
-      #loading-spinner {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: var(--spacing-md);
-        margin-top: var(--spacing-md);
-        padding: var(--spacing-xl);
-        text-align: center;
-        font-weight: 600;
-        color: var(--neuro-accent);
-      }
-
       .spinner {
-        width: 40px;
-        height: 40px;
-        border: 4px solid var(--neuro-shadow-light);
-        border-top-color: var(--neuro-accent);
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
+        width:40px;height:40px;border:4px solid var(--neuro-shadow-light);
+        border-top-color:var(--neuro-accent);border-radius:50%;animation:spin 0.8s linear infinite;
       }
-
-      /* Utility */
-      .hidden {
-        display: none !important;
-      }
+      .hidden { display:none !important; }
     `;
-    
     document.head.appendChild(style);
   }
 
   /* ==================== GLOBAL EXPORT ==================== */
 
-  /**
-   * Global function to open Tarot Vision AI popup
-   */
   window.TarotVisionAI = async () => {
     injectStyles();
     buildPopup();
     await openPopup();
   };
 
-  /* ==================== GLOBAL EVENT LISTENER ==================== */
+  /* ==================== GLOBAL CLICK HANDLER ==================== */
 
-  /**
-   * Listen for button clicks to open popup
-   * Checks for feature unlock before opening
-   */
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', e => {
     const btn = e.target.closest('#tarot-vision-ai-btn');
     if (!btn) return;
 
-    // Check if feature is unlocked
     const isPrivileged = window.app?.state?.currentUser?.isAdmin || window.app?.state?.currentUser?.isVip;
-    const isUnlocked = isPrivileged || window.app?.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
-    
+    const isUnlocked   = isPrivileged || window.app?.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
+
     if (!isUnlocked) {
       showToast('Purchase Tarot Vision AI in the Karma Shop to use this feature.', 'info');
       return;
     }
 
-    // Open popup
     window.TarotVisionAI();
   });
 
