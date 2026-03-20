@@ -53,6 +53,9 @@ export default class NavigationManager {
     this.arrowDebounce         = false;
     this.arrowObserver         = null;
 
+    // Must be true before vibrate() is called — Chrome blocks vibrate without a prior user gesture
+    this._userHasInteracted    = false;
+
     this.touchState = { startTime: 0, startX: 0, startY: 0 };
 
     this.eventHandlers = {
@@ -114,7 +117,10 @@ export default class NavigationManager {
       const tabName = tab.dataset.tab;
       if (!VALID_TABS.has(tabName)) return; // skip unknown tabs
 
-      const clickHandler = () => this.switchTab(tabName, tab.dataset.label);
+      const clickHandler = () => {
+        this._userHasInteracted = true;
+        this.switchTab(tabName, tab.dataset.label);
+      };
       const keyHandler   = e => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -207,6 +213,7 @@ export default class NavigationManager {
         if (!row) return;
         const tabName = row.dataset.tab;
         if (!VALID_TABS.has(tabName)) return; // whitelist check
+        this._userHasInteracted = true;
         this.closeSheets();
         const navItem = document.querySelector(`[data-tab="${tabName}"]`);
         const label   = navItem?.dataset.label || row.querySelector('span')?.textContent || tabName;
@@ -334,6 +341,7 @@ export default class NavigationManager {
           e.changedTouches[0].clientY - this.touchState.startY
         );
         if (dur < CONSTANTS.MIN_TOUCH_DURATION || dist > CONSTANTS.MAX_TOUCH_MOVEMENT) return;
+        this._userHasInteracted = true;
         navigate(dir);
         setTimeout(() => btn.blur(), 0);
       };
@@ -432,6 +440,9 @@ export default class NavigationManager {
   // ─── Utilities ─────────────────────────────────────────────────────────────
 
   _vibrate(duration) {
+    // Chrome (and other browsers) block vibrate until the user has produced a gesture.
+    // We track this via _userHasInteracted, which is set on the first real click/touch.
+    if (!this._userHasInteracted) return;
     if (navigator.vibrate) {
       try { navigator.vibrate(duration); } catch { /* non-critical */ }
     }
