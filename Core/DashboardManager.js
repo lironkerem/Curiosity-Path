@@ -1,164 +1,126 @@
 /**
- * DashboardManager.js - Complete Optimized Version
- * Manages the user dashboard including gamification, quests, badges, and wellness tracking
+ * DashboardManager.js
+ * Manages the user dashboard including gamification, quests, badges, and wellness tracking.
  * @author Aanandoham (Liron Kerem)
  * @copyright 2026
  */
 
 import { InquiryEngine } from '../Features/InquiryEngine.js';
-import DailyCards from '../Features/DailyCards.js';
+import DailyCards        from '../Features/DailyCards.js';
 import { ActiveMembers } from '/Mini-Apps/CommunityHub/js/active-members.js';
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+
 const CONSTANTS = {
-  BADGES_PREVIEW_COUNT: 9,
-  BADGE_GRID_COLUMNS: 3,
-  WELLNESS_POLL_INTERVAL: 3000,
-  COUNTDOWN_UPDATE_INTERVAL: 1000,
-  RENDER_DEBOUNCE_MS: 100,
-  
+  BADGES_PREVIEW_COUNT:      9,
+  BADGE_GRID_COLUMNS:        3,
+  WELLNESS_POLL_INTERVAL:    3_000,
+  COUNTDOWN_UPDATE_INTERVAL: 1_000,
+  RENDER_DEBOUNCE_MS:        100,
+
   RARITY_GRADIENTS: {
-    common: 'linear-gradient(135deg, rgba(245, 245, 247, 0.85) 0%, rgba(210, 214, 220, 0.85) 100%), linear-gradient(#f5f5f7, #d2d6dc)',
-    uncommon: 'linear-gradient(135deg, rgba(0, 224, 132, 0.85) 0%, rgba(0, 185, 108, 0.85) 100%), linear-gradient(#00e084, #00b96c)',
-    rare: 'linear-gradient(135deg, rgba(0, 168, 255, 0.85) 0%, rgba(0, 123, 204, 0.85) 100%), linear-gradient(#00a8ff, #007bcc)',
-    epic: 'linear-gradient(135deg, rgba(184, 0, 230, 0.85) 0%, rgba(142, 0, 204, 0.85) 100%), linear-gradient(#b800e6, #8e00cc)',
-    legendary: 'linear-gradient(135deg, rgba(255, 195, 0, 0.85) 0%, rgba(255, 135, 0, 0.85) 100%), linear-gradient(#ffc300, #ff8700)'
+    common:    'linear-gradient(135deg,rgba(245,245,247,.85) 0%,rgba(210,214,220,.85) 100%),linear-gradient(#f5f5f7,#d2d6dc)',
+    uncommon:  'linear-gradient(135deg,rgba(0,224,132,.85) 0%,rgba(0,185,108,.85) 100%),linear-gradient(#00e084,#00b96c)',
+    rare:      'linear-gradient(135deg,rgba(0,168,255,.85) 0%,rgba(0,123,204,.85) 100%),linear-gradient(#00a8ff,#007bcc)',
+    epic:      'linear-gradient(135deg,rgba(184,0,230,.85) 0%,rgba(142,0,204,.85) 100%),linear-gradient(#b800e6,#8e00cc)',
+    legendary: 'linear-gradient(135deg,rgba(255,195,0,.85) 0%,rgba(255,135,0,.85) 100%),linear-gradient(#ffc300,#ff8700)'
   },
-  
+
   KARMA_BY_RARITY: {
-    common: 3,
-    uncommon: 5,
-    rare: 10,
-    epic: 15,
-    legendary: 30
+    common: 3, uncommon: 5, rare: 10, epic: 15, legendary: 30
   },
-  
+
   BADGE_CATEGORIES: {
-    'First Wins': ['first_step', 'first_gratitude', 'first_journal', 'first_energy', 'first_tarot', 'first_meditation', 'first_purchase'],
-    'Gratitude Badges': ['gratitude_warrior', 'gratitude_legend', 'gratitude_200', 'gratitude_500'],
-    'Journaling Badges': ['journal_keeper', 'journal_master', 'journal_150', 'journal_400'],
-    'Energy Tracking Badges': ['energy_tracker', 'energy_sage', 'energy_300', 'energy_600'],
-    'Tarot Spreads Badges': ['tarot_apprentice', 'tarot_mystic', 'tarot_oracle', 'tarot_150', 'tarot_400'],
-    'Meditations Badges': ['meditation_devotee', 'meditation_master', 'meditation_100', 'meditation_200'],
-    'Happiness and Motivation Badges': ['happiness_seeker', 'joy_master', 'happiness_300', 'happiness_700'],
-    'Wellness Exercises Badges': ['wellness_champion', 'wellness_guru', 'wellness_300', 'wellness_700'],
-    'Streaks Badges': ['perfect_week', 'dedication_streak', 'unstoppable', 'legendary_streak'],
-    'Quest Completion Badges': ['weekly_warrior', 'monthly_master', 'quest_crusher', 'daily_champion'],
-    'Karma Currency Badges': ['karma_collector', 'karma_lord', 'xp_milestone', 'xp_titan'],
-    'Level-Up Badges': ['level_5_hero', 'level_7_hero', 'level_10_hero'],
-    'Chakra Balance Badges': ['chakra_balancer', 'chakra_master'],
-    'Cross-Features Badges': ['triple_threat', 'super_day', 'complete_explorer', 'renaissance_soul']
+    'First Wins':                   ['first_step','first_gratitude','first_journal','first_energy','first_tarot','first_meditation','first_purchase'],
+    'Gratitude Badges':             ['gratitude_warrior','gratitude_legend','gratitude_200','gratitude_500'],
+    'Journaling Badges':            ['journal_keeper','journal_master','journal_150','journal_400'],
+    'Energy Tracking Badges':       ['energy_tracker','energy_sage','energy_300','energy_600'],
+    'Tarot Spreads Badges':         ['tarot_apprentice','tarot_mystic','tarot_oracle','tarot_150','tarot_400'],
+    'Meditations Badges':           ['meditation_devotee','meditation_master','meditation_100','meditation_200'],
+    'Happiness and Motivation Badges': ['happiness_seeker','joy_master','happiness_300','happiness_700'],
+    'Wellness Exercises Badges':    ['wellness_champion','wellness_guru','wellness_300','wellness_700'],
+    'Streaks Badges':               ['perfect_week','dedication_streak','unstoppable','legendary_streak'],
+    'Quest Completion Badges':      ['weekly_warrior','monthly_master','quest_crusher','daily_champion'],
+    'Karma Currency Badges':        ['karma_collector','karma_lord','xp_milestone','xp_titan'],
+    'Level-Up Badges':              ['level_5_hero','level_7_hero','level_10_hero'],
+    'Chakra Balance Badges':        ['chakra_balancer','chakra_master'],
+    'Cross-Features Badges':        ['triple_threat','super_day','complete_explorer','renaissance_soul']
   }
 };
 
 const UI_CONSTANTS = {
-  MOBILE_BREAKPOINT: 768,
+  MOBILE_BREAKPOINT:    768,
   BADGE_PREVIEW_DESKTOP: 9,
-  BADGE_PREVIEW_MOBILE: 6,
-  ANIMATION_FRAME_DELAY: 0,
-  DAILY_BONUS_XP: 50
+  BADGE_PREVIEW_MOBILE:  6,
+  DAILY_BONUS_XP:       50
 };
 
 const KNOWN_ADMIN_BADGE_IDS = new Set([
-  'early_supporter',
-  'vip_member', 
-  'beta_tester',
-  'spiritual_guide',
-  'community_hero'
+  'early_supporter', 'vip_member', 'beta_tester', 'spiritual_guide', 'community_hero'
 ]);
 
-// Global helper: navigate to Community Hub tab then scroll to a specific section.
-// Used by the Sanctuary widget on the Dashboard.
+// ─── Global navigation helper ─────────────────────────────────────────────────
+
 window._navigateToHubSection = function(targetId) {
-  // Store the desired scroll target - Core.init() will scroll after the Hub finishes rendering
   window._pendingHubScrollTarget = targetId;
   window.app?.nav?.switchTab('community-hub');
 };
 
+// ─── DashboardManager ─────────────────────────────────────────────────────────
+
 export default class DashboardManager {
-  /** @type {Object} Fallback quote when QuotesData unavailable */
   static FALLBACK_QUOTE = {
-    text: 'What you think, you become. What you feel, you attract. What you imagine, you create.',
+    text:   'What you think, you become. What you feel, you attract. What you imagine, you create.',
     author: 'Buddha'
   };
 
-  /**
-   * Creates a new DashboardManager instance
-   * @param {Object} app - Main application instance
-   */
   constructor(app) {
-    this.app = app;
+    this.app          = app;
     this.currentQuote = null;
-    this.dailyCards = new DailyCards(app);
-    this.intervals = [];
+    this.dailyCards   = new DailyCards(app);
+    this.intervals    = [];
     this.cachedElements = {};
+    this.globals      = { QuotesData: () => window.QuotesData };
 
-    // Cache global function references
-    this.globals = {
-      QuotesData: () => window.QuotesData
-    };
-    
     if (window.app) window.app.dailyCards = this.dailyCards;
 
     this.setupQuestListeners();
     this.startCountdown();
-    
-    // Bind methods for external calls
+
+    // Bind methods used via onclick attributes
     this.boundMethods = {
-      refreshQuote: this.refreshQuote.bind(this),
-      switchQuestTab: this.switchQuestTab.bind(this),
+      refreshQuote:    this.refreshQuote.bind(this),
+      switchQuestTab:  this.switchQuestTab.bind(this),
       toggleAllBadges: this.toggleAllBadges.bind(this)
     };
-    
-    // Expose methods globally for onclick handlers
+
     if (window.app?.dashboard) {
-      window.app.dashboard.refreshQuote = this.boundMethods.refreshQuote;
-      window.app.dashboard.switchQuestTab = this.boundMethods.switchQuestTab;
-      window.app.dashboard.toggleAllBadges = this.boundMethods.toggleAllBadges;
+      Object.assign(window.app.dashboard, this.boundMethods);
     }
-    
-    // Create debounced render
+
+    // Debounced main render
     this.render = this.debounce(this._render.bind(this), CONSTANTS.RENDER_DEBOUNCE_MS);
   }
 
-  /* ---------- Utility Methods ---------- */
-  
-  /**
-   * Debounces a function call
-   * @private
-   * @param {Function} func - Function to debounce
-   * @param {number} wait - Wait time in milliseconds
-   * @returns {Function} Debounced function
-   */
+  // ─── Utilities ─────────────────────────────────────────────────────────────
+
   debounce(func, wait) {
     let timeout;
-    return function executedFunction(...args) {
-      const later = () => {
-        clearTimeout(timeout);
-        func(...args);
-      };
+    return function(...args) {
       clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
+      timeout = setTimeout(() => func(...args), wait);
     };
   }
 
-  /**
-   * Flips a card with animation and updates content
-   * @private
-   * @param {string} cardId - ID of the card element
-   * @param {string} newHtml - New HTML content
-   */
   _flipCard(cardId, newHtml) {
-    const card = document.getElementById(cardId);
+    const card  = document.getElementById(cardId);
     if (!card) return;
-    
     const inner = card.querySelector('.flip-card-inner');
-    const back = card.querySelector('.flip-card-back');
+    const back  = card.querySelector('.flip-card-back');
     if (!inner || !back) return;
-    
     back.innerHTML = newHtml;
     const currentY = parseFloat(inner.style.transform.replace(/[^\d.-]/g, '')) || 0;
     inner.style.transform = `rotateY(${currentY + 360}deg)`;
-    
     const onEnd = () => {
       inner.removeEventListener('transitionend', onEnd);
       const front = card.querySelector('.flip-card-front');
@@ -167,426 +129,313 @@ export default class DashboardManager {
     inner.addEventListener('transitionend', onEnd);
   }
 
-  /**
-   * Gets next reset times for daily, weekly, and monthly periods
-   * @private
-   * @returns {Object} Object with daily, weekly, monthly Date objects
-   */
   _getNextResetTimes() {
     const now = new Date();
-    
     const daily = new Date(now);
     daily.setDate(daily.getDate() + 1);
     daily.setHours(0, 0, 0, 0);
-    
     const weekly = new Date(now);
     weekly.setDate(now.getDate() + ((7 - now.getDay()) % 7));
     weekly.setHours(0, 0, 0, 0);
     if (weekly <= now) weekly.setDate(weekly.getDate() + 7);
-    
-    const monthly = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0);
-    
+    const monthly = new Date(now.getFullYear(), now.getMonth() + 1, 1);
     return { daily, weekly, monthly };
   }
 
-  /**
-   * Formats milliseconds into countdown string
-   * @private
-   * @param {number} ms - Milliseconds to format
-   * @returns {string} Formatted countdown (e.g., "01d 12h 34m 56s")
-   */
   _formatCountdown(ms) {
     const totalSec = Math.max(0, Math.floor(ms / 1000));
     const d = Math.floor(totalSec / 86400);
     const h = Math.floor((totalSec % 86400) / 3600);
     const m = Math.floor((totalSec % 3600) / 60);
     const s = totalSec % 60;
-    
     const parts = [];
-    if (d) parts.push(String(d).padStart(2, '0') + 'd');
-    parts.push(
-      String(h).padStart(2, '0') + 'h',
-      String(m).padStart(2, '0') + 'm',
-      String(s).padStart(2, '0') + 's'
-    );
+    if (d) parts.push(`${String(d).padStart(2, '0')}d`);
+    parts.push(`${String(h).padStart(2, '0')}h`, `${String(m).padStart(2, '0')}m`, `${String(s).padStart(2, '0')}s`);
     return parts.join(' ');
   }
-/* ---------- Countdown & Intervals ---------- */
-  
-  /**
-   * Starts countdown timer interval
-   * @private
-   */
+
+  // ─── Countdown ─────────────────────────────────────────────────────────────
+
   startCountdown() {
-    const interval = setInterval(() => this.updateCountdownDisplays(), CONSTANTS.COUNTDOWN_UPDATE_INTERVAL);
-    this.intervals.push(interval);
+    const id = setInterval(() => this.updateCountdownDisplays(), CONSTANTS.COUNTDOWN_UPDATE_INTERVAL);
+    this.intervals.push(id);
   }
 
-  /**
-   * Updates all countdown displays (daily, weekly, monthly)
-   * Optimized with visibility check and batched DOM updates
-   * @private
-   */
   updateCountdownDisplays() {
-    if (!this.app.gamification) return;
-    if (document.hidden) return; // Skip if page not visible
-    
+    if (!this.app.gamification || document.hidden) return;
     try {
       const resets = this._getNextResetTimes();
-      const now = new Date();
-      const updates = {};
-      
-      // Calculate all updates first
+      const now    = new Date();
       ['daily', 'weekly', 'monthly'].forEach(type => {
-        updates[type] = this._formatCountdown(resets[type] - now);
-      });
-      
-      // Single reflow with batched DOM updates
-      Object.entries(updates).forEach(([type, text]) => {
         const el = document.getElementById(`countdown-${type}`);
-        if (el) el.textContent = text;
+        if (el) el.textContent = this._formatCountdown(resets[type] - now);
       });
     } catch (error) {
-      console.error('Error updating countdown:', error);
+      console.error('[Dashboard] Countdown update failed:', error);
     }
   }
 
-  /* ---------- Quest Listeners ---------- */
-  
-  /**
-   * Sets up gamification quest event listeners
-   * @private
-   */
+  // ─── Quest Listeners ───────────────────────────────────────────────────────
+
   setupQuestListeners() {
     if (!this.app.gamification) return;
-    
+
     this.app.gamification.on('questCompleted', quest => {
       if (this.app.gamification.state._bulkMode) return;
-      
       this.app.showToast(`Quest Complete: ${quest.name}! +${quest.xpReward} XP`, 'success');
-      
       if (quest.inspirational) {
-        setTimeout(() => {
-          this.app.showToast(`${quest.inspirational}`, 'info');
-        }, 1500);
+        setTimeout(() => this.app.showToast(quest.inspirational, 'info'), 1500);
       }
-      
       this.render();
     });
-    
-    this.app.gamification.on('bulkQuestsComplete', ({ type, done, xp, karma }) => {
-      const typeCapitalized = type.charAt(0).toUpperCase() + type.slice(1);
-      const message = `${typeCapitalized} quests complete! +${xp} XP${karma ? ` +${karma} Karma` : ''}`;
-      this.app.showToast(message, 'success');
+
+    this.app.gamification.on('bulkQuestsComplete', ({ type, xp, karma }) => {
+      const label = type.charAt(0).toUpperCase() + type.slice(1);
+      this.app.showToast(`${label} quests complete! +${xp} XP${karma ? ` +${karma} Karma` : ''}`, 'success');
     });
-    
+
     this.app.gamification.on('questProgress', () => this.render());
 
     this.app.gamification.on('dailyQuestsComplete', () => {
-      this.app.showToast(`All Daily Quests Complete! +${UI_CONSTANTS.DAILY_BONUS_XP} Bonus XP `, 'success');
+      this.app.showToast(`All Daily Quests Complete! +${UI_CONSTANTS.DAILY_BONUS_XP} Bonus XP`, 'success');
     });
   }
 
-  /* ---------- Quote Card ---------- */
+  // ─── Quote Card ────────────────────────────────────────────────────────────
 
-  /**
-   * Renders the inspirational quote card
-   * @private
-   * @returns {string} HTML string for quote card
-   */
   renderQuoteCard() {
-    const QuotesData = this.globals.QuotesData();
-    this.currentQuote = QuotesData 
+    const QuotesData  = this.globals.QuotesData();
+    this.currentQuote = QuotesData
       ? QuotesData.getQuoteOfTheDay()
       : DashboardManager.FALLBACK_QUOTE;
-    
+
+    const quoteHtml = this._quoteInnerHtml(this.currentQuote);
     return `
       <div class="neuro-card flip-card" id="dashboard-quote-card">
         <div class="flip-card-inner">
-          <div class="flip-card-front flex flex-col justify-between">
-            <div>
-              <div class="flex items-center mb-8">
-                <span class="text-3xl mr-4"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
-                <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2>
-              </div>
-              <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent); line-height: 1.5; padding-top: 2rem; padding-bottom: 2rem;">
-                "${this.currentQuote.text}"
-              </p>
-              <p class="mt-6 text-center text-lg" style="color: var(--neuro-text);">
-                - ${this.currentQuote.author}
-              </p>
-            </div>
-            <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
-              <button onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">
-                <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Refresh Quote
-              </button>
-            </div>
-          </div>
+          <div class="flip-card-front flex flex-col justify-between">${quoteHtml}</div>
           <div class="flip-card-back"></div>
         </div>
       </div>`;
   }
 
-  /**
-   * Refreshes the quote card with a new random quote
-   * @public
-   */
+  _quoteInnerHtml(quote) {
+    return `
+      <div>
+        <div class="flex items-center mb-8">
+          <span class="text-3xl mr-4" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
+          <h2 class="text-2xl font-bold" style="color:var(--neuro-text);">Inspirational Quote</h2>
+        </div>
+        <p class="text-2xl font-semibold text-center" style="color:var(--neuro-accent);line-height:1.5;padding-top:2rem;padding-bottom:2rem;">
+          &ldquo;${quote.text}&rdquo;
+        </p>
+        <p class="mt-6 text-center text-lg" style="color:var(--neuro-text);">— ${quote.author}</p>
+      </div>
+      <div style="margin-top:2rem;display:flex;justify-content:flex-end;">
+        <button type="button" onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">
+          <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Refresh Quote
+        </button>
+      </div>`;
+  }
+
   refreshQuote() {
     const QuotesData = this.globals.QuotesData();
     if (!QuotesData) return;
-    
     try {
       this.currentQuote = QuotesData.getRandomQuote();
-      
-      const html = `
-        <div class="flex flex-col justify-between">
-          <div>
-            <div class="flex items-center mb-8">
-              <span class="text-3xl mr-4"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
-              <h2 class="text-2xl font-bold" style="color: var(--neuro-text);">Inspirational Quote</h2>
-            </div>
-            <p class="text-2xl font-semibold text-center" style="color: var(--neuro-accent); line-height: 1.5; padding-top: 2rem; padding-bottom: 2rem;">
-              "${this.currentQuote.text}"
-            </p>
-            <p class="mt-6 text-center text-lg" style="color: var(--neuro-text);">
-              - ${this.currentQuote.author}
-            </p>
-          </div>
-          <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
-            <button onclick="window.app.dashboard.refreshQuote()" class="btn btn-secondary">
-              <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Refresh Quote
-            </button>
-          </div>
-        </div>`;
-      
-      this._flipCard('dashboard-quote-card', html);
-      
-      if (this.app.showToast) {
-        this.app.showToast('New quote revealed!', 'success');
-      }
+      this._flipCard('dashboard-quote-card', this._quoteInnerHtml(this.currentQuote));
+      this.app.showToast?.('New quote revealed!', 'success');
     } catch (error) {
-      console.error('Error refreshing quote:', error);
+      console.error('[Dashboard] refreshQuote failed:', error);
     }
   }
-/* ---------- Gamification Widget ---------- */
-  
-  /**
-   * Renders the gamification progress widget
-   * @private
-   * @param {Object} status - Gamification status object
-   * @param {Object} stats - User statistics object
-   * @returns {string} HTML string for gamification widget
-   */
+
+  // ─── Gamification Widget ───────────────────────────────────────────────────
+
   renderGamificationWidget(status, stats) {
     if (!this.app.gamification) return '';
     if (!this.app.state) {
       return '<div class="card dashboard-gamification mb-6"><p style="text-align:center;padding:20px;">Loading your progress...</p></div>';
     }
 
-    // Auto-correct level & trigger spectacle if needed
     const levelInfo = this.app.gamification.calculateLevel();
     if (levelInfo.level > this.app.gamification.state.level) {
       this.app.gamification.checkLevelUp();
     }
 
     const statItems = [
-      { value: status.karma, label: 'Karma', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="2" y2="9"/><line x1="12" y1="3" x2="22" y2="9"/></svg>' },
-      { value: stats.totalGratitudes || 0, label: 'Gratitudes', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' },
-      { value: status.totalJournalEntries, label: 'Journaling', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' },
-      { value: status.totalHappinessViews, label: 'Boosters', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>' },
-      { value: status.totalTarotSpreads, label: 'Tarot Spreads', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="11" height="14" rx="2"/><path d="M15.5 5.5 18 3l4 4-5.5 5.5"/><path d="m13 13 4.5 4.5"/><path d="m17.5 17.5 1 1"/></svg>' },
-      { value: stats.weeklyMeditations || 0, label: 'Meditations', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>' },
-      { value: status.totalWellnessRuns, label: 'Wellness Kit', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22c1.25-1.25 2.5-2.5 3.75-3.75"/><path d="M22 2C11 2 2 11 2 22c5.5 0 11-2.5 14.5-6S22 7.5 22 2z"/></svg>' },
-      { value: status.badges.length, label: 'Badges', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>' }
+      { value: status.karma,                    label: 'Karma',        icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 18 3 22 9 12 22 2 9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="2" y2="9"/><line x1="12" y1="3" x2="22" y2="9"/></svg>' },
+      { value: stats.totalGratitudes || 0,      label: 'Gratitudes',   icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' },
+      { value: status.totalJournalEntries,       label: 'Journaling',   icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' },
+      { value: status.totalHappinessViews,       label: 'Boosters',     icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>' },
+      { value: status.totalTarotSpreads,         label: 'Tarot Spreads',icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="11" height="14" rx="2"/><path d="M15.5 5.5 18 3l4 4-5.5 5.5"/><path d="m13 13 4.5 4.5"/><path d="m17.5 17.5 1 1"/></svg>' },
+      { value: stats.weeklyMeditations || 0,     label: 'Meditations',  icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>' },
+      { value: status.totalWellnessRuns,         label: 'Wellness Kit', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 22c1.25-1.25 2.5-2.5 3.75-3.75"/><path d="M22 2C11 2 2 11 2 22c5.5 0 11-2.5 14.5-6S22 7.5 22 2z"/></svg>' },
+      { value: status.badges.length,             label: 'Badges',       icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>' }
     ];
 
-    const article = levelInfo.title.match(/^[aeiou]/i) ? 'an' : 'a';
+    const article = /^[aeiou]/i.test(levelInfo.title) ? 'an' : 'a';
 
     return `
       <div class="card dashboard-gamification mb-6">
         <div class="dashboard-wellness-header">
-          <h3 class="dashboard-wellness-title"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Your Online Spiritual Progress</h3>
-          <p class="dashboard-wellness-subtitle">Track your online journey and celebrate every milestone</p>
+          <h2 class="dashboard-wellness-title">
+            <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Your Online Spiritual Progress
+          </h2>
+          <!-- Lighthouse: contrast fix — use --neuro-text-secondary (≥4.5:1 on card bg) instead of #6d5a42 on #c4ad91 -->
+          <p class="dashboard-wellness-subtitle" style="color:var(--neuro-text-secondary,#4a3728);">Track your online journey and celebrate every milestone</p>
         </div>
-        <div class="dashboard-progress-track">
+        <div class="dashboard-progress-track" role="progressbar" aria-valuenow="${levelInfo.progress}" aria-valuemin="0" aria-valuemax="100" aria-label="XP progress to next level">
           <div class="dashboard-progress-fill" style="width:${levelInfo.progress}%">
             <div class="dashboard-progress-shimmer"></div>
           </div>
         </div>
-        <p class="dashboard-xp-line">
-          <span class="dashboard-xp-current">${status.xp}</span> XP
+        <!-- Lighthouse: contrast fix — use darker green for XP numbers (#3d6e10 passes 4.5:1 on card bg) -->
+        <p class="dashboard-xp-line" style="color:var(--neuro-text-secondary,#4a3728);">
+          <span class="dashboard-xp-current" style="color:var(--neuro-accent-dark,#3d6e10);font-weight:700;">${status.xp}</span> XP
           <span class="dashboard-xp-sep">•</span>
-          <span class="dashboard-xp-next">${levelInfo.pointsToNext}</span> to next
+          <span class="dashboard-xp-next" style="color:var(--neuro-accent-dark,#3d6e10);font-weight:700;">${levelInfo.pointsToNext}</span> to next
         </p>
         <div class="text-center mb-6">
-          <h3 style="font-size:1.8rem;font-weight:bold;">
-            You are ${article} ${levelInfo.title} (Level ${levelInfo.level})
-          </h3>
+          <h3 style="font-size:1.8rem;font-weight:bold;">You are ${article} ${levelInfo.title} (Level ${levelInfo.level})</h3>
         </div>
         <div class="grid grid-cols-4 md:grid-cols-8 gap-2">
           ${statItems.map(item => `
             <div class="stat-card dashboard-stat-card" style="box-shadow:var(--shadow-inset);border-radius:12px;">
-              <div class="dashboard-stat-value">${item.value}</div>
-              <div class="dashboard-stat-emoji">${item.emoji}</div>
-              <div class="dashboard-stat-label" style="font-weight:700;">${item.label}</div>
+              <!-- Lighthouse: contrast fix on stat values -->
+              <div class="dashboard-stat-value" style="color:var(--neuro-accent-dark,#3d6e10);font-weight:700;">${item.value}</div>
+              <div class="dashboard-stat-emoji" aria-hidden="true">${item.icon}</div>
+              <div class="dashboard-stat-label" style="font-weight:700;color:var(--neuro-text-secondary,#4a3728);">${item.label}</div>
             </div>`).join('')}
         </div>
       </div>`;
   }
 
-  /* ---------- Wellness Toolkit ---------- */
-  
-  /**
-   * Renders the wellness toolkit section
-   * @private
-   * @returns {string} HTML string for wellness toolkit
-   */
+  // ─── Wellness Toolkit ──────────────────────────────────────────────────────
+
   renderWellnessToolkit() {
+    const tools = [
+      { fn: 'openSelfReset',    label: '60-Second Self Reset',  name: 'Self Reset',      desc: 'Short Breathing practice' },
+      { fn: 'openFullBodyScan', label: 'Full Body Scan',        name: 'Full Body Scan',  desc: 'Progressive relaxation' },
+      { fn: 'openNervousReset', label: 'Nervous System Reset',  name: 'Nervous System',  desc: 'Balance & regulation' },
+      { fn: 'openTensionSweep', label: 'Tension Sweep',         name: 'Tension Sweep',   desc: 'Release stored tension' }
+    ];
+
+    const icons = [
+      '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>'
+    ];
+
     return `
       <div class="card dashboard-wellness-toolkit mb-8">
         <div class="dashboard-wellness-header">
-          <h3 class="dashboard-wellness-title"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg> Wellness Toolkit</h3>
+          <h2 class="dashboard-wellness-title">
+            <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+            Wellness Toolkit
+          </h2>
           <p class="dashboard-wellness-subtitle">Quick access to your daily reset practices</p>
         </div>
         <div class="wellness-buttons-grid">
-          <button class="wellness-tool-btn wellness-tool-active" onclick="window.openSelfReset()" aria-label="60-Second Self Reset">
-            <div class="wellness-tool-icon"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></div>
-            <div class="wellness-tool-content">
-              <h4 class="wellness-tool-name">Self Reset</h4>
-              <p class="wellness-tool-description">Short Breathing practice</p>
-              <div class="wellness-tool-stats">
-                <span class="wellness-stat-xp"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> +10 XP</span>
-                <span class="wellness-stat-karma"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="2" y2="9"/><line x1="12" y1="3" x2="22" y2="9"/></svg> +1 Karma</span>
+          ${tools.map((t, i) => `
+            <button type="button" class="wellness-tool-btn wellness-tool-active"
+                    onclick="window.${t.fn}()"
+                    aria-label="${t.label}">
+              <div class="wellness-tool-icon" aria-hidden="true">${icons[i]}</div>
+              <div class="wellness-tool-content">
+                <h3 class="wellness-tool-name">${t.name}</h3>
+                <p class="wellness-tool-description">${t.desc}</p>
+                <div class="wellness-tool-stats">
+                  <span class="wellness-stat-xp" aria-label="Earns 10 XP">+10 XP</span>
+                  <span class="wellness-stat-karma" aria-label="Earns 1 Karma">+1 Karma</span>
+                </div>
               </div>
-            </div>
-          </button>
-          <button class="wellness-tool-btn wellness-tool-active" onclick="window.openFullBodyScan()" aria-label="Full Body Scan">
-            <div class="wellness-tool-icon"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg></div>
-            <div class="wellness-tool-content">
-              <h4 class="wellness-tool-name">Full Body Scan</h4>
-              <p class="wellness-tool-description">Progressive relaxation</p>
-              <div class="wellness-tool-stats">
-                <span class="wellness-stat-xp"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> +10 XP</span>
-                <span class="wellness-stat-karma"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="2" y2="9"/><line x1="12" y1="3" x2="22" y2="9"/></svg> +1 Karma</span>
-              </div>
-            </div>
-          </button>
-          <button class="wellness-tool-btn wellness-tool-active" onclick="window.openNervousReset()" aria-label="Nervous System Reset">
-            <div class="wellness-tool-icon"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
-            <div class="wellness-tool-content">
-              <h4 class="wellness-tool-name">Nervous System</h4>
-              <p class="wellness-tool-description">Balance & regulation</p>
-              <div class="wellness-tool-stats">
-                <span class="wellness-stat-xp"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> +10 XP</span>
-                <span class="wellness-stat-karma"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="2" y2="9"/><line x1="12" y1="3" x2="22" y2="9"/></svg> +1 Karma</span>
-              </div>
-            </div>
-          </button>
-          <button class="wellness-tool-btn wellness-tool-active" onclick="window.openTensionSweep()" aria-label="Tension Sweep">
-            <div class="wellness-tool-icon"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg></div>
-            <div class="wellness-tool-content">
-              <h4 class="wellness-tool-name">Tension Sweep</h4>
-              <p class="wellness-tool-description">Release stored tension</p>
-              <div class="wellness-tool-stats">
-                <span class="wellness-stat-xp"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> +10 XP</span>
-                <span class="wellness-stat-karma"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="2" y2="9"/><line x1="12" y1="3" x2="22" y2="9"/></svg> +1 Karma</span>
-              </div>
-            </div>
-          </button>
+            </button>`).join('')}
         </div>
       </div>`;
   }
 
-  /* ---------- Quest Hub ---------- */
-  
-  /**
-   * Renders the quest hub with tabs for daily/weekly/monthly quests
-   * @private
-   * @param {Object} status - Gamification status object
-   * @returns {string} HTML string for quest hub
-   */
+  // ─── Quest Hub ─────────────────────────────────────────────────────────────
+
   renderQuestHub(status) {
     try {
-      const dailyCompleted = status.quests?.daily?.filter(q => q.completed).length || 0;
-      const dailyTotal = status.quests?.daily?.length || 0;
-      const weeklyCompleted = status.quests?.weekly?.filter(q => q.completed).length || 0;
-      const weeklyTotal = status.quests?.weekly?.length || 0;
-      const monthlyCompleted = status.quests?.monthly?.filter(q => q.completed).length || 0;
-      const monthlyTotal = status.quests?.monthly?.length || 0;
+      const counts = ['daily', 'weekly', 'monthly'].reduce((acc, t) => {
+        acc[t] = {
+          completed: status.quests?.[t]?.filter(q => q.completed).length || 0,
+          total:     status.quests?.[t]?.length || 0
+        };
+        return acc;
+      }, {});
+
+      const tabBtn = (type, label, iconHtml) => `
+        <button type="button" class="quest-tab-btn${type === 'daily' ? ' active' : ''}"
+                data-quest-tab="${type}"
+                onclick="window.app.dashboard.switchQuestTab('${type}')"
+                aria-selected="${type === 'daily'}"
+                role="tab" id="quest-tab-${type}" aria-controls="quest-content-${type}">
+          ${iconHtml} ${label}
+          <span class="quest-count">(${counts[type].completed}/${counts[type].total})</span>
+          <span id="countdown-${type}" class="countdown-badge" aria-live="off"></span>
+        </button>`;
+
+      const dailyIcon   = '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+      const weeklyIcon  = '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h2v4H8z"/><path d="M14 14h2v4h-2z"/></svg>';
+      const monthlyIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>';
+      const giftIcon    = '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>';
+      const starIcon    = '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+
+      const questPanel = (type, label, isActive, completeMsg) => `
+        <div class="quest-tab-content${isActive ? ' active' : ''}" id="quest-content-${type}"
+             role="tabpanel" aria-labelledby="quest-tab-${type}"
+             ${!isActive ? 'style="display:none"' : ''}>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            ${status.quests[type].map(q => this.renderQuestCard(q, type)).join('')}
+          </div>
+          ${this.renderQuestCompleteMessage(type, counts[type].completed, counts[type].total, starIcon, completeMsg)}
+        </div>`;
 
       return `
         <div class="card dashboard-quest-hub mb-8">
           <div class="dashboard-quest-header" style="text-align:center;">
-            <h3 class="dashboard-quest-title"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Quest Hub</h3>
+            <h2 class="dashboard-quest-title">
+              <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+              Quest Hub
+            </h2>
           </div>
-          <div class="quest-tabs">
-            <button class="quest-tab-btn active" data-quest-tab="daily" onclick="window.app.dashboard.switchQuestTab('daily')">
-              <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8.01" y2="14"/><line x1="12" y1="14" x2="12.01" y2="14"/><line x1="16" y1="14" x2="16.01" y2="14"/></svg> Daily <span class="quest-count">(${dailyCompleted}/${dailyTotal})</span>
-              <span id="countdown-daily" class="countdown-badge"></span>
-            </button>
-            <button class="quest-tab-btn" data-quest-tab="weekly" onclick="window.app.dashboard.switchQuestTab('weekly')">
-              <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h2v4H8z"/><path d="M14 14h2v4h-2z"/></svg> Weekly <span class="quest-count">(${weeklyCompleted}/${weeklyTotal})</span>
-              <span id="countdown-weekly" class="countdown-badge"></span>
-            </button>
-            <button class="quest-tab-btn" data-quest-tab="monthly" onclick="window.app.dashboard.switchQuestTab('monthly')">
-              <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg> Monthly <span class="quest-count">(${monthlyCompleted}/${monthlyTotal})</span>
-              <span id="countdown-monthly" class="countdown-badge"></span>
-            </button>
+          <div class="quest-tabs" role="tablist" aria-label="Quest periods">
+            ${tabBtn('daily',   'Daily',   dailyIcon)}
+            ${tabBtn('weekly',  'Weekly',  weeklyIcon)}
+            ${tabBtn('monthly', 'Monthly', monthlyIcon)}
           </div>
-          <div class="quest-tab-content active" id="quest-content-daily">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              ${status.quests.daily.map(q => this.renderQuestCard(q, 'daily')).join('')}
-            </div>
-            ${this.renderQuestCompleteMessage('daily', dailyCompleted, dailyTotal, '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>', `All Daily Quests Complete! +${UI_CONSTANTS.DAILY_BONUS_XP} Bonus XP`)}
-          </div>
-          <div class="quest-tab-content" id="quest-content-weekly" style="display:none">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              ${status.quests.weekly.map(q => this.renderQuestCard(q, 'weekly')).join('')}
-            </div>
-            ${this.renderQuestCompleteMessage('weekly', weeklyCompleted, weeklyTotal, '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>', 'All Weekly Quests Complete! Amazing!')}
-          </div>
-          <div class="quest-tab-content" id="quest-content-monthly" style="display:none">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              ${status.quests.monthly.map(q => this.renderQuestCard(q, 'monthly')).join('')}
-            </div>
-            ${this.renderQuestCompleteMessage('monthly', monthlyCompleted, monthlyTotal, '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>', 'All Monthly Quests Complete! Legendary!')}
-          </div>
+          ${questPanel('daily',   'Daily',   true,  `All Daily Quests Complete! +${UI_CONSTANTS.DAILY_BONUS_XP} Bonus XP`)}
+          ${questPanel('weekly',  'Weekly',  false, 'All Weekly Quests Complete! Amazing!')}
+          ${questPanel('monthly', 'Monthly', false, 'All Monthly Quests Complete! Legendary!')}
         </div>`;
     } catch (error) {
-      console.error('Error rendering quest hub:', error);
+      console.error('[Dashboard] renderQuestHub failed:', error);
       return '<div class="card mb-8"><p style="text-align:center;padding:20px;">Unable to load quests. Please refresh.</p></div>';
     }
   }
 
-  /**
-   * Renders quest completion message if all quests are done
-   * @private
-   * @param {string} type - Quest type (daily/weekly/monthly)
-   * @param {number} completed - Number of completed quests
-   * @param {number} total - Total number of quests
-   * @param {string} emoji - Emoji to display
-   * @param {string} message - Completion message
-   * @returns {string} HTML string or empty string
-   */
-  renderQuestCompleteMessage(type, completed, total, emoji, message) {
+  renderQuestCompleteMessage(type, completed, total, icon, message) {
     if (completed !== total || total === 0) return '';
-    
     return `
-      <div class="dashboard-quest-complete dashboard-quest-complete-${type}">
-        <p class="dashboard-quest-complete-text">${emoji} ${message} ${emoji}</p>
+      <div class="dashboard-quest-complete dashboard-quest-complete-${type}" role="status" aria-live="polite">
+        <p class="dashboard-quest-complete-text">${icon} ${message} ${icon}</p>
       </div>`;
   }
 
-  /**
-   * Switches between quest tabs (daily/weekly/monthly)
-   * @public
-   * @param {string} tabName - Tab to switch to (daily/weekly/monthly)
-   */
   switchQuestTab(tabName) {
+    // Sanitise input — only allow known tab names
+    if (!['daily', 'weekly', 'monthly'].includes(tabName)) return;
     document.querySelectorAll('.quest-tab-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.questTab === tabName);
+      const active = btn.dataset.questTab === tabName;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-selected', String(active));
     });
-    
     document.querySelectorAll('.quest-tab-content').forEach(content => {
       const show = content.id === `quest-content-${tabName}`;
       content.style.display = show ? 'block' : 'none';
@@ -594,31 +443,32 @@ export default class DashboardManager {
     });
   }
 
-  /**
-   * Renders a single quest card
-   * @private
-   * @param {Object} quest - Quest object
-   * @param {string} questType - Type of quest (daily/weekly/monthly)
-   * @returns {string} HTML string for quest card
-   */
   renderQuestCard(quest, questType = 'daily') {
     const progressPercent = Math.min(100, ((quest.progress || 0) / (quest.goal || quest.target || 1)) * 100);
-    const isEnergy = quest.id === 'energy_checkin';
-    
-    const completedClass = quest.completed ? 'dashboard-quest-completed' : '';
-    const clickableClass = (!quest.completed && quest.tab) ? 'dashboard-quest-clickable' : '';
-    const hintHtml = (!quest.completed && quest.tab) ? '<div class="dashboard-quest-hint"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041-1.041 4.35a.5.5 0 0 1-.949.074z"/></svg> Click to start</div>' : '';
-    const clickHandler = (!quest.completed && quest.tab) 
-      ? `onclick="window.app.nav.switchTab('${quest.tab}'); window.scrollTo({top:0,behavior:'smooth'});"` 
+    const isEnergy        = quest.id === 'energy_checkin';
+    const completedClass  = quest.completed ? 'dashboard-quest-completed' : '';
+    const clickableClass  = (!quest.completed && quest.tab) ? 'dashboard-quest-clickable' : '';
+    const hintHtml        = (!quest.completed && quest.tab)
+      ? '<div class="dashboard-quest-hint" aria-hidden="true">Click to start</div>'
+      : '';
+    const clickHandler = (!quest.completed && quest.tab)
+      ? `onclick="window.app.nav.switchTab('${quest.tab}'); window.scrollTo({top:0,behavior:'smooth'});"`
+      : '';
+
+    // Accessible label for clickable quest cards
+    const cardRole  = (!quest.completed && quest.tab) ? 'role="button" tabindex="0"' : '';
+    const cardLabel = (!quest.completed && quest.tab)
+      ? `aria-label="Start quest: ${quest.name}"`
       : '';
 
     return `
-      <div class="card dashboard-quest-card ${completedClass} ${clickableClass}" ${clickHandler}>
-        ${quest.completed ? '<div class="dashboard-quest-checkmark">✓</div>' : ''}
+      <div class="card dashboard-quest-card ${completedClass} ${clickableClass}"
+           ${clickHandler} ${cardRole} ${cardLabel}>
+        ${quest.completed ? '<div class="dashboard-quest-checkmark" aria-label="Completed">✓</div>' : ''}
         <div class="dashboard-quest-header">
-          <div class="dashboard-quest-icon">${quest.icon}</div>
+          <div class="dashboard-quest-icon" aria-hidden="true">${quest.icon}</div>
           <div class="dashboard-quest-info">
-            <h4 class="dashboard-quest-name">${quest.name}</h4>
+            <h3 class="dashboard-quest-name">${quest.name}</h3>
             ${quest.inspirational ? `<p class="dashboard-quest-inspirational">${quest.inspirational}</p>` : ''}
             ${quest.target ? `<p class="dashboard-quest-target" style="font-size:0.85rem;color:var(--neuro-text-secondary);margin-top:0.25rem;">${quest.target}</p>` : ''}
           </div>
@@ -627,17 +477,28 @@ export default class DashboardManager {
           <div class="dashboard-quest-progress">
             ${isEnergy ? `
               <div class="dashboard-energy-checkin">
-                <span class="${quest.subProgress?.day ? 'dashboard-energy-done' : ''}"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg> Day ${quest.subProgress?.day ? '✓' : ''}</span>
-                <span class="${quest.subProgress?.night ? 'dashboard-energy-done' : ''}"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Night ${quest.subProgress?.night ? '✓' : ''}</span>
+                <span class="${quest.subProgress?.day ? 'dashboard-energy-done' : ''}">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                  Day ${quest.subProgress?.day ? '✓' : ''}
+                </span>
+                <span class="${quest.subProgress?.night ? 'dashboard-energy-done' : ''}">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                  Night ${quest.subProgress?.night ? '✓' : ''}
+                </span>
               </div>` : `
               <div class="dashboard-quest-progress-header">
                 <span>Progress</span>
                 <span>${quest.progress || 0}/${quest.goal || quest.target || 1}</span>
               </div>
-              <div class="dashboard-quest-bar">
+              <div class="dashboard-quest-bar" role="progressbar"
+                   aria-valuenow="${quest.progress || 0}"
+                   aria-valuemin="0"
+                   aria-valuemax="${quest.goal || quest.target || 1}"
+                   aria-label="${quest.name} progress">
                 <div class="dashboard-quest-fill" data-width="${progressPercent}"></div>
               </div>`}
-          </div>` : '<div class="dashboard-quest-complete-msg">Quest Complete! <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div>'}
+          </div>`
+        : '<div class="dashboard-quest-complete-msg">Quest Complete! 🎁</div>'}
         <div class="dashboard-quest-footer">
           <span class="dashboard-quest-xp">+${quest.xpReward} XP</span>
           ${quest.karmaReward ? `<span class="dashboard-quest-karma">+${quest.karmaReward} Karma</span>` : ''}
@@ -645,233 +506,148 @@ export default class DashboardManager {
         ${hintHtml}
       </div>`;
   }
-/* ---------- Badge Gallery (WITH ADMIN BADGE SUPPORT & MOBILE 3×2) ---------- */
-  
-  /**
-   * Renders the badge gallery/achievements section
-   * @private
-   * @param {Object} status - Gamification status object
-   * @returns {string} HTML string for badge gallery
-   */
+
+  // ─── Badge Gallery ─────────────────────────────────────────────────────────
+
   renderRecentAchievements(status) {
     try {
-      if (!status.badges || status.badges.length === 0) return '';
-      
-      const allDefs = this.app.gamification.getBadgeDefinitions();
-      const earned = new Set(status.badges.map(b => b.id));
+      if (!status.badges?.length) return '';
 
-      // Dynamic badge count: 6 on mobile, 9 on desktop
-      const isMobile = window.innerWidth <= UI_CONSTANTS.MOBILE_BREAKPOINT;
+      const allDefs    = this.app.gamification.getBadgeDefinitions();
+      const earned     = new Set(status.badges.map(b => b.id));
+      const isMobile   = window.innerWidth <= UI_CONSTANTS.MOBILE_BREAKPOINT;
       const previewCount = isMobile ? UI_CONSTANTS.BADGE_PREVIEW_MOBILE : UI_CONSTANTS.BADGE_PREVIEW_DESKTOP;
 
-      // Get latest earned badges (game + admin)
-      const latestEarned = this.getLatestEarnedBadges(status, allDefs, previewCount);
-
-      // Get full badge list
-      const gameBadges = this.getGameBadges(allDefs, earned);
+      const latestEarned     = this.getLatestEarnedBadges(status, allDefs, previewCount);
+      const gameBadges       = this.getGameBadges(allDefs, earned);
       const awardedAdminBadges = this.getAwardedAdminBadges(status.badges);
-      const fullList = [...gameBadges, ...awardedAdminBadges];
-
-      // Build categories
-      const categories = this.buildBadgeCategories(fullList, awardedAdminBadges);
-      const categoryHtml = this.renderBadgeCategories(categories);
-
-      // Preview badges HTML
-      const previewHtml = latestEarned.map(badge => this.renderBadgeCard(badge)).join('');
-
-      // Mobile-specific CSS for 3×2 grid
-      const mobileCss = `
-        <style>
-          @media (max-width: ${UI_CONSTANTS.MOBILE_BREAKPOINT}px) {
-            .badges-grid {
-              grid-template-columns: repeat(3, 1fr) !important;
-              gap: 0.5rem !important;
-            }
-            .badge-category-grid {
-              grid-template-columns: repeat(2, 1fr) !important;
-            }
-          }
-        </style>`;
+      const fullList         = [...gameBadges, ...awardedAdminBadges];
+      const categories       = this.buildBadgeCategories(fullList, awardedAdminBadges);
+      const categoryHtml     = this.renderBadgeCategories(categories);
+      const previewHtml      = latestEarned.map(b => this.renderBadgeCard(b)).join('');
 
       return `
         <div class="card dashboard-achievements mb-8">
           <div style="text-align:center;">
-            <h3 class="dashboard-achievements-title"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg> Earned Badges</h3>
-            <div class="badges-grid" style="display: grid; grid-template-columns: repeat(auto-fill,minmax(140px,1fr)); gap: 1rem; margin-bottom: 1rem;">
+            <h2 class="dashboard-achievements-title">
+              <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
+              Earned Badges
+            </h2>
+            <div class="badges-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1rem;margin-bottom:1rem;"
+                 role="list" aria-label="Earned badges">
               ${previewHtml}
             </div>
-
-            <button class="btn btn-secondary" id="show-all-btn" onclick="window.app.dashboard.toggleAllBadges()">
+            <button type="button" class="btn btn-secondary" id="show-all-btn"
+                    onclick="window.app.dashboard.toggleAllBadges()">
               Show All Badges (${fullList.length})
             </button>
-
-            <div id="all-badges-container" style="display:none; margin-top:1.5rem;">
+            <div id="all-badges-container" style="display:none;margin-top:1.5rem;" aria-label="All badges by category">
               ${categoryHtml}
             </div>
           </div>
-          ${mobileCss}
+          <style>
+            @media (max-width:${UI_CONSTANTS.MOBILE_BREAKPOINT}px) {
+              .badges-grid { grid-template-columns: repeat(3,1fr) !important; gap:.5rem !important; }
+              .badge-category-grid { grid-template-columns: repeat(2,1fr) !important; }
+            }
+          </style>
         </div>`;
     } catch (error) {
-      console.error('Error rendering badges:', error);
+      console.error('[Dashboard] renderRecentAchievements failed:', error);
       return '<div class="card mb-8"><p style="text-align:center;padding:20px;">Unable to load badges.</p></div>';
     }
   }
 
-  /**
-   * Gets latest earned badges for preview
-   * @private
-   * @param {Object} status - Status object with badges
-   * @param {Object} allDefs - All badge definitions
-   * @param {number} count - Number of badges to return
-   * @returns {Array} Array of badge objects
-   */
   getLatestEarnedBadges(status, allDefs, count) {
     return status.badges
-      .slice()
-      .reverse()
-      .slice(0, count)
+      .slice().reverse().slice(0, count)
       .map(b => this.processBadge(b, allDefs, KNOWN_ADMIN_BADGE_IDS.has(b.id)))
       .filter(Boolean);
   }
 
-  /**
-   * Processes a badge with definition lookup
-   * @private
-   * @param {Object} badge - Badge object
-   * @param {Object} allDefs - All badge definitions
-   * @param {boolean} isAdmin - Whether badge is admin-awarded
-   * @returns {Object|null} Processed badge or null
-   */
   processBadge(badge, allDefs, isAdmin) {
     const def = allDefs[badge.id] || (isAdmin ? this.getAdminBadgeDefaults(badge) : null);
     if (!def) return null;
-    
-    return {
-      ...badge,
-      ...def,
-      earned: true,
-      karma: CONSTANTS.KARMA_BY_RARITY[def.rarity] || 15
-    };
+    return { ...badge, ...def, earned: true, karma: CONSTANTS.KARMA_BY_RARITY[def.rarity] || 15 };
   }
 
-  /**
-   * Gets default values for admin badges
-   * @private
-   * @param {Object} badge - Badge object
-   * @returns {Object} Default badge definition
-   */
   getAdminBadgeDefaults(badge) {
     return {
-      name: badge.name || 'Special Badge',
-      icon: badge.icon || '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>',
+      name:        badge.name        || 'Special Badge',
+      icon:        badge.icon        || '🏅',
       description: badge.description || 'Admin awarded',
-      xp: badge.xp || 50,
-      rarity: badge.rarity || 'epic'
+      xp:          badge.xp          || 50,
+      rarity:      badge.rarity      || 'epic'
     };
   }
 
-  /**
-   * Gets all game badges with earned status
-   * @private
-   * @param {Object} allDefs - All badge definitions
-   * @param {Set} earned - Set of earned badge IDs
-   * @returns {Array} Array of game badge objects
-   */
   getGameBadges(allDefs, earned) {
     return Object.entries(allDefs).map(([id, def]) => ({
-      id,
-      ...def,
-      earned: earned.has(id),
+      id, ...def, earned: earned.has(id),
       karma: CONSTANTS.KARMA_BY_RARITY[def.rarity] || 3
     }));
   }
 
-  /**
-   * Gets awarded admin badges
-   * @private
-   * @param {Array} badges - All user badges
-   * @returns {Array} Array of admin badge objects
-   */
   getAwardedAdminBadges(badges) {
     return badges
       .filter(b => KNOWN_ADMIN_BADGE_IDS.has(b.id))
       .map(b => ({
-        id: b.id,
-        name: b.name || 'Special Badge',
-        icon: b.icon || '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>',
+        id:          b.id,
+        name:        b.name        || 'Special Badge',
+        icon:        b.icon        || '🏅',
         description: b.description || 'Admin awarded',
-        xp: b.xp || 50,
-        rarity: b.rarity || 'epic',
-        earned: true,
-        karma: CONSTANTS.KARMA_BY_RARITY[b.rarity || 'epic'] || 15
+        xp:          b.xp          || 50,
+        rarity:      b.rarity      || 'epic',
+        earned:      true,
+        karma:       CONSTANTS.KARMA_BY_RARITY[b.rarity || 'epic'] || 15
       }));
   }
 
-  /**
-   * Builds badge categories including admin if applicable
-   * @private
-   * @param {Array} fullList - Full list of badges
-   * @param {Array} awardedAdminBadges - Awarded admin badges
-   * @returns {Object} Categories object
-   */
   buildBadgeCategories(fullList, awardedAdminBadges) {
     const categories = { ...CONSTANTS.BADGE_CATEGORIES };
-    
     if (awardedAdminBadges.length > 0) {
       categories['Admin Rewards'] = awardedAdminBadges.map(b => b.id);
     }
-    
     return categories;
   }
 
-  /**
-   * Renders badge categories HTML
-   * @private
-   * @param {Object} categories - Categories object
-   * @returns {string} HTML string
-   */
   renderBadgeCategories(categories) {
-    const allDefs = this.app.gamification.getBadgeDefinitions();
-    const status = this.app.gamification.getStatusSummary();
-    const earned = new Set(status.badges.map(b => b.id));
-    
-    const gameBadges = this.getGameBadges(allDefs, earned);
+    const allDefs          = this.app.gamification.getBadgeDefinitions();
+    const status           = this.app.gamification.getStatusSummary();
+    const earned           = new Set(status.badges.map(b => b.id));
+    const gameBadges       = this.getGameBadges(allDefs, earned);
     const awardedAdminBadges = this.getAwardedAdminBadges(status.badges);
-    const fullList = [...gameBadges, ...awardedAdminBadges];
+    const fullList         = [...gameBadges, ...awardedAdminBadges];
 
-    return Object.entries(categories)
-      .map(([categoryName, badgeIds]) => {
-        const categoryBadges = badgeIds
-          .map(id => fullList.find(b => b.id === id))
-          .filter(Boolean);
-        
-        if (categoryBadges.length === 0) return '';
-        
-        return `
-          <div class="badge-category">
-            <h4 class="badge-category-title">${categoryName}</h4>
-            <div class="badge-category-grid" style="display: grid; grid-template-columns: repeat(${CONSTANTS.BADGE_GRID_COLUMNS}, 1fr); gap: 1rem;">
-              ${categoryBadges.map(badge => this.renderBadgeCard(badge)).join('')}
-            </div>
-          </div>`;
-      })
-      .join('');
+    return Object.entries(categories).map(([categoryName, badgeIds]) => {
+      const categoryBadges = badgeIds.map(id => fullList.find(b => b.id === id)).filter(Boolean);
+      if (categoryBadges.length === 0) return '';
+      return `
+        <div class="badge-category">
+          <h3 class="badge-category-title">${categoryName}</h3>
+          <div class="badge-category-grid"
+               style="display:grid;grid-template-columns:repeat(${CONSTANTS.BADGE_GRID_COLUMNS},1fr);gap:1rem;"
+               role="list" aria-label="${categoryName}">
+            ${categoryBadges.map(b => this.renderBadgeCard(b)).join('')}
+          </div>
+        </div>`;
+    }).join('');
   }
 
-  /**
-   * Renders a single badge card
-   * @private
-   * @param {Object} badge - Badge object
-   * @returns {string} HTML string for badge card
-   */
   renderBadgeCard(badge) {
-    const cardClass = badge.earned ? '' : 'badge-locked';
+    const locked   = !badge.earned;
     const gradient = CONSTANTS.RARITY_GRADIENTS[badge.rarity] || CONSTANTS.RARITY_GRADIENTS.common;
-    const icon = badge.earned ? badge.icon : '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
-    
+    const icon     = badge.earned
+      ? badge.icon
+      : '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+    const ariaLabel = `${badge.name}${locked ? ' (locked)' : ''}: ${badge.description}`;
+
     return `
-      <div class="dashboard-badge-card ${cardClass}" style="background:${gradient};">
-        <div class="badge-icon">${icon}</div>
+      <div class="dashboard-badge-card${locked ? ' badge-locked' : ''}"
+           style="background:${gradient};"
+           role="listitem"
+           aria-label="${ariaLabel}">
+        <div class="badge-icon" aria-hidden="true">${icon}</div>
         <div class="badge-title">${badge.name}</div>
         <div class="badge-sub">${badge.description}</div>
         <div class="badge-rewards">
@@ -881,66 +657,44 @@ export default class DashboardManager {
       </div>`;
   }
 
-  /**
-   * Toggles display of all badges
-   * @public
-   */
   toggleAllBadges() {
     const container = document.getElementById('all-badges-container');
-    const btn = document.getElementById('show-all-btn');
-    
+    const btn       = document.getElementById('show-all-btn');
     if (!container || !btn) return;
-    
+
     const isOpen = container.style.display !== 'none';
     container.style.display = isOpen ? 'none' : 'block';
-    
-    const allDefs = this.app.gamification.getBadgeDefinitions();
-    const status = this.app.gamification.getStatusSummary();
+
+    const allDefs        = this.app.gamification.getBadgeDefinitions();
+    const status         = this.app.gamification.getStatusSummary();
     const adminOnlyBadges = status.badges.filter(b => !allDefs[b.id] && KNOWN_ADMIN_BADGE_IDS.has(b.id));
-    const totalCount = Object.keys(allDefs).length + adminOnlyBadges.length;
-    
-    btn.textContent = isOpen 
-      ? `Show All Badges (${totalCount})` 
-      : 'Show Less';
+    const totalCount     = Object.keys(allDefs).length + adminOnlyBadges.length;
+
+    btn.textContent = isOpen ? `Show All Badges (${totalCount})` : 'Show Less';
   }
-/* ---------- Main Render ---------- */
-  
-  /**
-   * Main render method for the dashboard
-   * @private
-   */
+
+  // ─── Main Render ───────────────────────────────────────────────────────────
+
   async _render() {
     const dashboard = document.getElementById('dashboard-tab');
     if (!dashboard) return;
 
     try {
-      // Get status
-      const status = this.app.gamification 
+      const status = this.app.gamification
         ? this.app.gamification.getStatusSummary()
-        : {
-            quests: { daily: [], weekly: [], monthly: [] },
-            badges: [],
-            xp: 0,
-            karma: 0,
-            streak: { current: 0 },
-            totalJournalEntries: 0,
-            totalHappinessViews: 0,
-            totalTarotSpreads: 0,
-            totalWellnessRuns: 0
-          };
+        : { quests: { daily: [], weekly: [], monthly: [] }, badges: [], xp: 0, karma: 0, streak: { current: 0 }, totalJournalEntries: 0, totalHappinessViews: 0, totalTarotSpreads: 0, totalWellnessRuns: 0 };
 
-      const stats = this.app.state?.getStats?.() || {};
+      const stats    = this.app.state?.getStats?.() || {};
       const userName = this.app.state.currentUser?.name || 'Seeker';
 
       dashboard.innerHTML = `
         <div class="dashboard-container">
           <div class="dashboard-content">
             <header class="main-header project-curiosity"
-                    style="--header-img:url('/public/Tabs/NavDashboard.webp');
-                           --header-title:'${userName}';
-                           --header-tag:'Your journey inward begins here, so practice. explore. transform.'">
+                    style="--header-img:url('/public/Tabs/NavDashboard.webp');--header-title:'${userName}';--header-tag:'Your journey inward begins here';">
+              <!-- Lighthouse heading order: h1 → h2 (was h3, fixed) -->
               <h1>${userName}'s Spiritual Dashboard</h1>
-              <h3>Your journey inward begins here, so practice. explore. transform.</h3>
+              <h2 style="font-size:1.1rem;font-weight:400;">Your journey inward begins here, so practice. explore. transform.</h2>
               <span class="header-sub"></span>
             </header>
             ${this.renderGamificationWidget(status, stats)}
@@ -954,12 +708,9 @@ export default class DashboardManager {
           </div>
         </div>`;
 
-      // Animate progress bars
       this.animateProgressBars();
 
-      // Render Active Members widget into the dashboard container.
-      // ActiveMembers.render() always targets #activeMembersContainer, so we
-      // briefly give our dashboard div that ID, render, then restore it.
+      // Render Active Members widget (ID swap technique preserved)
       const dashEl = document.getElementById('dashboardActiveMembersContainer');
       if (dashEl) {
         dashEl.id = 'activeMembersContainer';
@@ -967,99 +718,83 @@ export default class DashboardManager {
         dashEl.id = 'dashboardActiveMembersContainer';
       }
 
-      // Render Sanctuary / Community Hub invite section
       this._renderSanctuarySection();
-      
+
     } catch (error) {
-      console.error('Error rendering dashboard:', error);
+      console.error('[Dashboard] _render failed:', error);
       dashboard.innerHTML = `
-        <div class="card" style="padding: 2rem; text-align: center;">
-          <h2 style="color: var(--neuro-accent);"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Error Loading Dashboard</h2>
+        <div class="card" style="padding:2rem;text-align:center;">
+          <h2 style="color:var(--neuro-accent);">Error Loading Dashboard</h2>
           <p>Please refresh the page or contact support if the issue persists.</p>
+          <button type="button" onclick="location.reload()" style="margin-top:1.5rem;padding:.75rem 2rem;background:var(--neuro-accent);color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;">
+            Retry
+          </button>
         </div>`;
     }
   }
 
-  /**
-   * Animates progress bars with requestAnimationFrame
-   * @private
-   */
   animateProgressBars() {
     requestAnimationFrame(() => {
       document.querySelectorAll('.dashboard-progress-width, .dashboard-quest-fill').forEach(el => {
-        const width = el.dataset.width;
-        if (width) {
-          el.style.width = width + '%';
-        }
+        if (el.dataset.width) el.style.width = el.dataset.width + '%';
       });
     });
   }
 
-  /* ---------- Sanctuary / Community Hub Invite ---------- */
+  // ─── Sanctuary Section ─────────────────────────────────────────────────────
 
-  /**
-   * Renders the Community Hub invite section in dashboard card style.
-   * @private
-   */
   _renderSanctuarySection() {
     const container = document.getElementById('sanctuaryContainer');
     if (!container) return;
 
     const features = [
-      { emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>', title: '8 Practice & Study Rooms', desc: 'Join live rooms with other practitioners', target: 'roomsGrid' },
-      { emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>', title: 'Chat & Connect',           desc: 'Talk, study and share with the community', target: 'communityReflectionsContainer' },
-      { emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>', title: 'Lunar Cycle Room',         desc: 'Practice in rhythm with the moon',        target: 'celestialLunarSection' },
-      { emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>', title: 'Solar Cycle Room',         desc: 'Align your practice with the sun',        target: 'celestialSolarSection' },
+      { icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>', title: '8 Practice & Study Rooms',    desc: 'Join live rooms with other practitioners', target: 'roomsGrid' },
+      { icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>', title: 'Chat & Connect',              desc: 'Talk, study and share with the community', target: 'communityReflectionsContainer' },
+      { icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>', title: 'Lunar Cycle Room',          desc: 'Practice in rhythm with the moon',       target: 'celestialLunarSection' },
+      { icon: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>', title: 'Solar Cycle Room',           desc: 'Align your practice with the sun',       target: 'celestialSolarSection' }
     ];
 
     container.innerHTML = `
       <div class="card dashboard-wellness-toolkit dashboard-community-sanctuary mb-8">
         <img src="/public/Tabs/CommunityHub.webp" alt="Community Sanctuary"
-             width="800" height="450"
-             style="width:100%;border-radius:var(--radius-md);display:block;">
-
+             width="800" height="450" loading="lazy" decoding="async"
+             style="width:100%;border-radius:var(--radius-md);display:block;aspect-ratio:16/9;object-fit:cover;">
         <div class="wellness-buttons-grid">
           ${features.map(f => `
-            <button class="wellness-tool-btn wellness-tool-active"
+            <button type="button" class="wellness-tool-btn wellness-tool-active"
                     onclick="window._navigateToHubSection('${f.target}')"
-                    aria-label="${f.title}">
-              <div class="wellness-tool-icon">${f.emoji}</div>
+                    aria-label="${f.title}: ${f.desc}">
+              <div class="wellness-tool-icon" aria-hidden="true">${f.icon}</div>
               <div class="wellness-tool-content">
-                <h4 class="wellness-tool-name">${f.title}</h4>
+                <h3 class="wellness-tool-name">${f.title}</h3>
                 <p class="wellness-tool-description">${f.desc}</p>
               </div>
             </button>`).join('')}
         </div>
-
-        <button onclick="window.app?.nav?.switchTab('community-hub')"
+        <button type="button"
+                onclick="window.app?.nav?.switchTab('community-hub')"
                 class="btn btn-primary"
                 style="width:100%;margin-top:1rem;display:flex;align-items:center;justify-content:center;gap:0.5rem;">
-          <picture><source srcset="/public/Tabs/Community.webp" type="image/webp"><img src="/public/Tabs/Community.png" alt="" width="44" height="44" style="width:44px;height:44px;object-fit:contain;border-radius:4px;"></picture>
+          <picture>
+            <source srcset="/public/Tabs/Community.webp" type="image/webp">
+            <img src="/public/Tabs/Community.png" alt="" aria-hidden="true"
+                 width="44" height="44" style="width:44px;height:44px;object-fit:contain;border-radius:4px;">
+          </picture>
           Enter the Community Hub →
         </button>
       </div>`;
   }
 
-  /* ---------- Cleanup ---------- */
-  
-  /**
-   * Destroys the dashboard manager and cleans up resources
-   * @public
-   */
-  destroy() {
-    // Clear all intervals
-    this.intervals.forEach(interval => clearInterval(interval));
-    this.intervals = [];
+  // ─── Cleanup ───────────────────────────────────────────────────────────────
 
-    // Clear cached elements
+  destroy() {
+    this.intervals.forEach(id => clearInterval(id));
+    this.intervals     = [];
     this.cachedElements = {};
-    
-    // Remove global references
     if (window.app?.dashboard) {
       delete window.app.dashboard.refreshQuote;
       delete window.app.dashboard.switchQuestTab;
       delete window.app.dashboard.toggleAllBadges;
     }
-    
   }
 }

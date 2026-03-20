@@ -1,171 +1,132 @@
 /**
  * ProjectCuriosityApp - Main Application Controller
- * 
+ *
  * Coordinates authentication, state management, navigation, and feature modules.
- * This is the central orchestrator that ties all app components together.
+ * Central orchestrator that ties all app components together.
  */
 
-/* global window, document, requestAnimationFrame */
-
-import { showToast } from './Toast.js';
-import * as modal from './Modal.js';
+import { showToast }    from './Toast.js';
+import * as modal       from './Modal.js';
 import { GamificationEngine } from '../Core/GamificationEngine.js';
-import { supabase } from './Supabase.js';
-import { DarkMode } from '/Core/Utils.js';
-import DailyCards from '../Features/DailyCards.js';
-import CTA from './CTA.js';
+import { supabase }     from './Supabase.js';
+import { DarkMode }     from '/Core/Utils.js';
+import DailyCards       from '../Features/DailyCards.js';
+import CTA              from './CTA.js';
 import { fetchProgress, saveProgress, clearCache } from '/Core/DB.js';
-import { CommunityDB } from '/Mini-Apps/CommunityHub/js/community-supabase.js';
+import { CommunityDB }  from '/Mini-Apps/CommunityHub/js/community-supabase.js';
 import { Core as CommunityCore } from '/Mini-Apps/CommunityHub/js/core.js';
 import { MemberProfileModal } from '/Mini-Apps/CommunityHub/js/member-profile-modal.js';
 import { WhisperModal } from '/Mini-Apps/CommunityHub/js/WhisperModal.js';
 
-/* =========================================================
-   CONSTANTS
-   ========================================================= */
+// ─── Constants ────────────────────────────────────────────────────────────────
 
-const STORAGE_KEYS = {
-  USER: 'pc_user',
+const STORAGE_KEYS = Object.freeze({
+  USER:             'pc_user',
   LAST_DAILY_RESET: 'lastDailyReset'
-};
+});
 
-const ANIMATION_DURATIONS = {
-  LEVEL_UP: 3000,
-  ACHIEVEMENT_MODAL: 8000,
-  FADE_OUT: 300
-};
+const ANIMATION_DURATIONS = Object.freeze({
+  LEVEL_UP:          3_000,
+  ACHIEVEMENT_MODAL: 8_000,
+  FADE_OUT:          300
+});
 
-const TOAST_COOLDOWN = {
-  DEFAULT: 1200,
-  TOAST_CLEANUP_INTERVAL: 60000 // Clean throttle map every minute
-};
+const TOAST_COOLDOWN = Object.freeze({
+  DEFAULT:               1_200,
+  TOAST_CLEANUP_INTERVAL: 60_000
+});
 
-const TAB_NAMES = {
-  DASHBOARD: 'dashboard',
-  CALCULATOR: 'calculator',
-  ADMIN: 'admin',
-  FLIP_SCRIPT: 'flip-script',
-  KARMA_SHOP: 'karma-shop',
-  MEDITATIONS: 'meditations',
-  TAROT: 'tarot',
-  ENERGY: 'energy',
-  HAPPINESS: 'happiness',
-  GRATITUDE: 'gratitude',
-  JOURNAL: 'journal',
+const TAB_NAMES = Object.freeze({
+  DASHBOARD:     'dashboard',
+  CALCULATOR:    'calculator',
+  ADMIN:         'admin',
+  FLIP_SCRIPT:   'flip-script',
+  KARMA_SHOP:    'karma-shop',
+  MEDITATIONS:   'meditations',
+  TAROT:         'tarot',
+  ENERGY:        'energy',
+  HAPPINESS:     'happiness',
+  GRATITUDE:     'gratitude',
+  JOURNAL:       'journal',
   SHADOW_ALCHEMY: 'shadow-alchemy',
-  CHATBOT: 'chatbot',
+  CHATBOT:       'chatbot',
   COMMUNITY_HUB: 'community-hub'
+});
+
+// Allowed avatar MIME types (security: only accept images)
+const ALLOWED_AVATAR_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+// Max avatar size: 5 MB
+const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
+
+// ─── Safe localStorage ────────────────────────────────────────────────────────
+
+const ls = {
+  get:    k      => { try { return localStorage.getItem(k); }  catch { return null; } },
+  set:    (k, v) => { try { localStorage.setItem(k, v); }      catch { /* noop */  } }
 };
 
-const EMOJI = {
-  LEVEL_UP:    '',
-  ACHIEVEMENT: '',
-  FIRE:        '',
-  TROPHY:      '',
-  MEDAL:       '',
-  BADGE:       '',
-  CHECKMARK:   '',
-  STAR:        '',
-  GEM:         '',
-  SPARKLES:    '',
-  UNLOCK:      ''
-};
+// ─── Module-level side effects ────────────────────────────────────────────────
 
-// Initialize dark mode on module load
 DarkMode.init();
-
-// Expose Supabase client globally for Community Hub scripts
+// Expose Supabase client globally for Community Hub scripts (set in Supabase.js too)
 window.AppSupabase = supabase;
 
-/* =========================================================
-   MAIN APPLICATION CLASS
-   ========================================================= */
+// ─── ProjectCuriosityApp ──────────────────────────────────────────────────────
 
 export default class ProjectCuriosityApp {
   /**
-   * @param {Object} deps - Dependency injection object
-   * @param {Function} deps.AppState - State management class
-   * @param {Function} deps.AuthManager - Authentication manager class
-   * @param {Function} deps.NavigationManager - Navigation manager class
-   * @param {Function} deps.DashboardManager - Dashboard manager class
+   * @param {Object} deps - Dependency injection
+   * @param {Function} deps.AppState
+   * @param {Function} deps.AuthManager
+   * @param {Function} deps.NavigationManager
+   * @param {Function} deps.DashboardManager
+   * @param {Function} [deps.UserTab]
    */
   constructor(deps) {
-    this.deps = deps;
-    this.state = new deps.AppState(this);
-    this.auth = new deps.AuthManager(this);
-    this.nav = null;
-    this.dashboard = null;
-    this.gamification = null;
-    this.dailyCards = null;
-    this.footerCTA = null;
-    this.features = null;
-    this.currentTab = null;
+    this.deps          = deps;
+    this.state         = new deps.AppState(this);
+    this.auth          = new deps.AuthManager(this);
+    this.nav           = null;
+    this.dashboard     = null;
+    this.gamification  = null;
+    this.dailyCards    = null;
+    this.footerCTA     = null;
+    this.features      = null;
+    this.currentTab    = null;
 
-    // Initialization flags
-    this._initialized = false;
+    this._initialized              = false;
     this._gamificationListenersReady = false;
 
-    // Toast throttle management
-    this.toastThrottle = new Map();
-    this._toastCleanupInterval = null;
-
-    // Gamification event cleanup
+    this.toastThrottle             = new Map();
+    this._toastCleanupInterval     = null;
     this._gamificationUnsubscribers = [];
 
-    // Bind methods
+    // showToast bound for external consumers
     this.showToast = showToast;
 
-    // Expose to window for legacy compatibility
     window.app = this;
   }
 
-  /* =========================================================
-     TOAST MANAGEMENT
-     ========================================================= */
+  // ─── Toast management ───────────────────────────────────────────────────────
 
-  /**
-   * Show toast with throttling to prevent spam
-   * @param {string} msg - Message to display
-   * @param {string} type - Toast type
-   * @param {string|null} key - Optional unique key
-   * @param {number} cooldown - Cooldown period in ms
-   */
   showToastOnce(msg, type = 'info', key = null, cooldown = TOAST_COOLDOWN.DEFAULT) {
     const throttleKey = key || `${msg}:${type}`;
-    const now = Date.now();
-    const lastShown = this.toastThrottle.get(throttleKey) || 0;
-
-    if (now - lastShown < cooldown) {
-      return;
-    }
-
+    const now         = Date.now();
+    if (now - (this.toastThrottle.get(throttleKey) || 0) < cooldown) return;
     this.toastThrottle.set(throttleKey, now);
     showToast(msg, type, key);
   }
 
-  /**
-   * Start periodic cleanup of toast throttle map
-   * @private
-   */
   _startToastCleanup() {
     if (this._toastCleanupInterval) return;
-
     this._toastCleanupInterval = setInterval(() => {
-      const now = Date.now();
-      const cutoff = now - (TOAST_COOLDOWN.DEFAULT * 2);
-
-      for (const [key, timestamp] of this.toastThrottle.entries()) {
-        if (timestamp < cutoff) {
-          this.toastThrottle.delete(key);
-        }
+      const cutoff = Date.now() - TOAST_COOLDOWN.DEFAULT * 2;
+      for (const [key, ts] of this.toastThrottle) {
+        if (ts < cutoff) this.toastThrottle.delete(key);
       }
     }, TOAST_COOLDOWN.TOAST_CLEANUP_INTERVAL);
   }
 
-  /**
-   * Stop toast cleanup interval
-   * @private
-   */
   _stopToastCleanup() {
     if (this._toastCleanupInterval) {
       clearInterval(this._toastCleanupInterval);
@@ -173,440 +134,300 @@ export default class ProjectCuriosityApp {
     }
   }
 
-  /* =========================================================
-     PROFILE MANAGEMENT
-     ========================================================= */
+  // ─── Profile management ─────────────────────────────────────────────────────
 
-  /**
-   * Save user profile with avatar upload
-   */
   async saveQuickProfile() {
     const profileData = this._getProfileFormData();
-
-    if (!profileData || !profileData.name) {
+    if (!profileData?.name) {
       return this.showToast('Please fill in required fields', 'error');
     }
 
     let avatarUrl = this.state.currentUser.avatarUrl;
 
-    // Upload avatar if file selected
     if (profileData.file) {
+      // Validate file type and size before upload
+      if (!ALLOWED_AVATAR_TYPES.has(profileData.file.type)) {
+        return this.showToast('Please upload a JPEG, PNG, WebP, or GIF image', 'error');
+      }
+      if (profileData.file.size > MAX_AVATAR_BYTES) {
+        return this.showToast('Image must be smaller than 5 MB', 'error');
+      }
       try {
         avatarUrl = await this._uploadAvatar(profileData.file);
       } catch (error) {
-        console.error('Avatar upload failed:', error);
+        console.error('[App] Avatar upload failed:', error);
         return this.showToast('Failed to upload avatar', 'error');
       }
     }
 
-    // Save to database
     try {
       await this._saveProfileToDatabase(profileData, avatarUrl);
       this._updateLocalUserState(profileData, avatarUrl);
       this.showToast('Profile updated!', 'success');
-
-      // Sync avatar in UserTab if available
-      if (this.deps.UserTab) {
-        new this.deps.UserTab(this).syncAvatar();
-      }
+      if (this.deps.UserTab) new this.deps.UserTab(this).syncAvatar();
     } catch (error) {
-      console.error('Failed to save profile:', error);
-      return this.showToast('Failed to save profile to cloud', 'error');
+      console.error('[App] Profile save failed:', error);
+      this.showToast('Failed to save profile to cloud', 'error');
     }
   }
 
-  /**
-   * Get profile form data from DOM
-   * @private
-   * @returns {Object|null} Profile data or null if form not found
-   */
+  /** @private */
   _getProfileFormData() {
     const nameEl = document.getElementById('profile-name');
-    const emailEl = document.getElementById('profile-email');
-    const phoneEl = document.getElementById('profile-phone');
-    const bdayEl = document.getElementById('profile-birthday');
-    const emojiEl = document.getElementById('profile-emoji');
-    const fileEl = document.getElementById('avatar-upload');
-
     if (!nameEl) return null;
 
+    const emailEl  = document.getElementById('profile-email');
+    const phoneEl  = document.getElementById('profile-phone');
+    const bdayEl   = document.getElementById('profile-birthday');
+    const emojiEl  = document.getElementById('profile-emoji');
+    const fileEl   = document.getElementById('avatar-upload');
+
     return {
-      name: nameEl.value.trim(),
-      email: emailEl?.value.trim() || '',
-      phone: phoneEl?.value.trim() || '',
-      birthday: bdayEl?.value || null,
-      emoji: emojiEl?.value || '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
-      file: fileEl?.files[0] || null
+      name:     nameEl.value.trim().slice(0, 100),
+      email:    (emailEl?.value.trim()  || '').slice(0, 254),
+      phone:    (phoneEl?.value.trim()  || '').slice(0, 20),
+      birthday: bdayEl?.value           || null,
+      emoji:    emojiEl?.value          || 'user',
+      file:     fileEl?.files?.[0]      || null
     };
   }
 
-  /**
-   * Upload avatar file to Supabase storage
-   * @private
-   * @param {File} file - Avatar file
-   * @returns {Promise<string>} Public URL of uploaded avatar
-   */
+  /** @private — uploads avatar, returns public URL */
   async _uploadAvatar(file) {
-    const ext = file.name.split('.').pop();
+    // Use a safe filename — no user-controlled characters in the path
+    const ext  = file.type.split('/')[1] || 'jpg';
     const path = `avatars/${this.state.currentUser.id}-${Date.now()}.${ext}`;
 
     const { error } = await supabase.storage
       .from('avatars')
       .upload(path, file, { upsert: true });
-
     if (error) throw error;
 
-    const { data } = supabase.storage
-      .from('avatars')
-      .getPublicUrl(path);
-
+    const { data } = supabase.storage.from('avatars').getPublicUrl(path);
     return data.publicUrl;
   }
 
-  /**
-   * Save profile to Supabase database
-   * @private
-   * @param {Object} profileData - Profile data
-   * @param {string} avatarUrl - Avatar URL
-   */
+  /** @private */
   async _saveProfileToDatabase(profileData, avatarUrl) {
-    const payload = {
-      id: this.state.currentUser.id,
-      name: profileData.name,
-      phone: profileData.phone,
-      birthday: profileData.birthday,
-      emoji: profileData.emoji,
-      avatar_url: avatarUrl,
-      updated_at: new Date().toISOString()
-    };
-
     const { error } = await supabase
       .from('profiles')
-      .upsert(payload, { onConflict: 'id' });
-
+      .upsert({
+        id:         this.state.currentUser.id,
+        name:       profileData.name,
+        phone:      profileData.phone,
+        birthday:   profileData.birthday,
+        emoji:      profileData.emoji,
+        avatar_url: avatarUrl,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'id' });
     if (error) throw error;
   }
 
-  /**
-   * Update local user state and localStorage
-   * @private
-   * @param {Object} profileData - Profile data
-   * @param {string} avatarUrl - Avatar URL
-   */
+  /** @private */
   _updateLocalUserState(profileData, avatarUrl) {
     const user = {
       ...this.state.currentUser,
-      name: profileData.name,
-      email: profileData.email,
-      phone: profileData.phone,
-      birthday: profileData.birthday,
-      emoji: profileData.emoji,
+      name:      profileData.name,
+      email:     profileData.email,
+      phone:     profileData.phone,
+      birthday:  profileData.birthday,
+      emoji:     profileData.emoji,
       avatarUrl
     };
-
     this.state.currentUser = user;
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+    ls.set(STORAGE_KEYS.USER, JSON.stringify(user));
   }
 
-  /* =========================================================
-     GAMIFICATION SETUP
-     ========================================================= */
+  // ─── Gamification setup ─────────────────────────────────────────────────────
 
-  /**
-   * Setup gamification event listeners
-   */
   setupGamificationListeners() {
     if (this._gamificationListenersReady) return;
     this._gamificationListenersReady = true;
 
     const g = this.gamification;
 
-    // Level up — showLevelUpSpectacle in the engine handles the visual celebration
-    const unsub1 = g.on('levelUp', ({ level, title }) => {
-      showToast(
-        `Level Up! You are now a ${title} (Level ${level})!`,
-        'success'
-      );
-    });
+    const subs = [
+      g.on('levelUp',           ({ level, title }) => {
+        showToast(`Level Up! You are now a ${title} (Level ${level})!`, 'success');
+      }),
+      g.on('streakUpdated',     ({ current, best }) => {
+        if (current > 1) showToast(`${current} Day Streak!`, 'success');
+        if (current === best && current > 3) showToast(`New Best Streak: ${best} Days!`, 'success');
+      }),
+      g.on('xpGained',          ({ amount, source, skipToast }) => {
+        if (!skipToast) showToast(`+${amount} XP from ${source}`, 'success');
+      }),
+      g.on('karmaGained',       ({ amount, source, skipToast }) => {
+        if (!skipToast) showToast(`+${amount} Karma from ${source}`, 'success');
+      }),
+      g.on('achievementUnlocked', achievement => {
+        showToast(`Achievement: ${achievement.name}`, 'success');
+        this.showAchievementModal(achievement);
+      }),
+      g.on('badgeUnlocked',     badge => {
+        showToast(`New Badge: ${badge.name}`, 'success');
+      }),
+      g.on('chakraUpdated',     ({ chakra, value }) => {
+        if (value >= 100) showToast(`${chakra} Chakra Mastered!`, 'success');
+      }),
+      g.on('featureUnlocked',   featureId => {
+        showToast(`New Feature Unlocked: ${featureId}`, 'success');
+      })
+    ];
 
-    // Streak updated
-    const unsub2 = g.on('streakUpdated', ({ current, best }) => {
-      if (current > 1) {
-        showToast(`${current} Day Streak!`, 'success');
-      }
-      if (current === best && current > 3) {
-        showToast(`New Best Streak: ${best} Days!`, 'success');
-      }
-    });
-
-    // XP gained (respects skipToast flag)
-    const unsub3 = g.on('xpGained', ({ amount, source, skipToast }) => {
-      if (skipToast) return;
-      showToast(`+${amount} XP from ${source}`, 'success');
-    });
-
-    // Karma gained (respects skipToast flag)
-    const unsub4 = g.on('karmaGained', ({ amount, source, skipToast }) => {
-      if (skipToast) return;
-      showToast(`+${amount} Karma from ${source}`, 'success');
-    });
-
-    // Achievement unlocked
-    const unsub5 = g.on('achievementUnlocked', (achievement) => {
-      showToast(`Achievement: ${achievement.name}`, 'success');
-      this.showAchievementModal(achievement);
-    });
-
-    // Badge unlocked
-    const unsub6 = g.on('badgeUnlocked', (badge) => {
-      showToast(`New Badge: ${badge.name}`, 'success');
-    });
-
-    // Quest completed - handled by DashboardManager
-
-    // All daily quests complete - handled by DashboardManager
-
-    // Chakra updated
-    const unsub9 = g.on('chakraUpdated', ({ chakra, value }) => {
-      if (value >= 100) {
-        showToast(`${chakra} Chakra Mastered!`, 'success');
-      }
-    });
-
-    // Inspirational message - handled by DashboardManager
-
-    // Feature unlocked
-    const unsub11 = g.on('featureUnlocked', (featureId) => {
-      showToast(`New Feature Unlocked: ${featureId}`, 'success');
-    });
-
-    // Store unsubscribers for cleanup
-    this._gamificationUnsubscribers.push(
-      unsub1, unsub2, unsub3, unsub4, unsub5, unsub6,
-      unsub9, unsub11
-    );
+    this._gamificationUnsubscribers.push(...subs);
   }
 
-  /**
-   * Play level up animation
-   */
+  /** Simple level-up confetti element (supplementary to GamificationEngine spectacle) */
   playLevelUpAnimation() {
     const el = document.createElement('div');
-    el.className = 'level-up-confetti';
-    el.textContent = EMOJI.LEVEL_UP;
-    el.style.cssText = `
-      position: fixed;
-      top: 40%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 3rem;
-      animation: fadeOut 3s forwards;
-      pointer-events: none;
-      z-index: 10001;
-    `;
-
+    el.setAttribute('aria-hidden', 'true');
+    el.className   = 'level-up-confetti';
+    el.textContent = '🎉';
+    Object.assign(el.style, {
+      position: 'fixed', top: '40%', left: '50%',
+      transform: 'translate(-50%, -50%)',
+      fontSize: '3rem', animation: 'fadeOut 3s forwards',
+      pointerEvents: 'none', zIndex: '10001'
+    });
     document.body.appendChild(el);
     setTimeout(() => el.remove(), ANIMATION_DURATIONS.LEVEL_UP);
   }
-/**
-   * Show achievement modal with animation
-   * @param {Object} achievement - Achievement object
+
+  /**
+   * Show achievement modal.
+   * Built entirely via DOM methods — no innerHTML with achievement data (XSS safe).
    */
   showAchievementModal(achievement) {
-    // Remove existing modal if present
-    const existing = document.getElementById('achievement-modal');
-    if (existing) existing.remove();
+    document.getElementById('achievement-modal')?.remove();
 
-    const modalEl = document.createElement('div');
-    modalEl.id = 'achievement-modal';
+    const modalEl  = document.createElement('div');
+    modalEl.id     = 'achievement-modal';
+    modalEl.setAttribute('role', 'dialog');
+    modalEl.setAttribute('aria-modal', 'true');
+    modalEl.setAttribute('aria-labelledby', 'achievement-modal-title');
 
-    const wrapper = document.createElement('div');
-    wrapper.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.75);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-      opacity: 0;
-      transition: opacity 0.3s;
-      backdrop-filter: blur(4px);
-    `;
+    const wrapper  = document.createElement('div');
+    Object.assign(wrapper.style, {
+      position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
+      background: 'rgba(0,0,0,.75)', display: 'flex',
+      alignItems: 'center', justifyContent: 'center',
+      zIndex: '10000', opacity: '0', transition: 'opacity 0.3s',
+      backdropFilter: 'blur(4px)'
+    });
 
-    const content = document.createElement('div');
-    content.style.cssText = `
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 50px 40px;
-      border-radius: 25px;
-      text-align: center;
-      max-width: 450px;
-      width: 90%;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-      transform: scale(0.7) translateY(-50px);
-      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    `;
+    const content  = document.createElement('div');
+    Object.assign(content.style, {
+      background: 'linear-gradient(135deg,#667eea 0%,#764ba2 100%)',
+      padding: '50px 40px', borderRadius: '25px', textAlign: 'center',
+      maxWidth: '450px', width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,.4)',
+      transform: 'scale(0.7) translateY(-50px)',
+      transition: 'all 0.4s cubic-bezier(0.68,-0.55,0.265,1.55)'
+    });
 
-    const icon = document.createElement('div');
-    icon.style.cssText = `
-      font-size: 5rem;
-      margin-bottom: 1.5rem;
-      animation: bounce 0.6s ease-in-out;
-    `;
-    icon.textContent = achievement.icon || EMOJI.ACHIEVEMENT;
+    // Icon — textContent, never innerHTML
+    const icon     = document.createElement('div');
+    icon.setAttribute('aria-hidden', 'true');
+    Object.assign(icon.style, { fontSize: '5rem', marginBottom: '1.5rem' });
+    icon.textContent = achievement.icon || '🏆';
 
-    const title = document.createElement('h2');
-    title.style.cssText = `
-      color: white;
-      font-size: 2rem;
-      font-weight: bold;
-      margin-bottom: 1rem;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    `;
-    title.textContent = 'Achievement Unlocked!';
+    const h2       = document.createElement('h2');
+    h2.id          = 'achievement-modal-title';
+    Object.assign(h2.style, { color: 'white', fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem', textShadow: '2px 2px 4px rgba(0,0,0,.3)' });
+    h2.textContent = 'Achievement Unlocked!';
 
-    const name = document.createElement('h3');
-    name.style.cssText = `
-      color: rgba(255, 255, 255, 0.95);
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-    `;
-    name.textContent = achievement.name;
+    const h3       = document.createElement('h3');
+    Object.assign(h3.style, { color: 'rgba(255,255,255,.95)', fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem' });
+    h3.textContent = achievement.name || '';
 
-    const description = document.createElement('p');
-    description.style.cssText = `
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 1.1rem;
-      line-height: 1.6;
-      margin-bottom: 2rem;
-    `;
-    description.textContent = achievement.inspirational || '';
+    const desc     = document.createElement('p');
+    Object.assign(desc.style, { color: 'rgba(255,255,255,.9)', fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '2rem' });
+    desc.textContent = achievement.inspirational || '';
 
-    const button = document.createElement('button');
-    button.style.cssText = `
-      background: white;
-      color: #667eea;
-      border: none;
-      padding: 12px 40px;
-      border-radius: 50px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      transition: all 0.3s;
-    `;
-    button.textContent = `Awesome! ${EMOJI.LEVEL_UP}`;
-    button.onmouseover = () => (button.style.transform = 'scale(1.05)');
-    button.onmouseout = () => (button.style.transform = 'scale(1)');
-    button.onclick = () => modalEl.remove();
+    const btn      = document.createElement('button');
+    btn.type       = 'button';
+    Object.assign(btn.style, {
+      background: 'white', color: '#667eea', border: 'none',
+      padding: '12px 40px', borderRadius: '50px', fontSize: '1.1rem',
+      fontWeight: 'bold', cursor: 'pointer',
+      boxShadow: '0 4px 15px rgba(0,0,0,.2)', transition: 'all 0.3s'
+    });
+    btn.textContent = 'Awesome! 🎉';
+    btn.addEventListener('mouseover', () => { btn.style.transform = 'scale(1.05)'; });
+    btn.addEventListener('mouseout',  () => { btn.style.transform = 'scale(1)'; });
+    btn.addEventListener('click',     () => modalEl.remove());
 
-    content.append(icon, title, name, description, button);
+    content.append(icon, h2, h3, desc, btn);
     wrapper.appendChild(content);
     modalEl.appendChild(wrapper);
     document.body.appendChild(modalEl);
 
-    // Trigger animations
+    // Return focus on close
+    const previouslyFocused = document.activeElement;
+    const close = () => { modalEl.remove(); previouslyFocused?.focus(); };
+    btn.addEventListener('click', close, { once: true });
+    wrapper.addEventListener('click', e => { if (e.target === wrapper) close(); });
+    document.addEventListener('keydown', function esc(e) {
+      if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc); }
+    });
+
+    // Animate in
     requestAnimationFrame(() => {
-      wrapper.style.opacity = '1';
-      content.style.transform = 'scale(1) translateY(0)';
+      wrapper.style.opacity          = '1';
+      content.style.transform        = 'scale(1) translateY(0)';
     });
 
-    // Auto-close after duration
-    setTimeout(() => modalEl.remove(), ANIMATION_DURATIONS.ACHIEVEMENT_MODAL);
+    // Auto-close
+    setTimeout(close, ANIMATION_DURATIONS.ACHIEVEMENT_MODAL);
 
-    // Click outside to close
-    wrapper.addEventListener('click', (e) => {
-      if (e.target === wrapper) modalEl.remove();
-    });
+    // Focus the dismiss button
+    setTimeout(() => btn.focus(), 100);
   }
 
-  /* =========================================================
-     APP INITIALIZATION
-     ========================================================= */
+  // ─── App initialization ─────────────────────────────────────────────────────
 
-  /**
-   * Initialize application
-   */
   async init() {
     try {
-
-      // Check authentication
       if (!(await this.auth.checkAuth())) {
         return this.auth.renderAuthScreen();
       }
-
-      // Load data now that auth is confirmed
       await this.state.loadData();
-
-      // Wait for state to be ready
       await this.state.ready;
-
-      // Validate state
-      if (!this._validateState()) {
-        this.state.data = this.state.emptyModel();
-      }
-
-      // Initialize main app
+      if (!this._validateState()) this.state.data = this.state.emptyModel();
       await this.initializeApp();
     } catch (error) {
-      console.error('Initialization failed:', error);
+      console.error('[App] Initialization failed:', error);
       this.showToast('Failed to initialize app. Please refresh.', 'error');
     }
   }
 
-  /**
-   * Validate state integrity
-   * @private
-   * @returns {boolean} True if state is valid
-   */
-  _validateState() {
-    return !!(this.state && this.state.data);
-  }
+  _validateState() { return !!(this.state && this.state.data); }
 
-  /**
-   * Initialize main application components
-   */
   async initializeApp() {
     if (this._initialized) return;
     this._initialized = true;
 
     try {
-
-      // Ensure state is valid
       if (!this._validateState()) {
         await this.state.ready;
-        if (!this._validateState()) {
-          this.state.data = this.state.emptyModel();
-        }
+        if (!this._validateState()) this.state.data = this.state.emptyModel();
       }
 
-      // Initialize gamification
+      // Gamification
       this.gamification = new GamificationEngine(this);
       this.setupGamificationListeners();
 
-      // Initialize daily cards
+      // Daily cards
       this.dailyCards = new DailyCards(this);
       await this.dailyCards.initializeBoosters();
 
-      // Initialize CommunityDB + load current user profile for the Active Members dashboard widget.
-      // We call CommunityDB.init() and CommunityCore.loadCurrentUser() directly - intentionally
-      // NOT calling CommunityCore.init() - so Core.state.initialized stays false and
-      // CommunityHubEngine can run it in full when the user navigates to the Community Hub tab.
+      // Community DB (lightweight — only needed for Active Members widget on dashboard)
       if (!CommunityCore.state.initialized) {
         const communityReady = await CommunityDB.init();
         if (!communityReady) {
-          console.warn('[App] CommunityDB.init() failed - Active Members widget will be unavailable');
+          console.warn('[App] CommunityDB.init() failed — Active Members widget unavailable');
         } else {
-          // Load the current user's community profile (avatar, name, status) so that
-          // the Active Members dashboard widget renders the correct avatar immediately,
-          // without requiring the user to visit the Community Hub tab first.
           await CommunityCore.loadCurrentUser();
-
-          // Write presence to Supabase so the user appears in Active Members on dashboard load.
           await CommunityDB.setPresence(
             CommunityCore.state.currentUser?.status   || 'online',
             CommunityCore.state.currentUser?.activity || '✨ Available',
@@ -615,117 +436,74 @@ export default class ProjectCuriosityApp {
         }
       }
 
-      // Show main app UI
       this._hideAuthScreen();
       this._showMainApp();
 
-      // Initialize managers
       this.dashboard = new this.deps.DashboardManager(this);
-      this.nav = new this.deps.NavigationManager(this);
+      this.nav       = new this.deps.NavigationManager(this);
       this.nav.render();
 
-      // Initialize footer CTA
       this.footerCTA = new CTA();
       this.footerCTA.render();
 
-      // Check if daily quests need reset BEFORE rendering dashboard
       this.checkDailyReset();
-
-      // Load feature modules
       this.loadModules();
-
-      // Restore last active tab
       this.restoreLastTab();
-
-      // Start toast cleanup
       this._startToastCleanup();
 
     } catch (error) {
-      console.error('App initialization failed:', error);
+      console.error('[App] initializeApp failed:', error);
       this.showToast('Failed to load app. Please refresh.', 'error');
     }
   }
 
-  /**
-   * Hide authentication screen
-   * @private
-   */
   _hideAuthScreen() {
-    const authScreen = document.getElementById('auth-screen');
-    if (authScreen) authScreen.style.display = 'none';
+    const el = document.getElementById('auth-screen');
+    if (el) el.style.display = 'none';
   }
 
-  /**
-   * Show main application
-   * @private
-   */
   _showMainApp() {
-    const app = document.getElementById('main-app');
-    if (app) app.classList.remove('hidden');
+    const el = document.getElementById('main-app');
+    if (el) el.classList.remove('hidden');
   }
 
-  /* =========================================================
-     DAILY RESET
-     ========================================================= */
+  // ─── Daily reset ────────────────────────────────────────────────────────────
 
-  /**
-   * Check and perform daily reset if needed
-   */
   checkDailyReset() {
-    const lastReset = localStorage.getItem(STORAGE_KEYS.LAST_DAILY_RESET);
-    const today = new Date().toDateString();
-
+    const today     = new Date().toDateString();
+    const lastReset = ls.get(STORAGE_KEYS.LAST_DAILY_RESET);
     if (lastReset !== today) {
       this.gamification.resetDailyQuests();
-      localStorage.setItem(STORAGE_KEYS.LAST_DAILY_RESET, today);
+      ls.set(STORAGE_KEYS.LAST_DAILY_RESET, today);
     }
   }
 
-  /* =========================================================
-     MODULE LOADING
-     ========================================================= */
+  // ─── Module loading ─────────────────────────────────────────────────────────
 
-  /**
-   * Load feature modules
-   */
   loadModules() {
-    // Render dashboard if ready
-    if (this.dashboard && this.state.data) {
-      this.dashboard.render();
+    if (this.dashboard && this.state.data) this.dashboard.render();
+
+    if (window.FeaturesManager) {
+      try {
+        this.features = new window.FeaturesManager(this);
+        window.featuresManager = this.features;
+      } catch (error) {
+        console.error('[App] FeaturesManager init failed:', error);
+      }
     }
-
-    // Initialize features manager if available
-if (window.FeaturesManager) {
-  try {
-    this.features = new window.FeaturesManager(this);
-    window.featuresManager = this.features;
-  } catch (error) {
-    console.error('FeaturesManager initialization failed:', error);
-  }
-}
   }
 
-  /* =========================================================
-     TAB MANAGEMENT
-     ========================================================= */
+  // ─── Tab management ─────────────────────────────────────────────────────────
 
-  /**
-   * Initialize and switch to tab
-   * @param {string} tab - Tab name
-   */
   initializeTab(tab) {
     const previousTab = this.currentTab;
 
-    // Cleanup previous tab
     if (previousTab === TAB_NAMES.DASHBOARD && tab !== TAB_NAMES.DASHBOARD) {
-      if (this.dashboard) {
-        this.dashboard.destroy();
-      }
+      this.dashboard?.destroy();
     }
 
     this.currentTab = tab;
 
-    // Route to appropriate handler
     switch (tab) {
       case TAB_NAMES.DASHBOARD:
         this._initDashboardTab();
@@ -739,7 +517,7 @@ if (window.FeaturesManager) {
         if (this.state.currentUser?.isAdmin) {
           this._loadAdminTab();
         } else {
-          console.warn('Admin access denied');
+          console.warn('[App] Admin access denied');
           this.showToast('Admin access required', 'error');
         }
         break;
@@ -759,170 +537,82 @@ if (window.FeaturesManager) {
         break;
 
       default:
-        console.warn(`Unknown tab: ${tab}`);
-        this.showToast(`Tab "${tab}" not found`, 'error');
+        console.warn(`[App] Unknown tab: "${tab}"`);
     }
   }
 
-  /**
-   * Initialize dashboard tab
-   * @private
-   */
   _initDashboardTab() {
-    if (this.deps.DashboardManager) {
-      if (!this.dashboard) {
-        this.dashboard = new this.deps.DashboardManager(this);
-      }
-      this.dashboard.render();
-    }
+    if (!this.dashboard) this.dashboard = new this.deps.DashboardManager(this);
+    this.dashboard.render();
   }
 
-  /**
-   * Initialize feature tab
-   * @private
-   * @param {string} tab - Tab name
-   */
-  /**
-   * Initialize feature tab
-   * @private
-   * @param {string} tab - Tab name
-   * @param {string|null} previousTab - Previously active tab to destroy
-   */
   _initFeatureTab(tab, previousTab = null) {
-    if (this.features) {
-      // Destroy previous feature tab to free resources (e.g. YouTube player)
-      if (previousTab && previousTab !== tab && previousTab !== TAB_NAMES.DASHBOARD) {
-        this.features.destroy(previousTab);
-      }
-      this.features.init(tab);
-    } else {
-      console.error('FeaturesManager not available');
+    if (!this.features) {
+      console.error('[App] FeaturesManager not available');
       this.showToast('Feature not available', 'error');
-    }
-  }
-
-  /**
-   * Load calculator tab (lazy loaded)
-   * @private
-   */
-  async _loadCalculatorTab() {
-    if (window.calculatorChunk === 'loaded') return;
-
-    const host = document.getElementById('calculator-tab');
-    if (!host) {
-      console.error('Calculator tab host not found');
       return;
     }
+    if (previousTab && previousTab !== tab && previousTab !== TAB_NAMES.DASHBOARD) {
+      this.features.destroy(previousTab);
+    }
+    this.features.init(tab);
+  }
+
+  async _loadCalculatorTab() {
+    if (window.calculatorChunk === 'loaded') return;
+    const host = document.getElementById('calculator-tab');
+    if (!host) { console.error('[App] Calculator tab host not found'); return; }
+
+    host.innerHTML = '<div class="loading-spinner-inner"><div class="spinner"></div><p>Loading Self-Analysis Pro...</p></div>';
 
     try {
-      host.innerHTML = `
-        <div class="loading-spinner-inner">
-          <div class="spinner"></div>
-          <p>Loading Self-Analysis Pro...</p>
-        </div>
-      `;
-
-      const { default: SelfAnalysisLauncher } = await import(
-        '/Mini-Apps/SelfAnalysisPro/loader.js'
-      );
-
-      new SelfAnalysisLauncher(window.app).render();
+      const { default: Launcher } = await import('/Mini-Apps/SelfAnalysisPro/loader.js');
+      new Launcher(window.app).render();
       window.calculatorChunk = 'loaded';
     } catch (error) {
-      console.error('Failed to load calculator tab:', error);
-      host.innerHTML = '<p>Failed to load Self-Analysis Pro. Please try again.</p>';
+      console.error('[App] Calculator load failed:', error);
+      host.textContent = 'Failed to load Self-Analysis Pro. Please try again.';
       this.showToast('Failed to load calculator', 'error');
     }
   }
 
-  /**
-   * Load admin tab (lazy loaded)
-   * @private
-   */
   async _loadAdminTab() {
     if (window.adminTabLoaded) return;
-
     const host = document.getElementById('admin-tab');
-    if (!host) {
-      console.error('Admin tab host not found');
-      return;
-    }
+    if (!host) { console.error('[App] Admin tab host not found'); return; }
+
+    host.innerHTML = '<div class="loading-spinner-inner"><div class="spinner"></div><p>Loading Admin Panel...</p></div>';
 
     try {
-      host.innerHTML = `
-        <div class="loading-spinner-inner">
-          <div class="spinner"></div>
-          <p>Loading Admin Panel...</p>
-        </div>
-      `;
-
       const { AdminTab } = await import('./AdminTab.js');
-      const adminTab = new AdminTab(supabase);
-      const content = await adminTab.render();
-
-      host.innerHTML = '';
+      const content     = await new AdminTab(supabase).render();
+      host.innerHTML    = '';
       host.appendChild(content);
       window.adminTabLoaded = true;
     } catch (error) {
-      console.error('Failed to load admin tab:', error);
-      host.innerHTML = '<p>Failed to load Admin Panel. Please try again.</p>';
+      console.error('[App] Admin tab load failed:', error);
+      host.textContent = 'Failed to load Admin Panel. Please try again.';
       this.showToast('Failed to load admin panel', 'error');
     }
   }
 
-  /**
-   * Restore last active tab
-   */
   restoreLastTab() {
-    if (this.nav) {
-      this.nav.switchTab(TAB_NAMES.DASHBOARD);
-    }
+    this.nav?.switchTab(TAB_NAMES.DASHBOARD);
   }
 
-  /* =========================================================
-     MODAL HELPERS
-     ========================================================= */
+  // ─── Modal helpers ───────────────────────────────────────────────────────────
 
-  /**
-   * Open settings modal
-   */
-  openSettings() {
-    modal.openSettings(this);
-  }
+  openSettings() { modal.openSettings(this); }
+  openAbout()    { modal.openAbout(this);    }
+  openContact()  { modal.openContact(this);  }
 
-  /**
-   * Open about modal
-   */
-  openAbout() {
-    modal.openAbout(this);
-  }
+  // ─── Utility ─────────────────────────────────────────────────────────────────
 
-  /**
-   * Open contact modal
-   */
-  openContact() {
-    modal.openContact(this);
-  }
-
-  /* =========================================================
-     UTILITY METHODS
-     ========================================================= */
-
-  /**
-   * Get random element from array
-   * @param {Array} arr - Array to pick from
-   * @returns {*} Random element or null
-   */
   randomFrom(arr) {
     if (!Array.isArray(arr) || arr.length === 0) return null;
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
-  /**
-   * Shuffle array in place
-   * @param {Array} arr - Array to shuffle
-   * @returns {Array} Shuffled array
-   */
   shuffle(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -931,67 +621,37 @@ if (window.FeaturesManager) {
     return arr;
   }
 
-/* =========================================================
-   LOGOUT
-   ========================================================= */
-/**
- * Logout current user
- */
-async logout() {
-  try {
-    if (this.features) {
-      this.features.destroyAll();
+  // ─── Logout ──────────────────────────────────────────────────────────────────
+
+  async logout() {
+    try {
+      this.features?.destroyAll();
+      clearCache();
+      await this.auth.signOut();
+    } catch (error) {
+      console.error('[App] Logout failed:', error);
+      this.showToast('Logout failed. Please try again.', 'error');
     }
-    
-    clearCache();
-    
-    await this.auth.signOut();
-  } catch (error) {
-    console.error('Logout failed:', error);
-    this.showToast('Logout failed. Please try again.', 'error');
   }
-}
 
-  /* =========================================================
-     CLEANUP
-     ========================================================= */
+  // ─── Destroy ─────────────────────────────────────────────────────────────────
 
-  /**
-   * Cleanup and destroy app instance
-   */
   destroy() {
-    // Stop toast cleanup
     this._stopToastCleanup();
-
-    // Clear toast throttle map
     this.toastThrottle.clear();
 
-    // Unsubscribe from gamification events
-    this._gamificationUnsubscribers.forEach(unsub => {
-      if (typeof unsub === 'function') unsub();
-    });
+    this._gamificationUnsubscribers.forEach(fn => { if (typeof fn === 'function') fn(); });
     this._gamificationUnsubscribers = [];
 
-    // Destroy gamification engine
-    if (this.gamification) {
-      this.gamification.destroy();
-      this.gamification = null;
-    }
+    this.gamification?.destroy();
+    this.gamification = null;
 
-    // Cleanup dashboard
-    if (this.dashboard) {
-      this.dashboard.destroy();
-      this.dashboard = null;
-    }
+    this.dashboard?.destroy();
+    this.dashboard = null;
 
-    // Cleanup footer CTA
-    if (this.footerCTA) {
-      this.footerCTA = null;
-    }
+    this.footerCTA = null;
 
-    // Clear initialization flags
-    this._initialized = false;
+    this._initialized               = false;
     this._gamificationListenersReady = false;
-
   }
 }

@@ -1,40 +1,33 @@
 /**
  * Modal Compatibility Layer
- * 
- * Provides backward-compatible wrappers for legacy code that relies on global window.app.
- * New code should import from './Modal.js' directly and pass the app instance.
- * 
+ *
+ * Backward-compatible wrappers for legacy code that calls modal functions via
+ * window.app. New code should import from './Modal.js' directly.
+ *
  * Migration guide:
- * OLD: import { openSettings } from './Modal-Compat.js'; openSettings();
- * NEW: import { openSettings } from './Modal.js'; openSettings(app);
- * 
- * @deprecated This file exists for backward compatibility only
+ *   OLD: import { openSettings } from './Modal-Compat.js'; openSettings();
+ *   NEW: import { openSettings } from './Modal.js'; openSettings(app);
+ *
+ * @deprecated This file exists for backward compatibility only.
  */
 
 import * as modal from './Modal.js';
 
-/**
- * Get app instance safely from window
- * @returns {Object|null} App instance or null
- */
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Returns window.app, or null with a console warning. */
 function getApp() {
-  if (typeof window === 'undefined') {
-    console.error('Modal-Compat: window is undefined (running in Node?)');
-    return null;
-  }
-  
+  if (typeof window === 'undefined') return null;
   if (!window.app) {
-    console.error('Modal-Compat: window.app is undefined. Ensure app is initialized.');
+    console.warn('[Modal-Compat] window.app is not yet initialised.');
     return null;
   }
-  
   return window.app;
 }
 
 /**
- * Safe wrapper for modal functions that require app
- * @param {Function} fn - Modal function to wrap
- * @param {...any} args - Additional arguments
+ * Calls a modal function that requires an app instance.
+ * Silently no-ops if app is unavailable.
  */
 function safeModalCall(fn, ...args) {
   const app = getApp();
@@ -42,71 +35,35 @@ function safeModalCall(fn, ...args) {
   return fn(app, ...args);
 }
 
-/* --------------------------------------------------
-   MODAL OPENERS
-   -------------------------------------------------- */
+// ─── Modal openers ────────────────────────────────────────────────────────────
 
-/**
- * Open settings modal (legacy wrapper)
- * @deprecated Use modal.openSettings(app) directly
- */
+/** @deprecated Use modal.openSettings(app) */
 export const openSettings = () => safeModalCall(modal.openSettings);
 
-/**
- * Open about modal (legacy wrapper)
- * @deprecated Use modal.openAbout(app) directly
- */
-export const openAbout = () => safeModalCall(modal.openAbout);
+/** @deprecated Use modal.openAbout(app) */
+export const openAbout    = () => safeModalCall(modal.openAbout);
 
-/**
- * Open contact modal (legacy wrapper)
- * @deprecated Use modal.openContact(app) directly
- */
-export const openContact = () => safeModalCall(modal.openContact);
+/** @deprecated Use modal.openContact(app) */
+export const openContact  = () => safeModalCall(modal.openContact);
 
-/**
- * Open billing modal (legacy wrapper)
- * @deprecated Use modal.openBilling(app) directly
- */
-export const openBilling = () => safeModalCall(modal.openBilling);
+/** @deprecated Use modal.openBilling(app) */
+export const openBilling  = () => safeModalCall(modal.openBilling);
 
-/* --------------------------------------------------
-   PROFILE & AVATAR HANDLERS
-   -------------------------------------------------- */
+// ─── Profile & avatar ─────────────────────────────────────────────────────────
 
-/**
- * Save quick profile (legacy wrapper)
- * @deprecated Use modal.saveQuickProfile(app) directly
- */
-export const saveQuickProfile = () => safeModalCall(modal.saveQuickProfile);
+/** @deprecated Use modal.saveQuickProfile(app) */
+export const saveQuickProfile    = () => safeModalCall(modal.saveQuickProfile);
 
-/**
- * Refresh avatar (legacy wrapper)
- * @deprecated Use modal.refreshAvatar(app) directly
- */
-export const refreshAvatar = () => safeModalCall(modal.refreshAvatar);
+/** @deprecated Use modal.refreshAvatar(app) */
+export const refreshAvatar       = () => safeModalCall(modal.refreshAvatar);
 
-/**
- * Handle avatar upload (legacy wrapper)
- * @deprecated Use modal.avatarUploadHandler(app) directly
- */
+/** @deprecated Use modal.avatarUploadHandler(app) */
 export const avatarUploadHandler = () => safeModalCall(modal.avatarUploadHandler);
 
-/* --------------------------------------------------
-   OTHER MODAL FUNCTIONS
-   -------------------------------------------------- */
+// ─── Other ────────────────────────────────────────────────────────────────────
 
-/**
- * Select billing plan (legacy wrapper)
- * @param {string} planId - Plan ID (first param unused for compatibility)
- * @deprecated Use modal.selectPlan(app, planId) directly
- */
+/** @deprecated Use modal.selectPlan(app, planId) */
 export const selectPlan = (planId) => safeModalCall(modal.selectPlan, planId);
 
-/**
- * Switch settings tab (no app needed)
- * @param {Event} ev - Click event
- * @param {string} tab - Tab ID to switch to
- * @deprecated Use data-tab attributes with modal.attachSettingsHandlers instead
- */
+/** @deprecated Use data-tab attributes with modal.attachSettingsHandlers instead */
 export const switchSettingTab = modal.switchSettingTab;

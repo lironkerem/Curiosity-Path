@@ -423,7 +423,7 @@ export class GamificationEngine {
     clearTimeout(this.saveTimeout);
     this.saveTimeout = setTimeout(() => {
       try {
-        localStorage.setItem('gamificationState', JSON.stringify(this.state));
+        try { localStorage.setItem('gamificationState', JSON.stringify(this.state)); } catch { /* quota exceeded — non-critical, cloud is primary */ }
         if (this.app?.state) {
           // Exclude logs from cloud payload — kept in localStorage only
           const { logs: _logs, ...cloudState } = this.state;
@@ -467,7 +467,8 @@ export class GamificationEngine {
       }
       
       // Fall back to localStorage
-      const local = localStorage.getItem('gamificationState');
+      let local = null;
+      try { local = localStorage.getItem('gamificationState'); } catch { /* private browsing — skip */ }
       if (local) return { ...this.defaultState(), ...JSON.parse(local) };
       
       return null;
@@ -497,7 +498,7 @@ export class GamificationEngine {
    */
   reset() {
     try {
-      localStorage.removeItem('gamificationState');
+      try { localStorage.removeItem('gamificationState'); } catch { /* noop */ }
       this.state = this.defaultState();
       this.emit('reset', null);
       this.saveState();
@@ -1597,6 +1598,8 @@ function showLevelUpSpectacle({ level, title, karma = 0, xp = 0 }) {
   // Create spectacle container
   const wrap = document.createElement('div');
   wrap.id = 'lvl-spectacle';
+  wrap.setAttribute('aria-hidden', 'true');
+  wrap.setAttribute('role', 'presentation');
   wrap.innerHTML = `
     <div class="lvl-overlay"></div>
     <div class="lvl-ring lvl-ring-a"></div>

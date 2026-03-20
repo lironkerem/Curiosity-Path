@@ -5,12 +5,12 @@
  */
 
 // State Management & Authentication
-export { default as AppState } from './AppState.js';
-export { default as AuthManager } from './AuthManager.js';
+export { default as AppState }            from './AppState.js';
+export { default as AuthManager }         from './AuthManager.js';
 
 // Navigation & Dashboard
-export { default as NavigationManager } from './NavigationManager.js';
-export { default as DashboardManager } from './DashboardManager.js';
+export { default as NavigationManager }   from './NavigationManager.js';
+export { default as DashboardManager }    from './DashboardManager.js';
 
 // Main Application
 export { default as ProjectCuriosityApp } from './ProjectCuriosityApp.js';
