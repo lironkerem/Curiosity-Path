@@ -94,9 +94,4 @@ Object.assign(CampfireRoom.prototype, ChatMixin);
 const campfireRoom = new CampfireRoom();
 window.CampfireRoom = campfireRoom;
 
-// bfcache: run cleanup on pagehide
-window.addEventListener('pagehide', () => {
-    campfireRoom.onCleanup?.();
-});
-
 export { CampfireRoom, campfireRoom };

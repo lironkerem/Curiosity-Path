@@ -1,17 +1,9 @@
 /**
  * CORE.JS - Community Hub Central Management System
- * @version 2.2.0 - Supabase integrated
+ * @version 2.1.0 - Supabase integrated
  */
 
 import { CommunityDB } from './community-supabase.js';
-
-// XSS escape helper for any dynamic content inserted into the DOM
-function esc(str) {
-    if (!str || typeof str !== 'string') return '';
-    const d = document.createElement('div');
-    d.textContent = str;
-    return d.innerHTML;
-}
 
 const Core = {
 
@@ -46,7 +38,7 @@ const Core = {
         presenceInterval: null,
         pulseSent:        false,
         timerRunning:     false,
-        timeLeft:         1200,
+        timeLeft:         1200,   // 20 min in seconds
         currentView:      'hubView',
         initialized:      false
     },
@@ -56,7 +48,7 @@ const Core = {
     // =========================================================================
 
     config: {
-        ROOM_MODULES: Object.freeze([
+        ROOM_MODULES: [
             'SilentRoom',
             'CampfireRoom',
             'GuidedRoom',
@@ -65,26 +57,26 @@ const Core = {
             'DeepWorkRoom',
             'TarotRoom',
             'ReikiRoom'
-        ]),
-        STATUS_RINGS: Object.freeze({
+        ],
+        STATUS_RINGS: {
             silent:    '#60a5fa',
             available: '#34d399',
             guiding:   '#fbbf24',
             deep:      '#a78bfa',
             resonant:  '#f472b6',
             offline:   '#d1d5db'
-        }),
-        AVATAR_GRADIENTS: Object.freeze([
+        },
+        AVATAR_GRADIENTS: [
             'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
             'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
             'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
             'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
-        ]),
-        ADMIN_MODULES:       Object.freeze(['CollectiveField', 'LunarEngine', 'SolarEngine', 'UpcomingEvents', 'AdminDashboard']),
+        ],
+        ADMIN_MODULES:       ['CollectiveField', 'LunarEngine', 'SolarEngine', 'UpcomingEvents', 'AdminDashboard'],
         RENDER_DELAY:         100,
         CELESTIAL_INIT_DELAY: 500,
-        CELESTIAL_POLL_MAX:   25,
+        CELESTIAL_POLL_MAX:   25,   // × 200ms = 5s max wait for SunCalc
         PRESENCE_INTERVAL:    30000,
         HEARTBEAT_INTERVAL:   60000,
         PULSE_COOLDOWN:       60000
@@ -102,7 +94,7 @@ const Core = {
 
         try {
             const dbReady = await CommunityDB.init();
-            if (!dbReady) throw new Error('Database not ready');
+            if (!dbReady) throw new Error('Database not ready - is the user logged in?');
 
             await this.loadCurrentUser();
 
@@ -113,7 +105,6 @@ const Core = {
             );
             CommunityDB.startHeartbeat(this.config.HEARTBEAT_INTERVAL);
 
-            // bfcache-compatible: pagehide is the canonical bfcache event
             window.addEventListener('pagehide', () => {
                 CommunityDB.setOffline();
                 CommunityDB.unsubscribeAll();
@@ -127,66 +118,67 @@ const Core = {
             this.scheduleCelestialInit();
             this.updatePresenceCount();
 
+            // Inject admin UI after modules have rendered
             setTimeout(() => this._injectAdminUIAll(), 1000);
 
             this.state.initialized = true;
 
+            // Scroll to a section requested from the Dashboard sanctuary widget
             if (window._pendingHubScrollTarget) {
                 const targetId = window._pendingHubScrollTarget;
                 window._pendingHubScrollTarget = null;
-                this._scrollToTarget(targetId);
+
+                const doScroll = () => {
+                    const maxAttempts = 60; // 6 seconds max
+                    let attempts = 0;
+                    let lastHeight = 0;
+                    let stableCount = 0;
+
+                    const poll = setInterval(() => {
+                        attempts++;
+
+                        // Wait for ritual overlay to clear first
+                        if (document.body.classList.contains('ritual-active')) {
+                            lastHeight = 0;
+                            stableCount = 0;
+                            return;
+                        }
+
+                        const el = document.getElementById(targetId);
+                        const currentHeight = el ? el.offsetHeight : 0;
+
+                        if (currentHeight > 10) {
+                            if (currentHeight === lastHeight) {
+                                stableCount++;
+                            } else {
+                                stableCount = 0; // height still changing, reset
+                            }
+                            lastHeight = currentHeight;
+                        }
+
+                        // Fire scroll once height is stable for 3 consecutive polls (300ms)
+                        const ready = stableCount >= 3 || attempts >= maxAttempts;
+                        if (ready && currentHeight > 0) {
+                            clearInterval(poll);
+                            const bottomBar = document.getElementById('mobile-bottom-bar');
+                            const offset = bottomBar ? bottomBar.offsetHeight + 16 : 16;
+                            requestAnimationFrame(() => {
+                              const top = el.getBoundingClientRect().top + window.scrollY - offset;
+                              window.scrollTo({ top, behavior: 'smooth' });
+                            });
+                        } else if (attempts >= maxAttempts) {
+                            clearInterval(poll);
+                        }
+                    }, 100);
+                };
+
+                doScroll();
             }
 
         } catch (error) {
-            console.error('❌ [Core] Initialization failed');
+            console.error('❌ [Core] Initialization failed:', error);
             this.handleInitializationError(error);
         }
-    },
-
-    _scrollToTarget(targetId) {
-        const doScroll = () => {
-            const maxAttempts = 60;
-            let attempts = 0;
-            let lastHeight = 0;
-            let stableCount = 0;
-
-            const poll = setInterval(() => {
-                attempts++;
-
-                if (document.body.classList.contains('ritual-active')) {
-                    lastHeight = 0;
-                    stableCount = 0;
-                    return;
-                }
-
-                const el = document.getElementById(targetId);
-                const currentHeight = el ? el.offsetHeight : 0;
-
-                if (currentHeight > 10) {
-                    if (currentHeight === lastHeight) {
-                        stableCount++;
-                    } else {
-                        stableCount = 0;
-                    }
-                    lastHeight = currentHeight;
-                }
-
-                const ready = stableCount >= 3 || attempts >= maxAttempts;
-                if (ready && currentHeight > 0) {
-                    clearInterval(poll);
-                    const bottomBar = document.getElementById('mobile-bottom-bar');
-                    const offset = bottomBar ? bottomBar.offsetHeight + 16 : 16;
-                    requestAnimationFrame(() => {
-                        const top = el.getBoundingClientRect().top + window.scrollY - offset;
-                        window.scrollTo({ top, behavior: 'smooth' });
-                    });
-                } else if (attempts >= maxAttempts) {
-                    clearInterval(poll);
-                }
-            }, 100);
-        };
-
-        doScroll();
     },
 
     async loadCurrentUser() {
@@ -217,13 +209,14 @@ const Core = {
                 country:          p.country          || null,
                 email:            p.email            || '',
                 is_admin:         p.is_admin === true,
+                // Gamification - sourced from GamificationEngine
                 karma:            window.app?.gamification?.state?.karma  ?? 0,
                 xp:               window.app?.gamification?.state?.xp     ?? 0,
                 badges:           window.app?.gamification?.state?.badges ?? []
             };
 
-        } catch {
-            console.error('[Core] loadCurrentUser failed');
+        } catch (error) {
+            console.error('[Core] loadCurrentUser failed:', error);
         }
     },
 
@@ -241,15 +234,15 @@ const Core = {
         for (const { name, instance } of modules) {
             if (instance?.init) {
                 try { instance.init(); }
-                catch (e) { console.error(`✗ [Core] ${name} init failed`); }
+                catch (e) { console.error(`✗ [Core] ${name} init failed:`, e); }
             } else {
                 console.warn(`⚠ [Core] ${name} not found or missing init()`);
             }
         }
 
         if (window.ActiveMembers?.render) {
-            window.ActiveMembers.render().catch(() =>
-                console.error('✗ [Core] ActiveMembers.render() failed')
+            window.ActiveMembers.render().catch(e =>
+                console.error('✗ [Core] ActiveMembers.render() failed:', e)
             );
         } else {
             console.warn('⚠ [Core] ActiveMembers not found');
@@ -261,15 +254,18 @@ const Core = {
             const m = window[name];
             if (m?.injectAdminUI) {
                 try { m.injectAdminUI(); }
-                catch { console.warn(`[Core] injectAdminUI failed on ${name}`); }
+                catch (e) { console.warn(`[Core] injectAdminUI failed on ${name}:`, e); }
             }
         }
     },
 
     handleInitializationError(error) {
         this.showToast('Failed to initialize. Please refresh the page.');
-        // Log only the message, not the full error object or stack
-        console.error('[Core] Init error:', error?.message || 'Unknown error');
+        console.error('[Core] Init error details:', {
+            message: error.message,
+            stack:   error.stack,
+            state:   this.state
+        });
     },
 
     // =========================================================================
@@ -292,8 +288,8 @@ const Core = {
             try {
                 room.init();
                 initialized.push(room);
-            } catch {
-                console.error(`✗ [Core] ${roomName} init failed`);
+            } catch (e) {
+                console.error(`✗ [Core] ${roomName} init failed:`, e);
             }
         }
 
@@ -305,7 +301,7 @@ const Core = {
     scheduleRoomRendering() {
         setTimeout(() => {
             try { this.renderRooms(); }
-            catch { console.error('[Core] Room rendering failed'); }
+            catch (e) { console.error('[Core] Room rendering failed:', e); }
         }, this.config.RENDER_DELAY);
     },
 
@@ -325,8 +321,8 @@ const Core = {
             try {
                 const html = mod.getRoomCardHTML();
                 if (html) acc.push(html);
-            } catch {
-                console.error(`✗ [Core] getRoomCardHTML failed for ${name}`);
+            } catch (e) {
+                console.error(`✗ [Core] getRoomCardHTML failed for ${name}:`, e);
             }
             return acc;
         }, []);
@@ -345,7 +341,7 @@ const Core = {
     scheduleCelestialInit() {
         setTimeout(() => {
             try { this.initializeCelestialSystems(); }
-            catch { console.error('[Core] Celestial init failed'); }
+            catch (e) { console.error('[Core] Celestial init failed:', e); }
         }, this.config.CELESTIAL_INIT_DELAY);
     },
 
@@ -363,7 +359,7 @@ const Core = {
             for (const [name, engine] of [['LunarEngine', window.LunarEngine], ['SolarEngine', window.SolarEngine]]) {
                 if (engine?.init) {
                     try { engine.init(); }
-                    catch { console.error(`✗ [Core] ${name} init failed`); }
+                    catch (e) { console.error(`✗ [Core] ${name} init failed:`, e); }
                 } else {
                     console.warn(`⚠ [Core] ${name} not found`);
                 }
@@ -404,10 +400,10 @@ const Core = {
                 this.state.currentView = 'practiceRoomView';
 
             } else {
-                console.warn('[Core] Unknown viewId');
+                console.warn(`[Core] Unknown viewId: "${viewId}"`);
             }
-        } catch {
-            console.error('[Core] Navigation error');
+        } catch (e) {
+            console.error('[Core] Navigation error:', e);
         }
     },
 
@@ -416,12 +412,14 @@ const Core = {
     // =========================================================================
 
     setupEventListeners() {
+        // Close modal on backdrop click
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal-overlay')) {
                 e.target.classList.remove('active');
             }
         });
 
+        // Close modal on Escape
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 document.querySelector('.modal-overlay.active')?.classList.remove('active');
@@ -445,8 +443,8 @@ const Core = {
                 this.state.presenceCount = members.length;
                 const el = document.getElementById('presenceCount');
                 if (el) el.textContent = members.length;
-            } catch {
-                console.error('[Core] updatePresenceCount error');
+            } catch (e) {
+                console.error('[Core] updatePresenceCount error:', e);
             }
         };
 
@@ -474,7 +472,7 @@ const Core = {
             console.warn('[Core] #toast element not found');
             return;
         }
-        toast.textContent = message;   // textContent — safe
+        toast.textContent = message;
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), duration);
     },
@@ -486,14 +484,12 @@ const Core = {
     initializeSafetyModals() {
         if (document.getElementById('reportModal')) return;
 
-        // Modals use static string templates with onclick handlers pointing to
-        // named module methods — no user data is interpolated here.
         document.body.insertAdjacentHTML('beforeend', `
             <!-- Report Modal -->
-            <div class="modal-overlay" id="reportModal" role="dialog" aria-modal="true" aria-labelledby="reportModalTitle">
+            <div class="modal-overlay" id="reportModal">
                 <div class="modal-card">
                     <button type="button" class="modal-close" aria-label="Close report modal" onclick="CommunityModule.closeReportModal()">×</button>
-                    <h2 id="reportModalTitle" style="display:flex;align-items:center;gap:0.5rem;"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> Report Issue</h2>
+                    <h2 style="display:flex;align-items:center;gap:0.5rem;"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> Report Issue</h2>
                     <div class="modal-content">
                         <p style="margin-bottom:16px; color:var(--text-muted);">Help us maintain a safe space. Your report is confidential.</p>
                         <label for="reportReason" style="display:block; margin-bottom:8px; font-weight:600;">Reason:</label>
@@ -506,7 +502,7 @@ const Core = {
                             <option value="other">Other</option>
                         </select>
                         <label for="reportDetails" style="display:block; margin-bottom:8px; font-weight:600;">Details (optional):</label>
-                        <textarea id="reportDetails" rows="4" maxlength="1000" placeholder="Please provide any additional context..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface); color:var(--text); resize:vertical; margin-bottom:16px;"></textarea>
+                        <textarea id="reportDetails" rows="4" placeholder="Please provide any additional context..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface); color:var(--text); resize:vertical; margin-bottom:16px;"></textarea>
                         <div style="display:flex; gap:12px;">
                             <button type="button" onclick="CommunityModule.closeReportModal()" style="flex:1; padding:12px; border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-md); cursor:pointer; font-weight:600;">Cancel</button>
                             <button type="button" onclick="CommunityModule.submitReport()" style="flex:1; padding:12px; background:var(--accent); color:white; border:none; border-radius:var(--radius-md); cursor:pointer; font-weight:600;">Submit Report</button>
@@ -516,14 +512,14 @@ const Core = {
             </div>
 
             <!-- Block Modal -->
-            <div class="modal-overlay" id="blockModal" role="dialog" aria-modal="true" aria-labelledby="blockModalTitle">
+            <div class="modal-overlay" id="blockModal">
                 <div class="modal-card">
                     <button type="button" class="modal-close" aria-label="Close block modal" onclick="CommunityModule.closeBlockModal()">×</button>
-                    <h2 id="blockModalTitle" style="display:flex;align-items:center;gap:0.5rem;"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg> Block User</h2>
+                    <h2 style="display:flex;align-items:center;gap:0.5rem;"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg> Block User</h2>
                     <div class="modal-content">
                         <p style="margin-bottom:16px; color:var(--text-muted);">Blocking will hide all messages from this user.</p>
                         <label for="blockUsername" style="display:block; margin-bottom:8px; font-weight:600;">Username:</label>
-                        <input type="text" id="blockUsername" placeholder="Enter username to block" autocomplete="off" maxlength="120" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface); color:var(--text); margin-bottom:16px;" />
+                        <input type="text" id="blockUsername" placeholder="Enter username to block" autocomplete="off" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface); color:var(--text); margin-bottom:16px;" />
                         <div style="display:flex; gap:12px;">
                             <button type="button" onclick="CommunityModule.closeBlockModal()" style="flex:1; padding:12px; border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-md); cursor:pointer; font-weight:600;">Cancel</button>
                             <button type="button" onclick="CommunityModule.confirmBlock()" style="flex:1; padding:12px; background:#e74c3c; color:white; border:none; border-radius:var(--radius-md); cursor:pointer; font-weight:600;">Block User</button>
@@ -533,15 +529,15 @@ const Core = {
             </div>
 
             <!-- Help Modal -->
-            <div class="modal-overlay" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpModalTitle">
+            <div class="modal-overlay" id="helpModal">
                 <div class="modal-card">
                     <button type="button" class="modal-close" aria-label="Close help modal" onclick="CommunityModule.closeHelpModal()">×</button>
-                    <h2 id="helpModalTitle" style="display:flex;align-items:center;gap:0.5rem;"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg> Get Help</h2>
+                    <h2 style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg> Get Help</h2>
                     <div class="modal-content">
                         <p style="margin-bottom:16px;">If you're experiencing a crisis or need immediate support:</p>
                         <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin-bottom:16px;">
                             <h3 style="margin-top:0; font-size:16px;">Crisis Resources</h3>
-                            <p style="margin:8px 0;"><strong>988 Suicide &amp; Crisis Lifeline:</strong> Call or text 988</p>
+                            <p style="margin:8px 0;"><strong>988 Suicide & Crisis Lifeline:</strong> Call or text 988</p>
                             <p style="margin:8px 0;"><strong>Crisis Text Line:</strong> Text HOME to 741741</p>
                             <p style="margin:8px 0;"><strong>International:</strong> <a href="https://findahelpline.com" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">findahelpline.com</a></p>
                         </div>
@@ -575,5 +571,9 @@ const Core = {
     }
 };
 
+// Named export for ES module consumers
 export { Core };
+
+// Keep window assignment for classic scripts that still reference window.Core
 window.Core = Core;
+

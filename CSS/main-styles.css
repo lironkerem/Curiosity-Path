@@ -18,9 +18,11 @@
   --neuro-text-light: #6d5a42;
   --neuro-text-lighter: #8b7355;
   --neuro-text-dim: #a89279;
+  --neuro-text-secondary: #4a3728;
 
   --neuro-accent: #6b9b37;        /* vibrant leaf green */
   --neuro-accent-light: #8bc34a;  /* bright spring green */
+  --neuro-accent-dark:    #3d6e10;
 
   /* Forest / Wood accents */
   --neuro-forest: #6b9b37;

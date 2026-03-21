@@ -110,7 +110,7 @@ const MemberProfileModal = {
                             box-shadow:8px 8px 20px rgba(0,0,0,0.15),-4px -4px 12px rgba(255,255,255,0.7);
                             transform:translateY(16px);transition:transform 0.25s ease;">
 
-                    <button type="button" onclick="MemberProfileModal.close()" aria-label="Close"
+                    <button onclick="MemberProfileModal.close()" aria-label="Close"
                             style="position:absolute;top:14px;right:16px;background:none;border:none;
                                    cursor:pointer;font-size:18px;opacity:0.5;line-height:1;">✕</button>
 
@@ -187,10 +187,10 @@ const MemberProfileModal = {
                         <!-- 4-stat grid -->
                         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem;">
                             ${[
-                                ['memberModalKarma',     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>`, 'Karma'    ],
-                                ['memberModalBlessings', `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg>`, 'Blessings'],
-                                ['memberModalFavRoom',   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`, 'Fav Room' ],
-                                ['memberModalBadgeCount',`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>`, 'Badges'   ],
+                                ['memberModalKarma',     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>`, 'Karma'    ],
+                                ['memberModalBlessings', `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg>`, 'Blessings'],
+                                ['memberModalFavRoom',   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`, 'Fav Room' ],
+                                ['memberModalBadgeCount',`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>`, 'Badges'   ],
                             ].map(([id, emoji, label]) => `
                                 <div style="background:var(--neuro-bg,#f0f0f3);border-radius:14px;
                                             padding:10px 6px;text-align:center;
@@ -207,19 +207,19 @@ const MemberProfileModal = {
                         </div>
 
                         <!-- Appreciate -->
-                        <button type="button" id="memberModalAppreciateBtn"
+                        <button id="memberModalAppreciateBtn"
                                 onclick="MemberProfileModal.toggleAppreciate()"
                                 style="width:100%;padding:10px;border-radius:12px;border:none;cursor:pointer;
                                        font-size:0.9rem;font-weight:600;margin-bottom:10px;
                                        background:var(--neuro-bg,#f0f0f3);color:var(--neuro-text);
                                        box-shadow:3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7);
                                        transition:all 0.2s;">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Appreciate
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Appreciate
                         </button>
 
                         <!-- Actions -->
                         <div id="memberModalActions" style="display:flex;gap:10px;margin-bottom:1rem;">
-                            <button type="button" id="memberModalWhisperBtn" onclick="MemberProfileModal.startWhisper()"
+                            <button id="memberModalWhisperBtn" onclick="MemberProfileModal.startWhisper()"
                                     style="flex:1;padding:10px 14px;border-radius:14px;border:none;cursor:pointer;
                                            font-size:0.88rem;font-weight:700;
                                            background:var(--neuro-bg,#f0f0f3);color:var(--primary,#667eea);
@@ -227,9 +227,9 @@ const MemberProfileModal = {
                                            transition:all 0.15s;"
                                     onmouseover="this.style.boxShadow='2px 2px 6px rgba(0,0,0,0.12),-1px -1px 4px rgba(255,255,255,0.8)';this.style.transform='translateY(1px)'"
                                     onmouseout="this.style.boxShadow='4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.75)';this.style.transform=''">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Whisper
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Whisper
                             </button>
-                            <button type="button" onclick="MemberProfileModal.startReport()"
+                            <button onclick="MemberProfileModal.startReport()"
                                     style="padding:10px 14px;border-radius:14px;border:none;cursor:pointer;
                                            font-size:0.88rem;font-weight:700;
                                            background:var(--neuro-bg,#f0f0f3);color:var(--text-muted,#718096);
@@ -237,9 +237,9 @@ const MemberProfileModal = {
                                            transition:all 0.15s;"
                                     onmouseover="this.style.boxShadow='2px 2px 6px rgba(0,0,0,0.12),-1px -1px 4px rgba(255,255,255,0.8)';this.style.transform='translateY(1px)'"
                                     onmouseout="this.style.boxShadow='4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.75)';this.style.transform=''">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Report
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Report
                             </button>
-                            <button type="button" onclick="MemberProfileModal.startBlock()"
+                            <button onclick="MemberProfileModal.startBlock()"
                                     style="padding:10px 14px;border-radius:14px;border:none;cursor:pointer;
                                            font-size:0.88rem;font-weight:700;
                                            background:var(--neuro-bg,#f0f0f3);color:var(--text-muted,#718096);
@@ -247,7 +247,7 @@ const MemberProfileModal = {
                                            transition:all 0.15s;"
                                     onmouseover="this.style.boxShadow='2px 2px 6px rgba(0,0,0,0.12),-1px -1px 4px rgba(255,255,255,0.8)';this.style.transform='translateY(1px)'"
                                     onmouseout="this.style.boxShadow='4px 4px 10px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.75)';this.style.transform=''">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg> Block
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg> Block
                             </button>
                         </div>
 
@@ -259,11 +259,11 @@ const MemberProfileModal = {
                                              border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;resize:none;
                                              background:var(--neuro-bg);color:var(--neuro-text);box-sizing:border-box;"></textarea>
                             <div style="display:flex;gap:8px;margin-top:8px;">
-                                <button type="button" onclick="MemberProfileModal.sendWhisper()"
+                                <button onclick="MemberProfileModal.sendWhisper()"
                                         style="flex:1;padding:8px;border-radius:10px;border:none;cursor:pointer;
                                                font-size:0.88rem;font-weight:600;
                                                background:var(--primary,#667eea);color:#fff;">Send</button>
-                                <button type="button" onclick="MemberProfileModal.cancelWhisper()"
+                                <button onclick="MemberProfileModal.cancelWhisper()"
                                         style="padding:8px 14px;border-radius:10px;border:none;cursor:pointer;
                                                font-size:0.88rem;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
                                                color:var(--neuro-text);">Cancel</button>
@@ -289,12 +289,12 @@ const MemberProfileModal = {
                                              border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;resize:none;
                                              background:var(--neuro-bg);color:var(--neuro-text);box-sizing:border-box;"></textarea>
                             <div style="display:flex;gap:8px;margin-top:8px;">
-                                <button type="button" onclick="MemberProfileModal.submitReport()"
+                                <button onclick="MemberProfileModal.submitReport()"
                                         style="flex:1;padding:8px;border-radius:10px;border:none;cursor:pointer;
                                                font-size:0.88rem;font-weight:600;background:#ef4444;color:#fff;">
                                     Submit Report
                                 </button>
-                                <button type="button" onclick="MemberProfileModal.cancelReport()"
+                                <button onclick="MemberProfileModal.cancelReport()"
                                         style="padding:8px 14px;border-radius:10px;border:none;cursor:pointer;
                                                font-size:0.88rem;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
                                                color:var(--neuro-text);">Cancel</button>
@@ -309,7 +309,7 @@ const MemberProfileModal = {
                                         background:rgba(var(--neuro-accent-rgb, 168,85,247),0.08);border:2px dashed rgba(var(--neuro-accent-rgb, 168,85,247),0.4);
                                         user-select:none;">
                                 <span style="font-size:0.78rem;font-weight:700;text-transform:uppercase;
-                                             letter-spacing:1px;color:var(--neuro-accent);"style="display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin Controls</span>
+                                             letter-spacing:1px;color:var(--neuro-accent);"style="display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin Controls</span>
                                 <span id="memberModalAdminToggle" style="font-size:0.75rem;color:var(--neuro-accent);">▶</span>
                             </div>
 
@@ -323,7 +323,7 @@ const MemberProfileModal = {
                                         ['premium', '🔓 Unlock Premium'],
                                         ['message', '📩 Send Message'],
                                     ].map(([key, label]) =>
-                                        `<button type="button" onclick="MemberProfileModal._openAdminSub('${key}')"
+                                        `<button onclick="MemberProfileModal._openAdminSub('${key}')"
                                                 style="padding:9px 6px;border-radius:10px;border:none;cursor:pointer;
                                                        font-size:0.82rem;font-weight:600;
                                                        background:rgba(var(--neuro-accent-rgb, 168,85,247),0.1);color:var(--neuro-accent);">
@@ -432,12 +432,12 @@ const MemberProfileModal = {
 
     _adminSubFooter(action, label) {
         return `<div style="display:flex;gap:8px;">
-            <button type="button" onclick="MemberProfileModal.${action}()"
+            <button onclick="MemberProfileModal.${action}()"
                     style="flex:1;padding:8px;border-radius:10px;border:none;cursor:pointer;
                            font-size:0.88rem;font-weight:600;background:var(--neuro-accent);color:#fff;">
                 ${label}
             </button>
-            <button type="button" onclick="MemberProfileModal._closeAdminSubs()"
+            <button onclick="MemberProfileModal._closeAdminSubs()"
                     style="padding:8px 14px;border-radius:10px;border:none;cursor:pointer;
                            font-size:0.88rem;background:var(--neuro-shadow-light,rgba(0,0,0,0.06));
                            color:var(--neuro-text);">Cancel</button>
@@ -540,7 +540,7 @@ const MemberProfileModal = {
             content.style.display = 'block';
 
         } catch (err) {
-            console.error('[MemberProfileModal] open error');
+            console.error('[MemberProfileModal] open error:', err);
             Core.showToast('Could not load member profile');
             this.close();
         }
@@ -594,7 +594,7 @@ const MemberProfileModal = {
         }
 
         this._setText('memberModalName',        profile.name || 'Member');
-        this._setHTML('memberModalRole',        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${this._esc(profile.community_role || 'Member')}`);
+        this._setHTML('memberModalRole',        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${profile.community_role || 'Member'}`);
         this._setText('memberModalInspiration', profile.inspiration ? `"${profile.inspiration}"` : '');
 
         const locationEl = document.getElementById('memberModalLocation');
@@ -604,8 +604,8 @@ const MemberProfileModal = {
             if (profile.birthday) {
                 try {
                     const d = new Date(profile.birthday + 'T00:00:00');
-                    parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2 1 2 1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg> ${d.toLocaleDateString(undefined, { month:'long', day:'numeric' })}`);
-                } catch { parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2 1 2 1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg> ${profile.birthday}`); }
+                    parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2 1 2 1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg> ${d.toLocaleDateString(undefined, { month:'long', day:'numeric' })}`);
+                } catch { parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2 1 2 1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg> ${profile.birthday}`); }
             }
             if (profile.country) parts.push(`${this._countryFlag(profile.country)} ${profile.country}`);
 
@@ -665,7 +665,7 @@ const MemberProfileModal = {
                 this._setText('memberModalFavRoom', '-');
             }
         } catch (e) {
-            console.warn('[MemberProfileModal] _loadMemberCommunityStats failed');
+            console.warn('[MemberProfileModal] _loadMemberCommunityStats:', e);
         }
     },
 
@@ -685,7 +685,7 @@ const MemberProfileModal = {
             this._updateAppreciateBtn();
             Core.showToast(result.appreciated ? 'Appreciation sent' : 'Appreciation removed');
         } catch (err) {
-            console.error('[MemberProfileModal] toggleAppreciate error');
+            console.error('[MemberProfileModal] toggleAppreciate error:', err);
             Core.showToast('Could not update - please try again');
         } finally {
             btn.disabled = false;
@@ -698,12 +698,12 @@ const MemberProfileModal = {
         const count    = this.state.appreciationCount ?? '';
         const countStr = count !== '' ? ` (${count})` : '';
         if (this.state.isAppreciated) {
-            btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Appreciated${countStr}`;
+            btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Appreciated${countStr}`;
             btn.style.background = 'var(--primary,#667eea)';
             btn.style.color      = '#fff';
             btn.style.boxShadow  = 'inset 2px 2px 5px rgba(0,0,0,0.15)';
         } else {
-            btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Appreciate${countStr}`;
+            btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Appreciate${countStr}`;
             btn.style.background = 'var(--neuro-bg,#f0f0f3)';
             btn.style.color      = 'var(--neuro-text)';
             btn.style.boxShadow  = '3px 3px 8px rgba(0,0,0,0.1),-2px -2px 6px rgba(255,255,255,0.7)';
@@ -789,7 +789,7 @@ const MemberProfileModal = {
                 Core.showToast('Could not block - please try again');
             }
         } catch (err) {
-            console.error('[MemberProfileModal] blockUser error');
+            console.error('[MemberProfileModal] blockUser error:', err);
             Core.showToast('Could not block - please try again');
         }
     },
@@ -831,7 +831,7 @@ const MemberProfileModal = {
             const { error } = await CommunityDB._sb.from('profiles')
                 .update(profileUpdate).eq('id', this.state.currentUserId);
             if (error) throw error;
-            this._setHTML('memberModalRole', `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${this._esc(role)}`);
+            this._setHTML('memberModalRole', `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${role}`);
             Core.showToast(`Role changed to ${role}`);
             this._closeAdminSubs();
         });
@@ -967,7 +967,7 @@ const MemberProfileModal = {
                     if (Array.isArray(fresh.unlockedFeatures)) window.app.state.data.unlockedFeatures = fresh.unlockedFeatures;
                 }
             } catch (e) {
-                console.warn('[_safeRefresh] pre-patch failed');
+                console.warn('[_safeRefresh] pre-patch failed:', e);
             }
         }
 
@@ -997,7 +997,7 @@ const MemberProfileModal = {
 
             this._populateGamification(g);
         } catch (e) {
-            console.warn('[AdminPanel] _refreshMainProfileStats failed');
+            console.warn('[AdminPanel] _refreshMainProfileStats:', e);
         }
     },
 
@@ -1014,7 +1014,7 @@ const MemberProfileModal = {
                 }).catch(() => {})
             ));
         } catch (err) {
-            console.error('[AdminPanel] push notify error');
+            console.error('[AdminPanel] push notify error:', err);
         }
     },
 
@@ -1052,7 +1052,7 @@ const MemberProfileModal = {
         try {
             await fn();
         } catch (err) {
-            console.error(`[AdminPanel] ${idleLabel} error`);
+            console.error(`[AdminPanel] ${idleLabel} error:`, err);
             Core.showToast(`Could not complete: ${idleLabel}`);
         } finally {
             if (btn) { btn.disabled = false; btn.textContent = idleLabel; }
@@ -1078,10 +1078,3 @@ export { MemberProfileModal };
 
 // Keep window assignment for classic scripts
 window.MemberProfileModal = MemberProfileModal;
-
-// bfcache: clean up presence subscription on pagehide
-window.addEventListener('pagehide', () => {
-    if (MemberProfileModal.state.isOpen) {
-        MemberProfileModal.close();
-    }
-});

@@ -1,77 +1,79 @@
 // Mini-Apps/CommunityHub/CommunityHubEngine.js
-// v3.1 - All room/utility scripts converted to ES module dynamic import()
+// v3.0 - All room/utility scripts converted to ES module dynamic import()
 
-import { CommunityDB }        from './js/community-supabase.js';
-import { Core }               from './js/core.js';
+import { CommunityDB }       from './js/community-supabase.js';
+import { Core }              from './js/core.js';
 import { MemberProfileModal } from './js/member-profile-modal.js';
-import { WhisperModal }       from './js/WhisperModal.js';
+import { WhisperModal }      from './js/WhisperModal.js';
 
 const BASE_PATH = '/Mini-Apps/CommunityHub';
 
-const RITUAL_TEXTS = Object.freeze([
-    'Enter with intention, leave with gratitude',
-    'This space holds you. Enter with presence.',
-    'Breathe in. You are welcome here.',
-    'Leave the noise behind. Step into stillness.',
-    'You are exactly where you need to be.',
-    'Enter gently. This moment is yours.',
-    'Set down what you carry. Enter with an open heart.',
-    'The space is ready. So are you.',
-    'Come as you are. This is a place of welcome.',
-    'Arrive fully. Begin with intention.',
-]);
+const RITUAL_TEXTS = [
+  "Enter with intention, leave with gratitude",
+  "This space holds you. Enter with presence.",
+  "Breathe in. You are welcome here.",
+  "Leave the noise behind. Step into stillness.",
+  "You are exactly where you need to be.",
+  "Enter gently. This moment is yours.",
+  "Set down what you carry. Enter with an open heart.",
+  "The space is ready. So are you.",
+  "Come as you are. This is a place of welcome.",
+  "Arrive fully. Begin with intention.",
+];
 
 class CommunityHubEngine {
-    constructor(app) {
-        this.app = app;
-        this.initialized = false;
+  constructor(app) {
+    this.app = app;
+    this.initialized = false;
+  }
+
+  async render() {
+    const tab = document.getElementById('community-hub-tab');
+    if (!tab) {
+      console.error('[CommunityHub] Tab element not found');
+      return;
     }
 
-    async render() {
-        const tab = document.getElementById('community-hub-tab');
-        if (!tab) {
-            console.error('[CommunityHub] Tab element not found');
-            return;
-        }
+    this.createFullscreenRoomContainer();
 
-        this.createFullscreenRoomContainer();
-
-        if (!this.initialized) {
-            tab.innerHTML = this._buildTabHTML();
-        }
-
-        // Double rAF ensures DOM is painted before overlay shows
-        requestAnimationFrame(() => requestAnimationFrame(() => this._showRitualImmediately()));
-
-        if (!this.initialized) {
-            await this.initializeCommunityHub();
-            this.initialized = true;
-        } else {
-            Core.state.initialized = false;
-            Core.init();
-        }
-
-        // Auto-open a room requested from an external CTA (e.g. Energy Tracker)
-        if (window._pendingRoomOpen) {
-            const roomKey = window._pendingRoomOpen;
-            window._pendingRoomOpen = null;
-            const tryOpen = setInterval(() => {
-                const fn = window[`${roomKey}_enterRoom`];
-                if (typeof fn === 'function') {
-                    clearInterval(tryOpen);
-                    fn();
-                }
-            }, 200);
-            setTimeout(() => clearInterval(tryOpen), 8000);
-        }
+    if (!this.initialized) {
+      tab.innerHTML = this._buildTabHTML();
     }
 
-    // ---------------------------------------------------------------------------
-    // HTML Builders
-    // ---------------------------------------------------------------------------
+    // Double rAF ensures DOM is painted before overlay shows
+    requestAnimationFrame(() => requestAnimationFrame(() => this._showRitualImmediately()));
 
-    _buildTabHTML() {
-        return `
+    if (!this.initialized) {
+      await this.initializeCommunityHub();
+      this.initialized = true;
+    } else {
+      // Re-visit: reset state so sections re-render
+      Core.state.initialized = false;
+      Core.init();
+    }
+
+    // Auto-open a room requested from an external CTA (e.g. Energy Tracker)
+    // Runs on every visit - poll until the room function is available
+    if (window._pendingRoomOpen) {
+      const roomKey = window._pendingRoomOpen;
+      window._pendingRoomOpen = null;
+      const tryOpen = setInterval(() => {
+        const fn = window[`${roomKey}_enterRoom`];
+        if (typeof fn === 'function') {
+          clearInterval(tryOpen);
+          fn();
+        }
+      }, 200);
+      setTimeout(() => clearInterval(tryOpen), 8000); // safety timeout
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // HTML Builders
+  // ---------------------------------------------------------------------------
+
+  _buildTabHTML() {
+    return `
       <div class="universal-content">
 
           <header class="main-header project-curiosity"
@@ -118,8 +120,7 @@ class CommunityHubEngine {
                   <div id="lunarContainer" class="celestial-container"></div>
                 </section>
 
-                <section class="section" id="celestialSolarSection" aria-labelledby="solarCyclesTitle">
-                  <h2 id="solarCyclesTitle" class="sr-only">Solar Cycles</h2>
+                <section class="section" id="celestialSolarSection" aria-label="Solar Cycles">
                   <div id="solarContainer" class="celestial-container"></div>
                 </section>
 
@@ -128,14 +129,14 @@ class CommunityHubEngine {
               </div>
             </div>
 
+
         </div>
     `;
-    }
+  }
 
-    _buildCandleSVG(idSuffix) {
-        return `
-      <svg viewBox="0 0 48 70" fill="none" xmlns="http://www.w3.org/2000/svg"
-           aria-hidden="true" focusable="false">
+  _buildCandleSVG(idSuffix) {
+    return `
+      <svg viewBox="0 0 48 70" fill="none" xmlns="http://www.w3.org/2000/svg">
         <ellipse class="flame-outer" cx="24" cy="16" rx="7" ry="11" fill="url(#flameGradOuter-${idSuffix})" opacity="0.9"/>
         <ellipse class="flame-inner" cx="24" cy="18" rx="4.5" ry="7.5" fill="url(#flameGradInner-${idSuffix})" opacity="0.95"/>
         <ellipse class="flame-core"  cx="24" cy="20" rx="2" ry="3.5" fill="#fff9e6" opacity="0.95"/>
@@ -172,206 +173,202 @@ class CommunityHubEngine {
           </radialGradient>
         </defs>
       </svg>`;
-    }
+  }
 
-    _buildRitualCard({ id, textId, type, action, label, buttonText }) {
-        return `
+  _buildRitualCard({ id, textId, type, action, label, buttonText }) {
+    return `
       <div class="ritual-overlay ${type}" id="${id}" role="dialog" aria-modal="true" aria-labelledby="${textId}">
         <div class="ritual-card">
           <div class="ritual-candle" aria-hidden="true">${this._buildCandleSVG(type[0])}</div>
           <div class="ritual-text" id="${textId}"></div>
-          <button type="button" class="ritual-btn" data-action="${action}" aria-label="${label}">${buttonText}</button>
+          <button class="ritual-btn" data-action="${action}" aria-label="${label}">${buttonText}</button>
         </div>
       </div>`;
-    }
+  }
 
-    // ---------------------------------------------------------------------------
-    // DOM Setup
-    // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // DOM Setup
+  // ---------------------------------------------------------------------------
 
-    createFullscreenRoomContainer() {
-        if (document.getElementById('communityHubFullscreenContainer')) return;
+  createFullscreenRoomContainer() {
+    if (document.getElementById('communityHubFullscreenContainer')) return;
 
-        const container = document.createElement('div');
-        container.id = 'communityHubFullscreenContainer';
-        container.style.cssText = 'position:fixed;inset:0;z-index:99999;background:transparent;display:none;overflow:auto;pointer-events:auto;';
+    const container = document.createElement('div');
+    container.id = 'communityHubFullscreenContainer';
+    container.style.cssText = 'position:fixed;inset:0;z-index:99999;background:transparent;display:none;overflow:auto;pointer-events:auto;';
 
-        container.innerHTML = `
+    container.innerHTML = `
       ${this._buildRitualCard({
-          id: 'closingOverlay', textId: 'closingRitualText', type: 'closing',
-          action: 'ritual-closing', label: 'Close gently', buttonText: 'Close Gently',
+        id: 'closingOverlay', textId: 'closingRitualText', type: 'closing',
+        action: 'ritual-closing', label: 'Close gently', buttonText: 'Close Gently',
       })}
       <div id="dynamicRoomContent" style="display:flex;flex-direction:column;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;width:100%;"></div>
     `;
 
-        document.body.appendChild(container);
+    document.body.appendChild(container);
 
-        if (!document.getElementById('openingOverlay')) {
-            const el = document.createElement('div');
-            el.innerHTML = this._buildRitualCard({
-                id: 'openingOverlay', textId: 'openingRitualText', type: 'opening',
-                action: 'ritual-opening', label: 'Enter the space', buttonText: 'Enter the Space',
-            });
-            const root = document.getElementById('app-container') || document.body;
-            root.appendChild(el.firstElementChild);
-        }
+    // Opening overlay goes into app-container (or body) so it covers all UI chrome
+    if (!document.getElementById('openingOverlay')) {
+      const el = document.createElement('div');
+      el.innerHTML = this._buildRitualCard({
+        id: 'openingOverlay', textId: 'openingRitualText', type: 'opening',
+        action: 'ritual-opening', label: 'Enter the space', buttonText: 'Enter the Space',
+      });
+      const root = document.getElementById('app-container') || document.body;
+      root.appendChild(el.firstElementChild);
+    }
+  }
+
+  _showRitualImmediately() {
+    if (window.Rituals?.state?.hasSeenOpening) return;
+    const overlay = document.getElementById('openingOverlay');
+    if (!overlay) return;
+
+    const textEl = document.getElementById('openingRitualText');
+    if (textEl) {
+      textEl.textContent = `"${RITUAL_TEXTS[Math.floor(Math.random() * RITUAL_TEXTS.length)]}"`;
     }
 
-    _showRitualImmediately() {
-        if (window.Rituals?.state?.hasSeenOpening) return;
-        const overlay = document.getElementById('openingOverlay');
-        if (!overlay) return;
+    document.body.classList.add('ritual-active');
+    overlay.classList.add('active');
 
-        const textEl = document.getElementById('openingRitualText');
-        if (textEl) {
-            // textContent — safe, RITUAL_TEXTS is a frozen constant
-            textEl.textContent = `"${RITUAL_TEXTS[Math.floor(Math.random() * RITUAL_TEXTS.length)]}"`;
-        }
+    // Auto-dismiss after 5 s (mirrors Rituals.config.OPENING_AUTO_CLOSE_MS)
+    setTimeout(() => {
+      if (window.Rituals) window.Rituals.completeOpening();
+      else {
+        overlay.classList.remove('active');
+        document.body.classList.remove('ritual-active');
+      }
+    }, 5000);
+  }
 
-        document.body.classList.add('ritual-active');
-        overlay.classList.add('active');
+  // ---------------------------------------------------------------------------
+  // Script / Style Loading
+  // ---------------------------------------------------------------------------
 
-        setTimeout(() => {
-            if (window.Rituals) window.Rituals.completeOpening();
-            else {
-                overlay.classList.remove('active');
-                document.body.classList.remove('ritual-active');
-            }
-        }, 5000);
+  loadStylesheet(href, { critical = false } = {}) {
+    if (document.querySelector(`link[href="${href}"]`)) return;
+    const link = document.createElement('link');
+    link.rel  = 'stylesheet';
+    link.href = href;
+    if (!critical) {
+      // Non-critical: load async then swap to stylesheet
+      link.rel    = 'preload';
+      link.as     = 'style';
+      link.onload = function () { this.rel = 'stylesheet'; };
     }
+    document.head.appendChild(link);
+  }
 
-    // ---------------------------------------------------------------------------
-    // Script / Style Loading
-    // ---------------------------------------------------------------------------
+  /** Legacy helper: load a non-module CDN/external script tag. */
+  loadScript(src) {
+    return new Promise((resolve, reject) => {
+      if (document.querySelector(`script[src="${src}"]`)) return resolve();
+      const script = Object.assign(document.createElement('script'), { src, async: true });
+      script.onload = resolve;
+      script.onerror = () => reject(new Error(`Failed to load: ${src}`));
+      document.body.appendChild(script);
+    });
+  }
 
-    loadStylesheet(href, { critical = false } = {}) {
-        if (document.querySelector(`link[href="${href}"]`)) return;
-        const link = document.createElement('link');
-        link.rel  = 'stylesheet';
-        link.href = href;
-        if (!critical) {
-            link.rel    = 'preload';
-            link.as     = 'style';
-            link.onload = function () { this.rel = 'stylesheet'; };
-        }
-        document.head.appendChild(link);
+  /** Dynamic ES module import with absolute path. */
+  _import(path) {
+    return import(`${BASE_PATH}/${path}`);
+  }
+
+  /** Parallel dynamic imports. */
+  _importAll(paths) {
+    return Promise.all(paths.map(p => this._import(p)));
+  }
+
+  // ---------------------------------------------------------------------------
+  // Initialization
+  // ---------------------------------------------------------------------------
+
+  async initializeCommunityHub() {
+    try {
+      // Group 1: CDN scripts (not ES modules — keep as script tags)
+      await this.loadScript('https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js');
+
+      // Group 2: Hub utilities
+      await this._importAll([
+        'js/rituals.js',
+        'js/profile-module.js',
+        'js/community-module.js',
+        'js/SafetyBar.js',
+        'js/AdminDashboard.js',
+        'js/collective-field-db.js',
+        'js/Rooms/PracticeRoom.js',
+      ]);
+
+      // Group 3: Mixins + Lunar/Solar foundations
+      await this._importAll([
+        'js/Rooms/mixins/YouTubePlayerMixin.js',
+        'js/Rooms/mixins/CycleStateMixin.js',
+        'js/Rooms/mixins/ChatMixin.js',
+        'js/Rooms/mixins/SoundSettingsMixin.js',
+        'js/Rooms/mixins/TimerMixin.js',
+        'js/Solar/solar-config.js',
+        'js/Lunar/lunar-core.js',
+        'js/Lunar/lunar-ui.js',
+        'js/Lunar/lunar-config.js',
+        'js/Lunar/lunarengine.js',
+      ]);
+
+      // Group 3b: Composite classes that depend on Group 3 mixins
+      // Sequential: TimedVideoRoom extends YouTubePlayerMixin + CycleStateMixin,
+      // TabRoomMixin is used by rooms in Group 4b.
+      await this._importAll([
+        'js/Rooms/mixins/TimedVideoRoom.js',
+        'js/Rooms/mixins/TabRoomMixin.js',
+      ]);
+
+      // Init LunarEngine early - lunar rooms need currentMoonData
+      window.LunarEngine?.init?.();
+
+      // Group 4a: Solar UI must precede base room (sequential)
+      await this._import('js/Solar/solar-ui.js');
+      await this._import('js/Solar/solar-base-room.js');
+
+      // Group 4b: All rooms + dynamic sections (parallel)
+      await this._importAll([
+        'js/Rooms/silent-room.js',
+        'js/Rooms/guided-room.js',
+        'js/Rooms/osho-room.js',
+        'js/Rooms/breathwork-room.js',
+        'js/Rooms/deepwork-room.js',
+        'js/Rooms/campfire-room.js',
+        'js/Rooms/tarot-room.js',
+        'js/Rooms/reiki-room.js',
+        'js/collective-field.js',
+        'js/resonance.js',
+        'js/upcoming-events.js',
+      ]);
+
+      // Group 5: Engines last
+      await this._import('js/Solar/solarengine.js');
+
+      // Boot Core
+      if (!Core?.init) throw new Error('Core module not found');
+
+      Core.init();
+
+      if (window.Rituals) window.Rituals.state.hasSeenOpening = false;
+      if (window.CollectiveFieldDB) await window.CollectiveFieldDB.init();
+
+    } catch (err) {
+      console.error('❌ Failed to load Community Hub:', err);
+      const main = document.getElementById('community-hub-main-content');
+      if (main) {
+        main.innerHTML = `
+          <div class="card" style="text-align:center; padding:var(--spacing-xl)">
+            <h3 style="color:var(--neuro-text)">Failed to Load</h3>
+            <p style="color:var(--neuro-text-light)">Please refresh the page and try again.</p>
+            <p style="color:var(--neuro-text-lighter); font-size:0.9rem; margin-top:1rem">${err.message}</p>
+          </div>`;
+      }
     }
-
-    loadScript(src) {
-        return new Promise((resolve, reject) => {
-            if (document.querySelector(`script[src="${src}"]`)) return resolve();
-            const script = Object.assign(document.createElement('script'), { src, async: true });
-            script.onload  = resolve;
-            script.onerror = () => reject(new Error(`Failed to load script`));
-            document.body.appendChild(script);
-        });
-    }
-
-    _import(path) {
-        return import(`${BASE_PATH}/${path}`);
-    }
-
-    _importAll(paths) {
-        return Promise.all(paths.map(p => this._import(p)));
-    }
-
-    // ---------------------------------------------------------------------------
-    // Initialization
-    // ---------------------------------------------------------------------------
-
-    async initializeCommunityHub() {
-        try {
-            // Group 1: CDN scripts (not ES modules)
-            await this.loadScript('https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js');
-
-            // Group 2: Hub utilities
-            await this._importAll([
-                'js/rituals.js',
-                'js/profile-module.js',
-                'js/community-module.js',
-                'js/SafetyBar.js',
-                'js/AdminDashboard.js',
-                'js/collective-field-db.js',
-                'js/Rooms/PracticeRoom.js',
-            ]);
-
-            // Group 3: Mixins + Lunar/Solar foundations
-            await this._importAll([
-                'js/Rooms/mixins/YouTubePlayerMixin.js',
-                'js/Rooms/mixins/CycleStateMixin.js',
-                'js/Rooms/mixins/ChatMixin.js',
-                'js/Rooms/mixins/SoundSettingsMixin.js',
-                'js/Rooms/mixins/TimerMixin.js',
-                'js/Solar/solar-config.js',
-                'js/Lunar/lunar-core.js',
-                'js/Lunar/lunar-ui.js',
-                'js/Lunar/lunar-config.js',
-                'js/Lunar/lunarengine.js',
-            ]);
-
-            // Group 3b: Composite classes depending on Group 3 mixins
-            await this._importAll([
-                'js/Rooms/mixins/TimedVideoRoom.js',
-                'js/Rooms/mixins/TabRoomMixin.js',
-            ]);
-
-            window.LunarEngine?.init?.();
-
-            // Group 4a: Solar UI (sequential)
-            await this._import('js/Solar/solar-ui.js');
-            await this._import('js/Solar/solar-base-room.js');
-
-            // Group 4b: Rooms + dynamic sections (parallel)
-            await this._importAll([
-                'js/Rooms/silent-room.js',
-                'js/Rooms/guided-room.js',
-                'js/Rooms/osho-room.js',
-                'js/Rooms/breathwork-room.js',
-                'js/Rooms/deepwork-room.js',
-                'js/Rooms/campfire-room.js',
-                'js/Rooms/tarot-room.js',
-                'js/Rooms/reiki-room.js',
-                'js/collective-field.js',
-                'js/resonance.js',
-                'js/upcoming-events.js',
-            ]);
-
-            // Group 5: Engines last
-            await this._import('js/Solar/solarengine.js');
-
-            if (!Core?.init) throw new Error('Core module not found');
-            Core.init();
-
-            if (window.Rituals) window.Rituals.state.hasSeenOpening = false;
-            if (window.CollectiveFieldDB) await window.CollectiveFieldDB.init();
-
-        } catch (err) {
-            console.error('❌ Failed to load Community Hub');
-            const main = document.getElementById('community-hub-main-content');
-            if (main) {
-                main.innerHTML = '';
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.style.cssText = 'text-align:center;padding:var(--spacing-xl)';
-                const h3 = document.createElement('h3');
-                h3.style.color = 'var(--neuro-text)';
-                h3.textContent = 'Failed to Load';
-                const p1 = document.createElement('p');
-                p1.style.color = 'var(--neuro-text-light)';
-                p1.textContent = 'Please refresh the page and try again.';
-                card.appendChild(h3);
-                card.appendChild(p1);
-                main.appendChild(card);
-            }
-        }
-    }
+  }
 }
-
-// bfcache: reset initialized flag so hub re-renders on next visit
-window.addEventListener('pagehide', () => {
-    if (window._communityHubEngine) {
-        window._communityHubEngine.initialized = false;
-    }
-});
 
 export default CommunityHubEngine;

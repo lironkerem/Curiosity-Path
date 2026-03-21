@@ -317,12 +317,12 @@ class TarotRoom extends PracticeRoom {
 
             <!-- UPRIGHT / REVERSED TOGGLE -->
             <div style="display:flex;justify-content:center;gap:8px;margin-bottom:16px;">
-                <button type="button" id="${roomId}UprightBtn"
+                <button id="${roomId}UprightBtn"
                     onclick="window.TarotRoom._setMeaningTab('upright')"
                     style="padding:7px 20px;border-radius:20px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;">
                     Upright
                 </button>
-                <button type="button" id="${roomId}ReversedBtn"
+                <button id="${roomId}ReversedBtn"
                     onclick="window.TarotRoom._setMeaningTab('reversed')"
                     style="padding:7px 20px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:13px;font-weight:600;cursor:pointer;">
                     Reversed
@@ -358,7 +358,7 @@ class TarotRoom extends PracticeRoom {
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
                 <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;">📓 Card Journal</div>
-                <button type="button" onclick="window.TarotRoom._toggleJournalLog()"
+                <button onclick="window.TarotRoom._toggleJournalLog()"
                     id="${roomId}JournalLogBtn"
                     style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;font-weight:600;">View Log</button>
             </div>
@@ -370,7 +370,7 @@ class TarotRoom extends PracticeRoom {
                     placeholder="e.g. A figure stands at the edge of a cliff, looking up… the colors feel warm and golden… I notice a small dog at their feet…"
                     style="width:100%;box-sizing:border-box;padding:12px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--background);color:var(--text);font-size:14px;line-height:1.6;resize:vertical;min-height:110px;font-family:inherit;"
                 ></textarea>
-                <button type="button" onclick="window.TarotRoom._saveJournalEntry()"
+                <button onclick="window.TarotRoom._saveJournalEntry()"
                     style="margin-top:10px;padding:9px 22px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;">
                     Save to Journal
                 </button>
@@ -392,7 +392,7 @@ class TarotRoom extends PracticeRoom {
                     style="flex:1;min-width:0;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--background);color:var(--text);font-size:14px;font-family:inherit;"
                     onkeydown="if(event.key==='Enter')window.TarotRoom._submitInterpretation()"
                 />
-                <button type="button" onclick="window.TarotRoom._submitInterpretation()"
+                <button onclick="window.TarotRoom._submitInterpretation()"
                     style="padding:9px 18px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
                     Share
                 </button>
@@ -455,7 +455,7 @@ class TarotRoom extends PracticeRoom {
             input.value = '';
             Core.showToast('Saved to your journal ✨');
         } catch (e) {
-            console.warn('[TarotRoom] journal save failed');
+            console.warn('[TarotRoom] journal save failed', e);
             Core.showToast('Could not save — please try again');
         }
     }
@@ -485,21 +485,21 @@ class TarotRoom extends PracticeRoom {
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:12px;font-weight:600;color:var(--accent);">${this._escapeHtml(row.card_name || '')} · ${row.date}</span>
                         <div style="display:flex;gap:10px;">
-                            <button type="button" onclick="window.TarotRoom._editJournalEntry('${row.id}')" style="font-size:12px;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:0;">Edit</button>
-                            <button type="button" onclick="window.TarotRoom._deleteJournalEntry('${row.id}')" style="font-size:12px;color:#e57373;background:none;border:none;cursor:pointer;padding:0;">Delete</button>
+                            <button onclick="window.TarotRoom._editJournalEntry('${row.id}')" style="font-size:12px;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:0;">Edit</button>
+                            <button onclick="window.TarotRoom._deleteJournalEntry('${row.id}')" style="font-size:12px;color:#e57373;background:none;border:none;cursor:pointer;padding:0;">Delete</button>
                         </div>
                     </div>
                     <div id="jr-text-${row.id}" style="font-size:14px;line-height:1.6;color:var(--text);">${this._escapeHtml(row.reflection)}</div>
                     <div id="jr-edit-${row.id}" style="display:none;">
                         <textarea style="width:100%;box-sizing:border-box;padding:8px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface);color:var(--text);font-size:14px;line-height:1.5;resize:vertical;min-height:80px;font-family:inherit;margin-top:8px;">${this._escapeHtml(row.reflection)}</textarea>
                         <div style="display:flex;gap:8px;margin-top:6px;">
-                            <button type="button" onclick="window.TarotRoom._saveEditedEntry('${row.id}')" style="padding:5px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-md);font-size:13px;font-weight:600;cursor:pointer;">Save</button>
-                            <button type="button" onclick="window.TarotRoom._cancelEditEntry('${row.id}')" style="padding:5px 14px;background:none;border:1px solid var(--border);border-radius:var(--radius-md);font-size:13px;cursor:pointer;color:var(--text-muted);">Cancel</button>
+                            <button onclick="window.TarotRoom._saveEditedEntry('${row.id}')" style="padding:5px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-md);font-size:13px;font-weight:600;cursor:pointer;">Save</button>
+                            <button onclick="window.TarotRoom._cancelEditEntry('${row.id}')" style="padding:5px 14px;background:none;border:1px solid var(--border);border-radius:var(--radius-md);font-size:13px;cursor:pointer;color:var(--text-muted);">Cancel</button>
                         </div>
                     </div>
                 </div>`).join('');
         } catch (e) {
-            console.warn('[TarotRoom] load journal failed');
+            console.warn('[TarotRoom] load journal failed', e);
             listEl.innerHTML = `<div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px;">Could not load journal.</div>`;
         }
     }
@@ -526,7 +526,7 @@ class TarotRoom extends PracticeRoom {
             this._cancelEditEntry(id);
             Core.showToast('Entry updated');
         } catch (e) {
-            console.warn('[TarotRoom] edit failed');
+            console.warn('[TarotRoom] edit failed', e);
             Core.showToast('Could not update entry');
         }
     }
@@ -537,7 +537,7 @@ class TarotRoom extends PracticeRoom {
             document.getElementById(`jr-${id}`)?.remove();
             Core.showToast('Entry deleted');
         } catch (e) {
-            console.warn('[TarotRoom] delete failed');
+            console.warn('[TarotRoom] delete failed', e);
             Core.showToast('Could not delete entry');
         }
     }
@@ -563,7 +563,7 @@ class TarotRoom extends PracticeRoom {
             await this._loadInterpretations();
             Core.showToast('Shared 🌀');
         } catch (e) {
-            console.warn('[TarotRoom] interpretation save failed');
+            console.warn('[TarotRoom] interpretation save failed', e);
             Core.showToast('Could not share — please try again');
         }
     }
@@ -602,7 +602,7 @@ class TarotRoom extends PracticeRoom {
                     <span style="font-size:14px;line-height:1.5;color:var(--text);">${this._escapeHtml(row.interpretation)}</span>
                 </div>`).join('');
         } catch (e) {
-            console.warn('[TarotRoom] load interpretations failed');
+            console.warn('[TarotRoom] load interpretations failed', e);
             list.innerHTML = `<div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px;">Could not load interpretations.</div>`;
         }
     }
@@ -665,7 +665,7 @@ class TarotRoom extends PracticeRoom {
                 card_type: type,
             });
         } catch(e) {
-            console.warn('[TarotRoom] logDraw failed');
+            console.warn('[TarotRoom] logDraw failed', e);
         }
     }
 
@@ -686,9 +686,9 @@ class TarotRoom extends PracticeRoom {
                 return;
             }
             const typeIcon = {
-                major: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>`,
-                minor: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;" aria-hidden="true" focusable="false"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
-                court: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;" aria-hidden="true" focusable="false"><path d="M2 20h20"/><path d="m4 14 4-8 4 8 4-8 4 8"/></svg>`
+                major: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>`,
+                minor: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
+                court: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><path d="M2 20h20"/><path d="m4 14 4-8 4 8 4-8 4 8"/></svg>`
             };
             el.innerHTML = data.map(row => {
                 const date = new Date(row.drawn_at).toLocaleDateString([], { month:'short', day:'numeric', year:'numeric' });
@@ -705,7 +705,7 @@ class TarotRoom extends PracticeRoom {
 
             this._personalDataLoaded = true;
         } catch(e) {
-            console.warn('[TarotRoom] loadDrawHistory failed');
+            console.warn('[TarotRoom] loadDrawHistory failed', e);
         }
     }
 
@@ -744,7 +744,7 @@ class TarotRoom extends PracticeRoom {
                 }).join('');
             }
         } catch(e) {
-            console.warn('[TarotRoom] loadMastery failed');
+            console.warn('[TarotRoom] loadMastery failed', e);
         }
     }
 
@@ -760,7 +760,7 @@ class TarotRoom extends PracticeRoom {
             this._loadMastery();
             Core.showToast('Draw history cleared');
         } catch(e) {
-            console.warn('[TarotRoom] clearDrawHistory failed');
+            console.warn('[TarotRoom] clearDrawHistory failed', e);
         }
     }
 
@@ -794,7 +794,7 @@ class TarotRoom extends PracticeRoom {
         <div class="ps-body" style="display:flex;">
             <main class="tarot-main" style="flex:1;padding:24px;overflow-y:auto;display:flex;justify-content:center;align-items:flex-start;">
                 <div style="width:100%;">
-                    ${this.buildTabNav(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="14" y2="14"/></svg> Daily Community Card`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><rect x="2" y="4" width="14" height="18" rx="2"/><rect x="8" y="2" width="14" height="18" rx="2"/></svg> Solo Card Learning`)}
+                    ${this.buildTabNav(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="14" y2="14"/></svg> Daily Community Card`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect x="2" y="4" width="14" height="18" rx="2"/><rect x="8" y="2" width="14" height="18" rx="2"/></svg> Solo Card Learning`)}
                     <div id="${this.roomId}DailyTab"    style="display:block;">${this._buildDailyTab()}</div>
                     <div id="${this.roomId}PersonalTab" style="display:none;">${this._buildPersonalTab()}</div>
                 </div>
@@ -805,7 +805,7 @@ class TarotRoom extends PracticeRoom {
     _buildDailyTab() {
         return `
         <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:24px 16px;margin-bottom:16px;">
-            <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="14" y2="14"/></svg> Daily Community Card</h3>
+            <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="14" y2="14"/></svg> Daily Community Card</h3>
             <div id="${this.roomId}DailyCardContainer" style="display:flex;flex-direction:column;align-items:center;gap:16px;">
                 <div style="color:var(--text-muted);font-size:14px;padding:40px;">Loading today's card…</div>
             </div>
@@ -813,7 +813,7 @@ class TarotRoom extends PracticeRoom {
         <div id="${this.roomId}EnrichedSections"></div>
         <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:12px 8px 24px;" class="tarot-daily-grid">
             <div>
-                <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Community Discussion</h4>
+                <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Community Discussion</h4>
                 <div style="display:flex;flex-direction:column;height:100%;">
                     ${this.buildChatContainer('daily', 'Share your thoughts on today\'s card...')}
                 </div>
@@ -854,13 +854,13 @@ class TarotRoom extends PracticeRoom {
         return `
         <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:16px;">
             <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 24px 0;text-align:center;">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><rect x="2" y="4" width="14" height="18" rx="2"/><rect x="8" y="2" width="14" height="18" rx="2"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect x="2" y="4" width="14" height="18" rx="2"/><rect x="8" y="2" width="14" height="18" rx="2"/></svg>
                 Solo Card Learning
             </h3>
 
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
                 <div>
-                    <label style="font-weight:700;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Major Arcana</label>
+                    <label style="font-weight:700;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Major Arcana</label>
                     <select id="${roomId}MajorSelect" style="${selectStyle}"
                             onchange="${cn}._onPersonalSelectChange('major')">
                         <option value="">— Select —</option>
@@ -868,7 +868,7 @@ class TarotRoom extends PracticeRoom {
                     </select>
                 </div>
                 <div>
-                    <label style="font-weight:700;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;" aria-hidden="true" focusable="false"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> Minor Arcana</label>
+                    <label style="font-weight:700;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> Minor Arcana</label>
                     <select id="${roomId}MinorSelect" style="${selectStyle}"
                             onchange="${cn}._onPersonalSelectChange('minor')">
                         <option value="">— Select —</option>
@@ -876,7 +876,7 @@ class TarotRoom extends PracticeRoom {
                     </select>
                 </div>
                 <div>
-                    <label style="font-weight:700;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;" aria-hidden="true" focusable="false"><path d="M2 20h20"/><path d="m4 14 4-8 4 8 4-8 4 8"/></svg> Court Cards</label>
+                    <label style="font-weight:700;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><path d="M2 20h20"/><path d="m4 14 4-8 4 8 4-8 4 8"/></svg> Court Cards</label>
                     <select id="${roomId}CourtSelect" style="${selectStyle}"
                             onchange="${cn}._onPersonalSelectChange('court')">
                         <option value="">— Select —</option>
@@ -886,9 +886,9 @@ class TarotRoom extends PracticeRoom {
             </div>
 
             <div style="text-align:center;margin-bottom:24px;">
-                <button type="button" onclick="${cn}.drawPersonalCard()"
+                <button onclick="${cn}.drawPersonalCard()"
                         style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:linear-gradient(135deg,var(--neuro-accent),var(--neuro-accent-light));color:white;border:none;border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:15px;letter-spacing:0.5px;box-shadow:var(--shadow-raised);">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;" aria-hidden="true" focusable="false"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg> Random Draw
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg> Random Draw
                 </button>
             </div>
 
@@ -898,7 +898,7 @@ class TarotRoom extends PracticeRoom {
             <div style="margin-top:32px;display:flex;flex-direction:column;gap:20px;">
                 <!-- Mastery Tracker -->
                 <div style="border:2px solid var(--border);border-radius:var(--radius-lg);padding:20px;background:var(--background);">
-                    <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;" aria-hidden="true" focusable="false"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Major Arcana Mastery</h4>
+                    <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Major Arcana Mastery</h4>
                     <div id="${roomId}MasteryBar" style="margin-bottom:12px;">
                         <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:6px;">
                             <span>Cards Discovered</span>
@@ -916,8 +916,8 @@ class TarotRoom extends PracticeRoom {
                 <!-- Draw History -->
                 <div style="border:2px solid var(--border);border-radius:var(--radius-lg);padding:20px;background:var(--background);">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                        <h4 style="font-family:var(--serif);font-size:18px;margin:0;display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;" aria-hidden="true" focusable="false"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg> Cards You've Drawn</h4>
-                        <button type="button" onclick="${cn}._clearDrawHistory()" style="font-size:12px;color:var(--text-muted);background:none;border:1px solid var(--border);border-radius:var(--radius-md);padding:4px 10px;cursor:pointer;">Clear History</button>
+                        <h4 style="font-family:var(--serif);font-size:18px;margin:0;display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg> Cards You've Drawn</h4>
+                        <button onclick="${cn}._clearDrawHistory()" style="font-size:12px;color:var(--text-muted);background:none;border:1px solid var(--border);border-radius:var(--radius-md);padding:4px 10px;cursor:pointer;">Clear History</button>
                     </div>
                     <div id="${roomId}DrawHistory" style="max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;">
                         <span style="color:var(--text-muted);font-size:13px;">No cards drawn yet.</span>
@@ -980,12 +980,5 @@ Object.assign(TarotRoom.prototype, TabRoomMixin);
 // Window bridge: preserved for inline onclick handlers
 const tarotRoom = new TarotRoom();
 window.TarotRoom = tarotRoom;
-
-// bfcache: reset pending state on pagehide
-window.addEventListener('pagehide', () => {
-    tarotRoom._pendingDailyRender = false;
-    tarotRoom._interpPurgedToday  = false;
-    tarotRoom._personalDataLoaded = false;
-});
 
 export { TarotRoom, tarotRoom };

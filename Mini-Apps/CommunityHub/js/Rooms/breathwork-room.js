@@ -62,9 +62,4 @@ class BreathworkRoom extends TimedVideoRoom {
 const breathworkRoom = new BreathworkRoom();
 window.BreathworkRoom = breathworkRoom;
 
-// bfcache: run cleanup on pagehide
-window.addEventListener('pagehide', () => {
-    breathworkRoom.onCleanup?.();
-});
-
 export { BreathworkRoom, breathworkRoom };

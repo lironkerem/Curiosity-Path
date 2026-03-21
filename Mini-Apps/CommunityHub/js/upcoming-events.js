@@ -280,7 +280,7 @@ const UpcomingEvents = {
             <div class="event-info" style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:16px;padding:12px;background:var(--neuro-bg);border-radius:var(--radius-sm);border-left:3px solid var(--accent);">
                 ${this.escapeHtml(data.info)}
             </div>
-            <div class="event-datetime" style="font-size:13px;color:var(--text-muted);margin-bottom:16px;display:flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> ${this.escapeHtml(data.datetime)}</div>
+            <div class="event-datetime" style="font-size:13px;color:var(--text-muted);margin-bottom:16px;display:flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> ${this.escapeHtml(data.datetime)}</div>
             <button type="button" class="event-btn" onclick="UpcomingEvents.openWhatsApp('${this.escapeHtml(data.whatsapp)}')"
                     aria-label="${this.escapeHtml(ctaText)} for ${this.escapeHtml(data.title)}">
                 ${this.escapeHtml(ctaText)}
@@ -420,7 +420,7 @@ const UpcomingEvents = {
             setTimeout(() => this.initRotation(), 100);
             this.state.isInitialized = true;
         } catch (error) {
-            console.error('UpcomingEvents render error');
+            console.error('UpcomingEvents render error:', error);
         }
     },
 
@@ -439,7 +439,7 @@ const UpcomingEvents = {
         btn.setAttribute('aria-label', 'Update event flyers');
         btn.onclick = () => UpcomingEvents.openAdminModal();
         btn.style.cssText = 'font-size:11px;font-weight:700;padding:4px 12px;border-radius:99px;border:none;cursor:pointer;background:var(--neuro-accent-a10);color:var(--neuro-accent);text-transform:uppercase;letter-spacing:0.5px;';
-        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Update Flyers`;
+        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Update Flyers`;
         header.appendChild(btn);
     },
 
@@ -493,7 +493,7 @@ const UpcomingEvents = {
                     aria-label="Close admin modal"
                     style="position:absolute;top:14px;right:16px;background:none;border:none;cursor:pointer;font-size:18px;opacity:0.5;">✕</button>
             <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
-                        color:var(--neuro-accent);margin-bottom:16px;" style="display:flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Update Flyers</div>
+                        color:var(--neuro-accent);margin-bottom:16px;" style="display:flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Update Flyers</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;">
                 ${tabs.map((t, i) => `
                 <button type="button" id="adminTab_${t.id}" onclick="UpcomingEvents._switchAdminTab('${t.id}')" aria-pressed="${i === 0}"
@@ -629,7 +629,7 @@ const UpcomingEvents = {
             Core.showToast('Flyers updated for all users');
             this.closeAdminModal();
         } catch (err) {
-            console.error('_adminSave error');
+            console.error('_adminSave error:', err);
             Core.showToast('Could not save - please try again');
             if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save & Publish'; }
         }
@@ -661,11 +661,6 @@ if (document.readyState === 'loading') {
 } else {
     UpcomingEvents.render();
 }
-
-// bfcache: destroy rotation intervals on pagehide
-window.addEventListener('pagehide', () => {
-    UpcomingEvents.destroy();
-});
 
 // Window bridge: preserved for external callers
 window.UpcomingEvents = UpcomingEvents;

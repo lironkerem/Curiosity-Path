@@ -125,7 +125,7 @@ const ChatMixin = {
             try {
                 await CommunityDB.sendRoomMessage(this._getDbRoomId(channel), message);
             } catch (e) {
-                console.error('[ChatMixin] sendRoomMessage error:');
+                console.error('[ChatMixin] sendRoomMessage error:', e);
             }
         }
     },
@@ -172,7 +172,7 @@ const ChatMixin = {
             });
 
         } catch (e) {
-            console.error(`[ChatMixin] loadRoomChatFromDB error (${channel}):`);
+            console.error(`[ChatMixin] loadRoomChatFromDB error (${channel}):`, e);
         }
     },
 
@@ -260,7 +260,7 @@ const ChatMixin = {
             const saved = localStorage.getItem(`${this.roomId}_messages_${channel}`);
             if (saved) this.state.messages[channel] = JSON.parse(saved);
         } catch (e) {
-            console.error('[ChatMixin] loadMessagesFromStorage error:');
+            console.error('[ChatMixin] loadMessagesFromStorage error:', e);
             this.state.messages[channel] = [];
         }
     },
@@ -272,7 +272,7 @@ const ChatMixin = {
                 JSON.stringify(this.state.messages[channel])
             );
         } catch (e) {
-            console.error('[ChatMixin] saveMessagesToStorage error:');
+            console.error('[ChatMixin] saveMessagesToStorage error:', e);
         }
     },
 

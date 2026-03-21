@@ -61,17 +61,17 @@ const WhisperModal = {
                          style="display:flex;align-items:center;gap:10px;
                                 padding:1.1rem 1.25rem 1rem;
                                 border-bottom:1px solid rgba(0,0,0,0.07);flex-shrink:0;">
-                        <button type="button" id="whisperModalBack" onclick="WhisperModal._showInbox()"
+                        <button id="whisperModalBack" onclick="WhisperModal._showInbox()"
                                 aria-label="Back to inbox"
                                 style="display:none;background:none;border:none;cursor:pointer;
                                        font-size:1.1rem;padding:0 4px;opacity:0.6;line-height:1;">←</button>
                         <div style="flex:1;">
                             <div id="whisperModalTitle"
-                                 style="font-size:1rem;font-weight:700;color:var(--neuro-text);" style="display:flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Whispers</div>
+                                 style="font-size:1rem;font-weight:700;color:var(--neuro-text);" style="display:flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Whispers</div>
                             <div id="whisperModalSubtitle"
                                  style="font-size:0.75rem;color:var(--text-muted);margin-top:1px;display:none;"></div>
                         </div>
-                        <button type="button" onclick="WhisperModal.close()" aria-label="Close"
+                        <button onclick="WhisperModal.close()" aria-label="Close"
                                 style="background:none;border:none;cursor:pointer;font-size:18px;opacity:0.5;line-height:1;padding:0;">✕</button>
                     </div>
 
@@ -83,7 +83,7 @@ const WhisperModal = {
                         </div>
                         <div id="whisperInboxEmpty"
                              style="display:none;text-align:center;padding:2.5rem 1rem;color:var(--text-muted);">
-                            <div style="margin-bottom:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+                            <div style="margin-bottom:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
                             <div style="font-size:0.88rem;">No whispers yet.</div>
                             <div style="font-size:0.8rem;margin-top:4px;opacity:0.7;">Visit a member's profile to send one.</div>
                         </div>
@@ -113,7 +113,7 @@ const WhisperModal = {
                                              border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
                                              resize:none;background:var(--neuro-bg);color:var(--neuro-text);
                                              box-sizing:border-box;font-family:inherit;"></textarea>
-                            <button type="button" id="whisperReplyBtn" onclick="WhisperModal._sendReply()"
+                            <button id="whisperReplyBtn" onclick="WhisperModal._sendReply()"
                                     style="padding:10px 16px;border-radius:12px;border:none;cursor:pointer;
                                            font-size:0.88rem;font-weight:600;
                                            background:var(--primary,#667eea);color:#fff;
@@ -196,7 +196,7 @@ const WhisperModal = {
 
         const subtitle = document.getElementById('whisperModalSubtitle');
         if (isInbox) {
-            document.getElementById('whisperModalTitle').innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Whispers`;
+            document.getElementById('whisperModalTitle').innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Whispers`;
             subtitle.style.display = 'none';
         }
     },
@@ -227,16 +227,6 @@ const WhisperModal = {
         }
 
         list.innerHTML = conversations.map(c => this._conversationRowHTML(c)).join('');
-        list.querySelectorAll('[data-partner-id]').forEach(row => {
-            const open = () => this._showThread(
-                row.dataset.partnerId,
-                row.dataset.partnerName,
-                row.dataset.partnerEmoji,
-                row.dataset.partnerAvatar
-            );
-            row.addEventListener('click', open);
-            row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
-        });
         this._setBadge(conversations.reduce((sum, c) => sum + c.unread, 0));
     },
 
@@ -256,12 +246,7 @@ const WhisperModal = {
             : '';
 
         return `
-            <div role="button" tabindex="0"
-                 data-partner-id="${safeId}"
-                 data-partner-name="${name}"
-                 data-partner-emoji="${safeEmoji}"
-                 data-partner-avatar="${safeAvatar}"
-                 aria-label="Open whisper thread with ${name}"
+            <div onclick="WhisperModal._showThread('${safeId}','${name}','${safeEmoji}','${safeAvatar}')"
                  style="display:flex;align-items:center;gap:12px;padding:0.75rem 1.25rem;
                         cursor:pointer;transition:background 0.15s;border-radius:0;"
                  onmouseover="this.style.background='rgba(0,0,0,0.03)'"
@@ -393,7 +378,7 @@ const WhisperModal = {
                 Core.showToast('Could not send - please try again');
             }
         } catch (err) {
-            console.error('[WhisperModal] sendReply error');
+            console.error('[WhisperModal] sendReply error:', err);
             Core.showToast('Could not send - please try again');
         } finally {
             if (btn) { btn.disabled = false; btn.textContent = 'Send'; }
@@ -483,12 +468,6 @@ const WhisperModal = {
         return d.innerHTML;
     },
 };
-
-// bfcache: clean up realtime sub on pagehide
-window.addEventListener('pagehide', () => {
-    WhisperModal.state.realtimeSub?.unsubscribe?.();
-    WhisperModal.state.realtimeSub = null;
-});
 
 // Named export for ES module consumers
 export { WhisperModal };

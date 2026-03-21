@@ -152,7 +152,7 @@ const ProfileModule = {
         });
 
         } catch (error) {
-            console.error('ProfileModule initialization failed');
+            console.error('ProfileModule initialization failed:', error);
         }
     },
 
@@ -170,12 +170,12 @@ const ProfileModule = {
         ];
 
         const activityCards = [
-            { type:'journal',    icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`, label:'Journal',          count:'entries'   },
-            { type:'gratitude',  icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg>`, label:'Gratitude',        count:'entries'   },
-            { type:'energy',     icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>`, label:'Energy',           count:'check-ins' },
-            { type:'flip',       icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`, label:'Flip the Script',  count:'entries'   },
-            { type:'tarot',      icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><rect x="2" y="5" width="11" height="14" rx="2"/><path d="M15.5 5.5 18 3l4 4-5.5 5.5"/><path d="m13 13 4.5 4.5"/><path d="m17.5 17.5 1 1"/></svg>`, label:'Tarot Spreads',    count:'readings'  },
-            { type:'meditation', icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`, label:'Meditations',      count:'sessions'  },
+            { type:'journal',    icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`, label:'Journal',          count:'entries'   },
+            { type:'gratitude',  icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg>`, label:'Gratitude',        count:'entries'   },
+            { type:'energy',     icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>`, label:'Energy',           count:'check-ins' },
+            { type:'flip',       icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`, label:'Flip the Script',  count:'entries'   },
+            { type:'tarot',      icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect x="2" y="5" width="11" height="14" rx="2"/><path d="M15.5 5.5 18 3l4 4-5.5 5.5"/><path d="m13 13 4.5 4.5"/><path d="m17.5 17.5 1 1"/></svg>`, label:'Tarot Spreads',    count:'readings'  },
+            { type:'meditation', icon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`, label:'Meditations',      count:'sessions'  },
         ];
 
         const cardStyle = `background:var(--neuro-bg,#f0f0f3);border-radius:14px;padding:14px;
@@ -197,7 +197,7 @@ const ProfileModule = {
                                 <span id="profileAvatarFallback">?</span>
                             </div>
                             <div class="profile-status-ring" id="statusRing" aria-hidden="true"></div>
-                            <button type="button" class="edit-avatar"
+                            <button class="edit-avatar"
                                     onclick="ProfileModule.editProfile()"
                                     aria-label="Edit profile"
                                     style="position:absolute;bottom:2px;right:2px;
@@ -208,12 +208,12 @@ const ProfileModule = {
                                            display:flex;align-items:center;justify-content:center;
                                            transition:transform 0.15s;z-index:2;"
                                     onmouseover="this.style.transform='scale(1.15)'"
-                                    onmouseout="this.style.transform='scale(1)'"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg></button>
+                                    onmouseout="this.style.transform='scale(1)'"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg></button>
                         </div>
 
                         <!-- Status picker -->
                         <div style="position:relative;">
-                            <button type="button" id="statusPickerBtn"
+                            <button id="statusPickerBtn"
                                     onclick="ProfileModule.toggleStatusPicker()"
                                     style="display:flex;align-items:center;gap:6px;
                                            padding:5px 12px;border-radius:99px;border:none;
@@ -235,7 +235,7 @@ const ProfileModule = {
                                         box-shadow:6px 6px 16px rgba(0,0,0,0.15),-3px -3px 10px rgba(255,255,255,0.7);
                                         z-index:999;min-width:170px;">
                                 ${statusOptions.map(s => `
-                                <button type="button" onclick="ProfileModule.setStatus('${s.status}','${s.label}','${s.color}')"
+                                <button onclick="ProfileModule.setStatus('${s.status}','${s.label}','${s.color}')"
                                         style="display:flex;align-items:center;gap:10px;width:100%;
                                                padding:8px 10px;border:none;border-radius:10px;
                                                background:none;cursor:pointer;font-size:0.82rem;
@@ -269,7 +269,7 @@ const ProfileModule = {
                                         font-size:0.76rem;font-weight:700;
                                         color:var(--neuro-accent);
                                         padding:5px 12px;white-space:nowrap;">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Member
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Member
                             </div>
 
                             <!-- Separator -->
@@ -299,15 +299,15 @@ const ProfileModule = {
 
                         <div class="profile-inspiration">
                             <span id="profileInspiration">"Here to practice with intention."</span>
-                            <button type="button" class="edit-inspiration-btn" onclick="ProfileModule.editInspiration()" aria-label="Edit inspiration"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></button>
+                            <button class="edit-inspiration-btn" onclick="ProfileModule.editInspiration()" aria-label="Edit inspiration"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></button>
                         </div>
 
                         <!-- ── Gamification Section ───────────────── -->
                         ${this._getGamificationHTML()}
 
                         <div class="view-toggle">
-                            <button type="button" class="v-btn active" onclick="ProfileModule.toggleProfileView('public')" aria-pressed="true">Public View</button>
-                            <button type="button" class="v-btn" onclick="ProfileModule.toggleProfileView('private')" aria-pressed="false">My Activity</button>
+                            <button class="v-btn active" onclick="ProfileModule.toggleProfileView('public')" aria-pressed="true">Public View</button>
+                            <button class="v-btn" onclick="ProfileModule.toggleProfileView('private')" aria-pressed="false">My Activity</button>
                         </div>
 
                         <div class="private-details" id="privateDetails">
@@ -340,7 +340,7 @@ const ProfileModule = {
                                         transform:translateY(16px);transition:transform 0.25s ease;">
                                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
                                     <div id="activityModalTitle" style="font-size:1.1rem;font-weight:700;color:var(--neuro-text);"></div>
-                                    <button type="button" onclick="ProfileModule.closeActivityModal()"
+                                    <button onclick="ProfileModule.closeActivityModal()"
                                             style="background:none;border:none;cursor:pointer;font-size:18px;opacity:0.5;">✕</button>
                                 </div>
                                 <div id="activityModalBody" style="overflow-y:auto;flex:1;padding-right:4px;"></div>
@@ -370,10 +370,10 @@ const ProfileModule = {
         const xpPct     = Math.min(100, Math.max(0, levelInfo.progress ?? 0));
 
         const statItems = [
-            { value: status.karma,                 label:'Karma',    emoji:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>`, id:'statKarma'    },
-            { value: 0,                            label:'Blessings',emoji:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg>`, id:'statBlessings' },
-            { value: '-',                          label:'Fav Room', emoji:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`, id:'statFavRoom'   },
-            { value: (status.badges || []).length, label:'Badges',   emoji:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>`, id:'statBadges'   },
+            { value: status.karma,                 label:'Karma',    emoji:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>`, id:'statKarma'    },
+            { value: 0,                            label:'Blessings',emoji:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg>`, id:'statBlessings' },
+            { value: '-',                          label:'Fav Room', emoji:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`, id:'statFavRoom'   },
+            { value: (status.badges || []).length, label:'Badges',   emoji:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>`, id:'statBadges'   },
         ];
 
         return `
@@ -497,7 +497,7 @@ const ProfileModule = {
             this.loadActivityData().catch(() => {});
             this.loadCommunityStats().catch(() => {});
         } catch (error) {
-            console.error('Profile data population error');
+            console.error('Profile data population error:', error);
         }
     },
 
@@ -601,8 +601,8 @@ const ProfileModule = {
                     statFavRoom.textContent = '-';
                 }
             }
-        } catch {
-            console.warn('[ProfileModule] loadCommunityStats error');
+        } catch (e) {
+            console.warn('[ProfileModule] loadCommunityStats error:', e);
         }
     },
 
@@ -621,7 +621,7 @@ const ProfileModule = {
         const status = user.status || 'available';
 
         const roleBadge = document.getElementById('profileRoleBadge');
-        if (roleBadge) roleBadge.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${this._esc(role)}`;
+        if (roleBadge) roleBadge.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${role}`;
 
         const privateRole = document.getElementById('privateRole');
         if (privateRole) privateRole.textContent = role;
@@ -673,8 +673,8 @@ const ProfileModule = {
                 try {
                     const formatted = new Date(birthday + 'T00:00:00')
                         .toLocaleDateString(undefined, { month:'long', day:'numeric' });
-                    birthdayEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2 1 2 1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg> ${formatted}`;
-                } catch { birthdayEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2 1 2 1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg> ${birthday}`; }
+                    birthdayEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2 1 2 1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg> ${formatted}`;
+                } catch { birthdayEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2 1 2 1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg> ${birthday}`; }
             } else {
                 birthdayEl.textContent = '';
             }
@@ -734,7 +734,7 @@ const ProfileModule = {
                     }
                 }
             } catch (e) {
-                console.warn('[ProfileModule] loadActivityData fallback failed');
+                console.warn('[ProfileModule] loadActivityData fallback failed:', e);
             }
         }
 
@@ -763,12 +763,12 @@ const ProfileModule = {
         if (!this._activityData) await this.loadActivityData();
 
         const MODAL_CONFIG = {
-            journal:    { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Journal Entries`   },
-            gratitude:  { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Gratitude Entries` },
-            energy:     { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg> Energy Check-ins`   },
-            flip:       { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Flip the Script`   },
-            tarot:      { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><rect x="2" y="5" width="11" height="14" rx="2"/><path d="M15.5 5.5 18 3l4 4-5.5 5.5"/><path d="m13 13 4.5 4.5"/><path d="m17.5 17.5 1 1"/></svg> Tarot Spreads`      },
-            meditation: { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg> Meditation Sessions` },
+            journal:    { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Journal Entries`   },
+            gratitude:  { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Gratitude Entries` },
+            energy:     { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg> Energy Check-ins`   },
+            flip:       { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Flip the Script`   },
+            tarot:      { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect x="2" y="5" width="11" height="14" rx="2"/><path d="M15.5 5.5 18 3l4 4-5.5 5.5"/><path d="m13 13 4.5 4.5"/><path d="m17.5 17.5 1 1"/></svg> Tarot Spreads`      },
+            meditation: { title: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg> Meditation Sessions` },
         };
 
         const cfg     = MODAL_CONFIG[type];
@@ -829,7 +829,7 @@ const ProfileModule = {
                 const items = entry.entries || [];
                 return `<div style="${base}">
                     <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:6px;">${date}</div>
-                    ${items.map(g => `<div style="margin-bottom:3px;display:flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> ${this._esc(g)}</div>`).join('')}
+                    ${items.map(g => `<div style="margin-bottom:3px;display:flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> ${this._esc(g)}</div>`).join('')}
                 </div>`;
             }
             case 'energy': {
@@ -841,7 +841,7 @@ const ProfileModule = {
                        </div>` : '';
                 return `<div style="${base}">
                     <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">${date}</div>
-                    <div style="font-size:1rem;font-weight:700;color:var(--neuro-accent);display:flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg> Energy: ${level}/10</div>
+                    <div style="font-size:1rem;font-weight:700;color:var(--neuro-accent);display:flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg> Energy: ${level}/10</div>
                     ${tags}${notes}
                 </div>`;
             }
@@ -850,8 +850,8 @@ const ProfileModule = {
                 const reframe = entry.flipped   || entry.reframe || '';
                 return `<div style="${base}">
                     <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">${date}</div>
-                    ${text    ? `<div style="color:var(--neuro-text);display:flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> ${this._esc(text)}</div>` : ''}
-                    ${reframe ? `<div style="margin-top:6px;color:var(--neuro-accent);display:flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> ${this._esc(reframe)}</div>` : ''}
+                    ${text    ? `<div style="color:var(--neuro-text);display:flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> ${this._esc(text)}</div>` : ''}
+                    ${reframe ? `<div style="margin-top:6px;color:var(--neuro-accent);display:flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> ${this._esc(reframe)}</div>` : ''}
                 </div>`;
             }
             case 'tarot': {
@@ -954,8 +954,8 @@ const ProfileModule = {
                 CommunityDB.updateProfile({ community_status: status }),
             ]);
             Core.showToast(`Status set to ${label}`);
-        } catch {
-            console.error('[ProfileModule] setStatus failed');
+        } catch (err) {
+            console.error('[ProfileModule] setStatus error:', err);
             Core.showToast('Could not update status - please try again');
         }
 
@@ -1012,7 +1012,7 @@ const ProfileModule = {
                 if (cu) cu.activity = '💗 Offering calm';
             }, this.config.PULSE_ANIMATION_DURATION);
         } catch (error) {
-            console.error('Error sending pulse');
+            console.error('Error sending pulse:', error);
         }
     },
 
@@ -1270,12 +1270,6 @@ const ProfileModule = {
 };
 
 // core.js calls ProfileModule.init() after CommunityDB is ready - no self-init here.
-
-// bfcache-compatible cleanup on page hide
-window.addEventListener('pagehide', () => {
-    // Clear any pending intervals/state if needed
-    ProfileModule.state.isInitialized = false;
-});
 
 // Window bridge: preserved for external callers
 window.ProfileModule = ProfileModule;

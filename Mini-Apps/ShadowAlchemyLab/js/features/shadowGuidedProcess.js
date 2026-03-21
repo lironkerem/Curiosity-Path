@@ -1,7 +1,4 @@
-// Mini-Apps/ShadowAlchemyLab/js/features/shadowGuidedProcess.js
-// Patched: type=button on close-error button, error message via DOM API
-// (textContent not innerHTML), console.error doesn't leak message detail.
-
+/* js/features/shadowGuidedProcess.js  – fixed version */
 import { createModal } from '/Mini-Apps/ShadowAlchemyLab/js/core/modal.js';
 
 export function openShadowGuidedProcessModal() {
@@ -15,52 +12,45 @@ export function openShadowGuidedProcessModal() {
   });
 
   const card = modal.querySelector('.modal-card');
-  card.style.maxWidth    = '700px';
-  card.style.maxHeight   = '90vh';
-  card.style.display     = 'flex';
+  card.style.maxWidth = '700px';
+  card.style.maxHeight = '90vh';
+  card.style.display = 'flex';
   card.style.flexDirection = 'column';
 
   const contentEl = modal.querySelector('#shadow-guided-process-content');
 
-  function showError(message) {
-    contentEl.textContent = ''; // safe clear
-    const wrapper = document.createElement('div');
-    wrapper.style.cssText = 'padding:2rem;text-align:center;color:var(--neuro-error);';
-
-    const h3 = document.createElement('h3');
-    h3.textContent = 'Engine Not Loaded';
-
-    const p = document.createElement('p');
-    p.textContent = String(message); // XSS safe — textContent
-
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.id = 'close-error';
-    btn.className = 'btn';
-    btn.style.marginTop = '1rem';
-    btn.textContent = 'Close';
-    btn.addEventListener('click', closeModal);
-
-    wrapper.append(h3, p, btn);
-    contentEl.appendChild(wrapper);
-  }
-
+  // FIXED: Check if DailyJourneyEngine exists and is initialized
   if (!window.DailyJourneyEngine) {
-    console.error('DailyJourneyEngine not found');
-    showError('The Daily Journey Engine is not available. Please refresh the page.');
+    console.error('DailyJourneyEngine not found!');
+    contentEl.innerHTML = `
+      <div style="padding: 2rem; text-align: center; color: var(--neuro-error);">
+        <h3>Engine Not Loaded</h3>
+        <p>The Daily Journey Engine is not available. Please refresh the page.</p>
+        <button id="close-error" class="btn" style="margin-top: 1rem;">Close</button>
+      </div>
+    `;
+    contentEl.querySelector('#close-error').addEventListener('click', closeModal);
     return;
   }
 
+  // FIXED: Wait for DOM to be ready and then start journey
   setTimeout(() => {
     try {
       window.DailyJourneyEngine.startDailyJourney(contentEl);
     } catch (error) {
-      console.error('Failed to start Daily Journey');
-      showError('Error starting journey. Please refresh the page and try again.');
+      console.error('Failed to start Daily Journey:', error);
+      contentEl.innerHTML = `
+        <div style="padding: 2rem; text-align: center; color: var(--neuro-error);">
+          <h3>Error Starting Journey</h3>
+          <p>${error.message}</p>
+          <button id="close-error" class="btn" style="margin-top: 1rem;">Close</button>
+        </div>
+      `;
+      contentEl.querySelector('#close-error').addEventListener('click', closeModal);
     }
   }, 100);
 
-  // Watch for the return button that DailyJourneyEngine injects
+  // watch for the return button that DailyJourneyEngine injects
   const observer = new MutationObserver(() => {
     const btn = contentEl.querySelector('#return-dash');
     if (btn) {

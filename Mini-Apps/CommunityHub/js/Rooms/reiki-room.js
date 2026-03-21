@@ -363,11 +363,11 @@ class ReikiRoom extends PracticeRoom {
         return `
         <!-- ── Image carousel ── -->
         <div style="text-align:center;margin-bottom:24px;display:flex;align-items:center;justify-content:center;gap:8px;">
-            <button type="button" onclick="${onPrev}" style="background:var(--surface);border:2px solid var(--border);border-radius:50%;width:40px;height:40px;min-width:40px;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">‹</button>
+            <button onclick="${onPrev}" style="background:var(--surface);border:2px solid var(--border);border-radius:50%;width:40px;height:40px;min-width:40px;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">‹</button>
             <img width="500" height="400" id="${roomId}${prefix}CarouselImg"
                  src="${img}" alt="${chakra.name}" loading="lazy" decoding="async"
                  style="max-width:min(500px,calc(100% - 100px));width:100%;height:auto;border-radius:var(--radius-md);box-shadow:0 4px 12px rgba(0,0,0,0.1);display:block;flex:1 1 auto;min-width:0;">
-            <button type="button" onclick="${onNext}" style="background:var(--surface);border:2px solid var(--border);border-radius:50%;width:40px;height:40px;min-width:40px;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">›</button>
+            <button onclick="${onNext}" style="background:var(--surface);border:2px solid var(--border);border-radius:50%;width:40px;height:40px;min-width:40px;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">›</button>
         </div>
         <h4 style="font-family:var(--serif);font-size:20px;margin:0 0 20px;text-align:center;">${chakra.name}</h4>
 
@@ -444,7 +444,7 @@ class ReikiRoom extends PracticeRoom {
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
                 <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;">📓 Chakra Journal</div>
-                <button type="button" onclick="${cn}._toggleChakraJournalLog('${prefix}')"
+                <button onclick="${cn}._toggleChakraJournalLog('${prefix}')"
                     id="${roomId}${prefix}JournalLogBtn"
                     style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;font-weight:600;">View Log</button>
             </div>
@@ -456,7 +456,7 @@ class ReikiRoom extends PracticeRoom {
                     placeholder="e.g. I notice tension in my chest… this chakra feels blocked lately… I'm drawn to the color ${chakra.color}…"
                     style="width:100%;box-sizing:border-box;padding:12px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--background);color:var(--text);font-size:14px;line-height:1.6;resize:vertical;min-height:110px;font-family:inherit;"
                 ></textarea>
-                <button type="button" onclick="${cn}._saveChakraJournalEntry('${prefix}', '${chakra.key}', '${chakra.name?.replace(/'/g, "\\'")}')"
+                <button onclick="${cn}._saveChakraJournalEntry('${prefix}', '${chakra.key}', '${chakra.name?.replace(/'/g, "\\'")}')"
                     style="margin-top:10px;padding:9px 22px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;">
                     Save to Journal
                 </button>
@@ -478,7 +478,7 @@ class ReikiRoom extends PracticeRoom {
                     style="flex:1;min-width:0;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--background);color:var(--text);font-size:14px;font-family:inherit;"
                     onkeydown="if(event.key==='Enter')${cn}._submitCommunityEnergy()"
                 />
-                <button type="button" onclick="${cn}._submitCommunityEnergy()"
+                <button onclick="${cn}._submitCommunityEnergy()"
                     style="padding:9px 18px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
                     Share
                 </button>
@@ -496,7 +496,7 @@ class ReikiRoom extends PracticeRoom {
         <div class="ps-body" style="display:flex;">
             <main class="tarot-main" style="flex:1;padding:24px;overflow-y:auto;display:flex;justify-content:center;align-items:flex-start;">
                 <div style="width:100%;">
-                    ${this.buildTabNav(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/></svg> Today's Collective Energy`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Solo Chakra Work`)}
+                    ${this.buildTabNav(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/></svg> Today's Collective Energy`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Solo Chakra Work`)}
                     <div id="${this.roomId}DailyTab"    style="display:block;">${this._buildDailyTab()}</div>
                     <div id="${this.roomId}PersonalTab" style="display:none;">${this._buildPersonalTab()}</div>
                 </div>
@@ -512,12 +512,12 @@ class ReikiRoom extends PracticeRoom {
         const cn          = this.getClassName();
         return `
         <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:24px 16px;margin-bottom:16px;">
-            <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;" aria-hidden="true" focusable="false"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/></svg> Today's Collective Energy</h3>
+            <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/></svg> Today's Collective Energy</h3>
             ${this._getChakraDisplayHTML(todayChakra, this.state.dailyImageIndex, `${cn}.previousDailyImage()`, `${cn}.nextDailyImage()`, true, true)}
         </div>
         <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:12px 8px 24px;" class="tarot-daily-grid">
             <div>
-                <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 8px 0;text-align:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true" focusable="false"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Community Discussion</h4>
+                <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 8px 0;text-align:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Community Discussion</h4>
                 <div style="display:flex;flex-direction:column;height:100%;">
                     ${this.buildChatContainer('daily', 'Share your thoughts on today\'s chakra...')}
                 </div>
@@ -529,7 +529,7 @@ class ReikiRoom extends PracticeRoom {
     _buildPersonalTab() {
         return `
         <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:16px;">
-            <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;" aria-hidden="true" focusable="false"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Solo Chakra Work</h3>
+            <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Solo Chakra Work</h3>
             <div style="margin-bottom:20px;">
                 <label style="display:block;margin-bottom:8px;font-weight:600;">Choose Your Focus:</label>
                 <select id="${this.roomId}PersonalFocus"
@@ -538,7 +538,7 @@ class ReikiRoom extends PracticeRoom {
                     ${(this.CHAKRA_OPTIONS || []).map(o => `<option value="${o.value}">${o.label}</option>`).join('')}
                 </select>
             </div>
-            <button type="button" onclick="${this.getClassName()}.startPersonalSession()"
+            <button onclick="${this.getClassName()}.startPersonalSession()"
                     style="width:100%;padding:14px;border:2px solid var(--border);background:var(--surface);border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:16px;">
                 Begin Session
             </button>
@@ -548,7 +548,7 @@ class ReikiRoom extends PracticeRoom {
         <!-- Mastery Tracker -->
         <div style="border:2px solid var(--border);border-radius:var(--radius-lg);padding:20px;background:var(--surface);margin-top:16px;">
             <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;" aria-hidden="true" focusable="false"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 Chakra Mastery
             </h4>
             <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:6px;">
@@ -602,7 +602,7 @@ class ReikiRoom extends PracticeRoom {
             this._masteryLoaded = false;
             if (prefix === 'Personal') this._loadChakraMastery();
         } catch (e) {
-            console.warn('[ReikiRoom] journal save failed');
+            console.warn('[ReikiRoom] journal save failed', e);
             Core.showToast('Could not save — please try again');
         }
     }
@@ -633,21 +633,21 @@ class ReikiRoom extends PracticeRoom {
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:12px;font-weight:600;color:var(--accent);">${this._escapeHtml(row.chakra_name || '')} · ${row.date}</span>
                         <div style="display:flex;gap:10px;">
-                            <button type="button" onclick="window.ReikiRoom._editSessionEntry('${row.id}')" style="font-size:12px;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:0;">Edit</button>
-                            <button type="button" onclick="window.ReikiRoom._deleteSessionEntry('${row.id}')" style="font-size:12px;color:#e57373;background:none;border:none;cursor:pointer;padding:0;">Delete</button>
+                            <button onclick="window.ReikiRoom._editSessionEntry('${row.id}')" style="font-size:12px;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:0;">Edit</button>
+                            <button onclick="window.ReikiRoom._deleteSessionEntry('${row.id}')" style="font-size:12px;color:#e57373;background:none;border:none;cursor:pointer;padding:0;">Delete</button>
                         </div>
                     </div>
                     <div id="rj-text-${row.id}" style="font-size:14px;line-height:1.6;color:var(--text);">${this._escapeHtml(row.entry)}</div>
                     <div id="rj-edit-${row.id}" style="display:none;">
                         <textarea style="width:100%;box-sizing:border-box;padding:8px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface);color:var(--text);font-size:14px;line-height:1.5;resize:vertical;min-height:80px;font-family:inherit;margin-top:8px;">${this._escapeHtml(row.entry)}</textarea>
                         <div style="display:flex;gap:8px;margin-top:6px;">
-                            <button type="button" onclick="window.ReikiRoom._saveEditedEntry('${row.id}')" style="padding:5px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-md);font-size:13px;font-weight:600;cursor:pointer;">Save</button>
-                            <button type="button" onclick="window.ReikiRoom._cancelEditEntry('${row.id}')" style="padding:5px 14px;background:none;border:1px solid var(--border);border-radius:var(--radius-md);font-size:13px;cursor:pointer;color:var(--text-muted);">Cancel</button>
+                            <button onclick="window.ReikiRoom._saveEditedEntry('${row.id}')" style="padding:5px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-md);font-size:13px;font-weight:600;cursor:pointer;">Save</button>
+                            <button onclick="window.ReikiRoom._cancelEditEntry('${row.id}')" style="padding:5px 14px;background:none;border:1px solid var(--border);border-radius:var(--radius-md);font-size:13px;cursor:pointer;color:var(--text-muted);">Cancel</button>
                         </div>
                     </div>
                 </div>`).join('');
         } catch (e) {
-            console.warn('[ReikiRoom] load journal failed');
+            console.warn('[ReikiRoom] load journal failed', e);
             listEl.innerHTML = `<div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px;">Could not load journal.</div>`;
         }
     }
@@ -674,7 +674,7 @@ class ReikiRoom extends PracticeRoom {
             this._cancelEditEntry(id);
             Core.showToast('Entry updated');
         } catch (e) {
-            console.warn('[ReikiRoom] edit failed');
+            console.warn('[ReikiRoom] edit failed', e);
             Core.showToast('Could not update entry');
         }
     }
@@ -685,7 +685,7 @@ class ReikiRoom extends PracticeRoom {
             document.getElementById(`rj-${id}`)?.remove();
             Core.showToast('Entry deleted');
         } catch (e) {
-            console.warn('[ReikiRoom] delete failed');
+            console.warn('[ReikiRoom] delete failed', e);
             Core.showToast('Could not delete entry');
         }
     }
@@ -713,7 +713,7 @@ class ReikiRoom extends PracticeRoom {
             await this._loadCommunityEnergy();
             Core.showToast('Shared 🌀');
         } catch (e) {
-            console.warn('[ReikiRoom] community energy save failed');
+            console.warn('[ReikiRoom] community energy save failed', e);
             Core.showToast('Could not share — please try again');
         }
     }
@@ -752,7 +752,7 @@ class ReikiRoom extends PracticeRoom {
                     <span style="font-size:14px;line-height:1.5;color:var(--text);">${this._escapeHtml(row.share)}</span>
                 </div>`).join('');
         } catch (e) {
-            console.warn('[ReikiRoom] load community energy failed');
+            console.warn('[ReikiRoom] load community energy failed', e);
             list.innerHTML = `<div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px;">Could not load.</div>`;
         }
     }
@@ -808,7 +808,7 @@ class ReikiRoom extends PracticeRoom {
 
             this._masteryLoaded = true;
         } catch (e) {
-            console.warn('[ReikiRoom] load mastery failed');
+            console.warn('[ReikiRoom] load mastery failed', e);
             if (countEl) countEl.textContent = '— / 7';
         }
     }
@@ -860,11 +860,5 @@ Object.assign(ReikiRoom.prototype, TabRoomMixin);
 // Window bridge: preserved for inline onclick handlers
 const reikiRoom = new ReikiRoom();
 window.ReikiRoom = reikiRoom;
-
-// bfcache: reset session state on pagehide
-window.addEventListener('pagehide', () => {
-    reikiRoom._energyPurgedToday = false;
-    reikiRoom._masteryLoaded     = false;
-});
 
 export { ReikiRoom, reikiRoom };
