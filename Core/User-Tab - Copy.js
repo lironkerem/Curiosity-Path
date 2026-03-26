@@ -743,71 +743,60 @@ export default class UserTab {
     options.style.pointerEvents = enabled ? 'auto' : 'none';
   }
 
-/** Enable push notifications */
-async enablePushNotifications() {
-  // Guard: must be logged in
-  if (!this.currentUser?.id) {
-    this.app.showToast('Please log in to enable notifications', 'error');
-    return false;
-  }
-
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-    this.app.showToast('Push not supported', 'error');
-    return false;
-  }
-
-  try {
-    const permission = await Notification.requestPermission();
-    if (permission !== 'granted') {
-      this.app.showToast('Permission denied', 'error');
+  /** Enable push notifications */
+  async enablePushNotifications() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      this.app.showToast('Push not supported', 'error');
       return false;
     }
 
-    const sw = await navigator.serviceWorker.ready;
-    let sub = await sw.pushManager.getSubscription();
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        this.app.showToast('Permission denied', 'error');
+        return false;
+      }
 
-    if (!sub) {
-      const VAPID = typeof ENV_VAPID_KEY !== 'undefined'
-        ? ENV_VAPID_KEY
-        : 'BGC3GSs75wSk-IXvSHfsmr725CJnQxNuYJHExJZ113yITzwPgAZrVe6-IGyD1zC_t5mtH3-HG1P4GndS8PnSrOc';
+      const sw = await navigator.serviceWorker.ready;
+      let sub = await sw.pushManager.getSubscription();
 
-      sub = await sw.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: this.urlBase64ToUint8Array(VAPID)
-      });
+      if (!sub) {
+        const VAPID = typeof ENV_VAPID_KEY !== 'undefined' 
+          ? ENV_VAPID_KEY 
+          : 'BGC3GSs75wSk-IXvSHfsmr725CJnQxNuYJHExJZ113yITzwPgAZrVe6-IGyD1zC_t5mtH3-HG1P4GndS8PnSrOc';
+        
+        sub = await sw.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: this.urlBase64ToUint8Array(VAPID)
+        });
+
+        const payload = {
+          ...sub.toJSON(),
+          user_id: this.currentUser?.id || null
+        };
+
+        const res = await fetch('/api/save-sub', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(this.app.auth?.session?.access_token && {
+              Authorization: `Bearer ${this.app.auth.session.access_token}`
+            })
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error('Save failed');
+      }
+
+      this.app.showToast('Notifications enabled', 'success');
+      return true;
+    } catch (err) {
+      console.error(err);
+      this.app.showToast('Enable failed: ' + err.message, 'error');
+      return false;
     }
-
-    // Always upsert with user_id (handles re-login on same device too)
-    const payload = {
-      ...sub.toJSON(),
-      user_id: this.currentUser.id   // guaranteed non-null by guard above
-    };
-
-    const res = await fetch('/api/save-sub', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(this.app.auth?.session?.access_token && {
-          Authorization: `Bearer ${this.app.auth.session.access_token}`
-        })
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || `Save failed (${res.status})`);
-    }
-
-    this.app.showToast('Notifications enabled', 'success');
-    return true;
-
-  } catch (err) {
-    console.error('enablePushNotifications:', err);
-    this.app.showToast('Enable failed: ' + err.message, 'error');
-    return false;
   }
-}
 
   /** Disable push notifications */
   async disablePushNotifications() {
