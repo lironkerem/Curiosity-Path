@@ -35,20 +35,14 @@ class MeditationsEngine {
    * Load YouTube IFrame API if not already loaded
    */
   loadYouTubeAPI() {
-    // If API already loaded and ready, mark it immediately
-    if (window.YT && window.YT.Player) {
-      window.ytReady = true;
-      return;
-    }
-    // Set the callback BEFORE injecting the script to avoid race condition
-    window.onYouTubeIframeAPIReady = () => {
-      window.ytReady = true;
-    };
-    if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+    if (!window.YT && !document.querySelector('script[src*="youtube.com/iframe_api"]')) {
       const tag = document.createElement('script');
       tag.src = 'https://www.youtube.com/iframe_api';
       document.head.appendChild(tag);
     }
+    window.onYouTubeIframeAPIReady = () => {
+      window.ytReady = true;
+    };
   }
 
   /**
@@ -561,7 +555,7 @@ class MeditationsEngine {
                     width="100%"
                     height="100%"
                     frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                     allowfullscreen>
             </iframe>
           </div>
@@ -902,12 +896,10 @@ class MeditationsEngine {
    * @param {boolean} showVideo - Whether to show video pane
    */
   _startYouTubePlayer(med, showVideo) {
-    if (!window.ytReady || !window.YT || !window.YT.Player) {
-      this.app.showToast('Initializing player\u2026 please tap again.', 'info');
-      const prev = window.onYouTubeIframeAPIReady;
+    if (!window.ytReady) {
+      this.app.showToast('Initializing player… please tap again.', 'info');
       window.onYouTubeIframeAPIReady = () => {
         window.ytReady = true;
-        if (typeof prev === 'function') prev();
         this._startYouTubePlayer(med, showVideo);
       };
       return;
@@ -915,55 +907,44 @@ class MeditationsEngine {
 
     try {
       const videoId = med.embedUrl.match(/embed\/([a-zA-Z0-9_-]{11})/)[1];
-      const origin = (window.location.origin && window.location.origin !== 'null')
-        ? window.location.origin : undefined;
 
       if (!this.ytPlayer || typeof this.ytPlayer.playVideo !== 'function') {
-        // Destroy stale player if it exists
-        if (this.ytPlayer && typeof this.ytPlayer.destroy === 'function') {
-          try { this.ytPlayer.destroy(); } catch (_) {}
-          this.ytPlayer = null;
-        }
+        // Reset iframe src so YT.Player owns it cleanly
+        const iframe = document.getElementById('yt-iframe');
+        iframe.src = '';
 
-        // Replace iframe with a fresh element so YT.Player binds cleanly
-        const oldIframe = document.getElementById('yt-iframe');
-        const container = oldIframe.parentNode;
-        const newIframe = document.createElement('iframe');
-        newIframe.id = 'yt-iframe';
-        newIframe.width = '100%';
-        newIframe.height = '100%';
-        newIframe.frameBorder = '0';
-        newIframe.setAttribute('allow', 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture');
-        newIframe.allowFullscreen = true;
-        container.replaceChild(newIframe, oldIframe);
-
-        const playerVars = { enablejsapi: 1, rel: 0, playsinline: 1 };
-        if (origin) playerVars.origin = origin;
-
+        // Create new player — YT.Player sets src internally with correct origin binding
         this.ytPlayer = new YT.Player('yt-iframe', {
           videoId,
-          playerVars,
+          playerVars: {
+            origin: window.location.origin,
+            enablejsapi: 1,
+            rel: 0,
+            playsinline: 1
+          },
           events: {
             onReady: (e) => {
               document.getElementById('play-pause-btn').disabled = false;
-              this.ytPlayer.playVideo();
               if (!showVideo) {
+                this.ytPlayer.playVideo();
                 this.app.showToast('Audio playing', 'success');
               } else {
-                this.app.showToast('Playing \u2013 tap pause to stop', 'info');
+                this.app.showToast('Ready – tap play to start', 'info');
               }
             },
             onStateChange: (e) => this._handleYouTubeStateChange(e),
             onError: (e) => {
               console.error('YouTube player error:', e);
-              this.app.showToast('Video error \u2013 check connection or video availability', 'error');
+              this.app.showToast('Video error', 'error');
             }
           }
         });
       } else {
         // Reuse existing player
         this.ytPlayer.loadVideoById(videoId);
-        setTimeout(() => this.ytPlayer.playVideo(), 500);
+        if (!showVideo) {
+          setTimeout(() => this.ytPlayer.playVideo(), 500);
+        }
       }
 
       document.getElementById('play-pause-btn').disabled = true;
