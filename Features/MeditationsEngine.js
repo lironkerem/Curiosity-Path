@@ -830,8 +830,8 @@ class MeditationsEngine {
    * Attach event listeners (currently minimal, cleanup handled in cleanup())
    */
   attachEventListeners() {
-    // Clean up old listeners
-    this.cleanup();
+    // Note: do NOT call this.cleanup() here — it would destroy the ytPlayer
+    // on every re-render (tab switch). Player lifecycle is managed by stopMeditation().
   }
 
   /**
@@ -879,6 +879,13 @@ class MeditationsEngine {
     try {
       this.currentMeditation = med;
       this.sessionStartTime = Date.now();
+
+      // If the DOM was wiped by a re-render, the iframe YT.Player was bound to
+      // no longer exists. Detect this and reset so a fresh player is created.
+      if (this.ytPlayer && !document.getElementById('yt-iframe')) {
+        try { this.ytPlayer.destroy(); } catch (_) {}
+        this.ytPlayer = null;
+      }
 
       // Update player UI
       const playerBox = document.getElementById('meditation-audio-player');
