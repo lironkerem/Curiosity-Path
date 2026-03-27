@@ -557,13 +557,7 @@ class MeditationsEngine {
           <button onclick="window.featuresManager.engines.meditations.stopMeditation()" class="player-close-btn">✕</button>
           
           <div id="video-pane" class="video-pane hidden">
-            <iframe id="yt-iframe"
-                    width="100%"
-                    height="100%"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowfullscreen>
-            </iframe>
+            <div id="yt-player-container"></div>
           </div>
           
           <div class="player-info">
@@ -790,7 +784,8 @@ class MeditationsEngine {
           margin-bottom: 12px;
           box-shadow: inset 4px 4px 8px var(--neuro-shadow-dark), inset -4px -4px 8px var(--neuro-shadow-light);
         }
-        .video-pane iframe {
+        .video-pane #yt-player-container,
+        .video-pane #yt-player-container iframe {
           position: absolute;
           top: 0;
           left: 0;
@@ -882,7 +877,7 @@ class MeditationsEngine {
 
       // If the DOM was wiped by a re-render, the iframe YT.Player was bound to
       // no longer exists. Detect this and reset so a fresh player is created.
-      if (this.ytPlayer && !document.getElementById('yt-iframe')) {
+      if (this.ytPlayer && !document.getElementById('yt-player-container')) {
         try { this.ytPlayer.destroy(); } catch (_) {}
         this.ytPlayer = null;
       }
@@ -944,7 +939,7 @@ class MeditationsEngine {
         const playerVars = { enablejsapi: 1, rel: 0, playsinline: 1 };
         if (origin) playerVars.origin = origin;
 
-        this.ytPlayer = new YT.Player('yt-iframe', {
+        this.ytPlayer = new YT.Player('yt-player-container', {
           videoId,
           playerVars,
           events: {
