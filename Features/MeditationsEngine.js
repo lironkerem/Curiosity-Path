@@ -1096,10 +1096,6 @@ class MeditationsEngine {
    */
   stopMeditation() {
     try {
-      if (this.ytPlayer && typeof this.ytPlayer.stopVideo === 'function') {
-        this.ytPlayer.stopVideo();
-      }
-      
       this.isPlaying = false;
       this.currentMeditation = null;
       this.sessionStartTime = null;
@@ -1109,8 +1105,20 @@ class MeditationsEngine {
         this.progressInterval = null;
       }
 
-      document.getElementById('play-pause-btn').textContent = '▶️';
-      document.getElementById('meditation-audio-player').classList.add('hidden');
+      // Destroy the YT player fully — stops all telemetry pings
+      if (this.ytPlayer && typeof this.ytPlayer.destroy === 'function') {
+        try { this.ytPlayer.destroy(); } catch (_) {}
+        this.ytPlayer = null;
+      }
+
+      // Reset the container so a fresh player can be created next time
+      const container = document.getElementById('yt-player-container');
+      if (container) container.innerHTML = '';
+
+      const btn = document.getElementById('play-pause-btn');
+      if (btn) btn.textContent = '\u25b6\ufe0f';
+      const playerBox = document.getElementById('meditation-audio-player');
+      if (playerBox) playerBox.classList.add('hidden');
       this._hideVideoPane();
     } catch (error) {
       console.error('Error stopping meditation:', error);
@@ -1325,11 +1333,13 @@ class MeditationsEngine {
       this.eventCleanup.forEach(cleanup => cleanup());
       this.eventCleanup = [];
 
-      // Destroy YouTube player
+      // Destroy YouTube player and clear its container to stop all telemetry pings
       if (this.ytPlayer && typeof this.ytPlayer.destroy === 'function') {
-        this.ytPlayer.destroy();
+        try { this.ytPlayer.destroy(); } catch (_) {}
         this.ytPlayer = null;
       }
+      const container = document.getElementById('yt-player-container');
+      if (container) container.innerHTML = '';
 
       // Reset state
       this.isPlaying = false;
