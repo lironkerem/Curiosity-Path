@@ -430,7 +430,7 @@ body::after {
   will-change: opacity;
 }
 
-body > * { position: relative; z-index: 1; }
+body > *:not(#toast-container) { position: relative; z-index: 1; }
 
 /* ===== EARTH-LUXURY ANIMATIONS ===== */
 @keyframes breathe {
