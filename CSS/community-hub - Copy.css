@@ -1494,7 +1494,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 .safety-menu button:hover { background: var(--neuro-bg-lightest); }
 
 /* TOAST */
-#community-hub-toast.toast {
+.toast {
     position: fixed;
     top: 24px;
     left: 50%;
@@ -1510,7 +1510,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     box-shadow: var(--shadow-raised-lg);
 }
 
-#community-hub-toast.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.show { transform: translateX(-50%) translateY(0); }
 
 /* RESPONSIVE */
 
