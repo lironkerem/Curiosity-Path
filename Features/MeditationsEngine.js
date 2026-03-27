@@ -918,24 +918,21 @@ class MeditationsEngine {
       const origin = (window.location.origin && window.location.origin !== 'null')
         ? window.location.origin : undefined;
 
+      // Show/hide video pane BEFORE YT.Player binds — iframe must be visible in DOM
+      if (showVideo) {
+        this._showVideoPane();
+      } else {
+        this._hideVideoPane();
+      }
+
+      document.getElementById('play-pause-btn').disabled = true;
+
       if (!this.ytPlayer || typeof this.ytPlayer.playVideo !== 'function') {
-        // Destroy stale player if it exists
+        // Destroy any stale instance
         if (this.ytPlayer && typeof this.ytPlayer.destroy === 'function') {
           try { this.ytPlayer.destroy(); } catch (_) {}
           this.ytPlayer = null;
         }
-
-        // Replace iframe with a fresh element so YT.Player binds cleanly
-        const oldIframe = document.getElementById('yt-iframe');
-        const container = oldIframe.parentNode;
-        const newIframe = document.createElement('iframe');
-        newIframe.id = 'yt-iframe';
-        newIframe.width = '100%';
-        newIframe.height = '100%';
-        newIframe.frameBorder = '0';
-        newIframe.setAttribute('allow', 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture');
-        newIframe.allowFullscreen = true;
-        container.replaceChild(newIframe, oldIframe);
 
         const playerVars = { enablejsapi: 1, rel: 0, playsinline: 1 };
         if (origin) playerVars.origin = origin;
@@ -944,14 +941,10 @@ class MeditationsEngine {
           videoId,
           playerVars,
           events: {
-            onReady: (e) => {
+            onReady: () => {
               document.getElementById('play-pause-btn').disabled = false;
               this.ytPlayer.playVideo();
-              if (!showVideo) {
-                this.app.showToast('Audio playing', 'success');
-              } else {
-                this.app.showToast('Playing \u2013 tap pause to stop', 'info');
-              }
+              this.app.showToast(showVideo ? 'Playing \u2013 tap pause to stop' : 'Audio playing', 'success');
             },
             onStateChange: (e) => this._handleYouTubeStateChange(e),
             onError: (e) => {
@@ -961,18 +954,8 @@ class MeditationsEngine {
           }
         });
       } else {
-        // Reuse existing player
+        // Reuse existing player — just swap the video
         this.ytPlayer.loadVideoById(videoId);
-        setTimeout(() => this.ytPlayer.playVideo(), 500);
-      }
-
-      document.getElementById('play-pause-btn').disabled = true;
-
-      // Show/hide video pane
-      if (showVideo) {
-        this._showVideoPane();
-      } else {
-        this._hideVideoPane();
       }
 
       this._startProgressUpdates();
