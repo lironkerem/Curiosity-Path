@@ -38,22 +38,54 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
-      background: #f9f6f0; /* match your default bg; override per skin below */
+      background: #c4ad91;
     }
     #auth-screen-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
       text-align: center;
       font-family: 'Cinzel', 'Georgia', serif;
+      padding: 2rem;
     }
     #auth-screen-logo {
-      width: 80px;
-      height: 80px;
-      margin-bottom: 1rem;
+      width: 160px;
+      height: 160px;
+      border-radius: 36px;
+      box-shadow:
+        18px 18px 36px #a08968,
+        -12px -12px 24px #e0d4bf,
+        inset 2px 2px 4px #ebe2d4,
+        0 8px 32px rgba(107,155,55,.2);
+      animation: auth-float 3s ease-in-out infinite;
     }
     #auth-screen-label {
-      color: #6b9b37;
-      font-size: 1.1rem;
+      color: #3d2f1f;
+      font-size: 1rem;
       margin: 0;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.75;
+    }
+
+    /* Spinner */
+    #auth-spinner {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 3px solid #a08968;
+      border-top-color: #6b9b37;
+      animation: auth-spin 0.9s linear infinite;
+    }
+
+    @keyframes auth-spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes auth-float {
+      0%, 100% { transform: translateY(0);    }
+      50%       { transform: translateY(-8px); }
     }
 
     /* ── Tab-dot base styles (moved from JS inline strings) ── */
@@ -99,7 +131,7 @@
   </style>
 
   <!-- ===== LCP: preload hero logo — fetched before any render-blocking work ===== -->
-  <link rel="preload" href="public/Icons/favicon.svg" as="image" fetchpriority="high">
+  <link rel="preload" href="public/Icons/icon-512x512.png" as="image" fetchpriority="high">
 
   <!-- ===== CDN Preconnect ===== -->
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
@@ -176,11 +208,12 @@
   <div id="auth-screen">
     <div id="auth-screen-inner">
       <img id="auth-screen-logo"
-           src="public/Icons/favicon.svg"
+           src="public/Icons/icon-512x512.png"
            alt="The Curiosity Path"
-           width="80" height="80"
+           width="160" height="160"
            fetchpriority="high"
            decoding="sync">
+      <div id="auth-spinner"></div>
       <p id="auth-screen-label">Loading your path&hellip;</p>
     </div>
   </div>
