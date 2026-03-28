@@ -131,7 +131,7 @@
   </style>
 
   <!-- ===== LCP: preload hero logo — fetched before any render-blocking work ===== -->
-  <link rel="preload" href="public/Icons/icon-512x512.png" as="image" fetchpriority="high">
+  <link rel="preload" href="public/Icons/icon-192x192-loading.webp" as="image" type="image/webp" fetchpriority="high">
 
   <!-- ===== CDN Preconnect ===== -->
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
@@ -207,12 +207,15 @@
   -->
   <div id="auth-screen">
     <div id="auth-screen-inner">
-      <img id="auth-screen-logo"
-           src="public/Icons/icon-512x512.png"
-           alt="The Curiosity Path"
-           width="160" height="160"
-           fetchpriority="high"
-           decoding="sync">
+      <picture>
+        <source srcset="public/Icons/icon-192x192-loading.webp" type="image/webp">
+        <img id="auth-screen-logo"
+             src="public/Icons/icon-512x512.png"
+             alt="The Curiosity Path"
+             width="160" height="160"
+             fetchpriority="high"
+             decoding="sync">
+      </picture>
       <div id="auth-spinner"></div>
       <p id="auth-screen-label">Loading your path&hellip;</p>
     </div>
