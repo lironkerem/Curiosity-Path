@@ -356,7 +356,8 @@ export default class NavigationManager {
     this.eventHandlers.touchStart = handleTouchStart;
     this.eventHandlers.touchEnd = handleTouchEnd;
   }
-/**
+
+  /**
    * Setup sheet swipe-to-close
    */
   setupSheetSwipeClose() {
@@ -586,7 +587,9 @@ export default class NavigationManager {
   }
 
   /**
-   * Update mobile tab indicator dots
+   * Update mobile tab indicator dots.
+   * Uses CSS classes only — no inline style manipulation — to avoid style recalc per dot.
+   * Active/inactive states are defined in index.html <style> block via .tab-dot and .tab-dot.active.
    * @param {string} tabName - Active tab name
    */
   updateTabIndicator(tabName) {
@@ -596,33 +599,7 @@ export default class NavigationManager {
     if (!tabDots) return;
 
     tabDots.forEach(dot => {
-      const isActive = dot.dataset.tab === tabName;
-
-      if (isActive) {
-        dot.classList.add('active');
-        Object.assign(dot.style, {
-          width: '28px',
-          height: '28px',
-          minWidth: '28px',
-          minHeight: '28px',
-          background: 'linear-gradient(135deg, var(--neuro-accent), var(--neuro-accent-light))',
-          boxShadow: '0 0 10px rgba(102, 126, 234, 0.5), 0 2px 6px rgba(102, 126, 234, 0.3), 4px 4px 8px var(--neuro-shadow-dark), -4px -4px 8px var(--neuro-shadow-light)',
-          transform: 'scale(1.15)',
-          opacity: '1'
-        });
-      } else {
-        dot.classList.remove('active');
-        Object.assign(dot.style, {
-          width: '24px',
-          height: '24px',
-          minWidth: '24px',
-          minHeight: '24px',
-          background: 'var(--neuro-shadow-dark)',
-          boxShadow: 'inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light)',
-          transform: 'scale(1)',
-          opacity: '0.6'
-        });
-      }
+      dot.classList.toggle('active', dot.dataset.tab === tabName);
     });
   }
 
@@ -670,7 +647,8 @@ export default class NavigationManager {
       });
     }
   }
-/**
+
+  /**
    * Get navigation HTML template
    * @private
    * @returns {string} HTML string
@@ -788,30 +766,28 @@ export default class NavigationManager {
   }
 
   /**
-   * Get mobile indicator HTML
-   * @private  
+   * Get mobile indicator HTML.
+   * No inline style strings — all visual rules live in the CSS (.tab-dot, .tab-dot.active).
+   * @private
    * @returns {string} HTML string
    */
   _getMobileIndicatorHTML() {
-    const baseStyle = 'display: inline-flex !important; align-items: center; justify-content: center; width: 24px; height: 24px; min-width: 24px; min-height: 24px; border-radius: 50%; background: var(--neuro-shadow-dark); box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark), inset -2px -2px 4px var(--neuro-shadow-light); opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out; cursor: pointer; overflow: hidden; padding: 3px;';
-    const imgStyle = 'width: 100%; height: 100%; object-fit: contain; pointer-events: none;';
-
     const tabs = [
-      { tab: 'dashboard', title: 'Dashboard', img: 'DashDot.png', active: true },
-      { tab: 'energy', title: 'Energy', img: 'EnergyDot.png' },
-      { tab: 'tarot', title: 'Tarot', img: 'TarotDot.png' },
-      { tab: 'gratitude', title: 'Gratitude', img: 'GratitudeDot.png' },
-      { tab: 'happiness', title: 'Happiness', img: 'HappinessDot.png' },
-      { tab: 'journal', title: 'Journal', img: 'JournalDot.png' },
-      { tab: 'meditations', title: 'Meditations', img: 'MeditationsDot.png' },
-      { tab: 'flip-script', title: 'Flip Script', img: 'FlipDot.png' },
-      { tab: 'calculator', title: 'Analysis', img: 'AnalysisDot.png' },
-      { tab: 'shadow-alchemy', title: 'Shadow Alchemy', img: 'ShadowDot.png' },
-      { tab: 'karma-shop', title: 'Karma Shop', img: 'ShopDot.png' }
+      { tab: 'dashboard',     title: 'Dashboard',     img: 'DashDot.png',       active: true },
+      { tab: 'energy',        title: 'Energy',         img: 'EnergyDot.png'                   },
+      { tab: 'tarot',         title: 'Tarot',          img: 'TarotDot.png'                    },
+      { tab: 'gratitude',     title: 'Gratitude',      img: 'GratitudeDot.png'                },
+      { tab: 'happiness',     title: 'Happiness',      img: 'HappinessDot.png'                },
+      { tab: 'journal',       title: 'Journal',        img: 'JournalDot.png'                  },
+      { tab: 'meditations',   title: 'Meditations',    img: 'MeditationsDot.png'              },
+      { tab: 'flip-script',   title: 'Flip Script',    img: 'FlipDot.png'                     },
+      { tab: 'calculator',    title: 'Analysis',       img: 'AnalysisDot.png'                 },
+      { tab: 'shadow-alchemy',title: 'Shadow Alchemy', img: 'ShadowDot.png'                   },
+      { tab: 'karma-shop',    title: 'Karma Shop',     img: 'ShopDot.png'                     }
     ];
 
-    const dots = tabs.map(t => 
-      `<span class="tab-dot${t.active ? ' active' : ''}" data-tab="${t.tab}" title="${t.title}" style="${baseStyle}"><picture><source srcset="/public/Tabs/Dots/${t.img.replace('.png','.webp')}" type="image/webp"><img src="/public/Tabs/Dots/${t.img}" style="${imgStyle}" loading="lazy" decoding="async" width="48" height="48"></picture></span>`
+    const dots = tabs.map(t =>
+      `<span class="tab-dot${t.active ? ' active' : ''}" data-tab="${t.tab}" title="${t.title}"><picture><source srcset="/public/Tabs/Dots/${t.img.replace('.png', '.webp')}" type="image/webp"><img src="/public/Tabs/Dots/${t.img}" loading="lazy" decoding="async" width="48" height="48"></picture></span>`
     ).join('\n        ');
 
     return `
@@ -911,6 +887,5 @@ export default class NavigationManager {
     this.cachedElements = {};
     this.listenersAttached = false;
     this.arrowListenersAttached = false;
-
   }
 }

@@ -31,75 +31,7 @@
     @media (max-width: 480px) {
       .lucide-icon { width: 20px; height: 20px; }
     }
-
-    /* ── LCP: auth loading screen — paints immediately, no JS needed ── */
-    #auth-screen {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      background: #f9f6f0; /* match your default bg; override per skin below */
-    }
-    #auth-screen-inner {
-      text-align: center;
-      font-family: 'Cinzel', 'Georgia', serif;
-    }
-    #auth-screen-logo {
-      width: 80px;
-      height: 80px;
-      margin-bottom: 1rem;
-    }
-    #auth-screen-label {
-      color: #6b9b37;
-      font-size: 1.1rem;
-      margin: 0;
-      letter-spacing: 0.05em;
-    }
-
-    /* ── Tab-dot base styles (moved from JS inline strings) ── */
-    .tab-dot {
-      display: inline-flex !important;
-      align-items: center;
-      justify-content: center;
-      width: 24px;
-      height: 24px;
-      min-width: 24px;
-      min-height: 24px;
-      border-radius: 50%;
-      background: var(--neuro-shadow-dark, #ccc);
-      box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark, #bbb),
-                  inset -2px -2px 4px var(--neuro-shadow-light, #fff);
-      opacity: 0.6;
-      flex-shrink: 0;
-      transition: all 300ms ease-in-out;
-      cursor: pointer;
-      overflow: hidden;
-      padding: 3px;
-    }
-    .tab-dot img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      pointer-events: none;
-    }
-    /* Active dot state — replaces the Object.assign block in updateTabIndicator */
-    .tab-dot.active {
-      width: 28px !important;
-      height: 28px !important;
-      min-width: 28px !important;
-      min-height: 28px !important;
-      background: linear-gradient(135deg, var(--neuro-accent, #667eea), var(--neuro-accent-light, #764ba2)) !important;
-      box-shadow: 0 0 10px rgba(102,126,234,0.5),
-                  0 2px 6px rgba(102,126,234,0.3),
-                  4px 4px 8px var(--neuro-shadow-dark, #bbb),
-                  -4px -4px 8px var(--neuro-shadow-light, #fff) !important;
-      transform: scale(1.15) !important;
-      opacity: 1 !important;
-    }
   </style>
-
-  <!-- ===== LCP: preload hero logo — fetched before any render-blocking work ===== -->
-  <link rel="preload" href="public/Icons/favicon.svg" as="image" fetchpriority="high">
 
   <!-- ===== CDN Preconnect ===== -->
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
@@ -127,10 +59,7 @@
   <link rel="stylesheet" href="/CSS/Skins/matrix-code.css?v=2103"    id="skin_matrix-code"    media="not all">
 
   <link rel="stylesheet" href="/CSS/mobile-styles.css?v=2103" media="(max-width:1024px)">
-
-  <!-- community-hub.css is non-critical (tab only shown on demand) — load non-blocking -->
-  <link rel="preload" href="/CSS/community-hub.css?v=2203" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="/CSS/community-hub.css?v=2203"></noscript>
+  <link rel="stylesheet" href="/CSS/community-hub.css?v=2203">
 
   <!-- ===== PWA / icons ===== -->
   <link rel="manifest" href="manifest.json">
@@ -168,23 +97,7 @@
   })();
   </script>
 
-  <!--
-    LCP ELEMENT: visible immediately at first paint — no JS required.
-    The logo is preloaded above, so the browser fetches it in parallel with CSS.
-    Auth/app JS replaces this once ready.
-  -->
-  <div id="auth-screen">
-    <div id="auth-screen-inner">
-      <img id="auth-screen-logo"
-           src="public/Icons/favicon.svg"
-           alt="The Curiosity Path"
-           width="80" height="80"
-           fetchpriority="high"
-           decoding="sync">
-      <p id="auth-screen-label">Loading your path&hellip;</p>
-    </div>
-  </div>
-
+  <div id="auth-screen"></div>
   <div id="app-container">
     <div id="main-app" class="hidden">
       <main id="main-content" role="main">

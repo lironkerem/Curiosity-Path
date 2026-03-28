@@ -59,6 +59,9 @@ export default class NavigationManager {
     // Observers
     this.arrowObserver = null;
 
+    // Vibration guard — only vibrate after user has interacted
+    this._userGestured = false;
+
     // Arrow button state
     this.arrowDebounce = false;
     this.touchState = {
@@ -137,7 +140,10 @@ export default class NavigationManager {
     if (this.listenersAttached) return;
 
     this.cachedElements.navItems.forEach(tab => {
-      const clickHandler = () => this.switchTab(tab.dataset.tab, tab.dataset.label);
+      const clickHandler = () => {
+        this._userGestured = true;
+        this.switchTab(tab.dataset.tab, tab.dataset.label);
+      };
       const keyHandler = (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -318,6 +324,7 @@ export default class NavigationManager {
     let touchStartTime = 0;
 
     const handleTouchStart = (e) => {
+      this._userGestured = true;
       touchStartX = e.touches[0].clientX;
       touchStartTime = Date.now();
     };
@@ -628,7 +635,7 @@ export default class NavigationManager {
    * @param {number} duration - Vibration duration in ms
    */
   vibrate(duration) {
-    if (navigator.vibrate) {
+    if (this._userGestured && navigator.vibrate) {
       navigator.vibrate(duration);
     }
   }

@@ -417,14 +417,25 @@ export default class ProjectCuriosityApp {
       this.gamification = new GamificationEngine(this);
       this.setupGamificationListeners();
 
-      // Daily cards — fire & forget (non-blocking); only await if it gates visible UI
+      // Daily cards
       this.dailyCards = new DailyCards(this);
-      const boosterPromise = this.dailyCards.initializeBoosters().catch(e => {
-        console.warn('[App] DailyCards.initializeBoosters() failed (non-fatal):', e);
-      });
+      await this.dailyCards.initializeBoosters();
 
-      // ── SHOW APP IMMEDIATELY ─────────────────────────────────────────────────
-      // Render shell now so LCP / Speed Index are not blocked by network calls.
+      // Community DB (lightweight — only needed for Active Members widget on dashboard)
+      if (!CommunityCore.state.initialized) {
+        const communityReady = await CommunityDB.init();
+        if (!communityReady) {
+          console.warn('[App] CommunityDB.init() failed — Active Members widget unavailable');
+        } else {
+          await CommunityCore.loadCurrentUser();
+          await CommunityDB.setPresence(
+            CommunityCore.state.currentUser?.status   || 'online',
+            CommunityCore.state.currentUser?.activity || '✨ Available',
+            null
+          );
+        }
+      }
+
       this._hideAuthScreen();
       this._showMainApp();
 
@@ -439,32 +450,6 @@ export default class ProjectCuriosityApp {
       this.loadModules();
       this.restoreLastTab();
       this._startToastCleanup();
-      // ────────────────────────────────────────────────────────────────────────
-
-      // Community DB is non-critical (only needed for the Active Members widget).
-      // Run after the app is visible — never block initial render on it.
-      Promise.resolve().then(async () => {
-        try {
-          if (!CommunityCore.state.initialized) {
-            const communityReady = await CommunityDB.init();
-            if (!communityReady) {
-              console.warn('[App] CommunityDB.init() failed — Active Members widget unavailable');
-            } else {
-              await CommunityCore.loadCurrentUser();
-              await CommunityDB.setPresence(
-                CommunityCore.state.currentUser?.status   || 'online',
-                CommunityCore.state.currentUser?.activity || '✨ Available',
-                null
-              );
-            }
-          }
-        } catch (e) {
-          console.warn('[App] Community init failed (non-fatal):', e);
-        }
-      });
-
-      // Await booster init quietly in the background (already started above)
-      await boosterPromise;
 
     } catch (error) {
       console.error('[App] initializeApp failed:', error);
