@@ -59,7 +59,6 @@
         -12px -12px 24px #e0d4bf,
         inset 2px 2px 4px #ebe2d4,
         0 8px 32px rgba(107,155,55,.2);
-      animation: auth-float 3s ease-in-out infinite;
     }
     #auth-screen-label {
       color: #3d2f1f;
@@ -83,10 +82,7 @@
     @keyframes auth-spin {
       to { transform: rotate(360deg); }
     }
-    @keyframes auth-float {
-      0%, 100% { transform: translateY(0);    }
-      50%       { transform: translateY(-8px); }
-    }
+
 
     /* ── Tab-dot base styles (moved from JS inline strings) ── */
     .tab-dot {
@@ -210,7 +206,7 @@
       <picture>
         <source srcset="public/Icons/icon-192x192-loading.webp" type="image/webp">
         <img id="auth-screen-logo"
-             src="public/Icons/icon-512x512.png"
+             src="public/Icons/icon-192x192.png"
              alt="The Curiosity Path"
              width="160" height="160"
              fetchpriority="high"
