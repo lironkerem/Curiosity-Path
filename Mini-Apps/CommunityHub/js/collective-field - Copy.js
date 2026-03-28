@@ -32,6 +32,10 @@ const CollectiveField = {
 
         // Energy Bar
         energyLevel:          42,
+        energyDrainInterval:  null,
+        _drainTicksApplied:   0,
+        DRAIN_INACTIVITY_MS:  60 * 60 * 1_000,   // 1h
+        DRAIN_RATE_MS:        10 * 60 * 1_000,   // 1% per 10min of inactivity
         ENERGY_PER_PULSE:     5,
 
         // Calm Wave
@@ -88,6 +92,8 @@ const CollectiveField = {
         try {
             container.innerHTML = this._buildHTML();
             this.state.isRendered = true;
+
+            this._startEnergyDrainWatchdog();
 
             this._lastSentRefreshInterval = setInterval(() => {
                 const el = document.getElementById('lastSentLabel');
@@ -304,7 +310,7 @@ const CollectiveField = {
 
     _cleanup() {
         const s = this.state;
-        const intervals = ['holdInterval', 'timerInterval'];
+        const intervals = ['holdInterval', 'timerInterval', 'energyDrainInterval'];
         for (const key of intervals) {
             if (s[key]) { clearInterval(s[key]); s[key] = null; }
         }
@@ -400,6 +406,32 @@ const CollectiveField = {
         this._updateEnergyBar(s.energyLevel);
     },
 
+    _startEnergyDrainWatchdog() {
+        const s = this.state;
+        if (s.energyDrainInterval) clearInterval(s.energyDrainInterval);
+
+        s.energyDrainInterval = setInterval(() => {
+            if (s.energyLevel <= 0) return;
+
+            const sinceLastSend = s.lastCalmSentAt ? Date.now() - s.lastCalmSentAt : Infinity;
+            if (sinceLastSend < s.DRAIN_INACTIVITY_MS) return;
+
+            const inactivityBeyond = sinceLastSend - s.DRAIN_INACTIVITY_MS;
+            const drainTicksDue    = Math.floor(inactivityBeyond / s.DRAIN_RATE_MS);
+            const alreadyDrained   = s._drainTicksApplied;
+
+            if (drainTicksDue > alreadyDrained) {
+                s._drainTicksApplied = drainTicksDue;
+                s.energyLevel        = Math.max(s.energyLevel - (drainTicksDue - alreadyDrained), 0);
+                this._updateEnergyBar(s.energyLevel);
+            }
+        }, 60_000);
+    },
+
+    _resetDrainTicks() {
+        this.state._drainTicksApplied = 0;
+    },
+
     _updateEnergyBar(level) {
         const fill  = document.getElementById('pulseFill');
         const value = document.getElementById('energyValue');
@@ -415,11 +447,7 @@ const CollectiveField = {
     // =========================================================================
 
     handleContributeWave() {
-        if (this.state.isContributing) {
-            this._endWave().catch(err => console.error('[CollectiveField] _endWave error:', err));
-        } else {
-            this._startWave();
-        }
+        this.state.isContributing ? this._endWave() : this._startWave();
     },
 
     _startWave() {
@@ -463,7 +491,7 @@ const CollectiveField = {
         this._updateWaveStatusLine(elapsedMs);
     },
 
-    async _endWave() {
+    _endWave() {
         const s = this.state;
         clearInterval(s.timerInterval);
         s.timerInterval  = null;
@@ -479,40 +507,27 @@ const CollectiveField = {
 
         document.getElementById('waveBtn')?.classList.remove('in-progress');
         const label = document.getElementById('waveBtnLabel');
-        if (label) label.textContent = 'Start Silence';
 
         if (minutesLogged < 1) {
+            if (label) label.textContent = 'Start Silence';
             this._toast('Sit a little longer');
             this._updateWaveStatusLine();
             return;
         }
 
-        // Optimistic local update
-        const prevTotal   = s.waveTotalMinutes;
-        const prevToday   = s.userTodayMinutes;
-        const prevAllTime = s.userAllTimeMinutes;
-
         s.waveTotalMinutes   = Math.min(s.waveTotalMinutes + minutesLogged, s.WAVE_GOAL_MINUTES);
         s.userTodayMinutes  += minutesLogged;
         s.userAllTimeMinutes += minutesLogged;
         this._updateWaveProgress();
-        this._updateWaveStatusLine();
+
+        if (label) label.textContent = 'Start Silence';
         this._toast(`${minutesLogged}min contributed to the wave`);
 
         if (s.waveTotalMinutes >= s.WAVE_GOAL_MINUTES) this._onWaveComplete();
+        this._updateWaveStatusLine();
 
-        // Persist — rollback optimistic update on failure
-        try {
-            await CollectiveFieldDB.logWaveContribution(minutesLogged, true);
-        } catch (err) {
-            console.error('[CollectiveField] logWaveContribution failed — rolling back:', err);
-            s.waveTotalMinutes   = prevTotal;
-            s.userTodayMinutes   = prevToday;
-            s.userAllTimeMinutes = prevAllTime;
-            this._updateWaveProgress();
-            this._updateWaveStatusLine();
-            this._toast('Could not save session — please try again');
-        }
+        CollectiveFieldDB?.logWaveContribution(minutesLogged, true)
+            .catch(err => console.error('[CollectiveField] logWaveContribution failed:', err));
     },
 
     _onWaveComplete() {
@@ -827,9 +842,7 @@ const CollectiveField = {
     async adminAddEnergy() {
         if (!Core?.state?.currentUser?.is_admin) return;
         try {
-            const sb = window.AppSupabase || window.CommunitySupabase;
-            if (!sb) throw new TypeError('Supabase client unavailable');
-            const { error } = await sb.rpc('increment_field_pulse', {
+            const { error } = await window.CommunitySupabase.rpc('increment_field_pulse', {
                 p_date: new Date().toISOString().slice(0, 10),
                 p_energy_add: 10,
             });

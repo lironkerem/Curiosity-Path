@@ -252,22 +252,13 @@ const CollectiveFieldDB = {
             .subscribe();
 
         // Channel 3: new wave session logged
-        // With REPLICA IDENTITY FULL, the INSERT payload contains the full new row.
-        // We can use row.minutes directly to increment the running total immediately,
-        // then re-query participants (no shortcut — need distinct user count).
         this._realtimeChannels.wave = this._sb
             .channel('wave_contributions_inserts')
             .on('postgres_changes', {
                 event: 'INSERT', schema: 'public',
                 table: 'wave_contributions', filter: `date=eq.${today}`,
-            }, async ({ new: row }) => {
-                // Fast path: add minutes from payload without a round-trip
-                if (typeof row?.minutes === 'number' && row.minutes > 0) {
-                    const current = _cf().state.waveTotalMinutes || 0;
-                    _cf().updateWaveTotalMinutes(current + row.minutes);
-                }
-                // Participant count still requires a distinct query
-                await this.loadWaveParticipants();
+            }, async () => {
+                await Promise.all([this.loadWaveTotal(), this.loadWaveParticipants()]);
             })
             .subscribe();
     },
