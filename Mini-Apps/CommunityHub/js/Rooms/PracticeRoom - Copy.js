@@ -18,7 +18,12 @@ import { CollectiveField } from '../collective-field.js';
 
 // ─── Shared constants ────────────────────────────────────────────────────────
 
-const _BLESS_SVG = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.8;"><path d="M12 3L13.5 8.5L19 10L13.5 11.5L12 17L10.5 11.5L5 10L10.5 8.5Z"/><path d="M5 3L5.75 5.25L8 6L5.75 6.75L5 9L4.25 6.75L2 6L4.25 5.25Z"/><path d="M19 14L19.75 16.25L22 17L19.75 17.75L19 20L18.25 17.75L16 17L18.25 16.25Z"/></svg>`;
+const _BLESS_SVG = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;opacity:0.8;">
+    <path d="M9 2C9 2 4 5 4 10C4 13.3 6.7 16 10 16L10.5 17H13.5L14 16C17.3 16 20 13.3 20 10C20 5 15 2 15 2C15 2 13.5 4 12 4C10.5 4 9 2 9 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M10.5 17L9.5 20H14.5L13.5 17" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M9.5 20H14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="12" cy="10" r="2" stroke="currentColor" stroke-width="1.5"/>
+</svg>`;
 
 const _IN_SESSION_BADGE = `<span style="background:rgba(239,68,68,0.85);color:white;font-size:11px;font-weight:700;letter-spacing:0.08em;padding:4px 10px;border-radius:4px;text-transform:uppercase;">In Session</span>`;
 
