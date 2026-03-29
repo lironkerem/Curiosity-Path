@@ -420,8 +420,7 @@ export default class DashboardManager {
         </p>
         <div class="text-center mb-6">
           <h3 style="font-size:1.8rem;font-weight:bold;">
-            You are ${article} ${levelInfo.title}<br>
-            <span style="font-size:1.4rem;">(Level ${levelInfo.level})</span>
+            You are ${article} ${levelInfo.title} (Level ${levelInfo.level})
           </h3>
         </div>
         <div class="grid grid-cols-4 md:grid-cols-8 gap-2">
@@ -656,8 +655,10 @@ export default class DashboardManager {
    */
   renderRecentAchievements(status) {
     try {
+      if (!status.badges || status.badges.length === 0) return '';
+      
       const allDefs = this.app.gamification.getBadgeDefinitions();
-      const earned = new Set((status.badges || []).map(b => b.id));
+      const earned = new Set(status.badges.map(b => b.id));
 
       // Dynamic badge count: 6 on mobile, 9 on desktop
       const isMobile = window.innerWidth <= UI_CONSTANTS.MOBILE_BREAKPOINT;
@@ -668,7 +669,7 @@ export default class DashboardManager {
 
       // Get full badge list
       const gameBadges = this.getGameBadges(allDefs, earned);
-      const awardedAdminBadges = this.getAwardedAdminBadges(status.badges || []);
+      const awardedAdminBadges = this.getAwardedAdminBadges(status.badges);
       const fullList = [...gameBadges, ...awardedAdminBadges];
 
       // Build categories
@@ -676,9 +677,7 @@ export default class DashboardManager {
       const categoryHtml = this.renderBadgeCategories(categories);
 
       // Preview badges HTML
-      const previewHtml = latestEarned.length > 0
-        ? latestEarned.map(badge => this.renderBadgeCard(badge)).join('')
-        : `<p style="text-align:center;color:var(--neuro-text-secondary);padding:1rem;grid-column:1/-1;">Complete quests and activities to earn your first badge!</p>`;
+      const previewHtml = latestEarned.map(badge => this.renderBadgeCard(badge)).join('');
 
       // Mobile-specific CSS for 3×2 grid
       const mobileCss = `
