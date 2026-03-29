@@ -14,15 +14,6 @@
 
   <title>The Curiosity Path - by Aanandoham</title>
 
-  <!-- ===== PWA Install Prompt — must be first script to catch early browser event ===== -->
-  <script>
-    window._pwaInstallPrompt = null;
-    window.addEventListener('beforeinstallprompt', function(e) {
-      e.preventDefault();
-      window._pwaInstallPrompt = e;
-    });
-  </script>
-
   <!-- ===== Critical Styles (inline — guaranteed before first paint) ===== -->
   <style>
     /* Prevent FOUC on hidden tabs */
@@ -136,7 +127,7 @@
   </style>
 
   <!-- ===== LCP: preload hero logo — fetched before any render-blocking work ===== -->
-  <link rel="preload" href="/public/Icons/icon-192x192-loading.webp" as="image" type="image/webp" fetchpriority="high">
+  <link rel="preload" href="public/Icons/icon-192x192-loading.webp" as="image" type="image/webp" fetchpriority="high">
 
   <!-- ===== CDN Preconnect ===== -->
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
@@ -213,9 +204,9 @@
   <div id="auth-screen">
     <div id="auth-screen-inner">
       <picture>
-        <source srcset="/public/Icons/icon-192x192-loading.webp" type="image/webp">
+        <source srcset="public/Icons/icon-192x192-loading.webp" type="image/webp">
         <img id="auth-screen-logo"
-             src="/public/Icons/icon-192x192.png"
+             src="public/Icons/icon-192x192.png"
              alt="The Curiosity Path"
              width="160" height="160"
              fetchpriority="high"
@@ -294,7 +285,7 @@
       if ('serviceWorker' in navigator) {
         // Delay SW registration until after load to not compete with critical resources
         window.addEventListener('load', function() {
-          navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+          navigator.serviceWorker.register('./service-worker.js', { scope: '/' })
             .catch(function(err) { console.error('[SW] Registration failed:', err); });
         });
       }
