@@ -826,18 +826,14 @@ const MemberProfileModal = {
         if (!role || !this.state.currentUserId) return;
         await this._withBtnState('#adminSubRole button', 'Saving...', 'Save Role', async () => {
             const profileUpdate = { community_role: role };
-            if (role === 'VIP')   profileUpdate.is_vip   = true;
-            else                  profileUpdate.is_vip   = false;
-            if (role === 'Admin') profileUpdate.is_admin = true;
-            else                  profileUpdate.is_admin = false;
+            if (role === 'VIP') profileUpdate.is_vip = true;
+            else profileUpdate.is_vip = false;
             const { error } = await CommunityDB._sb.from('profiles')
                 .update(profileUpdate).eq('id', this.state.currentUserId);
             if (error) throw error;
             this._setHTML('memberModalRole', `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${role}`);
-            await this._adminPushNotify(this.state.currentUserId, '👤 Role Updated', `Your community role has been changed to ${role}.`);
             Core.showToast(`Role changed to ${role}`);
             this._closeAdminSubs();
-            await this._safeRefresh(this.state.currentUserId);
         });
     },
 
@@ -903,18 +899,13 @@ const MemberProfileModal = {
             .map(cb => cb.value);
         if (!checked.length) { Core.showToast('Select at least one feature'); return; }
         await this._withBtnState('#adminSubPremium button', 'Unlocking...', 'Unlock Selected', async () => {
-            let ok = 0;
-            const failed = [];
             for (const feature of checked) {
-                const success = await CommunityDB.adminUpdateGamification(this.state.currentUserId, { unlockFeature: feature });
-                if (success) ok++;
-                else failed.push(feature);
+                const ok = await CommunityDB.adminUpdateGamification(this.state.currentUserId, { unlockFeature: feature });
+                if (!ok) throw new Error(`Failed to unlock: ${feature}`);
             }
-            if (failed.length) console.warn('[AdminPanel] Failed to unlock:', failed);
-            if (!ok) throw new Error('All unlocks failed');
             const names = checked.map(f => f.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())).join(', ');
             await this._adminPushNotify(this.state.currentUserId, '🔓 New Features Unlocked!', `Admin unlocked: ${names}`);
-            Core.showToast(`Unlocked ${ok}/${checked.length} feature(s)${failed.length ? ` (${failed.length} failed)` : ''}`);
+            Core.showToast(`Unlocked ${checked.length} feature(s)`);
             this._closeAdminSubs();
             await this._safeRefresh(this.state.currentUserId);
         });

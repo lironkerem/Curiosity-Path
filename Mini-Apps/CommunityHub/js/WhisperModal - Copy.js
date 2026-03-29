@@ -292,16 +292,15 @@ const WhisperModal = {
         loading.style.display = 'block';
         messages.innerHTML    = '';
 
-        const [msgs] = await Promise.all([
-            CommunityDB.getWhispers(userId),
-            CommunityDB.markConversationRead(userId).catch(() => {}),
-        ]);
+        CommunityDB.markConversationRead(userId).catch(() => {});
+
+        const msgs = await CommunityDB.getWhispers(userId);
         loading.style.display = 'none';
         this._renderThreadMessages(msgs);
 
         setTimeout(() => { threadView.scrollTop = threadView.scrollHeight; }, 50);
         document.getElementById('whisperReplyText')?.focus();
-        await this.refreshUnreadBadge();
+        this.refreshUnreadBadge();
     },
 
     _renderThreadMessages(messages) {

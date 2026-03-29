@@ -429,9 +429,10 @@ class PracticeRoom {
         await CommunityDB.blessRoom(this.roomId);
         Core.showToast('Blessing sent');
 
-        this._showBlessingAnimation();
-        this._refreshBlessingCounter();
-        this._updateCardBlessingBadge(0); // will be refreshed with real count by _refreshBlessingCounter
+        if (document.getElementById(`${this.roomId}BlessedCounter`)) {
+            this._showBlessingAnimation();
+            this._refreshBlessingCounter();
+        }
     }
 
     async _loadBlessingCount() {

@@ -43,14 +43,11 @@ const AdminDashboard = {
     ],
 
     _UNLOCKS: [
-        ['tarot_vision_ai',             'Tarot Vision AI'],
-        ['shadow_alchemy_lab',          'Shadow Alchemy Lab'],
-        ['advanced_meditations',        'Advanced Meditations'],
-        ['luxury_blush_champagne_skin', 'Blush Champagne Skin'],
-        ['luxury_champagne_gold_skin',  'Champagne Gold Skin'],
-        ['luxury_marble_bronze_skin',   'Marble Bronze Skin'],
-        ['royal_indigo_skin',           'Royal Indigo Skin'],
-        ['earth_luxury_skin',           'Earth Luxury Skin'],
+        ['premium_rooms',       'Premium Rooms'],
+        ['extended_history',    'Extended History'],
+        ['custom_themes',       'Custom Themes'],
+        ['advanced_analytics',  'Advanced Analytics'],
+        ['priority_support',    'Priority Support'],
     ],
 
     _NOTIF_ICONS: { report: '⚠️', help: '🆘', technical: '🔧' },
