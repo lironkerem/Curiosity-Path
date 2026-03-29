@@ -419,8 +419,8 @@ export default class DashboardManager {
           <span class="dashboard-xp-next">${levelInfo.pointsToNext}</span> to next
         </p>
         <div class="text-center mb-6">
-          <h3 style="font-size:1.8rem;font-weight:bold;">
-            You are ${article} ${levelInfo.title}<br>
+          <h3 style="display:flex;flex-direction:column;align-items:center;gap:0.2rem;font-weight:bold;">
+            <span style="font-size:1.8rem;">You are ${article} ${levelInfo.title}</span>
             <span style="font-size:1.4rem;">(Level ${levelInfo.level})</span>
           </h3>
         </div>
