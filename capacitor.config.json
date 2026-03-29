@@ -1,0 +1,9 @@
+{
+  "appId": "com.curiositypath.app",
+  "appName": "The Curiosity Path",
+  "webDir": ".",
+  "server": {
+    "url": "https://digital-curiosity-path.vercel.app",
+    "cleartext": false
+  }
+}
