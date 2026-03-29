@@ -128,7 +128,7 @@ const ActiveMembers = {
 
     _buildMemberCards(members) {
         if (!members?.length) {
-            return '<div style="color:var(--text-muted);font-size:13px;padding:12px">No members online right now.</div>';
+            return '<div style="color:var(--text-muted);font-size:13px;padding:12px">Loading activity...</div>';
         }
         return members.map(m => this._getMemberCardHTML(m)).join('');
     },
