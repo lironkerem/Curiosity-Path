@@ -92,6 +92,7 @@
       to { transform: rotate(360deg); }
     }
 
+
     /* ── Tab-dot base styles (moved from JS inline strings) ── */
     .tab-dot {
       display: inline-flex !important;
@@ -132,113 +133,6 @@
       transform: scale(1.15) !important;
       opacity: 1 !important;
     }
-
-    /* ── PWA Install Toast ── */
-    #pwa-install-toast {
-      position: fixed;
-      bottom: 1.5rem;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      opacity: 0;
-      background: #c4ad91;
-      border-radius: 20px;
-      padding: 1rem 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      box-shadow:
-        10px 10px 20px #a08968,
-        -6px -6px 12px #e0d4bf,
-        inset 1px 1px 2px #ebe2d4;
-      z-index: 9999;
-      font-family: 'Cinzel', 'Georgia', serif;
-      font-size: 0.85rem;
-      color: #3d2f1f;
-      white-space: nowrap;
-      transition: opacity 400ms ease, transform 400ms ease;
-      max-width: calc(100vw - 2rem);
-    }
-    #pwa-install-toast.visible {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-    #pwa-install-toast .pwa-toast-icon {
-      font-size: 1.4rem;
-      flex-shrink: 0;
-    }
-    #pwa-install-toast .pwa-toast-text {
-      flex: 1;
-      line-height: 1.4;
-      white-space: normal;
-      min-width: 0;
-    }
-    #pwa-install-toast .pwa-toast-text strong {
-      color: #6b9b37;
-      display: block;
-      font-size: 0.9rem;
-      letter-spacing: 0.05em;
-    }
-    #pwa-install-toast .pwa-toast-text span {
-      color: #6d5a42;
-      font-size: 0.78rem;
-      font-family: system-ui, sans-serif;
-      letter-spacing: 0;
-    }
-    #pwa-install-btn {
-      background: #6b9b37;
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      padding: 0.5rem 1rem;
-      font-family: 'Cinzel', 'Georgia', serif;
-      font-size: 0.8rem;
-      letter-spacing: 0.05em;
-      cursor: pointer;
-      flex-shrink: 0;
-      box-shadow:
-        4px 4px 8px #a08968,
-        -2px -2px 6px #e0d4bf;
-      transition: box-shadow 150ms ease, transform 150ms ease;
-    }
-    #pwa-install-btn:active {
-      box-shadow: inset 3px 3px 6px #558030, inset -2px -2px 4px #8bc34a;
-      transform: scale(0.97);
-    }
-    #pwa-install-dismiss {
-      background: none;
-      border: none;
-      color: #a08968;
-      font-size: 1rem;
-      cursor: pointer;
-      flex-shrink: 0;
-      padding: 0.25rem;
-      line-height: 1;
-      transition: color 150ms ease;
-    }
-    #pwa-install-dismiss:hover { color: #3d2f1f; }
-
-    /* Progress bar */
-    #pwa-toast-progress {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      height: 3px;
-      width: 100%;
-      background: rgba(107,155,55,0.15);
-      border-radius: 0 0 20px 20px;
-      overflow: hidden;
-    }
-    #pwa-toast-progress-bar {
-      height: 100%;
-      width: 100%;
-      background: #6b9b37;
-      transform-origin: left;
-      animation: pwa-progress 10s linear forwards;
-    }
-    @keyframes pwa-progress {
-      from { transform: scaleX(1); }
-      to   { transform: scaleX(0); }
-    }
   </style>
 
   <!-- ===== LCP: preload hero logo — fetched before any render-blocking work ===== -->
@@ -254,26 +148,26 @@
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&display=swap"></noscript>
 
   <!-- ===== CSS ===== -->
-  <link rel="stylesheet" href="/CSS/main-styles.css?v=2803">
+  <link rel="stylesheet" href="/CSS/main-styles.css?v=2903">
 
-  <link rel="preload" href="/CSS/dark-mode.css?v=2803" as="style">
-  <link rel="stylesheet" href="/CSS/dark-mode.css?v=2803" id="dark-mode-css" media="not all">
+  <link rel="preload" href="/CSS/dark-mode.css?v=2903" as="style">
+  <link rel="stylesheet" href="/CSS/dark-mode.css?v=2903" id="dark-mode-css" media="not all">
 
-  <link rel="preload" href="/CSS/Skins/champagne-gold.css?v=2803" as="style">
-  <link rel="preload" href="/CSS/Skins/royal-indigo.css?v=2803"   as="style">
-  <link rel="preload" href="/CSS/Skins/earth-luxury.css?v=2803"   as="style">
-  <link rel="preload" href="/CSS/Skins/matrix-code.css?v=2803"    as="style">
+  <link rel="preload" href="/CSS/Skins/champagne-gold.css?v=2903" as="style">
+  <link rel="preload" href="/CSS/Skins/royal-indigo.css?v=2903"   as="style">
+  <link rel="preload" href="/CSS/Skins/earth-luxury.css?v=2903"   as="style">
+  <link rel="preload" href="/CSS/Skins/matrix-code.css?v=2903"    as="style">
 
-  <link rel="stylesheet" href="/CSS/Skins/champagne-gold.css?v=2803" id="skin_champagne-gold" media="not all">
-  <link rel="stylesheet" href="/CSS/Skins/royal-indigo.css?v=2803"   id="skin_royal-indigo"   media="not all">
-  <link rel="stylesheet" href="/CSS/Skins/earth-luxury.css?v=2803"   id="skin_earth-luxury"   media="not all">
-  <link rel="stylesheet" href="/CSS/Skins/matrix-code.css?v=2803"    id="skin_matrix-code"    media="not all">
+  <link rel="stylesheet" href="/CSS/Skins/champagne-gold.css?v=2903" id="skin_champagne-gold" media="not all">
+  <link rel="stylesheet" href="/CSS/Skins/royal-indigo.css?v=2903"   id="skin_royal-indigo"   media="not all">
+  <link rel="stylesheet" href="/CSS/Skins/earth-luxury.css?v=2903"   id="skin_earth-luxury"   media="not all">
+  <link rel="stylesheet" href="/CSS/Skins/matrix-code.css?v=2903"    id="skin_matrix-code"    media="not all">
 
-  <link rel="stylesheet" href="/CSS/mobile-styles.css?v=2803" media="(max-width:1024px)">
+  <link rel="stylesheet" href="/CSS/mobile-styles.css?v=2903" media="(max-width:1024px)">
 
   <!-- community-hub.css is non-critical (tab only shown on demand) — load non-blocking -->
-  <link rel="preload" href="/CSS/community-hub.css?v=2803" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="/CSS/community-hub.css?v=2803"></noscript>
+  <link rel="preload" href="/CSS/community-hub.css?v=2903" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/CSS/community-hub.css?v=2903"></noscript>
 
   <!-- ===== PWA / icons ===== -->
   <link rel="manifest" href="/manifest.json">
@@ -382,16 +276,16 @@
 
   <!-- ===== Application Scripts ===== -->
   <!-- MatrixRain: defer so it never blocks parse/render -->
-  <script defer src="/CSS/Skins/MatrixRain.js?v=2803"></script>
+  <script defer src="/CSS/Skins/MatrixRain.js?v=2903"></script>
 
   <script type="module" src="./Core/Utils.js"></script>
-  <script defer src="./Features/TarotVisionAI.js?v=2803"></script>
+  <script defer src="./Features/TarotVisionAI.js?v=2903"></script>
   <script type="module" src="./Features/TarotEngine.js"></script>
   <script type="module" src="./Core/GamificationEngine.js"></script>
   <script type="module" src="./Features/KarmaShopEngine.js"></script>
   <script type="module" src="./Features/EnergyTracker.js"></script>
   <script type="module" src="./Core/Features.js"></script>
-  <script defer src="./Features/WellnessKit.js?v=2803"></script>
+  <script defer src="./Features/WellnessKit.js?v=2903"></script>
 
   <!-- ===== Bootstrap Application ===== -->
   <script type="module">
@@ -429,7 +323,6 @@
         });
 
         window.app.init();
-
       } catch (e) {
         console.error('[FATAL] Bootstrap failed:', e);
         document.body.innerHTML = [
@@ -449,61 +342,6 @@
     document.readyState === 'loading'
       ? document.addEventListener('DOMContentLoaded', init)
       : init();
-  </script>
-
-  <!-- ===== PWA Install Toast ===== -->
-  <script>
-  (function() {
-    // Only show in browser mode (not already installed as PWA)
-    if (!window.matchMedia('(display-mode: browser)').matches) return;
-
-    window.addEventListener('load', function() {
-      setTimeout(function() {
-        if (!window._pwaInstallPrompt) return;
-
-        var toast = document.createElement('div');
-        toast.id = 'pwa-install-toast';
-        toast.setAttribute('role', 'status');
-        toast.innerHTML =
-          '<span class="pwa-toast-icon">📲</span>' +
-          '<div class="pwa-toast-text">' +
-            '<strong>Install The Curiosity Path</strong>' +
-            '<span>Add to your home screen for the best experience</span>' +
-          '</div>' +
-          '<button id="pwa-install-btn">Install</button>' +
-          '<button id="pwa-install-dismiss" aria-label="Dismiss">&#x2715;</button>' +
-          '<div id="pwa-toast-progress"><div id="pwa-toast-progress-bar"></div></div>';
-        document.body.appendChild(toast);
-
-        // Animate in (double rAF ensures transition fires after display)
-        requestAnimationFrame(function() {
-          requestAnimationFrame(function() {
-            toast.classList.add('visible');
-          });
-        });
-
-        var autoDismissTimer = setTimeout(dismiss, 10000);
-
-        function dismiss() {
-          clearTimeout(autoDismissTimer);
-          toast.classList.remove('visible');
-          setTimeout(function() { if (toast.parentNode) toast.remove(); }, 400);
-        }
-
-        document.getElementById('pwa-install-btn').addEventListener('click', function() {
-          if (!window._pwaInstallPrompt) return;
-          window._pwaInstallPrompt.prompt();
-          window._pwaInstallPrompt.userChoice.then(function() {
-            window._pwaInstallPrompt = null;
-            dismiss();
-          });
-        });
-
-        document.getElementById('pwa-install-dismiss').addEventListener('click', dismiss);
-
-      }, 2500); // wait for app to finish rendering
-    });
-  })();
   </script>
 
   <!-- ===== Theme Management ===== -->
