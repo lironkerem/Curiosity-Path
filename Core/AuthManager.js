@@ -14,8 +14,12 @@ import { supabase } from './Supabase.js';
 async function _handleOAuthWithBrowser(provider, queryParams) {
   const isNative = window.Capacitor?.isNativePlatform?.();
   const Browser = isNative ? window.Capacitor?.Plugins?.Browser : null;
+
+  // On native: redirect to /auth/callback.html which stores the session
+  // then redirects back to / — WebView picks up the session on reload.
+  // On web/PWA: standard redirect to origin, no change.
   const redirectTo = isNative
-    ? 'curiositypath://login-callback'
+    ? 'https://digital-curiosity-path.vercel.app/auth/callback.html'
     : window.location.origin;
 
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -26,6 +30,8 @@ async function _handleOAuthWithBrowser(provider, queryParams) {
 
   if (Browser && data?.url) {
     await Browser.open({ url: data.url, windowName: '_self' });
+    // Browser will load /auth/callback.html, store session, then redirect to /
+    // The browserFinished event in ProjectCuriosityApp.init() handles the rest
   }
 }
 

@@ -392,60 +392,20 @@ export default class ProjectCuriosityApp {
       // When Android opens the app via curiositypath://login-callback, the app
       // cold-starts. getLaunchUrl() reads the URL synchronously before checkAuth().
       if (window.Capacitor?.isNativePlatform?.()) {
-        const AppPlugin = window.Capacitor?.Plugins?.App;
-        const Browser   = window.Capacitor?.Plugins?.Browser;
+        const Browser = window.Capacitor?.Plugins?.Browser;
 
-        const _handleDeepLink = async (url) => {
-          if (!url || !url.startsWith('curiositypath://')) return false;
-          if (Browser) await Browser.close().catch(() => {});
-          const fragment     = url.split('#')[1] || url.split('?')[1] || '';
-          const params       = new URLSearchParams(fragment);
-          const accessToken  = params.get('access_token');
-          const refreshToken = params.get('refresh_token');
-          if (accessToken && refreshToken) {
-            await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
-            return true;
-          }
-          return false;
-        };
-
-        if (AppPlugin) {
-          // Listen for Browser close — fires when curiositypath:// closes the sheet
-          if (Browser) {
-            Browser.addListener('browserFinished', async () => {
-              // Browser closed — check if Supabase session was set
-              const { data: { session } } = await supabase.auth.getSession();
-              if (session?.user) {
-                if (await this.auth.checkAuth()) {
-                  await this.state.loadData();
-                  await this.state.ready;
-                  if (!this._validateState()) this.state.data = this.state.emptyModel();
-                  await this.initializeApp();
-                }
-              }
-            });
-          }
-
-          // appUrlOpen — fires if Android passes deep link back to activity
-          AppPlugin.addListener('appUrlOpen', async (event) => {
-            const handled = await _handleDeepLink(event?.url || '');
-            if (handled) {
-              if (await this.auth.checkAuth()) {
-                await this.state.loadData();
-                await this.state.ready;
-                if (!this._validateState()) this.state.data = this.state.emptyModel();
-                await this.initializeApp();
-              }
+        // When the in-app browser closes after /auth/callback.html,
+        // the session is already stored in localStorage by the callback page.
+        // We just need to re-check auth and load the app.
+        if (Browser) {
+          Browser.addListener('browserFinished', async () => {
+            if (await this.auth.checkAuth()) {
+              await this.state.loadData();
+              await this.state.ready;
+              if (!this._validateState()) this.state.data = this.state.emptyModel();
+              await this.initializeApp();
             }
           });
-
-          // getLaunchUrl — handles cold start via deep link
-          try {
-            const launchData = await AppPlugin.getLaunchUrl();
-            await _handleDeepLink(launchData?.url || '');
-          } catch (e) {
-            console.warn('[App] getLaunchUrl failed (non-fatal):', e);
-          }
         }
       }
 
