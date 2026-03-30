@@ -412,7 +412,10 @@ export default class ProjectCuriosityApp {
         if (AppPlugin) {
           // Register appUrlOpen FIRST — handles case where app is already running
           AppPlugin.addListener('appUrlOpen', async (event) => {
-            const handled = await _handleDeepLink(event?.url || '');
+            const url = event?.url || '';
+            alert('appUrlOpen: ' + url.substring(0, 150));
+            const handled = await _handleDeepLink(url);
+            alert('handled=' + handled);
             if (handled) {
               if (await this.auth.checkAuth()) {
                 await this.state.loadData();
