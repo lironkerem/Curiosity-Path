@@ -394,20 +394,39 @@ export default class ProjectCuriosityApp {
       if (window.Capacitor?.isNativePlatform?.()) {
         const AppPlugin = window.Capacitor?.Plugins?.App;
         const Browser   = window.Capacitor?.Plugins?.Browser;
+
+        const _handleDeepLink = async (url) => {
+          if (!url || !url.startsWith('curiositypath://')) return false;
+          if (Browser) await Browser.close().catch(() => {});
+          const fragment     = url.split('#')[1] || url.split('?')[1] || '';
+          const params       = new URLSearchParams(fragment);
+          const accessToken  = params.get('access_token');
+          const refreshToken = params.get('refresh_token');
+          if (accessToken && refreshToken) {
+            await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+            return true;
+          }
+          return false;
+        };
+
         if (AppPlugin) {
-          try {
-            const launchData = await AppPlugin.getLaunchUrl();
-            const launchUrl  = launchData?.url || '';
-            if (launchUrl.startsWith('curiositypath://')) {
-              if (Browser) await Browser.close().catch(() => {});
-              const fragment     = launchUrl.split('#')[1] || launchUrl.split('?')[1] || '';
-              const params       = new URLSearchParams(fragment);
-              const accessToken  = params.get('access_token');
-              const refreshToken = params.get('refresh_token');
-              if (accessToken && refreshToken) {
-                await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+          // Register appUrlOpen FIRST — handles case where app is already running
+          AppPlugin.addListener('appUrlOpen', async (event) => {
+            const handled = await _handleDeepLink(event?.url || '');
+            if (handled) {
+              if (await this.auth.checkAuth()) {
+                await this.state.loadData();
+                await this.state.ready;
+                if (!this._validateState()) this.state.data = this.state.emptyModel();
+                await this.initializeApp();
               }
             }
+          });
+
+          // Check getLaunchUrl — handles cold start via deep link
+          try {
+            const launchData = await AppPlugin.getLaunchUrl();
+            await _handleDeepLink(launchData?.url || '');
           } catch (e) {
             console.warn('[App] getLaunchUrl failed (non-fatal):', e);
           }

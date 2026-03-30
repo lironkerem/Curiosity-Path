@@ -24,8 +24,6 @@ async function _handleOAuthWithBrowser(provider, queryParams) {
   });
   if (error) throw error;
 
-  alert('Browser=' + !!Browser + ' url=' + (data?.url ? data.url.substring(0,100) : 'none'));
-
   if (Browser && data?.url) {
     await Browser.open({ url: data.url, windowName: '_self' });
   }
