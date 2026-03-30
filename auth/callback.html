@@ -5,73 +5,32 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Signing you in…</title>
   <style>
-    body {
-      margin: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      background: #c4ad91;
-      font-family: 'Cinzel', Georgia, serif;
-      color: #3d2f1f;
-    }
-    .spinner {
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      border: 3px solid #a08968;
-      border-top-color: #6b9b37;
-      animation: spin 0.9s linear infinite;
-      margin: 0 auto 1rem;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    p { text-align: center; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.85rem; opacity: 0.75; }
+    body { margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #c4ad91; font-family: Georgia, serif; color: #3d2f1f; padding: 1rem; }
+    #log { font-size: 0.75rem; word-break: break-all; max-width: 100%; }
   </style>
 </head>
 <body>
-  <div>
-    <div class="spinner"></div>
-    <p id="status">Signing you in…</p>
-  </div>
-
+  <div id="log">Starting…<br></div>
   <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/+esm';
+    const log = (msg) => { document.getElementById('log').innerHTML += msg + '<br>'; };
 
-    const supabase = createClient(
-      'https://qfbarhxfmzpgbgkaymuk.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmYmFyaHhmbXpwZ2Jna2F5bXVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODg4MjEsImV4cCI6MjA4MDE2NDgyMX0.twBWw0dZnLRTWTHav0sJ77GXyvsGR3ZgPplRO2vVSFk',
-      { auth: { detectSessionInUrl: true, persistSession: true, storage: window.localStorage } }
-    );
+    log('hash: ' + window.location.hash.substring(0, 80));
+    log('search: ' + window.location.search.substring(0, 80));
 
-    async function handleCallback() {
-      // Parse tokens from URL hash e.g. #access_token=...&refresh_token=...
-      const hash   = window.location.hash.substring(1);
-      const params = new URLSearchParams(hash);
-      const accessToken  = params.get('access_token');
-      const refreshToken = params.get('refresh_token');
+    const hash   = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    const at = params.get('access_token');
+    const rt = params.get('refresh_token');
 
-      if (accessToken && refreshToken) {
-        const { error } = await supabase.auth.setSession({
-          access_token:  accessToken,
-          refresh_token: refreshToken
-        });
-        if (error) {
-          document.getElementById('status').textContent = 'Error: ' + error.message;
-          setTimeout(() => window.location.replace('/'), 3000);
-          return;
-        }
-        window.location.replace('/');
-      } else {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          window.location.replace('/');
-        } else {
-          document.getElementById('status').textContent = 'No session found. Redirecting…';
-          setTimeout(() => window.location.replace('/'), 2000);
-        }
-      }
+    log('access_token: ' + (at ? at.substring(0,20) + '...' : 'NONE'));
+    log('refresh_token: ' + (rt ? rt.substring(0,20) + '...' : 'NONE'));
+
+    if (!at) {
+      log('Also checking search params…');
+      const sp = new URLSearchParams(window.location.search);
+      log('code: ' + (sp.get('code') || 'NONE'));
+      log('error: ' + (sp.get('error') || 'NONE'));
     }
-
-    handleCallback();
   </script>
 </body>
 </html>
