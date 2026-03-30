@@ -426,9 +426,12 @@ export default class ProjectCuriosityApp {
           // Check getLaunchUrl — handles cold start via deep link
           try {
             const launchData = await AppPlugin.getLaunchUrl();
-            await _handleDeepLink(launchData?.url || '');
+            const launchUrl = launchData?.url || '';
+            alert('getLaunchUrl: ' + launchUrl.substring(0, 120));
+            await _handleDeepLink(launchUrl);
           } catch (e) {
             console.warn('[App] getLaunchUrl failed (non-fatal):', e);
+            alert('getLaunchUrl error: ' + e.message);
           }
         }
       }
