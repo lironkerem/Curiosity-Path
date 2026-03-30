@@ -32,12 +32,10 @@
           expires_at:    Math.floor(Date.now()/1000) + 3600,
           token_type:    'bearer'
         }));
-        // Write a flag the WebView polls for
+        // Signal WebView — it will call Browser.close() when it detects this flag
         localStorage.setItem('capacitor_oauth_complete', Date.now().toString());
       }
-      // Close this browser sheet by navigating away from https
-      // The WebView will detect the flag and reload
-      window.close();
+      // Stay on this page — Browser.close() is called from the WebView
     })();
   </script>
 </body>
