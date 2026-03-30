@@ -6,6 +6,43 @@ import { EMOJI_TO_KEY } from './avatar-icons.js';
 /* global window, document, location, localStorage, alert */
 import { supabase } from './Supabase.js';
 
+// ─── Capacitor Browser helper ─────────────────────────────────────────────────
+// Opens OAuth in an in-app browser sheet on native; falls back to default
+// redirect on web/PWA. Dynamically imported so it never breaks web builds.
+async function _getCapacitorBrowser() {
+  try {
+    if (window.Capacitor?.isNativePlatform?.()) {
+      const mod = await import('@capacitor/browser');
+      return mod.Browser;
+    }
+  } catch { /* not native or plugin missing */ }
+  return null;
+}
+
+async function _handleOAuthWithBrowser(provider, queryParams) {
+  const Browser = await _getCapacitorBrowser();
+  const redirectTo = Browser
+    ? 'https://digital-curiosity-path.vercel.app'
+    : window.location.origin;
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: { redirectTo, queryParams, skipBrowserRedirect: !!Browser }
+  });
+  if (error) throw error;
+
+  if (Browser && data?.url) {
+    // Listen for session — close browser sheet once Supabase sets the session
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') {
+        subscription.unsubscribe();
+        Browser.close();
+      }
+    });
+    await Browser.open({ url: data.url, windowName: '_self' });
+  }
+}
+
 const CONFIG = {MAX_FAILED_ATTEMPTS:5,LOCKOUT_TIME:900000,PASSWORD_MIN_LENGTH:6,PASSWORD_DEBOUNCE:300,TOAST_DURATION:3000,REDIRECT_DELAY:2000};
 const STORAGE_KEYS = {
   USER: 'pc_user',
@@ -276,17 +313,13 @@ export default class AuthManager {
   async handleGoogleLogin() {
     if (this._isAccountLocked()) return;
     try {
-      const redirectTo = window.Capacitor?.isNativePlatform?.() ? 'https://digital-curiosity-path.vercel.app' : window.location.origin;
-      const { error } = await supabase.auth.signInWithOAuth({provider:'google',options:{redirectTo,queryParams:{access_type:'offline',prompt:'consent'}}});
-      if (error) throw error;
+      await _handleOAuthWithBrowser('google', { access_type: 'offline', prompt: 'consent' });
     } catch (error) { console.error('Google login error:', error); this.showError(document.querySelector('.btn-google'), 'Failed to sign in with Google'); }
   }
 
   async handleGoogleSignup() {
     try {
-      const redirectTo = window.Capacitor?.isNativePlatform?.() ? 'https://digital-curiosity-path.vercel.app' : window.location.origin;
-      const { error } = await supabase.auth.signInWithOAuth({provider:'google',options:{redirectTo,queryParams:{access_type:'offline',prompt:'consent'}}});
-      if (error) throw error;
+      await _handleOAuthWithBrowser('google', { access_type: 'offline', prompt: 'consent' });
     } catch (error) { console.error('Google signup error:', error); alert('Failed to sign up with Google: ' + error.message); }
   }
 
