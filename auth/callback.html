@@ -5,39 +5,40 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Signing you in…</title>
   <style>
-    body { margin:0; display:flex; align-items:center; justify-content:center; min-height:100vh; background:#c4ad91; font-family:Georgia,serif; color:#3d2f1f; padding:1rem; }
-    #log { font-size:0.8rem; word-break:break-all; text-align:center; }
+    body { margin:0; display:flex; align-items:center; justify-content:center; min-height:100vh; background:#c4ad91; font-family:'Cinzel',Georgia,serif; color:#3d2f1f; }
+    .spinner { width:40px; height:40px; border-radius:50%; border:3px solid #a08968; border-top-color:#6b9b37; animation:spin 0.9s linear infinite; margin:0 auto 1rem; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    p { text-align:center; letter-spacing:0.1em; text-transform:uppercase; font-size:0.85rem; opacity:0.75; }
   </style>
 </head>
 <body>
-  <div id="log">Starting…<br></div>
+  <div>
+    <div class="spinner"></div>
+    <p>Signing you in…</p>
+  </div>
   <script>
-    var log = function(m) { document.getElementById('log').innerHTML += m + '<br>'; };
+    (function() {
+      var hash   = window.location.hash.substring(1);
+      var params = new URLSearchParams(hash);
+      var at = params.get('access_token');
+      var rt = params.get('refresh_token');
 
-    var hash   = window.location.hash.substring(1);
-    var params = new URLSearchParams(hash);
-    var at = params.get('access_token');
-    var rt = params.get('refresh_token');
-
-    log('access_token: ' + (at ? 'YES' : 'NO'));
-    log('refresh_token: ' + (rt ? 'YES' : 'NO'));
-
-    if (at && rt) {
-      var sessionData = {
-        access_token:  at,
-        refresh_token: rt,
-        expires_in:    3600,
-        expires_at:    Math.floor(Date.now()/1000) + 3600,
-        token_type:    'bearer'
-      };
-      localStorage.setItem('sb-qfbarhxfmzpgbgkaymuk-auth-token', JSON.stringify(sessionData));
-      log('Session stored in localStorage');
-      log('Firing deep link...');
-      window.location.replace('curiositypath://login-callback');
-      log('Deep link fired (you should not see this)');
-    } else {
-      log('ERROR: No tokens found in URL');
-    }
+      if (at && rt) {
+        // Store Supabase session
+        localStorage.setItem('sb-qfbarhxfmzpgbgkaymuk-auth-token', JSON.stringify({
+          access_token:  at,
+          refresh_token: rt,
+          expires_in:    3600,
+          expires_at:    Math.floor(Date.now()/1000) + 3600,
+          token_type:    'bearer'
+        }));
+        // Write a flag the WebView polls for
+        localStorage.setItem('capacitor_oauth_complete', Date.now().toString());
+      }
+      // Close this browser sheet by navigating away from https
+      // The WebView will detect the flag and reload
+      window.close();
+    })();
   </script>
 </body>
 </html>

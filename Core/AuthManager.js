@@ -29,9 +29,9 @@ async function _handleOAuthWithBrowser(provider, queryParams) {
   if (error) throw error;
 
   if (Browser && data?.url) {
+    // Start polling for oauth completion flag BEFORE opening browser
+    if (window.app?._startOAuthPolling) window.app._startOAuthPolling();
     await Browser.open({ url: data.url, windowName: '_self' });
-    // Browser will load /auth/callback.html, store session, then redirect to /
-    // The browserFinished event in ProjectCuriosityApp.init() handles the rest
   }
 }
 
