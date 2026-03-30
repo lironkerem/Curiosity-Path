@@ -25,6 +25,8 @@ async function _handleOAuthWithBrowser(provider, queryParams) {
   if (error) throw error;
 
   if (Browser && data?.url) {
+    // DEBUG: show the OAuth URL so we can verify redirect_to param
+    alert('OAuth URL:\n' + data.url);
     await Browser.open({ url: data.url, windowName: '_self' });
     // Session extraction is handled by appUrlOpen listener in ProjectCuriosityApp.init()
   }
