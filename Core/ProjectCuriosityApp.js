@@ -410,12 +410,25 @@ export default class ProjectCuriosityApp {
         };
 
         if (AppPlugin) {
-          // Register appUrlOpen FIRST — handles case where app is already running
+          // Listen for Browser close — fires when curiositypath:// closes the sheet
+          if (Browser) {
+            Browser.addListener('browserFinished', async () => {
+              // Browser closed — check if Supabase session was set
+              const { data: { session } } = await supabase.auth.getSession();
+              if (session?.user) {
+                if (await this.auth.checkAuth()) {
+                  await this.state.loadData();
+                  await this.state.ready;
+                  if (!this._validateState()) this.state.data = this.state.emptyModel();
+                  await this.initializeApp();
+                }
+              }
+            });
+          }
+
+          // appUrlOpen — fires if Android passes deep link back to activity
           AppPlugin.addListener('appUrlOpen', async (event) => {
-            const url = event?.url || '';
-            alert('appUrlOpen: ' + url.substring(0, 150));
-            const handled = await _handleDeepLink(url);
-            alert('handled=' + handled);
+            const handled = await _handleDeepLink(event?.url || '');
             if (handled) {
               if (await this.auth.checkAuth()) {
                 await this.state.loadData();
@@ -426,15 +439,12 @@ export default class ProjectCuriosityApp {
             }
           });
 
-          // Check getLaunchUrl — handles cold start via deep link
+          // getLaunchUrl — handles cold start via deep link
           try {
             const launchData = await AppPlugin.getLaunchUrl();
-            const launchUrl = launchData?.url || '';
-            alert('getLaunchUrl: ' + launchUrl.substring(0, 120));
-            await _handleDeepLink(launchUrl);
+            await _handleDeepLink(launchData?.url || '');
           } catch (e) {
             console.warn('[App] getLaunchUrl failed (non-fatal):', e);
-            alert('getLaunchUrl error: ' + e.message);
           }
         }
       }
