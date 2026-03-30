@@ -13,6 +13,8 @@ import { supabase } from './Supabase.js';
 // set in time. On web/PWA: standard redirect, no change.
 async function _handleOAuthWithBrowser(provider, queryParams) {
   const isNative = window.Capacitor?.isNativePlatform?.();
+  // DEBUG
+  alert('isNative=' + isNative + ' Plugins=' + JSON.stringify(Object.keys(window.Capacitor?.Plugins || {})));
   const Browser = isNative ? window.Capacitor?.Plugins?.Browser : null;
   const redirectTo = isNative
     ? 'https://digital-curiosity-path.vercel.app'
@@ -25,10 +27,7 @@ async function _handleOAuthWithBrowser(provider, queryParams) {
   if (error) throw error;
 
   if (Browser && data?.url) {
-    // DEBUG: show the OAuth URL so we can verify redirect_to param
-    alert('OAuth URL:\n' + data.url);
     await Browser.open({ url: data.url, windowName: '_self' });
-    // Session extraction is handled by appUrlOpen listener in ProjectCuriosityApp.init()
   }
 }
 
