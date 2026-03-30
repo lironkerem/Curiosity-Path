@@ -6,33 +6,27 @@ import { EMOJI_TO_KEY } from './avatar-icons.js';
 /* global window, document, location, localStorage, alert */
 import { supabase } from './Supabase.js';
 
-// ─── Capacitor Browser helper ─────────────────────────────────────────────────
-// Opens OAuth in an in-app browser sheet on native; falls back to default
-// redirect on web/PWA. Dynamically imported so it never breaks web builds.
-async function _getCapacitorBrowser() {
-  try {
-    if (window.Capacitor?.isNativePlatform?.()) {
-      const mod = await import('@capacitor/browser');
-      return mod.Browser;
-    }
-  } catch { /* not native or plugin missing */ }
-  return null;
-}
-
+// ─── Capacitor OAuth helper ───────────────────────────────────────────────────
+// Uses window.Capacitor.Plugins.Browser (no bundler needed).
+// Falls back to standard redirect on web/PWA.
 async function _handleOAuthWithBrowser(provider, queryParams) {
-  const Browser = await _getCapacitorBrowser();
-  const redirectTo = Browser
+  const isNative = window.Capacitor?.isNativePlatform?.();
+  const Browser = isNative ? window.Capacitor?.Plugins?.Browser : null;
+  const redirectTo = isNative
     ? 'https://digital-curiosity-path.vercel.app'
     : window.location.origin;
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
-    options: { redirectTo, queryParams, skipBrowserRedirect: !!Browser }
+    options: {
+      redirectTo,
+      queryParams,
+      skipBrowserRedirect: !!Browser
+    }
   });
   if (error) throw error;
 
   if (Browser && data?.url) {
-    // Listen for session — close browser sheet once Supabase sets the session
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_IN') {
         subscription.unsubscribe();
