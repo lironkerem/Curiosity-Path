@@ -392,18 +392,23 @@ export default class ProjectCuriosityApp {
       // When Android opens the app via curiositypath://login-callback, the app
       // cold-starts. getLaunchUrl() reads the URL synchronously before checkAuth().
       if (window.Capacitor?.isNativePlatform?.()) {
-        const Browser = window.Capacitor?.Plugins?.Browser;
+        const AppPlugin = window.Capacitor?.Plugins?.App;
+        const Browser   = window.Capacitor?.Plugins?.Browser;
 
-        // When the in-app browser closes after /auth/callback.html,
-        // the session is already stored in localStorage by the callback page.
-        // We just need to re-check auth and load the app.
-        if (Browser) {
-          Browser.addListener('browserFinished', async () => {
-            if (await this.auth.checkAuth()) {
-              await this.state.loadData();
-              await this.state.ready;
-              if (!this._validateState()) this.state.data = this.state.emptyModel();
-              await this.initializeApp();
+        if (AppPlugin) {
+          // callback.html stores session in localStorage then fires curiositypath://login-callback
+          // Android intercepts it, closes the browser sheet, fires appUrlOpen here
+          AppPlugin.addListener('appUrlOpen', async (event) => {
+            const url = event?.url || '';
+            if (url.startsWith('curiositypath://')) {
+              if (Browser) await Browser.close().catch(() => {});
+              // Session already in localStorage — just check auth and load
+              if (await this.auth.checkAuth()) {
+                await this.state.loadData();
+                await this.state.ready;
+                if (!this._validateState()) this.state.data = this.state.emptyModel();
+                await this.initializeApp();
+              }
             }
           });
         }
