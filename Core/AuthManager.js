@@ -13,11 +13,9 @@ import { supabase } from './Supabase.js';
 // set in time. On web/PWA: standard redirect, no change.
 async function _handleOAuthWithBrowser(provider, queryParams) {
   const isNative = window.Capacitor?.isNativePlatform?.();
-  // DEBUG
-  alert('isNative=' + isNative + ' Plugins=' + JSON.stringify(Object.keys(window.Capacitor?.Plugins || {})));
   const Browser = isNative ? window.Capacitor?.Plugins?.Browser : null;
   const redirectTo = isNative
-    ? 'https://digital-curiosity-path.vercel.app'
+    ? 'curiositypath://login-callback'
     : window.location.origin;
 
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -25,6 +23,8 @@ async function _handleOAuthWithBrowser(provider, queryParams) {
     options: { redirectTo, queryParams, skipBrowserRedirect: !!Browser }
   });
   if (error) throw error;
+
+  alert('Browser=' + !!Browser + ' url=' + (data?.url ? data.url.substring(0,100) : 'none'));
 
   if (Browser && data?.url) {
     await Browser.open({ url: data.url, windowName: '_self' });
