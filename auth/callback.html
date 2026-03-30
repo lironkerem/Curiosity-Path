@@ -30,7 +30,7 @@
 <body>
   <div>
     <div class="spinner"></div>
-    <p>Signing you in…</p>
+    <p id="status">Signing you in…</p>
   </div>
 
   <script type="module">
@@ -42,19 +42,36 @@
       { auth: { detectSessionInUrl: true, persistSession: true, storage: window.localStorage } }
     );
 
-    // Supabase detects the tokens in the URL hash and stores the session
-    const { data: { session }, error } = await supabase.auth.getSession();
+    async function handleCallback() {
+      // Parse tokens from URL hash e.g. #access_token=...&refresh_token=...
+      const hash   = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      const accessToken  = params.get('access_token');
+      const refreshToken = params.get('refresh_token');
 
-    if (session) {
-      // Session stored — redirect back to app
-      window.location.replace('/');
-    } else if (error) {
-      console.error('Auth callback error:', error);
-      window.location.replace('/');
-    } else {
-      // Give Supabase a moment to process the URL hash tokens
-      setTimeout(() => window.location.replace('/'), 1500);
+      if (accessToken && refreshToken) {
+        const { error } = await supabase.auth.setSession({
+          access_token:  accessToken,
+          refresh_token: refreshToken
+        });
+        if (error) {
+          document.getElementById('status').textContent = 'Error: ' + error.message;
+          setTimeout(() => window.location.replace('/'), 3000);
+          return;
+        }
+        window.location.replace('/');
+      } else {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          window.location.replace('/');
+        } else {
+          document.getElementById('status').textContent = 'No session found. Redirecting…';
+          setTimeout(() => window.location.replace('/'), 2000);
+        }
+      }
     }
+
+    handleCallback();
   </script>
 </body>
 </html>
