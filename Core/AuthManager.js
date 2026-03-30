@@ -6,14 +6,14 @@ import { EMOJI_TO_KEY } from './avatar-icons.js';
 /* global window, document, location, localStorage, alert */
 import { supabase } from './Supabase.js';
 
-// ─── Capacitor OAuth helper (deep link approach) ──────────────────────────────
-// On native: opens OAuth in in-app browser, redirects back via curiositypath://
-// On web/PWA: standard redirect, no change.
+// ─── Capacitor OAuth helper ───────────────────────────────────────────────────
+// Opens Google OAuth in an in-app browser sheet on native.
+// The deep link callback (curiositypath://login-callback) is handled in
+// ProjectCuriosityApp.init() BEFORE checkAuth() runs, so the session is
+// set in time. On web/PWA: standard redirect, no change.
 async function _handleOAuthWithBrowser(provider, queryParams) {
   const isNative = window.Capacitor?.isNativePlatform?.();
   const Browser = isNative ? window.Capacitor?.Plugins?.Browser : null;
-
-  // Deep link redirect URI — must match Supabase + Google Cloud Console
   const redirectTo = isNative
     ? 'https://digital-curiosity-path.vercel.app'
     : window.location.origin;
@@ -25,30 +25,8 @@ async function _handleOAuthWithBrowser(provider, queryParams) {
   if (error) throw error;
 
   if (Browser && data?.url) {
-    // Append our deep link as the final redirect after Supabase callback
-    const oauthUrl = new URL(data.url);
-    oauthUrl.searchParams.set('redirect_to', 'curiositypath://login-callback');
-    await Browser.open({ url: oauthUrl.toString(), windowName: '_self' });
-
-    // Listen for app resume — Android fires this when deep link reopens the app
-    const AppPlugin = window.Capacitor?.Plugins?.App;
-    if (AppPlugin) {
-      const handler = await AppPlugin.addListener('appUrlOpen', async (event) => {
-        handler.remove();
-        await Browser.close();
-        // Extract tokens from the URL fragment and set session
-        const url = event.url;
-        const hashParams = new URLSearchParams(url.split('#')[1] || url.split('?')[1] || '');
-        const accessToken = hashParams.get('access_token');
-        const refreshToken = hashParams.get('refresh_token');
-        if (accessToken && refreshToken) {
-          await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
-        } else {
-          // Fallback: try getting session directly
-          await supabase.auth.getSession();
-        }
-      });
-    }
+    await Browser.open({ url: data.url, windowName: '_self' });
+    // Session extraction is handled by appUrlOpen listener in ProjectCuriosityApp.init()
   }
 }
 

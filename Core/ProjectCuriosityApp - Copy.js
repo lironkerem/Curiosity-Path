@@ -388,34 +388,6 @@ export default class ProjectCuriosityApp {
 
   async init() {
     try {
-      // ── Capacitor deep link handler ──────────────────────────────────────────
-      // Must run BEFORE checkAuth() so OAuth callback tokens are set in time.
-      // On web/PWA this block is skipped entirely.
-      if (window.Capacitor?.isNativePlatform?.()) {
-        const AppPlugin = window.Capacitor?.Plugins?.App;
-        const Browser   = window.Capacitor?.Plugins?.Browser;
-        if (AppPlugin) {
-          await new Promise((resolve) => {
-            // If app was opened via deep link, handle it immediately
-            const handler = AppPlugin.addListener('appUrlOpen', async (event) => {
-              (await handler).remove();
-              if (Browser) await Browser.close().catch(() => {});
-              const url = event.url || '';
-              const fragment = url.split('#')[1] || url.split('?')[1] || '';
-              const params = new URLSearchParams(fragment);
-              const accessToken  = params.get('access_token');
-              const refreshToken = params.get('refresh_token');
-              if (accessToken && refreshToken) {
-                await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
-              }
-              resolve();
-            });
-            // If no deep link fires within 1.5s, proceed normally
-            setTimeout(resolve, 1500);
-          });
-        }
-      }
-
       if (!(await this.auth.checkAuth())) {
         return this.auth.renderAuthScreen();
       }
