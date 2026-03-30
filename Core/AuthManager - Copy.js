@@ -276,16 +276,14 @@ export default class AuthManager {
   async handleGoogleLogin() {
     if (this._isAccountLocked()) return;
     try {
-      const redirectTo = window.Capacitor?.isNativePlatform?.() ? 'https://digital-curiosity-path.vercel.app' : window.location.origin;
-      const { error } = await supabase.auth.signInWithOAuth({provider:'google',options:{redirectTo,queryParams:{access_type:'offline',prompt:'consent'}}});
+      const { error } = await supabase.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin,queryParams:{access_type:'offline',prompt:'consent'}}});
       if (error) throw error;
     } catch (error) { console.error('Google login error:', error); this.showError(document.querySelector('.btn-google'), 'Failed to sign in with Google'); }
   }
 
   async handleGoogleSignup() {
     try {
-      const redirectTo = window.Capacitor?.isNativePlatform?.() ? 'https://digital-curiosity-path.vercel.app' : window.location.origin;
-      const { error } = await supabase.auth.signInWithOAuth({provider:'google',options:{redirectTo,queryParams:{access_type:'offline',prompt:'consent'}}});
+      const { error } = await supabase.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin,queryParams:{access_type:'offline',prompt:'consent'}}});
       if (error) throw error;
     } catch (error) { console.error('Google signup error:', error); alert('Failed to sign up with Google: ' + error.message); }
   }
