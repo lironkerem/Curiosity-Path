@@ -5,10 +5,15 @@ import { EMOJI_TO_KEY } from './avatar-icons.js';
  */
 /* global window, document, location, localStorage, alert */
 import { supabase } from './Supabase.js';
-// ─── Capacitor OAuth helper ───────────────────────────────────────────────────
+
+// ─── Capacitor OAuth helper (deep link approach) ──────────────────────────────
+// On native: opens OAuth in in-app browser, redirects back via curiositypath://
+// On web/PWA: standard redirect, no change.
 async function _handleOAuthWithBrowser(provider, queryParams) {
   const isNative = window.Capacitor?.isNativePlatform?.();
   const Browser = isNative ? window.Capacitor?.Plugins?.Browser : null;
+
+  // Deep link redirect URI — must match Supabase + Google Cloud Console
   const redirectTo = isNative
     ? 'https://digital-curiosity-path.vercel.app'
     : window.location.origin;
@@ -20,23 +25,33 @@ async function _handleOAuthWithBrowser(provider, queryParams) {
   if (error) throw error;
 
   if (Browser && data?.url) {
-    await Browser.open({ url: data.url, windowName: '_self' });
+    // Append our deep link as the final redirect after Supabase callback
+    const oauthUrl = new URL(data.url);
+    oauthUrl.searchParams.set('redirect_to', 'curiositypath://login-callback');
+    await Browser.open({ url: oauthUrl.toString(), windowName: '_self' });
 
-    // Poll for session — browser sheet sets it on Supabase,
-    // we detect it from within the WebView.
-    await new Promise((resolve) => {
-      const interval = setInterval(async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          clearInterval(interval);
-          await Browser.close();
-          resolve();
+    // Listen for app resume — Android fires this when deep link reopens the app
+    const AppPlugin = window.Capacitor?.Plugins?.App;
+    if (AppPlugin) {
+      const handler = await AppPlugin.addListener('appUrlOpen', async (event) => {
+        handler.remove();
+        await Browser.close();
+        // Extract tokens from the URL fragment and set session
+        const url = event.url;
+        const hashParams = new URLSearchParams(url.split('#')[1] || url.split('?')[1] || '');
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+        if (accessToken && refreshToken) {
+          await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+        } else {
+          // Fallback: try getting session directly
+          await supabase.auth.getSession();
         }
-      }, 1000);
-      setTimeout(() => { clearInterval(interval); resolve(); }, 180000);
-    });
+      });
+    }
   }
 }
+
 
 const CONFIG = {MAX_FAILED_ATTEMPTS:5,LOCKOUT_TIME:900000,PASSWORD_MIN_LENGTH:6,PASSWORD_DEBOUNCE:300,TOAST_DURATION:3000,REDIRECT_DELAY:2000};
 const STORAGE_KEYS = {
