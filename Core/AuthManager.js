@@ -5,10 +5,7 @@ import { EMOJI_TO_KEY } from './avatar-icons.js';
  */
 /* global window, document, location, localStorage, alert */
 import { supabase } from './Supabase.js';
-
 // ─── Capacitor OAuth helper ───────────────────────────────────────────────────
-// Uses window.Capacitor.Plugins.Browser (no bundler needed).
-// Falls back to standard redirect on web/PWA.
 async function _handleOAuthWithBrowser(provider, queryParams) {
   const isNative = window.Capacitor?.isNativePlatform?.();
   const Browser = isNative ? window.Capacitor?.Plugins?.Browser : null;
@@ -18,22 +15,26 @@ async function _handleOAuthWithBrowser(provider, queryParams) {
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
-    options: {
-      redirectTo,
-      queryParams,
-      skipBrowserRedirect: !!Browser
-    }
+    options: { redirectTo, queryParams, skipBrowserRedirect: !!Browser }
   });
   if (error) throw error;
 
   if (Browser && data?.url) {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN') {
-        subscription.unsubscribe();
-        Browser.close();
-      }
-    });
     await Browser.open({ url: data.url, windowName: '_self' });
+
+    // Poll for session — browser sheet sets it on Supabase,
+    // we detect it from within the WebView.
+    await new Promise((resolve) => {
+      const interval = setInterval(async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          clearInterval(interval);
+          await Browser.close();
+          resolve();
+        }
+      }, 1000);
+      setTimeout(() => { clearInterval(interval); resolve(); }, 180000);
+    });
   }
 }
 
