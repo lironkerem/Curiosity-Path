@@ -6,36 +6,6 @@ import { EMOJI_TO_KEY } from './avatar-icons.js';
 /* global window, document, location, localStorage, alert */
 import { supabase } from './Supabase.js';
 
-// ─── Capacitor OAuth helper ───────────────────────────────────────────────────
-// Opens Google OAuth in an in-app browser sheet on native.
-// The deep link callback (curiositypath://login-callback) is handled in
-// ProjectCuriosityApp.init() BEFORE checkAuth() runs, so the session is
-// set in time. On web/PWA: standard redirect, no change.
-async function _handleOAuthWithBrowser(provider, queryParams) {
-  const isNative = window.Capacitor?.isNativePlatform?.();
-  const Browser = isNative ? window.Capacitor?.Plugins?.Browser : null;
-
-  // On native: redirect to /auth/callback.html which stores the session
-  // then redirects back to / — WebView picks up the session on reload.
-  // On web/PWA: standard redirect to origin, no change.
-  const redirectTo = isNative
-    ? 'https://digital-curiosity-path.vercel.app/auth/callback.html'
-    : window.location.origin;
-
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider,
-    options: { redirectTo, queryParams, skipBrowserRedirect: !!Browser }
-  });
-  if (error) throw error;
-
-  if (Browser && data?.url) {
-    // Start polling for oauth completion flag BEFORE opening browser
-    if (window.app?._startOAuthPolling) window.app._startOAuthPolling();
-    await Browser.open({ url: data.url, windowName: '_self' });
-  }
-}
-
-
 const CONFIG = {MAX_FAILED_ATTEMPTS:5,LOCKOUT_TIME:900000,PASSWORD_MIN_LENGTH:6,PASSWORD_DEBOUNCE:300,TOAST_DURATION:3000,REDIRECT_DELAY:2000};
 const STORAGE_KEYS = {
   USER: 'pc_user',
@@ -306,13 +276,15 @@ export default class AuthManager {
   async handleGoogleLogin() {
     if (this._isAccountLocked()) return;
     try {
-      await _handleOAuthWithBrowser('google', { access_type: 'offline', prompt: 'consent' });
+      const { error } = await supabase.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin,queryParams:{access_type:'offline',prompt:'consent'}}});
+      if (error) throw error;
     } catch (error) { console.error('Google login error:', error); this.showError(document.querySelector('.btn-google'), 'Failed to sign in with Google'); }
   }
 
   async handleGoogleSignup() {
     try {
-      await _handleOAuthWithBrowser('google', { access_type: 'offline', prompt: 'consent' });
+      const { error } = await supabase.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin,queryParams:{access_type:'offline',prompt:'consent'}}});
+      if (error) throw error;
     } catch (error) { console.error('Google signup error:', error); alert('Failed to sign up with Google: ' + error.message); }
   }
 

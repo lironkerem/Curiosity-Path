@@ -388,37 +388,6 @@ export default class ProjectCuriosityApp {
 
   async init() {
     try {
-      // ── Capacitor deep link: handle OAuth callback on cold start ─────────────
-      // When Android opens the app via curiositypath://login-callback, the app
-      // cold-starts. getLaunchUrl() reads the URL synchronously before checkAuth().
-      if (window.Capacitor?.isNativePlatform?.()) {
-        const Browser = window.Capacitor?.Plugins?.Browser;
-
-        // Expose a method so AuthManager can start polling after browser opens
-        this._startOAuthPolling = () => {
-          // Clear any old flag first
-          localStorage.removeItem('capacitor_oauth_complete');
-
-          const interval = setInterval(async () => {
-            const flag = localStorage.getItem('capacitor_oauth_complete');
-            if (flag) {
-              clearInterval(interval);
-              localStorage.removeItem('capacitor_oauth_complete');
-              if (Browser) await Browser.close().catch(() => {});
-              if (await this.auth.checkAuth()) {
-                await this.state.loadData();
-                await this.state.ready;
-                if (!this._validateState()) this.state.data = this.state.emptyModel();
-                await this.initializeApp();
-              }
-            }
-          }, 500);
-
-          // Stop polling after 3 minutes
-          setTimeout(() => clearInterval(interval), 180000);
-        };
-      }
-
       if (!(await this.auth.checkAuth())) {
         return this.auth.renderAuthScreen();
       }
