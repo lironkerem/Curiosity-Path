@@ -89,17 +89,6 @@ const CollectiveField = {
             container.innerHTML = this._buildHTML();
             this.state.isRendered = true;
 
-            // Prevent mobile text-selection / context menu on hold buttons
-            ['pulseBtn', 'waveBtn'].forEach(id => {
-                const btn = document.getElementById(id);
-                if (!btn) return;
-                btn.addEventListener('contextmenu', e => e.preventDefault());
-                btn.addEventListener('touchstart', e => {
-                    e.preventDefault();
-                    CollectiveField.handleHoldStart();
-                }, { passive: false });
-            });
-
             this._lastSentRefreshInterval = setInterval(() => {
                 const el = document.getElementById('lastSentLabel');
                 if (el) el.textContent = this._getLastSentLabel();
@@ -177,6 +166,7 @@ const CollectiveField = {
 
                 <button type="button" class="collective-action-btn" id="pulseBtn"
                         onmousedown="CollectiveField.handleHoldStart()"
+                        ontouchstart="CollectiveField.handleHoldStart()"
                         onmouseup="CollectiveField.handleHoldEnd()"
                         ontouchend="CollectiveField.handleHoldEnd()"
                         onmouseleave="CollectiveField.handleHoldCancel()"

@@ -1885,9 +1885,6 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     justify-content: center;
     gap: 10px;
     color: var(--text);
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
 }
 
 .collective-action-btn svg {
