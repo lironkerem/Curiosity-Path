@@ -31,7 +31,6 @@ const WhisperModal = {
         threadPartnerId:   null,
         threadPartnerName: null,
         realtimeSub:       null,
-        bgSub:             null,    // persistent background subscription for badge updates
     },
 
     // ============================================================================
@@ -131,13 +130,6 @@ const WhisperModal = {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && this.state.isOpen) this.close();
         });
-
-        // Start background badge listener — retries until CommunityDB is ready
-        const tryBg = () => {
-            if (CommunityDB?.ready) { this.startBackgroundListener(); }
-            else setTimeout(tryBg, 500);
-        };
-        tryBg();
     },
 
     // ============================================================================
@@ -434,23 +426,6 @@ const WhisperModal = {
         if (!badge) return;
         badge.textContent   = count > 99 ? '99+' : count;
         badge.style.display = count > 0 ? 'inline-flex' : 'none';
-    },
-
-    // Persistent background listener — keeps badge updated even when modal is closed.
-    // Called once after CommunityDB is ready (from init or externally).
-    startBackgroundListener() {
-        if (this.state.bgSub) return; // already running
-        if (!CommunityDB?.ready) return;
-
-        // Seed the badge immediately on startup
-        this.refreshUnreadBadge().catch(() => {});
-
-        this.state.bgSub = CommunityDB.subscribeToWhispers((whisper) => {
-            // If modal is open and in the relevant thread, let _subscribeRealtime handle it
-            if (this.state.isOpen && this.state.view === 'thread' && whisper.sender_id === this.state.threadPartnerId) return;
-            // Otherwise update the badge
-            this.refreshUnreadBadge().catch(() => {});
-        });
     },
 
     // ============================================================================

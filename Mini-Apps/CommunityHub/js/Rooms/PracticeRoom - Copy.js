@@ -426,12 +426,12 @@ class PracticeRoom {
             }, 3000);
         }
 
-        const blessData = await CommunityDB.blessRoom(this.roomId);
+        await CommunityDB.blessRoom(this.roomId);
         Core.showToast('Blessing sent');
 
-        // Show animation for the button presser; room subscribers get it via _subscribeToBlessings
-        this._showBlessingAnimation(blessData?.profiles ? { name: blessData.profiles.name } : null);
+        this._showBlessingAnimation();
         this._refreshBlessingCounter();
+        this._updateCardBlessingBadge(0); // will be refreshed with real count by _refreshBlessingCounter
     }
 
     async _loadBlessingCount() {

@@ -592,34 +592,41 @@ const CommunityDB = {
             .select('user_id, created_at, profiles ( name, avatar_url, emoji )')
             .single();
         if (error) { this._err('blessRoom', error); return null; }
+
+        const key = `bless-${roomId}`;
+        const payload = {
+            roomId,
+            userId:    this._uid,
+            name:      data?.profiles?.name       || 'A member',
+            avatarUrl: data?.profiles?.avatar_url || '',
+            emoji:     data?.profiles?.emoji      || '',
+        };
+
+        try {
+            if (this._subs[key]) {
+                await this._subs[key].send({ type: 'broadcast', event: 'blessing', payload });
+            } else {
+                await new Promise(resolve => {
+                    const ch = this._sb.channel(key).subscribe(status => {
+                        if (status === 'SUBSCRIBED') {
+                            ch.send({ type: 'broadcast', event: 'blessing', payload })
+                                .finally(() => { ch.unsubscribe(); resolve(); });
+                        }
+                    });
+                });
+            }
+        } catch (e) {
+            console.warn('[CommunityDB] blessRoom broadcast failed (non-fatal):', e);
+        }
+
         return data;
     },
 
     subscribeToBlessings(roomId, callback) {
         const key = `bless-${roomId}`;
         if (this._subs[key]) this._subs[key].unsubscribe();
-        this._subs[key] = this._sb
-            .channel(key)
-            .on('postgres_changes', {
-                event:  'INSERT',
-                schema: 'public',
-                table:  'room_blessings',
-                filter: `room_id=eq.${roomId}`,
-            }, async ({ new: row }) => {
-                // Fetch profile of the blesser to pass to callback
-                const { data } = await this._sb
-                    .from('profiles')
-                    .select('name, avatar_url, emoji')
-                    .eq('id', row.user_id)
-                    .single();
-                callback({
-                    roomId,
-                    userId:    row.user_id,
-                    name:      data?.name       || 'A member',
-                    avatarUrl: data?.avatar_url || '',
-                    emoji:     data?.emoji      || '',
-                });
-            })
+        this._subs[key] = this._sb.channel(key)
+            .on('broadcast', { event: 'blessing' }, ({ payload }) => callback(payload))
             .subscribe();
         return this._subs[key];
     },
