@@ -54,15 +54,6 @@ export default class UserTab {
         </button>
 
         <div class="user-dropdown" id="user-dropdown" role="menu">
-          ${typeof window !== 'undefined' && window._pwaInstallPrompt ? `
-          <button class="btn-install-pwa" id="pwa-install-menu-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            Install App
-          </button>` : ''}
           ${Templates.MENU_ITEMS.map(item =>
             `<button class="dropdown-item" data-section="${item.id}">${item.icon} ${item.label}</button>
              <div class="accordion-panel" id="panel-${item.id}"></div>`
@@ -123,33 +114,13 @@ export default class UserTab {
     this.dropdown.addEventListener('click', (e) => {
       const sectionBtn = e.target.closest('.dropdown-item[data-section]');
       const actionBtn = e.target.closest('.dropdown-item[data-action]');
-      const installBtn = e.target.closest('#pwa-install-menu-btn');
-
-      if (installBtn) {
-        this.handlePwaInstall();
-      } else if (sectionBtn) {
+      
+      if (sectionBtn) {
         this.handleSectionClick(sectionBtn.dataset.section);
       } else if (actionBtn?.dataset.action === 'logout') {
         this.handleLogout();
       }
     });
-  }
-
-  /** Trigger PWA install prompt */
-  async handlePwaInstall() {
-    if (!window._pwaInstallPrompt) return;
-    try {
-      window._pwaInstallPrompt.prompt();
-      const { outcome } = await window._pwaInstallPrompt.userChoice;
-      if (outcome === 'accepted') {
-        window._pwaInstallPrompt = null;
-        document.getElementById('pwa-install-menu-btn')?.remove();
-        this.app?.showToast('App installed successfully! 🎉', 'success');
-      }
-    } catch (err) {
-      console.error('[PWA] Install prompt error:', err);
-    }
-    this.toggleDropdown(false);
   }
 
   /** Attach handlers to user menu button */

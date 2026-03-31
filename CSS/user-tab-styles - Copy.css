@@ -379,44 +379,6 @@
   background: rgba(102, 126, 234, .08);
 }
 
-/* ========== PWA INSTALL BUTTON ========== */
-.btn-install-pwa {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: calc(100% - 16px);
-  margin: 8px 8px 4px;
-  padding: 10px 14px;
-  background: var(--neuro-accent);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-sm, 12px);
-  font-size: .875rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow:
-    4px 4px 8px var(--neuro-shadow-dark),
-    -2px -2px 6px var(--neuro-shadow-light);
-  transition: opacity var(--transition-fast), transform var(--transition-fast);
-  touch-action: manipulation;
-}
-
-.btn-install-pwa .lucide-icon {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  stroke: #fff;
-}
-
-.btn-install-pwa:hover {
-  opacity: .9;
-}
-
-.btn-install-pwa:active {
-  transform: scale(0.97);
-  opacity: .85;
-}
-
 /* ========== NOTIFICATION SECTIONS ========== */
 .automation-group,
 .notification-section {
