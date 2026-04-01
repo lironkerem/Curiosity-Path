@@ -261,7 +261,7 @@ const SolarEngine = {
 
     const arc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     arc.setAttribute('d', `M ${cx - R} ${baseY} Q ${cx} ${arcTop} ${cx + R} ${baseY}`);
-    arc.setAttribute('stroke', 'var(--season-accent, #f59e0b)');
+    arc.setAttribute('stroke', 'var(--season-accent)');
     arc.setAttribute('stroke-width', '3');
     arc.setAttribute('fill', 'none');
     arc.setAttribute('opacity', '0.6');

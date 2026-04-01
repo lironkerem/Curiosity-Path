@@ -678,6 +678,8 @@ class PracticeRoom {
             roomCard.style.opacity = isVisuallyOpen ? '1' : '0.55';
             roomCard.style.border  = `3px solid ${isVisuallyOpen ? '#22c55e' : '#ef4444'}`;
             roomCard.onclick       = canEnter ? () => this.enterRoom() : null;
+            roomCard.classList.toggle('active',     isVisuallyOpen);
+            roomCard.classList.toggle('in-session', !isVisuallyOpen);
 
             let overlay = roomCard.querySelector('.in-session-label');
             if (!isVisuallyOpen && !overlay) {
