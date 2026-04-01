@@ -248,60 +248,119 @@ const SolarEngine = {
 
   updateSolarVisualization() {
     if (!this.currentSolarData) return;
-    this.drawSolarArc(this.currentSolarData.declination);
+    this.drawWheelOfYear(this.currentSolarData);
   },
 
-  drawSolarArc(declination) {
+  drawWheelOfYear(data) {
     const svg = document.getElementById('solarSvg');
     if (!svg) return;
 
-    const W = 280, H = 180, R = 100;
-    const cx = W / 2, baseY = H - 30, arcTop = baseY - R;
+    // Square viewBox — scales responsively via CSS width:100%
+    const S = 280, cx = 140, cy = 140, R = 110, Ri = 52;
+    svg.setAttribute('viewBox', `0 0 ${S} ${S}`);
+    svg.setAttribute('width',  '100%');
+    svg.setAttribute('height', 'auto');
     svg.innerHTML = '';
 
-    const arc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    arc.setAttribute('d', `M ${cx - R} ${baseY} Q ${cx} ${arcTop} ${cx + R} ${baseY}`);
-    arc.setAttribute('stroke', 'var(--season-accent, #f59e0b)');
-    arc.setAttribute('stroke-width', '3');
-    arc.setAttribute('fill', 'none');
-    arc.setAttribute('opacity', '0.6');
-    svg.appendChild(arc);
+    const ns = 'http://www.w3.org/2000/svg';
+    const el = (tag, attrs) => {
+      const e = document.createElementNS(ns, tag);
+      Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v));
+      return e;
+    };
 
-    this.addSeasonLabel(svg, cx - R, baseY, '🍂', 'Autumn');
-    this.addSeasonLabel(svg, cx, arcTop - 10, '☀️', 'Summer');
-    this.addSeasonLabel(svg, cx + R, baseY, '🌱', 'Spring');
-    this.addSeasonLabel(svg, cx, baseY + 25, '❄️', 'Winter');
+    // Clip segments to circle
+    const defs = el('defs', {});
+    const clip = el('clipPath', { id: 'woyClip' });
+    clip.appendChild(el('circle', { cx, cy, r: R - 1 }));
+    defs.appendChild(clip);
+    svg.appendChild(defs);
 
-    const t = Math.PI * (declination + 23.44) / 46.88;
-    const sx = cx - R * Math.cos(t);
-    const sy = baseY - R * Math.sin(t);
+    // Quadrants clockwise from top:
+    // Top-right = Spring, Bottom-right = Summer, Bottom-left = Autumn, Top-left = Winter
+    const segs = [
+      { d: `M${cx},${cy} L${cx},${cy-R} L${cx+R},${cy-R} L${cx+R},${cy} Z`, fill: '#C0DD97' },
+      { d: `M${cx},${cy} L${cx+R},${cy} L${cx+R},${cy+R} L${cx},${cy+R} Z`, fill: '#FAC775' },
+      { d: `M${cx},${cy} L${cx},${cy+R} L${cx-R},${cy+R} L${cx-R},${cy} Z`, fill: '#F0957B' },
+      { d: `M${cx},${cy} L${cx-R},${cy} L${cx-R},${cy-R} L${cx},${cy-R} Z`, fill: '#B5D4F4' },
+    ];
+    const segG = el('g', { 'clip-path': 'url(#woyClip)' });
+    segs.forEach(({ d, fill }) => segG.appendChild(el('path', { d, fill, opacity: '0.45', stroke: 'none' })));
+    svg.appendChild(segG);
 
-    const sun = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    sun.setAttribute('cx', sx); sun.setAttribute('cy', sy);
-    sun.setAttribute('r', '12'); sun.setAttribute('fill', '#fbbf24');
-    sun.setAttribute('stroke', '#f59e0b'); sun.setAttribute('stroke-width', '2');
-    svg.appendChild(sun);
+    // Circles
+    svg.appendChild(el('circle', { cx, cy, r: R,  fill: 'none', stroke: 'var(--neuro-shadow-light)', 'stroke-width': '1.5' }));
+    svg.appendChild(el('circle', { cx, cy, r: Ri, fill: 'none', stroke: 'var(--neuro-shadow-light)', 'stroke-width': '1', 'stroke-dasharray': '3 3', opacity: '0.6' }));
+
+    // H/V dividers
+    svg.appendChild(el('line', { x1: cx-R, y1: cy,   x2: cx+R, y2: cy,   stroke: 'var(--neuro-shadow-light)', 'stroke-width': '0.8' }));
+    svg.appendChild(el('line', { x1: cx,   y1: cy-R, x2: cx,   y2: cy+R, stroke: 'var(--neuro-shadow-light)', 'stroke-width': '0.8' }));
+
+    // Season labels
+    const addLabel = (x, y, name, months, nc, mc) => {
+      const t1 = el('text', { x, y,      'text-anchor': 'middle', fill: nc, 'font-size': '9',   'font-weight': '600' });
+      t1.textContent = name;
+      svg.appendChild(t1);
+      const t2 = el('text', { x, y: y+11, 'text-anchor': 'middle', fill: mc, 'font-size': '7.5' });
+      t2.textContent = months;
+      svg.appendChild(t2);
+    };
+    addLabel(cx+55, cy-40, 'Spring', 'Mar · Apr · May', '#3B6D11', '#639922');
+    addLabel(cx+55, cy+52, 'Summer', 'Jun · Jul · Aug',  '#854F0B', '#BA7517');
+    addLabel(cx-55, cy+52, 'Autumn', 'Sep · Oct · Nov',  '#993C1D', '#D85A30');
+    addLabel(cx-55, cy-40, 'Winter', 'Dec · Jan · Feb',  '#185FA5', '#378ADD');
+
+    // Cardinal emojis
+    const addEmoji = (x, y, emoji) => {
+      const t = el('text', { x, y, 'text-anchor': 'middle', 'font-size': '11' });
+      t.textContent = emoji;
+      svg.appendChild(t);
+    };
+    addEmoji(cx,     cy-R+8,  '🌱');
+    addEmoji(cx+R-6, cy+4,    '☀️');
+    addEmoji(cx,     cy+R-2,  '🍂');
+    addEmoji(cx-R+6, cy+4,    '❄️');
+
+    // Tick marks
+    [[cx,cy-R,cx,cy-R+8],[cx+R,cy,cx+R-8,cy],[cx,cy+R,cx,cy+R-8],[cx-R,cy,cx-R+8,cy]]
+      .forEach(([x1,y1,x2,y2]) =>
+        svg.appendChild(el('line', { x1, y1, x2, y2, stroke: 'var(--neuro-text)', 'stroke-width': '1.5', 'stroke-linecap': 'round' }))
+      );
+
+    // Live sun position — clockwise from top (Spring Equinox = day ~79)
+    const now       = new Date();
+    const dayOfYear = this.getDayOfYear(now);
+    const angleRad  = (-Math.PI / 2) + (dayOfYear / 365) * 2 * Math.PI;
+    const sx        = cx + R * Math.cos(angleRad);
+    const sy        = cy + R * Math.sin(angleRad);
 
     for (let i = 0; i < 8; i++) {
-      const a   = i * Math.PI / 4;
-      const ray = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      ray.setAttribute('x1', sx + Math.cos(a) * 15);
-      ray.setAttribute('y1', sy + Math.sin(a) * 15);
-      ray.setAttribute('x2', sx + Math.cos(a) * 23);
-      ray.setAttribute('y2', sy + Math.sin(a) * 23);
-      ray.setAttribute('stroke', '#fbbf24'); ray.setAttribute('stroke-width', '2');
-      svg.appendChild(ray);
+      const a = i * Math.PI / 4;
+      svg.appendChild(el('line', {
+        x1: sx + Math.cos(a) * 10, y1: sy + Math.sin(a) * 10,
+        x2: sx + Math.cos(a) * 15, y2: sy + Math.sin(a) * 15,
+        stroke: '#EF9F27', 'stroke-width': '1.5', 'stroke-linecap': 'round',
+      }));
     }
-  },
+    svg.appendChild(el('circle', { cx: sx, cy: sy, r: '8',   fill: '#EF9F27', stroke: '#BA7517', 'stroke-width': '1.2' }));
+    svg.appendChild(el('circle', { cx: sx, cy: sy, r: '3.5', fill: '#FCDE5A', opacity: '0.9' }));
 
-  addSeasonLabel(svg, x, y, emoji, text) {
-    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    label.setAttribute('x', x); label.setAttribute('y', y);
-    label.setAttribute('text-anchor', 'middle');
-    label.setAttribute('fill', 'var(--text-muted)');
-    label.setAttribute('font-size', '12'); label.setAttribute('font-weight', '600');
-    label.textContent = `${emoji} ${text}`;
-    svg.appendChild(label);
+    // Center text
+    const { nextSeasonName, daysToNextSeason } = data;
+    const dateStr       = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const currentSeason = this.getCurrentSeason();
+    const seasonCap     = currentSeason.charAt(0).toUpperCase() + currentSeason.slice(1);
+    const sStart        = this.getSeasonDates(now.getFullYear())[currentSeason]?.start || now;
+    const daysIn        = Math.max(1, Math.floor((now - sStart) / 86_400_000) + 1);
+
+    const addCenter = (text, y, size, weight, fill) => {
+      const t = el('text', { x: cx, y, 'text-anchor': 'middle', fill, 'font-size': size, 'font-weight': weight });
+      t.textContent = text;
+      svg.appendChild(t);
+    };
+    addCenter(dateStr,                                      cy - 10, '9',   '700', 'var(--neuro-text)');
+    addCenter(`${daysIn} days in ${seasonCap}`,             cy + 3,  '7.5', '400', 'var(--neuro-text-light)');
+    addCenter(`${daysToNextSeason} days to ${nextSeasonName}`, cy + 15, '7.5', '400', '#BA7517');
   },
 
   // ============================================================================
@@ -353,7 +412,7 @@ const SolarEngine = {
         <div class="celestial-content-horizontal">
           <div class="celestial-visual-section">
             <div class="solar-visual" id="solarVisual">
-              <svg width="280" height="180" viewBox="0 0 280 180" id="solarSvg" aria-hidden="true" focusable="false"></svg>
+              <svg width="100%" height="auto" viewBox="0 0 280 280" id="solarSvg" style="max-width:280px;display:block;margin:0 auto;" aria-hidden="true" focusable="false"></svg>
             </div>
           </div>
           <div class="celestial-info-section">
