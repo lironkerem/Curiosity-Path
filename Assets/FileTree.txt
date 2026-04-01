@@ -1,0 +1,119 @@
+Curiosity-Path/
+├── .gitignore
+├── bump-version.bat
+├── index.html
+├── index - Copy.html
+├── manifest.json
+├── package.json
+├── package-lock.json
+├── service-worker.js
+├── vercel.json
+│
+├── api/                          ← API helper functions
+│   ├── astro-proxy.js
+│   ├── chat.js
+│   ├── geocode.js
+│   ├── save-sub.js
+│   ├── send.js
+│   ├── subs.js
+│   └── tarot-vision.js
+│
+├── assets/                       ← Build scripts and misc
+│   ├── convertToWebP.bat
+│   └── FileTree.txt
+│
+├── Core/                         ← Core application logic
+│   ├── AppState.js
+│   ├── AuthManager.js
+│   ├── avatar-icons.js
+│   ├── CTA.js
+│   ├── DashboardManager.js
+│   ├── DB.js
+│   ├── Features.js
+│   ├── GamificationEngine.js
+│   ├── Index.js
+│   ├── Modal-Compat.js
+│   ├── Modal.js
+│   ├── NavigationManager.js
+│   ├── ProjectCuriosityApp.js
+│   ├── Supabase.js
+│   ├── Toast.js
+│   ├── User-Tab.js (and copies)
+│   ├── user-tab-data.js
+│   ├── user-tab-templates.js
+│   ├── Utils.js
+│   └── Legal/
+│       ├── privacy.html
+│       └── terms.html
+│
+├── CSS/                          ← All stylesheets
+│   ├── main-styles.css
+│   ├── dark-mode.css
+│   ├── mobile-styles.css
+│   ├── community-hub.css
+│   ├── user-tab-styles.css
+│   └── Skins/
+│       ├── champagne-gold.css
+│       ├── earth-luxury.css
+│       ├── matrix-code.css
+│       ├── royal-indigo.css
+│       └── MatrixRain.js
+│
+├── Features/                     ← Main feature engines
+│   ├── AffirmationsEngine.js
+│   ├── ChatBotAI.js
+│   ├── DailyCards.js
+│   ├── EnergyTracker.js
+│   ├── GratitudeEngine.js
+│   ├── HappinessEngine.js
+│   ├── InquiryEngine.js
+│   ├── JournalEngine.js
+│   ├── KarmaShopEngine.js
+│   ├── MeditationsEngine.js
+│   ├── QuotesEngine.js
+│   ├── TarotEngine.js
+│   ├── TarotVisionAI.js
+│   ├── WellnessKit.js
+│   └── Data/
+│       ├── AffirmationsList.js
+│       ├── HappinessBoostersList.json
+│       ├── InquiryList.js
+│       └── QuotesList.js
+│
+├── Mini-Apps/                    ← Complex mini applications (biggest folder)
+│   ├── CommunityHub/
+│   │   ├── CommunityHubEngine.js
+│   │   └── js/                   ← Many community-related modules
+│   │       ├── active-members.js, AdminDashboard.js, collective-field.js, ...
+│   │       ├── Lunar/            ← Lunar rooms
+│   │       ├── Rooms/            ← Breathwork, Campfire, Reiki, Tarot-room, etc.
+│   │       └── Solar/            ← Solar seasonal rooms
+│   │
+│   ├── FlipTheScript/
+│   │   ├── data.js, engine.js, index.js, ui.js
+│   │
+│   ├── SelfAnalysisPro/
+│   │   ├── index.html
+│   │   ├── loader.js
+│   │   └── js/                   ← Astrology, Numerology, Tarot, PDF generation...
+│   │
+│   └── ShadowAlchemyLab/
+│       ├── shadowalchemy.js
+│       └── js/
+│           ├── core/, engines/, features/   ← Archetypes, shadow work modules
+│
+├── public/                       ← Static assets served as-is (PWA friendly)
+│   ├── Icons/
+│   ├── Community/                ← Images for rooms & features (with .webp)
+│   ├── CTA/
+│   ├── Tabs/
+│   ├── Tarot Cards images/       ← All 78 tarot cards + backs
+│   ├── Watermarks/
+│   └── QR Code.png, etc.
+│
+├── supabase/                     ← Supabase related
+│   ├── .temp/
+│   └── migrations/
+│       └── 20260215032632_remote_schema.sql
+│
+└── node_modules/                 ← (Ignored for migration planning)
