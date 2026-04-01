@@ -41,7 +41,7 @@
       .lucide-icon { width: 20px; height: 20px; }
     }
 
-    /* ── LCP: auth loading screen — paints immediately, no JS needed ── */
+    /* ── LCP: auth loading screen ── */
     #auth-screen {
       display: flex;
       align-items: center;
@@ -87,7 +87,6 @@
       border-top-color: #6b9b37;
       animation: auth-spin 0.9s linear infinite;
     }
-
     @keyframes auth-spin {
       to { transform: rotate(360deg); }
     }
@@ -132,7 +131,7 @@
       opacity: 1 !important;
     }
 
-    /* ── PWA Install Toast ── */
+    /* ── PWA Install Toast — entire toast is the install button ── */
     #pwa-install-toast {
       position: fixed;
       bottom: 1.5rem;
@@ -143,7 +142,7 @@
       border-radius: 20px;
       padding: 0.875rem 1rem;
       display: grid;
-      grid-template-columns: auto 1fr auto auto;
+      grid-template-columns: auto 1fr auto;
       grid-template-rows: auto auto;
       align-items: center;
       column-gap: 0.75rem;
@@ -154,18 +153,35 @@
       z-index: 9999;
       font-family: 'Cinzel', 'Georgia', serif;
       color: #3d2f1f;
-      transition: opacity 400ms ease, transform 400ms ease;
-      /* Fit content, constrained to viewport with padding */
+      transition: opacity 400ms ease, transform 400ms ease, box-shadow 150ms ease;
       width: max-content;
       max-width: calc(100vw - 2rem);
       box-sizing: border-box;
+      /* Button reset */
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      -webkit-tap-highlight-color: transparent;
     }
     #pwa-install-toast.visible {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
+    #pwa-install-toast:hover {
+      box-shadow:
+        14px 14px 28px #a08968,
+        -10px -10px 20px #e0d4bf,
+        inset 1px 1px 2px #ebe2d4,
+        0 4px 24px rgba(107,155,55,.25);
+    }
+    #pwa-install-toast:active {
+      box-shadow:
+        inset 5px 5px 10px #a08968,
+        inset -3px -3px 6px #e0d4bf;
+      transform: translateX(-50%) translateY(0) scale(0.98);
+    }
 
-    /* Icon — spans both rows */
+    /* Icon — spans both rows, col 1 */
     #pwa-install-toast .pwa-toast-icon {
       grid-column: 1;
       grid-row: 1 / 3;
@@ -208,43 +224,22 @@
       white-space: nowrap;
     }
 
-    /* Install button — spans both rows, col 3 */
-    #pwa-install-btn {
-      grid-column: 3;
-      grid-row: 1 / 3;
-      background: #6b9b37;
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      padding: 0.5rem 0.9rem;
-      font-family: 'Cinzel', 'Georgia', serif;
-      font-size: 0.78rem;
-      letter-spacing: 0.05em;
-      cursor: pointer;
-      white-space: nowrap;
-      box-shadow:
-        4px 4px 8px #a08968,
-        -2px -2px 6px #e0d4bf;
-      transition: box-shadow 150ms ease, transform 150ms ease;
-    }
-    #pwa-install-btn:active {
-      box-shadow: inset 3px 3px 6px #558030, inset -2px -2px 4px #8bc34a;
-      transform: scale(0.97);
-    }
-
-    /* Dismiss button — spans both rows, col 4 */
+    /* Dismiss — col 3, spans both rows */
     #pwa-install-dismiss {
-      grid-column: 4;
+      grid-column: 3;
       grid-row: 1 / 3;
       background: none;
       border: none;
       color: #a08968;
       font-size: 1rem;
       cursor: pointer;
-      padding: 0.25rem;
+      padding: 0.25rem 0.25rem 0.25rem 0.5rem;
       line-height: 1;
       transition: color 150ms ease;
       align-self: center;
+      /* Prevent dismiss click from bubbling to toast install handler */
+      position: relative;
+      z-index: 1;
     }
     #pwa-install-dismiss:hover { color: #3d2f1f; }
 
@@ -258,6 +253,7 @@
       background: rgba(107,155,55,0.15);
       border-radius: 0 0 20px 20px;
       overflow: hidden;
+      pointer-events: none;
     }
     #pwa-toast-progress-bar {
       height: 100%;
@@ -272,7 +268,7 @@
     }
   </style>
 
-  <!-- ===== LCP: preload hero logo — fetched before any render-blocking work ===== -->
+  <!-- ===== LCP: preload hero logo ===== -->
   <link rel="preload" href="/public/Icons/icon-192x192-loading.webp" as="image" type="image/webp" fetchpriority="high">
 
   <!-- ===== CDN Preconnect ===== -->
@@ -285,26 +281,25 @@
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&display=swap"></noscript>
 
   <!-- ===== CSS ===== -->
-  <link rel="stylesheet" href="/CSS/main-styles.css?v=3103">
+  <link rel="stylesheet" href="/CSS/main-styles.css?v=2803">
 
-  <link rel="preload" href="/CSS/dark-mode.css?v=3103" as="style">
-  <link rel="stylesheet" href="/CSS/dark-mode.css?v=3103" id="dark-mode-css" media="not all">
+  <link rel="preload" href="/CSS/dark-mode.css?v=2803" as="style">
+  <link rel="stylesheet" href="/CSS/dark-mode.css?v=2803" id="dark-mode-css" media="not all">
 
-  <link rel="preload" href="/CSS/Skins/champagne-gold.css?v=3103" as="style">
-  <link rel="preload" href="/CSS/Skins/royal-indigo.css?v=3103"   as="style">
-  <link rel="preload" href="/CSS/Skins/earth-luxury.css?v=3103"   as="style">
-  <link rel="preload" href="/CSS/Skins/matrix-code.css?v=3103"    as="style">
+  <link rel="preload" href="/CSS/Skins/champagne-gold.css?v=2803" as="style">
+  <link rel="preload" href="/CSS/Skins/royal-indigo.css?v=2803"   as="style">
+  <link rel="preload" href="/CSS/Skins/earth-luxury.css?v=2803"   as="style">
+  <link rel="preload" href="/CSS/Skins/matrix-code.css?v=2803"    as="style">
 
-  <link rel="stylesheet" href="/CSS/Skins/champagne-gold.css?v=3103" id="skin_champagne-gold" media="not all">
-  <link rel="stylesheet" href="/CSS/Skins/royal-indigo.css?v=3103"   id="skin_royal-indigo"   media="not all">
-  <link rel="stylesheet" href="/CSS/Skins/earth-luxury.css?v=3103"   id="skin_earth-luxury"   media="not all">
-  <link rel="stylesheet" href="/CSS/Skins/matrix-code.css?v=3103"    id="skin_matrix-code"    media="not all">
+  <link rel="stylesheet" href="/CSS/Skins/champagne-gold.css?v=2803" id="skin_champagne-gold" media="not all">
+  <link rel="stylesheet" href="/CSS/Skins/royal-indigo.css?v=2803"   id="skin_royal-indigo"   media="not all">
+  <link rel="stylesheet" href="/CSS/Skins/earth-luxury.css?v=2803"   id="skin_earth-luxury"   media="not all">
+  <link rel="stylesheet" href="/CSS/Skins/matrix-code.css?v=2803"    id="skin_matrix-code"    media="not all">
 
-  <link rel="stylesheet" href="/CSS/mobile-styles.css?v=3103" media="(max-width:1024px)">
+  <link rel="stylesheet" href="/CSS/mobile-styles.css?v=2803" media="(max-width:1024px)">
 
-  <!-- community-hub.css is non-critical (tab only shown on demand) — load non-blocking -->
-  <link rel="preload" href="/CSS/community-hub.css?v=3103" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="/CSS/community-hub.css?v=3103"></noscript>
+  <link rel="preload" href="/CSS/community-hub.css?v=2803" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/CSS/community-hub.css?v=2803"></noscript>
 
   <!-- ===== PWA / icons ===== -->
   <link rel="manifest" href="/manifest.json">
@@ -325,7 +320,6 @@
     try {
       var dark = localStorage.getItem('darkMode') === 'enabled';
       var skin = localStorage.getItem('activeTheme') || 'default';
-
       if (skin !== 'default') {
         document.body.classList.add(skin);
         var skinLink = document.getElementById('skin_' + skin);
@@ -334,19 +328,11 @@
         var dmLink = document.getElementById('dark-mode-css');
         if (dmLink) dmLink.media = 'all';
       }
-
       if (dark) document.body.classList.add('dark-mode');
-    } catch(e) {
-      // localStorage unavailable (private browsing) — continue with defaults
-    }
+    } catch(e) {}
   })();
   </script>
 
-  <!--
-    LCP ELEMENT: visible immediately at first paint — no JS required.
-    The logo is preloaded above, so the browser fetches it in parallel with CSS.
-    Auth/app JS replaces this once ready.
-  -->
   <div id="auth-screen">
     <div id="auth-screen-inner">
       <picture>
@@ -370,7 +356,7 @@
         <div id="calculator-tab"         class="tab-content hidden" aria-live="polite"       ></div>
         <div id="flip-script-tab"        class="tab-content hidden"                          ></div>
         <div id="meditations-tab"        class="tab-content hidden"                          ></div>
-        <div id="tarot-tab"              class="tab-content hidden"                          ></div>
+        <div id="tarot-tab"             class="tab-content hidden"                          ></div>
         <div id="energy-tab"             class="tab-content hidden"                          ></div>
         <div id="happiness-tab"          class="tab-content hidden"                          ></div>
         <div id="gratitude-tab"          class="tab-content hidden"                          ></div>
@@ -385,11 +371,10 @@
     </div>
   </div>
 
-  <!-- Toast notifications -->
   <div id="toast-container" role="status" aria-live="polite" aria-atomic="true"></div>
   <div id="toast"           role="alert"  aria-live="assertive" style="display:none;"></div>
 
-  <!-- ===== External Dependencies (deferred — non-blocking) ===== -->
+  <!-- ===== External Dependencies ===== -->
   <script>
   window.loadPdfLib = (function() {
     var promise = null;
@@ -410,16 +395,15 @@
   </script>
 
   <!-- ===== Application Scripts ===== -->
-  <script defer src="/CSS/Skins/MatrixRain.js?v=3103"></script>
-
+  <script defer src="/CSS/Skins/MatrixRain.js?v=2803"></script>
   <script type="module" src="./Core/Utils.js"></script>
-  <script defer src="./Features/TarotVisionAI.js?v=3103"></script>
+  <script defer src="./Features/TarotVisionAI.js?v=2803"></script>
   <script type="module" src="./Features/TarotEngine.js"></script>
   <script type="module" src="./Core/GamificationEngine.js"></script>
   <script type="module" src="./Features/KarmaShopEngine.js"></script>
   <script type="module" src="./Features/EnergyTracker.js"></script>
   <script type="module" src="./Core/Features.js"></script>
-  <script defer src="./Features/WellnessKit.js?v=3103"></script>
+  <script defer src="./Features/WellnessKit.js?v=2803"></script>
 
   <!-- ===== Bootstrap Application ===== -->
   <script type="module">
@@ -440,7 +424,7 @@
         window.affirmations  = aff.default;
         window.QuotesData    = { QUOTES, getRandomQuote, getQuoteOfTheDay };
 
-        const Core            = await import('./Core/Index.js');
+        const Core                 = await import('./Core/Index.js');
         const { default: UserTab } = await import('./Core/User-Tab.js');
 
         window.app = new Core.ProjectCuriosityApp({
@@ -483,9 +467,11 @@
       setTimeout(function() {
         if (!window._pwaInstallPrompt) return;
 
-        var toast = document.createElement('div');
+        // Toast is a <button> — clicking anywhere installs
+        var toast = document.createElement('button');
         toast.id = 'pwa-install-toast';
-        toast.setAttribute('role', 'status');
+        toast.setAttribute('role', 'button');
+        toast.setAttribute('aria-label', 'Install The Curiosity Path');
         toast.innerHTML =
           '<span class="pwa-toast-icon">' +
             '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
@@ -496,7 +482,6 @@
           '</span>' +
           '<span class="pwa-toast-title">Install The Curiosity Path</span>' +
           '<span class="pwa-toast-subtitle">Add to your home screen for the best experience</span>' +
-          '<button id="pwa-install-btn">Install</button>' +
           '<button id="pwa-install-dismiss" aria-label="Dismiss">&#x2715;</button>' +
           '<div id="pwa-toast-progress"><div id="pwa-toast-progress-bar"></div></div>';
         document.body.appendChild(toast);
@@ -515,7 +500,8 @@
           setTimeout(function() { if (toast.parentNode) toast.remove(); }, 400);
         }
 
-        document.getElementById('pwa-install-btn').addEventListener('click', function() {
+        // Whole toast = install
+        toast.addEventListener('click', function() {
           if (!window._pwaInstallPrompt) return;
           window._pwaInstallPrompt.prompt();
           window._pwaInstallPrompt.userChoice.then(function() {
@@ -524,7 +510,11 @@
           });
         });
 
-        document.getElementById('pwa-install-dismiss').addEventListener('click', dismiss);
+        // Dismiss stops propagation so it doesn't also trigger install
+        document.getElementById('pwa-install-dismiss').addEventListener('click', function(e) {
+          e.stopPropagation();
+          dismiss();
+        });
 
       }, 2500);
     });
