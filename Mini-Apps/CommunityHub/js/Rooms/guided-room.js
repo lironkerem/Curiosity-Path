@@ -57,5 +57,7 @@ class GuidedRoom extends TimedVideoRoom {
 // Window bridge: preserved for inline onclick handlers
 const guidedRoom = new GuidedRoom();
 window.GuidedRoom = guidedRoom;
+// Fix #7: signal CommunityHubEngine that this room's enterRoom function is ready.
+window.dispatchRoomReady?.('guided');
 
 export { GuidedRoom, guidedRoom };

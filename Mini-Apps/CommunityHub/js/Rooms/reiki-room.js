@@ -860,5 +860,7 @@ Object.assign(ReikiRoom.prototype, TabRoomMixin);
 // Window bridge: preserved for inline onclick handlers
 const reikiRoom = new ReikiRoom();
 window.ReikiRoom = reikiRoom;
+// Fix #7: signal CommunityHubEngine that this room's enterRoom function is ready.
+window.dispatchRoomReady?.('reiki');
 
 export { ReikiRoom, reikiRoom };

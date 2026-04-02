@@ -55,12 +55,13 @@ class DeepWorkRoom extends PracticeRoom {
 
         this.loadRoomChatFromDB('main');
         this._injectSenderAvatar('main');
-        this._refreshParticipantSidebar(`${this.roomId}ParticipantListEl`, `${this.roomId}ParticipantCount`);
+        // Note: _refreshParticipantSidebar is already called by PracticeRoom.enterRoom()
+        // — removed duplicate call here to avoid double DB fetch + dual subscription.
 
         requestAnimationFrame(() => {
             document.querySelector(`#${this.roomId}View .ps-main`)?.scrollTo(0, 0);
         });
-    }
+    },
 
     onCleanup() {
         this.cleanupTimer();
@@ -115,6 +116,9 @@ class DeepWorkRoom extends PracticeRoom {
             }
             if (this.state.timeLeft <= 0) this.completeTimer();
         }, 1000);
+
+        // Visibility fix: suspend interval when tab hidden, reconcile on return.
+        this._attachVisibilityHandler();
 
         this._restoreFocusStatus();
         Core.showToast('Timer started');
@@ -454,5 +458,7 @@ Object.assign(DeepWorkRoom.prototype, ChatMixin);
 // Window bridge: preserved for inline onclick handlers
 const deepWorkRoom = new DeepWorkRoom();
 window.DeepWorkRoom = deepWorkRoom;
+// Fix #7: signal CommunityHubEngine that this room's enterRoom function is ready.
+window.dispatchRoomReady?.('deepwork');
 
 export { DeepWorkRoom, deepWorkRoom };

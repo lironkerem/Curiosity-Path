@@ -58,6 +58,11 @@ class SilentRoom extends PracticeRoom {
             clearInterval(this._affirmationInterval);
             this._affirmationInterval = null;
         }
+        // Issue #2: detach visibility listener on cleanup
+        if (this._affirmationVisibilityHandler) {
+            document.removeEventListener('visibilitychange', this._affirmationVisibilityHandler);
+            this._affirmationVisibilityHandler = null;
+        }
     }
 
     onOutsideClick(e) {
@@ -126,6 +131,22 @@ class SilentRoom extends PracticeRoom {
     startAffirmations() {
         this.rotateAffirmation();
         this._affirmationInterval = setInterval(() => this.rotateAffirmation(), 8000);
+
+        // Issue #2: pause interval when tab/screen hidden — saves battery on mobile
+        this._affirmationVisibilityHandler = () => {
+            if (document.hidden) {
+                if (this._affirmationInterval) {
+                    clearInterval(this._affirmationInterval);
+                    this._affirmationInterval = null;
+                }
+            } else {
+                if (!this._affirmationInterval) {
+                    this.rotateAffirmation(); // show fresh text immediately on return
+                    this._affirmationInterval = setInterval(() => this.rotateAffirmation(), 8000);
+                }
+            }
+        };
+        document.addEventListener('visibilitychange', this._affirmationVisibilityHandler);
     }
 
     rotateAffirmation() {
@@ -176,5 +197,7 @@ Object.assign(SilentRoom.prototype, SoundSettingsMixin);
 // Window bridge: preserved for inline onclick handlers
 const silentRoom = new SilentRoom();
 window.SilentRoom = silentRoom;
+// Fix #7: signal CommunityHubEngine that this room's enterRoom function is ready.
+window.dispatchRoomReady?.('silent');
 
 export { SilentRoom, silentRoom };

@@ -47,24 +47,36 @@ class CommunityHubEngine {
       await this.initializeCommunityHub();
       this.initialized = true;
     } else {
-      // Re-visit: reset state so sections re-render
-      Core.state.initialized = false;
-      Core.init();
+      // Re-visit: only refresh presence-dependent UI, not the full Core init.
+      // Full Core.init() re-fetches the current user + re-renders every section,
+      // causing a visible flash and 2-4 extra DB calls on every tab switch (Issue #5).
+      this._refreshHubPresence();
     }
 
-    // Auto-open a room requested from an external CTA (e.g. Energy Tracker)
-    // Runs on every visit - poll until the room function is available
+    // Issue #1: suspend chat subscriptions when user leaves the Hub tab entirely
+    this._attachHubVisibility();
+
+    // Auto-open a room requested from an external CTA (e.g. Energy Tracker).
+    // Fix #7: use a one-shot CustomEvent instead of a 200 ms setInterval poll,
+    // so the JS thread isn't kept busy during initialisation.
     if (window._pendingRoomOpen) {
       const roomKey = window._pendingRoomOpen;
       window._pendingRoomOpen = null;
-      const tryOpen = setInterval(() => {
-        const fn = window[`${roomKey}_enterRoom`];
-        if (typeof fn === 'function') {
-          clearInterval(tryOpen);
-          fn();
-        }
-      }, 200);
-      setTimeout(() => clearInterval(tryOpen), 8000); // safety timeout
+
+      const fn = window[`${roomKey}_enterRoom`];
+      if (typeof fn === 'function') {
+        fn();
+      } else {
+        // Room module not yet registered — listen for the ready signal.
+        const handler = e => {
+          if (e.detail?.roomKey !== roomKey) return;
+          document.removeEventListener('practiceRoomReady', handler);
+          window[`${roomKey}_enterRoom`]?.();
+        };
+        document.addEventListener('practiceRoomReady', handler);
+        // Safety timeout: clean up listener after 8 s if room never registers.
+        setTimeout(() => document.removeEventListener('practiceRoomReady', handler), 8000);
+      }
     }
   }
 
@@ -243,6 +255,79 @@ class CommunityHubEngine {
   }
 
   // ---------------------------------------------------------------------------
+  // Lightweight hub refresh on re-visit (Issue #5)
+  // ---------------------------------------------------------------------------
+
+  _refreshHubPresence() {
+    // Re-run only the presence-sensitive parts: active member count, room card
+    // participant counts, and CollectiveField — not a full user/profile reload.
+    try {
+      if (window.PracticeRoom?._hubRooms?.length) {
+        PracticeRoom.startHubPresence();
+      }
+      if (window.CollectiveFieldDB?.refreshCount) {
+        window.CollectiveFieldDB.refreshCount();
+      }
+    } catch (e) {
+      // Fallback: full init if lightweight refresh isn't available yet
+      console.warn('[CommunityHub] _refreshHubPresence fallback to Core.init', e);
+      Core.state.initialized = false;
+      Core.init();
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // YouTube API preload (Issue #4)
+  // ---------------------------------------------------------------------------
+
+  _preloadYouTubeAPI() {
+    if (window.YT?.Player) return; // already loaded
+    if (document.querySelector('script[src*="youtube.com/iframe_api"]')) return; // already injected
+    const tag = document.createElement('script');
+    tag.src   = 'https://www.youtube.com/iframe_api';
+    tag.async = true;
+    document.head.appendChild(tag);
+    // onYouTubeIframeAPIReady is handled per-room in YouTubePlayerMixin.loadYouTubeAPI()
+  }
+
+  // ---------------------------------------------------------------------------
+  // Hub visibility — suspend/resume chat subs on tab hide (Issue #1)
+  // ---------------------------------------------------------------------------
+
+  _attachHubVisibility() {
+    if (this._hubVisibilityHandler) return; // already attached
+
+    this._hubVisibilityHandler = () => {
+      if (document.hidden) {
+        // User left the Hub tab — unsubscribe all active room chat channels
+        // to stop processing WebSocket messages in the background.
+        this._hubChatRooms?.forEach(roomId => {
+          try { CommunityDB.unsubscribeFromRoomChat(roomId); } catch (_) {}
+        });
+      } else {
+        // User returned — re-subscribe to chat for whichever room is active
+        const currentRoom = Core?.state?.currentRoom;
+        if (currentRoom && this._hubChatResubscribe) {
+          this._hubChatResubscribe(currentRoom);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', this._hubVisibilityHandler);
+  }
+
+  /**
+   * Register which rooms have active chat subs, and how to resubscribe.
+   * Called by ChatMixin rooms after they subscribe.
+   * @param {string[]} roomIds
+   * @param {function} resubFn  - called with roomId when tab becomes visible again
+   */
+  registerHubChatRooms(roomIds, resubFn) {
+    this._hubChatRooms       = roomIds;
+    this._hubChatResubscribe = resubFn;
+  }
+
+  // ---------------------------------------------------------------------------
   // Script / Style Loading
   // ---------------------------------------------------------------------------
 
@@ -290,7 +375,9 @@ class CommunityHubEngine {
       // Group 1: CDN scripts (not ES modules — keep as script tags)
       await this.loadScript('https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js');
 
-      // Group 2: Hub utilities
+      // Group 2: Hub utilities — also pre-load YouTube IFrame API here so
+      // timed rooms don't each trigger a script load on entry (Issue #4).
+      this._preloadYouTubeAPI();
       await this._importAll([
         'js/rituals.js',
         'js/profile-module.js',
@@ -301,7 +388,9 @@ class CommunityHubEngine {
         'js/Rooms/PracticeRoom.js',
       ]);
 
-      // Group 3: Mixins + Lunar/Solar foundations
+      // Group 3: Mixins + Lunar/Solar foundations + composite classes that
+      // depend on them. All loaded in one parallel batch (Fix #6 — TimedVideoRoom
+      // and TabRoomMixin don't need to wait for a separate sequential await).
       await this._importAll([
         'js/Rooms/mixins/YouTubePlayerMixin.js',
         'js/Rooms/mixins/CycleStateMixin.js',
@@ -313,12 +402,6 @@ class CommunityHubEngine {
         'js/Lunar/lunar-ui.js',
         'js/Lunar/lunar-config.js',
         'js/Lunar/lunarengine.js',
-      ]);
-
-      // Group 3b: Composite classes that depend on Group 3 mixins
-      // Sequential: TimedVideoRoom extends YouTubePlayerMixin + CycleStateMixin,
-      // TabRoomMixin is used by rooms in Group 4b.
-      await this._importAll([
         'js/Rooms/mixins/TimedVideoRoom.js',
         'js/Rooms/mixins/TabRoomMixin.js',
       ]);

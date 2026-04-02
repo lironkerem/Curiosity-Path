@@ -26,7 +26,8 @@ class CampfireRoom extends PracticeRoom {
 
     onEnter() {
         this.loadRoomChatFromDB('main');
-        this._refreshParticipantSidebar(`${this.roomId}ParticipantListEl`, `${this.roomId}ParticipantCount`);
+        // Note: _refreshParticipantSidebar is already called by PracticeRoom.enterRoom()
+        // — removed duplicate call here to avoid double DB fetch + dual subscription.
         this._injectSenderAvatar('main');
     }
 
@@ -93,5 +94,7 @@ Object.assign(CampfireRoom.prototype, ChatMixin);
 // Window bridge: preserved for inline onclick handlers
 const campfireRoom = new CampfireRoom();
 window.CampfireRoom = campfireRoom;
+// Fix #7: signal CommunityHubEngine that this room's enterRoom function is ready.
+window.dispatchRoomReady?.('campfire');
 
 export { CampfireRoom, campfireRoom };

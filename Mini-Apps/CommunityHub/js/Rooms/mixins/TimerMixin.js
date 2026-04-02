@@ -27,6 +27,9 @@ const TimerMixin = {
         this.state.timeLeft     = defaultTime;
         this.state.initialTime  = defaultTime;
         this._timerInterval     = null;
+        // Visibility fix: track when tab was hidden so we can reconcile elapsed time on resume.
+        this._timerHiddenAt     = null;
+        this._timerVisibilityHandler = null;
     },
 
     // ── Controls ──────────────────────────────────────────────────────────────
@@ -37,7 +40,8 @@ const TimerMixin = {
 
     startTimer() {
         if (this.state.timerRunning) return;
-        this.state.timerRunning = true;
+        this.state.timerRunning  = true;
+        this._timerTickStart     = Date.now(); // wall-clock anchor for reconciliation
         this._setTimerBtn('running');
         this._setTimerGlow('running');
 
@@ -52,11 +56,15 @@ const TimerMixin = {
             if (this.state.timeLeft <= 0) this.completeTimer();
         }, 1000);
 
+        // Visibility fix: suspend interval while tab is hidden, reconcile on return.
+        this._attachVisibilityHandler();
+
         Core.showToast('Timer started');
     },
 
     pauseTimer() {
         this._clearInterval();
+        this._detachVisibilityHandler();
         this.state.timerRunning = false;
         this._setTimerBtn('paused');
         this._setTimerGlow('paused');
@@ -64,6 +72,7 @@ const TimerMixin = {
 
     completeTimer() {
         this._clearInterval();
+        this._detachVisibilityHandler();
         this.state.timerRunning = false;
         this.state.timeLeft     = 0;
         this._setTimerBtn('done');
@@ -76,6 +85,7 @@ const TimerMixin = {
 
     resetTimer() {
         this._clearInterval();
+        this._detachVisibilityHandler();
         this.state.timerRunning = false;
         this.state.timeLeft     = this.state.initialTime;
         this._setTimerBtn('idle');
@@ -92,7 +102,64 @@ const TimerMixin = {
 
     cleanupTimer() {
         this._clearInterval();
+        this._detachVisibilityHandler();
         this.state.timerRunning = false;
+    },
+
+    // ── Visibility helpers ────────────────────────────────────────────────────
+
+    /**
+     * Suspend the setInterval while the tab is hidden and reconcile elapsed
+     * time when it becomes visible again. This prevents:
+     * - Waking the JS thread every second while the PWA is backgrounded
+     * - A burst of rapid ticks / battery drain on mobile
+     * - The timer drifting out of sync with wall-clock time
+     */
+    _attachVisibilityHandler() {
+        if (this._timerVisibilityHandler) return; // already attached
+
+        this._timerVisibilityHandler = () => {
+            if (document.hidden) {
+                // Tab hidden: stop the interval, record when we paused
+                this._timerHiddenAt = Date.now();
+                this._clearInterval();
+            } else {
+                // Tab visible again: reconcile elapsed seconds
+                if (this._timerHiddenAt !== null) {
+                    const elapsedSec = Math.round((Date.now() - this._timerHiddenAt) / 1000);
+                    this._timerHiddenAt = null;
+                    this.state.timeLeft = Math.max(0, this.state.timeLeft - elapsedSec);
+                    this._updateTimer();
+
+                    if (this.state.timeLeft <= 0) {
+                        this.completeTimer();
+                        return;
+                    }
+                }
+
+                // Restart the interval only if the timer was running when hidden
+                if (this.state.timerRunning && !this._timerInterval) {
+                    this._timerInterval = setInterval(() => {
+                        this.state.timeLeft--;
+                        this._updateTimer();
+                        if (this.state.timeLeft > 0 && this.state.timeLeft % 300 === 0) {
+                            if (this.state.fiveMinBellEnabled) this.play5MinBell?.();
+                        }
+                        if (this.state.timeLeft <= 0) this.completeTimer();
+                    }, 1000);
+                }
+            }
+        };
+
+        document.addEventListener('visibilitychange', this._timerVisibilityHandler);
+    },
+
+    _detachVisibilityHandler() {
+        if (this._timerVisibilityHandler) {
+            document.removeEventListener('visibilitychange', this._timerVisibilityHandler);
+            this._timerVisibilityHandler = null;
+        }
+        this._timerHiddenAt = null;
     },
 
     // ── Private helpers ───────────────────────────────────────────────────────

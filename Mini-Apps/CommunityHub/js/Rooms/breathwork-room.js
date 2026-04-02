@@ -61,5 +61,7 @@ class BreathworkRoom extends TimedVideoRoom {
 // Window bridge: preserved for inline onclick handlers
 const breathworkRoom = new BreathworkRoom();
 window.BreathworkRoom = breathworkRoom;
+// Fix #7: signal CommunityHubEngine that this room's enterRoom function is ready.
+window.dispatchRoomReady?.('breathwork');
 
 export { BreathworkRoom, breathworkRoom };

@@ -126,7 +126,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 .ritual-card { 
     text-align: center; max-width: 400px; padding: 48px;
     animation: breatheRitual 4s infinite;
-  will-change: transform;
+    /* Fix #9: will-change only while overlay is visible — scoped to .active */
 }
 .ritual-candle {
     width: 140px; height: 140px; margin: 0 auto 32px;
@@ -142,7 +142,6 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     border-radius: 50%;
     background: radial-gradient(circle, rgba(255, 180, 80, 0.18) 0%, transparent 70%);
     animation: outerGlow 4s ease-in-out infinite;
-  will-change: transform;
 }
 .ritual-candle::after {
     content: '';
@@ -151,7 +150,6 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     border-radius: 50%;
     background: radial-gradient(circle, rgba(255, 200, 100, 0.25) 0%, transparent 70%);
     animation: innerGlow 3s ease-in-out infinite;
-  will-change: transform;
 }
 .ritual-candle svg {
     position: relative;
@@ -159,16 +157,20 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     width: 72px; height: 100px;
     filter: drop-shadow(0 0 8px rgba(255, 180, 60, 0.6));
     animation: candleFloat 4s ease-in-out infinite;
-  will-change: transform;
 }
-.flame-outer { animation: flameOuter 1.8s ease-in-out infinite; transform-origin: 50% 100%;
-  will-change: transform;
-}
-.flame-inner { animation: flameInner 1.4s ease-in-out infinite; transform-origin: 50% 100%;
-  will-change: transform;
-}
-.flame-core  { animation: flameCore 1s ease-in-out infinite; transform-origin: 50% 100%;
-  will-change: transform;
+.flame-outer { animation: flameOuter 1.8s ease-in-out infinite; transform-origin: 50% 100%; }
+.flame-inner { animation: flameInner 1.4s ease-in-out infinite; transform-origin: 50% 100%; }
+.flame-core  { animation: flameCore 1s ease-in-out infinite; transform-origin: 50% 100%; }
+
+/* Fix #9: promote compositing only while the overlay is actually shown */
+.ritual-overlay.active .ritual-card,
+.ritual-overlay.active .ritual-candle::before,
+.ritual-overlay.active .ritual-candle::after,
+.ritual-overlay.active .ritual-candle svg,
+.ritual-overlay.active .flame-outer,
+.ritual-overlay.active .flame-inner,
+.ritual-overlay.active .flame-core {
+    will-change: transform;
 }
 
 @keyframes flameOuter {
@@ -203,7 +205,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 .ritual-btn {
     padding: 12px 32px; border: 2px solid var(--text); background: transparent; color: var(--text);
     border-radius: var(--radius-full); font-family: var(--serif); font-style: italic; cursor: pointer;
-    font-size: 15px; transition: all var(--transition-normal);
+    font-size: 15px; transition: background var(--transition-normal), color var(--transition-normal), border-color var(--transition-normal), box-shadow var(--transition-normal);
 }
 .ritual-overlay.closing .ritual-btn { border-color: var(--neuro-bg-lightest); color: var(--neuro-bg-lightest); }
 
@@ -358,7 +360,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     border-radius: var(--radius-lg);
     padding: 24px;
     cursor: pointer;
-    transition: all var(--transition-normal);
+    /* Fix #10 */ transition: box-shadow var(--transition-normal), border-color var(--transition-normal), opacity var(--transition-normal);
     position: relative;
     overflow: hidden;
     box-shadow: var(--shadow-raised);
@@ -470,7 +472,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     cursor: pointer;
     opacity: 1;
     transform: translateY(0);
-    transition: all var(--transition-normal);
+    transition: opacity var(--transition-normal), transform var(--transition-normal), box-shadow var(--transition-normal);
     box-shadow: var(--shadow-raised);
 }
 
@@ -512,6 +514,9 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     background-size: 150px 150px, 200px 200px, 180px 180px, 220px 220px, 190px 190px;
     opacity: 0.15;
     pointer-events: none;
+    /* Fix #5: own compositing layer — prevents scroll-triggered repaints on mobile */
+    will-change: transform;
+    transform: translateZ(0);
 }
 
 .practice-space .ps-body {
@@ -608,7 +613,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all var(--transition-normal);
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
     box-shadow: var(--shadow-raised);
 }
 
@@ -666,7 +671,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     border-radius: var(--radius-md);
     cursor: pointer;
     font-size: 14px;
-    transition: all var(--transition-fast);
+    transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
 }
 
 .category-option:hover,
@@ -749,7 +754,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     background: var(--surface);
     border: 2px solid var(--border);
     border-radius: var(--radius-lg);
-    transition: all var(--transition-fast);
+    transition: box-shadow var(--transition-fast);
 }
 
 .campfire-msg:hover { box-shadow: var(--shadow-raised); }
@@ -817,7 +822,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     background: var(--neuro-bg);
     font-size: 14px;
     font-family: inherit;
-    transition: all var(--transition-fast);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .campfire-input:focus {
@@ -837,7 +842,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all var(--transition-fast);
+    transition: background var(--transition-fast), transform var(--transition-fast);
     flex-shrink: 0;
 }
 
@@ -1011,7 +1016,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     align-items: center;
     justify-content: center;
     font-size: 10px;
-    transition: all var(--transition-fast);
+    transition: background var(--transition-fast), color var(--transition-fast);
     flex-shrink: 0;
 }
 
@@ -1184,7 +1189,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     font-weight: 600;
     font-size: 13px;
     box-shadow: var(--shadow-raised);
-    transition: all var(--transition-fast);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .fab-chat {
@@ -1203,7 +1208,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     justify-content: center;
     font-size: 24px;
     z-index: 10;
-    transition: all var(--transition-normal);
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
 }
 
 .fab-chat:hover { 
@@ -1370,7 +1375,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: all var(--transition-normal);
+    transition: background var(--transition-normal), box-shadow var(--transition-normal), border-color var(--transition-normal);
     margin-top: 8px;
     box-shadow: var(--shadow-raised);
 }
@@ -1434,7 +1439,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    transition: all var(--transition-fast);
+    transition: background var(--transition-fast), color var(--transition-fast);
 }
 
 .modal-close:hover { background: var(--neuro-bg-lightest); }
@@ -1456,7 +1461,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     justify-content: center;
     font-size: 24px;
     z-index: 100;
-    transition: all var(--transition-normal);
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
 }
 
 .safety-fab:hover {
@@ -1615,7 +1620,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     font-size: 13px;
     font-weight: 600;
     color: var(--text-muted);
-    transition: all var(--transition-fast);
+    transition: color var(--transition-fast), background var(--transition-fast);
 }
 
 .v-btn.active { 
@@ -1689,7 +1694,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     text-align: center;
     position: relative;
     overflow: hidden;
-    transition: all var(--transition-normal);
+    transition: box-shadow var(--transition-normal), transform var(--transition-normal);
 }
 /* Shared lift hover effect */
 .ritual-btn:hover, .practice-room:hover, .chat-input-container button:hover,
@@ -1878,7 +1883,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: all var(--transition-normal);
+    transition: background var(--transition-normal), box-shadow var(--transition-normal), border-color var(--transition-normal);
     box-shadow: var(--shadow-raised);
     display: flex;
     align-items: center;
@@ -2009,7 +2014,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     border-radius: var(--radius-md);
     color: var(--text-muted);
     cursor: pointer;
-    transition: all var(--transition-normal);
+    transition: background var(--transition-normal), color var(--transition-normal), border-color var(--transition-normal), box-shadow var(--transition-normal);
     box-shadow: var(--shadow-raised);
 }
 
@@ -2042,7 +2047,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     background: var(--surface);
     border-radius: var(--radius-full);
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
     font-size: 14px;
     font-weight: 600;
     white-space: nowrap;
@@ -2064,7 +2069,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     font-family: var(--serif);
     font-style: italic;
     cursor: pointer;
-    transition: all var(--transition-normal);
+    transition: background var(--transition-normal), box-shadow var(--transition-normal), color var(--transition-normal);
     box-shadow: var(--shadow-raised);
 }
 
@@ -2141,7 +2146,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     align-items: center;
     justify-content: center;
     box-shadow: var(--shadow-raised);
-    transition: all var(--transition-fast);
+    transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 /* Safety Bar */
@@ -2207,7 +2212,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     background: var(--surface);
     border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all var(--transition-normal);
+    transition: box-shadow var(--transition-normal), transform var(--transition-normal), border-color var(--transition-normal);
     position: relative;
     border: 2px solid transparent;
 }
@@ -2401,7 +2406,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     font-size: 14px;
     color: var(--text-muted);
     opacity: 0.6;
-    transition: all var(--transition-fast);
+    transition: opacity var(--transition-fast), color var(--transition-fast);
     border-radius: var(--radius-sm);
 }
 
@@ -2426,7 +2431,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     border-radius: var(--radius-xl);
     overflow: hidden;
     box-shadow: var(--shadow-raised-lg);
-    transition: all var(--transition-normal);
+    transition: box-shadow var(--transition-normal), transform var(--transition-normal);
 }
 
 .event-card:hover {
@@ -2503,7 +2508,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     font-size: 15px;
     font-weight: 700;
     cursor: pointer;
-    transition: all var(--transition-normal);
+    transition: background var(--transition-normal), box-shadow var(--transition-normal);
     box-shadow: var(--shadow-raised);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -2759,7 +2764,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
-    transition: all var(--transition-normal);
+    transition: background var(--transition-normal), box-shadow var(--transition-normal);
     box-shadow: var(--shadow-raised);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -2786,7 +2791,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
         border-radius: 30px;
         text-decoration: none;
         box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
-        transition: all var(--transition-normal);
+        transition: transform var(--transition-normal), box-shadow var(--transition-normal);
     }
     
 .whatsapp-float:hover {

@@ -27,6 +27,59 @@ const _AVATAR_DEFAULTS = {
     fallbackGradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
 };
 
+// ─── Module-level HTML escape (Issue #3) ────────────────────────────────────────
+// PracticeRoom doesn't mix in ChatMixin, so we define a standalone escaper here.
+// Applied to all user-supplied strings before insertion into innerHTML.
+function _esc(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+// ─── Shared SVG icon strings (Issue #10) ────────────────────────────────────────
+// Defined once at module level — avoids repeated identical string allocations
+// each time buildHeader / buildSafetyDropdown / buildCardFooter are called.
+const _ICONS = {
+    bless:        `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.8;"><path d="M12 3L13.5 8.5L19 10L13.5 11.5L12 17L10.5 11.5L5 10L10.5 8.5Z"/><path d="M5 3L5.75 5.25L8 6L5.75 6.75L5 9L4.25 6.75L2 6L4.25 5.25Z"/><path d="M19 14L19.75 16.25L22 17L19.75 17.75L19 20L18.25 17.75L16 17L18.25 16.25Z"/></svg>`,
+    leave:        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20h9"/><path d="M10 12v.01"/><path d="M13 4l-6 2v14l6 2"/></svg>`,
+    shield:       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+    book:         `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+    alert:        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`,
+    block:        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>`,
+    mute:         `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`,
+    help:         `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg>`,
+};
+
+// ─── Module-level blocked-users cache (Issue #1) ──────────────────────────────
+// Blocked users rarely change — fetch once per room session, not on every
+// presence tick. Invalidated when the user leaves the room.
+const _blockedCache = {
+    data:      null,   // Set<userId> | null
+    fetchedAt: 0,
+    TTL_MS:    120_000, // 2 minutes
+
+    async get() {
+        const now = Date.now();
+        if (this.data && (now - this.fetchedAt) < this.TTL_MS) return this.data;
+        try {
+            this.data = await CommunityDB.getBlockedUsers();
+            this.fetchedAt = now;
+        } catch (_) {
+            this.data = this.data ?? new Set();
+        }
+        return this.data;
+    },
+
+    invalidate() {
+        this.data      = null;
+        this.fetchedAt = 0;
+    },
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 class PracticeRoom {
@@ -164,6 +217,15 @@ class PracticeRoom {
 
         this._clearRoomPresence();
 
+        // Invalidate blocked-users cache so the next room entry fetches fresh data.
+        _blockedCache.invalidate();
+        // Reset participant diff key and in-flight flag.
+        this._lastParticipantKey = null;
+        this._participantFetchInFlight = false;
+        // Clear blessing local state (Fix #4).
+        this._blessingRows = null;
+        clearTimeout(this._blessingRefreshTimer);
+
         if (this._roomEntryId) {
             CommunityDB.logRoomExit(this._roomEntryId).catch(() => {});
             this._roomEntryId = null;
@@ -231,9 +293,10 @@ class PracticeRoom {
     async fetchRoomParticipants() {
         if (!this._dbReady()) return;
         try {
+            // Use cached blocked list — avoids a DB round-trip on every presence tick.
             const [participants, blocked] = await Promise.all([
                 CommunityDB.getRoomParticipants(this.roomId),
-                CommunityDB.getBlockedUsers(),
+                _blockedCache.get(),
             ]);
             const visible = participants.filter(p => !blocked.has(p.user_id));
             this.state.participants = visible.length;
@@ -244,10 +307,9 @@ class PracticeRoom {
         }
     }
 
-    subscribeToRoomParticipants() {
-        if (!this._dbReady()) return;
-        this._presenceSub = CommunityDB.subscribeToPresence(() => this.fetchRoomParticipants());
-    }
+    // subscribeToRoomParticipants() removed — _refreshParticipantSidebar owns
+    // the single presence subscription. A second subscription here caused double
+    // DB calls on every presence tick (Issue #1).
 
     _updateParticipantUI(participants) {
         const countEl = document.getElementById(`${this.roomId}ParticipantCount`);
@@ -260,16 +322,34 @@ class PracticeRoom {
     /**
      * Fetches participants and renders the sidebar list + realtime subscription.
      * Called once from enterRoom() — subsequent updates come via the subscription.
+     *
+     * Fix #1: Uses _blockedCache instead of fetching blocked users on every tick.
+     * Fix #2: Skips DOM re-render when the visible participant set hasn't changed.
      */
     async _refreshParticipantSidebar(listId, countId = null) {
         if (!this._dbReady()) return;
 
         const doRefresh = async () => {
+            // Issue #6: skip if a fetch is already in-flight — prevents duplicate
+            // network requests when initial load and a presence event overlap.
+            if (this._participantFetchInFlight) return;
+            this._participantFetchInFlight = true;
+
+            // _blockedCache.get() returns cached data within TTL — no extra DB call.
             const [participants, blocked] = await Promise.all([
                 CommunityDB.getRoomParticipants(this.roomId),
-                CommunityDB.getBlockedUsers(),
+                _blockedCache.get(),
             ]);
             const visible = participants.filter(p => !blocked.has(p.user_id));
+
+            // ── Issue #2: skip render when participant set is unchanged ──────────
+            this._participantFetchInFlight = false;
+
+            const newKey = visible.map(p => p.user_id).sort().join(',');
+            if (newKey === this._lastParticipantKey) return;
+            this._lastParticipantKey = newKey;
+            // ────────────────────────────────────────────────────────────────────
+
             this.state.participants = visible.length;
 
             // Update header avatar stack too
@@ -288,6 +368,7 @@ class PracticeRoom {
         try {
             await doRefresh();
         } catch (e) {
+            this._participantFetchInFlight = false;
             console.error(`[${this.roomId}] _refreshParticipantSidebar error:`, e);
             return;
         }
@@ -319,9 +400,9 @@ class PracticeRoom {
 
         const avatars = shown.map(row => {
             const p          = row.profiles || {};
-            const name       = p.name       || 'Member';
-            const avatarUrl  = p.avatar_url || '';
-            const emoji      = p.emoji      || '';
+            const name       = _esc(p.name       || 'Member');
+            const avatarUrl  = _esc(p.avatar_url || '');
+            const emoji      = _esc(p.emoji      || '');
             const initial    = emoji || name.charAt(0).toUpperCase();
             const gradient   = Core?.getAvatarGradient?.(row.user_id || name) ?? fallbackGradient;
             const inner      = avatarUrl
@@ -347,9 +428,9 @@ class PracticeRoom {
         const html = shown.map(p => {
             const profile   = p.profiles || {};
             const userId    = p.user_id || profile.id || '';
-            const name      = profile.name      || 'Member';
-            const avatarUrl = profile.avatar_url || '';
-            const emoji     = profile.emoji     || '';
+            const name      = _esc(profile.name      || 'Member');
+            const avatarUrl = _esc(profile.avatar_url || '');
+            const emoji     = _esc(profile.emoji     || '');
             const gradient  = Core?.getAvatarGradient?.(userId || name) ?? fallbackGradient;
             const inner     = avatarUrl
                 ? `<img src="${avatarUrl}" width="40" height="40" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}" loading="lazy" decoding="async">`
@@ -382,9 +463,9 @@ class PracticeRoom {
         listEl.innerHTML = participants.map(p => {
             const profile   = p.profiles || {};
             const userId    = p.user_id || profile.id || '';
-            const name      = profile.name      || 'Member';
-            const avatarUrl = profile.avatar_url || '';
-            const emoji     = profile.emoji     || '';
+            const name      = _esc(profile.name      || 'Member');
+            const avatarUrl = _esc(profile.avatar_url || '');
+            const emoji     = _esc(profile.emoji     || '');
             const gradient  = Core?.getAvatarGradient?.(userId || name) ?? fallbackGradient;
             const inner     = avatarUrl
                 ? `<img src="${avatarUrl}" referrerpolicy="no-referrer" width="40" height="40" style="width:40px;height:40px;min-width:40px;min-height:40px;object-fit:cover;border-radius:50%;display:block;" alt="${name}" loading="lazy" decoding="async">`
@@ -398,7 +479,7 @@ class PracticeRoom {
                 <div class="campfire-participant-avatar" style="${bg}width:40px;height:40px;min-width:40px;min-height:40px;display:flex;align-items:center;justify-content:center;overflow:hidden;">${inner}</div>
                 <div class="campfire-participant-info">
                     <div class="campfire-participant-name">${name}</div>
-                    <div class="campfire-participant-country">${p.activity || '✨ Available'}</div>
+                    <div class="campfire-participant-country">${_esc(p.activity || '✨ Available')}</div>
                 </div>
             </div>`;
         }).join('');
@@ -438,6 +519,7 @@ class PracticeRoom {
         if (!this._dbReady()) return;
         try {
             const rows = await CommunityDB.getRoomBlessings(this.roomId);
+            this._blessingRows = rows;   // seed local copy (Fix #4)
             this._updateCardBlessingBadge(rows.length);
         } catch (_) {}
     }
@@ -454,14 +536,35 @@ class PracticeRoom {
         if (!this._dbReady()) return;
         CommunityDB.subscribeToBlessings(this.roomId, payload => {
             this._showBlessingAnimation(payload);
-            this._refreshBlessingCounter();
+            // Fix #4: optimistically bump the counter from the incoming payload
+            // instead of triggering a full DB fetch on every blessing event.
+            // A debounced full re-sync runs 3 s later to reconcile any drift.
+            this._optimisticBlessingBump(payload);
+            this._debouncedRefreshBlessingCounter();
         });
+    }
+
+    _optimisticBlessingBump(payload) {
+        // Increment the in-memory count and re-render immediately — no DB call.
+        this._blessingRows = this._blessingRows ?? [];
+        if (payload && !this._blessingRows.some(r => r.id === payload.id)) {
+            this._blessingRows = [...this._blessingRows, payload];
+        }
+        this._renderBlessingCounter(this._blessingRows);
+        this._updateCardBlessingBadge(this._blessingRows.length);
+    }
+
+    // Fix #4: debounced full re-fetch — fires at most once per 3 s burst of blessings.
+    _debouncedRefreshBlessingCounter() {
+        clearTimeout(this._blessingRefreshTimer);
+        this._blessingRefreshTimer = setTimeout(() => this._refreshBlessingCounter(), 3000);
     }
 
     async _refreshBlessingCounter() {
         if (!this._dbReady()) return;
         try {
             const rows = await CommunityDB.getRoomBlessings(this.roomId);
+            this._blessingRows = rows;   // keep local copy in sync
             this._renderBlessingCounter(rows);
             this._updateCardBlessingBadge(rows.length);
         } catch (_) {}
@@ -491,27 +594,11 @@ class PracticeRoom {
     _showBlessingAnimation(payload) {
         if (document.getElementById('blessingAnimationOverlay')) return;
 
-        const overlay = document.createElement('div');
-        overlay.id = 'blessingAnimationOverlay';
-        overlay.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:999999;display:flex;align-items:center;justify-content:center;overflow:hidden;';
-
-        const senderName = payload?.name ?? null;
-        const senderHtml = senderName
-            ? `<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.45);backdrop-filter:blur(8px);border-radius:40px;padding:10px 24px;font-size:15px;color:white;font-weight:500;animation:blessFadeInOut 3.5s ease forwards;white-space:nowrap;">🙏 ${senderName} sends a blessing</div>`
-            : '';
-
-        const SYMBOLS = ['✨','🌸','💜','🌿','⭐','🕊️','💫','🌙'];
-        const particles = Array.from({ length: 28 }, (_, i) => {
-            const left   = 5 + Math.random() * 90;
-            const delay  = (Math.random() * 1.8).toFixed(2);
-            const dur    = (2.5 + Math.random() * 1.5).toFixed(2);
-            const size   = Math.round(14 + Math.random() * 18);
-            const rotate = Math.round(-30 + Math.random() * 60);
-            return `<div style="position:absolute;bottom:-40px;left:${left.toFixed(1)}%;font-size:${size}px;opacity:0;animation:blessFloat ${dur}s ${delay}s ease-out forwards;transform:rotate(${rotate}deg);">${SYMBOLS[i % SYMBOLS.length]}</div>`;
-        }).join('');
-
-        overlay.innerHTML = `
-            <style>
+        // ── Issue #3: Inject keyframe styles once into <head>, not per animation ──
+        if (!document.getElementById('blessingKeyframes')) {
+            const style = document.createElement('style');
+            style.id = 'blessingKeyframes';
+            style.textContent = `
                 @keyframes blessFloat {
                     0%   { transform:translateY(0) scale(0.6); opacity:0; }
                     15%  { opacity:1; }
@@ -523,10 +610,33 @@ class PracticeRoom {
                     15%  { opacity:1; transform:translate(-50%,-50%) scale(1); }
                     75%  { opacity:1; }
                     100% { opacity:0; transform:translate(-50%,-50%) scale(1.05); }
-                }
-            </style>
-            ${particles}
-            ${senderHtml}`;
+                }`;
+            document.head.appendChild(style);
+        }
+
+        const overlay = document.createElement('div');
+        overlay.id = 'blessingAnimationOverlay';
+        overlay.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:999999;display:flex;align-items:center;justify-content:center;overflow:hidden;';
+
+        const senderName = payload?.name ?? null;
+        const senderHtml = senderName
+            ? `<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.45);backdrop-filter:blur(8px);border-radius:40px;padding:10px 24px;font-size:15px;color:white;font-weight:500;animation:blessFadeInOut 3.5s ease forwards;white-space:nowrap;">🙏 ${senderName} sends a blessing</div>`
+            : '';
+
+        const SYMBOLS = ['✨','🌸','💜','🌿','⭐','🕊️','💫','🌙'];
+        // Reduce particle count on mobile to ease GPU load (Issue #3).
+        const isMobile    = window.innerWidth < 768;
+        const PARTICLE_N  = isMobile ? 12 : 28;
+        const particles   = Array.from({ length: PARTICLE_N }, (_, i) => {
+            const left   = 5 + Math.random() * 90;
+            const delay  = (Math.random() * 1.8).toFixed(2);
+            const dur    = (2.5 + Math.random() * 1.5).toFixed(2);
+            const size   = Math.round(14 + Math.random() * 18);
+            const rotate = Math.round(-30 + Math.random() * 60);
+            return `<div style="position:absolute;bottom:-40px;left:${left.toFixed(1)}%;font-size:${size}px;opacity:0;animation:blessFloat ${dur}s ${delay}s ease-out forwards;transform:rotate(${rotate}deg);">${SYMBOLS[i % SYMBOLS.length]}</div>`;
+        }).join('');
+
+        overlay.innerHTML = particles + senderHtml;
 
         (document.getElementById('communityHubFullscreenContainer') || document.body).appendChild(overlay);
         setTimeout(() => overlay.remove(), 4000);
@@ -577,7 +687,7 @@ class PracticeRoom {
                 ${this.buildAdditionalHeaderButtons?.() ?? ''}
                 ${this.buildSafetyDropdown()}
                 <button type="button" class="ps-leave" onclick="window['${this.roomId}_gentlyLeave']()" style="padding:10px 16px;white-space:nowrap;">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20h9"/><path d="M10 12v.01"/><path d="M13 4l-6 2v14l6 2"/></svg> Gently Leave
+                    ${_ICONS.leave} Gently Leave
                 </button>
             </div>
         </header>`;
@@ -586,23 +696,25 @@ class PracticeRoom {
     buildSafetyDropdown() {
         const toggle  = `${this.roomId}_toggleSafetyDropdown`;
         const showInst = `${this.roomId}_showInstructions`;
-        window[toggle]   = e => this.toggleSafetyDropdown(e);
-        window[showInst] = () => this.showInstructions();
+        // Issue #7: only register globals once — guard prevents re-assignment
+        // on every room entry (buildHeader → buildSafetyDropdown is called each time).
+        if (!window[toggle])   window[toggle]   = e => this.toggleSafetyDropdown(e);
+        if (!window[showInst]) window[showInst] = () => this.showInstructions();
 
         return `
         <div style="position:relative;" id="${this.roomId}SafetyDropdownContainer">
             <button type="button" class="ps-leave" onclick="${toggle}(event)" aria-haspopup="true" aria-expanded="false"
                     style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);white-space:nowrap;padding:10px 16px;">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Safety <span style="font-size:12px;">▼</span>
+                ${_ICONS.shield} Safety <span style="font-size:12px;">▼</span>
             </button>
             <div id="${this.roomId}SafetyDropdown"
                  style="display:none;position:absolute;top:100%;right:0;margin-top:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:100001;">
                 ${[
-                    [`${showInst}(); ${toggle}(event);`,              `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`, 'Instructions'],
-                    [`CommunityModule.showReportModal(); ${toggle}(event);`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`, 'Report Issue'],
-                    [`CommunityModule.showBlockModal();  ${toggle}(event);`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>`, 'Block User'],
-                    [`CommunityModule.muteChat();        ${toggle}(event);`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`, 'Mute Chat'],
-                    [`CommunityModule.showHelpModal();   ${toggle}(event);`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg>`, 'Get Help'],
+                    [`${showInst}(); ${toggle}(event);`,              _ICONS.book,  'Instructions'],
+                    [`CommunityModule.showReportModal(); ${toggle}(event);`, _ICONS.alert, 'Report Issue'],
+                    [`CommunityModule.showBlockModal();  ${toggle}(event);`, _ICONS.block, 'Block User'],
+                    [`CommunityModule.muteChat();        ${toggle}(event);`, _ICONS.mute,  'Mute Chat'],
+                    [`CommunityModule.showHelpModal();   ${toggle}(event);`, _ICONS.help,  'Get Help'],
                 ].map(([fn, icon, label], i, arr) => {
                     const border = i < arr.length - 1 ? 'border-bottom:1px solid var(--border);' : '';
                     return `<button type="button" onclick="${fn}" style="width:100%;padding:12px 16px;text-align:left;background:none;border:none;${border}cursor:pointer;display:flex;align-items:center;gap:12px;color:var(--text);"><span aria-hidden="true">${icon}</span> ${label}</button>`;
@@ -881,18 +993,35 @@ PracticeRoom.stopHubPresence = function() {
 
 window.PracticeRoom = PracticeRoom;
 
+/**
+ * Fix #7: Called by each room module after it registers its enterRoom function.
+ * Allows CommunityHubEngine to open a pending room via CustomEvent instead of
+ * a polling setInterval.
+ */
+window.dispatchRoomReady = function(roomKey) {
+    document.dispatchEvent(new CustomEvent('practiceRoomReady', { detail: { roomKey } }));
+};
+
 window.openMemberProfileAboveRoom = function(userId) {
     if (!window.MemberProfileModal || !userId) return;
     MemberProfileModal.open(userId);
     requestAnimationFrame(() => {
-        [
-            document.getElementById('memberProfileModal'),
-            document.getElementById('memberProfileOverlay'),
-            document.querySelector('.member-profile-overlay'),
-            document.querySelector('.member-profile-modal'),
-            document.querySelector('[class*="member"][class*="modal"]'),
-            document.querySelector('[id*="memberProfile"]'),
-        ].forEach(el => { if (el) el.style.zIndex = '200000'; });
+        // Fix #8: cache element references after first lookup — avoids 6 DOM
+        // queries + forced style recalculation on every avatar tap.
+        // Issue #9: invalidate cache if any element is no longer in the DOM
+        // (happens when modal is destroyed and recreated between sessions).
+        const _c = openMemberProfileAboveRoom._cachedEls;
+        if (!_c || _c.some(el => !el.isConnected)) {
+            openMemberProfileAboveRoom._cachedEls = [
+                document.getElementById('memberProfileModal'),
+                document.getElementById('memberProfileOverlay'),
+                document.querySelector('.member-profile-overlay'),
+                document.querySelector('.member-profile-modal'),
+                document.querySelector('[class*="member"][class*="modal"]'),
+                document.querySelector('[id*="memberProfile"]'),
+            ].filter(Boolean);
+        }
+        openMemberProfileAboveRoom._cachedEls.forEach(el => { el.style.zIndex = '200000'; });
     });
 };
 
