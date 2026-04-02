@@ -489,8 +489,8 @@ class TarotEngine {
     } else {
       const num = spread.cards;
       let gridClass = 'md:grid-cols-1';
-      if (num === 3) gridClass = 'md:grid-cols-3';
-      else if (num === 6) gridClass = 'grid-cols-2 md:grid-cols-3';
+      if (num === 3) gridClass = 'tarot-3col-grid';
+      else if (num === 6) gridClass = 'tarot-3col-grid';
       const isSingle = num === 1;
       cardArea = `<div class="grid ${gridClass} place-items-center${isSingle ? ' tarot-single-grid' : ''}">${Array.from({ length: num }).map((_, i) => this.cardMarkup(i, spread.positions[i], isSingle)).join('')}</div>`;
     }
@@ -648,102 +648,56 @@ class TarotEngine {
     border-radius: 8px;
   }
   
-  /* Grid responsive spacing */
-  #tarot-tab .grid {
-    gap: 0.5rem;
-    padding: 0 0.5rem;
+  /* Single card spread - fills container */
+  .tarot-single-grid {
+    width: 100%;
   }
-  
-  #tarot-tab .grid.md\\:grid-cols-3,
-  #tarot-tab .grid.grid-cols-2.md\\:grid-cols-3 {
-    column-gap: 0.5rem !important;
-    row-gap: 0.75rem !important;
+  .tarot-single-grid .flex.flex-col.items-center.mx-auto {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .tarot-single-grid .tarot-card-flip-container {
+    max-width: 100% !important;
+    width: 100% !important;
   }
 
-  /* Force 3-col spread to always fit on mobile */
-  #tarot-tab .grid.md\\:grid-cols-3:not(.grid-cols-2) {
+  /* Shared 3-column grid — always 3 cols, always fits container */
+  .tarot-3col-grid {
     display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 0.5rem;
     width: 100%;
     overflow: hidden;
   }
-
-  /* Force 6-card (2-col mobile) to fit */
-  #tarot-tab .grid.grid-cols-2.md\\:grid-cols-3 {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    width: 100%;
-    overflow: hidden;
-  }
-
-  /* Card wrapper fits its grid cell */
-  #tarot-tab .grid.md\\:grid-cols-3 .flex.flex-col.items-center.mx-auto,
-  #tarot-tab .grid.grid-cols-2.md\\:grid-cols-3 .flex.flex-col.items-center.mx-auto {
+  .tarot-3col-grid .flex.flex-col.items-center.mx-auto {
     width: 100% !important;
     max-width: 100% !important;
   }
-
-  /* Flip container fills its wrapper */
-  #tarot-tab .grid.md\\:grid-cols-3 .tarot-card-flip-container,
-  #tarot-tab .grid.grid-cols-2.md\\:grid-cols-3 .tarot-card-flip-container {
+  .tarot-3col-grid .tarot-card-flip-container {
     max-width: 100% !important;
     width: 100% !important;
   }
-  
+
   @media (min-width: 400px) {
-    #tarot-tab .grid {
-      gap: 0.65rem;
-      padding: 0 1rem;
-    }
-    #tarot-tab .grid.md\\:grid-cols-3,
-    #tarot-tab .grid.grid-cols-2.md\\:grid-cols-3 {
-      column-gap: 0.65rem !important;
-      row-gap: 0.85rem !important;
-    }
+    .tarot-3col-grid { gap: 0.65rem; }
   }
-  
   @media (min-width: 640px) {
-    #tarot-tab .grid {
-      gap: 0.75rem;
-      padding: 0 1rem;
-    }
-    #tarot-tab .grid.md\\:grid-cols-3,
-    #tarot-tab .grid.grid-cols-2.md\\:grid-cols-3 {
-      column-gap: 0.75rem !important;
-      row-gap: 1rem !important;
-    }
+    .tarot-3col-grid { gap: 0.75rem; }
   }
-  
   @media (min-width: 768px) {
-    #tarot-tab .grid { 
-      gap: 1rem 1.5rem; 
-      padding: 0;
-    }
-    #tarot-tab .grid.md\\:grid-cols-3,
-    #tarot-tab .grid.grid-cols-2.md\\:grid-cols-3 {
-      column-gap: 1.5rem !important;
-      row-gap: 1rem !important;
-    }
-    .tarot-card-flip-container { 
-      max-width: 220px; 
-    }
-    #tarot-tab .flex.flex-col.items-center.mx-auto { 
-      max-width: 220px;
-    }
+    .tarot-3col-grid { gap: 1rem 1.5rem; }
+    .tarot-card-flip-container { max-width: 220px; }
+    .tarot-single-grid .tarot-card-flip-container { max-width: 260px !important; }
+    #tarot-tab .flex.flex-col.items-center.mx-auto { max-width: 220px; }
     .card-reveal-prompt {
       padding: 1rem 1.5rem;
       border-width: 3px;
       font-size: 1rem;
     }
   }
-  
-  @media (min-width: 1600px) { 
-    .tarot-card-flip-container { 
-      max-width: 240px; 
-    }
-    #tarot-tab .flex.flex-col.items-center.mx-auto { 
-      max-width: 240px;
-    }
+  @media (min-width: 1600px) {
+    .tarot-card-flip-container { max-width: 240px; }
+    #tarot-tab .flex.flex-col.items-center.mx-auto { max-width: 240px; }
   }
   
   /* Pyramid layout */
@@ -831,9 +785,7 @@ class TarotEngine {
    * @returns {string} HTML for card
    */
   cardMarkup(index, label, isSingle = false) {
-    const sizeStyle = isSingle
-      ? 'width: clamp(200px, 55vw, 320px);'
-      : 'width: clamp(140px, 24vw, 250px);';
+    const sizeStyle = isSingle ? 'width:100%;' : 'width: clamp(140px, 24vw, 250px);';
     const detailHeight = isSingle ? 'clamp(80px, 16vw, 120px)' : 'clamp(60px, 12vw, 100px)';
     return `
       <div class="flex flex-col items-center mx-auto" style="${sizeStyle}">
@@ -861,17 +813,17 @@ class TarotEngine {
     
     if (spreadKey === 'options') {
       return `
-        <div class="flex flex-col items-center">
+        <div class="flex flex-col items-center" style="width:100%;">
           <h3 class="text-2xl font-bold" style="margin-bottom: 1rem;margin-top: 2rem;">Option 1</h3>
-          <div class="grid grid-cols-3 place-items-center" style="margin-bottom: 1.5rem;">
+          <div class="grid tarot-3col-grid place-items-center" style="margin-bottom: 1.5rem;width:100%;">
             ${positions.slice(0, 3).map((p, i) => this.cardMarkup(i, p)).join('')}
           </div>
           <h3 class="text-2xl font-bold" style="margin-bottom: 1rem;">Option 2</h3>
-          <div class="grid grid-cols-3 place-items-center" style="margin-bottom: 1.5rem;">
+          <div class="grid tarot-3col-grid place-items-center" style="margin-bottom: 1.5rem;width:100%;">
             ${positions.slice(3, 6).map((p, i) => this.cardMarkup(i + 3, p)).join('')}
           </div>
           <h3 class="text-2xl font-bold" style="margin-bottom: 1rem;">Option 3</h3>
-          <div class="grid grid-cols-3 place-items-center">
+          <div class="grid tarot-3col-grid place-items-center" style="width:100%;">
             ${positions.slice(6, 9).map((p, i) => this.cardMarkup(i + 6, p)).join('')}
           </div>
         </div>`;
