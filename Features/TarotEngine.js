@@ -491,7 +491,8 @@ class TarotEngine {
       let gridClass = 'md:grid-cols-1';
       if (num === 3) gridClass = 'md:grid-cols-3';
       else if (num === 6) gridClass = 'grid-cols-2 md:grid-cols-3';
-      cardArea = `<div class="grid ${gridClass} place-items-center">${Array.from({ length: num }).map((_, i) => this.cardMarkup(i, spread.positions[i])).join('')}</div>`;
+      const isSingle = num === 1;
+      cardArea = `<div class="grid ${gridClass} place-items-center${isSingle ? ' tarot-single-grid' : ''}">${Array.from({ length: num }).map((_, i) => this.cardMarkup(i, spread.positions[i], isSingle)).join('')}</div>`;
     }
 
     tab.innerHTML = `
@@ -532,10 +533,15 @@ class TarotEngine {
               const locked = !has;
               return `
                 <button id="tarot-vision-ai-btn"
-                        class="btn w-full inline-flex items-center justify-center gap-3 px-6 py-6 text-xl font-bold text-white rounded-xl shadow transition-transform ${locked ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02]'}">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12s1.5-3 5-3 5 3 5 3-1.5 3-5 3-5-3-5-3Z"/><circle cx="12" cy="12" r="1"/></svg> Tarot Vision AI – Take a picture/upload a tarot card to analyse it
-                  ${locked ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:3rem;height:3rem;opacity:0.3;margin-left:0.5rem;flex-shrink:0;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' : ''}
-                  <span class="premium-badge">PREMIUM</span>
+                        class="btn w-full px-5 py-4 text-white rounded-xl shadow transition-transform ${locked ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02]'}"
+                        style="position:relative;display:flex;align-items:center;gap:1rem;text-align:left;">
+                  <span class="premium-badge" style="position:absolute;top:0.5rem;right:0.5rem;margin:0;">PREMIUM</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:2.5rem;height:2.5rem;flex-shrink:0;"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12s1.5-3 5-3 5 3 5 3-1.5 3-5 3-5-3-5-3Z"/><circle cx="12" cy="12" r="1"/></svg>
+                  <span style="display:flex;flex-direction:column;gap:0.15rem;padding-right:4rem;">
+                    <span style="font-size:1.1rem;font-weight:700;line-height:1.2;">Tarot Vision AI</span>
+                    <span style="font-size:0.82rem;font-weight:400;opacity:0.85;line-height:1.3;">Take a picture or upload a tarot card to analyse it</span>
+                  </span>
+                  ${locked ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:2rem;height:2rem;opacity:0.4;margin-left:auto;flex-shrink:0;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' : ''}
                 </button>`;
             })()}
           </div>
@@ -652,6 +658,36 @@ class TarotEngine {
   #tarot-tab .grid.grid-cols-2.md\\:grid-cols-3 {
     column-gap: 0.5rem !important;
     row-gap: 0.75rem !important;
+  }
+
+  /* Force 3-col spread to always fit on mobile */
+  #tarot-tab .grid.md\\:grid-cols-3:not(.grid-cols-2) {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  /* Force 6-card (2-col mobile) to fit */
+  #tarot-tab .grid.grid-cols-2.md\\:grid-cols-3 {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  /* Card wrapper fits its grid cell */
+  #tarot-tab .grid.md\\:grid-cols-3 .flex.flex-col.items-center.mx-auto,
+  #tarot-tab .grid.grid-cols-2.md\\:grid-cols-3 .flex.flex-col.items-center.mx-auto {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Flip container fills its wrapper */
+  #tarot-tab .grid.md\\:grid-cols-3 .tarot-card-flip-container,
+  #tarot-tab .grid.grid-cols-2.md\\:grid-cols-3 .tarot-card-flip-container {
+    max-width: 100% !important;
+    width: 100% !important;
   }
   
   @media (min-width: 400px) {
@@ -794,9 +830,13 @@ class TarotEngine {
    * @param {string} label - Position label
    * @returns {string} HTML for card
    */
-  cardMarkup(index, label) {
+  cardMarkup(index, label, isSingle = false) {
+    const sizeStyle = isSingle
+      ? 'width: clamp(200px, 55vw, 320px);'
+      : 'width: clamp(140px, 24vw, 250px);';
+    const detailHeight = isSingle ? 'clamp(80px, 16vw, 120px)' : 'clamp(60px, 12vw, 100px)';
     return `
-      <div class="flex flex-col items-center mx-auto" style="width: clamp(140px, 24vw, 250px);">
+      <div class="flex flex-col items-center mx-auto" style="${sizeStyle}">
         <h4 class="text-lg font-bold h-8" style="color: var(--neuro-accent); margin-bottom: 0rem;">${label}</h4>
         <div class="tarot-card-flip-container" id="tarot-card-container-${index}" onclick="window.featuresManager.engines.tarot.flipCard(${index})">
           <div class="tarot-card-flip-inner">
@@ -807,7 +847,7 @@ class TarotEngine {
             <div class="tarot-card-front"></div>
           </div>
         </div>
-        <div id="tarot-card-details-${index}" class="text-center" style="opacity: 0; height: clamp(60px, 12vw, 100px); overflow-y: auto; margin-top: 0rem;"></div>
+        <div id="tarot-card-details-${index}" class="text-center" style="opacity: 0; height: ${detailHeight}; overflow-y: auto; margin-top: 0rem;"></div>
       </div>`;
   }
 
