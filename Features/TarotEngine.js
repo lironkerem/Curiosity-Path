@@ -526,22 +526,24 @@ class TarotEngine {
             }).join('')}
           </div>
 
-          <div class="flex justify-center" style="margin-bottom: 3rem;padding:0 1.5rem;">
+          <div style="margin-bottom: 3rem; padding: 0 1.5rem;">
             ${(() => {
               const isPrivileged = this.app?.state?.currentUser?.isAdmin || this.app?.state?.currentUser?.isVip;
               const has = isPrivileged || this.app?.gamification?.state?.unlockedFeatures?.includes('tarot_vision_ai');
               const locked = !has;
               return `
                 <button id="tarot-vision-ai-btn"
-                        class="btn w-full px-5 py-4 text-white rounded-xl shadow transition-transform ${locked ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02]'}"
-                        style="position:relative;display:flex;align-items:center;gap:1rem;text-align:left;">
-                  <span class="premium-badge" style="position:absolute;top:0.5rem;right:0.5rem;margin:0;">PREMIUM</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:2.5rem;height:2.5rem;flex-shrink:0;"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12s1.5-3 5-3 5 3 5 3-1.5 3-5 3-5-3-5-3Z"/><circle cx="12" cy="12" r="1"/></svg>
-                  <span style="display:flex;flex-direction:column;gap:0.15rem;padding-right:4rem;">
-                    <span style="font-size:1.1rem;font-weight:700;line-height:1.2;">Tarot Vision AI</span>
-                    <span style="font-size:0.82rem;font-weight:400;opacity:0.85;line-height:1.3;">Take a picture or upload a tarot card to analyse it</span>
+                        class="btn ${locked ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02]'}"
+                        style="position:relative;display:flex;align-items:center;gap:1.25rem;
+                               width:100%;padding:1.25rem 1.5rem;text-align:left;border-radius:0.75rem;
+                               min-height:5rem;box-sizing:border-box;">
+                  <span class="premium-badge" style="position:absolute;top:0.6rem;right:0.6rem;margin:0;z-index:1;">PREMIUM</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:3rem;height:3rem;flex-shrink:0;"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12s1.5-3 5-3 5 3 5 3-1.5 3-5 3-5-3-5-3Z"/><circle cx="12" cy="12" r="1"/></svg>
+                  <span style="display:flex;flex-direction:column;gap:0.2rem;flex:1;min-width:0;padding-right:${locked ? '3rem' : '4rem'};">
+                    <span style="font-size:1.2rem;font-weight:700;line-height:1.2;white-space:nowrap;">Tarot Vision AI</span>
+                    <span style="font-size:0.9rem;font-weight:400;opacity:0.85;line-height:1.3;white-space:normal;">Take a picture or upload a tarot card to analyse it</span>
                   </span>
-                  ${locked ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:2rem;height:2rem;opacity:0.4;margin-left:auto;flex-shrink:0;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' : ''}
+                  ${locked ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.75rem;height:1.75rem;opacity:0.45;flex-shrink:0;margin-left:auto;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>` : ''}
                 </button>`;
             })()}
           </div>
@@ -561,7 +563,6 @@ class TarotEngine {
 <style>
   .tarot-card-flip-container { 
     width: 100%;
-    max-width: 200px;
     aspect-ratio: 200 / 350; 
     perspective: 1000px; 
     cursor: pointer; 
@@ -648,17 +649,17 @@ class TarotEngine {
     border-radius: 8px;
   }
   
-  /* Single card spread - fills container */
+  /* Single card spread - fills container, capped on desktop */
   .tarot-single-grid {
     width: 100%;
   }
   .tarot-single-grid .flex.flex-col.items-center.mx-auto {
-    width: 100% !important;
-    max-width: 100% !important;
+    width: min(70vw, 300px);
+    max-width: 100%;
   }
   .tarot-single-grid .tarot-card-flip-container {
-    max-width: 100% !important;
-    width: 100% !important;
+    width: 100%;
+    max-width: 100%;
   }
 
   /* Shared 3-column grid — always 3 cols, always fits container */
@@ -680,15 +681,17 @@ class TarotEngine {
 
   @media (min-width: 400px) {
     .tarot-3col-grid { gap: 0.65rem; }
+    .tarot-single-grid .flex.flex-col.items-center.mx-auto { width: min(75vw, 320px); }
   }
   @media (min-width: 640px) {
     .tarot-3col-grid { gap: 0.75rem; }
+    .tarot-single-grid .flex.flex-col.items-center.mx-auto { width: min(60vw, 360px); }
   }
   @media (min-width: 768px) {
     .tarot-3col-grid { gap: 1rem 1.5rem; }
     .tarot-card-flip-container { max-width: 220px; }
-    .tarot-single-grid .tarot-card-flip-container { max-width: 260px !important; }
-    #tarot-tab .flex.flex-col.items-center.mx-auto { max-width: 220px; }
+    .tarot-single-grid .flex.flex-col.items-center.mx-auto { width: 320px; }
+    .tarot-single-grid .tarot-card-flip-container { max-width: 320px !important; }
     .card-reveal-prompt {
       padding: 1rem 1.5rem;
       border-width: 3px;
@@ -697,7 +700,8 @@ class TarotEngine {
   }
   @media (min-width: 1600px) {
     .tarot-card-flip-container { max-width: 240px; }
-    #tarot-tab .flex.flex-col.items-center.mx-auto { max-width: 240px; }
+    .tarot-single-grid .flex.flex-col.items-center.mx-auto { width: 360px; }
+    .tarot-single-grid .tarot-card-flip-container { max-width: 360px !important; }
   }
   
   /* Pyramid layout */
