@@ -259,7 +259,7 @@ const SolarEngine = {
     const S = 280, cx = 140, cy = 140, R = 110, Ri = 52;
     svg.setAttribute('viewBox', `0 0 ${S} ${S}`);
     svg.setAttribute('width',  '100%');
-    svg.setAttribute('height', 'auto');
+    svg.style.height = 'auto';
     svg.innerHTML = '';
 
     const ns = 'http://www.w3.org/2000/svg';
@@ -412,7 +412,7 @@ const SolarEngine = {
         <div class="celestial-content-horizontal">
           <div class="celestial-visual-section">
             <div class="solar-visual" id="solarVisual">
-              <svg width="100%" height="auto" viewBox="0 0 280 280" id="solarSvg" style="max-width:280px;display:block;margin:0 auto;" aria-hidden="true" focusable="false"></svg>
+              <svg width="100%" viewBox="0 0 280 280" id="solarSvg" style="max-width:280px;display:block;margin:0 auto;" aria-hidden="true" focusable="false"></svg>
             </div>
           </div>
           <div class="celestial-info-section">
