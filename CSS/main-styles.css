@@ -1992,7 +1992,8 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 }
 
 #energy-tab #mood-chips .chip:active,
-#energy-tab #mood-chips .chip.selected {
+#energy-tab #mood-chips .chip.selected,
+#energy-tab #mood-chips .chip.active {
   box-shadow: var(--shadow-inset);
 }
 

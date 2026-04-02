@@ -603,12 +603,12 @@ class EnergyEngineEnhanced {
    */
   buildActionButtons(period) {
     return `
-      <div class="flex gap-3 flex-wrap">
-        <button id="btn-save-checkin" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:0.5rem;">
+      <div class="energy-action-buttons">
+        <button id="btn-save-checkin" class="btn btn-primary" style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
           Save ${period === 'day' ? 'Day' : 'Night'} Check-in
         </button>
-        <button id="btn-reset-today" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:0.5rem;">
+        <button id="btn-reset-today" class="btn btn-secondary" style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           Reset Form
         </button>
@@ -798,9 +798,19 @@ class EnergyEngineEnhanced {
             <div class="text-sm" style="color:var(--neuro-text-light)">${timeStr}</div>
             ${badges.length ? `<div class="flex gap-2 mt-2">${badges.join('')}</div>` : ''}
           </div>
-          <div class="text-right">
-            <div class="text-3xl font-bold" style="color:var(--neuro-accent)">${entry.energy}</div>
-            <div class="text-sm" style="color:var(--neuro-text-light);">Energy</div>
+          <div class="flex items-center gap-3">
+            <div class="text-right">
+              <div class="text-3xl font-bold" style="color:var(--neuro-accent)">${entry.energy}</div>
+              <div class="text-sm" style="color:var(--neuro-text-light);">Energy</div>
+            </div>
+            <button class="btn-delete-entry" data-timestamp="${entry.timestamp}" 
+                    title="Delete entry"
+                    style="display:inline-flex;align-items:center;justify-content:center;
+                           width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;
+                           background:rgba(224,75,75,0.1);color:#e04b4b;flex-shrink:0;
+                           transition:background 0.2s;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            </button>
           </div>
         </div>
         ${this.buildEntryMoodTags(entry)}
@@ -1012,6 +1022,41 @@ class EnergyEngineEnhanced {
     this.attachButtonListeners();
     this.attachCollapsibleListener();
     this.attachSearchListener();
+    this.attachDeleteListeners();
+  }
+
+  /**
+   * Attaches delete button listeners for journal entries
+   */
+  attachDeleteListeners() {
+    document.querySelectorAll('.btn-delete-entry').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const timestamp = parseInt(e.currentTarget.dataset.timestamp);
+        if (confirm('Delete this energy entry?')) {
+          this.deleteEnergyEntry(timestamp);
+        }
+      });
+    });
+  }
+
+  /**
+   * Deletes an energy entry by timestamp
+   */
+  deleteEnergyEntry(timestamp) {
+    try {
+      const entries = this.app.state.data.energyEntries || [];
+      const index = entries.findIndex(e => e.timestamp === timestamp);
+      if (index >= 0) {
+        entries.splice(index, 1);
+        this.app.state.data.energyEntries = entries;
+        this.app.state.saveAppData();
+        this.app.showToast('Entry deleted', 'success');
+        this.render();
+      }
+    } catch (err) {
+      console.error('Error deleting entry:', err);
+      this.app.showToast('Failed to delete entry', 'error');
+    }
   }
 
   /**
@@ -1046,20 +1091,21 @@ class EnergyEngineEnhanced {
    * Attaches mood chip listeners
    */
   attachMoodListeners() {
-    if (!this._boundMoodHandler) {
-      this._boundMoodHandler = (e) => {
-        const mood = e.currentTarget.dataset.mood;
-        const index = this.currentCheckin.moodTags.indexOf(mood);
-        
-        if (index >= 0) {
-          this.currentCheckin.moodTags.splice(index, 1);
-          e.currentTarget.classList.remove('active');
-        } else {
-          this.currentCheckin.moodTags.push(mood);
-          e.currentTarget.classList.add('active');
-        }
-      };
-    }
+    this._boundMoodHandler = (e) => {
+      const chip = e.currentTarget;
+      if (!chip) return;
+      const mood = chip.dataset.mood;
+      if (!mood) return;
+      const index = this.currentCheckin.moodTags.indexOf(mood);
+
+      if (index >= 0) {
+        this.currentCheckin.moodTags.splice(index, 1);
+        chip.classList.remove('active');
+      } else {
+        this.currentCheckin.moodTags.push(mood);
+        chip.classList.add('active');
+      }
+    };
 
     document.querySelectorAll('[data-mood]').forEach(chip => {
       chip.removeEventListener('click', this._boundMoodHandler);
@@ -1225,19 +1271,39 @@ class EnergyEngineEnhanced {
           pointer-events: none; 
           transition: all 260ms ease; 
         }
-        .chip { 
-          background: rgba(31,45,61,0.04); 
-          border: 1px solid rgba(0,0,0,0.02); 
-          padding: 8px 16px; 
-          border-radius: 999px; 
-          cursor: pointer; 
-          font-size: 0.9rem; 
-          transition: all .2s; 
+        .energy-action-buttons {
+          display: flex;
+          gap: 0.75rem;
+        }
+        .energy-action-buttons .btn {
+          flex: 1;
+        }
+        .chip {
+          background: rgba(31,45,61,0.04);
+          border: 1px solid rgba(0,0,0,0.02);
+          padding: 8px 16px;
+          border-radius: 999px;
+          cursor: pointer;
+          font-size: 0.9rem;
+          transition: all .2s;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.3rem;
+          touch-action: manipulation;
+          -webkit-tap-highlight-color: transparent;
         }
         .chip.active { 
           background: linear-gradient(90deg, rgba(246,194,74,0.16), rgba(110,231,183,0.12)); 
           box-shadow: inset 4px 4px 8px rgba(0,0,0,.04), 
                       inset -4px -4px 8px rgba(255,255,255,.7); 
+        }
+        .badge {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 4px;
+          line-height: 1;
         }
         .calc-expandable-header { 
           padding: 24px; 
@@ -1268,8 +1334,13 @@ class EnergyEngineEnhanced {
           max-height: 5000px; 
           padding: 0 24px 24px; 
         }
-
         @media (max-width: 768px) {
+          .energy-action-buttons {
+            flex-direction: column;
+          }
+          .energy-action-buttons .btn {
+            width: 100%;
+          }
           .chakra-row {
             flex-wrap: wrap;
           }
