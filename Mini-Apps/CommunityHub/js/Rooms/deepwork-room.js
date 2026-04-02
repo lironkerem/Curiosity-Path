@@ -61,7 +61,7 @@ class DeepWorkRoom extends PracticeRoom {
         requestAnimationFrame(() => {
             document.querySelector(`#${this.roomId}View .ps-main`)?.scrollTo(0, 0);
         });
-    },
+    }
 
     onCleanup() {
         this.cleanupTimer();
