@@ -436,8 +436,8 @@ const UpcomingEvents = {
         btn.type = 'button';
         btn.setAttribute('aria-label', 'Update event flyers');
         btn.onclick = () => UpcomingEvents.openAdminModal();
-        btn.style.cssText = 'font-size:11px;font-weight:700;padding:4px 12px;border-radius:99px;border:none;cursor:pointer;background:var(--neuro-accent-a10);color:var(--neuro-accent);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;max-width:100%;box-sizing:border-box;';
-        btn.className = 'upcoming-admin-btn';
+        btn.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;';
+        btn.className = 'btn btn-primary upcoming-admin-btn';
         btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Update Flyers`;
         header.appendChild(btn);
     },
