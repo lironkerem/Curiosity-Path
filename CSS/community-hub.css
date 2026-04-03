@@ -87,6 +87,14 @@
 
 /* Community Hub inherits all typography from main app body styles */
 
+/* ===== ENFORCE PRIMARY BUTTON STYLE WITHIN COMMUNITY HUB ===== */
+#community-hub-tab .btn-primary,
+#community-hub-tab button.btn-primary {
+    background: linear-gradient(135deg, var(--neuro-accent), var(--neuro-accent-light)) !important;
+    color: white !important;
+    border: none !important;
+}
+
 /* ===== GLOBAL VIEWS ===== */
 .view { 
     display: none; 
@@ -2441,6 +2449,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 .event-flyer {
     width: 100%;
+    height: 240px;
     overflow: hidden;
     position: relative;
     background: var(--neuro-bg-lightest);
@@ -2448,8 +2457,8 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 .event-flyer img {
     width: 100%;
-    height: auto;
-    display: block;
+    height: 100%;
+    object-fit: cover;
     transition: transform var(--transition-normal);
 }
 
@@ -3741,9 +3750,9 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     border-radius: var(--radius-lg);
   }
 
-  /* Bigger image on mobile — natural aspect ratio, no cropping */
+  /* Bigger image on mobile — override inline height:450px */
   .event-flyer {
-    width: 100% !important;
+    height: 220px !important;
   }
 
   /* Tighter content padding */
@@ -3792,16 +3801,6 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     font-size: 13px !important;
     width: 100%;
     box-sizing: border-box;
-  }
-
-  /* Admin Update Flyers button — responsive on mobile */
-  .upcoming-admin-btn {
-    font-size: 10px !important;
-    padding: 4px 8px !important;
-    letter-spacing: 0 !important;
-  }
-  .upcoming-admin-btn .lucide-icon {
-    display: none !important;
   }
 
   /* ===== SOLAR TOP BAR ===== */
