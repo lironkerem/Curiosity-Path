@@ -534,7 +534,7 @@ class TarotEngine {
               return `
                 <button id="tarot-vision-ai-btn"
                         class="btn ${locked ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02]'}"
-                        style="position:relative;display:flex;align-items:center;gap:1.25rem;
+                        style="position:relative;display:flex !important;align-items:center;gap:1.25rem;
                                width:100%;padding:1.25rem 1.5rem;text-align:left;border-radius:0.75rem;
                                min-height:5rem;box-sizing:border-box;">
                   <span class="premium-badge" style="position:absolute;top:0.6rem;right:0.6rem;margin:0;z-index:1;">PREMIUM</span>
@@ -654,7 +654,7 @@ class TarotEngine {
     width: 100%;
   }
   .tarot-single-grid .flex.flex-col.items-center.mx-auto {
-    width: min(70vw, 300px);
+    width: clamp(240px, 85vw, 340px);
     max-width: 100%;
   }
   .tarot-single-grid .tarot-card-flip-container {
@@ -681,11 +681,12 @@ class TarotEngine {
 
   @media (min-width: 400px) {
     .tarot-3col-grid { gap: 0.65rem; }
-    .tarot-single-grid .flex.flex-col.items-center.mx-auto { width: min(75vw, 320px); }
+  }
+  @media (min-width: 480px) {
+    .tarot-single-grid .flex.flex-col.items-center.mx-auto { width: clamp(260px, 75vw, 360px); }
   }
   @media (min-width: 640px) {
     .tarot-3col-grid { gap: 0.75rem; }
-    .tarot-single-grid .flex.flex-col.items-center.mx-auto { width: min(60vw, 360px); }
   }
   @media (min-width: 768px) {
     .tarot-3col-grid { gap: 1rem 1.5rem; }
