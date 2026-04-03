@@ -2387,4 +2387,44 @@ body.sheet-open .lux-footer {
   
 }
 
+
+/* ===== SHADOW ALCHEMY LAB – MODAL MOBILE FIXES ===== */
+@media (max-width: 768px) {
+  .modal-card .modal-title,
+  .modal-card h3 {
+    font-size: clamp(1rem, 4vw, 1.4rem);
+  }
+
+  .modal-card .modal-subtitle {
+    font-size: clamp(0.75rem, 2.5vw, 0.9rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-card {
+    padding: var(--spacing-md, 1rem) !important;
+    width: 98% !important;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+    justify-content: stretch;
+  }
+
+  .modal-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Trigger Release: Core Trigger / Emotion 2-col → single col */
+  .trigger-grid-2col {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Daily Journey: Emotion / Intensity 2-col → single col */
+  .journey-step-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 /* ===== END OF MOBILE STYLES ===== */

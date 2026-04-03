@@ -208,7 +208,7 @@
       <h4>${q.text}</h4>
       <textarea id="journey-answer" class="form-input" placeholder="Write your response here..." 
         style="min-height: 120px; margin-top: 0.5rem;"></textarea>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; align-items: center;">
+      <div class="journey-step-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; align-items: center;">
         <div>
           <label class="form-label">Primary emotion:</label>
           <select id="journey-emotion" class="form-input">${emotionOptions}</select>

@@ -10,7 +10,7 @@ export function openSubShadowJourneyModal(shadowId) {
   const { modal, closeModal } = createModal({
     id: 'subShadowJourneyModal',
     title: `${shadow.icon} ${shadow.title}`,
-    subtitle: `${shadow.tagline}<br><span style="font-size:0.85rem;display:inline-flex;align-items:center;gap:0.25rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:0.85rem;height:0.85rem;vertical-align:middle;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> ${shadow.estimatedTime}</span>`,
+    subtitle: `${shadow.tagline}<br><span style="font-size:0.85rem;display:inline-flex;align-items:center;gap:0.25rem;flex-wrap:wrap;word-break:break-word;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:0.85rem;height:0.85rem;vertical-align:middle;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> ${shadow.estimatedTime}</span>`,
     content: '<div id="sub-shadow-journey-content" style="overflow-y:auto;max-height:calc(90vh - 200px)"></div>',
     actions: '',
     onClose: () => {

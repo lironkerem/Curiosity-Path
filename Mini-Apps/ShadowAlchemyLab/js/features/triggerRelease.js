@@ -47,7 +47,7 @@ export function openTriggerReleaseModal(entry = null) {
         <label class="form-label">Describe your trigger</label>
         <textarea id="trigger-textarea" class="form-input" style="min-height:150px;resize:none;margin-bottom:1.5rem" placeholder="What happened and how did it make you feel?">${isEditing ? entry.text : ''}</textarea>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-md)">
+        <div class="trigger-grid-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-md)">
           <div>
             <label class="form-label">Core Trigger:</label>
             <select id="trigger-core-trigger" class="form-input"><option value="">Choose Core Trigger</option>${coreTriggerOptions}</select>
