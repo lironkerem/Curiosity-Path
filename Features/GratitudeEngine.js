@@ -193,14 +193,17 @@ export default class GratitudeEngine {
    * Generates input card HTML
    */
   _getInputCardHTML(todayTotal, isQuestComplete) {
-    const badgeClass = isQuestComplete ? 'badge-success' : 'badge-primary';
-    
+    const isComplete = isQuestComplete;
+    const badgeStyle = isComplete
+      ? 'background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3);'
+      : 'background:rgba(var(--neuro-accent-rgb,102,126,234),0.15);color:var(--neuro-accent);border:1px solid rgba(var(--neuro-accent-rgb,102,126,234),0.3);';
+
     return `
       <div class="card">
         <div class="flex items-center justify-between" style="margin-bottom: 2rem;">
           <h3 class="text-2xl font-bold" style="color: var(--neuro-text);">My Gratitudes for Today</h3>
-          <span class="badge ${badgeClass}" style="display:inline-flex;align-items:center;justify-content:center;gap:0.25rem;white-space:nowrap;padding:0.35rem 0.75rem;line-height:1;">
-            <span id="today-counter">${todayTotal}</span><span>/ ${GratitudeEngine.MAX_ENTRIES} (Quest)</span>
+          <span style="display:inline-flex;align-items:center;justify-content:center;gap:0.25rem;white-space:nowrap;padding:0.35rem 0.85rem;border-radius:9999px;font-size:0.85rem;font-weight:600;line-height:1.4;${badgeStyle}">
+            <span id="today-counter">${todayTotal}</span><span>/ ${GratitudeEngine.MAX_ENTRIES} Quest</span>
           </span>
         </div>
 
@@ -222,7 +225,7 @@ export default class GratitudeEngine {
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
               Add 1 More
             </button>
-            <button type="submit" class="btn btn-primary" style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;">
+            <button type="submit" class="btn btn-primary" style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;background:linear-gradient(135deg,var(--neuro-accent),var(--neuro-accent-light)) !important;color:#fff !important;">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
               Save my Gratitudes
             </button>
