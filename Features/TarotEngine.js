@@ -492,7 +492,8 @@ class TarotEngine {
       if (num === 3) gridClass = 'tarot-3col-grid';
       else if (num === 6) gridClass = 'tarot-3col-grid';
       const isSingle = num === 1;
-      cardArea = `<div class="grid ${gridClass} place-items-center${isSingle ? ' tarot-single-grid' : ''}">${Array.from({ length: num }).map((_, i) => this.cardMarkup(i, spread.positions[i], isSingle)).join('')}</div>`;
+      const gridPlacing = isSingle ? '' : ' place-items-center';
+      cardArea = `<div class="grid ${gridClass}${gridPlacing}${isSingle ? ' tarot-single-grid' : ''}">${Array.from({ length: num }).map((_, i) => this.cardMarkup(i, spread.positions[i], isSingle)).join('')}</div>`;
     }
 
     tab.innerHTML = `
@@ -649,12 +650,12 @@ class TarotEngine {
     border-radius: 8px;
   }
   
-  /* Single card spread - fills container, capped on desktop */
+  /* Single card spread - fills container on mobile, capped on desktop */
   .tarot-single-grid {
     width: 100%;
   }
   .tarot-single-grid .flex.flex-col.items-center.mx-auto {
-    width: clamp(240px, 85vw, 340px);
+    width: 100%;
     max-width: 100%;
   }
   .tarot-single-grid .tarot-card-flip-container {
@@ -682,16 +683,13 @@ class TarotEngine {
   @media (min-width: 400px) {
     .tarot-3col-grid { gap: 0.65rem; }
   }
-  @media (min-width: 480px) {
-    .tarot-single-grid .flex.flex-col.items-center.mx-auto { width: clamp(260px, 75vw, 360px); }
-  }
   @media (min-width: 640px) {
     .tarot-3col-grid { gap: 0.75rem; }
   }
   @media (min-width: 768px) {
     .tarot-3col-grid { gap: 1rem 1.5rem; }
     .tarot-card-flip-container { max-width: 220px; }
-    .tarot-single-grid .flex.flex-col.items-center.mx-auto { width: 320px; }
+    .tarot-single-grid .flex.flex-col.items-center.mx-auto { width: 320px; max-width: 320px; }
     .tarot-single-grid .tarot-card-flip-container { max-width: 320px !important; }
     .card-reveal-prompt {
       padding: 1rem 1.5rem;
@@ -701,7 +699,7 @@ class TarotEngine {
   }
   @media (min-width: 1600px) {
     .tarot-card-flip-container { max-width: 240px; }
-    .tarot-single-grid .flex.flex-col.items-center.mx-auto { width: 360px; }
+    .tarot-single-grid .flex.flex-col.items-center.mx-auto { width: 360px; max-width: 360px; }
     .tarot-single-grid .tarot-card-flip-container { max-width: 360px !important; }
   }
   
