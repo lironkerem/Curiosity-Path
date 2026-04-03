@@ -2450,7 +2450,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 .event-flyer img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     transition: transform var(--transition-normal);
 }
 
@@ -3793,6 +3793,16 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     font-size: 13px !important;
     width: 100%;
     box-sizing: border-box;
+  }
+
+  /* Admin Update Flyers button — responsive on mobile */
+  .upcoming-admin-btn {
+    font-size: 10px !important;
+    padding: 4px 8px !important;
+    letter-spacing: 0 !important;
+  }
+  .upcoming-admin-btn .lucide-icon {
+    display: none !important;
   }
 
   /* ===== SOLAR TOP BAR ===== */

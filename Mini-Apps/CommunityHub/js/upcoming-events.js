@@ -231,9 +231,7 @@ const UpcomingEvents = {
         <section class="section" aria-labelledby="upcomingEventsTitle">
             <div class="section-header">
                 <div class="section-title" id="upcomingEventsTitle">Upcoming Events</div>
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="font-size:12px;color:var(--text-muted);">Group classes & private sessions</div>
-                </div>
+
             </div>
             <div class="events-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
                 ${this._getCardHTML('classes')}
@@ -264,7 +262,7 @@ const UpcomingEvents = {
                  width="600" height="400"
                  onclick="UpcomingEvents.openLightbox(this.src)"
                  loading="lazy" decoding="async"
-                 style="width:100%;height:100%;object-fit:cover;transition:opacity ${this.config.FADE_DURATION}ms ease;cursor:zoom-in;">
+                 style="width:100%;height:100%;object-fit:contain;transition:opacity ${this.config.FADE_DURATION}ms ease;cursor:zoom-in;">
             <div class="flyer-indicator" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:8px;">
                 ${dots}
             </div>
@@ -438,7 +436,8 @@ const UpcomingEvents = {
         btn.type = 'button';
         btn.setAttribute('aria-label', 'Update event flyers');
         btn.onclick = () => UpcomingEvents.openAdminModal();
-        btn.style.cssText = 'font-size:11px;font-weight:700;padding:4px 12px;border-radius:99px;border:none;cursor:pointer;background:var(--neuro-accent-a10);color:var(--neuro-accent);text-transform:uppercase;letter-spacing:0.5px;';
+        btn.style.cssText = 'font-size:11px;font-weight:700;padding:4px 12px;border-radius:99px;border:none;cursor:pointer;background:var(--neuro-accent-a10);color:var(--neuro-accent);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;max-width:100%;box-sizing:border-box;';
+        btn.className = 'upcoming-admin-btn';
         btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Update Flyers`;
         header.appendChild(btn);
     },
