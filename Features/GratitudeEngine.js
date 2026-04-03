@@ -199,8 +199,8 @@ export default class GratitudeEngine {
       <div class="card">
         <div class="flex items-center justify-between" style="margin-bottom: 2rem;">
           <h3 class="text-2xl font-bold" style="color: var(--neuro-text);">My Gratitudes for Today</h3>
-          <span class="badge ${badgeClass}">
-            <span id="today-counter">${todayTotal}</span> / ${GratitudeEngine.MAX_ENTRIES} (Quest)
+          <span class="badge ${badgeClass}" style="display:inline-flex;align-items:center;justify-content:center;gap:0.25rem;white-space:nowrap;padding:0.35rem 0.75rem;line-height:1;">
+            <span id="today-counter">${todayTotal}</span><span>/ ${GratitudeEngine.MAX_ENTRIES} (Quest)</span>
           </span>
         </div>
 
@@ -217,12 +217,12 @@ export default class GratitudeEngine {
             aria-label="Gratitude entries"
           >1. </textarea>
           
-          <div class="flex gap-3" style="margin-top: 1rem;">
-            <button type="button" id="add-one-more-btn" class="btn btn-secondary flex-1" style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;">
+          <div class="gratitude-action-buttons" style="margin-top: 1rem;">
+            <button type="button" id="add-one-more-btn" class="btn btn-secondary" style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
               Add 1 More
             </button>
-            <button type="submit" class="btn btn-primary flex-1" style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;">
+            <button type="submit" class="btn btn-primary" style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
               Save my Gratitudes
             </button>
@@ -424,9 +424,23 @@ export default class GratitudeEngine {
           padding: 0 24px 24px; 
         }
 
+        .gratitude-action-buttons {
+          display: flex;
+          gap: 0.75rem;
+        }
+        .gratitude-action-buttons .btn {
+          flex: 1;
+        }
+
         @media (max-width: 768px) {
           .gratitude-inspiration-grid {
             grid-template-columns: repeat(2, 1fr);
+          }
+          .gratitude-action-buttons {
+            flex-direction: column;
+          }
+          .gratitude-action-buttons .btn {
+            width: 100%;
           }
         }
 
