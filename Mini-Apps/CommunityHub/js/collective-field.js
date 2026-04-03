@@ -166,11 +166,8 @@ const CollectiveField = {
                         <span class="progress-label">Energy Level</span>
                         <span class="progress-value" id="energyValue">${energyLevel}%</span>
                         <span id="adminEnergyBtn" style="display:none;margin-left:8px;">
-                            <button type="button" onclick="CollectiveField.adminAddEnergy()" title="Admin: Add Energy"
-                                    style="width:22px;height:22px;border-radius:50%;border:none;cursor:pointer;
-                                           font-size:13px;font-weight:700;line-height:1;
-                                           background:var(--neuro-accent-a20);color:var(--neuro-accent);
-                                           display:inline-flex;align-items:center;justify-content:center;">+</button>
+                            <button type="button" class="btn btn-primary" onclick="CollectiveField.adminAddEnergy()" title="Admin: Add Energy"
+                                    style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:4px 10px;font-size:12px;min-height:unset;border-radius:99px;">+</button>
                         </span>
                     </div>
                 </div>
@@ -259,11 +256,8 @@ const CollectiveField = {
                         <span class="progress-label">Wave Building</span>
                         <span class="progress-value" id="waveProgressValue">${progress}%</span>
                         <span id="adminWaveBtn" style="display:none;margin-left:8px;">
-                            <button type="button" onclick="CollectiveField.adminAddWaveMinutes()" title="Admin: Add 60 minutes to Wave"
-                                    style="width:22px;height:22px;border-radius:50%;border:none;cursor:pointer;
-                                           font-size:13px;font-weight:700;line-height:1;
-                                           background:var(--neuro-accent-a20);color:var(--neuro-accent);
-                                           display:inline-flex;align-items:center;justify-content:center;">+</button>
+                            <button type="button" class="btn btn-primary" onclick="CollectiveField.adminAddWaveMinutes()" title="Admin: Add 60 minutes to Wave"
+                                    style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:4px 10px;font-size:12px;min-height:unset;border-radius:99px;">+</button>
                         </span>
                     </div>
                 </div>

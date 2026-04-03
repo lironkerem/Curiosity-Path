@@ -87,6 +87,7 @@ const CommunityModule = {
         <section class="section">
             <div class="section-header">
                 <div class="section-title">Community Reflections</div>
+                <div style="font-size:12px;color:var(--text-muted);">Shared wisdom & moments</div>
             </div>
 
             <div class="reflection" style="margin-bottom:16px;">
@@ -114,7 +115,7 @@ const CommunityModule = {
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:10px;border-top:2px solid var(--border);">
                     <span style="font-size:11px;color:var(--text-muted);"><span id="charCount">0</span>/${this.config.MAX_REFLECTION_LENGTH}</span>
                     <button type="button" onclick="CommunityModule.shareReflection()"
-                            class="btn btn-primary" style="padding:7px 20px;font-size:13px;">
+                            class="btn btn-primary" style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:7px 20px;font-size:13px;">
                         Share
                     </button>
                 </div>
