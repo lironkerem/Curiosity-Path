@@ -218,11 +218,13 @@ class HappinessEngine {
    */
   updateQuestDisplay() {
     const viewCount = this.getTodayViewCount();
-    const badge = document.querySelector('#happiness-tab .badge');
+    const badge = document.getElementById('happiness-quest-badge');
     
     if (badge) {
-      badge.textContent = `${viewCount} / ${HappinessEngine.QUEST_TARGET} (Quest)`;
-      badge.className = `badge ${viewCount >= HappinessEngine.QUEST_TARGET ? 'badge-success' : 'badge-primary'}`;
+      const isComplete = viewCount >= HappinessEngine.QUEST_TARGET;
+      badge.style.cssText = `display:inline-flex;align-items:center;justify-content:center;gap:0.25rem;white-space:nowrap;padding:0.35rem 0.85rem;border-radius:9999px;font-size:0.85rem;font-weight:600;line-height:1.4;${isComplete ? 'background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3);' : 'background:rgba(102,126,234,0.15);color:var(--neuro-accent);border:1px solid rgba(102,126,234,0.3);'}`;
+      const countEl = document.getElementById('happiness-quest-count');
+      if (countEl) countEl.textContent = viewCount;
     }
     
     this._toggleQuestCompleteBanner(viewCount);
@@ -354,7 +356,7 @@ class HappinessEngine {
         </div>
       </div>
       <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
-        <button onclick="window.featuresManager.engines.happiness.refreshBooster()" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Refresh</button>
+        <button onclick="window.featuresManager.engines.happiness.refreshBooster()" class="btn btn-primary" style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;background:linear-gradient(135deg,var(--neuro-accent),var(--neuro-accent-light)) !important;color:#fff !important;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Refresh</button>
       </div>`;
   }
 
@@ -376,7 +378,7 @@ class HappinessEngine {
         - ${quote.author}
       </p>
       <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
-        <button onclick="window.featuresManager.engines.happiness.refreshQuote()" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Refresh</button>
+        <button onclick="window.featuresManager.engines.happiness.refreshQuote()" class="btn btn-primary" style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;background:linear-gradient(135deg,var(--neuro-accent),var(--neuro-accent-light)) !important;color:#fff !important;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Refresh</button>
       </div>`;
   }
 
@@ -395,7 +397,7 @@ class HappinessEngine {
         "${affirmation}"
       </p>
       <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
-        <button onclick="window.featuresManager.engines.happiness.refreshAffirmation()" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Refresh</button>
+        <button onclick="window.featuresManager.engines.happiness.refreshAffirmation()" class="btn btn-primary" style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;background:linear-gradient(135deg,var(--neuro-accent),var(--neuro-accent-light)) !important;color:#fff !important;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Refresh</button>
       </div>`;
   }
 
@@ -428,7 +430,7 @@ class HappinessEngine {
         </div>
       </div>
       <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
-        <button onclick="window.featuresManager.engines.happiness.refreshInquiry()" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Refresh</button>
+        <button onclick="window.featuresManager.engines.happiness.refreshInquiry()" class="btn btn-primary" style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;background:linear-gradient(135deg,var(--neuro-accent),var(--neuro-accent-light)) !important;color:#fff !important;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Refresh</button>
       </div>`;
   }
 
@@ -465,7 +467,7 @@ class HappinessEngine {
 
       <div class="flex items-center justify-between" style="margin-bottom: 2rem; padding: 1rem; background: rgba(102, 126, 234, 0.05); border-radius: 8px;">
         <span style="color: var(--neuro-text); font-weight: 600;">Daily Quest Progress</span>
-        <span class="badge ${viewCount >= HappinessEngine.QUEST_TARGET ? 'badge-success' : 'badge-primary'}">${viewCount} / ${HappinessEngine.QUEST_TARGET} (Quest)</span>
+        <span id="happiness-quest-badge" style="display:inline-flex;align-items:center;justify-content:center;gap:0.25rem;white-space:nowrap;padding:0.35rem 0.85rem;border-radius:9999px;font-size:0.85rem;font-weight:600;line-height:1.4;${viewCount >= HappinessEngine.QUEST_TARGET ? 'background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3);' : 'background:rgba(102,126,234,0.15);color:var(--neuro-accent);border:1px solid rgba(102,126,234,0.3);'}"><span id="happiness-quest-count">${viewCount}</span><span>/ ${HappinessEngine.QUEST_TARGET} Quest</span></span>
       </div>
 
       ${viewCount >= HappinessEngine.QUEST_TARGET ? `
@@ -571,7 +573,7 @@ class HappinessEngine {
               ${content}
             </div>
             <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
-              <button onclick="window.featuresManager.engines.happiness.${refreshMethod}()" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Refresh</button>
+              <button onclick="window.featuresManager.engines.happiness.${refreshMethod}()" class="btn btn-primary" style="display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;background:linear-gradient(135deg,var(--neuro-accent),var(--neuro-accent-light)) !important;color:#fff !important;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Refresh</button>
             </div>
           </div>
           <div class="flip-card-back"></div>
