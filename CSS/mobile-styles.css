@@ -846,12 +846,12 @@ textarea {
 
 /* Single card spread — override mobile caps */
 #tarot-tab .tarot-single-grid .tarot-card-flip-container {
-  width: 100% !important;
-  max-width: 100% !important;
+  width: 75% !important;
+  max-width: 75% !important;
 }
 #tarot-tab .tarot-single-grid .flex.flex-col.items-center.mx-auto {
-  width: 100% !important;
-  max-width: 100% !important;
+  width: 75% !important;
+  max-width: 75% !important;
   flex-shrink: 0;
 }
 
