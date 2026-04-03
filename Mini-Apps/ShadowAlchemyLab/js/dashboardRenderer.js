@@ -50,6 +50,17 @@ export function renderDashboard() {
       ${subShadowsCard(allShadows, completedShadows, shadowPct)}
       ${savedWorkCard(recentHTML)}
     </div>`;
+
+  const swHeader = document.getElementById('saved-work-header');
+  const swCard   = document.getElementById('saved-work-card');
+  const swChevron = document.getElementById('saved-work-chevron');
+  if (swHeader && swCard) {
+    swHeader.addEventListener('click', () => {
+      const open = swCard.classList.toggle('expanded');
+      swCard.querySelector('#saved-work-content').style.maxHeight = open ? '5000px' : '0';
+      if (swChevron) swChevron.style.transform = open ? 'rotate(90deg)' : '';
+    });
+  }
 }
 
 /* ---------- card fragments ---------- */
@@ -114,22 +125,22 @@ function subShadowsCard(allShadows, completedShadows, shadowPct) {
 function savedWorkCard(recentHTML) {
   return `
     <div class="card calc-expandable-card" id="saved-work-card">
-      <div class="calc-expandable-header" id="saved-work-header"
-           onclick="document.getElementById('saved-work-card').classList.toggle('expanded')">
-        <span class="chevron">›</span>
+      <div id="saved-work-header" style="padding:24px;cursor:pointer;display:flex;align-items:center;gap:12px;">
+        <span id="saved-work-chevron" style="font-size:1.5rem;transition:transform var(--transition-normal);color:var(--neuro-accent);display:inline-block;">&#8250;</span>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-             style="color: var(--neuro-accent); flex-shrink: 0;">
+             style="color:var(--neuro-accent);flex-shrink:0;">
           <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
           <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
         </svg>
-        <h3 style="color:var(--neuro-text);margin:0;font-size:1.5rem;font-weight:700;
-                   text-shadow:0 1px 2px rgba(0,0,0,0.1);letter-spacing:0.025em;">
+        <div style="color:var(--neuro-text);margin:0;font-size:1.5rem;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,0.1);letter-spacing:0.025em;">
           Your Saved Work
-        </h3>
+        </div>
       </div>
-      <div class="calc-expandable-content">
-        <div class="space-y-4">${recentHTML}</div>
+      <div id="saved-work-content" style="max-height:0;overflow:hidden;transition:max-height var(--transition-slow);">
+        <div style="padding:0 24px 24px;">
+          <div class="space-y-4">${recentHTML}</div>
+        </div>
       </div>
     </div>`;
 }
