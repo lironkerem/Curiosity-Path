@@ -119,7 +119,6 @@ class CommunityHubEngine {
                 <section class="section" aria-labelledby="practiceSpacesTitle">
                   <div class="section-header">
                     <div class="section-title" id="practiceSpacesTitle">Practice Spaces</div>
-                    <div style="font-size:12px; color:var(--text-muted);">Choose your practice</div>
                   </div>
                   <div class="rooms-grid" id="roomsGrid"></div>
                 </section>
@@ -127,7 +126,6 @@ class CommunityHubEngine {
                 <section class="section" id="celestialLunarSection" aria-labelledby="celestialCyclesTitle">
                   <div class="section-header">
                     <div class="section-title" id="celestialCyclesTitle">Celestial Cycles</div>
-                    <div style="font-size:12px; color:var(--text-muted);">Practice with nature's rhythms</div>
                   </div>
                   <div id="lunarContainer" class="celestial-container"></div>
                 </section>

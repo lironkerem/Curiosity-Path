@@ -169,7 +169,7 @@ const CollectiveField = {
                             <button type="button" onclick="CollectiveField.adminAddEnergy()" title="Admin: Add Energy"
                                     style="width:22px;height:22px;border-radius:50%;border:none;cursor:pointer;
                                            font-size:13px;font-weight:700;line-height:1;
-                                           background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);
+                                           background:var(--neuro-accent-a20);color:var(--neuro-accent);
                                            display:inline-flex;align-items:center;justify-content:center;">+</button>
                         </span>
                     </div>
@@ -262,7 +262,7 @@ const CollectiveField = {
                             <button type="button" onclick="CollectiveField.adminAddWaveMinutes()" title="Admin: Add 60 minutes to Wave"
                                     style="width:22px;height:22px;border-radius:50%;border:none;cursor:pointer;
                                            font-size:13px;font-weight:700;line-height:1;
-                                           background:rgba(139,92,246,0.15);color:rgba(139,92,246,0.9);
+                                           background:var(--neuro-accent-a20);color:var(--neuro-accent);
                                            display:inline-flex;align-items:center;justify-content:center;">+</button>
                         </span>
                     </div>

@@ -143,7 +143,6 @@ const AdminDashboard = {
                               style="display:none;background:#ef4444;color:#fff;border-radius:99px;
                                      font-size:10px;font-weight:700;padding:2px 8px;margin-right:6px;
                                      animation:adminPulse 1.5s infinite;">0 new</span>
-                        Community management
                     </div>
                 </div>
                 <div class="card" style="padding:16px;">

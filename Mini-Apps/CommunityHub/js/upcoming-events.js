@@ -259,12 +259,12 @@ const UpcomingEvents = {
         ).join('');
 
         return `
-        <div class="event-flyer" style="position:relative;height:450px;overflow:hidden;background:var(--neuro-bg);">
+        <div class="event-flyer" style="position:relative;height:580px;overflow:hidden;background:var(--neuro-bg);">
             <img src="${this.escapeHtml(data.image)}" alt="${this.escapeHtml(data.title)}" id="${imageId}"
                  width="600" height="400"
                  onclick="UpcomingEvents.openLightbox(this.src)"
                  loading="lazy" decoding="async"
-                 style="width:100%;height:100%;object-fit:contain;transition:opacity ${this.config.FADE_DURATION}ms ease;cursor:zoom-in;">
+                 style="width:100%;height:100%;object-fit:cover;transition:opacity ${this.config.FADE_DURATION}ms ease;cursor:zoom-in;">
             <div class="flyer-indicator" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:8px;">
                 ${dots}
             </div>

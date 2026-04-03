@@ -2441,7 +2441,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 .event-flyer {
     width: 100%;
-    height: 240px;
+    height: 580px;
     overflow: hidden;
     position: relative;
     background: var(--neuro-bg-lightest);
@@ -3742,9 +3742,9 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     border-radius: var(--radius-lg);
   }
 
-  /* Bigger image on mobile — override inline height:450px */
+  /* Bigger image on mobile — override inline height */
   .event-flyer {
-    height: 220px !important;
+    height: 420px !important;
   }
 
   /* Tighter content padding */
