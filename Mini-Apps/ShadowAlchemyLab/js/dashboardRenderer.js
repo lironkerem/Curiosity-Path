@@ -113,16 +113,24 @@ function subShadowsCard(allShadows, completedShadows, shadowPct) {
 
 function savedWorkCard(recentHTML) {
   return `
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" id="saved-work-header">
-        <div style="text-align:center;flex:1">
-          <div style="margin-bottom:var(--spacing-sm)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
-          <h3 style="margin:0 0 var(--spacing-xs) 0;display:flex;align-items:center;justify-content:center;gap:0.5rem;">Your Saved Work</h3>
-          <p style="color:var(--neuro-text-light);font-size:0.95rem;margin:0">Recent entries: Shadow Guided Process, Trigger Release, and Shadow Dialogue.</p>
-        </div>
-        <button class="btn" style="padding:8px 16px;margin-left:var(--spacing-md);flex-shrink:0" id="toggle-saved-work"><span id="saved-work-arrow">▼</span></button>
+    <div class="card calc-expandable-card" id="saved-work-card">
+      <div class="calc-expandable-header" id="saved-work-header"
+           onclick="document.getElementById('saved-work-card').classList.toggle('expanded')">
+        <span class="chevron">›</span>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+             style="color: var(--neuro-accent); flex-shrink: 0;">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        <h3 style="color:var(--neuro-text);margin:0;font-size:1.5rem;font-weight:700;
+                   text-shadow:0 1px 2px rgba(0,0,0,0.1);letter-spacing:0.025em;">
+          Your Saved Work
+        </h3>
       </div>
-      <div id="saved-work-content" style="display:none;margin-top:var(--spacing-md)">${recentHTML}</div>
+      <div class="calc-expandable-content">
+        <div class="space-y-4">${recentHTML}</div>
+      </div>
     </div>`;
 }
 
