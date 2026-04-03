@@ -257,12 +257,12 @@ const UpcomingEvents = {
         ).join('');
 
         return `
-        <div class="event-flyer" style="position:relative;height:580px;overflow:hidden;background:var(--neuro-bg);">
+        <div class="event-flyer" style="position:relative;background:var(--neuro-bg);">
             <img src="${this.escapeHtml(data.image)}" alt="${this.escapeHtml(data.title)}" id="${imageId}"
                  width="600" height="400"
                  onclick="UpcomingEvents.openLightbox(this.src)"
                  loading="lazy" decoding="async"
-                 style="width:100%;height:100%;object-fit:contain;transition:opacity ${this.config.FADE_DURATION}ms ease;cursor:zoom-in;">
+                 style="width:100%;height:auto;display:block;transition:opacity ${this.config.FADE_DURATION}ms ease;cursor:zoom-in;">
             <div class="flyer-indicator" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:8px;">
                 ${dots}
             </div>
@@ -428,7 +428,7 @@ const UpcomingEvents = {
         if (existing) { existing.style.display = isAdmin ? 'inline-block' : 'none'; return; }
         if (!isAdmin) return;
 
-        const header = document.querySelector('#upcomingEventsContainer .section-header > div:last-child');
+        const header = document.querySelector('#upcomingEventsContainer .section-header');
         if (!header) return;
 
         const btn = document.createElement('button');
