@@ -826,7 +826,7 @@ class PracticeRoom {
              data-room-type="${this.roomType}"
              data-room-id="${this.roomId}"
              ${canEnter ? `onclick="${methodName}()"` : ''}
-             style="cursor:${canEnter ? 'pointer' : 'not-allowed'};border:3px solid ${isVisuallyOpen ? '#22c55e' : '#ef4444'};position:relative;opacity:${isVisuallyOpen ? '1' : '0.55'};">
+             style="cursor:${canEnter ? 'pointer' : 'not-allowed'};border:3px solid ${isVisuallyOpen ? '#22c55e' : '#ef4444'};position:relative;opacity:${isVisuallyOpen ? '1' : '0.55'};padding-bottom:0;display:flex;flex-direction:column;">
 
             ${this.getDevModeBadge()}
 
@@ -836,12 +836,12 @@ class PracticeRoom {
 
             <div class="room-desc" style="text-align:center;margin-bottom:16px;">${this.config.description}</div>
 
-            ${this.buildCardFooter()}
+            <div style="flex:1;">${this.buildCardFooter()}</div>
 
             <button type="button" id="${this.roomId}BlessBtn"
                     onclick="event.stopPropagation();${this.roomId}_blessRoom()"
                     title="Send a blessing to everyone inside"
-                    style="display:flex;align-items:center;justify-content:center;gap:6px;width:calc(100% + 48px);margin:16px -24px -24px -24px;padding:10px 12px;font-size:12px;color:var(--text-muted);background:var(--neuro-bg-lightest);border:none;border-top:1px solid var(--border);cursor:pointer;transition:background 0.2s,color 0.2s;white-space:nowrap;">
+                    class="bless-room-btn">
                 ${_BLESS_SVG} Bless this room
             </button>
         </div>`;

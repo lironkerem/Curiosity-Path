@@ -2034,10 +2034,27 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     box-shadow: var(--shadow-raised-hover);
 }
 
-/* Bless this room button — flush to card bottom */
-[id$="BlessBtn"]:hover {
-    background: var(--neuro-accent-a10) !important;
-    color: var(--accent) !important;
+/* Bless this room button — flush footer, breakpoint-proof */
+.bless-room-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: calc(100% + 48px);       /* bleed past 24px padding on each side */
+    margin: 16px -24px -0px -24px;  /* top gap, flush sides, flush bottom */
+    padding: 10px 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--neuro-bg-lightest);
+    border: none;
+    border-top: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+.bless-room-btn:hover {
+    background: var(--neuro-accent-a10);
+    color: var(--accent);
 }
 
 .ps-body { 
@@ -3414,6 +3431,13 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     padding: 18px;
   }
 
+  /* Bless button: match 18px card padding */
+  .bless-room-btn {
+    width: calc(100% + 36px) !important;
+    margin-left: -18px !important;
+    margin-right: -18px !important;
+  }
+
   .join-btn {
     position: static;
     display: block;
@@ -4715,6 +4739,13 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
   /* Practice rooms */
   .practice-room { padding: 14px; }
+
+  /* Bless button: match 14px card padding */
+  .bless-room-btn {
+    width: calc(100% + 28px) !important;
+    margin-left: -14px !important;
+    margin-right: -14px !important;
+  }
 
   /* Timer */
   .timer-display { font-size: clamp(1.75rem, 12vw, 3rem); }
