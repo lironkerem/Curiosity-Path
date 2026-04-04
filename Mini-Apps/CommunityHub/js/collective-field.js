@@ -116,7 +116,6 @@ const CollectiveField = {
         return `
             <div class="section-header">
                 <div class="section-title">Collective Field</div>
-                <div style="font-size:12px;color:var(--text-muted);">Real-time resonance</div>
             </div>
             <div class="collective-grid">
                 ${this._buildEnergyFieldHTML()}

@@ -683,7 +683,7 @@ class PracticeRoom {
                     </div>
                 </div>
             </div>
-            <div style="display:flex;gap:8px;position:relative;flex-wrap:wrap;justify-content:flex-end;align-items:center;">
+            <div style="display:flex;gap:6px;position:relative;flex-wrap:nowrap;justify-content:flex-end;align-items:center;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-shrink:0;max-width:100%;">
                 ${this.buildAdditionalHeaderButtons?.() ?? ''}
                 ${this.buildSafetyDropdown()}
                 <button type="button" class="ps-leave" onclick="window['${this.roomId}_gentlyLeave']()" style="padding:10px 16px;white-space:nowrap;">
@@ -841,7 +841,7 @@ class PracticeRoom {
             <button type="button" id="${this.roomId}BlessBtn"
                     onclick="event.stopPropagation();${this.roomId}_blessRoom()"
                     title="Send a blessing to everyone inside"
-                    style="position:absolute;bottom:10px;right:10px;background:rgba(139,92,246,0.10);border:1px solid rgba(139,92,246,0.30);border-radius:16px;padding:3px 10px;font-size:11px;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;transition:all 0.2s;z-index:3;">
+                    style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:12px;padding:8px 12px;font-size:12px;color:var(--text-muted);background:var(--neuro-bg-lightest);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;box-shadow:var(--shadow-raised);transition:background 0.2s,color 0.2s,border-color 0.2s;white-space:nowrap;">
                 ${_BLESS_SVG} Bless
             </button>
         </div>`;
