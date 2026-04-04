@@ -2818,8 +2818,18 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 
 .join-btn-inline {
-    padding: 10px 48px;
-    min-width: 200px;
+    padding: 10px 24px;
+    background: var(--neuro-accent);
+    color: var(--neuro-bg-lightest);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background var(--transition-normal), box-shadow var(--transition-normal);
+    box-shadow: var(--shadow-raised);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     white-space: nowrap;
 }
 
@@ -3135,6 +3145,85 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 .tarot-daily-grid .chat-messages { padding: 8px 4px !important; }
 .tarot-daily-grid .campfire-msg  { padding: 8px 4px !important; gap: 8px; }
 
+
+/* ─── LUNAR ROOM BUTTONS — unified ceremonial pill style ─── */
+#communityHubFullscreenContainer .lunar-back-hub-btn,
+#communityHubFullscreenContainer .lunar-mode-btn.active,
+#communityHubFullscreenContainer .lunar-popup-btn,
+#communityHubFullscreenContainer .lunar-join-circle-btn {
+    background: linear-gradient(135deg, rgba(139,122,255,.3), rgba(107,95,216,.4)) !important;
+    border: 1px solid rgba(139,122,255,.45) !important;
+    border-radius: 50px !important;
+    color: #e0e0ff !important;
+    font-family: 'Cormorant Garamond', serif !important;
+    font-style: italic !important;
+    letter-spacing: .05em !important;
+    cursor: pointer !important;
+    transition: all .35s !important;
+    box-shadow: 0 0 24px rgba(139,122,255,.15), inset 0 0 12px rgba(139,122,255,.08) !important;
+    text-transform: none !important;
+}
+#communityHubFullscreenContainer .lunar-back-hub-btn:hover,
+#communityHubFullscreenContainer .lunar-mode-btn.active:hover,
+#communityHubFullscreenContainer .lunar-popup-btn:hover,
+#communityHubFullscreenContainer .lunar-join-circle-btn:hover {
+    border-color: rgba(139,122,255,.7) !important;
+    color: #fff !important;
+    box-shadow: 0 0 40px rgba(139,122,255,.3), inset 0 0 16px rgba(139,122,255,.12) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Gently Leave — smaller, top bar */
+#communityHubFullscreenContainer .lunar-back-hub-btn {
+    padding: .65rem 1.5rem !important;
+    font-size: .88rem !important;
+}
+
+/* Mode toggle inactive — near invisible */
+#communityHubFullscreenContainer .lunar-mode-btn {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 50px !important;
+    color: rgba(224,224,255,.45) !important;
+    font-family: 'Cormorant Garamond', serif !important;
+    font-style: italic !important;
+    letter-spacing: .04em !important;
+    box-shadow: none !important;
+    transition: all .35s !important;
+}
+#communityHubFullscreenContainer .lunar-mode-btn:hover {
+    color: rgba(224,224,255,.75) !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
+}
+
+/* Secondary popup button — white-glass variant */
+#communityHubFullscreenContainer .lunar-btn-secondary {
+    background: linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.03)) !important;
+    border: 1px solid rgba(255,255,255,.15) !important;
+    color: rgba(224,224,255,.6) !important;
+    box-shadow: none !important;
+}
+#communityHubFullscreenContainer .lunar-btn-secondary:hover {
+    background: linear-gradient(135deg, rgba(255,255,255,.1), rgba(255,255,255,.06)) !important;
+    border-color: rgba(255,255,255,.3) !important;
+    color: #e0e0ff !important;
+    box-shadow: none !important;
+}
+
+/* Success popup button — green ceremonial variant */
+#communityHubFullscreenContainer .lunar-btn-success {
+    background: linear-gradient(135deg, rgba(113,255,170,.25), rgba(95,216,158,.35)) !important;
+    border: 1px solid rgba(113,255,170,.45) !important;
+    color: #a0ffd0 !important;
+    box-shadow: 0 0 24px rgba(113,255,170,.1), inset 0 0 12px rgba(113,255,170,.06) !important;
+}
+#communityHubFullscreenContainer .lunar-btn-success:hover {
+    border-color: rgba(113,255,170,.7) !important;
+    color: #d0fff0 !important;
+    box-shadow: 0 0 40px rgba(113,255,170,.25), inset 0 0 16px rgba(113,255,170,.1) !important;
+}
 
 /* ─── CELESTIAL OUTER CARD BASE STYLES ─── */
 
@@ -4354,11 +4443,10 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
         justify-content: space-between !important;
     }
 
-    /* Join button — full width on mobile */
+    /* Join button — full width */
     .join-btn-inline {
         flex: 1;
         text-align: center;
-        min-width: 0 !important;
         padding: 10px 16px !important;
         font-size: 13px !important;
     }
