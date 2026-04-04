@@ -2818,18 +2818,8 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 
 .join-btn-inline {
-    padding: 10px 24px;
-    background: var(--neuro-accent);
-    color: var(--neuro-bg-lightest);
-    border: none;
-    border-radius: var(--radius-md);
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background var(--transition-normal), box-shadow var(--transition-normal);
-    box-shadow: var(--shadow-raised);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    padding: 10px 48px;
+    min-width: 200px;
     white-space: nowrap;
 }
 
@@ -4364,10 +4354,11 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
         justify-content: space-between !important;
     }
 
-    /* Join button — full width */
+    /* Join button — full width on mobile */
     .join-btn-inline {
         flex: 1;
         text-align: center;
+        min-width: 0 !important;
         padding: 10px 16px !important;
         font-size: 13px !important;
     }

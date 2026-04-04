@@ -325,7 +325,7 @@ const LunarEngine = {
                             <div class="energy-pulse" style="background:var(--ring-silent);"></div>
                             <span id="lunarRoomPresence">0 present</span>
                         </div>
-                        <button type="button" class="join-btn-inline" data-action="join-lunar-room">Join Space</button>
+                        <button type="button" class="btn btn-primary join-btn-inline" data-action="join-lunar-room">Join Space</button>
                     </div>
                 </div>
             </div>`;
