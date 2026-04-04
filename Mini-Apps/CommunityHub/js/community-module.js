@@ -87,7 +87,6 @@ const CommunityModule = {
         <section class="section">
             <div class="section-header">
                 <div class="section-title">Community Reflections</div>
-                <div style="font-size:12px;color:var(--text-muted);">Shared wisdom & moments</div>
             </div>
 
             <div class="reflection" style="margin-bottom:16px;">
