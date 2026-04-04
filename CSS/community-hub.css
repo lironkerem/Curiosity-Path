@@ -2034,14 +2034,6 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     box-shadow: var(--shadow-raised-hover);
 }
 
-/* Bless button — full-width card footer, var-based colours */
-[id$="BlessBtn"]:hover {
-    background: var(--neuro-accent-a10) !important;
-    border-color: var(--neuro-accent-a30) !important;
-    color: var(--accent) !important;
-    box-shadow: var(--shadow-raised-hover);
-}
-
 .ps-body { 
     flex: 1; 
     display: flex; 
@@ -3974,7 +3966,16 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     .ps-leave,
     .ps-header > div:last-child > button,
     .ps-header > div:last-child > div > button {
-        padding: 6px 9px !important; font-size: 11px !important;
+        padding: clamp(4px, 1.2vw, 7px) clamp(6px, 2vw, 10px) !important;
+        font-size: clamp(10px, 2.5vw, 12px) !important;
+        flex-shrink: 0;
+    }
+
+    /* SVG icons inside header buttons — scale with button */
+    .ps-header > div:last-child button .lucide-icon,
+    .ps-header > div:last-child button svg {
+        width: clamp(11px, 2.8vw, 14px) !important;
+        height: clamp(11px, 2.8vw, 14px) !important;
     }
 
     [id$="ParticipantCount"]    { font-size: 12px !important; }
@@ -3987,32 +3988,6 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
         font-size: 13px !important;
     }
     [id$="SafetyDropdown"] button { padding: 10px 14px !important; font-size: 13px !important; }
-
-    /* ── Header button strip: no wrap, horizontal scroll on mobile ── */
-    .ps-header > div:last-child {
-        flex-wrap: nowrap !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none !important;
-        flex-shrink: 0 !important;
-        max-width: 100%;
-    }
-    .ps-header > div:last-child::-webkit-scrollbar { display: none; }
-
-    /* ── Bless button: full-width, var-based hover ── */
-    [id$="BlessBtn"] {
-        width: 100% !important;
-        margin-top: 12px !important;
-        justify-content: center !important;
-        border-radius: var(--radius-md) !important;
-        padding: 9px 12px !important;
-        font-size: 12px !important;
-    }
-    [id$="BlessBtn"]:hover {
-        background: var(--neuro-accent-a10) !important;
-        border-color: var(--neuro-accent-a30) !important;
-        color: var(--accent) !important;
-    }
 
     /* ── PS-MAIN ── */
     .ps-main { padding: 14px 12px; }
@@ -4770,7 +4745,10 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
   .ps-header img[alt] { max-height: 80px; }
   .ps-leave,
   .ps-header > div:last-child > button,
-  .ps-header > div:last-child > div > button { padding: 5px 6px !important; font-size: 10px !important; }
+  .ps-header > div:last-child > div > button {
+      padding: clamp(3px, 1vw, 5px) clamp(4px, 1.5vw, 7px) !important;
+      font-size: clamp(9px, 2.2vw, 11px) !important;
+  }
 
   /* Deep Work */
   .dw-status-btn { padding: 5px 7px !important; font-size: 10px !important; }

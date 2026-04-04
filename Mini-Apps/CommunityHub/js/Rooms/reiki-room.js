@@ -242,10 +242,11 @@ class ReikiRoom extends PracticeRoom {
             return `<div style="text-align:left;"><span class="room-participants" style="font-size:12px;color:var(--text-muted);">${this.getParticipantText()}</span></div>`;
         }
         const todayChakra = this.CHAKRA_SCHEDULE[this.state.currentDay];
+        const chakraName  = todayChakra?.name?.split(' - ')[0] ?? todayChakra?.name ?? '';
         return `
-        <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
             <span class="room-participants" style="font-size:12px;color:var(--text-muted);">${this.getParticipantText()}</span>
-            <span style="font-size:12px;color:var(--text);font-weight:600;">${todayChakra?.name ?? ''}</span>
+            <span style="font-size:11px;color:var(--text-muted);">Daily Chakra: <strong style="color:var(--text);font-weight:600;">${chakraName}</strong></span>
         </div>`;
     }
 

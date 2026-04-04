@@ -787,6 +787,16 @@ class TarotRoom extends PracticeRoom {
 
     getParticipantText() { return `${this.state.participants} seeking guidance`; }
 
+    buildCardFooter() {
+        const card     = this.state.dailyCard;
+        const cardName = card ? this.getCardName(card.number, card.suit) : null;
+        return `
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
+            <span class="room-participants" style="font-size:12px;color:var(--text-muted);">${this.getParticipantText()}</span>
+            ${cardName ? `<span style="font-size:11px;color:var(--text-muted);">Daily Card: <strong style="color:var(--text);font-weight:600;">${cardName}</strong></span>` : ''}
+        </div>`;
+    }
+
     // ── UI ────────────────────────────────────────────────────────────────────
 
     buildBody() {

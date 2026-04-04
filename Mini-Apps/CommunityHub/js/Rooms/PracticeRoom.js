@@ -683,7 +683,7 @@ class PracticeRoom {
                     </div>
                 </div>
             </div>
-            <div style="display:flex;gap:6px;position:relative;flex-wrap:nowrap;justify-content:flex-end;align-items:center;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-shrink:0;max-width:100%;">
+            <div style="display:flex;gap:8px;position:relative;flex-wrap:wrap;justify-content:flex-end;align-items:center;">
                 ${this.buildAdditionalHeaderButtons?.() ?? ''}
                 ${this.buildSafetyDropdown()}
                 <button type="button" class="ps-leave" onclick="window['${this.roomId}_gentlyLeave']()" style="padding:10px 16px;white-space:nowrap;">
@@ -841,7 +841,7 @@ class PracticeRoom {
             <button type="button" id="${this.roomId}BlessBtn"
                     onclick="event.stopPropagation();${this.roomId}_blessRoom()"
                     title="Send a blessing to everyone inside"
-                    style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:12px;padding:8px 12px;font-size:12px;color:var(--text-muted);background:var(--neuro-bg-lightest);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;box-shadow:var(--shadow-raised);transition:background 0.2s,color 0.2s,border-color 0.2s;white-space:nowrap;">
+                    style="position:absolute;bottom:10px;right:10px;background:rgba(139,92,246,0.10);border:1px solid rgba(139,92,246,0.30);border-radius:16px;padding:3px 10px;font-size:11px;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;transition:all 0.2s;z-index:3;">
                 ${_BLESS_SVG} Bless
             </button>
         </div>`;
@@ -850,14 +850,16 @@ class PracticeRoom {
     buildCardFooter() {
         if (this.roomType === 'timed' && this.getTimerText) {
             const scheduleLink = this.showScheduleModal
-                ? `<button type="button" onclick="event.stopPropagation();${this.getClassName()}.showScheduleModal()" style="background:none;border:none;padding:0;font-size:11px;color:var(--text-muted);cursor:pointer;text-decoration:underline;text-align:left;display:inline-flex;align-items:center;gap:0.3rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> View Schedule</button>`
+                ? `<button type="button" onclick="event.stopPropagation();${this.getClassName()}.showScheduleModal()" style="background:none;border:none;padding:0;font-size:11px;color:var(--text-muted);cursor:pointer;text-decoration:underline;text-align:left;display:inline-flex;align-items:center;gap:0.3rem;white-space:nowrap;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> View Schedule</button>`
                 : '';
             return `
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:4px;">
                 <div class="room-participants" style="font-size:12px;color:var(--text-muted);">${this.state.participants} present</div>
-                <div class="room-timer" style="font-size:11px;color:var(--text-muted);text-align:right;line-height:1.4;">${this.getTimerText()}</div>
-            </div>
-            <div style="margin-top:4px;">${scheduleLink}</div>`;
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+                    <div class="room-timer" style="font-size:11px;color:var(--text-muted);text-align:right;line-height:1.4;">${this.getTimerText()}</div>
+                    ${scheduleLink}
+                </div>
+            </div>`;
         }
 
         return `
