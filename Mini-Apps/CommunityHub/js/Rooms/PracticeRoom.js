@@ -853,12 +853,10 @@ class PracticeRoom {
                 ? `<button type="button" onclick="event.stopPropagation();${this.getClassName()}.showScheduleModal()" style="background:none;border:none;padding:0;font-size:11px;color:var(--text-muted);cursor:pointer;text-decoration:underline;text-align:left;display:inline-flex;align-items:center;gap:0.3rem;white-space:nowrap;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> View Schedule</button>`
                 : '';
             return `
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:4px;">
-                <div class="room-participants" style="font-size:12px;color:var(--text-muted);">${this.state.participants} present</div>
-                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
-                    ${scheduleLink}
-                    <div class="room-timer" style="font-size:11px;color:var(--text-muted);text-align:right;line-height:1.4;">${this.getTimerText()}</div>
-                </div>
+            <div class="room-participants" style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">${this.state.participants} present</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                ${scheduleLink}
+                <div class="room-timer" style="font-size:11px;color:var(--text-muted);text-align:right;line-height:1.4;margin-left:auto;">${this.getTimerText()}</div>
             </div>`;
         }
 
