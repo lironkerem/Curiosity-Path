@@ -450,7 +450,7 @@ const SolarEngine = {
                 <div class="energy-pulse" style="background:var(--ring-guiding);"></div>
                 <span id="solarRoomPresence">0 present</span>
               </div>
-              <button type="button" class="join-btn-inline" onclick="SolarEngine.joinSolarRoom()">Join Space</button>
+              <button type="button" class="btn btn-primary join-btn-inline" onclick="SolarEngine.joinSolarRoom()" style="display:inline-flex;align-items:center;justify-content:center;padding:7px 40px;font-size:13px;min-width:160px;">Join Space</button>
             </div>
           </div>
         </div>

@@ -3225,6 +3225,105 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     box-shadow: 0 0 40px rgba(113,255,170,.25), inset 0 0 16px rgba(113,255,170,.1) !important;
 }
 
+/* ─── SOLAR ROOM BUTTONS — ceremonial pill, season-accent colored ─── */
+#communityHubFullscreenContainer .solar-back-hub-btn,
+#communityHubFullscreenContainer .solar-mode-btn.active,
+#communityHubFullscreenContainer .solar-btn-primary,
+#communityHubFullscreenContainer .solar-btn-secondary,
+#communityHubFullscreenContainer .solar-popup-btn {
+    border-radius: 50px !important;
+    font-family: 'Cormorant Garamond', serif !important;
+    font-style: italic !important;
+    letter-spacing: .05em !important;
+    cursor: pointer !important;
+    transition: all .35s !important;
+    text-transform: none !important;
+    font-weight: 400 !important;
+}
+/* Gently Leave */
+#communityHubFullscreenContainer .solar-back-hub-btn {
+    padding: .65rem 1.5rem !important;
+    background: linear-gradient(135deg, rgba(212,165,116,.18), rgba(166,124,82,.15)) !important;
+    border: 1px solid rgba(212,165,116,.35) !important;
+    color: rgba(212,165,116,.85) !important;
+    font-size: .88rem !important;
+    box-shadow: 0 0 16px rgba(212,165,116,.1), inset 0 0 8px rgba(212,165,116,.05) !important;
+}
+#communityHubFullscreenContainer .solar-back-hub-btn:hover {
+    border-color: rgba(212,165,116,.65) !important;
+    color: var(--season-accent) !important;
+    box-shadow: 0 0 28px rgba(212,165,116,.22), inset 0 0 12px rgba(212,165,116,.08) !important;
+    transform: translateY(-1px) !important;
+}
+/* Mode toggle inactive */
+#communityHubFullscreenContainer .solar-mode-btn {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 50px !important;
+    color: rgba(212,165,116,.4) !important;
+    font-family: 'Cormorant Garamond', serif !important;
+    font-style: italic !important;
+    box-shadow: none !important;
+    transition: all .35s !important;
+}
+#communityHubFullscreenContainer .solar-mode-btn:hover {
+    color: rgba(212,165,116,.75) !important;
+    background: transparent !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+/* Mode toggle active */
+#communityHubFullscreenContainer .solar-mode-btn.active {
+    background: linear-gradient(135deg, rgba(212,165,116,.22), rgba(166,124,82,.2)) !important;
+    border: 1px solid rgba(212,165,116,.45) !important;
+    color: var(--season-accent) !important;
+    box-shadow: 0 0 20px rgba(212,165,116,.12), inset 0 0 10px rgba(212,165,116,.06) !important;
+}
+/* Join Circle / primary CTA */
+#communityHubFullscreenContainer .solar-btn-primary {
+    padding: 1rem 2.5rem !important;
+    background: linear-gradient(135deg, rgba(212,165,116,.25), rgba(166,124,82,.3)) !important;
+    border: 1px solid rgba(212,165,116,.45) !important;
+    color: var(--season-accent) !important;
+    font-size: 1rem !important;
+    box-shadow: 0 0 24px rgba(212,165,116,.12), inset 0 0 12px rgba(212,165,116,.06) !important;
+}
+#communityHubFullscreenContainer .solar-btn-primary:hover {
+    border-color: rgba(212,165,116,.7) !important;
+    color: #fff !important;
+    box-shadow: 0 0 40px rgba(212,165,116,.28), inset 0 0 16px rgba(212,165,116,.1) !important;
+    transform: translateY(-2px) !important;
+}
+/* Closure / secondary */
+#communityHubFullscreenContainer .solar-btn-secondary {
+    padding: .75rem 2rem !important;
+    background: linear-gradient(135deg, rgba(212,165,116,.15), rgba(166,124,82,.2)) !important;
+    border: 1px solid rgba(212,165,116,.35) !important;
+    color: rgba(212,165,116,.8) !important;
+    box-shadow: 0 0 16px rgba(212,165,116,.08), inset 0 0 8px rgba(212,165,116,.04) !important;
+}
+#communityHubFullscreenContainer .solar-btn-secondary:hover {
+    border-color: rgba(212,165,116,.6) !important;
+    color: var(--season-accent) !important;
+    box-shadow: 0 0 28px rgba(212,165,116,.2), inset 0 0 12px rgba(212,165,116,.08) !important;
+    transform: translateY(-1px) !important;
+}
+/* Popup Save/Complete button */
+#communityHubFullscreenContainer .solar-popup-btn {
+    padding: .9rem 2rem !important;
+    background: linear-gradient(135deg, rgba(212,165,116,.25), rgba(166,124,82,.3)) !important;
+    border: 1px solid rgba(212,165,116,.45) !important;
+    color: var(--season-accent) !important;
+    box-shadow: 0 0 20px rgba(212,165,116,.1), inset 0 0 10px rgba(212,165,116,.05) !important;
+    width: 100% !important;
+}
+#communityHubFullscreenContainer .solar-popup-btn:hover {
+    border-color: rgba(212,165,116,.7) !important;
+    color: #fff !important;
+    box-shadow: 0 0 36px rgba(212,165,116,.25), inset 0 0 14px rgba(212,165,116,.08) !important;
+    transform: translateY(-2px) !important;
+}
+
 /* ─── CELESTIAL OUTER CARD BASE STYLES ─── */
 
 /* Lunar outer card */

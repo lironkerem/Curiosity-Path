@@ -337,8 +337,8 @@ body.solar-room-active[data-season] {
 .solar-phase-info p{font-size:0.9rem;color:rgba(212,165,116,0.7);margin:0.25rem 0 0 0;}
 .solar-live-count-top{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;background:var(--neuro-warning-a10);border:1px solid rgba(212,165,116,0.2);border-radius:20px;font-size:0.9rem;color:rgba(212,165,116,0.9);justify-self:center;}
 .solar-pulse-dot{width:8px;height:8px;background:var(--solar-success);border-radius:50%;animation:pulse 2s infinite;}
-.solar-back-hub-btn{padding:0.625rem 1.25rem;background:var(--neuro-warning-a10);border:1px solid rgba(212,165,116,0.3);border-radius:12px;color:rgba(212,165,116,0.9);cursor:pointer;transition:all var(--transition-normal);font-size:0.9rem;justify-self:end;}
-.solar-back-hub-btn:hover{background:rgba(212,165,116,0.2);border-color:rgba(212,165,116,0.5);}
+.solar-back-hub-btn{padding:.65rem 1.5rem;background:linear-gradient(135deg,rgba(var(--season-accent-rgb),.2,rgba(var(--season-accent-rgb),.1));border:1px solid rgba(212,165,116,.35);border-radius:50px;color:rgba(212,165,116,.85);cursor:pointer;transition:all .35s;font-size:.88rem;font-family:'Cormorant Garamond',serif;font-style:italic;letter-spacing:.04em;justify-self:end;background:linear-gradient(135deg,rgba(212,165,116,.18),rgba(166,124,82,.15));box-shadow:0 0 16px rgba(212,165,116,.1),inset 0 0 8px rgba(212,165,116,.05);}
+.solar-back-hub-btn:hover{border-color:rgba(212,165,116,.65);color:var(--season-accent);box-shadow:0 0 28px rgba(212,165,116,.2),inset 0 0 12px rgba(212,165,116,.08);transform:translateY(-1px);}
 
 /* ── Content wrapper ─────────────────────────────────────────────────────── */
 .solar-content-wrapper{max-width:900px;margin:0 auto;padding:2rem 2rem 4rem 2rem;position:relative;z-index:2;}
@@ -355,11 +355,12 @@ body.solar-room-active[data-season] {
 .solar-intro-card p{color:var(--solar-text-secondary);font-size:1.1rem;line-height:1.7;margin:0;}
 
 /* ── Mode toggle ─────────────────────────────────────────────────────────── */
-.solar-mode-toggle{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:2rem;}
-.solar-mode-btn{display:flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.875rem;background:rgba(255,255,255,0.03);border:1px solid var(--solar-border-light);border-radius:12px;color:var(--solar-text-muted);cursor:pointer;transition:all var(--transition-normal);font-size:0.95rem;}
-.solar-mode-btn:hover{background:var(--neuro-warning-a10);border-color:rgba(212,165,116,0.3);color:rgba(212,165,116,0.9);}
-.solar-mode-btn.active{background:linear-gradient(135deg,rgba(212,165,116,0.2) 0%,rgba(166,124,82,0.2) 100%);border-color:rgba(212,165,116,0.5);color:var(--season-accent);}
-.solar-mode-btn svg{flex-shrink:0;}
+.solar-mode-toggle{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:2rem;background:rgba(0,0,0,.2);border:1px solid rgba(212,165,116,.1);border-radius:50px;padding:.3rem;}
+.solar-mode-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem;background:transparent;border:none;border-radius:50px;color:rgba(212,165,116,.4);cursor:pointer;transition:all .35s;font-size:.9rem;font-family:'Cormorant Garamond',serif;font-style:italic;letter-spacing:.03em;}
+.solar-mode-btn:hover{color:rgba(212,165,116,.75);}
+.solar-mode-btn.active{background:linear-gradient(135deg,rgba(212,165,116,.22),rgba(166,124,82,.2));border:1px solid rgba(212,165,116,.45);color:var(--season-accent);box-shadow:0 0 20px rgba(212,165,116,.12),inset 0 0 10px rgba(212,165,116,.06);}
+.solar-mode-btn svg{flex-shrink:0;opacity:.7;}
+.solar-mode-btn.active svg{opacity:1;}
 .solar-mode-content{animation:fadeIn 0.5s ease-out;}
 .solar-mode-description{text-align:center;margin-bottom:2.5rem;}
 .solar-mode-description h3{color:var(--season-accent);font-size:1.5rem;margin-bottom:0.5rem;font-family:'Cormorant Garamond',serif;}
@@ -394,8 +395,8 @@ body.solar-room-active[data-season] {
 .solar-group-list{text-align:left;color:var(--solar-text-secondary);list-style:none;padding:0;max-width:500px;margin:0 auto 2rem;}
 .solar-group-list li{margin-bottom:0.75rem;padding-left:1.5rem;position:relative;}
 .solar-group-list li span{position:absolute;left:0;}
-.solar-btn-primary{padding:1rem 2rem;background:linear-gradient(135deg,var(--season-accent) 0%,var(--season-accent-dark) 100%);border:none;border-radius:12px;color:white;font-size:1.1rem;cursor:pointer;font-weight:500;transition:transform var(--transition-fast);}
-.solar-btn-primary:hover{transform:scale(1.05);}
+.solar-btn-primary{padding:1rem 2.5rem;background:linear-gradient(135deg,rgba(212,165,116,.25),rgba(166,124,82,.3));border:1px solid rgba(212,165,116,.45);border-radius:50px;color:var(--season-accent);font-size:1rem;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;letter-spacing:.05em;transition:all .35s;box-shadow:0 0 24px rgba(212,165,116,.12),inset 0 0 12px rgba(212,165,116,.06);}
+.solar-btn-primary:hover{border-color:rgba(212,165,116,.7);color:#fff;box-shadow:0 0 40px rgba(212,165,116,.28),inset 0 0 16px rgba(212,165,116,.1);transform:translateY(-2px);}
 .solar-group-note{color:var(--solar-text-muted);margin-top:1.5rem;font-size:0.9rem;font-style:italic;}
 
 /* ── Closure ─────────────────────────────────────────────────────────────── */
@@ -404,8 +405,8 @@ body.solar-room-active[data-season] {
 .solar-closure p{color:var(--solar-text-secondary);margin-bottom:1.5rem;}
 .solar-textarea{width:100%;min-height:100px;background:var(--solar-bg-dark);border:1px solid var(--solar-border-light);border-radius:12px;padding:1rem;color:var(--solar-text-primary);font-family:inherit;font-size:1rem;line-height:1.6;box-sizing:border-box;resize:vertical;}
 .solar-textarea:focus{outline:none;border-color:var(--season-accent);}
-.solar-btn-secondary{margin-top:1rem;padding:0.75rem 1.5rem;background:linear-gradient(135deg,var(--season-accent) 0%,var(--season-accent-dark) 100%);border:none;border-radius:12px;color:white;cursor:pointer;font-weight:500;font-size:1rem;transition:transform var(--transition-fast);}
-.solar-btn-secondary:hover{transform:scale(1.02);}
+.solar-btn-secondary{margin-top:1rem;padding:.75rem 2rem;background:linear-gradient(135deg,rgba(212,165,116,.15),rgba(166,124,82,.2));border:1px solid rgba(212,165,116,.35);border-radius:50px;color:rgba(212,165,116,.8);cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;letter-spacing:.04em;font-size:.95rem;transition:all .35s;box-shadow:0 0 16px rgba(212,165,116,.08),inset 0 0 8px rgba(212,165,116,.04);}
+.solar-btn-secondary:hover{border-color:rgba(212,165,116,.6);color:var(--season-accent);box-shadow:0 0 28px rgba(212,165,116,.2),inset 0 0 12px rgba(212,165,116,.08);transform:translateY(-1px);}
 
 /* ── Popup ───────────────────────────────────────────────────────────────── */
 .solar-popup-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:999999;padding:2rem;animation:fadeIn 0.3s;}
@@ -424,8 +425,8 @@ body.solar-room-active[data-season] {
 .solar-popup-highlight{background:var(--neuro-warning-a10);border-left:3px solid var(--season-accent);padding:1rem 1.5rem;border-radius:8px;margin:1.5rem 0;}
 .solar-popup-highlight p{color:var(--solar-text-primary);font-style:italic;margin:0;}
 .solar-popup-footer{padding:1.5rem 2rem;border-top:1px solid rgba(212,165,116,0.2);text-align:center;}
-.solar-popup-btn{padding:0.75rem 2rem;background:linear-gradient(135deg,var(--season-accent) 0%,var(--season-accent-dark) 100%);border:none;border-radius:12px;color:white;font-size:1rem;cursor:pointer;font-weight:500;transition:transform var(--transition-fast);}
-.solar-popup-btn:hover{transform:scale(1.05);}
+.solar-popup-btn{padding:.9rem 2rem;background:linear-gradient(135deg,rgba(212,165,116,.25),rgba(166,124,82,.3));border:1px solid rgba(212,165,116,.45);border-radius:50px;color:var(--season-accent);font-size:.95rem;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;letter-spacing:.04em;transition:all .35s;box-shadow:0 0 20px rgba(212,165,116,.1),inset 0 0 10px rgba(212,165,116,.05);width:100%;}
+.solar-popup-btn:hover{border-color:rgba(212,165,116,.7);color:#fff;box-shadow:0 0 36px rgba(212,165,116,.25),inset 0 0 14px rgba(212,165,116,.08);transform:translateY(-2px);}
 .solar-affirmation-btn{display:block;width:100%;padding:0.75rem;background:rgba(255,255,255,0.05);border:1px solid var(--solar-border-light);border-radius:8px;color:var(--solar-text-secondary);cursor:pointer;text-align:left;transition:all var(--transition-normal);margin-bottom:0.5rem;font-size:0.95rem;}
 .solar-affirmation-btn:hover{background:var(--neuro-warning-a10);border-color:rgba(212,165,116,0.3);color:var(--season-accent);}
 
@@ -470,8 +471,8 @@ body.solar-room-active[data-season] {
   .solar-season-img{max-width:220px !important;margin-bottom:1rem !important;}
   .solar-intro-card p{font-size:0.95rem !important;line-height:1.65 !important;}
   /* Mode toggle */
-  .solar-mode-toggle{grid-template-columns:1fr !important;gap:0.625rem !important;margin-bottom:1.25rem !important;}
-  .solar-mode-btn{padding:0.75rem !important;font-size:0.9rem !important;}
+  .solar-mode-toggle{grid-template-columns:1fr !important;gap:0.4rem !important;margin-bottom:1.25rem !important;padding:.25rem !important;}
+  .solar-mode-btn{padding:0.75rem !important;font-size:0.9rem !important;justify-content:center !important;}
   .solar-mode-description{margin-bottom:1.25rem !important;}
   .solar-mode-description h3{font-size:1.2rem !important;}
   .solar-mode-description p{font-size:0.9rem !important;}
