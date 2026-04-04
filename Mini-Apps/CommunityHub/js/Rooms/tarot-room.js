@@ -91,7 +91,12 @@ class TarotRoom extends PracticeRoom {
         // Build the deck once and reuse throughout the session
         this.state.personalDeck = this._buildFullDeck();
 
+        // Draw the daily card now so buildCardFooter() has it at hub render time
+        this._drawDailyCard();
+
         this._tarotDataReady = true;
+        // Refresh the hub card so the Daily Card label appears immediately
+        this.updateRoomCard();
         if (this._pendingDailyRender) {
             this._pendingDailyRender = false;
             this._drawAndRenderDaily();
