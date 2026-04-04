@@ -826,7 +826,7 @@ class PracticeRoom {
              data-room-type="${this.roomType}"
              data-room-id="${this.roomId}"
              ${canEnter ? `onclick="${methodName}()"` : ''}
-             style="cursor:${canEnter ? 'pointer' : 'not-allowed'};border:3px solid ${isVisuallyOpen ? '#22c55e' : '#ef4444'};position:relative;opacity:${isVisuallyOpen ? '1' : '0.55'};padding-bottom:0;display:flex;flex-direction:column;">
+             style="cursor:${canEnter ? 'pointer' : 'not-allowed'};border:3px solid ${isVisuallyOpen ? '#22c55e' : '#ef4444'};position:relative;opacity:${isVisuallyOpen ? '1' : '0.55'};display:flex;flex-direction:column;">
 
             ${this.getDevModeBadge()}
 
