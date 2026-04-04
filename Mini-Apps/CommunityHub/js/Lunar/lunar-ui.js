@@ -151,12 +151,13 @@ const LunarUI = {
     // ── Styles ───────────────────────────────────────────────────────────────────
 
     injectStyles() {
-        if (this._stylesInjected || document.getElementById('lunar-shared-styles')) {
-            this._stylesInjected = true;
-            return;
-        }
+        if (this._stylesInjected) return;
+        // Remove any stale version before injecting updated styles
+        document.getElementById('lunar-shared-styles-v4')?.remove();
+        const old = document.getElementById('lunar-shared-styles');
+        if (old) old.remove();
         const style = document.createElement('style');
-        style.id = 'lunar-shared-styles';
+        style.id = 'lunar-shared-styles-v4';
         style.textContent = this._getSharedCSS();
         document.head.appendChild(style);
         this._stylesInjected = true;
