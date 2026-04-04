@@ -3147,6 +3147,42 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 
 /* ─── LUNAR ROOM BUTTONS — unified ceremonial pill style ─── */
+#communityHubFullscreenContainer .lunar-popup-close {
+    background: linear-gradient(135deg, rgba(139,122,255,.3), rgba(107,95,216,.4)) !important;
+    border: 1px solid rgba(139,122,255,.45) !important;
+    border-radius: 50px !important;
+    width: auto !important; height: auto !important;
+    padding: .35rem 1rem !important;
+    color: #e0e0ff !important;
+    font-size: 1rem !important;
+    font-family: 'Cormorant Garamond', serif !important;
+    font-style: italic !important;
+    box-shadow: 0 0 16px rgba(139,122,255,.15), inset 0 0 8px rgba(139,122,255,.08) !important;
+    transform: none !important;
+}
+#communityHubFullscreenContainer .lunar-popup-close:hover {
+    border-color: rgba(139,122,255,.7) !important;
+    color: #fff !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 0 28px rgba(139,122,255,.3), inset 0 0 12px rgba(139,122,255,.12) !important;
+}
+#communityHubFullscreenContainer .lunar-affirmation-btn {
+    background: linear-gradient(135deg, rgba(139,122,255,.18), rgba(107,95,216,.15)) !important;
+    border: 1px solid rgba(139,122,255,.35) !important;
+    border-radius: 50px !important;
+    color: rgba(224,224,255,.75) !important;
+    font-family: 'Cormorant Garamond', serif !important;
+    font-style: italic !important;
+    text-align: center !important;
+    box-shadow: 0 0 12px rgba(139,122,255,.08), inset 0 0 6px rgba(139,122,255,.04) !important;
+}
+#communityHubFullscreenContainer .lunar-affirmation-btn:hover {
+    background: linear-gradient(135deg, rgba(139,122,255,.3), rgba(107,95,216,.4)) !important;
+    border-color: rgba(139,122,255,.6) !important;
+    color: #e0e0ff !important;
+    box-shadow: 0 0 24px rgba(139,122,255,.2), inset 0 0 10px rgba(139,122,255,.08) !important;
+    transform: translateY(-1px) !important;
+}
 #communityHubFullscreenContainer .lunar-back-hub-btn,
 #communityHubFullscreenContainer .lunar-mode-btn.active,
 #communityHubFullscreenContainer .lunar-popup-btn,
@@ -3226,6 +3262,41 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 
 /* ─── SOLAR ROOM BUTTONS — ceremonial pill, season-accent colored ─── */
+#communityHubFullscreenContainer .solar-popup-close {
+    background: linear-gradient(135deg, rgba(212,165,116,.18), rgba(166,124,82,.15)) !important;
+    border: 1px solid rgba(212,165,116,.35) !important;
+    border-radius: 50px !important;
+    width: auto !important; height: auto !important;
+    padding: .35rem 1rem !important;
+    color: rgba(212,165,116,.85) !important;
+    font-size: .88rem !important;
+    font-family: 'Cormorant Garamond', serif !important;
+    font-style: italic !important;
+    box-shadow: 0 0 12px rgba(212,165,116,.1), inset 0 0 6px rgba(212,165,116,.05) !important;
+}
+#communityHubFullscreenContainer .solar-popup-close:hover {
+    border-color: rgba(212,165,116,.65) !important;
+    color: var(--season-accent) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 0 24px rgba(212,165,116,.2), inset 0 0 10px rgba(212,165,116,.08) !important;
+}
+#communityHubFullscreenContainer .solar-affirmation-btn {
+    background: linear-gradient(135deg, rgba(212,165,116,.15), rgba(166,124,82,.12)) !important;
+    border: 1px solid rgba(212,165,116,.3) !important;
+    border-radius: 50px !important;
+    color: rgba(212,165,116,.75) !important;
+    font-family: 'Cormorant Garamond', serif !important;
+    font-style: italic !important;
+    text-align: center !important;
+    box-shadow: 0 0 10px rgba(212,165,116,.06), inset 0 0 5px rgba(212,165,116,.03) !important;
+}
+#communityHubFullscreenContainer .solar-affirmation-btn:hover {
+    background: linear-gradient(135deg, rgba(212,165,116,.25), rgba(166,124,82,.3)) !important;
+    border-color: rgba(212,165,116,.6) !important;
+    color: var(--season-accent) !important;
+    box-shadow: 0 0 22px rgba(212,165,116,.18), inset 0 0 10px rgba(212,165,116,.07) !important;
+    transform: translateY(-1px) !important;
+}
 #communityHubFullscreenContainer .solar-back-hub-btn,
 #communityHubFullscreenContainer .solar-mode-btn.active,
 #communityHubFullscreenContainer .solar-btn-primary,

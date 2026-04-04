@@ -177,7 +177,7 @@ const SolarUIManager = {
           <div class="solar-popup-content" onclick="event.stopPropagation()">
             <div class="solar-popup-header">
               <h2>${title}</h2>
-              <button type="button" class="solar-popup-close" data-action="close-popup" aria-label="Close practice">×</button>
+              <button type="button" class="solar-popup-close" data-action="close-popup" aria-label="Close practice">close</button>
             </div>
             <div class="solar-popup-body">${content}</div>
             <div class="solar-popup-footer">${footer}</div>
@@ -413,8 +413,14 @@ body.solar-room-active[data-season] {
 .solar-popup-content{background:linear-gradient(135deg,#2a1810 0%,#3a2515 100%);border:1px solid rgba(212,165,116,0.3);border-radius:20px;max-width:600px;width:100%;max-height:85vh;overflow-y:auto;animation:slideUp 0.3s;}
 .solar-popup-header{padding:2rem 2rem 1rem 2rem;border-bottom:1px solid rgba(212,165,116,0.2);display:flex;justify-content:space-between;align-items:center;}
 .solar-popup-header h2{color:var(--season-accent);margin:0;font-family:'Cormorant Garamond',serif;}
-.solar-popup-close{background:none;border:none;color:rgba(212,165,116,0.6);font-size:2rem;cursor:pointer;line-height:1;padding:0;width:32px;height:32px;transition:color var(--transition-normal);}
-.solar-popup-close:hover{color:var(--season-accent);}
+.solar-popup-close{background:linear-gradient(135deg,rgba(212,165,116,.18),rgba(166,124,82,.15));
+    border:1px solid rgba(212,165,116,.35);border-radius:50px;
+    width:auto;height:auto;padding:.35rem 1rem;
+    color:rgba(212,165,116,.85);font-size:.88rem;font-family:'Cormorant Garamond',serif;font-style:italic;
+    cursor:pointer;line-height:1;transition:all .35s;
+    box-shadow:0 0 12px rgba(212,165,116,.1),inset 0 0 6px rgba(212,165,116,.05);}
+.solar-popup-close:hover{border-color:rgba(212,165,116,.65);color:var(--season-accent);transform:translateY(-1px);
+    box-shadow:0 0 24px rgba(212,165,116,.2),inset 0 0 10px rgba(212,165,116,.08);}
 .solar-popup-body{padding:2rem;}
 .solar-popup-section{margin-bottom:2rem;}
 .solar-popup-section:last-child{margin-bottom:0;}
@@ -427,8 +433,16 @@ body.solar-room-active[data-season] {
 .solar-popup-footer{padding:1.5rem 2rem;border-top:1px solid rgba(212,165,116,0.2);text-align:center;}
 .solar-popup-btn{padding:.9rem 2rem;background:linear-gradient(135deg,rgba(212,165,116,.25),rgba(166,124,82,.3));border:1px solid rgba(212,165,116,.45);border-radius:50px;color:var(--season-accent);font-size:.95rem;cursor:pointer;font-family:'Cormorant Garamond',serif;font-style:italic;letter-spacing:.04em;transition:all .35s;box-shadow:0 0 20px rgba(212,165,116,.1),inset 0 0 10px rgba(212,165,116,.05);width:100%;}
 .solar-popup-btn:hover{border-color:rgba(212,165,116,.7);color:#fff;box-shadow:0 0 36px rgba(212,165,116,.25),inset 0 0 14px rgba(212,165,116,.08);transform:translateY(-2px);}
-.solar-affirmation-btn{display:block;width:100%;padding:0.75rem;background:rgba(255,255,255,0.05);border:1px solid var(--solar-border-light);border-radius:8px;color:var(--solar-text-secondary);cursor:pointer;text-align:left;transition:all var(--transition-normal);margin-bottom:0.5rem;font-size:0.95rem;}
-.solar-affirmation-btn:hover{background:var(--neuro-warning-a10);border-color:rgba(212,165,116,0.3);color:var(--season-accent);}
+.solar-affirmation-btn{display:block;width:100%;padding:.65rem 1.25rem;
+    background:linear-gradient(135deg,rgba(212,165,116,.15),rgba(166,124,82,.12));
+    border:1px solid rgba(212,165,116,.3);border-radius:50px;
+    color:rgba(212,165,116,.75);cursor:pointer;text-align:center;
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.95rem;letter-spacing:.03em;
+    transition:all .35s;margin-bottom:.5rem;
+    box-shadow:0 0 10px rgba(212,165,116,.06),inset 0 0 5px rgba(212,165,116,.03);}
+.solar-affirmation-btn:hover{background:linear-gradient(135deg,rgba(212,165,116,.25),rgba(166,124,82,.3));
+    border-color:rgba(212,165,116,.6);color:var(--season-accent);
+    box-shadow:0 0 22px rgba(212,165,116,.18),inset 0 0 10px rgba(212,165,116,.07);transform:translateY(-1px);}
 
 /* ── Inactive room ───────────────────────────────────────────────────────── */
 .solar-inactive{min-height:100vh;background:linear-gradient(135deg,#2a1810 0%,#4a2820 100%);padding:2rem;}
@@ -511,7 +525,7 @@ body.solar-room-active[data-season] {
   .solar-popup-content{max-width:100% !important;width:100% !important;max-height:92vh !important;border-radius:24px 24px 0 0 !important;}
   .solar-popup-header{padding:1.25rem 1.25rem 0.875rem !important;}
   .solar-popup-header h2{font-size:1.2rem !important;}
-  .solar-popup-close{font-size:1.5rem !important;width:28px !important;height:28px !important;}
+  .solar-popup-close{font-size:.8rem !important;padding:.3rem .875rem !important;}
   .solar-popup-body{padding:1.25rem !important;}
   .solar-popup-section{margin-bottom:1.25rem !important;}
   .solar-popup-section h3{font-size:1.1rem !important;margin-bottom:0.625rem !important;}

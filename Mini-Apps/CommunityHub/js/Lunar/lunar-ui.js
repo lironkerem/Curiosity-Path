@@ -134,7 +134,7 @@ const LunarUI = {
 
         popup.innerHTML = `
             <div class="lunar-popup-content ${cssPrefix}-popup-content">
-                <button type="button" class="lunar-popup-close" data-action="close-popup" aria-label="Close">✕</button>
+                <button type="button" class="lunar-popup-close" data-action="close-popup" aria-label="Close">close</button>
                 <div class="lunar-popup-header">
                     <div class="lunar-popup-icon" aria-hidden="true">${icon}</div>
                     <div class="lunar-popup-title">
@@ -345,10 +345,16 @@ const LunarUI = {
     border-radius:24px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto;
     border:1px solid rgba(139,122,255,.3);box-shadow:0 20px 60px rgba(0,0,0,.5);
     animation:lunar-fade-in-up .4s ease-out;position:relative;}
-.lunar-popup-close{position:absolute;top:1.5rem;right:1.5rem;background:rgba(255,255,255,.1);border:none;
-    width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-    color:rgba(224,224,255,.8);font-size:1.5rem;cursor:pointer;transition:all .3s;z-index:10;}
-.lunar-popup-close:hover{background:rgba(255,255,255,.2);transform:rotate(90deg);}
+.lunar-popup-close{position:absolute;top:1.5rem;right:1.5rem;
+    background:linear-gradient(135deg,rgba(139,122,255,.3),rgba(107,95,216,.4));
+    border:1px solid rgba(139,122,255,.45);border-radius:50px;
+    width:auto;height:auto;padding:.35rem 1rem;
+    display:flex;align-items:center;justify-content:center;
+    color:#e0e0ff;font-size:1rem;font-family:'Cormorant Garamond',serif;font-style:italic;
+    cursor:pointer;transition:all .35s;z-index:10;
+    box-shadow:0 0 16px rgba(139,122,255,.15),inset 0 0 8px rgba(139,122,255,.08);}
+.lunar-popup-close:hover{border-color:rgba(139,122,255,.7);color:#fff;transform:translateY(-1px);
+    box-shadow:0 0 28px rgba(139,122,255,.3),inset 0 0 12px rgba(139,122,255,.12);}
 .lunar-popup-header{padding:2.5rem;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:1.5rem;}
 .lunar-popup-icon{font-size:3rem;flex-shrink:0;}
 .lunar-popup-icon svg{width:48px;height:48px;color:#8B7AFF;}
@@ -398,9 +404,16 @@ const LunarUI = {
 .lunar-textarea-large:focus{outline:none;border-color:rgba(139,122,255,.5);}
 .lunar-helper-text{font-size:.9rem;color:rgba(224,224,255,.6);margin-top:.5rem;}
 .lunar-affirmation-grid{display:grid;gap:.5rem;margin:1rem 0;}
-.lunar-affirmation-btn{padding:.75rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
-    border-radius:8px;color:rgba(224,224,255,.8);cursor:pointer;text-align:left;transition:all .3s;width:100%;}
-.lunar-affirmation-btn:hover{background:rgba(139,122,255,.15);border-color:rgba(139,122,255,.4);}
+.lunar-affirmation-btn{padding:.65rem 1.25rem;
+    background:linear-gradient(135deg,rgba(139,122,255,.18),rgba(107,95,216,.15));
+    border:1px solid rgba(139,122,255,.35);border-radius:50px;
+    color:rgba(224,224,255,.75);cursor:pointer;text-align:center;
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.95rem;letter-spacing:.03em;
+    transition:all .35s;width:100%;
+    box-shadow:0 0 12px rgba(139,122,255,.08),inset 0 0 6px rgba(139,122,255,.04);}
+.lunar-affirmation-btn:hover{background:linear-gradient(135deg,rgba(139,122,255,.3),rgba(107,95,216,.4));
+    border-color:rgba(139,122,255,.6);color:#e0e0ff;
+    box-shadow:0 0 24px rgba(139,122,255,.2),inset 0 0 10px rgba(139,122,255,.08);transform:translateY(-1px);}
 .lunar-intention-preview{background:rgba(139,122,255,.1);border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
 .lunar-preview-label{font-style:italic;color:rgba(224,224,255,.6);font-size:.9rem;margin-bottom:1rem;}
 .lunar-word-input{width:100%;padding:1.5rem;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);
