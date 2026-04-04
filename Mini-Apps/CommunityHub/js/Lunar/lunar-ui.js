@@ -188,10 +188,14 @@ const LunarUI = {
 .lunar-live-count-top span{color:rgba(224,224,255,.9);font-size:.95rem;font-weight:500;}
 .lunar-pulse-dot{width:8px;height:8px;background:#8B7AFF;border-radius:50%;animation:lunar-pulse 2s infinite;}
 @keyframes lunar-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.2)}}
-.lunar-back-hub-btn{padding:.6rem 1.25rem;background:transparent;border:1px solid rgba(224,224,255,.2);
-    border-radius:50px;color:rgba(224,224,255,.5);font-size:.85rem;font-style:italic;
-    font-family:'Cormorant Garamond',serif;cursor:pointer;transition:all .3s;letter-spacing:.03em;}
-.lunar-back-hub-btn:hover{border-color:rgba(224,224,255,.4);color:rgba(224,224,255,.8);background:rgba(255,255,255,.04);}
+.lunar-back-hub-btn{padding:.75rem 1.75rem;
+    background:linear-gradient(135deg,rgba(139,122,255,.3),rgba(107,95,216,.4));
+    border:1px solid rgba(139,122,255,.45);border-radius:50px;
+    color:#e0e0ff;font-size:.9rem;font-family:'Cormorant Garamond',serif;font-style:italic;
+    letter-spacing:.05em;cursor:pointer;transition:all .35s;
+    box-shadow:0 0 24px rgba(139,122,255,.15),inset 0 0 12px rgba(139,122,255,.08);}
+.lunar-back-hub-btn:hover{border-color:rgba(139,122,255,.7);color:#fff;
+    box-shadow:0 0 40px rgba(139,122,255,.3),inset 0 0 16px rgba(139,122,255,.12);transform:translateY(-2px);}
 
 /* ── Moon visual ─────────────────────────────────────────────────────────── */
 .lunar-moon-visual{display:flex;justify-content:center;margin:3rem 0;}
@@ -253,13 +257,15 @@ const LunarUI = {
 /* ── Mode toggle ─────────────────────────────────────────────────────────── */
 .lunar-mode-toggle{display:flex;gap:.5rem;margin:2rem 0;justify-content:center;
     background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.07);border-radius:50px;padding:.35rem;}
-.lunar-mode-btn{display:flex;align-items:center;gap:.6rem;padding:.65rem 1.75rem;
+.lunar-mode-btn{display:flex;align-items:center;gap:.6rem;padding:.75rem 2rem;
     background:transparent;border:none;border-radius:50px;
     color:rgba(224,224,255,.45);font-size:.9rem;font-family:'Cormorant Garamond',serif;
     font-style:italic;letter-spacing:.04em;cursor:pointer;transition:all .35s;}
 .lunar-mode-btn:hover{color:rgba(224,224,255,.75);}
-.lunar-mode-btn.active{background:rgba(139,122,255,.22);border:1px solid rgba(139,122,255,.4);
-    color:#e0e0ff;box-shadow:0 0 18px rgba(139,122,255,.2),inset 0 0 10px rgba(139,122,255,.08);}
+.lunar-mode-btn.active{
+    background:linear-gradient(135deg,rgba(139,122,255,.3),rgba(107,95,216,.4));
+    border:1px solid rgba(139,122,255,.45);color:#e0e0ff;
+    box-shadow:0 0 24px rgba(139,122,255,.15),inset 0 0 12px rgba(139,122,255,.08);}
 .lunar-mode-btn svg{flex-shrink:0;opacity:.7;}
 .lunar-mode-btn.active svg{opacity:1;}
 
@@ -363,22 +369,27 @@ const LunarUI = {
 
 /* ── Buttons ─────────────────────────────────────────────────────────────── */
 .lunar-popup-btn{width:100%;padding:1rem 1.5rem;
-    background:linear-gradient(135deg,rgba(139,122,255,.35),rgba(107,95,216,.45));
+    background:linear-gradient(135deg,rgba(139,122,255,.3),rgba(107,95,216,.4));
     border:1px solid rgba(139,122,255,.45);border-radius:50px;
     color:#e0e0ff;font-size:1rem;font-family:'Cormorant Garamond',serif;font-style:italic;
-    letter-spacing:.04em;cursor:pointer;transition:all .35s;
-    box-shadow:0 0 20px rgba(139,122,255,.15),inset 0 0 12px rgba(139,122,255,.08);}
-.lunar-popup-btn:hover{border-color:rgba(139,122,255,.7);
-    box-shadow:0 0 32px rgba(139,122,255,.3),inset 0 0 16px rgba(139,122,255,.12);
-    color:#fff;transform:translateY(-1px);}
-.lunar-popup-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;}
-.lunar-btn-secondary{background:transparent;border:1px solid rgba(255,255,255,.12);
-    color:rgba(224,224,255,.5);box-shadow:none;margin-top:.75rem;}
-.lunar-btn-secondary:hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.25);
-    color:rgba(224,224,255,.8);box-shadow:none;transform:none;}
-.lunar-btn-success{background:linear-gradient(135deg,rgba(113,255,170,.25),rgba(95,216,158,.35));
-    border:1px solid rgba(113,255,170,.4);color:#a0ffd0;box-shadow:0 0 20px rgba(113,255,170,.1);}
-.lunar-btn-success:hover{border-color:rgba(113,255,170,.65);box-shadow:0 0 32px rgba(113,255,170,.25);color:#d0fff0;}
+    letter-spacing:.05em;cursor:pointer;transition:all .35s;
+    box-shadow:0 0 24px rgba(139,122,255,.15),inset 0 0 12px rgba(139,122,255,.08);}
+.lunar-popup-btn:hover{border-color:rgba(139,122,255,.7);color:#fff;transform:translateY(-2px);
+    box-shadow:0 0 40px rgba(139,122,255,.3),inset 0 0 16px rgba(139,122,255,.12);}
+.lunar-popup-btn:disabled{opacity:.3;cursor:not-allowed;transform:none;box-shadow:none;}
+.lunar-btn-secondary{
+    background:linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.03));
+    border:1px solid rgba(255,255,255,.15);color:rgba(224,224,255,.6);
+    box-shadow:none;margin-top:.75rem;}
+.lunar-btn-secondary:hover{border-color:rgba(255,255,255,.3);color:#e0e0ff;
+    background:linear-gradient(135deg,rgba(255,255,255,.1),rgba(255,255,255,.06));
+    box-shadow:none;transform:translateY(-1px);}
+.lunar-btn-success{
+    background:linear-gradient(135deg,rgba(113,255,170,.25),rgba(95,216,158,.35));
+    border:1px solid rgba(113,255,170,.45);color:#a0ffd0;
+    box-shadow:0 0 24px rgba(113,255,170,.1),inset 0 0 12px rgba(113,255,170,.06);}
+.lunar-btn-success:hover{border-color:rgba(113,255,170,.7);color:#d0fff0;transform:translateY(-2px);
+    box-shadow:0 0 40px rgba(113,255,170,.25),inset 0 0 16px rgba(113,255,170,.1);}
 
 /* ── Forms ───────────────────────────────────────────────────────────────── */
 .lunar-textarea-large{width:100%;min-height:150px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);
