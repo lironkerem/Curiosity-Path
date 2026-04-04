@@ -337,7 +337,7 @@ body.solar-room-active[data-season] {
 .solar-phase-info p{font-size:0.9rem;color:rgba(212,165,116,0.7);margin:0.25rem 0 0 0;}
 .solar-live-count-top{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;background:var(--neuro-warning-a10);border:1px solid rgba(212,165,116,0.2);border-radius:20px;font-size:0.9rem;color:rgba(212,165,116,0.9);justify-self:center;}
 .solar-pulse-dot{width:8px;height:8px;background:var(--solar-success);border-radius:50%;animation:pulse 2s infinite;}
-.solar-back-hub-btn{padding:.65rem 1.5rem;background:linear-gradient(135deg,rgba(var(--season-accent-rgb),.2,rgba(var(--season-accent-rgb),.1));border:1px solid rgba(212,165,116,.35);border-radius:50px;color:rgba(212,165,116,.85);cursor:pointer;transition:all .35s;font-size:.88rem;font-family:'Cormorant Garamond',serif;font-style:italic;letter-spacing:.04em;justify-self:end;background:linear-gradient(135deg,rgba(212,165,116,.18),rgba(166,124,82,.15));box-shadow:0 0 16px rgba(212,165,116,.1),inset 0 0 8px rgba(212,165,116,.05);}
+.solar-back-hub-btn{padding:.65rem 1.5rem;background:linear-gradient(135deg,rgba(212,165,116,.18),rgba(166,124,82,.15));border:1px solid rgba(212,165,116,.35);border-radius:50px;color:rgba(212,165,116,.85);cursor:pointer;transition:all .35s;font-size:.88rem;font-family:'Cormorant Garamond',serif;font-style:italic;letter-spacing:.04em;justify-self:end;box-shadow:0 0 16px rgba(212,165,116,.1),inset 0 0 8px rgba(212,165,116,.05);}
 .solar-back-hub-btn:hover{border-color:rgba(212,165,116,.65);color:var(--season-accent);box-shadow:0 0 28px rgba(212,165,116,.2),inset 0 0 12px rgba(212,165,116,.08);transform:translateY(-1px);}
 
 /* ── Content wrapper ─────────────────────────────────────────────────────── */
