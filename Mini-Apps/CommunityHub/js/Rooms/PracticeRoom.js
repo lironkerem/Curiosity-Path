@@ -502,7 +502,7 @@ class PracticeRoom {
             setTimeout(() => {
                 btn.style.background = 'rgba(139,92,246,0.12)';
                 btn.style.color      = 'var(--text-muted)';
-                btn.innerHTML        = `${_BLESS_SVG} Bless`;
+                btn.innerHTML        = `${_BLESS_SVG} Bless this room`;
                 btn.disabled         = false;
             }, 3000);
         }
@@ -528,8 +528,8 @@ class PracticeRoom {
         const btn = document.getElementById(`${this.roomId}BlessBtn`);
         if (!btn) return;
         btn.innerHTML = count > 0
-            ? `${_BLESS_SVG} Bless <span style="font-size:10px;opacity:0.7;">${count}</span>`
-            : `${_BLESS_SVG} Bless`;
+            ? `${_BLESS_SVG} Bless this room <span style="font-size:10px;opacity:0.7;">${count}</span>`
+            : `${_BLESS_SVG} Bless this room`;
     }
 
     _subscribeToBlessings() {
@@ -826,7 +826,7 @@ class PracticeRoom {
              data-room-type="${this.roomType}"
              data-room-id="${this.roomId}"
              ${canEnter ? `onclick="${methodName}()"` : ''}
-             style="cursor:${canEnter ? 'pointer' : 'not-allowed'};border:3px solid ${isVisuallyOpen ? '#22c55e' : '#ef4444'};position:relative;opacity:${isVisuallyOpen ? '1' : '0.55'};padding-bottom:0;">
+             style="cursor:${canEnter ? 'pointer' : 'not-allowed'};border:3px solid ${isVisuallyOpen ? '#22c55e' : '#ef4444'};position:relative;opacity:${isVisuallyOpen ? '1' : '0.55'};">
 
             ${this.getDevModeBadge()}
 
@@ -836,12 +836,12 @@ class PracticeRoom {
 
             <div class="room-desc" style="text-align:center;margin-bottom:16px;">${this.config.description}</div>
 
-            <div style="padding-bottom:16px;">${this.buildCardFooter()}</div>
+            ${this.buildCardFooter()}
 
             <button type="button" id="${this.roomId}BlessBtn"
                     onclick="event.stopPropagation();${this.roomId}_blessRoom()"
                     title="Send a blessing to everyone inside"
-                    style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px 12px;font-size:12px;color:var(--text-muted);background:var(--neuro-bg-lightest);border:none;border-top:1px solid var(--border);border-radius:0 0 var(--radius-lg) var(--radius-lg);cursor:pointer;transition:background 0.2s,color 0.2s;white-space:nowrap;">
+                    style="display:flex;align-items:center;justify-content:center;gap:6px;width:calc(100% + 48px);margin:16px -24px -24px -24px;padding:10px 12px;font-size:12px;color:var(--text-muted);background:var(--neuro-bg-lightest);border:none;border-top:1px solid var(--border);cursor:pointer;transition:background 0.2s,color 0.2s;white-space:nowrap;">
                 ${_BLESS_SVG} Bless this room
             </button>
         </div>`;
