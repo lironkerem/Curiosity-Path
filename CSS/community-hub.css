@@ -2034,6 +2034,15 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     box-shadow: var(--shadow-raised-hover);
 }
 
+/* Bless this room button — flush to card bottom, no side/bottom borders */
+[id$="BlessBtn"] {
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg) !important;
+}
+[id$="BlessBtn"]:hover {
+    background: var(--neuro-accent-a10) !important;
+    color: var(--accent) !important;
+}
+
 .ps-body { 
     flex: 1; 
     display: flex; 

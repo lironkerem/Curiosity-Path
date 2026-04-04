@@ -18,7 +18,7 @@ import { CollectiveField } from '../collective-field.js';
 
 // ─── Shared constants ────────────────────────────────────────────────────────
 
-const _BLESS_SVG = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.8;"><path d="M12 3L13.5 8.5L19 10L13.5 11.5L12 17L10.5 11.5L5 10L10.5 8.5Z"/><path d="M5 3L5.75 5.25L8 6L5.75 6.75L5 9L4.25 6.75L2 6L4.25 5.25Z"/><path d="M19 14L19.75 16.25L22 17L19.75 17.75L19 20L18.25 17.75L16 17L18.25 16.25Z"/></svg>`;
+const _BLESS_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.8;"><path d="M12 3L13.5 8.5L19 10L13.5 11.5L12 17L10.5 11.5L5 10L10.5 8.5Z"/><path d="M5 3L5.75 5.25L8 6L5.75 6.75L5 9L4.25 6.75L2 6L4.25 5.25Z"/><path d="M19 14L19.75 16.25L22 17L19.75 17.75L19 20L18.25 17.75L16 17L18.25 16.25Z"/></svg>`;
 
 const _IN_SESSION_BADGE = `<span style="background:rgba(239,68,68,0.85);color:white;font-size:11px;font-weight:700;letter-spacing:0.08em;padding:4px 10px;border-radius:4px;text-transform:uppercase;">In Session</span>`;
 
@@ -44,7 +44,7 @@ function _esc(str) {
 // Defined once at module level — avoids repeated identical string allocations
 // each time buildHeader / buildSafetyDropdown / buildCardFooter are called.
 const _ICONS = {
-    bless:        `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.8;"><path d="M12 3L13.5 8.5L19 10L13.5 11.5L12 17L10.5 11.5L5 10L10.5 8.5Z"/><path d="M5 3L5.75 5.25L8 6L5.75 6.75L5 9L4.25 6.75L2 6L4.25 5.25Z"/><path d="M19 14L19.75 16.25L22 17L19.75 17.75L19 20L18.25 17.75L16 17L18.25 16.25Z"/></svg>`,
+    bless:        `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.8;"><path d="M12 3L13.5 8.5L19 10L13.5 11.5L12 17L10.5 11.5L5 10L10.5 8.5Z"/><path d="M5 3L5.75 5.25L8 6L5.75 6.75L5 9L4.25 6.75L2 6L4.25 5.25Z"/><path d="M19 14L19.75 16.25L22 17L19.75 17.75L19 20L18.25 17.75L16 17L18.25 16.25Z"/></svg>`,
     leave:        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20h9"/><path d="M10 12v.01"/><path d="M13 4l-6 2v14l6 2"/></svg>`,
     shield:       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
     book:         `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
@@ -826,7 +826,7 @@ class PracticeRoom {
              data-room-type="${this.roomType}"
              data-room-id="${this.roomId}"
              ${canEnter ? `onclick="${methodName}()"` : ''}
-             style="cursor:${canEnter ? 'pointer' : 'not-allowed'};border:3px solid ${isVisuallyOpen ? '#22c55e' : '#ef4444'};position:relative;opacity:${isVisuallyOpen ? '1' : '0.55'};">
+             style="cursor:${canEnter ? 'pointer' : 'not-allowed'};border:3px solid ${isVisuallyOpen ? '#22c55e' : '#ef4444'};position:relative;opacity:${isVisuallyOpen ? '1' : '0.55'};padding-bottom:0;">
 
             ${this.getDevModeBadge()}
 
@@ -836,13 +836,13 @@ class PracticeRoom {
 
             <div class="room-desc" style="text-align:center;margin-bottom:16px;">${this.config.description}</div>
 
-            ${this.buildCardFooter()}
+            <div style="padding-bottom:16px;">${this.buildCardFooter()}</div>
 
             <button type="button" id="${this.roomId}BlessBtn"
                     onclick="event.stopPropagation();${this.roomId}_blessRoom()"
                     title="Send a blessing to everyone inside"
-                    style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:12px;padding:8px 12px;font-size:12px;color:var(--text-muted);background:var(--neuro-bg-lightest);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;box-shadow:var(--shadow-raised);transition:background 0.2s,color 0.2s,border-color 0.2s;white-space:nowrap;">
-                ${_BLESS_SVG} Bless
+                    style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px 12px;font-size:12px;color:var(--text-muted);background:var(--neuro-bg-lightest);border:none;border-top:1px solid var(--border);border-radius:0 0 var(--radius-lg) var(--radius-lg);cursor:pointer;transition:background 0.2s,color 0.2s;white-space:nowrap;">
+                ${_BLESS_SVG} Bless this room
             </button>
         </div>`;
     }
