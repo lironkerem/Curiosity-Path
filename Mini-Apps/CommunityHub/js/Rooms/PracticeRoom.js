@@ -668,8 +668,8 @@ class PracticeRoom {
         window[`${this.roomId}_gentlyLeave`] = () => this.gentlyLeave();
 
         return `
-        <header class="ps-header" style="padding:12px 16px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;${this.getHeaderGradient()}">
-            <div class="ps-info" style="display:flex;flex-direction:column;align-items:flex-start;flex:1;min-width:0;">
+        <header class="ps-header" style="padding:12px 16px;display:flex;flex-direction:column;gap:12px;${this.getHeaderGradient()}">
+            <div class="ps-info" style="display:flex;flex-direction:column;align-items:flex-start;min-width:0;">
                 <div style="width:100%;display:flex;justify-content:flex-start;">
                     <img src="${this.config.imageUrl}" alt="${this.config.name}" width="600" height="400" loading="lazy" decoding="async" style="max-width:600px;width:100%;height:auto;display:block;">
                 </div>
@@ -683,10 +683,10 @@ class PracticeRoom {
                     </div>
                 </div>
             </div>
-            <div style="display:flex;gap:8px;position:relative;flex-wrap:wrap;justify-content:flex-end;align-items:center;">
+            <div class="ps-header-btn-grid">
                 ${this.buildAdditionalHeaderButtons?.() ?? ''}
                 ${this.buildSafetyDropdown()}
-                <button type="button" class="ps-leave" onclick="window['${this.roomId}_gentlyLeave']()" style="padding:10px 16px;white-space:nowrap;">
+                <button type="button" class="ps-leave ps-header-btn" onclick="window['${this.roomId}_gentlyLeave']()">
                     ${_ICONS.leave} Gently Leave
                 </button>
             </div>

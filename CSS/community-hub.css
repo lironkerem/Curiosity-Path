@@ -1986,6 +1986,35 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 
 /* Practice Space - PS Elements */
+
+/* ── Header button grid: 2-col on desktop, full-width on mobile ── */
+.ps-header-btn-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    width: 100%;
+}
+
+/* Safety dropdown container: dissolve into grid flow */
+.ps-header-btn-grid > [id$="SafetyDropdownContainer"] {
+    display: contents;
+}
+
+/* Every button in the grid: full cell width, centered content */
+.ps-header-btn,
+.ps-header-btn-grid > .ps-leave,
+.ps-header-btn-grid > [id$="SafetyDropdownContainer"] > button {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    padding: 9px 12px !important;
+    font-size: 13px !important;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
 .ps-header {
     background: var(--surface);
     border-bottom: 2px solid var(--border);
@@ -2964,22 +2993,13 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     border-radius: var(--radius-md);
 }
 
-/* ── Header button strip: single row, no wrap, smaller ── */
-.ps-leave,
-.ps-header > div:last-child > button,
-.ps-header > div:last-child > div > button {
+/* ── Header button strip: now managed by .ps-header-btn-grid ── */
+/* Keep ps-leave base sizing for non-grid contexts */
+.ps-leave {
     padding: 7px 12px !important;
     font-size: 12px !important;
     white-space: nowrap;
     line-height: 1.2;
-}
-
-.ps-header > div:last-child {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    gap: 6px !important;
-    align-items: center !important;
-    flex-shrink: 0;
 }
 
 [id$="SafetyDropdownContainer"] {
@@ -3001,9 +3021,9 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     box-shadow:             var(--shadow-raised) !important;
 }
 
-/* Uniform hover for every control button in the header strip */
-.ps-header > div:last-child > button:hover,
-.ps-header > div:last-child > div > button:hover {
+/* Uniform hover for every control button in the header grid */
+.ps-header-btn-grid button:hover,
+.ps-header-btn-grid > [id$="SafetyDropdownContainer"] > button:hover {
     border-color:            var(--neuro-error, #c76b5b) !important;
     color:                   var(--neuro-error, #c76b5b) !important;
     background:              var(--surface)              !important;
@@ -3981,38 +4001,32 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
   }
 
 /* ── Header ── */
-    .ps-header { padding: 10px 12px; gap: 8px; align-items: flex-start; }
+    .ps-header { padding: 10px 12px; gap: 8px; }
     .ps-header img[alt] { max-height: 120px; width: 100%; }
     .ps-info { width: 100%; min-width: 0; }
 
-    .ps-header > div:last-child {
-        width: 100%; justify-content: flex-end;
-        flex-wrap: nowrap !important;
-        overflow-x: auto;
-        scrollbar-width: none; gap: 6px !important;
-    }
-    .ps-header > div:last-child::-webkit-scrollbar { display: none; }
-
-    .ps-leave,
-    .ps-header > div:last-child > button,
-    .ps-header > div:last-child > div > button {
-        padding: clamp(4px, 1.2vw, 7px) clamp(6px, 2vw, 10px) !important;
-        font-size: clamp(10px, 2.5vw, 12px) !important;
-        flex-shrink: 0;
+    /* Button grid: full width, 2-col on mobile */
+    .ps-header-btn-grid {
+        width: 100%;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
     }
 
-    /* SVG icons inside header buttons — scale with button */
-    .ps-header > div:last-child button .lucide-icon,
-    .ps-header > div:last-child button svg {
-        width: clamp(11px, 2.8vw, 14px) !important;
-        height: clamp(11px, 2.8vw, 14px) !important;
+    .ps-header-btn-grid button {
+        font-size: clamp(11px, 3vw, 13px) !important;
+        padding: clamp(7px, 2vw, 10px) clamp(8px, 2.5vw, 14px) !important;
+    }
+
+    .ps-header-btn-grid button .lucide-icon,
+    .ps-header-btn-grid button svg {
+        width: clamp(12px, 3vw, 15px) !important;
+        height: clamp(12px, 3vw, 15px) !important;
     }
 
     [id$="ParticipantCount"]    { font-size: 12px !important; }
     [id$="BlessedCounter"] span { font-size: 10px !important; }
 
-    /* Safety dropdown — position:fixed + coords set by toggleSafetyDropdown() JS.
-       Only constrain width so it doesn't overflow viewport edges.               */
+    /* Safety dropdown */
     [id$="SafetyDropdown"] {
         max-width: 85vw !important;
         font-size: 13px !important;
@@ -4780,11 +4794,9 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
   /* Practice space header buttons */
   .ps-header img[alt] { max-height: 80px; }
-  .ps-leave,
-  .ps-header > div:last-child > button,
-  .ps-header > div:last-child > div > button {
-      padding: clamp(3px, 1vw, 5px) clamp(4px, 1.5vw, 7px) !important;
+  .ps-header-btn-grid button {
       font-size: clamp(9px, 2.2vw, 11px) !important;
+      padding: clamp(5px, 1.5vw, 7px) clamp(6px, 2vw, 9px) !important;
   }
 
   /* Deep Work */
