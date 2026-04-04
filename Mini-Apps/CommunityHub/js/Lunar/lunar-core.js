@@ -557,6 +557,8 @@ class LunarRoom {
 
             (document.getElementById('communityHubFullscreenContainer') ?? document.body).appendChild(popup);
             this.domCache.popup = popup;
+            popup.querySelectorAll('[data-action="close-popup"]').forEach(btn =>
+                btn.addEventListener('click', this.closeCollectivePopup));
             popup.querySelector('[data-action="begin-collective"]')?.addEventListener('click', this.startCollectiveStep2);
             popup.addEventListener('click', this._handlePopupClick);
         } catch (e) {
