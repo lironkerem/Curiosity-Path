@@ -1887,8 +1887,8 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 .collective-action-btn {
     width: 100%;
     padding: 14px 20px;
-    background: linear-gradient(135deg, var(--neuro-accent), var(--neuro-accent-light));
-    border: none;
+    background: linear-gradient(135deg, var(--neuro-accent), var(--neuro-accent-light)) !important;
+    border: none !important;
     border-radius: var(--radius-md);
     font-size: 14px;
     font-weight: 600;
@@ -1899,7 +1899,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    color: white;
+    color: white !important;
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
