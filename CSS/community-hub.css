@@ -4055,11 +4055,6 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     .timer-controls { gap: 6px; }
     .t-btn { padding: 10px 16px; font-size: 13px; }
 
-    .gratitude-container {
-        position: relative !important; bottom: auto !important;
-        opacity: 1 !important; pointer-events: auto !important; margin-top: 20px;
-    }
-
     [id$="RotatingAffirmation"] {
         font-size: clamp(14px, 4.5vw, 18px) !important;
         margin-bottom: 20px !important; padding: 0 8px;
