@@ -496,18 +496,17 @@ class PracticeRoom {
         }
 
         if (btn) {
-            btn.classList.add('bless-room-btn--sent');
+            if (btn.dataset.blessed) return;
+            btn.dataset.blessed = '1';
             btn.style.background = '#c8b898';
             btn.style.color = '#a8824a';
             btn.innerHTML = `${_BLESS_SVG} Blessed ✦`;
-            btn.disabled  = true;
             setTimeout(() => {
-                btn.classList.remove('bless-room-btn--sent');
+                delete btn.dataset.blessed;
                 btn.style.background = '#d4c0a8';
                 btn.style.color = '#7a5c20';
                 const dotsHTML = `<div class="bless-dots"><div class="bless-dot"></div><div class="bless-dot"></div><div class="bless-dot"></div></div>`;
                 btn.innerHTML = `${dotsHTML} ${_BLESS_SVG} Bless this room ${dotsHTML}`;
-                btn.disabled  = false;
             }, 3000);
         }
 
@@ -843,16 +842,18 @@ class PracticeRoom {
 
             <div style="flex:1;">${this.buildCardFooter()}</div>
 
-            <div class="bless-room-wrap" style="width:calc(100% + 48px);margin:16px -24px 0 -24px;padding:2px;background:linear-gradient(135deg,#c8a96e,#e8d5a0,#a8824a,#dfc87a);border-radius:0 0 18px 18px;">
-                <button type="button" id="${this.roomId}BlessBtn"
-                        onclick="event.stopPropagation();${this.roomId}_blessRoom()"
-                        title="Send a blessing to everyone inside"
-                        class="bless-room-btn"
-                        style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px 16px;font-size:11px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#7a5c20;background:#d4c0a8;border:none;border-radius:0 0 16px 16px;box-shadow:none;cursor:pointer;white-space:nowrap;transition:background 0.2s,color 0.2s,transform 0.15s;">
+            <div class="bless-room-wrap" style="width:calc(100% + 48px);margin:16px -24px 0 -24px;padding:2px;background:linear-gradient(135deg,#c8a96e,#e8d5a0,#a8824a,#dfc87a);">
+                <div id="${this.roomId}BlessBtn"
+                     role="button" tabindex="0"
+                     onclick="event.stopPropagation();${this.roomId}_blessRoom()"
+                     onkeydown="if(event.key==='Enter'||event.key===' '){event.stopPropagation();${this.roomId}_blessRoom();}"
+                     title="Send a blessing to everyone inside"
+                     class="bless-room-btn"
+                     style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px 16px;font-size:11px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#7a5c20;background:#d4c0a8;cursor:pointer;white-space:nowrap;transition:background 0.2s,color 0.2s;user-select:none;">
                     <div class="bless-dots"><div class="bless-dot"></div><div class="bless-dot"></div><div class="bless-dot"></div></div>
                     ${_BLESS_SVG} Bless this room
                     <div class="bless-dots"><div class="bless-dot"></div><div class="bless-dot"></div><div class="bless-dot"></div></div>
-                </button>
+                </div>
             </div>
         </div>`;
     }
