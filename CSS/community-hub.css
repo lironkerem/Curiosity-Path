@@ -2065,49 +2065,6 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 /* Bless this room button — ceremonial footer */
 /* Bless this room — Option 2: Gold Leaf Border */
-.bless-room-wrap {
-    width: calc(100% + 48px);
-    margin: 16px -24px 0 -24px;
-    padding: 2px;
-    background: linear-gradient(135deg, #c8a96e, #e8d5a0, #a8824a, #dfc87a);
-}
-.practice-room .bless-room-btn,
-button.bless-room-btn {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    width: 100% !important;
-    padding: 11px 16px !important;
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.09em !important;
-    text-transform: uppercase !important;
-    color: #7a5c20 !important;
-    background: #d4c0a8 !important;
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    cursor: pointer !important;
-    transition: background 0.2s, color 0.2s, transform 0.15s !important;
-    white-space: nowrap !important;
-}
-.practice-room .bless-room-btn:hover,
-button.bless-room-btn:hover {
-    background: #e0d4bf !important;
-    color: #5a3e0e !important;
-    transform: translateY(-1px) !important;
-    box-shadow: none !important;
-}
-.practice-room .bless-room-btn:active,
-button.bless-room-btn:active { transform: translateY(0) !important; }
-.bless-room-btn svg {
-    opacity: 0.85 !important;
-    flex-shrink: 0 !important;
-    stroke: #a8824a !important;
-    transition: transform 0.3s ease !important;
-}
-.bless-room-btn:hover svg { transform: scale(1.2) rotate(8deg) !important; }
 .bless-dots { display: flex; gap: 4px; align-items: center; }
 .bless-dot {
     width: 4px; height: 4px;
@@ -2115,12 +2072,12 @@ button.bless-room-btn:active { transform: translateY(0) !important; }
     background: #c8a96e;
     flex-shrink: 0;
 }
-.practice-room .bless-room-btn--sent,
-button.bless-room-btn--sent {
-    background: #cfc0a6 !important;
-    color: #a8824a !important;
-    opacity: 0.9 !important;
+.bless-room-btn:hover {
+    background: #e0d4bf !important;
+    color: #5a3e0e !important;
 }
+.bless-room-btn:hover svg { transform: scale(1.2) rotate(8deg); }
+.bless-room-btn svg { transition: transform 0.3s ease; stroke: #a8824a; }
 
 .ps-body { 
     flex: 1; 
