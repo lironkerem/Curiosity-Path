@@ -82,7 +82,7 @@ const notificationSection = (content) => `
  */
 export const profile = (u = {}) => `
   <div class="accordion-inner">
-    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:10px;">
+    <div class="profile-avatar-header">
       <label class="avatar-upload-label" title="Click to change picture">
         <input type="file" id="avatar-upload" accept="image/*">
         <div class="profile-avatar-container">
@@ -103,7 +103,7 @@ export const profile = (u = {}) => `
       </label>
       <!-- Hidden input stores the selected icon key -->
       <input type="hidden" id="profile-emoji" value="${EMOJI_TO_KEY[u.emoji] || u.emoji || 'user'}">
-      <button type="button" class="btn" id="open-icon-picker-btn" style="margin-top:4px;font-size:0.85rem;padding:6px 16px;">
+      <button type="button" class="btn" id="open-icon-picker-btn">
         Choose Icon
       </button>
     </div>
@@ -311,9 +311,6 @@ export const notifications = () => {
     <div class="accordion-inner">
       <div style="margin-bottom:16px;">
         ${toggle('master-notifications-toggle', '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Enable Notifications', settings.enabled)}
-        <small style="opacity:.7;display:block;margin-top:8px;">
-          ${settings.enabled ? '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Enabled' : '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Enable to receive notifications'}
-        </small>
       </div>
 
       <div id="notification-options" style="${settings.enabled ? '' : 'opacity:.4;pointer-events:none;'}">

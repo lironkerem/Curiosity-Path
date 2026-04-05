@@ -295,6 +295,40 @@
 }
 
 /* ========== PROFILE SECTION ========== */
+
+/* Avatar + icon picker header layout */
+.profile-avatar-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+#open-icon-picker-btn {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: var(--neuro-bg);
+  border: 1px solid var(--neuro-shadow-dark);
+  border-radius: var(--border-radius-button, 10px);
+  color: var(--neuro-text);
+  cursor: pointer;
+  box-shadow: var(--shadow-raised-sm);
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+#open-icon-picker-btn:hover {
+  background: rgba(102, 126, 234, .08);
+  border-color: var(--neuro-accent);
+}
+
+#open-icon-picker-btn:active {
+  box-shadow: var(--shadow-inset);
+}
+
 .avatar-upload-label {
   position: relative;
   cursor: pointer;
@@ -1141,6 +1175,8 @@ button[type="button"].avatar-icon-btn {
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.2s, transform 0.15s;
+  opacity: 1 !important;
+  filter: none !important;
 }
 
 .btn-delete-account:hover {
@@ -1149,6 +1185,7 @@ button[type="button"].avatar-icon-btn {
 
 .btn-delete-account:active {
   transform: scale(0.97);
+  background: #991b1b;
 }
 
 .btn-delete-account svg {
