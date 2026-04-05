@@ -497,11 +497,12 @@ class PracticeRoom {
 
         if (btn) {
             btn.classList.add('bless-room-btn--sent');
-            btn.innerHTML = `${_BLESS_SVG} Blessed ✨`;
+            btn.innerHTML = `${_BLESS_SVG} Blessed ✦`;
             btn.disabled  = true;
             setTimeout(() => {
                 btn.classList.remove('bless-room-btn--sent');
-                btn.innerHTML = `${_BLESS_SVG} Bless this room`;
+                const dotsHTML = `<div class="bless-dots"><div class="bless-dot"></div><div class="bless-dot"></div><div class="bless-dot"></div></div>`;
+                btn.innerHTML = `${dotsHTML} ${_BLESS_SVG} Bless this room ${dotsHTML}`;
                 btn.disabled  = false;
             }, 3000);
         }
@@ -526,9 +527,10 @@ class PracticeRoom {
     _updateCardBlessingBadge(count) {
         const btn = document.getElementById(`${this.roomId}BlessBtn`);
         if (!btn) return;
+        const dotsHTML = `<div class="bless-dots"><div class="bless-dot"></div><div class="bless-dot"></div><div class="bless-dot"></div></div>`;
         btn.innerHTML = count > 0
-            ? `${_BLESS_SVG} Bless this room <span style="font-size:10px;opacity:0.7;">${count}</span>`
-            : `${_BLESS_SVG} Bless this room`;
+            ? `${dotsHTML} ${_BLESS_SVG} Bless this room <span style="font-size:10px;opacity:0.7;">${count}</span> ${dotsHTML}`
+            : `${dotsHTML} ${_BLESS_SVG} Bless this room ${dotsHTML}`;
     }
 
     _subscribeToBlessings() {
@@ -837,12 +839,16 @@ class PracticeRoom {
 
             <div style="flex:1;">${this.buildCardFooter()}</div>
 
-            <button type="button" id="${this.roomId}BlessBtn"
-                    onclick="event.stopPropagation();${this.roomId}_blessRoom()"
-                    title="Send a blessing to everyone inside"
-                    class="bless-room-btn">
-                ${_BLESS_SVG} Bless this room
-            </button>
+            <div class="bless-room-wrap">
+                <button type="button" id="${this.roomId}BlessBtn"
+                        onclick="event.stopPropagation();${this.roomId}_blessRoom()"
+                        title="Send a blessing to everyone inside"
+                        class="bless-room-btn">
+                    <div class="bless-dots"><div class="bless-dot"></div><div class="bless-dot"></div><div class="bless-dot"></div></div>
+                    ${_BLESS_SVG} Bless this room
+                    <div class="bless-dots"><div class="bless-dot"></div><div class="bless-dot"></div><div class="bless-dot"></div></div>
+                </button>
+            </div>
         </div>`;
     }
 
