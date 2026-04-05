@@ -183,7 +183,7 @@
       </button>
     `).join('');
     root.innerHTML = `
-      <h3>Choose an area of life to journal about today</h3>
+      <p style="color:var(--neuro-text-light);font-size:0.95rem;line-height:1.5;text-align:center;margin:0 0 var(--spacing-md) 0;">Choose an area of life to journal about today</p>
       <div class="case-selection-grid" style="margin-bottom: 1.5rem">${caseGrid}</div>
     `;
     root.querySelector('.case-selection-grid').addEventListener('click', e => {
@@ -208,7 +208,7 @@
       <h4>${q.text}</h4>
       <textarea id="journey-answer" class="form-input" placeholder="Write your response here..." 
         style="min-height: 120px; margin-top: 0.5rem;"></textarea>
-      <div class="journey-step-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; align-items: center;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; align-items: center;">
         <div>
           <label class="form-label">Primary emotion:</label>
           <select id="journey-emotion" class="form-input">${emotionOptions}</select>
