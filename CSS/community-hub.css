@@ -2069,15 +2069,12 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 .bless-dot {
     width: 4px; height: 4px;
     border-radius: 50%;
-    background: #c8a96e;
+    background: rgba(255,255,255,0.7);
     flex-shrink: 0;
 }
-.bless-room-btn:hover {
-    background: #e0d4bf !important;
-    color: #5a3e0e !important;
-}
-.bless-room-btn:hover svg { transform: scale(1.2) rotate(8deg); }
-.bless-room-btn svg { transition: transform 0.3s ease; stroke: #a8824a; }
+.bless-room-btn { transition: opacity 0.2s, transform 0.15s; }
+.bless-room-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+.bless-room-btn svg { transition: transform 0.3s ease; stroke: #fff; }
 
 .ps-body { 
     flex: 1; 
