@@ -2071,7 +2071,8 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     padding: 2px;
     background: linear-gradient(135deg, #c8a96e, #e8d5a0, #a8824a, #dfc87a);
 }
-.bless-room-btn {
+.practice-room .bless-room-btn,
+button.bless-room-btn {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -2083,27 +2084,30 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     letter-spacing: 0.09em !important;
     text-transform: uppercase !important;
     color: #7a5c20 !important;
-    background: var(--neuro-bg-lighter) !important;
+    background: #d4c0a8 !important;
     border: none !important;
+    border-radius: 0 !important;
     box-shadow: none !important;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s, transform 0.15s;
-    white-space: nowrap;
+    cursor: pointer !important;
+    transition: background 0.2s, color 0.2s, transform 0.15s !important;
+    white-space: nowrap !important;
 }
-.bless-room-btn:hover {
-    background: var(--neuro-bg-lightest) !important;
+.practice-room .bless-room-btn:hover,
+button.bless-room-btn:hover {
+    background: #e0d4bf !important;
     color: #5a3e0e !important;
-    transform: translateY(-1px);
+    transform: translateY(-1px) !important;
     box-shadow: none !important;
 }
-.bless-room-btn:active { transform: translateY(0) !important; }
+.practice-room .bless-room-btn:active,
+button.bless-room-btn:active { transform: translateY(0) !important; }
 .bless-room-btn svg {
-    opacity: 0.85;
-    flex-shrink: 0;
-    stroke: #a8824a;
-    transition: transform 0.3s ease;
+    opacity: 0.85 !important;
+    flex-shrink: 0 !important;
+    stroke: #a8824a !important;
+    transition: transform 0.3s ease !important;
 }
-.bless-room-btn:hover svg { transform: scale(1.2) rotate(8deg); }
+.bless-room-btn:hover svg { transform: scale(1.2) rotate(8deg) !important; }
 .bless-dots { display: flex; gap: 4px; align-items: center; }
 .bless-dot {
     width: 4px; height: 4px;
@@ -2111,10 +2115,11 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     background: #c8a96e;
     flex-shrink: 0;
 }
-.bless-room-btn--sent {
-    background: linear-gradient(135deg, rgba(200,169,110,0.15), rgba(232,213,160,0.25)) !important;
+.practice-room .bless-room-btn--sent,
+button.bless-room-btn--sent {
+    background: #cfc0a6 !important;
     color: #a8824a !important;
-    opacity: 0.9;
+    opacity: 0.9 !important;
 }
 
 .ps-body { 
