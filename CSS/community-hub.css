@@ -2095,6 +2095,11 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 .bless-room-btn:hover svg {
     transform: scale(1.3) rotate(12deg);
 }
+.bless-room-btn--sent {
+    background: linear-gradient(135deg, var(--neuro-accent-a20) 0%, var(--neuro-accent-a30) 100%) !important;
+    letter-spacing: 0.12em;
+    opacity: 0.85;
+}
 
 .ps-body { 
     flex: 1; 

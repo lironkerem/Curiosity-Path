@@ -496,14 +496,13 @@ class PracticeRoom {
         }
 
         if (btn) {
-            btn.style.cssText += ';background:rgba(139,92,246,0.3);color:var(--accent);';
-            btn.innerHTML = `${_BLESS_SVG} Blessed`;
+            btn.classList.add('bless-room-btn--sent');
+            btn.innerHTML = `${_BLESS_SVG} Blessed ✨`;
             btn.disabled  = true;
             setTimeout(() => {
-                btn.style.background = 'rgba(139,92,246,0.12)';
-                btn.style.color      = 'var(--text-muted)';
-                btn.innerHTML        = `${_BLESS_SVG} Bless this room`;
-                btn.disabled         = false;
+                btn.classList.remove('bless-room-btn--sent');
+                btn.innerHTML = `${_BLESS_SVG} Bless this room`;
+                btn.disabled  = false;
             }, 3000);
         }
 

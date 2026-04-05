@@ -219,10 +219,6 @@
     width: 10px;
     height: 10px;
   }
-
-  .avatar-icon-picker {
-    grid-template-columns: repeat(6, 1fr);
-  }
 }
 
 /* ========== DROPDOWN MENU ========== */
@@ -1117,11 +1113,11 @@ body.blur-behind > *:not(.pricing-overlay) {
 }
 
 .avatar-icon-picker {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 4px;
   margin-top: 6px;
-  padding: 4px;
+  padding: 6px;
   border-radius: 12px;
   background: var(--neuro-bg);
   box-shadow: var(--shadow-inset);
@@ -1131,25 +1127,35 @@ body.blur-behind > *:not(.pricing-overlay) {
 button[type="button"].avatar-icon-btn {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 4px !important;
-  border: none;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px !important;
+  border: 1px solid transparent;
   border-radius: 8px;
   background: transparent;
   cursor: pointer;
-  transition: background 0.15s;
+  font-size: 0.85rem;
+  color: var(--neuro-text);
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.avatar-icon-btn .lucide-avatar-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
 }
 
 .avatar-icon-btn:hover {
-  background: rgba(0,0,0,0.07);
+  background: rgba(0,0,0,0.05);
+  border-color: var(--neuro-shadow-dark);
 }
 
 .avatar-icon-btn.selected {
-  background: var(--neuro-accent, #6366f1);
-  box-shadow: var(--shadow-raised);
+  background: rgba(102, 126, 234, 0.12);
+  border-color: var(--neuro-accent, #6366f1);
+  font-weight: 600;
 }
-
-/* ========== DELETE ACCOUNT ========== */
 
 /* ========== DELETE ACCOUNT ========== */
 
@@ -1159,15 +1165,17 @@ button[type="button"].avatar-icon-btn {
   border-top: 1px solid rgba(220, 38, 38, 0.15);
 }
 
-.btn-delete-account {
+.delete-account-section .btn-delete-account,
+#delete-account-btn,
+button.btn-delete-account {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   width: 100%;
-  background: #dc2626;
-  border: none;
-  color: #fff;
+  background: #dc2626 !important;
+  border: none !important;
+  color: #fff !important;
   font-size: 0.88rem;
   font-weight: 600;
   padding: 10px 16px;
@@ -1177,15 +1185,20 @@ button[type="button"].avatar-icon-btn {
   transition: background 0.2s, transform 0.15s;
   opacity: 1 !important;
   filter: none !important;
+  box-shadow: none !important;
 }
 
-.btn-delete-account:hover {
-  background: #b91c1c;
+.delete-account-section .btn-delete-account:hover,
+#delete-account-btn:hover,
+button.btn-delete-account:hover {
+  background: #b91c1c !important;
 }
 
-.btn-delete-account:active {
+.delete-account-section .btn-delete-account:active,
+#delete-account-btn:active,
+button.btn-delete-account:active {
   transform: scale(0.97);
-  background: #991b1b;
+  background: #991b1b !important;
 }
 
 .btn-delete-account svg {

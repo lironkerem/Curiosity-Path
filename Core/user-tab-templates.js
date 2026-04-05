@@ -26,7 +26,7 @@ export const MENU_ITEMS = [
  * Each item stores a key (e.g. 'moon') as its data-value
  */
 const ICON_PICKER_OPTIONS = Object.keys(AVATAR_ICONS)
-  .map(key => `<button type="button" class="avatar-icon-btn" data-value="${key}" title="${key}">${AVATAR_ICONS[key]}</button>`)
+  .map(key => `<button type="button" class="avatar-icon-btn" data-value="${key}" title="${key}">${AVATAR_ICONS[key]}<span style="text-transform:capitalize;letter-spacing:.02em;">${key.replace(/-/g,' ')}</span></button>`)
   .join('');
 
 // ============== UTILITY COMPONENTS ==============
@@ -359,7 +359,7 @@ const renderTimeWindowSection = (window) => notificationSection(`
     Set your Daily Window for Notifications
   </p>
   
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:12px;margin-bottom:16px;">
     ${timeInput('notification-start-time', 'Start Time', window.start)}
     ${timeInput('notification-end-time', 'End Time', window.end)}
   </div>
@@ -414,7 +414,7 @@ const renderFrequencySection = (frequency) => notificationSection(`
 const renderFrequencyExplanation = (frequency) => `
   <div style="margin-top:12px;padding:10px;background:rgba(0,0,0,.05);border-radius:8px;font-size:.8rem;">
     <strong style="display:block;margin-bottom:6px;">What you'll receive:</strong>
-    <div style="opacity:.85;line-height:1.6;">
+    <div id="frequency-explanation" style="opacity:.85;line-height:1.6;">
       ${frequency === 'minimum' ? `
         <div><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg> <strong>Awakening:</strong> Checking-in and Focusing</div>
         <div><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> <strong>Integration:</strong> Integrating the Day</div>
