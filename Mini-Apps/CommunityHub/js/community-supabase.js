@@ -598,6 +598,28 @@ const CommunityDB = {
     subscribeToBlessings(roomId, callback) {
         const key = `bless-${roomId}`;
         if (this._subs[key]) this._subs[key].unsubscribe();
+
+        // Listen to both INSERT and UPDATE:
+        // - INSERT fires when a user blesses for the first time.
+        // - UPDATE fires when a user re-blesses (upsert hits the UNIQUE constraint).
+        //   REPLICA IDENTITY FULL is required on room_blessings for UPDATE payloads
+        //   to carry room_id/user_id so the room_id filter works.
+        const handler = async ({ new: row }) => {
+            if (!row?.user_id) return;
+            const { data } = await this._sb
+                .from('profiles')
+                .select('name, avatar_url, emoji')
+                .eq('id', row.user_id)
+                .single();
+            callback({
+                roomId,
+                userId:    row.user_id,
+                name:      data?.name       || 'A member',
+                avatarUrl: data?.avatar_url || '',
+                emoji:     data?.emoji      || '',
+            });
+        };
+
         this._subs[key] = this._sb
             .channel(key)
             .on('postgres_changes', {
@@ -605,21 +627,13 @@ const CommunityDB = {
                 schema: 'public',
                 table:  'room_blessings',
                 filter: `room_id=eq.${roomId}`,
-            }, async ({ new: row }) => {
-                // Fetch profile of the blesser to pass to callback
-                const { data } = await this._sb
-                    .from('profiles')
-                    .select('name, avatar_url, emoji')
-                    .eq('id', row.user_id)
-                    .single();
-                callback({
-                    roomId,
-                    userId:    row.user_id,
-                    name:      data?.name       || 'A member',
-                    avatarUrl: data?.avatar_url || '',
-                    emoji:     data?.emoji      || '',
-                });
-            })
+            }, handler)
+            .on('postgres_changes', {
+                event:  'UPDATE',
+                schema: 'public',
+                table:  'room_blessings',
+                filter: `room_id=eq.${roomId}`,
+            }, handler)
             .subscribe();
         return this._subs[key];
     },
