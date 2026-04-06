@@ -371,7 +371,7 @@ const ProfileModule = {
 
         const statItems = [
             { value: status.karma,                 label:'Karma',    emoji:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>`, id:'statKarma'    },
-            { value: 0,                            label:'Blessings',emoji:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 3L13.5 8.5L19 10L13.5 11.5L12 17L10.5 11.5L5 10L10.5 8.5Z"/><path d="M5 3L5.75 5.25L8 6L5.75 6.75L5 9L4.25 6.75L2 6L4.25 5.25Z"/><path d="M19 14L19.75 16.25L22 17L19.75 17.75L19 20L18.25 17.75L16 17L18.25 16.25Z"/></svg>`, id:'statBlessings' },
+            { value: '…',                          label:'Blessings',emoji:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 3L13.5 8.5L19 10L13.5 11.5L12 17L10.5 11.5L5 10L10.5 8.5Z"/><path d="M5 3L5.75 5.25L8 6L5.75 6.75L5 9L4.25 6.75L2 6L4.25 5.25Z"/><path d="M19 14L19.75 16.25L22 17L19.75 17.75L19 20L18.25 17.75L16 17L18.25 16.25Z"/></svg>`, id:'statBlessings' },
             { value: '-',                          label:'Fav Room', emoji:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`, id:'statFavRoom'   },
             { value: (status.badges || []).length, label:'Badges',   emoji:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>`, id:'statBadges'   },
         ];
@@ -573,11 +573,16 @@ const ProfileModule = {
         if (!userId) return;
 
         try {
-            const [{ count: blessingCount, error: bErr }, { data: entries, error: rErr }] = await Promise.all([
+            // gifts_given is incremented atomically by bless_room_with_cooldown RPC
+            // on every successful blessing — it is the canonical total blessings sent.
+            // room_blessings only has one row per room (upsert), so counting it would
+            // give unique rooms blessed, not total blessings sent.
+            const [{ data: profileData, error: pErr }, { data: entries, error: rErr }] = await Promise.all([
                 CommunityDB._sb
-                    .from('room_blessings')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('user_id', userId),
+                    .from('profiles')
+                    .select('gifts_given')
+                    .eq('id', userId)
+                    .single(),
                 CommunityDB._sb
                     .from('room_entries')
                     .select('room_id')
@@ -586,8 +591,9 @@ const ProfileModule = {
 
             const statBlessings = document.getElementById('statBlessings');
             if (statBlessings) {
-                statBlessings.textContent = (!bErr && blessingCount != null)
-                    ? blessingCount.toLocaleString() : '0';
+                const count = (!pErr && profileData?.gifts_given != null)
+                    ? profileData.gifts_given : 0;
+                statBlessings.textContent = count.toLocaleString();
             }
 
             const statFavRoom = document.getElementById('statFavRoom');
