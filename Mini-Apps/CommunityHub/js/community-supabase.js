@@ -584,24 +584,33 @@ const CommunityDB = {
         return data || [];
     },
 
+    /**
+     * Bless a room via RPC.
+     * The Postgres function bless_room_with_cooldown:
+     *   - Enforces a 60s per-user per-room server-side cooldown
+     *   - Upserts the room_blessings row (refreshing blessed_at)
+     *   - Increments profiles.gifts_given atomically
+     * Returns: { status: 'ok'|'cooldown'|'error', data?: row }
+     */
     async blessRoom(roomId) {
-        if (!this.ready) return null;
-        // Upsert without .select()/.single() — avoids PostgREST returning an empty
-        // array on a no-change UPDATE (which causes .single() to throw PGRST116).
-        const { error } = await this._sb
-            .from('room_blessings')
-            .upsert({ room_id: roomId, user_id: this._uid }, { onConflict: 'room_id,user_id' });
-        if (error) { this._err('blessRoom', error); return null; }
-        // Always fetch the row after upsert so the caller gets consistent data
-        // regardless of whether this was an INSERT or UPDATE.
+        if (!this.ready) return { status: 'error' };
+
+        const { data: rpcResult, error: rpcErr } = await this._sb
+            .rpc('bless_room_with_cooldown', { p_room_id: roomId, p_cooldown_seconds: 60 });
+
+        if (rpcErr) { this._err('blessRoom rpc', rpcErr); return { status: 'error' }; }
+        if (rpcResult === 'cooldown') return { status: 'cooldown' };
+        if (rpcResult !== 'ok')      return { status: 'error' };
+
+        // Fetch row with profile after successful bless
         const { data, error: fetchErr } = await this._sb
             .from('room_blessings')
             .select('user_id, created_at, profiles ( name, avatar_url, emoji )')
             .eq('room_id', roomId)
             .eq('user_id', this._uid)
             .single();
-        if (fetchErr) { this._err('blessRoom fetch', fetchErr); return null; }
-        return data;
+        if (fetchErr) { this._err('blessRoom fetch', fetchErr); return { status: 'ok', data: null }; }
+        return { status: 'ok', data };
     },
 
     subscribeToBlessings(roomId, callback) {
