@@ -639,56 +639,160 @@ class PracticeRoom {
     _showBlessingAnimation(payload) {
         if (document.getElementById('blessingAnimationOverlay')) return;
 
-        // ── Issue #3: Inject keyframe styles once into <head>, not per animation ──
-        if (!document.getElementById('blessingKeyframes')) {
-            const style = document.createElement('style');
-            style.id = 'blessingKeyframes';
-            style.textContent = `
-                @keyframes blessFloat {
-                    0%   { transform:translateY(0) scale(0.6); opacity:0; }
-                    15%  { opacity:1; }
-                    85%  { opacity:0.7; }
-                    100% { transform:translateY(-110vh) scale(1.1); opacity:0; }
-                }
-                @keyframes blessFadeInOut {
-                    0%   { opacity:0; transform:translate(-50%,-50%) scale(0.9); }
-                    15%  { opacity:1; transform:translate(-50%,-50%) scale(1); }
-                    75%  { opacity:1; }
-                    100% { opacity:0; transform:translate(-50%,-50%) scale(1.05); }
-                }`;
-            document.head.appendChild(style);
+        const DURATION_MS = 3000;
+        const isMobile    = window.innerWidth < 768;
+        const W           = window.innerWidth;
+        const H           = window.innerHeight;
+        const cx          = W / 2;
+        const cy          = H / 2;
+
+        // ── Overlay ──────────────────────────────────────────────────────────
+        const overlay = document.createElement('div');
+        overlay.id    = 'blessingAnimationOverlay';
+        overlay.style.cssText = [
+            'position:fixed;inset:0;pointer-events:none;z-index:999999;',
+            'background:rgba(0,0,0,0);',
+            'transition:background 0.15s ease;',
+        ].join('');
+        document.body.appendChild(overlay);
+
+        // Subtle dark veil so vortex pops against any background
+        requestAnimationFrame(() => { overlay.style.background = 'rgba(0,0,0,0.55)'; });
+
+        // ── Canvas ───────────────────────────────────────────────────────────
+        const canvas    = document.createElement('canvas');
+        canvas.width    = W;
+        canvas.height   = H;
+        canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;';
+        overlay.appendChild(canvas);
+        const ctx = canvas.getContext('2d');
+
+        // ── Sender label ─────────────────────────────────────────────────────
+        const senderName = payload?.name ?? null;
+        if (senderName) {
+            const label = document.createElement('div');
+            label.style.cssText = [
+                'position:absolute;bottom:18%;left:50%;transform:translateX(-50%);',
+                'color:rgba(255,230,160,0.9);font-size:15px;font-weight:400;',
+                'letter-spacing:0.18em;text-transform:uppercase;white-space:nowrap;',
+                'font-family:var(--serif,Georgia,serif);',
+                'opacity:0;transition:opacity 0.6s ease 0.6s;',
+            ].join('');
+            label.textContent = `✦  ${senderName} blesses this room  ✦`;
+            overlay.appendChild(label);
+            requestAnimationFrame(() => { label.style.opacity = '1'; });
+            setTimeout(() => { label.style.opacity = '0'; label.style.transition = 'opacity 0.4s ease'; }, DURATION_MS - 500);
         }
 
-        const overlay = document.createElement('div');
-        overlay.id = 'blessingAnimationOverlay';
-        overlay.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:999999;display:flex;align-items:center;justify-content:center;overflow:hidden;';
+        // ── Particles ────────────────────────────────────────────────────────
+        const PARTICLE_N = isMobile ? 120 : 260;
+        const particles  = [];
 
-        const senderName = payload?.name ?? null;
-        const senderHtml = senderName
-            ? `<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.45);backdrop-filter:blur(8px);border-radius:40px;padding:10px 24px;font-size:15px;color:white;font-weight:500;animation:blessFadeInOut 3.5s ease forwards;white-space:nowrap;">🙏 ${senderName} sends a blessing</div>`
-            : '';
+        for (let i = 0; i < PARTICLE_N; i++) {
+            const angle  = Math.random() * Math.PI * 2;
+            const radius = 20 + Math.random() * Math.max(W, H) * 0.55;
+            // Golden hues (warm gold + occasional violet accent)
+            const isGold = Math.random() < 0.75;
+            const hue    = isGold ? 38 + Math.random() * 18 : 265 + Math.random() * 25;
+            const sat    = isGold ? 85 + Math.random() * 15 : 70 + Math.random() * 20;
+            const lit    = 60 + Math.random() * 25;
+            particles.push({
+                angle, radius,
+                // Start scattered; will be pulled to centre then erupted
+                x: cx + Math.cos(angle) * radius,
+                y: cy + Math.sin(angle) * radius,
+                size:  1 + Math.random() * (isMobile ? 2 : 3),
+                hue, sat, lit,
+                delay: Math.random() * 0.3,   // staggered implosion start
+                speed: 0.8 + Math.random(),    // eruption speed multiplier
+            });
+        }
 
-        const SYMBOLS = ['✨','🌸','💜','🌿','⭐','🕊️','💫','🌙'];
-        // Reduce particle count on mobile to ease GPU load (Issue #3).
-        const isMobile    = window.innerWidth < 768;
-        const PARTICLE_N  = isMobile ? 12 : 28;
-        const particles   = Array.from({ length: PARTICLE_N }, (_, i) => {
-            const left   = 5 + Math.random() * 90;
-            const delay  = (Math.random() * 1.8).toFixed(2);
-            const dur    = (2.5 + Math.random() * 1.5).toFixed(2);
-            const size   = Math.round(14 + Math.random() * 18);
-            const rotate = Math.round(-30 + Math.random() * 60);
-            return `<div style="position:absolute;bottom:-40px;left:${left.toFixed(1)}%;font-size:${size}px;opacity:0;animation:blessFloat ${dur}s ${delay}s ease-out forwards;transform:rotate(${rotate}deg);">${SYMBOLS[i % SYMBOLS.length]}</div>`;
-        }).join('');
+        // ── Animation loop ───────────────────────────────────────────────────
+        const startTime = performance.now();
+        let   raf;
 
-        overlay.innerHTML = particles + senderHtml;
+        const tick = (now) => {
+            const elapsed  = (now - startTime) / DURATION_MS;   // 0 → 1
+            const eIn      = 0.42;   // implosion ends at 42%
+            const ePeak    = 0.48;   // brief hold at peak brightness
+            const eOut     = 1.0;    // eruption ends at 100%
 
-        // Always mount on document.body — position:fixed needs body as anchor
-        // to guarantee full-viewport coverage both inside and outside the room.
-        // Appending to #communityHubFullscreenContainer traps the overlay if the
-        // hub container has overflow:hidden or a transform stacking context.
-        document.body.appendChild(overlay);
-        setTimeout(() => overlay.remove(), 4000);
+            ctx.fillStyle = 'rgba(0,0,0,0.12)';
+            ctx.fillRect(0, 0, W, H);
+
+            // Central radial glow — grows at implosion peak, fades on eruption
+            if (elapsed > eIn * 0.6 && elapsed < eOut * 0.85) {
+                const gProg  = elapsed < ePeak
+                    ? (elapsed - eIn * 0.6) / (ePeak - eIn * 0.6)
+                    : 1 - (elapsed - ePeak) / (eOut - ePeak);
+                const gAlpha = Math.max(0, Math.min(1, gProg));
+                const gRad   = 80 + gProg * 120;
+                const glow   = ctx.createRadialGradient(cx, cy, 0, cx, cy, gRad);
+                glow.addColorStop(0,   `rgba(255,220,100,${0.6  * gAlpha})`);
+                glow.addColorStop(0.4, `rgba(200,150, 60,${0.3  * gAlpha})`);
+                glow.addColorStop(1,   'rgba(0,0,0,0)');
+                ctx.fillStyle = glow;
+                ctx.fillRect(0, 0, W, H);
+            }
+
+            particles.forEach(p => {
+                const pElapsed = Math.max(0, elapsed - p.delay * 0.3);
+                let px, py, alpha;
+
+                if (pElapsed < eIn) {
+                    // IMPLOSION — spiral inward
+                    const t    = pElapsed / eIn;
+                    const ease = 1 - (1 - t) * (1 - t);   // ease-in-quad
+                    const r    = p.radius * (1 - ease * 0.97);
+                    const spin = ease * Math.PI * 2.5 * (p.radius > 0 ? 1 : -1);
+                    px    = cx + Math.cos(p.angle + spin) * r;
+                    py    = cy + Math.sin(p.angle + spin) * r;
+                    alpha = Math.min(1, ease * 2.5);
+
+                } else if (pElapsed < ePeak) {
+                    // PEAK — hold near centre
+                    px    = cx + (Math.random() - 0.5) * 8;
+                    py    = cy + (Math.random() - 0.5) * 8;
+                    alpha = 1;
+
+                } else {
+                    // ERUPTION — burst outward in new direction
+                    const t      = (pElapsed - ePeak) / (eOut - ePeak);
+                    const ease   = t * t;                    // ease-in (accelerate away)
+                    const newAngle = p.angle + Math.PI * (0.7 + Math.random() * 0.6);
+                    const dist   = ease * Math.max(W, H) * 0.7 * p.speed;
+                    px    = cx + Math.cos(newAngle) * dist;
+                    py    = cy + Math.sin(newAngle) * dist;
+                    alpha = Math.max(0, 1 - t * 1.15);
+                }
+
+                if (alpha <= 0) return;
+
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle   = `hsl(${p.hue},${p.sat}%,${p.lit}%)`;
+                ctx.shadowBlur  = isMobile ? 4 : 8;
+                ctx.shadowColor = `hsl(${p.hue},100%,70%)`;
+                ctx.beginPath();
+                ctx.arc(px, py, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur  = 0;
+
+            if (elapsed < 1) {
+                raf = requestAnimationFrame(tick);
+            } else {
+                // Fade out overlay then remove
+                overlay.style.transition = 'opacity 0.3s ease';
+                overlay.style.opacity    = '0';
+                setTimeout(() => overlay.remove(), 350);
+                cancelAnimationFrame(raf);
+            }
+        };
+
+        raf = requestAnimationFrame(tick);
     }
 
     // ── UI creation ───────────────────────────────────────────────────────────
