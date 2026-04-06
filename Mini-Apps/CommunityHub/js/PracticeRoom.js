@@ -689,7 +689,11 @@ class PracticeRoom {
 
         overlay.innerHTML = particles + senderHtml;
 
-        (document.getElementById('communityHubFullscreenContainer') || document.body).appendChild(overlay);
+        // Always mount on document.body — position:fixed needs body as anchor
+        // to guarantee full-viewport coverage both inside and outside the room.
+        // Appending to #communityHubFullscreenContainer traps the overlay if the
+        // hub container has overflow:hidden or a transform stacking context.
+        document.body.appendChild(overlay);
         setTimeout(() => overlay.remove(), 4000);
     }
 
