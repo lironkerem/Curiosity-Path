@@ -496,40 +496,56 @@ class PracticeRoom {
             return;
         }
 
-        // Debounce: prevent double-tap / rapid re-blessing
+        // Client-side cooldown guard (60s) — mirrors the server-side enforcement.
+        // Prevents the animation + button flicker on rapid re-clicks before the
+        // RPC round-trip returns.
+        const now      = Date.now();
+        const lastSent = this._lastBlessedAt ?? 0;
+        const COOLDOWN = 60_000;
+        if (now - lastSent < COOLDOWN) {
+            const remaining = Math.ceil((COOLDOWN - (now - lastSent)) / 1000);
+            Core.showToast(`✦ Room is holding your blessing — try again in ${remaining}s`);
+            return;
+        }
+
+        // Debounce button UI
         if (btn) {
             if (btn.dataset.blessed) return;
             btn.dataset.blessed = '1';
             btn.style.opacity = '0.7';
-            btn.style.color = '#fff';
             btn.innerHTML = `${_BLESS_SVG} Blessed ✦`;
             setTimeout(() => {
                 delete btn.dataset.blessed;
                 btn.style.opacity = '1';
-                btn.style.color = '#fff';
                 const dotsHTML = `<div class="bless-dots"><div class="bless-dot"></div><div class="bless-dot"></div><div class="bless-dot"></div></div>`;
                 btn.innerHTML = `${dotsHTML} ${_BLESS_SVG} Bless this room ${dotsHTML}`;
             }, 3000);
         }
 
-        // Fire animation immediately — do NOT wait for the DB round-trip.
-        // Users inside the room get their animation via _subscribeToBlessings.
-        // The clicker gets it here, right now, for instant feedback.
+        // Fire animation immediately — instant feedback, don't wait for DB
+        this._lastBlessedAt = now;
         this._showBlessingAnimation(null);
         Core.showToast('Blessing sent ✨');
 
-        const blessData = await CommunityDB.blessRoom(this.roomId);
+        const result = await CommunityDB.blessRoom(this.roomId);
+
+        if (result.status === 'cooldown') {
+            // Server rejected it (e.g. client clock skew) — reset client timer
+            Core.showToast('✦ This room is still holding your last blessing');
+            this._lastBlessedAt = now; // keep guard up
+            return;
+        }
+
+        if (result.status === 'error') return;
 
         // Optimistically update the card badge
         this._blessingRows = this._blessingRows ?? [];
         const myUid = CommunityDB.userId;
         if (myUid && !this._blessingRows.some(r => (r.user_id || r.userId) === myUid)) {
-            const profileData = blessData?.profiles ?? null;
+            const profileData = result.data?.profiles ?? null;
             this._blessingRows = [...this._blessingRows, { user_id: myUid, profiles: profileData }];
         }
         this._updateCardBlessingBadge(this._blessingRows.length);
-
-        // Full re-sync for the inside-room counter (if open)
         this._refreshBlessingCounter();
     }
 
@@ -651,19 +667,22 @@ class PracticeRoom {
         overlay.id    = 'blessingAnimationOverlay';
         overlay.style.cssText = [
             'position:fixed;inset:0;pointer-events:none;z-index:999999;',
+            'backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);',
             'background:rgba(0,0,0,0);',
-            'transition:background 0.15s ease;',
+            'transition:background 0.2s ease;',
         ].join('');
         document.body.appendChild(overlay);
 
-        // Subtle dark veil so vortex pops against any background
-        requestAnimationFrame(() => { overlay.style.background = 'rgba(0,0,0,0.55)'; });
+        // Subtle dark tint over the blur so particles pop
+        requestAnimationFrame(() => { overlay.style.background = 'rgba(0,0,0,0.25)'; });
 
         // ── Canvas ───────────────────────────────────────────────────────────
         const canvas    = document.createElement('canvas');
         canvas.width    = W;
         canvas.height   = H;
-        canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;';
+        // Must be transparent so the backdrop-filter blur on the overlay shows through.
+        // Trail effect is achieved via clearRect with globalAlpha instead of a black fill.
+        canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;background:transparent;';
         overlay.appendChild(canvas);
         const ctx = canvas.getContext('2d');
 
@@ -718,8 +737,14 @@ class PracticeRoom {
             const ePeak    = 0.48;   // brief hold at peak brightness
             const eOut     = 1.0;    // eruption ends at 100%
 
-            ctx.fillStyle = 'rgba(0,0,0,0.12)';
+            // Partial clear for motion trail — leaves faint ghost of previous frame.
+            // Using destination-out composite so canvas stays transparent (no black fill).
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.globalAlpha = 0.18;
+            ctx.fillStyle   = 'rgba(0,0,0,1)';
             ctx.fillRect(0, 0, W, H);
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.globalAlpha = 1;
 
             // Central radial glow — grows at implosion peak, fades on eruption
             if (elapsed > eIn * 0.6 && elapsed < eOut * 0.85) {
@@ -729,11 +754,14 @@ class PracticeRoom {
                 const gAlpha = Math.max(0, Math.min(1, gProg));
                 const gRad   = 80 + gProg * 120;
                 const glow   = ctx.createRadialGradient(cx, cy, 0, cx, cy, gRad);
-                glow.addColorStop(0,   `rgba(255,220,100,${0.6  * gAlpha})`);
-                glow.addColorStop(0.4, `rgba(200,150, 60,${0.3  * gAlpha})`);
-                glow.addColorStop(1,   'rgba(0,0,0,0)');
-                ctx.fillStyle = glow;
-                ctx.fillRect(0, 0, W, H);
+                glow.addColorStop(0,   `rgba(255,220,100,${0.55 * gAlpha})`);
+                glow.addColorStop(0.5, `rgba(200,150, 60,${0.25 * gAlpha})`);
+                glow.addColorStop(1,   `rgba(200,150, 60,0)`);
+                ctx.globalAlpha = 1;
+                ctx.fillStyle   = glow;
+                ctx.beginPath();
+                ctx.arc(cx, cy, gRad, 0, Math.PI * 2);
+                ctx.fill();
             }
 
             particles.forEach(p => {
