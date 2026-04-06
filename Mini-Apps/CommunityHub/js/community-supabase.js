@@ -586,12 +586,21 @@ const CommunityDB = {
 
     async blessRoom(roomId) {
         if (!this.ready) return null;
-        const { data, error } = await this._sb
+        // Upsert without .select()/.single() — avoids PostgREST returning an empty
+        // array on a no-change UPDATE (which causes .single() to throw PGRST116).
+        const { error } = await this._sb
             .from('room_blessings')
-            .upsert({ room_id: roomId, user_id: this._uid }, { onConflict: 'room_id,user_id' })
-            .select('user_id, created_at, profiles ( name, avatar_url, emoji )')
-            .single();
+            .upsert({ room_id: roomId, user_id: this._uid }, { onConflict: 'room_id,user_id' });
         if (error) { this._err('blessRoom', error); return null; }
+        // Always fetch the row after upsert so the caller gets consistent data
+        // regardless of whether this was an INSERT or UPDATE.
+        const { data, error: fetchErr } = await this._sb
+            .from('room_blessings')
+            .select('user_id, created_at, profiles ( name, avatar_url, emoji )')
+            .eq('room_id', roomId)
+            .eq('user_id', this._uid)
+            .single();
+        if (fetchErr) { this._err('blessRoom fetch', fetchErr); return null; }
         return data;
     },
 

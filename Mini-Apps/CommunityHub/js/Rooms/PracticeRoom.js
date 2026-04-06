@@ -491,10 +491,12 @@ class PracticeRoom {
         const btn = document.getElementById(`${this.roomId}BlessBtn`);
 
         if (!this._dbReady()) {
-            Core.showToast('Blessing sent');
+            Core.showToast('Blessing sent ✨');
+            this._showBlessingAnimation(null);
             return;
         }
 
+        // Debounce: prevent double-tap / rapid re-blessing
         if (btn) {
             if (btn.dataset.blessed) return;
             btn.dataset.blessed = '1';
@@ -510,11 +512,24 @@ class PracticeRoom {
             }, 3000);
         }
 
-        const blessData = await CommunityDB.blessRoom(this.roomId);
-        Core.showToast('Blessing sent');
+        // Fire animation immediately — do NOT wait for the DB round-trip.
+        // Users inside the room get their animation via _subscribeToBlessings.
+        // The clicker gets it here, right now, for instant feedback.
+        this._showBlessingAnimation(null);
+        Core.showToast('Blessing sent ✨');
 
-        // Show animation for the button presser; room subscribers get it via _subscribeToBlessings
-        this._showBlessingAnimation(blessData?.profiles ? { name: blessData.profiles.name } : null);
+        const blessData = await CommunityDB.blessRoom(this.roomId);
+
+        // Optimistically update the card badge
+        this._blessingRows = this._blessingRows ?? [];
+        const myUid = CommunityDB.userId;
+        if (myUid && !this._blessingRows.some(r => (r.user_id || r.userId) === myUid)) {
+            const profileData = blessData?.profiles ?? null;
+            this._blessingRows = [...this._blessingRows, { user_id: myUid, profiles: profileData }];
+        }
+        this._updateCardBlessingBadge(this._blessingRows.length);
+
+        // Full re-sync for the inside-room counter (if open)
         this._refreshBlessingCounter();
     }
 
@@ -551,10 +566,14 @@ class PracticeRoom {
 
     _optimisticBlessingBump(payload) {
         // Increment the in-memory count and re-render immediately — no DB call.
+        // Deduplicate on user_id (payload uses camelCase userId from subscribeToBlessings).
+        // getRoomBlessings rows use snake_case user_id — check both to be safe.
         this._blessingRows = this._blessingRows ?? [];
-        if (payload && !this._blessingRows.some(r => r.id === payload.id)) {
+        const incomingUid = payload?.userId || payload?.user_id;
+        if (incomingUid && !this._blessingRows.some(r => (r.user_id || r.userId) === incomingUid)) {
             this._blessingRows = [...this._blessingRows, payload];
         }
+        // _renderBlessingCounter normalises each row internally
         this._renderBlessingCounter(this._blessingRows);
         this._updateCardBlessingBadge(this._blessingRows.length);
     }
@@ -575,6 +594,26 @@ class PracticeRoom {
         } catch (_) {}
     }
 
+    /**
+     * Normalise a blessing row to the shape _buildAvatarStack expects:
+     *   { user_id, profiles: { name, avatar_url, emoji } }
+     *
+     * DB rows (from getRoomBlessings) already have this shape.
+     * Realtime payload rows (from subscribeToBlessings callback) use camelCase:
+     *   { userId, name, avatarUrl, emoji }
+     */
+    _normaliseBlessingRow(row) {
+        if (row.profiles) return row; // already DB shape
+        return {
+            user_id:  row.userId  || row.user_id,
+            profiles: {
+                name:       row.name      || 'A member',
+                avatar_url: row.avatarUrl || '',
+                emoji:      row.emoji     || '',
+            },
+        };
+    }
+
     _renderBlessingCounter(rows) {
         const el = document.getElementById(`${this.roomId}BlessedCounter`);
         if (!el) return;
@@ -584,9 +623,10 @@ class PracticeRoom {
             return;
         }
 
-        const avatars = this._buildAvatarStack(rows);
+        const normRows = rows.map(r => this._normaliseBlessingRow(r));
+        const avatars  = this._buildAvatarStack(normRows);
         const overflow = Math.max(0, rows.length - _AVATAR_DEFAULTS.MAX);
-        const extra = overflow > 0
+        const extra    = overflow > 0
             ? `<span style="font-size:10px;color:var(--text-muted);margin-left:4px;">+${overflow}</span>`
             : '';
 
@@ -643,7 +683,11 @@ class PracticeRoom {
 
         overlay.innerHTML = particles + senderHtml;
 
-        (document.getElementById('communityHubFullscreenContainer') || document.body).appendChild(overlay);
+        // Always mount on document.body — position:fixed needs body as anchor
+        // to guarantee full-viewport coverage both inside and outside the room.
+        // Appending to #communityHubFullscreenContainer traps the overlay if the
+        // hub container has overflow:hidden or a transform stacking context.
+        document.body.appendChild(overlay);
         setTimeout(() => overlay.remove(), 4000);
     }
 
