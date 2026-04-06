@@ -705,59 +705,65 @@ const ProfileModule = {
     // ============================================================================
 
     async loadActivityData() {
+        // ── Primary: same sources as Dashboard GamificationWidget ────────────
+        // Dashboard uses gamification.getStatusSummary() + app.state.getStats().
+        // We mirror that exactly so both widgets always show identical numbers.
+        const g      = window.app?.gamification;
+        const status = g?.getStatusSummary?.() ?? null;
+        const stats  = window.app?.state?.getStats?.() ?? null;
+
+        if (status && stats) {
+            // Gratitude: Dashboard uses stats.totalGratitudes (already flattened by getStats)
+            this._setActivityCount('journal',    status.totalJournalEntries  ?? 0, 'entries');
+            this._setActivityCount('gratitude',  stats.totalGratitudes       ?? 0, 'entries');
+            this._setActivityCount('energy',     stats.totalEnergyEntries    ?? (window.app?.state?.data?.energyEntries?.length     ?? 0), 'check-ins');
+            this._setActivityCount('flip',       stats.totalFlipEntries      ?? (window.app?.state?.data?.flipEntries?.length       ?? 0), 'entries');
+            this._setActivityCount('tarot',      status.totalTarotSpreads    ?? 0, 'readings');
+            this._setActivityCount('meditation', status.totalMeditations     ?? stats.weeklyMeditations ?? (window.app?.state?.data?.meditationEntries?.length ?? 0), 'sessions');
+            this._activityData = { _fromGamification: true };
+            return;
+        }
+
+        // ── Secondary: raw app.state.data (same as before, kept as fallback) ─
         if (window.app?.state?.ready) {
             try { await window.app.state.ready; } catch { /* ignore */ }
         }
 
-        let data = null;
         const appData = window.app?.state?.data;
-
         if (appData) {
-            data = {
-                journalEntries:    appData.journalEntries    || [],
-                energyEntries:     appData.energyEntries     || [],
-                gratitudeEntries:  appData.gratitudeEntries  || [],
-                flipEntries:       appData.flipEntries       || [],
-                tarotEntries:      appData.tarotReadings     || [],  // stored as tarotReadings
-                meditationEntries: appData.meditationEntries || [],
-            };
+            const totalGratitudes = (appData.gratitudeEntries || []).reduce(
+                (sum, e) => sum + (e.entries?.length || 0), 0
+            );
+            this._setActivityCount('journal',    appData.journalEntries?.length    ?? 0, 'entries');
+            this._setActivityCount('gratitude',  totalGratitudes,                        'entries');
+            this._setActivityCount('energy',     appData.energyEntries?.length     ?? 0, 'check-ins');
+            this._setActivityCount('flip',       appData.flipEntries?.length       ?? 0, 'entries');
+            this._setActivityCount('tarot',      appData.tarotReadings?.length     ?? 0, 'readings');
+            this._setActivityCount('meditation', appData.meditationEntries?.length ?? 0, 'sessions');
+            this._activityData = appData;
+            return;
         }
 
-        // Fallback: fetch from DB only if app state hasn't loaded yet (not just empty)
-        if (!data) {
-            try {
-                if (CommunityDB?.ready) {
-                    const payload = await CommunityDB.getOwnFullProgress();
-                    if (payload) {
-                        data = {
-                            journalEntries:    payload.journalEntries    || [],
-                            energyEntries:     payload.energyEntries     || [],
-                            gratitudeEntries:  payload.gratitudeEntries  || [],
-                            flipEntries:       payload.flipEntries       || [],
-                            tarotEntries:      payload.tarotReadings     || [],
-                            meditationEntries: payload.meditationEntries || [],
-                        };
-                    }
+        // ── Tertiary: DB fetch (community hub context, no app state) ─────────
+        try {
+            if (CommunityDB?.ready) {
+                const payload = await CommunityDB.getOwnFullProgress();
+                if (payload) {
+                    const totalGratitudes = (payload.gratitudeEntries || []).reduce(
+                        (sum, e) => sum + (e.entries?.length || 0), 0
+                    );
+                    this._setActivityCount('journal',    payload.journalEntries?.length    ?? 0, 'entries');
+                    this._setActivityCount('gratitude',  totalGratitudes,                        'entries');
+                    this._setActivityCount('energy',     payload.energyEntries?.length     ?? 0, 'check-ins');
+                    this._setActivityCount('flip',       payload.flipEntries?.length       ?? 0, 'entries');
+                    this._setActivityCount('tarot',      payload.tarotReadings?.length     ?? 0, 'readings');
+                    this._setActivityCount('meditation', payload.meditationEntries?.length ?? 0, 'sessions');
+                    this._activityData = payload;
                 }
-            } catch (e) {
-                console.warn('[ProfileModule] loadActivityData fallback failed:', e);
             }
+        } catch (e) {
+            console.warn('[ProfileModule] loadActivityData fallback failed:', e);
         }
-
-        if (!data) return;
-        this._activityData = data;
-
-        // Gratitude: count individual entries across all daily submissions
-        const totalGratitudes = data.gratitudeEntries.reduce(
-            (sum, e) => sum + (e.entries?.length || 0), 0
-        );
-
-        this._setActivityCount('journal',    data.journalEntries.length,    'entries');
-        this._setActivityCount('gratitude',  totalGratitudes,               'entries');
-        this._setActivityCount('energy',     data.energyEntries.length,     'check-ins');
-        this._setActivityCount('flip',       data.flipEntries.length,       'entries');
-        this._setActivityCount('tarot',      data.tarotEntries.length,      'readings');
-        this._setActivityCount('meditation', data.meditationEntries.length, 'sessions');
     },
 
     _setActivityCount(type, count, label) {
