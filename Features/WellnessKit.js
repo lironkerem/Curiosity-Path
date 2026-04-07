@@ -129,7 +129,7 @@
     display: none;
     align-items: center;
     justify-content: center;
-    background: rgba(224, 229, 236, 0.72);
+    background: transparent;
     backdrop-filter: blur(6px);
     z-index: 999995;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
