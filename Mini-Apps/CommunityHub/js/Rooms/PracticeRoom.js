@@ -563,9 +563,7 @@ class PracticeRoom {
         if (!btn) return;
         const dotsHTML = `<div class="bless-dots"><div class="bless-dot"></div><div class="bless-dot"></div><div class="bless-dot"></div></div>`;
         btn.style.color = '#fff';
-        btn.innerHTML = count > 0
-            ? `${dotsHTML} ${_BLESS_SVG} Bless this room <span style="font-size:10px;opacity:0.8;">${count}</span> ${dotsHTML}`
-            : `${dotsHTML} ${_BLESS_SVG} Bless this room ${dotsHTML}`;
+        btn.innerHTML = `${dotsHTML} ${_BLESS_SVG} Bless this room ${dotsHTML}`;
     }
 
     _subscribeToBlessings() {
@@ -699,12 +697,10 @@ class PracticeRoom {
         ].join('');
         blessedText.textContent = '\u2726  Blessed  \u2726';
         overlay.appendChild(blessedText);
-        // Appear at the peak (~42% of DURATION_MS), scale up from centre
         setTimeout(() => {
             blessedText.style.opacity   = '1';
             blessedText.style.transform = 'translate(-50%,-50%) scale(1)';
         }, DURATION_MS * 0.42);
-        // Fade out before the overlay disappears
         setTimeout(() => {
             blessedText.style.opacity    = '0';
             blessedText.style.transform  = 'translate(-50%,-50%) scale(1.15)';

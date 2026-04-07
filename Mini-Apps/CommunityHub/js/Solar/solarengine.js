@@ -328,9 +328,10 @@ const SolarEngine = {
       );
 
     // Live sun position — clockwise from top (Spring Equinox = day ~79)
+    const SPRING_EQUINOX_DAY = 79;
     const now       = new Date();
     const dayOfYear = this.getDayOfYear(now);
-    const angleRad  = (-Math.PI / 2) + (dayOfYear / 365) * 2 * Math.PI;
+    const angleRad  = (-Math.PI / 2) + ((dayOfYear - SPRING_EQUINOX_DAY) / 365) * 2 * Math.PI;
     const sx        = cx + R * Math.cos(angleRad);
     const sy        = cy + R * Math.sin(angleRad);
 
