@@ -647,7 +647,7 @@ class PracticeRoom {
             : '';
 
         el.innerHTML = `
-            <span style="font-size:11px;color:var(--text-muted);white-space:nowrap;margin-right:4px;display:inline-flex;align-items:center;gap:0.25rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v.01"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.828.006L12 15"/><path d="M20.2 20.2 22 22"/><circle cx="18" cy="6" r="3"/></svg> Blessed by</span>
+            <span style="font-size:11px;color:var(--text-muted);white-space:nowrap;margin-right:4px;display:inline-flex;align-items:center;gap:0.25rem;">${_ICONS.bless} Blessed by</span>
             <div style="display:flex;align-items:center;margin-left:6px;">${avatars}</div>
             ${extra}`;
     }
@@ -685,6 +685,31 @@ class PracticeRoom {
         canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;background:transparent;';
         overlay.appendChild(canvas);
         const ctx = canvas.getContext('2d');
+
+        // ── "Blessed" animated text ──────────────────────────────────────────
+        const blessedText = document.createElement('div');
+        blessedText.style.cssText = [
+            'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.6);',
+            'color:rgba(255,230,120,0.95);font-size:clamp(36px,8vw,72px);font-weight:300;',
+            'letter-spacing:0.25em;text-transform:uppercase;white-space:nowrap;',
+            'font-family:var(--serif,Georgia,serif);',
+            'text-shadow:0 0 40px rgba(255,200,60,0.8),0 0 80px rgba(255,180,40,0.4);',
+            'opacity:0;transition:opacity 0.35s ease,transform 0.5s cubic-bezier(0.34,1.56,0.64,1);',
+            'pointer-events:none;',
+        ].join('');
+        blessedText.textContent = '\u2726  Blessed  \u2726';
+        overlay.appendChild(blessedText);
+        // Appear at the peak (~42% of DURATION_MS), scale up from centre
+        setTimeout(() => {
+            blessedText.style.opacity   = '1';
+            blessedText.style.transform = 'translate(-50%,-50%) scale(1)';
+        }, DURATION_MS * 0.42);
+        // Fade out before the overlay disappears
+        setTimeout(() => {
+            blessedText.style.opacity    = '0';
+            blessedText.style.transform  = 'translate(-50%,-50%) scale(1.15)';
+            blessedText.style.transition = 'opacity 0.4s ease,transform 0.4s ease';
+        }, DURATION_MS - 600);
 
         // ── Sender label ─────────────────────────────────────────────────────
         const senderName = payload?.name ?? null;
