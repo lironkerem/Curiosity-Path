@@ -158,6 +158,7 @@ self.addEventListener('push', event => {
         icon:               data.icon  || `${ICON_PATH}icon-512-maskable.png`,
         badge:              `${ICON_PATH}badge-96x96.png`,
         tag:                typeof data.tag === 'string' ? data.tag : 'default',
+        renotify:           data.renotify === true,
         data:               data.data && typeof data.data === 'object' ? data.data : {},
         vibrate:            [200, 100, 200],
         requireInteraction: false
@@ -172,12 +173,13 @@ self.addEventListener('push', event => {
 self.addEventListener('notificationclick', event => {
   event.notification.close();
 
+  const notifData = event.notification.data || {};
+
   // Validate URL — only allow same-origin navigation
   let urlToOpen = '/';
-  const dataUrl = event.notification.data && event.notification.data.url;
-  if (typeof dataUrl === 'string') {
+  if (typeof notifData.url === 'string') {
     try {
-      const parsed = new URL(dataUrl, self.location.origin);
+      const parsed = new URL(notifData.url, self.location.origin);
       if (parsed.origin === self.location.origin) {
         urlToOpen = parsed.pathname + parsed.search + parsed.hash;
       }
@@ -189,11 +191,24 @@ self.addEventListener('notificationclick', event => {
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true })
       .then(clientList => {
-        for (const client of clientList) {
-          if (client.url === fullUrl && 'focus' in client) {
-            return client.focus();
+        if (clientList.length > 0) {
+          const client = clientList[0];
+          client.focus();
+
+          // If this is a whisper notification, tell the app to open the thread directly.
+          // The app handles this via a 'message' event listener in ProjectCuriosityApp.js.
+          if (notifData.type === 'whisper' && typeof notifData.senderId === 'string') {
+            client.postMessage({
+              type:     'OPEN_WHISPER_THREAD',
+              senderId: notifData.senderId
+            });
           }
+
+          return;
         }
+
+        // App is closed — open it. For whispers the URL contains ?whisper=senderId
+        // so the app will handle deep-linking on boot.
         if (clients.openWindow) return clients.openWindow(fullUrl);
       })
   );

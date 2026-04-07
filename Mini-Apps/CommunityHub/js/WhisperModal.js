@@ -1,7 +1,7 @@
 /**
  * WHISPER MODAL
  * Full private messaging UI for the Community Hub.
- * @version 1.1.0
+ * @version 1.2.0
  *
  * Features:
  * - Inbox view: list of conversations, unread badge per thread
@@ -47,7 +47,7 @@ const WhisperModal = {
                  role="dialog" aria-modal="true" aria-label="Whispers"
                  style="display:none;position:fixed;inset:0;z-index:9999;
                         background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);
-                        display:flex;align-items:center;justify-content:center;
+                        align-items:center;justify-content:center;
                         opacity:0;transition:opacity 0.25s ease;">
 
                 <div id="whisperModalInner"
@@ -68,7 +68,7 @@ const WhisperModal = {
                                        font-size:1.1rem;padding:0 4px;opacity:0.6;line-height:1;">←</button>
                         <div style="flex:1;">
                             <div id="whisperModalTitle"
-                                 style="font-size:1rem;font-weight:700;color:var(--neuro-text);" style="display:flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Whispers</div>
+                                 style="font-size:1rem;font-weight:700;color:var(--neuro-text);display:flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Whispers</div>
                             <div id="whisperModalSubtitle"
                                  style="font-size:0.75rem;color:var(--text-muted);margin-top:1px;display:none;"></div>
                         </div>
@@ -408,6 +408,8 @@ const WhisperModal = {
     // ============================================================================
 
     _subscribeRealtime() {
+        // Uses the foreground channel (whispersFg) — separate from the background
+        // listener so opening/closing the modal never kills badge updates.
         this.state.realtimeSub?.unsubscribe?.();
         this.state.realtimeSub = CommunityDB.subscribeToWhispers((whisper) => {
             if (this.state.view === 'thread' && whisper.sender_id === this.state.threadPartnerId) {
@@ -437,6 +439,8 @@ const WhisperModal = {
     },
 
     // Persistent background listener — keeps badge updated even when modal is closed.
+    // Uses subscribeToWhispersBackground (separate channel key from the foreground
+    // subscription) so the two never interfere with each other.
     // Called once after CommunityDB is ready (from init or externally).
     startBackgroundListener() {
         if (this.state.bgSub) return; // already running
@@ -445,7 +449,7 @@ const WhisperModal = {
         // Seed the badge immediately on startup
         this.refreshUnreadBadge().catch(() => {});
 
-        this.state.bgSub = CommunityDB.subscribeToWhispers((whisper) => {
+        this.state.bgSub = CommunityDB.subscribeToWhispersBackground((whisper) => {
             // If modal is open and in the relevant thread, let _subscribeRealtime handle it
             if (this.state.isOpen && this.state.view === 'thread' && whisper.sender_id === this.state.threadPartnerId) return;
             // Otherwise update the badge

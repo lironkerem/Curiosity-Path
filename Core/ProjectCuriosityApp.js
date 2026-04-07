@@ -425,6 +425,7 @@ export default class ProjectCuriosityApp {
 
       // ── SHOW APP IMMEDIATELY ─────────────────────────────────────────────────
       // Render shell now so LCP / Speed Index are not blocked by network calls.
+
       this._hideAuthScreen();
       this._showMainApp();
 
@@ -462,6 +463,47 @@ export default class ProjectCuriosityApp {
           console.warn('[App] Community init failed (non-fatal):', e);
         }
       });
+
+      // ── Whisper push notification handlers ───────────────────────────────────
+
+      // 1. Handle SW postMessage when app is already open and user taps a
+      //    whisper notification. The SW sends OPEN_WHISPER_THREAD instead of
+      //    navigating, so the currently-open session handles it without a reload.
+      if (navigator.serviceWorker) {
+        navigator.serviceWorker.addEventListener('message', (event) => {
+          if (event.data?.type === 'OPEN_WHISPER_THREAD') {
+            const { senderId } = event.data;
+            if (!senderId) return;
+            CommunityDB.getProfile(senderId).then(profile => {
+              if (profile) {
+                WhisperModal.openThread(profile.id, profile.name, profile.emoji, profile.avatar_url);
+              }
+            }).catch(e => console.warn('[App] Whisper deep-link profile fetch failed:', e));
+          }
+        });
+      }
+
+      // 2. Handle cold-launch deep-link: push-cron Edge Function sets
+      //    data.url = '/?whisper=<senderId>' so tapping the notification
+      //    when the app is closed opens it here.
+      const _whisperParam = new URLSearchParams(window.location.search).get('whisper');
+      if (_whisperParam) {
+        // CommunityDB may still be initialising — poll until ready.
+        const _tryOpenWhisper = () => {
+          if (CommunityDB.ready) {
+            CommunityDB.getProfile(_whisperParam).then(profile => {
+              if (profile) {
+                WhisperModal.openThread(profile.id, profile.name, profile.emoji, profile.avatar_url);
+              }
+            }).catch(e => console.warn('[App] Whisper cold-launch profile fetch failed:', e));
+          } else {
+            setTimeout(_tryOpenWhisper, 300);
+          }
+        };
+        _tryOpenWhisper();
+      }
+
+      // ─────────────────────────────────────────────────────────────────────────
 
       // Await booster init quietly in the background (already started above)
       await boosterPromise;

@@ -5,7 +5,7 @@
  * Single source of truth for all DB operations and realtime subscriptions.
  * No other module talks to Supabase directly.
  *
- * @version 2.1.0
+ * @version 2.2.0
  */
 
 import { CommunitySupabase } from './supabase-client.js';
@@ -500,14 +500,58 @@ const CommunityDB = {
         return count || 0;
     },
 
+    /**
+     * Foreground subscription — used by WhisperModal while the modal is open.
+     * Uses channel key 'whispersFg' so it never collides with the background listener.
+     * Fetches the full sender profile from the joined row so toasts and thread
+     * appends always have name/emoji/avatar available.
+     */
     subscribeToWhispers(callback) {
-        if (this._subs.whispers) this._subs.whispers.unsubscribe();
-        this._subs.whispers = this._sb
-            .channel('my-whispers')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'whispers', filter: `recipient_id=eq.${this._uid}` },
-                ({ new: row }) => callback(row))
+        if (this._subs.whispersFg) this._subs.whispersFg.unsubscribe();
+        this._subs.whispersFg = this._sb
+            .channel('my-whispers-fg')
+            .on('postgres_changes', {
+                event: 'INSERT', schema: 'public', table: 'whispers',
+                filter: `recipient_id=eq.${this._uid}`
+            }, async ({ new: row }) => {
+                const { data } = await this._sb
+                    .from('whispers')
+                    .select(`
+                        id, message, read, created_at, sender_id,
+                        sender:profiles!whispers_sender_id_fkey ( id, name, emoji, avatar_url )
+                    `)
+                    .eq('id', row.id).single();
+                if (data) callback(data);
+            })
             .subscribe();
-        return this._subs.whispers;
+        return this._subs.whispersFg;
+    },
+
+    /**
+     * Background subscription — used by WhisperModal.startBackgroundListener()
+     * to keep the unread badge current when the modal is closed.
+     * Uses a separate channel key 'whispersBg' so opening/closing the modal
+     * (which manages 'whispersFg') never kills this listener.
+     */
+    subscribeToWhispersBackground(callback) {
+        if (this._subs.whispersBg) this._subs.whispersBg.unsubscribe();
+        this._subs.whispersBg = this._sb
+            .channel('my-whispers-bg')
+            .on('postgres_changes', {
+                event: 'INSERT', schema: 'public', table: 'whispers',
+                filter: `recipient_id=eq.${this._uid}`
+            }, async ({ new: row }) => {
+                const { data } = await this._sb
+                    .from('whispers')
+                    .select(`
+                        id, message, read, created_at, sender_id,
+                        sender:profiles!whispers_sender_id_fkey ( id, name, emoji, avatar_url )
+                    `)
+                    .eq('id', row.id).single();
+                if (data) callback(data);
+            })
+            .subscribe();
+        return this._subs.whispersBg;
     },
 
     // =========================================================================
