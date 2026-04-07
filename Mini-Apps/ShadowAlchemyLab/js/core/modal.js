@@ -23,7 +23,7 @@ export function createModal({ id, title, subtitle, content, actions, onClose }) 
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:var(--spacing-md)">
         <div style="flex:1">
           <h3 id="${id}-title" style="margin:0">${esc(title)}</h3>
-          ${subtitle ? `<p class="muted" style="margin-top:var(--spacing-xs)">${esc(subtitle)}</p>` : ''}
+          ${subtitle ? `<p class="muted" style="margin-top:var(--spacing-xs)">${subtitle}</p>` : ''}
         </div>
         <button type="button" class="btn modal-close-btn" aria-label="Close modal"
                 style="padding:8px 12px;font-size:1.2rem;margin-left:var(--spacing-md);flex-shrink:0">\u2715</button>
