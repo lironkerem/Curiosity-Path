@@ -2,8 +2,8 @@
 // HAPPINESS ENGINE - OPTIMIZED & CONSOLIDATED
 // ============================================
 
-import affirmationsData from '../src/Features/Data/AffirmationsList.js';
-import { InquiryEngine } from '../src/Features/InquiryEngine.js';
+import affirmationsData from '../Features/Data/AffirmationsList.js';
+import { InquiryEngine } from '../Features/InquiryEngine.js';
 
 class HappinessEngine {
   // Constants

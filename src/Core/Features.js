@@ -6,22 +6,22 @@
  */
 
 /* ---------- Engine imports ---------- */
-import EnergyEngineEnhanced from '../src/Features/EnergyTracker.js';
-import KarmaShopEngine      from '../src/Features/KarmaShopEngine.js';
-import MeditationsEngine    from '../src/Features/MeditationsEngine.js';
-import TarotEngine          from '../src/Features/TarotEngine.js';
-import HappinessEngine      from '../src/Features/HappinessEngine.js';
-import GratitudeEngine      from '../src/Features/GratitudeEngine.js';
-import QuotesEngine         from '../src/Features/QuotesEngine.js';
-import AffirmationsEngine   from '../src/Features/AffirmationsEngine.js';
+import EnergyEngineEnhanced from '../Features/EnergyTracker.js';
+import KarmaShopEngine      from '../Features/KarmaShopEngine.js';
+import MeditationsEngine    from '../Features/MeditationsEngine.js';
+import TarotEngine          from '../Features/TarotEngine.js';
+import HappinessEngine      from '../Features/HappinessEngine.js';
+import GratitudeEngine      from '../Features/GratitudeEngine.js';
+import QuotesEngine         from '../Features/QuotesEngine.js';
+import AffirmationsEngine   from '../Features/AffirmationsEngine.js';
 import GamificationEngine   from './GamificationEngine.js';
-import JournalEngine        from '../src/Features/JournalEngine.js';
-import ShadowAlchemyEngine  from '../src/Mini-Apps/ShadowAlchemyLab/shadowalchemy.js';
-import CommunityHubEngine   from '../src/Mini-Apps/CommunityHub/CommunityHubEngine.js';
-import { ChatBotAI }        from '../src/Features/ChatBotAI.js';
+import JournalEngine        from '../Features/JournalEngine.js';
+import ShadowAlchemyEngine  from '../Mini-Apps/ShadowAlchemyLab/shadowalchemy.js';
+import CommunityHubEngine   from '../Mini-Apps/CommunityHub/CommunityHubEngine.js';
+import { ChatBotAI }        from '../Features/ChatBotAI.js';
 
 /* ---------- App imports ---------- */
-import FlipTheScriptApp from '../src/Mini-Apps/FlipTheScript/index.js';
+import FlipTheScriptApp from '../Mini-Apps/FlipTheScript/index.js';
 
 // ─── Feature ID constants ─────────────────────────────────────────────────────
 

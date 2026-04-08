@@ -1,7 +1,7 @@
 // Features/DailyCards.js
 
-import TarotEngine from '../src/Features/TarotEngine.js';
-import { InquiryEngine } from '../src/Features/InquiryEngine.js';
+import TarotEngine from '../Features/TarotEngine.js';
+import { InquiryEngine } from '../Features/InquiryEngine.js';
 
 // XSS escape helper
 function esc(v) {

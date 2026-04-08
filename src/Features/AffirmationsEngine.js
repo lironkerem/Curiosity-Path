@@ -4,7 +4,7 @@
 // Manages daily and random affirmation display with full-screen experience
 // Supports both dashboard and immersive viewing modes
 
-import affirmationsData from '../src/Features/Data/AffirmationsList.js';
+import affirmationsData from '../Features/Data/AffirmationsList.js';
 
 // Configuration constants
 const CONFIG = {

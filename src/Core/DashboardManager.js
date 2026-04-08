@@ -5,8 +5,8 @@
  * @copyright 2026
  */
 
-import { InquiryEngine } from '../src/Features/InquiryEngine.js';
-import DailyCards from '../src/Features/DailyCards.js';
+import { InquiryEngine } from '../Features/InquiryEngine.js';
+import DailyCards from '../Features/DailyCards.js';
 import { ActiveMembers } from '/src/Mini-Apps/CommunityHub/js/active-members.js';
 
 const CONSTANTS = {

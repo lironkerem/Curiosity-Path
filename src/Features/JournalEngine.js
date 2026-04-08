@@ -5,7 +5,7 @@
 // entry management, and optional PIN protection
 // ============================================
 
-import { NeumorphicModal } from '../src/Core/Modal.js';
+import { NeumorphicModal } from '../Core/Modal.js';
 
 // ============================================
 // CONSTANTS

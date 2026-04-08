@@ -7,10 +7,10 @@
 
 import { showToast }    from './Toast.js';
 import * as modal       from './Modal.js';
-import { GamificationEngine } from '../src/Core/GamificationEngine.js';
+import { GamificationEngine } from '../Core/GamificationEngine.js';
 import { supabase }     from './Supabase.js';
 import { DarkMode }     from '/src/Core/Utils.js';
-import DailyCards       from '../src/Features/DailyCards.js';
+import DailyCards       from '../Features/DailyCards.js';
 import CTA              from './CTA.js';
 import { fetchProgress, saveProgress, clearCache } from '/src/Core/DB.js';
 import { CommunityDB }  from '/src/Mini-Apps/CommunityHub/js/community-supabase.js';
