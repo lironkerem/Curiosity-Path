@@ -309,6 +309,7 @@ export default class AppState {
       currentStreak: this.data.streaks?.current || 0,
       longestStreak: this.data.streaks?.longest || 0,
       weeklyMeditations,
+      totalMeditations: (this.data.meditationEntries || []).length,
       avgEnergy,
       totalGratitudes: (this.data.gratitudeEntries || []).length,
       achievements: (this.data.achievements || []).length
