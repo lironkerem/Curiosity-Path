@@ -157,7 +157,6 @@
       width: max-content;
       max-width: calc(100vw - 2rem);
       box-sizing: border-box;
-      /* Button reset */
       border: none;
       cursor: pointer;
       text-align: left;
@@ -180,8 +179,6 @@
         inset -3px -3px 6px #e0d4bf;
       transform: translateX(-50%) translateY(0) scale(0.98);
     }
-
-    /* Icon — spans both rows, col 1 */
     #pwa-install-toast .pwa-toast-icon {
       grid-column: 1;
       grid-row: 1 / 3;
@@ -200,8 +197,6 @@
       stroke-linejoin: round;
       flex-shrink: 0;
     }
-
-    /* Title — row 1, col 2 */
     #pwa-install-toast .pwa-toast-title {
       grid-column: 2;
       grid-row: 1;
@@ -212,8 +207,6 @@
       line-height: 1.3;
       white-space: nowrap;
     }
-
-    /* Subtitle — row 2, col 2 */
     #pwa-install-toast .pwa-toast-subtitle {
       grid-column: 2;
       grid-row: 2;
@@ -223,8 +216,6 @@
       line-height: 1.3;
       white-space: nowrap;
     }
-
-    /* Dismiss — col 3, spans both rows */
     #pwa-install-dismiss {
       grid-column: 3;
       grid-row: 1 / 3;
@@ -237,13 +228,10 @@
       line-height: 1;
       transition: color 150ms ease;
       align-self: center;
-      /* Prevent dismiss click from bubbling to toast install handler */
       position: relative;
       z-index: 1;
     }
     #pwa-install-dismiss:hover { color: #3d2f1f; }
-
-    /* Progress bar */
     #pwa-toast-progress {
       position: absolute;
       bottom: 0;
@@ -268,10 +256,8 @@
     }
   </style>
 
-  <!-- ===== LCP: preload auth logo (shown during boot) ===== -->
+  <!-- ===== LCP preloads ===== -->
   <link rel="preload" href="/Icons/icon-192x192-loading.webp" as="image" type="image/webp" fetchpriority="high">
-
-  <!-- ===== LCP: preload true LCP element — dashboard header image ===== -->
   <link rel="preload" href="/Tabs/Header.webp" as="image" type="image/webp" fetchpriority="high">
 
   <!-- ===== CDN Preconnect ===== -->
@@ -283,26 +269,19 @@
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&display=swap"></noscript>
 
-  <!-- ===== CSS ===== -->
-  <link rel="stylesheet" href="/src/styles/main-styles.css?v=2803">
+  <!-- ===== Skin stylesheets (toggled via JS) ===== -->
+  <link rel="preload" href="/src/styles/dark-mode.css" as="style">
+  <link rel="stylesheet" href="/src/styles/dark-mode.css" id="dark-mode-css" media="not all">
 
-  <link rel="preload" href="/src/styles/dark-mode.css?v=2803" as="style">
-  <link rel="stylesheet" href="/src/styles/dark-mode.css?v=2803" id="dark-mode-css" media="not all">
+  <link rel="preload" href="/src/styles/Skins/champagne-gold.css" as="style">
+  <link rel="preload" href="/src/styles/Skins/royal-indigo.css"   as="style">
+  <link rel="preload" href="/src/styles/Skins/earth-luxury.css"   as="style">
+  <link rel="preload" href="/src/styles/Skins/matrix-code.css"    as="style">
 
-  <link rel="preload" href="/src/styles/Skins/champagne-gold.css?v=2803" as="style">
-  <link rel="preload" href="/src/styles/Skins/royal-indigo.css?v=2803"   as="style">
-  <link rel="preload" href="/src/styles/Skins/earth-luxury.css?v=2803"   as="style">
-  <link rel="preload" href="/src/styles/Skins/matrix-code.css?v=2803"    as="style">
-
-  <link rel="stylesheet" href="/src/styles/Skins/champagne-gold.css?v=2803" id="skin_champagne-gold" media="not all">
-  <link rel="stylesheet" href="/src/styles/Skins/royal-indigo.css?v=2803"   id="skin_royal-indigo"   media="not all">
-  <link rel="stylesheet" href="/src/styles/Skins/earth-luxury.css?v=2803"   id="skin_earth-luxury"   media="not all">
-  <link rel="stylesheet" href="/src/styles/Skins/matrix-code.css?v=2803"    id="skin_matrix-code"    media="not all">
-
-  <link rel="stylesheet" href="/src/styles/mobile-styles.css?v=2803" media="(max-width:1024px)">
-
-  <link rel="preload" href="/src/styles/community-hub.css?v=2803" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="/src/styles/community-hub.css?v=2803"></noscript>
+  <link rel="stylesheet" href="/src/styles/Skins/champagne-gold.css" id="skin_champagne-gold" media="not all">
+  <link rel="stylesheet" href="/src/styles/Skins/royal-indigo.css"   id="skin_royal-indigo"   media="not all">
+  <link rel="stylesheet" href="/src/styles/Skins/earth-luxury.css"   id="skin_earth-luxury"   media="not all">
+  <link rel="stylesheet" href="/src/styles/Skins/matrix-code.css"    id="skin_matrix-code"    media="not all">
 
   <!-- ===== PWA / icons ===== -->
   <link rel="manifest" href="/manifest.json">
@@ -359,7 +338,7 @@
         <div id="calculator-tab"         class="tab-content hidden" aria-live="polite"       ></div>
         <div id="flip-script-tab"        class="tab-content hidden"                          ></div>
         <div id="meditations-tab"        class="tab-content hidden"                          ></div>
-        <div id="tarot-tab"             class="tab-content hidden"                          ></div>
+        <div id="tarot-tab"              class="tab-content hidden"                          ></div>
         <div id="energy-tab"             class="tab-content hidden"                          ></div>
         <div id="happiness-tab"          class="tab-content hidden"                          ></div>
         <div id="gratitude-tab"          class="tab-content hidden"                          ></div>
@@ -397,69 +376,8 @@
   })();
   </script>
 
-  <!-- ===== Application Scripts ===== -->
-  <script defer src="/src/styles/Skins/MatrixRain.js?v=2803"></script>
-  <script type="module" src="/src/Core/Utils.js"></script>
-  <script defer src="/src/Features/TarotVisionAI.js?v=2803"></script>
-  <script type="module" src="/src/Features/TarotEngine.js"></script>
-  <script type="module" src="/src/Core/GamificationEngine.js"></script>
-  <script type="module" src="/src/Features/KarmaShopEngine.js"></script>
-  <script type="module" src="/src/Features/EnergyTracker.js"></script>
-  <script type="module" src="/src/Core/Features.js"></script>
-  <script defer src="/src/Features/WellnessKit.js?v=2803"></script>
-
-  <!-- ===== Bootstrap Application ===== -->
-  <script type="module">
-    async function init() {
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-          navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
-            .catch(function(err) { console.error('[SW] Registration failed:', err); });
-        });
-      }
-
-      try {
-        const [aff, { QUOTES, getRandomQuote, getQuoteOfTheDay }] = await Promise.all([
-          import('/src/Features/Data/AffirmationsList.js'),
-          import('/src/Features/Data/QuotesList.js')
-        ]);
-
-        window.affirmations  = aff.default;
-        window.QuotesData    = { QUOTES, getRandomQuote, getQuoteOfTheDay };
-
-        const Core                 = await import('/src/Core/Index.js');
-        const { default: UserTab } = await import('/src/Core/User-Tab.js');
-
-        window.app = new Core.ProjectCuriosityApp({
-          AppState:          Core.AppState,
-          AuthManager:       Core.AuthManager,
-          NavigationManager: Core.NavigationManager,
-          DashboardManager:  Core.DashboardManager,
-          UserTab
-        });
-
-        window.app.init();
-
-      } catch (e) {
-        console.error('[FATAL] Bootstrap failed:', e);
-        document.body.innerHTML = [
-          '<div style="padding:2rem;text-align:center;font-family:system-ui">',
-          '<h1>Loading Error</h1>',
-          '<p>Unable to load the application. Please refresh the page.</p>',
-          '<p style="color:#666;font-size:0.875rem;margin-top:1rem">',
-          'If the problem persists, try clearing your browser cache.</p>',
-          '<button onclick="location.reload()" ',
-          'style="margin-top:1.5rem;padding:0.75rem 2rem;background:#6b9b37;color:#fff;',
-          'border:none;border-radius:8px;font-size:1rem;cursor:pointer">',
-          'Retry</button></div>'
-        ].join('');
-      }
-    }
-
-    document.readyState === 'loading'
-      ? document.addEventListener('DOMContentLoaded', init)
-      : init();
-  </script>
+  <!-- ===== Application Entry Point ===== -->
+  <script type="module" src="/src/main.js"></script>
 
   <!-- ===== PWA Install Toast ===== -->
   <script>
@@ -470,7 +388,6 @@
       setTimeout(function() {
         if (!window._pwaInstallPrompt) return;
 
-        // Toast is a <button> — clicking anywhere installs
         var toast = document.createElement('button');
         toast.id = 'pwa-install-toast';
         toast.setAttribute('role', 'button');
@@ -503,7 +420,6 @@
           setTimeout(function() { if (toast.parentNode) toast.remove(); }, 400);
         }
 
-        // Whole toast = install
         toast.addEventListener('click', function() {
           if (!window._pwaInstallPrompt) return;
           window._pwaInstallPrompt.prompt();
@@ -513,7 +429,6 @@
           });
         });
 
-        // Dismiss stops propagation so it doesn't also trigger install
         document.getElementById('pwa-install-dismiss').addEventListener('click', function(e) {
           e.stopPropagation();
           dismiss();
