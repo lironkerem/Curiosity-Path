@@ -13,31 +13,31 @@
   "dir": "ltr",
   "icons": [
     {
-      "src": "/public/Icons/icon-192x192.png",
+      "src": "/Icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/public/Icons/icon-192x192.png",
+      "src": "/Icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/public/Icons/icon-512x512.png",
+      "src": "/Icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/public/Icons/icon-512x512.png",
+      "src": "/Icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/public/Icons/apple-touch-icon.png",
+      "src": "/Icons/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"
@@ -49,21 +49,21 @@
       "short_name": "Dashboard",
       "url": "/",
       "description": "Go to your dashboard",
-      "icons": [{ "src": "/public/Icons/icon-192x192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/Icons/icon-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Meditations",
       "short_name": "Meditate",
       "url": "/?tab=meditations",
       "description": "Start a meditation",
-      "icons": [{ "src": "/public/Icons/icon-192x192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/Icons/icon-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Tarot",
       "short_name": "Tarot",
       "url": "/?tab=tarot",
       "description": "Draw tarot cards",
-      "icons": [{ "src": "/public/Icons/icon-192x192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/Icons/icon-192x192.png", "sizes": "192x192" }]
     }
   ]
 }

@@ -356,7 +356,7 @@ class CommunityHubEngine {
 
   /** Dynamic ES module import with absolute path. */
   _import(path) {
-    return import(`${BASE_PATH}/${path}`);
+    return import(/* @vite-ignore */ `${BASE_PATH}/${path}`);
   }
 
   /** Parallel dynamic imports. */

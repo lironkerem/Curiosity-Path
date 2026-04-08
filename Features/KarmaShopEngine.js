@@ -511,7 +511,7 @@ export class KarmaShopEngine {
       <div class="karma-shop-container">
         <div class="karma-shop-content">
           <header class="main-header project-curiosity"
-                  style="--header-img:url('/public/Tabs/NavShop.webp');
+                  style="--header-img:url('/Tabs/NavShop.webp');
                          --header-title:'';
                          --header-tag:'Exchange your Karma tokens for goodies and upgrades'">
             <h1>The Karma Shop</h1>

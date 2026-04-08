@@ -11,7 +11,7 @@ class GuidedRoom extends TimedVideoRoom {
             icon:            '🎧',
             description:     'Aanandoham\'s Curated Guided Visualizations. Synchronized guided sessions for the whole community - together, worldwide. A new meditation begins every hour. Drop in, tune out, come back renewed. View Schedule for details.',
             energy:          'Focused',
-            imageUrl:        '/public/Community/Visualization.webp',
+            imageUrl:        '/Community/Visualization.webp',
             participants:    0,
             cycleDuration:   60 * 60,
             openDuration:    15 * 60,

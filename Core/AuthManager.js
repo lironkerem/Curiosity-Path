@@ -29,7 +29,7 @@ const STORAGE_KEYS = {
   REMINDER_SETTINGS: 'reminderSettings',
   CUSTOM_AFFIRMATIONS: 'customAffirmations'
 };
-const ASSETS = {LOGO_URL:'/public/Tabs/Header.png'};
+const ASSETS = {LOGO_URL:'/Tabs/Header.png'};
 
 export default class AuthManager {
   constructor(app) { 
@@ -81,7 +81,7 @@ export default class AuthManager {
   }
 
   _generateLogoHeader(title, subtitle, description) {
-    return `<div class="text-center mb-3 fade-in"><picture><source srcset="/public/Tabs/Header.webp" type="image/webp"><img class="header-image" src="${ASSETS.LOGO_URL}" alt="Aanandoham Header" width="1280" height="400" loading="eager" fetchpriority="high" decoding="async" style="margin:0 auto 1rem"></picture><hr style="border:none;border-top:1px solid var(--neuro-shadow-dark);margin:0.4rem 0"><h1 class="text-3xl font-bold mb-2">${title}</h1><p class="auth-subtitle">${subtitle}</p>${description ? `<p class="auth-desc">${description}</p>` : ''}</div>`;
+    return `<div class="text-center mb-3 fade-in"><picture><source srcset="/Tabs/Header.webp" type="image/webp"><img class="header-image" src="${ASSETS.LOGO_URL}" alt="Aanandoham Header" width="1280" height="400" loading="eager" fetchpriority="high" decoding="async" style="margin:0 auto 1rem"></picture><hr style="border:none;border-top:1px solid var(--neuro-shadow-dark);margin:0.4rem 0"><h1 class="text-3xl font-bold mb-2">${title}</h1><p class="auth-subtitle">${subtitle}</p>${description ? `<p class="auth-desc">${description}</p>` : ''}</div>`;
   }
 
   _generateGoogleButton(text, handler, disabled) {

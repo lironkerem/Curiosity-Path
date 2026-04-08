@@ -3752,23 +3752,23 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 }
 
 #calculator-tab .story-watermark::before {
-  background-image: url('/public/Watermarks/Story.svg');
+  background-image: url('/Watermarks/Story.svg');
 }
 
 #calculator-tab .numerology-watermark::before {
-  background-image: url('/public/Watermarks/Numerology.svg');
+  background-image: url('/Watermarks/Numerology.svg');
 }
 
 #calculator-tab .astrology-watermark::before {
-  background-image: url('/public/Watermarks/Astrology.svg');
+  background-image: url('/Watermarks/Astrology.svg');
 }
 
 #calculator-tab .tree-watermark::before {
-  background-image: url('/public/Watermarks/Tree of Life.svg');
+  background-image: url('/Watermarks/Tree of Life.svg');
 }
 
 #calculator-tab .cta-logo-watermark::before {
-  background-image: url('/public/Watermarks/Logo.svg');
+  background-image: url('/Watermarks/Logo.svg');
 }
 
 #calculator-tab .story-watermark:has(.expandable-card.expanded)::before,

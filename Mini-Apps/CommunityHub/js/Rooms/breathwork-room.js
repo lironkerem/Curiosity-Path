@@ -11,7 +11,7 @@ class BreathworkRoom extends TimedVideoRoom {
             icon:            '💨',
             description:     'Unique Breathwork Sessions, from different modalities and techniques. View Schedule for details.',
             energy:          'Transformative',
-            imageUrl:        '/public/Community/Breathwork.webp',
+            imageUrl:        '/Community/Breathwork.webp',
             participants:    0,
             cycleDuration:   90 * 60,
             openDuration:    10 * 60,

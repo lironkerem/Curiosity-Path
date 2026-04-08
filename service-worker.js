@@ -3,7 +3,7 @@
 const CACHE_VERSION  = 'tcp-2026-03-31';
 const CACHE_NAME     = `tcp-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE  = `tcp-runtime-${CACHE_VERSION}`;
-const ICON_PATH      = './public/Icons/';
+const ICON_PATH      = './Icons/';
 
 // Core assets to pre-cache on install
 const CORE_ASSETS = [

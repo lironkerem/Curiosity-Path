@@ -15,7 +15,7 @@ const waxingMoonConfig = {
 
     phaseRanges: [[0.068, 0.432]],
 
-    imageUrl: '/public/Community/Lunar/WaxingMoon.webp',
+    imageUrl: '/Community/Lunar/WaxingMoon.webp',
 
     description:      'In the growing light, we build and expand. What you tend to now will flourish.',
     wisdomQuote:      'In the growing light, we build what matters. What you tend to now will flourish.',

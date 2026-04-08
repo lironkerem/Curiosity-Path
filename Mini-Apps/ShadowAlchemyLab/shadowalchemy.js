@@ -19,7 +19,7 @@ tab.innerHTML = `
     <div class="universal-content">
 
    <header class="main-header project-curiosity"
-              style="--header-img:url('/public/Tabs/NavShadow.webp');
+              style="--header-img:url('/Tabs/NavShadow.webp');
                      --header-title:'';
                      --header-tag:'Transform your Shadows into Golden wisdom'">
         <h1>Shadow Alchemy Lab</h1>
@@ -50,7 +50,7 @@ tab.innerHTML = `
     <div class="universal-content">
 
    <header class="main-header project-curiosity"
-              style="--header-img:url('/public/Tabs/NavShadow.webp');
+              style="--header-img:url('/Tabs/NavShadow.webp');
                      --header-title:'';
                      --header-tag:'Transform your Shadows into Golden wisdom'">
         <h1>Shadow Alchemy Lab</h1>

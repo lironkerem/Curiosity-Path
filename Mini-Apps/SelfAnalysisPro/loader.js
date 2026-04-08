@@ -41,7 +41,7 @@ host.innerHTML = `
 
       <!-- Big-App Unified Header -->
       <header class="main-header project-curiosity"
-              style="--header-img:url('/public/Tabs/NavAnalysis.webp');
+              style="--header-img:url('/Tabs/NavAnalysis.webp');
                      --header-title:'';
                      --header-tag:'Analyse your \'Self\', using Numerology, Astrology, Tree of Life and Tarot'">
         <h1>Self-Analysis Pro</h1>

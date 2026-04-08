@@ -11,7 +11,7 @@ class OshoRoom extends TimedVideoRoom {
             icon:            '💃',
             description:     'OSHO Active Meditations practices (with instructions). View Schedule for details.',
             energy:          'Dynamic',
-            imageUrl:        '/public/Community/OSHO.webp',
+            imageUrl:        '/Community/OSHO.webp',
             participants:    0,
             cycleDuration:   90 * 60,
             openDuration:    10 * 60,

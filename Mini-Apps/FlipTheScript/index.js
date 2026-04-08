@@ -34,7 +34,7 @@ export default class FlipTheScriptApp {
 
       <!--  MOBILE-ONLY IMAGE + SUBTITLE HEADER  -->
       <header class="main-header project-curiosity"
-              style="--header-img:url('/public/Tabs/NavFlip.webp');
+              style="--header-img:url('/Tabs/NavFlip.webp');
                      --header-title:'';
                      --header-tag:'Flip your Negative thoughts, into Positive affirmations'">
         <h1>Flip the Script</h1>

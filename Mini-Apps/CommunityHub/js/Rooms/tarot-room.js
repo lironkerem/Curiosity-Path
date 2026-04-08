@@ -30,7 +30,7 @@ class TarotRoom extends PracticeRoom {
             icon:        '🔮',
             description: 'Explore the cards, reflect on the messages and share your insights with the community. Guidance, intuition, and community wisdom - one card at a time.',
             energy:      'Intuitive',
-            imageUrl:    '/public/Community/Tarot.webp',
+            imageUrl:    '/Community/Tarot.webp',
             participants: 8,
         });
 

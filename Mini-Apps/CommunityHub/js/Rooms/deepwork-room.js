@@ -19,7 +19,7 @@ class DeepWorkRoom extends PracticeRoom {
             icon:        '🎯',
             description: 'Focus sessions with your community. Do hard things together. Set your intention. Start the timer. Get it done.',
             energy:      'Focused',
-            imageUrl:    '/public/Community/Focus.webp',
+            imageUrl:    '/Community/Focus.webp',
             participants: 12,
         });
 

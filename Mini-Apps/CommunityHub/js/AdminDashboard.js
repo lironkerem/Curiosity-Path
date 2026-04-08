@@ -147,8 +147,8 @@ const AdminDashboard = {
                 </div>
                 <div class="card" style="padding:16px;">
                     <picture>
-                      <source srcset="/public/Community/AdminDashboard.webp" type="image/webp">
-                      <img src="/public/Community/AdminDashboard.png"
+                      <source srcset="/Community/AdminDashboard.webp" type="image/webp">
+                      <img src="/Community/AdminDashboard.png"
                            onclick="AdminDashboard.openDashboard()"
                            alt="Open Admin Dashboard"
                            width="48" height="48" loading="lazy" decoding="async"
