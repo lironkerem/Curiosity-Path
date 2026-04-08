@@ -89,13 +89,14 @@ const YouTubePlayerMixin = {
     onPlayerReady(event) {
         this.state.playerReady = true;
 
-        // FIX #3 — Cue (buffer) the video silently. Do NOT play yet.
+        // Cue (buffer) the video silently. Do NOT play yet.
         // startSession() will play + unmute when the cycle window opens.
         event.target.cueVideoById(this.getCurrentSession()?.videoId);
 
-        // If the session is already running when the user enters mid-cycle,
-        // seek to the correct offset and start playing immediately.
-        if (this.state.isInSession) {
+        // Regular users cannot enter mid-session — only admins can.
+        // If an admin enters while a session is running, seek to the correct
+        // offset so they're synchronized with all other participants.
+        if (this.state.isInSession && Core.state?.currentUser?.is_admin === true) {
             this._startAtCycleOffset(event.target);
         }
 
@@ -104,7 +105,7 @@ const YouTubePlayerMixin = {
 
     /**
      * Seeks the player to the correct position within an already-running session,
-     * then unmutes and plays. Handles late-joining users.
+     * then unmutes and plays. Admin-only path.
      */
     _startAtCycleOffset(player) {
         const cycleMs    = this.config.cycleDuration * 1000;
