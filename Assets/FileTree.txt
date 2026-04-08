@@ -38,7 +38,7 @@ Curiosity-Path/
 │   ├── ProjectCuriosityApp.js
 │   ├── Supabase.js
 │   ├── Toast.js
-│   ├── User-Tab.js (and copies)
+│   ├── User-Tab.js
 │   ├── user-tab-data.js
 │   ├── user-tab-templates.js
 │   ├── Utils.js
