@@ -610,7 +610,11 @@ export default class ProjectCuriosityApp {
       return;
     }
     if (previousTab && previousTab !== tab && previousTab !== TAB_NAMES.DASHBOARD) {
-      this.features.destroy(previousTab);
+      // Community Hub manages its own re-visit refresh internally (via _refreshHubPresence).
+      // Destroying it would reset `initialized` and cause a full re-init on every return visit.
+      if (previousTab !== TAB_NAMES.COMMUNITY_HUB) {
+        this.features.destroy(previousTab);
+      }
     }
     this.features.init(tab);
   }
