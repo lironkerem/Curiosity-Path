@@ -30,18 +30,28 @@ const YouTubePlayerMixin = {
 
     // ── API loading ───────────────────────────────────────────────────────────
 
+    /**
+     * FIX #1 — Call this from onInit() (room card render) to load the YT script
+     * early, without creating the player yet. Eliminates script-load lag on entry.
+     */
+    preloadYouTubeAPI() {
+        if (document.querySelector('script[src*="youtube.com/iframe_api"]')) return;
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(tag);
+    },
+
+    /**
+     * Call this from onEnter(). By now the script is likely already loaded
+     * (preloaded during onInit), so initPlayer() fires immediately.
+     */
     loadYouTubeAPI() {
         if (window.YT?.Player) {
             this.initPlayer();
             return;
         }
 
-        if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
-            const tag = document.createElement('script');
-            tag.src = 'https://www.youtube.com/iframe_api';
-            document.head.appendChild(tag);
-        }
-
+        // Script was preloaded but API not ready yet — queue up
         const prev = window.onYouTubeIframeAPIReady;
         window.onYouTubeIframeAPIReady = () => {
             prev?.();
@@ -59,8 +69,12 @@ const YouTubePlayerMixin = {
         }
 
         this.state.player = new YT.Player(`${this.roomId}-youtube-player`, {
-            videoId:    session.videoId,
-            playerVars: { autoplay: 1, controls: 1, modestbranding: 1, rel: 0, mute: 1 },
+            videoId: session.videoId,
+            playerVars: {
+                // FIX #2 — No autoplay:1. We control playback via startSession().
+                // mute:1 kept so the browser allows cueVideoById() to buffer silently.
+                autoplay: 0, controls: 1, modestbranding: 1, rel: 0, mute: 1,
+            },
             events: {
                 onReady:       e => this.onPlayerReady(e),
                 onStateChange: e => this.onPlayerStateChange(e),
@@ -75,16 +89,39 @@ const YouTubePlayerMixin = {
     onPlayerReady(event) {
         this.state.playerReady = true;
 
-        if (this.state.isInSession || this.devMode) {
-            event.target.playVideo();
-            setTimeout(() => {
-                event.target.unMute();
-                event.target.setVolume(100);
-            }, 500);
-            this.state.sessionStarted = true;
+        // FIX #3 — Cue (buffer) the video silently. Do NOT play yet.
+        // startSession() will play + unmute when the cycle window opens.
+        event.target.cueVideoById(this.getCurrentSession()?.videoId);
+
+        // If the session is already running when the user enters mid-cycle,
+        // seek to the correct offset and start playing immediately.
+        if (this.state.isInSession) {
+            this._startAtCycleOffset(event.target);
         }
 
         this.onPlayerReadyCustom?.(event);
+    },
+
+    /**
+     * Seeks the player to the correct position within an already-running session,
+     * then unmutes and plays. Handles late-joining users.
+     */
+    _startAtCycleOffset(player) {
+        const cycleMs    = this.config.cycleDuration * 1000;
+        const openMs     = this.config.openDuration  * 1000;
+        const now        = Date.now();
+        const timeIntoCycle = (now - this.state.cycleStartTime) % cycleMs;
+        const sessionElapsed = Math.max(0, (timeIntoCycle - openMs) / 1000); // seconds into session
+
+        player.seekTo(sessionElapsed, true);
+        player.unMute();
+        player.setVolume(100);
+        player.playVideo();
+        this.state.sessionStarted = true;
+        this._showPlayer();
+
+        const session = this.getCurrentSession();
+        if (session) Core.showToast(`${session.emoji} Joining session in progress…`);
     },
 
     onPlayerStateChange(event) {
@@ -106,12 +143,18 @@ const YouTubePlayerMixin = {
 
     // ── Session / playback control ────────────────────────────────────────────
 
+    /**
+     * Called by CycleStateMixin when the open window closes and session begins.
+     * Player is already buffered — playback starts instantly.
+     */
     startSession() {
         if (!this.state.playerReady || this.state.sessionStarted) return;
         const session = this.getCurrentSession();
         if (!session) return;
 
         this._showPlayer();
+        this.state.player?.unMute();
+        this.state.player?.setVolume(100);
         this.state.player?.playVideo();
         this.state.sessionStarted = true;
         Core.showToast(`${session.emoji} Session starting…`);

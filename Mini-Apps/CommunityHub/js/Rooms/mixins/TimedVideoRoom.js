@@ -31,7 +31,13 @@ class TimedVideoRoom extends PracticeRoom {
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
-    onInit()    { this.initializeCycle(); }
+    onInit() {
+        this.initializeCycle();
+        // FIX #1 — Preload the YT iframe script as soon as the room card renders,
+        // so the API is ready (or near-ready) by the time the user clicks Enter.
+        this.preloadYouTubeAPI();
+    }
+
     onEnter()   { this.loadYouTubeAPI(); }
     onCleanup() { this.cleanupPlayer(); this.cleanupCycle(); }
 

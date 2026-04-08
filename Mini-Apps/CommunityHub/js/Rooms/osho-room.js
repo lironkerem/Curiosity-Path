@@ -49,8 +49,12 @@ class OshoRoom extends TimedVideoRoom {
         this._playingIntro = true;
 
         this.state.player = new YT.Player(`${this.roomId}-youtube-player`, {
-            videoId:    session.introVideoId,
-            playerVars: { autoplay: 1, controls: 1, modestbranding: 1, rel: 0, mute: 1 },
+            videoId: session.introVideoId,
+            playerVars: {
+                // FIX #2 — No autoplay:1. Intro plays via startSession() or
+                // _startAtCycleOffset() when the session window opens.
+                autoplay: 0, controls: 1, modestbranding: 1, rel: 0, mute: 1,
+            },
             events: {
                 onReady:       e => this.onPlayerReady(e),
                 onStateChange: e => this.onPlayerStateChange(e),
@@ -58,6 +62,22 @@ class OshoRoom extends TimedVideoRoom {
         });
 
         this.state.playerInitialized = true;
+    }
+
+    // startSession is called by CycleStateMixin when the open window closes.
+    // For OSHO we play the intro video first (already cued), then the practice.
+    startSession() {
+        if (!this.state.playerReady || this.state.sessionStarted) return;
+        const session = this.getCurrentSession();
+        if (!session) return;
+
+        this._playingIntro = true;
+        this._showPlayer();
+        this.state.player?.unMute();
+        this.state.player?.setVolume(100);
+        this.state.player?.playVideo();
+        this.state.sessionStarted = true;
+        Core.showToast(`${session.emoji} Intro starting…`);
     }
 
     // When intro ends, auto-load the practice video
