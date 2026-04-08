@@ -15,7 +15,9 @@
     "personal-growth"
   ],
   "scripts": {
-    "build": "exit 0",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "start": "npx serve . --listen 3000",
     "lint": "npx eslint . --ext .js --ignore-pattern 'node_modules/' --ignore-pattern 'CSS/'",
     "audit-deps": "npm audit --audit-level=moderate"
@@ -28,5 +30,8 @@
     "@supabase/supabase-js": "^2.89.0",
     "groq-sdk": "^0.8.0",
     "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
   }
 }
