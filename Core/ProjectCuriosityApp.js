@@ -638,23 +638,8 @@ export default class ProjectCuriosityApp {
   }
 
   async _loadAdminTab() {
-    if (window.adminTabLoaded) return;
-    const host = document.getElementById('admin-tab');
-    if (!host) { console.error('[App] Admin tab host not found'); return; }
-
-    host.innerHTML = '<div class="loading-spinner-inner"><div class="spinner"></div><p>Loading Admin Panel...</p></div>';
-
-    try {
-      const { AdminTab } = await import('./AdminTab.js');
-      const content     = await new AdminTab(supabase).render();
-      host.innerHTML    = '';
-      host.appendChild(content);
-      window.adminTabLoaded = true;
-    } catch (error) {
-      console.error('[App] Admin tab load failed:', error);
-      host.textContent = 'Failed to load Admin Panel. Please try again.';
-      this.showToast('Failed to load admin panel', 'error');
-    }
+    // AdminTab removed
+    console.warn('[App] AdminTab is no longer available.');
   }
 
   restoreLastTab() {
