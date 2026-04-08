@@ -21,7 +21,6 @@ export default class SelfAnalysisLauncher {
       return;
     }
 
-    console.log('🎯 Loading Self-Analysis Pro...');
     host.innerHTML = '<div class="loading-spinner-inner"><div class="spinner"></div><p>Loading Self-Analysis Pro...</p></div>';
 
     // Fetch HTML content
@@ -69,7 +68,6 @@ host.innerHTML = `
         if (typeof module.bootSelfAnalysis === 'function') {
           this.instance = module.bootSelfAnalysis(host);
           this.isInitialized = true;
-          console.log('✅ Self-Analysis Pro loaded');
         } else {
           throw new Error('bootSelfAnalysis function not found');
         }
@@ -89,8 +87,6 @@ host.innerHTML = `
   /* ---- Initialize ALL Components (Pickers + Location Autocomplete) ---- */
   async initializeComponents() {
     try {
-      console.log('🎯 Initializing components...');
-      
       // Import picker classes
       const [
         { CustomDatePicker },
@@ -105,13 +101,11 @@ host.innerHTML = `
       // Initialize date picker
       if (document.getElementById('date-of-birth')) {
         window.customDatePicker = new CustomDatePicker('date-of-birth');
-        console.log('✅ CustomDatePicker initialized');
       }
       
       // Initialize time picker
       if (document.getElementById('time-of-birth')) {
         window.customTimePicker = new CustomTimePicker('time-of-birth');
-        console.log('✅ CustomTimePicker initialized');
       }
       
       // Initialize step indicator
@@ -122,7 +116,6 @@ host.innerHTML = `
             window.stepIndicator.reset();
           }
         };
-        console.log('✅ StepIndicator initialized');
       }
       
       // Initialize location autocomplete
@@ -150,12 +143,9 @@ initializeLocationAutocomplete() {
   
   // Define displayResults BEFORE fetchLocations so it's in scope
   const displayResults = (list) => {
-    console.log('🎯 displayResults called with:', list);
-    
     if (!list || !list.length) {
       dropdown.innerHTML = '<div style="padding:10px;color:#888;">No locations found</div>';
       dropdown.classList.add('active');
-      console.log('✅ Added active class (no results)');
       setTimeout(() => dropdown.classList.remove('active'), 2000);
       return;
     }
@@ -166,7 +156,6 @@ initializeLocationAutocomplete() {
       </div>`).join('');
     
     dropdown.classList.add('active');
-    console.log('✅ Dropdown activated with', list.length, 'results');
     
     dropdown.querySelectorAll('.location-option').forEach(opt => {
       opt.addEventListener('click', () => {
@@ -181,9 +170,6 @@ initializeLocationAutocomplete() {
         dropdown.classList.remove('active');
         dropdown.innerHTML = '';
         
-        console.log('✅ Location selected:', { name, lat, lon });
-        console.log('✅ Dataset:', locationInput.dataset);
-        
         locationInput.style.borderColor = '#4caf50';
         setTimeout(() => locationInput.style.borderColor = '', 1000);
       });
@@ -192,11 +178,8 @@ initializeLocationAutocomplete() {
   
   // Now define fetchLocations with access to displayResults
   const fetchLocations = async (q) => {
-    console.log('🔍 Fetching locations for:', q);
     try {
       const res = await fetch(`${GEOCODE_API}?q=${encodeURIComponent(q)}`);
-      
-      console.log('📥 Geocode response status:', res.status);
       
       if (!res.ok) {
         const errorText = await res.text();
@@ -205,12 +188,10 @@ initializeLocationAutocomplete() {
       }
       
       const data = await res.json();
-      console.log('✅ Geocode data received:', data.length, 'results');
-      
       cache.set(q.toLowerCase(), data);
       if (cache.size > 50) cache.delete(cache.keys().next().value);
       
-      displayResults(data);  // This should now work
+      displayResults(data);
     } catch (e) {
       console.warn('❌ Location fetch error:', e.message);
       dropdown.innerHTML = '<div style="padding:10px;color:#d32f2f;background:#ffebee;">Unable to load suggestions. Try typing your city name.</div>';
@@ -245,8 +226,6 @@ initializeLocationAutocomplete() {
       dropdown.classList.remove('active');
     }
   });
-  
-  console.log('✅ Location autocomplete initialized');
 }
 
   /* ---- Re-validate form when tab is re-entered ---- */
@@ -259,6 +238,5 @@ initializeLocationAutocomplete() {
   /* ---- Cleanup when switching away from tab ---- */
   cleanup() {
     // Optional: Clear any timers, remove listeners, etc.
-    console.log('🧹 Self-Analysis cleanup (if needed)');
   }
 }

@@ -72,7 +72,6 @@ const Rituals = {
             return;
         }
         try {
-            console.log('🕯️ Rituals Module Loaded');
             this.loadState();
             this.setupEventListeners();
             this.state.isInitialized = true;
@@ -137,7 +136,6 @@ const Rituals = {
         this.state.hasSeenOpening = true;
         this.saveState();
         Core?.showToast?.('Welcome to the space');
-        console.log('✓ Opening ritual completed');
     },
 
     // ============================================================================
@@ -163,7 +161,6 @@ const Rituals = {
         const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const closingDelay = prefersReduced ? 1000 : this.config.CLOSING_AUTO_CLOSE_MS;
         this.state.autoCloseTimer = setTimeout(() => this.completeClosing(), closingDelay);
-        console.log('✓ Closing ritual displayed');
     },
 
     completeClosing() {
@@ -182,7 +179,6 @@ const Rituals = {
         this.cleanupActiveRoom();
         Core?.navigateTo?.('hubView');
         Core?.showToast?.('Space closed with gratitude');
-        console.log('✓ Closing ritual completed');
     },
 
     // ============================================================================
@@ -191,19 +187,14 @@ const Rituals = {
 
     cleanupActiveRoom() {
         const activeRoom = this.findActiveRoom();
-        if (!activeRoom) { console.log('No active room to cleanup'); return; }
+        if (!activeRoom) return;
 
-        console.log(`Cleaning up active room: ${activeRoom.name}`);
         const { module, name } = activeRoom;
 
         if (typeof module.leaveRoom === 'function') {
             module.leaveRoom();
-            console.log(`✓ Called leaveRoom() for ${name}`);
         } else if (typeof module.cleanup === 'function') {
             module.cleanup();
-            console.log(`✓ Called cleanup() for ${name}`);
-        } else {
-            console.log(`ℹ️ ${name} has no cleanup method`);
         }
     },
 
@@ -259,7 +250,6 @@ const Rituals = {
     reset() {
         this.state.hasSeenOpening = false;
         localStorage.removeItem('rituals_lastSeen');
-        console.log('✓ Rituals state reset');
     },
 
     /** Check if a ritual overlay element exists in the DOM. */

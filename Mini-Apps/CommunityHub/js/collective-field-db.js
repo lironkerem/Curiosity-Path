@@ -38,7 +38,6 @@ const CollectiveFieldDB = {
             await this.loadAll();
             this._subscribeRealtime();
             this._startPolling();
-            console.log('✅ CollectiveFieldDB initialised');
         } catch (err) {
             console.error('[CollectiveFieldDB] init error:', err);
         }
