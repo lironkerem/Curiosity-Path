@@ -716,21 +716,19 @@ export default class NavigationManager {
       <div id="cta-footer-wrapper"></div>
 
       <!-- MOBILE 4-BUTTON BAR -->
-      <nav id="mobile-bottom-bar" class="mobile-bottom-bar mobile-bottom-bar-4" aria-label="Mobile navigation">
-        <div role="tablist" aria-label="Main navigation" style="display:contents">
-          <button class="mobile-tab" data-popup="miniapps" aria-haspopup="true" aria-expanded="false">
-            <picture><source srcset="/public/Tabs/MiniApps.webp" type="image/webp"><img src="/public/Tabs/MiniApps.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Mini Apps</span>
-          </button>
-          <button class="mobile-tab" data-popup="features" aria-haspopup="true" aria-expanded="false">
-            <picture><source srcset="/public/Tabs/Features.webp" type="image/webp"><img src="/public/Tabs/Features.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Features</span>
-          </button>
-          <button class="mobile-tab" role="tab" data-tab="dashboard" aria-selected="false">
-            <picture><source srcset="/public/Tabs/Dashboard.webp" type="image/webp"><img src="/public/Tabs/Dashboard.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Home</span>
-          </button>
-          <button class="mobile-tab" role="tab" data-tab="community-hub" aria-selected="false">
-            <picture><source srcset="/public/Tabs/Community.webp" type="image/webp"><img src="/public/Tabs/Community.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Community</span>
-          </button>
-        </div>
+      <nav id="mobile-bottom-bar" class="mobile-bottom-bar mobile-bottom-bar-4" role="navigation" aria-label="Mobile navigation">
+        <button class="mobile-tab" data-popup="miniapps" aria-haspopup="true" aria-expanded="false">
+          <picture><source srcset="/public/Tabs/MiniApps.webp" type="image/webp"><img src="/public/Tabs/MiniApps.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Mini Apps</span>
+        </button>
+        <button class="mobile-tab" data-popup="features" aria-haspopup="true" aria-expanded="false">
+          <picture><source srcset="/public/Tabs/Features.webp" type="image/webp"><img src="/public/Tabs/Features.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Features</span>
+        </button>
+        <button class="mobile-tab" data-tab="dashboard" aria-selected="false">
+          <picture><source srcset="/public/Tabs/Dashboard.webp" type="image/webp"><img src="/public/Tabs/Dashboard.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Home</span>
+        </button>
+        <button class="mobile-tab" data-tab="community-hub" aria-selected="false">
+          <picture><source srcset="/public/Tabs/Community.webp" type="image/webp"><img src="/public/Tabs/Community.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Community</span>
+        </button>
       </nav>
 
       <!-- SHEETS -->
@@ -789,7 +787,7 @@ export default class NavigationManager {
     ];
 
     const dots = tabs.map(t =>
-      `<span class="tab-dot${t.active ? ' active' : ''}" data-tab="${t.tab}" title="${t.title}" aria-label="${t.title}"><picture><source srcset="/public/Tabs/Dots/${t.img.replace('.png', '.webp')}" type="image/webp"><img src="/public/Tabs/Dots/${t.img}" alt="" role="presentation" loading="lazy" decoding="async" width="48" height="48"></picture></span>`
+      `<span class="tab-dot${t.active ? ' active' : ''}" data-tab="${t.tab}" title="${t.title}"><picture><source srcset="/public/Tabs/Dots/${t.img.replace('.png', '.webp')}" type="image/webp"><img src="/public/Tabs/Dots/${t.img}" loading="lazy" decoding="async" width="48" height="48"></picture></span>`
     ).join('\n        ');
 
     return `
