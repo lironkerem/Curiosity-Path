@@ -544,7 +544,7 @@ const UpcomingEvents = {
                          style="cursor:pointer;border-radius:8px;overflow:hidden;
                                 border:3px solid ${selected ? 'var(--neuro-accent)' : 'transparent'};
                                 transition:border 0.15s;">
-                        <img src="${url}" alt="${f}" width="200" height="90" loading="lazy" decoding="async" style="width:100%;height:90px;object-fit:cover;display:block;">
+                        <img src="${url}" alt="${f}" loading="lazy" decoding="async" style="width:100%;height:auto;display:block;">
                     </button>`;
         }).join('');
 
