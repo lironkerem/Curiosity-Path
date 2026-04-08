@@ -1,7 +1,7 @@
-/* js/features/triggerRelease.js  – patched & production-ready */
-import { createModal } from '/Mini-Apps/ShadowAlchemyLab/js/core/modal.js';
-import { showToast, showConfirmDialog } from '/Mini-Apps/ShadowAlchemyLab/js/core/utils.js';
-import { state, saveState } from '/Mini-Apps/ShadowAlchemyLab/js/core/state.js';
+/* js/src/Features/triggerRelease.js  – patched & production-ready */
+import { createModal } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/modal.js';
+import { showToast, showConfirmDialog } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/utils.js';
+import { state, saveState } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/state.js';
 
 export function openTriggerReleaseModal(entry = null) {
   const isEditing = !!entry;

@@ -1,6 +1,6 @@
-// js/features/subShadowsLabGrid.js
-import { createModal } from '/Mini-Apps/ShadowAlchemyLab/js/core/modal.js';
-import { getArchetypeIcon } from '/Mini-Apps/ShadowAlchemyLab/js/core/utils.js';
+// js/src/Features/subShadowsLabGrid.js
+import { createModal } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/modal.js';
+import { getArchetypeIcon } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/utils.js';
 
 const ARCHETYPE_META = [
   { id: 'hero',     title: 'Hero',     color: '#ef4444' },
@@ -52,7 +52,7 @@ function openFilteredShadowList(archetypeId) {
   const completed = engine.getCompletedShadows();
 
   if (!shadows.length) {
-    import('/Mini-Apps/ShadowAlchemyLab/js/core/utils.js').then(m => m.showToast('No sub-shadows for this archetype yet.', 'info'));
+    import('/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/utils.js').then(m => m.showToast('No sub-shadows for this archetype yet.', 'info'));
     return;
   }
 
@@ -87,7 +87,7 @@ function openFilteredShadowList(archetypeId) {
     item.addEventListener('click', () => {
       const shadowId = item.dataset.shadowId;
       closeModal();
-      import('/Mini-Apps/ShadowAlchemyLab/js/features/subShadowJourney.js').then(m => m.openSubShadowJourneyModal(shadowId));
+      import('/src/Mini-Apps/ShadowAlchemyLab/js/src/Features/subShadowJourney.js').then(m => m.openSubShadowJourneyModal(shadowId));
     });
   });
   modal.querySelector('#close-filtered-btn').addEventListener('click', closeModal);

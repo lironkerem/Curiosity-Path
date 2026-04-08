@@ -78,7 +78,7 @@ export default class UserTab {
     if (!document.getElementById('user-tab-styles')) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.href = './CSS/user-tab-styles.css';
+      link.href = './src/styles/user-tab-styles.css';
       link.id = 'user-tab-styles';
       document.head.appendChild(link);
     }
@@ -590,7 +590,7 @@ export default class UserTab {
     } else {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.href = `./CSS/Skins/${name}.css`;
+      link.href = `./src/styles/Skins/${name}.css`;
       link.setAttribute('data-premium-theme', name);
       document.head.appendChild(link);
     }

@@ -5,7 +5,7 @@
  */
 
 const STORAGE_KEY = 'archetypes_engine_v2';
-const DATA_URL    = '/Mini-Apps/ShadowAlchemyLab/js/engines/archetypes_data.json';
+const DATA_URL    = '/src/Mini-Apps/ShadowAlchemyLab/js/engines/archetypes_data.json';
 
 // Safe localStorage wrapper
 const ls = {

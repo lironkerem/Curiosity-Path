@@ -1,6 +1,6 @@
-/* js/features/archetypeStudio.js  – production-ready */
-import { createModal } from '/Mini-Apps/ShadowAlchemyLab/js/core/modal.js';
-import { getArchetypeIcon } from '/Mini-Apps/ShadowAlchemyLab/js/core/utils.js';
+/* js/src/Features/archetypeStudio.js  – production-ready */
+import { createModal } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/modal.js';
+import { getArchetypeIcon } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/utils.js';
 
 export function openArchetypeIntegrationStudioModal(archetypeId = null) {
   const engine = window.archetypesEngine;
@@ -28,5 +28,5 @@ engine.state.activeShadowId = null;
   card.style.maxWidth = '700px';
   card.style.maxHeight = '90vh';
 
-import('/Mini-Apps/ShadowAlchemyLab/js/features/subShadowJourney.js').then(m => m.renderStep(modal));
+import('/src/Mini-Apps/ShadowAlchemyLab/js/src/Features/subShadowJourney.js').then(m => m.renderStep(modal));
 }

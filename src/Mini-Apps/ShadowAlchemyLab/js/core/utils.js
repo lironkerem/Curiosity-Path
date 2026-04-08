@@ -1,4 +1,4 @@
-// Mini-Apps/ShadowAlchemyLab/js/core/utils.js
+// Mini-Apps/ShadowAlchemyLab/js/src/Core/utils.js
 // Patched: showConfirmDialog rebuilt via DOM API (no innerHTML with user content),
 // type=button on all buttons, aria attrs on modal, textContent for toast.
 

@@ -59,7 +59,7 @@ class TarotRoom extends PracticeRoom {
         this.COURT_RANKS = { 11: 'Page', 12: 'Knight', 13: 'Queen', 14: 'King' };
 
         try {
-            const res = await fetch('/Mini-Apps/CommunityHub/js/Rooms/tarot-data.json');
+            const res = await fetch('/src/Mini-Apps/CommunityHub/js/Rooms/tarot-data.json');
             if (res.ok) {
                 const data = await res.json();
                 this._tarotData = data;

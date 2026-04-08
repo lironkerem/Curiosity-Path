@@ -6,7 +6,7 @@ import { Core }              from './js/core.js';
 import { MemberProfileModal } from './js/member-profile-modal.js';
 import { WhisperModal }      from './js/WhisperModal.js';
 
-const BASE_PATH = '/Mini-Apps/CommunityHub';
+const BASE_PATH = '/src/Mini-Apps/CommunityHub';
 
 const RITUAL_TEXTS = [
   "Enter with intention, leave with gratitude",

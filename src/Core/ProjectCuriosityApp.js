@@ -7,16 +7,16 @@
 
 import { showToast }    from './Toast.js';
 import * as modal       from './Modal.js';
-import { GamificationEngine } from '../Core/GamificationEngine.js';
+import { GamificationEngine } from '../src/Core/GamificationEngine.js';
 import { supabase }     from './Supabase.js';
-import { DarkMode }     from '/Core/Utils.js';
-import DailyCards       from '../Features/DailyCards.js';
+import { DarkMode }     from '/src/Core/Utils.js';
+import DailyCards       from '../src/Features/DailyCards.js';
 import CTA              from './CTA.js';
-import { fetchProgress, saveProgress, clearCache } from '/Core/DB.js';
-import { CommunityDB }  from '/Mini-Apps/CommunityHub/js/community-supabase.js';
-import { Core as CommunityCore } from '/Mini-Apps/CommunityHub/js/core.js';
-import { MemberProfileModal } from '/Mini-Apps/CommunityHub/js/member-profile-modal.js';
-import { WhisperModal } from '/Mini-Apps/CommunityHub/js/WhisperModal.js';
+import { fetchProgress, saveProgress, clearCache } from '/src/Core/DB.js';
+import { CommunityDB }  from '/src/Mini-Apps/CommunityHub/js/community-supabase.js';
+import { Core as CommunityCore } from '/src/Mini-Apps/CommunityHub/js/core.js';
+import { MemberProfileModal } from '/src/Mini-Apps/CommunityHub/js/member-profile-modal.js';
+import { WhisperModal } from '/src/Mini-Apps/CommunityHub/js/WhisperModal.js';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -627,7 +627,7 @@ export default class ProjectCuriosityApp {
     host.innerHTML = '<div class="loading-spinner-inner"><div class="spinner"></div><p>Loading Self-Analysis Pro...</p></div>';
 
     try {
-      const { default: Launcher } = await import('/Mini-Apps/SelfAnalysisPro/loader.js');
+      const { default: Launcher } = await import('/src/Mini-Apps/SelfAnalysisPro/loader.js');
       new Launcher(window.app).render();
       window.calculatorChunk = 'loaded';
     } catch (error) {

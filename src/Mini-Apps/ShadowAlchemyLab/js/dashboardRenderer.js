@@ -1,6 +1,6 @@
 // js/dashboardRenderer.js (PATCHED FOR BIG-APP INTEGRATION)
-import { state, getNextLevelInfo } from '/Mini-Apps/ShadowAlchemyLab/js/core/state.js';
-import { getCompanionVisual, getArchetypeIcon } from '/Mini-Apps/ShadowAlchemyLab/js/core/utils.js';
+import { state, getNextLevelInfo } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/state.js';
+import { getCompanionVisual, getArchetypeIcon } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/utils.js';
 
 export function renderDashboard() {
   const main = document.getElementById('shadow-alchemy-main-content');

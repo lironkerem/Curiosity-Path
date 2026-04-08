@@ -2,8 +2,8 @@
 // HAPPINESS ENGINE - OPTIMIZED & CONSOLIDATED
 // ============================================
 
-import affirmationsData from '../Features/Data/AffirmationsList.js';
-import { InquiryEngine } from '../Features/InquiryEngine.js';
+import affirmationsData from '../src/Features/Data/AffirmationsList.js';
+import { InquiryEngine } from '../src/Features/InquiryEngine.js';
 
 class HappinessEngine {
   // Constants
@@ -45,7 +45,7 @@ class HappinessEngine {
    */
   async loadBoosters() {
     try {
-      const res = await fetch('./Features/Data/HappinessBoostersList.json');
+      const res = await fetch('./src/Features/Data/HappinessBoostersList.json');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       this.boosters = data.boosters;

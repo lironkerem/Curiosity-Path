@@ -574,7 +574,7 @@ const SolarEngine = {
     if (!meta) { Core?.showToast?.(`Unknown room: ${roomId}`); return; }
 
     try {
-      const basePath = '/Mini-Apps/CommunityHub/js/Solar/';
+      const basePath = '/src/Mini-Apps/CommunityHub/js/Solar/';
       const mod = await import(`${basePath}${meta.file}`);
       const instance = mod[meta.exportName];
       instance

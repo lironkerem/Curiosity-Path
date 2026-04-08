@@ -1,5 +1,5 @@
-// js/features/shadowGuidedProcessViewer.js
-import { createModal } from '/Mini-Apps/ShadowAlchemyLab/js/core/modal.js';
+// js/src/Features/shadowGuidedProcessViewer.js
+import { createModal } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/modal.js';
 
 export function openShadowGuidedProcessViewModal(entry) {
   const stepsHTML = entry.steps.map(s => `

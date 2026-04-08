@@ -53,7 +53,7 @@ class ReikiRoom extends PracticeRoom {
         this.DAY_MAP = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
         try {
-            const response = await fetch('/Mini-Apps/CommunityHub/js/Rooms/chakra-data.json');
+            const response = await fetch('/src/Mini-Apps/CommunityHub/js/Rooms/chakra-data.json');
             if (response.ok) {
                 this.CHAKRA_SCHEDULE = await response.json();
             } else {

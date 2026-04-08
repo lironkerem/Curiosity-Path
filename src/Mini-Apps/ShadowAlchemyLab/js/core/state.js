@@ -1,4 +1,4 @@
-// Mini-Apps/ShadowAlchemyLab/js/core/state.js
+// Mini-Apps/ShadowAlchemyLab/js/src/Core/state.js
 
 export const STORAGE_KEY = 'shadowAlchemyAppData';
 

@@ -1,5 +1,5 @@
-/* js/features/shadowGuidedProcess.js  – fixed version */
-import { createModal } from '/Mini-Apps/ShadowAlchemyLab/js/core/modal.js';
+/* js/src/Features/shadowGuidedProcess.js  – fixed version */
+import { createModal } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/modal.js';
 
 export function openShadowGuidedProcessModal() {
   const { modal, closeModal } = createModal({

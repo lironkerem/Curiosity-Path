@@ -76,11 +76,11 @@ tab.innerHTML = `
     try {
 
       // engines
-      await import('/Mini-Apps/ShadowAlchemyLab/js/engines/archetypesEngine.js');
-      await this.loadScript('/Mini-Apps/ShadowAlchemyLab/js/engines/DailyJourneyEngine.js');
+      await import('/src/Mini-Apps/ShadowAlchemyLab/js/engines/archetypesEngine.js');
+      await this.loadScript('/src/Mini-Apps/ShadowAlchemyLab/js/engines/DailyJourneyEngine.js');
 
       // controller
-      await import('/Mini-Apps/ShadowAlchemyLab/js/controller.js');
+      await import('/src/Mini-Apps/ShadowAlchemyLab/js/controller.js');
 
       if (window.AppController?.init) await window.AppController.init();
     } catch (err) {

@@ -16,7 +16,7 @@
 
 /* global window, console, localStorage */
 
-import { fetchProgress, saveProgress, clearCache } from '/Core/DB.js';
+import { fetchProgress, saveProgress, clearCache } from '/src/Core/DB.js';
 
 // ============================================================================
 // CONSTANTS

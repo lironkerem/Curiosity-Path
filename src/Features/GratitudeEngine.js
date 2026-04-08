@@ -1,6 +1,6 @@
 // Features/GratitudeEngine.js
 
-import { NeumorphicModal } from '../Core/Modal.js';
+import { NeumorphicModal } from '../src/Core/Modal.js';
 
 /**
  * GratitudeEngine - Manages gratitude journaling feature

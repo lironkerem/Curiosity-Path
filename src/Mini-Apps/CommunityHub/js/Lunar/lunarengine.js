@@ -235,7 +235,7 @@ const LunarEngine = {
         if (!meta) { Core?.showToast(`Unknown room: ${roomId}`); return; }
 
         try {
-            const basePath = '/Mini-Apps/CommunityHub/js/Lunar/';
+            const basePath = '/src/Mini-Apps/CommunityHub/js/Lunar/';
             const mod = await import(`${basePath}${meta.file}`);
             const instance = mod[meta.exportName];
             if (instance) instance.enterRoom();
