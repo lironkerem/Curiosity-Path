@@ -1,0 +1,536 @@
+/* =========================================================
+   DIGITAL CURIOSITY — ROYAL INDIGO SKIN
+   Updated for new main-styles.css + mobile-styles.css
+   Apply to <body class="royal-indigo">
+   ========================================================= */
+
+body.royal-indigo{
+  /* indigo palette - LIGHT & ROYAL */
+  --neuro-bg:#e8e5f5;
+  --neuro-bg-lighter:#f0eef8;
+  --neuro-bg-lightest:#f7f6fb;
+  --neuro-shadow-dark:#c4bee8;
+  --neuro-shadow-darker:#b0a8d9;
+  --neuro-shadow-light:#ffffff;
+  --neuro-highlight:#fdfcff;
+
+  --neuro-text:#2a2550;
+  --neuro-text-light:#4a4270;
+  --neuro-text-lighter:#6a5e90;
+  --neuro-text-dim:#8a7eb0;
+
+  --neuro-accent:#7d6bc4;           /* royal indigo */
+  --neuro-accent-light:#9d8fdb;     /* light lavender */
+  --neuro-accent-gold:#d4af37;      /* gold accent */
+
+  /* Royal gradient colors */
+  --neuro-royal: #7d6bc4;
+  --neuro-royal-dark: #6858a8;
+  --neuro-royal-light: #9d8fdb;
+  --neuro-royal-gold: #d4af37;
+
+  --neuro-success:#6ba89d;
+  --neuro-warning:#d4af37;
+  --neuro-error:#c4749d;
+  --neuro-info:#6b9dd4;
+
+  /* elegant shadows with royal glow */
+  --shadow-raised:
+    10px 10px 20px var(--neuro-shadow-dark),
+    -6px -6px 12px var(--neuro-shadow-light),
+    inset 1px 1px 2px var(--neuro-highlight);
+  --shadow-raised-lg:
+    18px 18px 36px var(--neuro-shadow-darker),
+    -12px -12px 24px var(--neuro-shadow-light),
+    inset 2px 2px 4px var(--neuro-highlight),
+    0 8px 32px rgba(125,107,196,.25);
+  --shadow-raised-hover:
+    14px 14px 28px var(--neuro-shadow-dark),
+    -10px -10px 20px var(--neuro-shadow-light),
+    inset 1px 1px 2px var(--neuro-highlight),
+    0 4px 24px rgba(125,107,196,.3);
+  --shadow-inset:
+    inset 5px 5px 10px var(--neuro-shadow-dark),
+    inset -3px -3px 6px var(--neuro-shadow-light);
+  --shadow-inset-sm:
+    inset 3px 3px 6px var(--neuro-shadow-dark),
+    inset -2px -2px 4px var(--neuro-shadow-light);
+  --shadow-inset-lg:
+    inset 8px 8px 16px var(--neuro-shadow-darker),
+    inset -6px -6px 12px var(--neuro-shadow-light);
+  --shadow-glow:
+    0 0 20px rgba(125,107,196,.4),
+    0 0 40px rgba(125,107,196,.25),
+    0 0 60px rgba(157,143,219,.15);
+  --shadow-intense:
+    0 0 30px rgba(125,107,196,.6),
+    0 0 60px rgba(104,88,168,.4),
+    0 4px 20px rgba(125,107,196,.5);
+  --shadow-gold:
+    0 0 20px rgba(212,175,55,.3),
+    0 0 40px rgba(212,175,55,.2);
+}
+
+.pricing-overlay.royal-indigo,
+.pricing-overlay.royal-indigo .pricing-modal,
+.pricing-overlay.royal-indigo .pricing-card {
+  --neuro-bg: #e8e5f5;
+  --neuro-bg-lighter: #f0eef8;
+  --neuro-bg-lightest: #f7f6fb;
+  --neuro-shadow-dark: #c4bee8;
+  --neuro-shadow-light: #ffffff;
+  --neuro-text: #2a2550;
+  --neuro-text-light: #4a4270;
+  --neuro-text-lighter: #6a5e90;
+  --neuro-accent: #7d6bc4;
+  --neuro-accent-light: #9d8fdb;
+  --shadow-raised-sm: 4px 4px 8px #c4bee8, -4px -4px 8px #ffffff;
+  --shadow-raised: 10px 10px 20px #c4bee8, -6px -6px 12px #ffffff, inset 1px 1px 2px #fdfcff;
+  --shadow-raised-lg: 18px 18px 36px #b0a8d9, -12px -12px 24px #ffffff, inset 2px 2px 4px #fdfcff, 0 8px 32px rgba(125,107,196,.25);
+}
+
+.pricing-overlay.royal-indigo.dark-mode,
+.pricing-overlay.royal-indigo.dark-mode .pricing-modal,
+.pricing-overlay.royal-indigo.dark-mode .pricing-card {
+  --neuro-bg: #1a1628;
+  --neuro-bg-lighter: #221d30;
+  --neuro-shadow-dark: #0f0a18;
+  --neuro-shadow-light: #2a2438;
+  --neuro-text: #e8deff;
+  --neuro-text-light: #c4b3e8;
+  --neuro-accent: #7d6bc4;
+  --neuro-accent-light: #9d8fdb;
+}
+
+/* ------  IMAGE INVERSION (Dark Mode Only)  ------ */
+body.royal-indigo.dark-mode img {
+  filter: invert(1) brightness(1);
+}
+/* exclude avatars / CTA / tarot images */
+body.royal-indigo.dark-mode img[src*="/CTA/"],
+body.royal-indigo.dark-mode img[src*="/Tarot%20Cards%20images/"],
+body.royal-indigo.dark-mode .disc-avatar-img,
+body.royal-indigo.dark-mode .profile-avatar img,
+body.royal-indigo.dark-mode .member-mini-avatar img {
+  filter: none;
+}
+
+/* ------  ANIMATIONS  ------ */
+@keyframes royalPulse{
+  0%,100%{box-shadow:var(--shadow-raised-lg),var(--shadow-glow)}
+  50%{box-shadow:var(--shadow-raised-lg),var(--shadow-intense)}
+}
+@keyframes mysticalFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-3px)}
+}
+@keyframes purpleShimmer{
+  0%{background-position:-1000px 0}
+  100%{background-position:1000px 0}
+}
+@keyframes cosmicSheen{
+  0%{transform:translateX(-100%) skewX(-15deg)}
+  100%{transform:translateX(200%) skewX(-15deg)}
+}
+@keyframes starTwinkle{
+  0%,100%{opacity:.2;transform:scale(1)}
+  50%{opacity:.6;transform:scale(1.2)}
+}
+@keyframes goldAccent{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.2)}
+}
+
+/* ------  BODY BG & TEXTURES  ------ */
+body.royal-indigo{
+  background:var(--neuro-bg);
+  color:var(--neuro-text);
+  transition:all .5s cubic-bezier(.4,0,.2,1);
+  position:relative;
+}
+body.royal-indigo::before{
+  content:"";
+  position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+  background-image:
+    repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(125,107,196,.04) 10px,rgba(125,107,196,.04) 20px),
+    radial-gradient(circle at 20% 80%,rgba(157,143,219,.1) 0%,transparent 50%),
+    radial-gradient(circle at 80% 20%,rgba(212,175,55,.08) 0%,transparent 50%),
+    radial-gradient(circle at 50% 50%,rgba(125,107,196,.05) 0%,transparent 60%);
+}
+body.royal-indigo::after{
+  content:"";
+  position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3;
+  background-image:
+    radial-gradient(2px 2px at 20% 30%,rgba(157,143,219,.5),transparent),
+    radial-gradient(2px 2px at 60% 70%,rgba(212,175,55,.4),transparent),
+    radial-gradient(1px 1px at 50% 50%,rgba(157,143,219,.4),transparent),
+    radial-gradient(1px 1px at 80% 10%,rgba(125,107,196,.5),transparent),
+    radial-gradient(2px 2px at 90% 60%,rgba(212,175,55,.4),transparent),
+    radial-gradient(1px 1px at 33% 80%,rgba(157,143,219,.4),transparent);
+  background-size:200% 200%;
+  animation:starTwinkle 8s ease-in-out infinite;
+  will-change: opacity;
+}
+body.royal-indigo > *{position:relative;z-index:1}
+
+/* ------  ACTIVE TAB GRADIENT  ------ */
+body.royal-indigo .nav-item.active{
+  background:linear-gradient(135deg,var(--neuro-royal-dark) 0%,var(--neuro-royal) 25%,var(--neuro-royal-light) 50%,var(--neuro-royal-gold) 75%,var(--neuro-royal) 100%);
+  background-size:200% 200%;
+  color:#fff;
+  border-color:rgba(125,107,196,.6);
+  box-shadow:var(--shadow-inset),0 0 15px rgba(125,107,196,.4);
+  animation:purpleShimmer 3s linear infinite;
+  will-change: box-shadow;
+}
+
+/* ------  PRIMARY BTN ACCENT  ------ */
+body.royal-indigo .btn-primary,
+body.royal-indigo .community-link-btn{
+  background:linear-gradient(135deg,var(--neuro-royal-dark) 0%,var(--neuro-royal) 25%,var(--neuro-royal-light) 50%,var(--neuro-royal-gold) 75%,var(--neuro-royal) 100%);
+  background-size:200% 200%;
+  color:#fff;
+  animation:purpleShimmer 3s linear infinite;
+  box-shadow:var(--shadow-raised-lg),var(--shadow-glow),inset 0 1px 0 rgba(157,143,219,.4);
+  border:1px solid rgba(125,107,196,.5);
+  position:relative;overflow:hidden;
+  will-change: box-shadow;
+}
+body.royal-indigo .btn-primary::after{
+  content:"";
+  position:absolute;top:-50%;left:-100%;width:50%;height:200%;
+  background:linear-gradient(90deg,transparent,rgba(212,175,55,.3),transparent);
+  transform:skewX(-15deg);
+}
+body.royal-indigo .btn-primary:hover::after{animation:cosmicSheen 1.5s ease-in-out}
+body.royal-indigo .btn-primary:hover{background-position:100% 50%;box-shadow:var(--shadow-raised-lg),var(--shadow-intense),var(--shadow-gold),inset 0 1px 0 rgba(157,143,219,.5);transform:translateY(-2px)}
+
+/* ------  HEADER BAR + CTA FOOTER (updated selectors)  ------ */
+body.royal-indigo .main-header.project-curiosity,
+body.royal-indigo .community-link-card,
+body.royal-indigo .dashboard-community-sanctuary,
+body.royal-indigo .lunar-admin-header,
+body.royal-indigo .solar-admin-header,
+body.royal-indigo .app-header,
+body.royal-indigo .lux-footer .lux-toggle,
+body.royal-indigo .lux-footer #cta-toggle{
+  background:linear-gradient(135deg,var(--neuro-royal-dark) 0%,var(--neuro-royal) 25%,var(--neuro-royal-light) 50%,var(--neuro-royal-gold) 75%,var(--neuro-royal) 100%);
+  background-size:200% 200%;
+  box-shadow:var(--shadow-raised-lg),var(--shadow-intense),inset 0 2px 0 rgba(212,175,55,.3);
+  animation:royalPulse 6s ease-in-out infinite;
+  border:1px solid rgba(125,107,196,.5);
+  color:#fff;
+  will-change: box-shadow;
+}
+body.royal-indigo .main-header.project-curiosity h1,
+body.royal-indigo .main-header.project-curiosity h3,
+body.royal-indigo .app-header h1,
+body.royal-indigo .app-header p,
+body.royal-indigo .lux-footer .lux-text-group{
+  color:#fff;
+  text-shadow:0 2px 4px rgba(0,0,0,.4),0 4px 8px rgba(125,107,196,.4),0 2px 12px rgba(212,175,55,.3);
+  font-weight:800;
+}
+
+/* ------  GOLD ACCENTS (optional usage)  ------ */
+body.royal-indigo .gold-accent{
+  color:var(--neuro-royal-gold);
+  animation:goldAccent 3s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* ------  POPUP MENU TITLE FIX  ------ */
+body.royal-indigo #bubble-popup h3{
+  color:#2a2550 !important;
+}
+
+/* ------  RESPONSIVE  ------ */
+@media (max-width:768px){
+  body.royal-indigo{--shadow-raised:8px 8px 16px var(--neuro-shadow-dark),-6px -6px 12px var(--neuro-shadow-light)}
+}
+
+/* =========================================================
+   DARK MODE VARIANT
+   ========================================================= */
+body.royal-indigo.dark-mode {
+  /* Dark royal-indigo palette */
+  --neuro-bg: #1a1628;
+  --neuro-bg-lighter: #221d30;
+  --neuro-bg-lightest: #2a2438;
+  --neuro-shadow-dark: #0f0a18;
+  --neuro-shadow-darker: #080510;
+  --neuro-shadow-light: #2a2438;
+  --neuro-highlight: #332d48;
+
+  --neuro-text: #e8deff;
+  --neuro-text-light: #c4b3e8;
+  --neuro-text-lighter: #a495c9;
+  --neuro-text-dim: #7a6b9d;
+
+  /* Keep indigo & gold accents bright */
+  --neuro-accent: #7d6bc4;
+  --neuro-accent-light: #9d8fdb;
+  --neuro-accent-gold: #d4af37;
+  --neuro-royal: #7d6bc4;
+  --neuro-royal-dark: #6858a8;
+  --neuro-royal-light: #9d8fdb;
+  --neuro-royal-gold: #d4af37;
+  
+  /* Indigo glow shadows for dark mode */
+  --shadow-glow:
+    0 0 20px rgba(125,107,196,.5),
+    0 0 40px rgba(125,107,196,.3);
+  --shadow-intense:
+    0 0 30px rgba(125,107,196,.7),
+    0 0 60px rgba(125,107,196,.5);
+}
+
+/* Indigo borders for dark mode cards */
+body.royal-indigo.dark-mode .card,
+body.royal-indigo.dark-mode .neuro-card,
+body.royal-indigo.dark-mode .dashboard-gamification,
+body.royal-indigo.dark-mode .dashboard-quest-hub,
+body.royal-indigo.dark-mode .dashboard-daily-card,
+body.royal-indigo.dark-mode .dashboard-quote,
+body.royal-indigo.dark-mode .dashboard-achievements,
+body.royal-indigo.dark-mode .dashboard-wellness-toolkit,
+body.royal-indigo.dark-mode .karma-shop-balance,
+body.royal-indigo.dark-mode .karma-shop-item{
+  border: 1px solid rgba(125,107,196,.4);
+  box-shadow: var(--shadow-raised-lg), 0 0 15px rgba(125,107,196,.2);
+}
+
+body.royal-indigo.dark-mode .dashboard-quest-card:hover,
+body.royal-indigo.dark-mode .wellness-tool-btn:hover,
+body.royal-indigo.dark-mode .karma-shop-item:hover{
+  border-color: rgba(157,143,219,.6);
+  box-shadow: var(--shadow-raised-hover), var(--shadow-glow);
+}
+
+/* Indigo accent on active/interactive elements */
+body.royal-indigo.dark-mode .nav-item.active{
+  border-color: rgba(125,107,196,.6);
+  box-shadow: var(--shadow-inset-sm), 0 0 15px rgba(125,107,196,.3);
+}
+
+body.royal-indigo.dark-mode .btn-primary{
+  border: 1px solid rgba(125,107,196,.6);
+  box-shadow: var(--shadow-raised), var(--shadow-glow);
+}
+
+body.royal-indigo.dark-mode .btn-primary:hover{
+  box-shadow: var(--shadow-raised-hover), var(--shadow-intense);
+}
+
+/* =========================================================
+   CHAT-WINDOW TOKENS
+   ========================================================= */
+body.royal-indigo{
+  --chat-bg:var(--neuro-bg-lightest);
+  --chat-header-bg:var(--neuro-bg-lighter);
+  --chat-border:1px solid rgba(125,107,196,.25);
+  --chat-text:var(--neuro-text);
+  --chat-accent:var(--neuro-accent);
+  --chat-shadow:var(--shadow-raised-lg);
+  --chat-inset:var(--shadow-inset);
+  --chat-bot-bubble:var(--neuro-bg-lighter);
+  --chat-bot-text:var(--neuro-text) 0.95rem 500 'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --chat-bg-light:var(--neuro-bg-lighter);
+  --chat-bg-disabled:var(--neuro-shadow-dark);
+}
+body.royal-indigo.dark-mode{--chat-border:1px solid rgba(125,107,196,.35);}
+
+/* =========================================================
+   END ROYAL-INDIGO COMPLETE (updated for new CSS)
+   ========================================================= */
+
+/* =========================================================
+   COMMUNITY HUB PATCH  —  ROYAL INDIGO
+   ========================================================= */
+
+body.royal-indigo {
+  --neuro-accent-a08: rgba(125,107,196,0.08);
+  --neuro-accent-a10: rgba(125,107,196,0.10);
+  --neuro-accent-a20: rgba(125,107,196,0.20);
+  --neuro-accent-a30: rgba(125,107,196,0.30);
+  --neuro-warning-a10: rgba(212,175,55,0.10);
+}
+
+/* surfaces */
+body.royal-indigo .presence-widget, body.royal-indigo .practice-room,
+body.royal-indigo .collective-card, body.royal-indigo .wave-card,
+body.royal-indigo .active-members-grid,
+body.royal-indigo .reflection, body.royal-indigo .member-card,
+body.royal-indigo .member-card-mini, body.royal-indigo .event-card,
+body.royal-indigo .campfire-welcome, body.royal-indigo .campfire-msg,
+body.royal-indigo .campfire-sidebar-always-visible,
+body.royal-indigo .campfire-input-area, body.royal-indigo .presence-sanctuary,
+body.royal-indigo .celestial-card-full, body.royal-indigo .celestial-card,
+body.royal-indigo .ps-header, body.royal-indigo .sound-settings,
+body.royal-indigo .safety-menu, body.royal-indigo .ps-sidebar,
+body.royal-indigo .chat-msg {
+  background: var(--neuro-bg-lighter);
+  border: 1px solid rgba(125,107,196,0.30);
+  box-shadow: var(--shadow-raised);
+  color: var(--neuro-text);
+}
+body.royal-indigo .presence-widget:hover, body.royal-indigo .practice-room:hover,
+body.royal-indigo .collective-card:hover, body.royal-indigo .wave-card:hover,
+body.royal-indigo .member-card:hover, body.royal-indigo .event-card:hover,
+body.royal-indigo .celestial-card:hover {
+  border-color: rgba(157,143,219,0.60);
+  box-shadow: var(--shadow-raised-hover), var(--shadow-glow);
+}
+
+/* buttons */
+body.royal-indigo .join-btn, body.royal-indigo .join-btn-inline,
+body.royal-indigo .event-btn, body.royal-indigo .contrib-btn,
+body.royal-indigo .collective-action-btn {
+  background: linear-gradient(135deg,var(--neuro-royal-dark),var(--neuro-royal),var(--neuro-royal-light));
+  background-size: 200% 200%;
+  color: #fff;
+  border: 1px solid rgba(125,107,196,0.50);
+  box-shadow: var(--shadow-raised), var(--shadow-glow);
+  animation: purpleShimmer 3s linear infinite;
+  will-change: box-shadow;
+}
+body.royal-indigo .join-btn:hover, body.royal-indigo .join-btn-inline:hover,
+body.royal-indigo .event-btn:hover, body.royal-indigo .contrib-btn:hover,
+body.royal-indigo .collective-action-btn:hover {
+  box-shadow: var(--shadow-raised-hover), var(--shadow-intense);
+}
+
+/* chat */
+body.royal-indigo .campfire-input, body.royal-indigo .chat-input {
+  background: var(--neuro-bg-lightest);
+  border: 1px solid rgba(125,107,196,0.30);
+  color: var(--neuro-text);
+  box-shadow: var(--shadow-inset-sm);
+}
+body.royal-indigo .campfire-input:focus, body.royal-indigo .chat-input:focus {
+  border-color: rgba(125,107,196,0.60); outline: none;
+}
+body.royal-indigo .campfire-send, body.royal-indigo .chat-send {
+  background: linear-gradient(135deg,var(--neuro-royal-dark),var(--neuro-royal-light));
+  color: #fff; border: 1px solid rgba(125,107,196,0.50);
+  box-shadow: var(--shadow-raised);
+}
+body.royal-indigo .campfire-send:hover, body.royal-indigo .chat-send:hover {
+  box-shadow: var(--shadow-raised-hover), var(--shadow-glow);
+}
+
+/* profile */
+body.royal-indigo .profile-hero {
+  background: linear-gradient(135deg,var(--neuro-royal-dark),var(--neuro-bg-lighter));
+  border: 1px solid rgba(125,107,196,0.30); box-shadow: var(--shadow-raised-lg);
+}
+body.royal-indigo .profile-avatar { border: 3px solid rgba(125,107,196,0.60); box-shadow: 0 0 20px rgba(125,107,196,0.30); }
+body.royal-indigo .karma-badge { background: var(--neuro-bg-lightest); border: 1px solid rgba(125,107,196,0.40); color: var(--neuro-royal); }
+body.royal-indigo .role-spaceholder, body.royal-indigo .role-guide { background: var(--neuro-accent-a10); border: 1px solid rgba(125,107,196,0.40); color: var(--neuro-royal); }
+body.royal-indigo .profile-inspiration { background: var(--neuro-bg-lighter); border-left: 3px solid var(--neuro-royal); color: var(--neuro-text-light); }
+
+/* reflections */
+body.royal-indigo .ref-content { background: var(--neuro-bg-lighter); border: 1px solid rgba(125,107,196,0.25); }
+body.royal-indigo .ref-action:hover { color: var(--neuro-royal); }
+body.royal-indigo .ref-action:active { color: var(--neuro-royal-dark); }
+
+/* progress */
+body.royal-indigo .progress-fill, body.royal-indigo .prog-fill { background: linear-gradient(90deg,var(--neuro-royal-dark),var(--neuro-royal-light)); box-shadow: 0 0 8px rgba(125,107,196,0.40); }
+body.royal-indigo .progress-bar, body.royal-indigo .prog-bar { background: var(--neuro-bg); border: 1px solid rgba(125,107,196,0.25); box-shadow: var(--shadow-inset-sm); }
+
+/* controls */
+body.royal-indigo .view-toggle { background: var(--neuro-bg); border: 1px solid rgba(125,107,196,0.30); box-shadow: var(--shadow-inset-sm); }
+body.royal-indigo .v-btn.active { background: linear-gradient(135deg,var(--neuro-royal-dark),var(--neuro-royal-light)); color: #fff; box-shadow: 0 0 10px rgba(125,107,196,0.40); }
+body.royal-indigo .toggle-switch.active { background: var(--neuro-royal); }
+body.royal-indigo .sound-preview-btn { background: var(--neuro-bg-lighter); border: 1px solid rgba(125,107,196,0.30); color: var(--neuro-royal); }
+body.royal-indigo .sound-preview-btn:hover { border-color: rgba(125,107,196,0.60); box-shadow: 0 0 10px rgba(125,107,196,0.20); }
+
+/* safety & toast */
+body.royal-indigo .safety-bar { background: var(--neuro-bg-lighter); border-top: 1px solid rgba(125,107,196,0.30); }
+body.royal-indigo .safety-btn { background: var(--neuro-bg); border: 1px solid rgba(125,107,196,0.30); color: var(--neuro-text-light); }
+body.royal-indigo .safety-btn:hover { border-color: rgba(125,107,196,0.60); color: var(--neuro-royal); }
+body.royal-indigo .toast { background: var(--neuro-bg-lighter); border: 1px solid rgba(125,107,196,0.50); color: var(--neuro-text); box-shadow: var(--shadow-raised-lg),var(--shadow-glow); }
+
+/* ritual */
+body.royal-indigo .ritual-card { background: var(--neuro-bg-lighter); border: 2px solid rgba(125,107,196,0.50); box-shadow: var(--shadow-raised-lg),var(--shadow-glow); }
+body.royal-indigo .ritual-text { color: var(--neuro-text); }
+body.royal-indigo .ritual-btn { background: linear-gradient(135deg,var(--neuro-royal-dark),var(--neuro-royal-light)); color: #fff; border: 1px solid rgba(125,107,196,0.50); }
+
+/* celestial */
+body.royal-indigo .celestial-time, body.royal-indigo .time-value { color: var(--neuro-royal); }
+body.royal-indigo .next-phase, body.royal-indigo .next-season { border-top: 1px solid rgba(125,107,196,0.25); color: var(--neuro-text-light); }
+body.royal-indigo .moon-phase-name, body.royal-indigo .solar-season-name { color: var(--neuro-royal); font-weight: 700; }
+
+/* practice space */
+body.royal-indigo .ps-leave { background: var(--neuro-bg); border: 1px solid rgba(125,107,196,0.30); color: var(--neuro-text-light); }
+body.royal-indigo .ps-leave:hover { border-color: rgba(125,107,196,0.60); color: var(--neuro-royal); }
+body.royal-indigo .timer-display { color: var(--neuro-royal); }
+
+/* badges */
+body.royal-indigo .badge { background: var(--neuro-accent-a20); border: 1px solid rgba(125,107,196,0.40); color: var(--neuro-royal); }
+body.royal-indigo .badge-tooltip { background: var(--neuro-bg-lightest); border: 1px solid rgba(125,107,196,0.40); color: var(--neuro-text); box-shadow: var(--shadow-raised); }
+body.royal-indigo .member-mini-status { background: var(--neuro-royal); }
+
+/* misc */
+body.royal-indigo .campfire-participant:hover { background: var(--neuro-accent-a08); }
+body.royal-indigo .event-flyer img { filter: none; }
+body.royal-indigo #communityHubFullscreenContainer { background: var(--neuro-bg); color: var(--neuro-text); }
+
+/* dark mode */
+body.royal-indigo.dark-mode {
+  --neuro-accent-a08: rgba(125,107,196,0.08);
+  --neuro-accent-a10: rgba(125,107,196,0.10);
+  --neuro-accent-a20: rgba(125,107,196,0.20);
+  --neuro-accent-a30: rgba(125,107,196,0.30);
+  --neuro-warning-a10: rgba(212,175,55,0.10);
+}
+body.royal-indigo.dark-mode .presence-widget, body.royal-indigo.dark-mode .practice-room,
+body.royal-indigo.dark-mode .collective-card, body.royal-indigo.dark-mode .wave-card,
+body.royal-indigo.dark-mode .active-members-grid,
+body.royal-indigo.dark-mode .reflection, body.royal-indigo.dark-mode .member-card,
+body.royal-indigo.dark-mode .member-card-mini, body.royal-indigo.dark-mode .event-card,
+body.royal-indigo.dark-mode .campfire-welcome, body.royal-indigo.dark-mode .campfire-msg,
+body.royal-indigo.dark-mode .campfire-sidebar-always-visible,
+body.royal-indigo.dark-mode .campfire-input-area, body.royal-indigo.dark-mode .presence-sanctuary,
+body.royal-indigo.dark-mode .celestial-card-full, body.royal-indigo.dark-mode .celestial-card,
+body.royal-indigo.dark-mode .ps-header, body.royal-indigo.dark-mode .sound-settings,
+body.royal-indigo.dark-mode .safety-menu, body.royal-indigo.dark-mode .ps-sidebar,
+body.royal-indigo.dark-mode .chat-msg {
+  background: var(--neuro-bg-lighter);
+  border: 1px solid rgba(125,107,196,0.45);
+  box-shadow: var(--shadow-raised); color: var(--neuro-text);
+}
+body.royal-indigo.dark-mode .presence-widget:hover, body.royal-indigo.dark-mode .practice-room:hover,
+body.royal-indigo.dark-mode .collective-card:hover, body.royal-indigo.dark-mode .wave-card:hover,
+body.royal-indigo.dark-mode .member-card:hover, body.royal-indigo.dark-mode .event-card:hover,
+body.royal-indigo.dark-mode .celestial-card:hover { border-color: rgba(157,143,219,0.70); box-shadow: var(--shadow-raised-hover),var(--shadow-glow); }
+body.royal-indigo.dark-mode .join-btn, body.royal-indigo.dark-mode .join-btn-inline,
+body.royal-indigo.dark-mode .event-btn, body.royal-indigo.dark-mode .contrib-btn,
+body.royal-indigo.dark-mode .collective-action-btn { background: linear-gradient(135deg,var(--neuro-royal-dark),var(--neuro-royal),var(--neuro-royal-light)); color: #fff; border: 1px solid rgba(125,107,196,0.60); box-shadow: var(--shadow-raised),var(--shadow-glow); }
+body.royal-indigo.dark-mode .join-btn:hover, body.royal-indigo.dark-mode .event-btn:hover,
+body.royal-indigo.dark-mode .contrib-btn:hover { box-shadow: var(--shadow-raised-hover),var(--shadow-intense); }
+body.royal-indigo.dark-mode .campfire-input, body.royal-indigo.dark-mode .chat-input { background: var(--neuro-bg); border: 1px solid rgba(125,107,196,0.45); color: var(--neuro-text); }
+body.royal-indigo.dark-mode .campfire-send, body.royal-indigo.dark-mode .chat-send { background: linear-gradient(135deg,var(--neuro-royal-dark),var(--neuro-royal-light)); color: #fff; border: 1px solid rgba(125,107,196,0.60); }
+body.royal-indigo.dark-mode .profile-avatar { border-color: rgba(125,107,196,0.70); box-shadow: 0 0 20px rgba(125,107,196,0.50); }
+body.royal-indigo.dark-mode .karma-badge { color: var(--neuro-royal-light); border-color: rgba(125,107,196,0.50); }
+body.royal-indigo.dark-mode .role-spaceholder, body.royal-indigo.dark-mode .role-guide { color: var(--neuro-royal-light); }
+body.royal-indigo.dark-mode .profile-inspiration { border-left-color: var(--neuro-royal); }
+body.royal-indigo.dark-mode .progress-fill, body.royal-indigo.dark-mode .prog-fill { background: linear-gradient(90deg,var(--neuro-royal-dark),var(--neuro-royal-light)); box-shadow: 0 0 10px rgba(125,107,196,0.50); }
+body.royal-indigo.dark-mode .progress-bar, body.royal-indigo.dark-mode .prog-bar { background: var(--neuro-bg); border-color: rgba(125,107,196,0.30); }
+body.royal-indigo.dark-mode .v-btn.active { background: linear-gradient(135deg,var(--neuro-royal-dark),var(--neuro-royal-light)); color: #fff; }
+body.royal-indigo.dark-mode .toggle-switch.active { background: var(--neuro-royal); box-shadow: 0 0 10px rgba(125,107,196,0.50); }
+body.royal-indigo.dark-mode .safety-bar { border-top-color: rgba(125,107,196,0.50); }
+body.royal-indigo.dark-mode .toast { border-color: rgba(125,107,196,0.60); box-shadow: var(--shadow-raised-lg),var(--shadow-glow); }
+body.royal-indigo.dark-mode .ritual-card { border-color: rgba(125,107,196,0.60); box-shadow: var(--shadow-raised-lg),var(--shadow-glow); }
+body.royal-indigo.dark-mode .celestial-time, body.royal-indigo.dark-mode .time-value { color: var(--neuro-royal-light); text-shadow: var(--shadow-glow); }
+body.royal-indigo.dark-mode .moon-phase-name, body.royal-indigo.dark-mode .solar-season-name { color: var(--neuro-royal-light); }
+body.royal-indigo.dark-mode .timer-display { color: var(--neuro-royal-light); text-shadow: var(--shadow-glow); }
+body.royal-indigo.dark-mode .badge { border-color: rgba(125,107,196,0.50); color: var(--neuro-royal-light); }
+body.royal-indigo.dark-mode .member-mini-status { background: var(--neuro-royal); }
+body.royal-indigo.dark-mode .campfire-participant:hover { background: var(--neuro-accent-a10); }
+body.royal-indigo.dark-mode .event-flyer img { filter: none; }
+body.royal-indigo.dark-mode #communityHubFullscreenContainer { background: var(--neuro-bg); color: var(--neuro-text); }
+
+/* =========================================================
+   END COMMUNITY HUB PATCH  —  ROYAL INDIGO
+   ========================================================= */

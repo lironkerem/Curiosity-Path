@@ -1,0 +1,855 @@
+/* =========================================================
+   DIGITAL CURIOSITY — MATRIX CODE SKIN (OPTIMIZED)
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+/* ===== MATRIX RAIN CONTAINER ===== */
+body.matrix-code .matrix-rain-container,
+body.matrix-code.dark-mode .matrix-rain-container {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background: transparent !important;
+}
+
+body.matrix-code .matrix-column,
+body.matrix-code.dark-mode .matrix-column {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 0.5 !important;
+  pointer-events: none !important;
+}
+
+body.matrix-code #app-container,
+body.matrix-code #main-app,
+body.matrix-code #main-content,
+body.matrix-code .tab-content,
+body.matrix-code .mobile-bottom-bar,
+body.matrix-code .mobile-sheet,
+body.matrix-code .user-menu,
+body.matrix-code .lux-footer {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* ===== CSS VARIABLES - GREEN THEME ===== */
+body.matrix-code {
+  --neuro-bg: #0d0208;
+  --neuro-bg-lighter: #1a1410;
+  --neuro-bg-lightest: #252018;
+  --neuro-shadow-dark: #000000;
+  --neuro-shadow-darker: #000000;
+  --neuro-shadow-light: #1a1410;
+  --neuro-highlight: #252018;
+
+  --neuro-text: #00ff41;
+  --neuro-text-light: #00cc33;
+  --neuro-text-lighter: #00aa2b;
+  --neuro-text-dim: #008822;
+
+  --neuro-accent: #00ff41;
+  --neuro-accent-light: #33ff66;
+  --neuro-accent-dark: #00cc33;
+
+  --neuro-matrix: #00ff41;
+  --neuro-matrix-dark: #00cc33;
+  --neuro-matrix-light: #33ff66;
+
+  --neuro-success: #00ff41;
+  --neuro-warning: #ffff00;
+  --neuro-error: #ff0055;
+  --neuro-info: #00ffff;
+
+  --shadow-raised: 0 0 10px rgba(0,255,65,.3), 0 0 20px rgba(0,255,65,.2), inset 0 0 5px rgba(0,255,65,.1);
+  --shadow-raised-lg: 0 0 15px rgba(0,255,65,.4), 0 0 30px rgba(0,255,65,.3), 0 0 45px rgba(0,255,65,.2), inset 0 0 10px rgba(0,255,65,.15);
+  --shadow-raised-hover: 0 0 20px rgba(0,255,65,.5), 0 0 40px rgba(0,255,65,.4), 0 0 60px rgba(0,255,65,.3), inset 0 0 10px rgba(0,255,65,.2);
+  --shadow-inset: inset 0 0 10px rgba(0,255,65,.3), inset 0 0 20px rgba(0,0,0,.8);
+  --shadow-inset-sm: inset 0 0 5px rgba(0,255,65,.2), inset 0 0 10px rgba(0,0,0,.6);
+  --shadow-inset-lg: inset 0 0 15px rgba(0,255,65,.4), inset 0 0 30px rgba(0,0,0,.9);
+  --shadow-glow: 0 0 20px rgba(0,255,65,.6), 0 0 40px rgba(0,255,65,.4), 0 0 60px rgba(0,255,65,.3), 0 0 80px rgba(0,255,65,.2);
+  --shadow-intense: 0 0 30px rgba(0,255,65,.8), 0 0 60px rgba(0,255,65,.6), 0 0 90px rgba(0,255,65,.4), 0 4px 20px rgba(0,255,65,.5);
+  --shadow-text: 0 0 5px rgba(0,255,65,.8), 0 0 10px rgba(0,255,65,.6), 0 0 15px rgba(0,255,65,.4);
+
+  --chat-bg: rgba(37,32,24,.9);
+  --chat-border: 1px solid rgba(0,255,65,.3);
+  --chat-text: var(--neuro-text);
+  --chat-accent: var(--neuro-accent);
+
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
+}
+
+.pricing-overlay.matrix-code,
+.pricing-overlay.matrix-code .pricing-modal,
+.pricing-overlay.matrix-code .pricing-card {
+  --neuro-bg: #0d0208;
+  --neuro-text: #00ff41;
+  --neuro-accent: #00ff41;
+  --shadow-raised: 0 0 10px rgba(0,255,65,.3), 0 0 20px rgba(0,255,65,.2);
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes digitalRain { 0% { background-position: 0 0; } 100% { background-position: 0 100vh; } }
+@keyframes matrixPulse { 0%, 100% { box-shadow: var(--shadow-raised-lg), var(--shadow-glow); } 50% { box-shadow: var(--shadow-raised-lg), var(--shadow-intense); } }
+@keyframes crtFlicker { 0%, 100% { opacity: 1; } 50% { opacity: .97; } 51% { opacity: 1; } 60% { opacity: .98; } }
+@keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(100vh); } }
+@keyframes dataStream { 0% { transform: translateX(-100%) skewX(-15deg); } 100% { transform: translateX(200%) skewX(-15deg); } }
+@keyframes glitchShift { 0%, 100% { transform: translate(0); } 33% { transform: translate(-2px, 1px); } 66% { transform: translate(2px, -1px); } }
+@keyframes terminalBlink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes phosphorGlow { 0%, 100% { text-shadow: var(--shadow-text); } 50% { text-shadow: 0 0 10px rgba(0,255,65,1), 0 0 20px rgba(0,255,65,.8); } }
+
+/* ===== BODY & BACKGROUND ===== */
+body.matrix-code {
+  background: var(--neuro-bg);
+  color: var(--neuro-text);
+  transition: all .5s cubic-bezier(.4,0,.2,1);
+  position: relative;
+  overflow-x: hidden;
+}
+
+body.matrix-code::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: .4;
+  background-image:
+    linear-gradient(0deg, transparent 0%, rgba(0,255,65,.4) 10%, transparent 20%),
+    repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(0,255,65,.2) 20px, rgba(0,255,65,.2) 21px);
+  animation: digitalRain 20s linear infinite;
+  will-change: opacity;
+}
+
+body.matrix-code > *:not(.matrix-bg) { position: relative; z-index: 2; }
+
+body.matrix-code .scanline-overlay {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: .05;
+  background: linear-gradient(180deg, transparent 0%, rgba(0,255,65,.3) 50%, transparent 100%);
+  height: 200px;
+  animation: scanline 8s linear infinite;
+  will-change: opacity;
+}
+
+body.matrix-code #main-app,
+body.matrix-code .app-container,
+body.matrix-code .tab-content,
+body.matrix-code .tab-pane,
+body.matrix-code .min-h-screen { background: transparent !important; }
+
+body.matrix-code .tab-content { padding-bottom: 140px !important; }
+
+/* ===== NAVIGATION ===== */
+body.matrix-code .nav-tabs {
+  background: rgba(0,255,65,.5);
+  border: 1px solid var(--neuro-matrix);
+  box-shadow: var(--shadow-raised);
+}
+
+body.matrix-code .nav-item {
+  background: rgba(0,255,65,.05);
+  border: 1px solid var(--neuro-matrix);
+}
+
+body.matrix-code .nav-item.active {
+  background: rgba(0,255,65,.1);
+  color: var(--neuro-matrix);
+  border: 1px solid var(--neuro-matrix);
+  box-shadow: var(--shadow-inset-sm), var(--shadow-glow);
+  text-shadow: var(--shadow-text);
+  position: relative;
+}
+
+body.matrix-code .nav-item.active::after {
+  content: "ONLINE █";
+  animation: terminalBlink 1s infinite;
+  margin-left: 4px;
+  will-change: transform;
+}
+
+/* ===== BUTTONS ===== */
+body.matrix-code .btn-primary,
+body.matrix-code .community-link-btn {
+  background: rgba(0,255,65,.05);
+  color: var(--neuro-matrix);
+  border: 2px solid var(--neuro-matrix);
+  box-shadow: var(--shadow-glow);
+  text-shadow: var(--shadow-text);
+  position: relative;
+  overflow: hidden;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+body.matrix-code .btn-primary::before { content: ">"; margin-right: 8px; }
+
+body.matrix-code .btn-primary::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -100%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(90deg, transparent, rgba(0,255,65,.4), transparent);
+  transform: skewX(-15deg);
+}
+
+body.matrix-code .btn-primary:hover::after { animation: dataStream 1s ease-in-out; }
+
+body.matrix-code .btn-primary:hover {
+  background: rgba(0,255,65,.15);
+  box-shadow: var(--shadow-intense);
+  transform: translateY(-2px);
+  animation: glitchShift .3s ease-in-out;
+}
+
+/* ===== HEADERS & FOOTER ===== */
+body.matrix-code .main-header.project-curiosity,
+body.matrix-code .community-link-card,
+body.matrix-code .dashboard-community-sanctuary,
+body.matrix-code .lunar-admin-header,
+body.matrix-code .solar-admin-header,
+body.matrix-code .app-header,
+body.matrix-code .lux-footer .lux-toggle,
+body.matrix-code .lux-footer #cta-toggle {
+  background: rgba(0,255,65,.5);
+  border: 2px solid var(--neuro-matrix);
+  box-shadow: var(--shadow-raised-lg), var(--shadow-glow);
+  animation: matrixPulse 6s ease-in-out infinite;
+  color: var(--neuro-matrix);
+  position: relative;
+  will-change: box-shadow;
+}
+
+body.matrix-code .main-header.project-curiosity::before,
+body.matrix-code .app-header::before,
+body.matrix-code .lux-footer .lux-toggle::before,
+body.matrix-code .lux-footer #cta-toggle::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,65,.03) 2px, rgba(0,255,65,.03) 4px);
+  pointer-events: none;
+  animation: crtFlicker 3s infinite;
+  will-change: transform;
+}
+
+body.matrix-code .main-header.project-curiosity h1,
+body.matrix-code .main-header.project-curiosity h3,
+body.matrix-code .app-header h1,
+body.matrix-code .app-header p,
+body.matrix-code .lux-footer .lux-text-group {
+  color: var(--neuro-matrix);
+  text-shadow: var(--shadow-text);
+  font-weight: 700;
+  letter-spacing: 2px;
+  animation: phosphorGlow 4s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* ===== CARDS ===== */
+body.matrix-code .card,
+body.matrix-code .neuro-card,
+body.matrix-code .dashboard-gamification,
+body.matrix-code .dashboard-quest-hub,
+body.matrix-code .dashboard-daily-card,
+body.matrix-code .dashboard-quote,
+body.matrix-code .dashboard-achievements,
+body.matrix-code .dashboard-wellness-toolkit {
+  background: rgba(13,2,8,.85) !important;
+  border: 1px solid rgba(0,255,65,.3);
+  box-shadow: var(--shadow-raised), 0 0 15px rgba(0,255,65,.2);
+  backdrop-filter: blur(10px);
+}
+
+body.matrix-code .card:hover,
+body.matrix-code .neuro-card:hover,
+body.matrix-code .dashboard-quest-card:hover {
+  border-color: var(--neuro-matrix);
+  box-shadow: var(--shadow-raised-hover);
+  background: rgba(13,2,8,.95) !important;
+}
+
+/* ===== POPUP ===== */
+body.matrix-code #bubble-popup {
+  background: rgba(0,255,65,.08);
+  border: 2px solid var(--neuro-matrix);
+  box-shadow: var(--shadow-raised-lg), var(--shadow-glow);
+}
+
+body.matrix-code #bubble-popup h3 {
+  color: var(--neuro-matrix) !important;
+  text-shadow: var(--shadow-text);
+}
+
+body.matrix-code #bubble-popup .wellness-tool-btn,
+body.matrix-code #bubble-popup button {
+  background: rgba(0,255,65,.05);
+  border: 1px solid var(--neuro-matrix);
+}
+
+/* ===== FORMS ===== */
+body.matrix-code input,
+body.matrix-code textarea,
+body.matrix-code select {
+  background: rgba(0,255,65,.05);
+  border: 1px solid var(--neuro-matrix);
+  color: var(--neuro-matrix);
+  box-shadow: var(--shadow-inset-sm);
+}
+
+body.matrix-code input:focus,
+body.matrix-code textarea:focus,
+body.matrix-code select:focus {
+  outline: none;
+  border-color: var(--neuro-matrix-light);
+  box-shadow: var(--shadow-glow);
+}
+
+/* ===== SCROLLBAR ===== */
+body.matrix-code ::-webkit-scrollbar { width: 12px; background: rgba(0,0,0,.8); }
+body.matrix-code ::-webkit-scrollbar-thumb { background: var(--neuro-matrix); box-shadow: inset 0 0 10px rgba(0,255,65,.5); }
+body.matrix-code ::-webkit-scrollbar-thumb:hover { background: var(--neuro-matrix-light); }
+
+/* ===== USER MENU ===== */
+body.matrix-code .user-menu {
+  position: fixed !important;
+  top: 20px !important;
+  right: 20px !important;
+  left: auto !important;
+  z-index: 1001 !important;
+}
+
+body.matrix-code .user-menu-btn {
+  background: rgba(0, 255, 65, 0.1) !important;
+  border: 1px solid var(--neuro-matrix) !important;
+  box-shadow: var(--shadow-glow) !important;
+}
+
+body.matrix-code .user-menu-btn:hover {
+  background: rgba(0, 255, 65, 0.2) !important;
+  box-shadow: var(--shadow-intense) !important;
+}
+
+body.matrix-code .terminal-cursor::after {
+  content: "█";
+  animation: terminalBlink 1s infinite;
+  margin-left: 2px;
+  color: var(--neuro-matrix);
+  will-change: transform;
+}
+
+/* ===== MOBILE ELEMENTS ===== */
+body.matrix-code .mobile-bottom-bar {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 72px !important;
+  z-index: 98 !important;
+  display: flex !important;
+  background: rgba(0,255,65,.5) !important;
+  border-top: 2px solid var(--neuro-matrix) !important;
+  box-shadow: 0 -4px 12px rgba(0,255,65,.5), 0 -8px 24px rgba(0,255,65,.3) !important;
+}
+
+body.matrix-code .mobile-tab {
+  flex: 1 1 33% !important;
+  height: 100% !important;
+  border: none !important;
+  background: transparent !important;
+  cursor: pointer !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  color: rgba(0,0,0,.7) !important;
+  font-size: 14px !important;
+  transition: background .2s !important;
+}
+
+body.matrix-code .mobile-tab.active {
+  color: #000 !important;
+  font-weight: 700 !important;
+  text-shadow: 0 0 8px rgba(0,255,65,1);
+}
+
+body.matrix-code .mobile-tab:active {
+  background: rgba(0,255,65,.3) !important;
+}
+
+body.matrix-code .mobile-sheet {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  max-height: 75vh !important;
+  z-index: 100 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  transform: translateY(110%) !important;
+  transition: transform .3s cubic-bezier(.4, 0, .2, 1) !important;
+  background: rgba(0,255,65,.5) !important;
+  border-top: 2px solid var(--neuro-matrix) !important;
+  box-shadow: 0 -8px 32px rgba(0,255,65,.4) !important;
+  border-radius: 24px 24px 0 0 !important;
+}
+
+body.matrix-code .mobile-sheet[aria-hidden="false"] {
+  transform: translateY(0) !important;
+}
+
+body.matrix-code .sheet-grip {
+  width: 40px !important;
+  height: 4px !important;
+  background: rgba(0,200,50,.8) !important;
+  border-radius: 2px !important;
+  margin: 12px auto 6px !important;
+}
+
+body.matrix-code .sheet-header {
+  padding: 12px 24px 20px !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+  color: #000 !important;
+  text-shadow: 0 0 8px rgba(0,255,65,1);
+}
+
+body.matrix-code .sheet-scroller {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  padding: 12px 16px 24px !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+body.matrix-code .sheet-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 20px !important;
+  padding: 0px 1px !important;
+  margin-bottom: 10px !important;
+  border-radius: 14px !important;
+  cursor: pointer !important;
+  background: rgba(0,255,65,.3) !important;
+  border: 1px solid rgba(0,255,65,.5);
+  box-shadow: 0 0 10px rgba(0,255,65,.2);
+}
+
+body.matrix-code .sheet-row:active {
+  background: rgba(0,255,65,.5) !important;
+  box-shadow: inset 0 0 10px rgba(0,255,65,.3);
+}
+
+body.matrix-code .sheet-row span {
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  color: #000 !important;
+}
+
+body.matrix-code .sheet-scrim {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  z-index: 99 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.3s ease !important;
+  display: block !important;
+}
+
+body.matrix-code .sheet-scrim.visible {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+body.matrix-code.sheet-open {
+  overflow: hidden !important;
+  height: 100vh !important;
+}
+
+body.matrix-code.sheet-open .lux-footer {
+  z-index: 95 !important;
+}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media (max-width: 768px) {
+  body.matrix-code {
+    --shadow-raised: 0 0 8px rgba(0,255,65,.3);
+    --shadow-raised-lg: 0 0 12px rgba(0,255,65,.4);
+  }
+}
+
+@media (max-width: 767px) {
+  body.matrix-code .mobile-bottom-bar,
+  body.matrix-code .mobile-sheet,
+  body.matrix-code .sheet-scrim {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 768px) {
+  body.matrix-code .mobile-bottom-bar,
+  body.matrix-code .mobile-sheet,
+  body.matrix-code .sheet-scrim {
+    display: none !important;
+  }
+}
+
+/* =========================================================
+   DARK MODE - RED MATRIX THEME
+   ========================================================= */
+body.matrix-code.dark-mode {
+  --neuro-bg: #0d0208;
+  --neuro-bg-lighter: #1a1410;
+  --neuro-bg-lightest: #252018;
+  --neuro-shadow-dark: #000000;
+  --neuro-shadow-darker: #000000;
+  --neuro-shadow-light: #1a1410;
+  --neuro-highlight: #252018;
+
+  --neuro-text: #ff0041;
+  --neuro-text-light: #cc0033;
+  --neuro-text-lighter: #aa002b;
+  --neuro-text-dim: #880022;
+
+  --neuro-accent: #ff0041;
+  --neuro-accent-light: #ff3366;
+  --neuro-accent-dark: #cc0033;
+
+  --neuro-matrix: #ff0041;
+  --neuro-matrix-dark: #cc0033;
+  --neuro-matrix-light: #ff3366;
+
+  --neuro-success: #ff0041;
+  --neuro-warning: #ffff00;
+  --neuro-error: #ff0055;
+  --neuro-info: #00ffff;
+
+  --shadow-raised: 0 0 10px rgba(255,0,65,.3), 0 0 20px rgba(255,0,65,.2), inset 0 0 5px rgba(255,0,65,.1);
+  --shadow-raised-lg: 0 0 15px rgba(255,0,65,.4), 0 0 30px rgba(255,0,65,.3), 0 0 45px rgba(255,0,65,.2), inset 0 0 10px rgba(255,0,65,.15);
+  --shadow-raised-hover: 0 0 20px rgba(255,0,65,.5), 0 0 40px rgba(255,0,65,.4), 0 0 60px rgba(255,0,65,.3), inset 0 0 10px rgba(255,0,65,.2);
+  --shadow-inset: inset 0 0 10px rgba(255,0,65,.3), inset 0 0 20px rgba(0,0,0,.8);
+  --shadow-inset-sm: inset 0 0 5px rgba(255,0,65,.2), inset 0 0 10px rgba(0,0,0,.6);
+  --shadow-inset-lg: inset 0 0 15px rgba(255,0,65,.4), inset 0 0 30px rgba(0,0,0,.9);
+  --shadow-glow: 0 0 20px rgba(255,0,65,.6), 0 0 40px rgba(255,0,65,.4), 0 0 60px rgba(255,0,65,.3), 0 0 80px rgba(255,0,65,.2);
+  --shadow-intense: 0 0 30px rgba(255,0,65,.8), 0 0 60px rgba(255,0,65,.6), 0 0 90px rgba(255,0,65,.4), 0 4px 20px rgba(255,0,65,.5);
+  --shadow-text: 0 0 5px rgba(255,0,65,.8), 0 0 10px rgba(255,0,65,.6), 0 0 15px rgba(255,0,65,.4);
+
+  --chat-border: 1px solid rgba(255,0,65,.3);
+}
+
+.pricing-overlay.matrix-code.dark-mode,
+.pricing-overlay.matrix-code.dark-mode .pricing-modal,
+.pricing-overlay.matrix-code.dark-mode .pricing-card {
+  --neuro-text: #ff0041;
+  --neuro-accent: #ff0041;
+  --shadow-raised: 0 0 10px rgba(255,0,65,.3), 0 0 20px rgba(255,0,65,.2);
+}
+
+body.matrix-code.dark-mode::before {
+  background-image:
+    linear-gradient(0deg, transparent 0%, rgba(255,0,65,.4) 10%, transparent 20%),
+    repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(255,0,65,.2) 20px, rgba(255,0,65,.2) 21px);
+}
+
+body.matrix-code.dark-mode .scanline-overlay {
+  background: linear-gradient(180deg, transparent 0%, rgba(255,0,65,.3) 50%, transparent 100%);
+}
+
+body.matrix-code.dark-mode .card,
+body.matrix-code.dark-mode .neuro-card,
+body.matrix-code.dark-mode .dashboard-gamification,
+body.matrix-code.dark-mode .dashboard-quest-hub,
+body.matrix-code.dark-mode .dashboard-daily-card,
+body.matrix-code.dark-mode .dashboard-quote,
+body.matrix-code.dark-mode .dashboard-achievements,
+body.matrix-code.dark-mode .dashboard-wellness-toolkit,
+body.matrix-code.dark-mode .karma-shop-balance,
+body.matrix-code.dark-mode .karma-shop-item {
+  background: rgba(13,2,8,.85) !important;
+  border: 1px solid rgba(255,0,65,.3);
+  box-shadow: var(--shadow-raised), 0 0 15px rgba(255,0,65,.2);
+}
+
+body.matrix-code.dark-mode .card:hover,
+body.matrix-code.dark-mode .neuro-card:hover,
+body.matrix-code.dark-mode .dashboard-quest-card:hover,
+body.matrix-code.dark-mode .wellness-tool-btn:hover,
+body.matrix-code.dark-mode .karma-shop-item:hover {
+  border-color: var(--neuro-matrix);
+  box-shadow: var(--shadow-raised-hover);
+  background: rgba(13,2,8,.95) !important;
+}
+
+body.matrix-code.dark-mode .nav-item.active {
+  background: rgba(255,0,65,.1);
+  box-shadow: var(--shadow-inset-sm), var(--shadow-glow);
+}
+
+body.matrix-code.dark-mode .btn-primary {
+  background: rgba(255,0,65,.05);
+  box-shadow: var(--shadow-glow);
+}
+
+body.matrix-code.dark-mode .btn-primary:hover {
+  background: rgba(255,0,65,.15);
+  box-shadow: var(--shadow-intense);
+}
+
+body.matrix-code.dark-mode .main-header.project-curiosity,
+body.matrix-code.dark-mode .app-header,
+body.matrix-code.dark-mode .lux-footer .lux-toggle,
+body.matrix-code.dark-mode .lux-footer #cta-toggle {
+  background: rgba(255,0,65,.5);
+}
+
+body.matrix-code.dark-mode .nav-tabs {
+  background: rgba(255,0,65,.5);
+}
+
+body.matrix-code.dark-mode ::-webkit-scrollbar-thumb {
+  background: var(--neuro-matrix);
+  box-shadow: inset 0 0 10px rgba(255,0,65,.5);
+}
+
+/* ===== DARK MODE MOBILE ===== */
+body.matrix-code.dark-mode .mobile-bottom-bar {
+  background: rgba(255,0,65,.5) !important;
+  border-top: 2px solid var(--neuro-matrix) !important;
+  box-shadow: 0 -4px 12px rgba(255,0,65,.5), 0 -8px 24px rgba(255,0,65,.3) !important;
+}
+
+body.matrix-code.dark-mode .mobile-tab {
+  color: rgba(0,0,0,.7) !important;
+}
+
+body.matrix-code.dark-mode .mobile-tab.active {
+  color: #000 !important;
+  font-weight: 700 !important;
+  text-shadow: 0 0 8px rgba(255,0,65,1);
+}
+
+body.matrix-code.dark-mode .mobile-tab:active {
+  background: rgba(255,0,65,.3) !important;
+}
+
+body.matrix-code.dark-mode .mobile-sheet {
+  background: rgba(255,0,65,.5) !important;
+  border-top: 2px solid var(--neuro-matrix) !important;
+  box-shadow: 0 -8px 32px rgba(255,0,65,.4) !important;
+}
+
+body.matrix-code.dark-mode .sheet-grip {
+  background: rgba(200,0,50,.8) !important;
+}
+
+body.matrix-code.dark-mode .sheet-header {
+  text-shadow: 0 0 8px rgba(255,0,65,1);
+}
+
+body.matrix-code.dark-mode .sheet-row {
+  background: rgba(255,0,65,.3) !important;
+  border: 1px solid rgba(255,0,65,.5);
+  box-shadow: 0 0 10px rgba(255,0,65,.2);
+}
+
+body.matrix-code.dark-mode .sheet-row:active {
+  background: rgba(255,0,65,.5) !important;
+  box-shadow: inset 0 0 10px rgba(255,0,65,.3);
+}
+
+/* =========================================================
+   END MATRIX CODE - OPTIMIZED & CONSOLIDATED
+   ========================================================= */
+
+/* =========================================================
+   COMMUNITY HUB PATCH  —  MATRIX CODE
+   ========================================================= */
+
+body.matrix-code {
+  --neuro-forest: #00ff41;
+  --neuro-forest-dark: #00cc33;
+  --neuro-forest-light: #33ff66;
+  --neuro-accent-a08: rgba(0,255,65,0.08);
+  --neuro-accent-a10: rgba(0,255,65,0.10);
+  --neuro-accent-a20: rgba(0,255,65,0.20);
+  --neuro-accent-a30: rgba(0,255,65,0.30);
+  --neuro-warning-a10: rgba(255,255,0,0.10);
+}
+
+body.matrix-code .presence-widget, body.matrix-code .practice-room,
+body.matrix-code .collective-card, body.matrix-code .wave-card,
+body.matrix-code .active-members-grid,
+body.matrix-code .reflection, body.matrix-code .member-card,
+body.matrix-code .member-card-mini, body.matrix-code .event-card,
+body.matrix-code .campfire-welcome, body.matrix-code .campfire-msg,
+body.matrix-code .campfire-sidebar-always-visible,
+body.matrix-code .campfire-input-area, body.matrix-code .presence-sanctuary,
+body.matrix-code .celestial-card-full, body.matrix-code .celestial-card,
+body.matrix-code .ps-header, body.matrix-code .sound-settings,
+body.matrix-code .safety-menu, body.matrix-code .ps-sidebar,
+body.matrix-code .chat-msg {
+  background: rgba(13,2,8,0.85);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(0,255,65,0.30);
+  box-shadow: var(--shadow-raised);
+  color: var(--neuro-text);
+  font-family: 'Share Tech Mono','Courier New',monospace;
+}
+body.matrix-code .presence-widget:hover, body.matrix-code .practice-room:hover,
+body.matrix-code .collective-card:hover, body.matrix-code .wave-card:hover,
+body.matrix-code .member-card:hover, body.matrix-code .event-card:hover,
+body.matrix-code .celestial-card:hover { border-color: rgba(0,255,65,0.65); box-shadow: var(--shadow-raised-hover),var(--shadow-glow); }
+
+body.matrix-code .join-btn, body.matrix-code .join-btn-inline,
+body.matrix-code .event-btn, body.matrix-code .contrib-btn,
+body.matrix-code .collective-action-btn {
+  background: rgba(0,255,65,0.12); color: #00ff41;
+  border: 1px solid rgba(0,255,65,0.55);
+  box-shadow: var(--shadow-raised),0 0 10px rgba(0,255,65,0.30);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  font-family: 'Share Tech Mono',monospace;
+}
+body.matrix-code .join-btn:hover, body.matrix-code .join-btn-inline:hover,
+body.matrix-code .event-btn:hover, body.matrix-code .contrib-btn:hover,
+body.matrix-code .collective-action-btn:hover { background: rgba(0,255,65,0.20); box-shadow: var(--shadow-raised-hover),var(--shadow-glow); color: #33ff66; }
+
+body.matrix-code .campfire-input, body.matrix-code .chat-input {
+  background: rgba(0,0,0,0.60); border: 1px solid rgba(0,255,65,0.35);
+  color: #00ff41; font-family: 'Share Tech Mono',monospace;
+  box-shadow: var(--shadow-inset-sm);
+}
+body.matrix-code .campfire-input:focus, body.matrix-code .chat-input:focus { border-color: rgba(0,255,65,0.70); outline: none; box-shadow: var(--shadow-inset-sm),0 0 8px rgba(0,255,65,0.30); }
+body.matrix-code .campfire-send, body.matrix-code .chat-send {
+  background: rgba(0,255,65,0.15); color: #00ff41;
+  border: 1px solid rgba(0,255,65,0.50); box-shadow: var(--shadow-raised);
+  text-transform: uppercase; font-family: 'Share Tech Mono',monospace;
+}
+body.matrix-code .campfire-send:hover, body.matrix-code .chat-send:hover { background: rgba(0,255,65,0.25); box-shadow: var(--shadow-raised-hover),var(--shadow-glow); }
+
+body.matrix-code .profile-hero { background: rgba(13,2,8,0.90); backdrop-filter: blur(6px); border: 1px solid rgba(0,255,65,0.35); box-shadow: var(--shadow-raised-lg); }
+body.matrix-code .profile-avatar { border: 3px solid rgba(0,255,65,0.60); box-shadow: 0 0 20px rgba(0,255,65,0.50); }
+body.matrix-code .karma-badge { background: rgba(0,255,65,0.08); border: 1px solid rgba(0,255,65,0.40); color: #00ff41; }
+body.matrix-code .role-spaceholder, body.matrix-code .role-guide { background: rgba(0,255,65,0.08); border: 1px solid rgba(0,255,65,0.40); color: #00ff41; }
+body.matrix-code .profile-inspiration { background: rgba(0,0,0,0.40); border-left: 3px solid #00ff41; color: var(--neuro-text-light); }
+
+body.matrix-code .ref-content { background: rgba(0,0,0,0.50); border: 1px solid rgba(0,255,65,0.25); }
+body.matrix-code .ref-action:hover { color: #33ff66; text-shadow: var(--shadow-text); }
+body.matrix-code .ref-action:active { color: #00cc33; }
+
+body.matrix-code .progress-fill, body.matrix-code .prog-fill { background: linear-gradient(90deg,#00cc33,#33ff66); box-shadow: 0 0 10px rgba(0,255,65,0.60); }
+body.matrix-code .progress-bar, body.matrix-code .prog-bar { background: rgba(0,0,0,0.60); border: 1px solid rgba(0,255,65,0.25); box-shadow: var(--shadow-inset-sm); }
+
+body.matrix-code .view-toggle { background: rgba(0,0,0,0.60); border: 1px solid rgba(0,255,65,0.30); box-shadow: var(--shadow-inset-sm); }
+body.matrix-code .v-btn.active { background: rgba(0,255,65,0.20); color: #00ff41; box-shadow: 0 0 10px rgba(0,255,65,0.50); border: 1px solid rgba(0,255,65,0.60); }
+body.matrix-code .toggle-switch.active { background: #00cc33; box-shadow: 0 0 10px rgba(0,255,65,0.60); }
+body.matrix-code .sound-preview-btn { background: rgba(0,0,0,0.50); border: 1px solid rgba(0,255,65,0.30); color: #00ff41; font-family: 'Share Tech Mono',monospace; }
+body.matrix-code .sound-preview-btn:hover { border-color: rgba(0,255,65,0.60); box-shadow: 0 0 10px rgba(0,255,65,0.30); }
+
+body.matrix-code .safety-bar { background: rgba(13,2,8,0.90); backdrop-filter: blur(6px); border-top: 1px solid rgba(0,255,65,0.40); box-shadow: 0 -4px 12px rgba(0,255,65,0.30); }
+body.matrix-code .safety-btn { background: rgba(0,0,0,0.50); border: 1px solid rgba(0,255,65,0.35); color: var(--neuro-text-light); font-family: 'Share Tech Mono',monospace; }
+body.matrix-code .safety-btn:hover { border-color: rgba(0,255,65,0.70); color: #00ff41; }
+body.matrix-code .toast { background: rgba(13,2,8,0.95); backdrop-filter: blur(6px); border: 1px solid rgba(0,255,65,0.55); color: #00ff41; box-shadow: var(--shadow-raised-lg),var(--shadow-glow); font-family: 'Share Tech Mono',monospace; }
+
+body.matrix-code .ritual-card { background: rgba(13,2,8,0.90); backdrop-filter: blur(6px); border: 2px solid rgba(0,255,65,0.55); box-shadow: var(--shadow-raised-lg),var(--shadow-glow); }
+body.matrix-code .ritual-text { color: #00ff41; text-shadow: var(--shadow-text); }
+body.matrix-code .ritual-btn { background: rgba(0,255,65,0.15); color: #00ff41; border: 1px solid rgba(0,255,65,0.55); text-transform: uppercase; letter-spacing: 0.1em; font-family: 'Share Tech Mono',monospace; }
+
+body.matrix-code .celestial-time, body.matrix-code .time-value { color: #00ff41; text-shadow: var(--shadow-text); }
+body.matrix-code .next-phase, body.matrix-code .next-season { border-top: 1px solid rgba(0,255,65,0.25); color: var(--neuro-text-light); }
+body.matrix-code .moon-phase-name, body.matrix-code .solar-season-name { color: #00ff41; font-weight: 700; text-shadow: var(--shadow-text); }
+
+body.matrix-code .ps-leave { background: rgba(0,0,0,0.50); border: 1px solid rgba(0,255,65,0.35); color: var(--neuro-text-light); text-transform: uppercase; font-family: 'Share Tech Mono',monospace; }
+body.matrix-code .ps-leave:hover { border-color: rgba(0,255,65,0.70); color: #00ff41; }
+body.matrix-code .timer-display { color: #00ff41; text-shadow: var(--shadow-text); font-family: 'Share Tech Mono',monospace; }
+
+body.matrix-code .badge { background: rgba(0,255,65,0.10); border: 1px solid rgba(0,255,65,0.40); color: #00ff41; }
+body.matrix-code .badge-tooltip { background: rgba(13,2,8,0.95); border: 1px solid rgba(0,255,65,0.40); color: #00ff41; box-shadow: var(--shadow-raised); font-family: 'Share Tech Mono',monospace; }
+body.matrix-code .member-mini-status { background: #00cc33; box-shadow: 0 0 6px rgba(0,255,65,0.70); }
+
+body.matrix-code .campfire-participant:hover { background: rgba(0,255,65,0.08); }
+body.matrix-code .event-flyer img { filter: none; }
+body.matrix-code #communityHubFullscreenContainer { background: var(--neuro-bg); color: var(--neuro-text); }
+
+/* dark mode — red variant */
+body.matrix-code.dark-mode {
+  --neuro-forest: #ff0041;
+  --neuro-forest-dark: #cc0033;
+  --neuro-forest-light: #ff3366;
+  --neuro-accent-a08: rgba(255,0,65,0.08);
+  --neuro-accent-a10: rgba(255,0,65,0.10);
+  --neuro-accent-a20: rgba(255,0,65,0.20);
+  --neuro-accent-a30: rgba(255,0,65,0.30);
+  --neuro-warning-a10: rgba(255,255,0,0.10);
+}
+body.matrix-code.dark-mode .presence-widget, body.matrix-code.dark-mode .practice-room,
+body.matrix-code.dark-mode .collective-card, body.matrix-code.dark-mode .wave-card,
+body.matrix-code.dark-mode .active-members-grid,
+body.matrix-code.dark-mode .reflection, body.matrix-code.dark-mode .member-card,
+body.matrix-code.dark-mode .member-card-mini, body.matrix-code.dark-mode .event-card,
+body.matrix-code.dark-mode .campfire-welcome, body.matrix-code.dark-mode .campfire-msg,
+body.matrix-code.dark-mode .campfire-sidebar-always-visible,
+body.matrix-code.dark-mode .campfire-input-area, body.matrix-code.dark-mode .presence-sanctuary,
+body.matrix-code.dark-mode .celestial-card-full, body.matrix-code.dark-mode .celestial-card,
+body.matrix-code.dark-mode .ps-header, body.matrix-code.dark-mode .sound-settings,
+body.matrix-code.dark-mode .safety-menu, body.matrix-code.dark-mode .ps-sidebar,
+body.matrix-code.dark-mode .chat-msg {
+  background: rgba(8,0,2,0.88); backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,0,65,0.30);
+  box-shadow: var(--shadow-raised); color: #ff0041;
+}
+body.matrix-code.dark-mode .presence-widget:hover, body.matrix-code.dark-mode .practice-room:hover,
+body.matrix-code.dark-mode .collective-card:hover, body.matrix-code.dark-mode .wave-card:hover,
+body.matrix-code.dark-mode .member-card:hover, body.matrix-code.dark-mode .event-card:hover,
+body.matrix-code.dark-mode .celestial-card:hover { border-color: rgba(255,51,102,0.65); box-shadow: var(--shadow-raised-hover),0 0 20px rgba(255,0,65,0.50); }
+body.matrix-code.dark-mode .join-btn, body.matrix-code.dark-mode .join-btn-inline,
+body.matrix-code.dark-mode .event-btn, body.matrix-code.dark-mode .contrib-btn,
+body.matrix-code.dark-mode .collective-action-btn { background: rgba(255,0,65,0.12); color: #ff0041; border: 1px solid rgba(255,0,65,0.55); text-transform: uppercase; letter-spacing: 0.1em; }
+body.matrix-code.dark-mode .join-btn:hover, body.matrix-code.dark-mode .event-btn:hover,
+body.matrix-code.dark-mode .contrib-btn:hover { background: rgba(255,0,65,0.22); box-shadow: 0 0 20px rgba(255,0,65,0.60); color: #ff3366; }
+body.matrix-code.dark-mode .campfire-input, body.matrix-code.dark-mode .chat-input { border-color: rgba(255,0,65,0.35); color: #ff0041; }
+body.matrix-code.dark-mode .campfire-input:focus, body.matrix-code.dark-mode .chat-input:focus { border-color: rgba(255,0,65,0.70); }
+body.matrix-code.dark-mode .campfire-send, body.matrix-code.dark-mode .chat-send { background: rgba(255,0,65,0.15); color: #ff0041; border-color: rgba(255,0,65,0.50); }
+body.matrix-code.dark-mode .campfire-send:hover, body.matrix-code.dark-mode .chat-send:hover { background: rgba(255,0,65,0.25); box-shadow: 0 0 15px rgba(255,0,65,0.50); }
+body.matrix-code.dark-mode .profile-avatar { border-color: rgba(255,0,65,0.60); box-shadow: 0 0 20px rgba(255,0,65,0.50); }
+body.matrix-code.dark-mode .karma-badge { background: rgba(255,0,65,0.08); border-color: rgba(255,0,65,0.40); color: #ff0041; }
+body.matrix-code.dark-mode .role-spaceholder, body.matrix-code.dark-mode .role-guide { background: rgba(255,0,65,0.08); border-color: rgba(255,0,65,0.40); color: #ff0041; }
+body.matrix-code.dark-mode .profile-inspiration { border-left-color: #ff0041; }
+body.matrix-code.dark-mode .progress-fill, body.matrix-code.dark-mode .prog-fill { background: linear-gradient(90deg,#cc0033,#ff3366); box-shadow: 0 0 10px rgba(255,0,65,0.60); }
+body.matrix-code.dark-mode .progress-bar, body.matrix-code.dark-mode .prog-bar { border-color: rgba(255,0,65,0.25); }
+body.matrix-code.dark-mode .v-btn.active { background: rgba(255,0,65,0.20); color: #ff0041; box-shadow: 0 0 10px rgba(255,0,65,0.50); border-color: rgba(255,0,65,0.60); }
+body.matrix-code.dark-mode .toggle-switch.active { background: #cc0033; box-shadow: 0 0 10px rgba(255,0,65,0.60); }
+body.matrix-code.dark-mode .safety-bar { border-top-color: rgba(255,0,65,0.40); box-shadow: 0 -4px 12px rgba(255,0,65,0.30); }
+body.matrix-code.dark-mode .toast { border-color: rgba(255,0,65,0.55); color: #ff0041; box-shadow: var(--shadow-raised-lg),0 0 20px rgba(255,0,65,0.40); }
+body.matrix-code.dark-mode .ritual-card { border-color: rgba(255,0,65,0.55); box-shadow: var(--shadow-raised-lg),0 0 25px rgba(255,0,65,0.40); }
+body.matrix-code.dark-mode .ritual-text { color: #ff0041; }
+body.matrix-code.dark-mode .ritual-btn { background: rgba(255,0,65,0.15); color: #ff0041; border-color: rgba(255,0,65,0.55); }
+body.matrix-code.dark-mode .celestial-time, body.matrix-code.dark-mode .time-value { color: #ff0041; text-shadow: 0 0 5px rgba(255,0,65,0.80),0 0 10px rgba(255,0,65,0.60); }
+body.matrix-code.dark-mode .moon-phase-name, body.matrix-code.dark-mode .solar-season-name { color: #ff0041; }
+body.matrix-code.dark-mode .timer-display { color: #ff0041; text-shadow: 0 0 10px rgba(255,0,65,0.80); }
+body.matrix-code.dark-mode .badge { background: rgba(255,0,65,0.10); border-color: rgba(255,0,65,0.40); color: #ff0041; }
+body.matrix-code.dark-mode .member-mini-status { background: #cc0033; box-shadow: 0 0 6px rgba(255,0,65,0.70); }
+body.matrix-code.dark-mode .campfire-participant:hover { background: rgba(255,0,65,0.08); }
+body.matrix-code.dark-mode .event-flyer img { filter: none; }
+body.matrix-code.dark-mode .profile-avatar img,
+body.matrix-code.dark-mode .member-mini-avatar img { filter: none; }
+body.matrix-code.dark-mode #communityHubFullscreenContainer { background: var(--neuro-bg); color: #ff0041; }
+
+/* =========================================================
+   END COMMUNITY HUB PATCH  —  MATRIX CODE
+   ========================================================= */
