@@ -2,7 +2,7 @@
     Patched: frozen LEVELS, renamed addTokens → addLightParticles (matching
     DailyJourneyEngine call), validated n parameter, parseInt radix 10. */
 
-import { state, saveState, loadState } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/state.js';
+import { state, saveState, loadState } from '/src/Mini-Apps/ShadowAlchemyLab/js/core/state.js';
 import { renderDashboard } from '/src/Mini-Apps/ShadowAlchemyLab/js/dashboardRenderer.js';
 import { attachDashboardListeners } from '/src/Mini-Apps/ShadowAlchemyLab/js/eventListeners.js';
 
@@ -35,7 +35,7 @@ function addLightParticles(n = 1) {
   state.user.companionLevel = getCurrentLevel(state.user.lightParticles);
 
   if (state.user.companionLevel > prevLevel) {
-    import('/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/utils.js').then(u =>
+    import('/src/Mini-Apps/ShadowAlchemyLab/js/core/utils.js').then(u =>
       u.showToast(`Your Shadow Companion evolved to Level ${state.user.companionLevel}! ${u.getCompanionVisual(state.user.companionLevel)}`)
     );
   }

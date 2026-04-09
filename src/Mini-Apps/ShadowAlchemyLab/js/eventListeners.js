@@ -2,8 +2,8 @@
    Patched: ls wrapper replaces raw localStorage in delete handler,
    safe entry name via whitelist, removed console.error leaking internal paths. */
 
-import { showToast, showConfirmDialog } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/utils.js';
-import { state, saveState } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/state.js';
+import { showToast, showConfirmDialog } from '/src/Mini-Apps/ShadowAlchemyLab/js/core/utils.js';
+import { state, saveState } from '/src/Mini-Apps/ShadowAlchemyLab/js/core/state.js';
 
 // Safe localStorage wrapper
 const ls = {

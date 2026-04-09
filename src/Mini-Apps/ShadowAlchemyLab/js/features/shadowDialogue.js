@@ -1,7 +1,7 @@
 // js/src/Features/shadowDialogue.js
-import { createModal } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/modal.js';
-import { showToast, showConfirmDialog } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/utils.js';
-import { state, saveState } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/state.js';
+import { createModal } from '/src/Mini-Apps/ShadowAlchemyLab/js/core/modal.js';
+import { showToast, showConfirmDialog } from '/src/Mini-Apps/ShadowAlchemyLab/js/core/utils.js';
+import { state, saveState } from '/src/Mini-Apps/ShadowAlchemyLab/js/core/state.js';
 
 const SHADOW_DIALOGUE_TARGETS = [
   'My Spouse','My Lover','My Child','My Family','My Mom','My Dad',

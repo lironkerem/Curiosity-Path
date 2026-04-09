@@ -1,6 +1,6 @@
 /* js/src/Features/archetypeStudio.js  – production-ready */
-import { createModal } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/modal.js';
-import { getArchetypeIcon } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/utils.js';
+import { createModal } from '/src/Mini-Apps/ShadowAlchemyLab/js/core/modal.js';
+import { getArchetypeIcon } from '/src/Mini-Apps/ShadowAlchemyLab/js/core/utils.js';
 
 export function openArchetypeIntegrationStudioModal(archetypeId = null) {
   const engine = window.archetypesEngine;

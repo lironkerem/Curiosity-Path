@@ -1,5 +1,5 @@
 // js/src/Features/subShadowsLab.js
-import { createModal } from '/src/Mini-Apps/ShadowAlchemyLab/js/src/Core/modal.js';
+import { createModal } from '/src/Mini-Apps/ShadowAlchemyLab/js/core/modal.js';
 
 export function openSubShadowsLabModal() {
   const engine = window.archetypesEngine; // global instance
