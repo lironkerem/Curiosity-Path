@@ -1,0 +1,497 @@
+/* =========================================================
+   DIGITAL CURIOSITY – EARTH LUXURY SKIN (Terracotta & Bronze)
+   Updated for new main-styles.css + mobile-styles.css
+   Apply to <body class="earth-luxury">
+   ========================================================= */
+
+body.earth-luxury{
+  /* Terracotta & Bronze palette - SOPHISTICATED & NATURAL */
+  --neuro-bg:#8a7f6f;
+  --neuro-bg-lighter:#9d9385;
+  --neuro-bg-lightest:#b0a699;
+  --neuro-shadow-dark:#6d6456;
+  --neuro-shadow-darker:#5a5244;
+  --neuro-shadow-light:#b0a699;
+  --neuro-highlight:#c4b9ad;
+
+  --neuro-text:#2d2619;
+  --neuro-text-light:#4a3f32;
+  --neuro-text-lighter:#6d6456;
+  --neuro-text-dim:#8a7f6f;
+
+  --neuro-accent:#9D3835;        /* terracotta */
+  --neuro-accent-light:#B85A52;  /* lighter terracotta */
+
+  /* Terracotta gradient colors */
+  --neuro-sage: #9D3835;
+  --neuro-sage-dark: #7C2C2A;
+  --neuro-sage-light: #B85A52;
+
+  /* Bronze accents */
+  --neuro-bronze: #8b6f47;
+  --neuro-bronze-dark: #6d5635;
+  --neuro-bronze-light: #a68a5f;
+
+  --neuro-success:#7a9b76;
+  --neuro-warning:#a68a5f;
+  --neuro-error:#a66b5b;
+  --neuro-info:#6b8a9b;
+
+  /* sophisticated shadows with terracotta glow */
+  --shadow-raised:
+    10px 10px 20px var(--neuro-shadow-dark),
+    -6px -6px 12px var(--neuro-shadow-light),
+    inset 1px 1px 2px var(--neuro-highlight);
+  --shadow-raised-lg:
+    18px 18px 36px var(--neuro-shadow-darker),
+    -12px -12px 24px var(--neuro-shadow-light),
+    inset 2px 2px 4px var(--neuro-highlight),
+    0 8px 32px rgba(157,56,53,.2);
+  --shadow-raised-hover:
+    14px 14px 28px var(--neuro-shadow-dark),
+    -10px -10px 20px var(--neuro-shadow-light),
+    inset 1px 1px 2px var(--neuro-highlight),
+    0 4px 24px rgba(157,56,53,.25);
+  --shadow-inset:
+    inset 5px 5px 10px var(--neuro-shadow-dark),
+    inset -3px -3px 6px var(--neuro-shadow-light);
+  --shadow-inset-sm:
+    inset 3px 3px 6px var(--neuro-shadow-dark),
+    inset -2px -2px 4px var(--neuro-shadow-light);
+  --shadow-inset-lg:
+    inset 8px 8px 16px var(--neuro-shadow-darker),
+    inset -6px -6px 12px var(--neuro-shadow-light);
+  --shadow-glow:
+    0 0 20px rgba(157,56,53,.35),
+    0 0 40px rgba(157,56,53,.25),
+    0 0 60px rgba(157,56,53,.15);
+  --shadow-intense:
+    0 0 30px rgba(157,56,53,.5),
+    0 0 60px rgba(124,44,42,.35),
+    0 4px 20px rgba(157,56,53,.4);
+}
+
+.pricing-overlay.earth-luxury,
+.pricing-overlay.earth-luxury .pricing-modal,
+.pricing-overlay.earth-luxury .pricing-card {
+ --neuro-bg: #8a7f6f;
+  --neuro-bg-lighter: #9d9385;
+  --neuro-bg-lightest: #b0a699;
+  --neuro-shadow-dark: #6d6456;
+--neuro-shadow-light: #b0a699;
+ --neuro-text: #2d2619;
+  --neuro-text-light: #4a3f32;
+  --neuro-text-lighter: #6d6456;
+ --neuro-accent: #9D3835;        /* terracotta */
+  --neuro-accent-light: #B85A52;  /* lighter terracotta */
+  --shadow-raised-sm: 4px 4px 8px #6d6456, -4px -4px 8px #b0a699;
+  --shadow-raised: 10px 10px 20px #6d6456, -6px -6px 12px #b0a699, inset 1px 1px 2px #c4b9ad;
+  --shadow-raised-lg: 18px 18px 36px #5a5244, -12px -12px 24px #b0a699, inset 2px 2px 4px #c4b9ad, 0 8px 32px rgba(157,56,53,.2);
+}
+
+.pricing-overlay.earth-luxury.dark-mode,
+.pricing-overlay.earth-luxury.dark-mode .pricing-modal,
+.pricing-overlay.earth-luxury.dark-mode .pricing-card {
+  --neuro-bg: #2a251d;
+  --neuro-bg-lighter: #342f25;
+  --neuro-shadow-dark: #1a1610;
+  --neuro-shadow-light: #3e382d;
+  --neuro-text: #e8dcc8;
+  --neuro-text-light: #c4b5a0;
+  --neuro-accent: #9D3835;
+  --neuro-accent-light: #B85A52;
+}
+
+/* ------  IMAGE INVERSION (Dark Mode Only)  ------ */
+body.earth-luxury.dark-mode img {
+  filter: invert(1) brightness(1);
+}
+/* exclude avatars / CTA / tarot images */
+body.earth-luxury.dark-mode img[src*="/CTA/"],
+body.earth-luxury.dark-mode img[src*="/Tarot%20Cards%20images/"],
+body.earth-luxury.dark-mode .disc-avatar-img,
+body.earth-luxury.dark-mode .profile-avatar img,
+body.earth-luxury.dark-mode .member-mini-avatar img {
+  filter: none;
+}
+
+/* ------  ANIMATIONS  ------ */
+@keyframes earthGlow{
+  0%,100%{box-shadow:var(--shadow-raised-lg),var(--shadow-glow)}
+  50%{box-shadow:var(--shadow-raised-lg),var(--shadow-intense)}
+}
+@keyframes organicFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-3px)}
+}
+@keyframes leafShimmer{
+  0%{background-position:-1000px 0}
+  100%{background-position:1000px 0}
+}
+@keyframes naturalSheen{
+  0%{transform:translateX(-100%) skewX(-15deg)}
+  100%{transform:translateX(200%) skewX(-15deg)}
+}
+@keyframes breathe{
+  0%,100%{opacity:.5;transform:scale(1)}
+  50%{opacity:.8;transform:scale(1.05)}
+}
+
+/* ------  BODY BG & TEXTURES  ------ */
+body.earth-luxury{
+  background:var(--neuro-bg);
+  color:var(--neuro-text);
+  transition:all .5s cubic-bezier(.4,0,.2,1);
+  position:relative;
+}
+body.earth-luxury::before{
+  content:"";
+  position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.6;
+  background-image:
+    repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(139,111,71,.04) 10px,rgba(139,111,71,.04) 20px),
+    radial-gradient(circle at 20% 80%,rgba(166,138,95,.1) 0%,transparent 50%),
+    radial-gradient(circle at 80% 20%,rgba(157,56,53,.08) 0%,transparent 50%),
+    radial-gradient(circle at 50% 50%,rgba(138,127,111,.05) 0%,transparent 60%);
+}
+body.earth-luxury::after{
+  content:"";
+  position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.2;
+  background-image:
+    radial-gradient(2px 2px at 25% 35%,rgba(139,111,71,.5),transparent),
+    radial-gradient(1px 1px at 65% 75%,rgba(166,138,95,.4),transparent),
+    radial-gradient(1px 1px at 50% 50%,rgba(157,56,53,.3),transparent),
+    radial-gradient(2px 2px at 85% 15%,rgba(139,111,71,.5),transparent),
+    radial-gradient(1px 1px at 90% 65%,rgba(166,138,95,.4),transparent),
+    radial-gradient(2px 2px at 40% 60%,rgba(139,111,71,.4),transparent);
+  background-size:200% 200%;
+  animation:breathe 8s ease-in-out infinite;
+  will-change: opacity;
+}
+body.earth-luxury > *{position:relative;z-index:1}
+
+/* ------  ACTIVE TAB GRADIENT  ------ */
+body.earth-luxury .nav-item.active{
+  background:linear-gradient(135deg,var(--neuro-sage-dark) 0%,var(--neuro-sage) 25%,var(--neuro-sage-light) 50%,var(--neuro-sage) 75%,var(--neuro-sage-dark) 100%);
+  background-size:200% 200%;
+  color:#fff;
+  border-color:rgba(157,56,53,.6);
+  box-shadow:var(--shadow-inset),0 0 15px rgba(157,56,53,.4);
+  animation:leafShimmer 3s linear infinite;
+  will-change: box-shadow;
+}
+
+/* ------  PRIMARY BTN ACCENT  ------ */
+body.earth-luxury .btn-primary,
+body.earth-luxury .community-link-btn{
+  background:linear-gradient(135deg,var(--neuro-sage-dark) 0%,var(--neuro-sage) 25%,var(--neuro-sage-light) 50%,var(--neuro-sage) 75%,var(--neuro-sage-dark) 100%);
+  background-size:200% 200%;
+  color:#fff;
+  animation:leafShimmer 3s linear infinite;
+  box-shadow:var(--shadow-raised-lg),var(--shadow-glow),inset 0 1px 0 rgba(184,90,82,.4);
+  border:1px solid rgba(157,56,53,.5);
+  position:relative;overflow:hidden;
+  will-change: box-shadow;
+}
+body.earth-luxury .btn-primary::after{
+  content:"";
+  position:absolute;top:-50%;left:-100%;width:50%;height:200%;
+  background:linear-gradient(90deg,transparent,rgba(184,90,82,.4),transparent);
+  transform:skewX(-15deg);
+}
+body.earth-luxury .btn-primary:hover::after{animation:naturalSheen 1.5s ease-in-out}
+body.earth-luxury .btn-primary:hover{background-position:100% 50%;box-shadow:var(--shadow-raised-lg),var(--shadow-intense),inset 0 1px 0 rgba(184,90,82,.5);transform:translateY(-2px) scale(1.02)}
+
+/* ------  HEADER BAR + CTA FOOTER (updated selectors)  ------ */
+body.earth-luxury .main-header.project-curiosity,
+body.earth-luxury .community-link-card,
+body.earth-luxury .dashboard-community-sanctuary,
+body.earth-luxury .lunar-admin-header,
+body.earth-luxury .solar-admin-header,
+body.earth-luxury .app-header,
+body.earth-luxury .lux-footer .lux-toggle,
+body.earth-luxury .lux-footer #cta-toggle{
+  background:linear-gradient(135deg,var(--neuro-sage-dark) 0%,var(--neuro-sage) 25%,var(--neuro-sage-light) 50%,var(--neuro-sage) 75%,var(--neuro-sage-dark) 100%);
+  background-size:200% 200%;
+  box-shadow:var(--shadow-raised-lg),var(--shadow-intense),inset 0 2px 0 rgba(184,90,82,.4);
+  animation:earthGlow 6s ease-in-out infinite;
+  border:1px solid rgba(157,56,53,.5);
+  color:#fff;
+  will-change: box-shadow;
+}
+body.earth-luxury .main-header.project-curiosity h1,
+body.earth-luxury .main-header.project-curiosity h3,
+body.earth-luxury .app-header h1,
+body.earth-luxury .app-header p,
+body.earth-luxury .lux-footer .lux-text-group{
+  color:#fff;
+  text-shadow:0 2px 4px rgba(0,0,0,.5),0 4px 12px rgba(157,56,53,.5);
+  font-weight:800;
+}
+
+/* ------  BRONZE ACCENTS (optional usage in cards/sections)  ------ */
+body.earth-luxury .bronze-accent{
+  background:linear-gradient(135deg,var(--neuro-bronze-dark),var(--neuro-bronze-light));
+  color:#fff;
+}
+
+/* ------  RESPONSIVE  ------ */
+@media (max-width:768px){
+  body.earth-luxury{--shadow-raised:8px 8px 16px var(--neuro-shadow-dark),-6px -6px 12px var(--neuro-shadow-light)}
+}
+
+/* =========================================================
+   DARK MODE VARIANT
+   ========================================================= */
+body.earth-luxury.dark-mode {
+  /* Dark terracotta & bronze palette */
+  --neuro-bg: #2b2822;
+  --neuro-bg-lighter: #36322b;
+  --neuro-bg-lightest: #413d34;
+  --neuro-shadow-dark: #1a1815;
+  --neuro-shadow-darker: #0f0d0b;
+  --neuro-shadow-light: #413d34;
+  --neuro-highlight: #4d483e;
+
+  --neuro-text: #d4cfc4;
+  --neuro-text-light: #b0a699;
+  --neuro-text-lighter: #8a7f6f;
+  --neuro-text-dim: #6d6456;
+
+  /* Keep terracotta & bronze accents vibrant */
+  --neuro-accent: #9D3835;
+  --neuro-accent-light: #B85A52;
+  --neuro-sage: #9D3835;
+  --neuro-sage-dark: #7C2C2A;
+  --neuro-sage-light: #B85A52;
+  --neuro-bronze: #8b6f47;
+  --neuro-bronze-dark: #6d5635;
+  --neuro-bronze-light: #a68a5f;
+  
+  /* Terracotta glow shadows for dark mode */
+  --shadow-glow:
+    0 0 20px rgba(157,56,53,.5),
+    0 0 40px rgba(157,56,53,.3);
+  --shadow-intense:
+    0 0 30px rgba(157,56,53,.7),
+    0 0 60px rgba(157,56,53,.5);
+}
+
+/* Terracotta borders for dark mode cards */
+body.earth-luxury.dark-mode .card,
+body.earth-luxury.dark-mode .neuro-card,
+body.earth-luxury.dark-mode .dashboard-gamification,
+body.earth-luxury.dark-mode .dashboard-quest-hub,
+body.earth-luxury.dark-mode .dashboard-daily-card,
+body.earth-luxury.dark-mode .dashboard-quote,
+body.earth-luxury.dark-mode .dashboard-achievements,
+body.earth-luxury.dark-mode .dashboard-wellness-toolkit,
+body.earth-luxury.dark-mode .karma-shop-balance,
+body.earth-luxury.dark-mode .karma-shop-item{
+  border: 1px solid rgba(157,56,53,.4);
+  box-shadow: var(--shadow-raised-lg), 0 0 15px rgba(157,56,53,.2);
+}
+
+body.earth-luxury.dark-mode .dashboard-quest-card:hover,
+body.earth-luxury.dark-mode .wellness-tool-btn:hover,
+body.earth-luxury.dark-mode .karma-shop-item:hover{
+  border-color: rgba(184,90,82,.6);
+  box-shadow: var(--shadow-raised-hover), var(--shadow-glow);
+}
+
+/* Terracotta accent on active/interactive elements */
+body.earth-luxury.dark-mode .nav-item.active{
+  border-color: rgba(157,56,53,.6);
+  box-shadow: var(--shadow-inset-sm), 0 0 15px rgba(157,56,53,.3);
+}
+
+body.earth-luxury.dark-mode .btn-primary{
+  border: 1px solid rgba(157,56,53,.6);
+  box-shadow: var(--shadow-raised), var(--shadow-glow);
+}
+
+body.earth-luxury.dark-mode .btn-primary:hover{
+  box-shadow: var(--shadow-raised-hover), var(--shadow-intense);
+}
+
+/* =========================================================
+   CHAT-WINDOW TOKENS
+   ========================================================= */
+body.earth-luxury{
+  --chat-bg:var(--neuro-bg-lightest);
+  --chat-header-bg:var(--neuro-bg-lighter);
+  --chat-border:1px solid rgba(157,56,53,.25);
+  --chat-text:var(--neuro-text);
+  --chat-accent:var(--neuro-accent);
+  --chat-shadow:var(--shadow-raised-lg);
+  --chat-inset:var(--shadow-inset);
+  --chat-bot-bubble:var(--neuro-bg-lighter);
+  --chat-bot-text:var(--neuro-text) 0.95rem 500 'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --chat-bg-light:var(--neuro-bg-lighter);
+  --chat-bg-disabled:var(--neuro-shadow-dark);
+}
+body.earth-luxury.dark-mode{--chat-border:1px solid rgba(157,56,53,.35);}
+
+/* =========================================================
+   END EARTH-LUXURY COMPLETE (Terracotta & Bronze)
+   ========================================================= */
+
+/* =========================================================
+   COMMUNITY HUB PATCH  —  EARTH LUXURY
+   ========================================================= */
+
+body.earth-luxury {
+  --neuro-accent-a08: rgba(157,56,53,0.08);
+  --neuro-accent-a10: rgba(157,56,53,0.10);
+  --neuro-accent-a20: rgba(157,56,53,0.20);
+  --neuro-accent-a30: rgba(157,56,53,0.30);
+  --neuro-warning-a10: rgba(166,138,95,0.10);
+}
+
+body.earth-luxury .presence-widget, body.earth-luxury .practice-room,
+body.earth-luxury .collective-card, body.earth-luxury .wave-card,
+body.earth-luxury .active-members-grid,
+body.earth-luxury .reflection, body.earth-luxury .member-card,
+body.earth-luxury .member-card-mini, body.earth-luxury .event-card,
+body.earth-luxury .campfire-welcome, body.earth-luxury .campfire-msg,
+body.earth-luxury .campfire-sidebar-always-visible,
+body.earth-luxury .campfire-input-area, body.earth-luxury .presence-sanctuary,
+body.earth-luxury .celestial-card-full, body.earth-luxury .celestial-card,
+body.earth-luxury .ps-header, body.earth-luxury .sound-settings,
+body.earth-luxury .safety-menu, body.earth-luxury .ps-sidebar,
+body.earth-luxury .chat-msg {
+  background: var(--neuro-bg-lighter);
+  border: 1px solid rgba(157,56,53,0.30);
+  box-shadow: var(--shadow-raised); color: var(--neuro-text);
+}
+body.earth-luxury .presence-widget:hover, body.earth-luxury .practice-room:hover,
+body.earth-luxury .collective-card:hover, body.earth-luxury .wave-card:hover,
+body.earth-luxury .member-card:hover, body.earth-luxury .event-card:hover,
+body.earth-luxury .celestial-card:hover { border-color: rgba(184,90,82,0.60); box-shadow: var(--shadow-raised-hover),var(--shadow-glow); }
+
+body.earth-luxury .join-btn, body.earth-luxury .join-btn-inline,
+body.earth-luxury .event-btn, body.earth-luxury .contrib-btn,
+body.earth-luxury .collective-action-btn {
+  background: linear-gradient(135deg,var(--neuro-sage-dark),var(--neuro-sage),var(--neuro-sage-light));
+  background-size: 200% 200%; color: #fff;
+  border: 1px solid rgba(157,56,53,0.50);
+  box-shadow: var(--shadow-raised),var(--shadow-glow);
+  animation: leafShimmer 3s linear infinite;
+  will-change: box-shadow;
+}
+body.earth-luxury .join-btn:hover, body.earth-luxury .join-btn-inline:hover,
+body.earth-luxury .event-btn:hover, body.earth-luxury .contrib-btn:hover,
+body.earth-luxury .collective-action-btn:hover { box-shadow: var(--shadow-raised-hover),var(--shadow-intense); }
+
+body.earth-luxury .campfire-input, body.earth-luxury .chat-input {
+  background: var(--neuro-highlight); border: 1px solid rgba(157,56,53,0.30);
+  color: var(--neuro-text); box-shadow: var(--shadow-inset-sm);
+}
+body.earth-luxury .campfire-input:focus, body.earth-luxury .chat-input:focus { border-color: rgba(157,56,53,0.60); outline: none; }
+body.earth-luxury .campfire-send, body.earth-luxury .chat-send {
+  background: linear-gradient(135deg,var(--neuro-sage-dark),var(--neuro-sage-light));
+  color: #fff; border: 1px solid rgba(157,56,53,0.50); box-shadow: var(--shadow-raised);
+}
+body.earth-luxury .campfire-send:hover, body.earth-luxury .chat-send:hover { box-shadow: var(--shadow-raised-hover),var(--shadow-glow); }
+
+body.earth-luxury .profile-hero { background: linear-gradient(135deg,var(--neuro-sage-dark),var(--neuro-bg-lighter)); border: 1px solid rgba(157,56,53,0.30); box-shadow: var(--shadow-raised-lg); }
+body.earth-luxury .profile-avatar { border: 3px solid rgba(157,56,53,0.60); box-shadow: 0 0 20px rgba(157,56,53,0.30); }
+body.earth-luxury .karma-badge { background: var(--neuro-highlight); border: 1px solid rgba(157,56,53,0.40); color: var(--neuro-sage); }
+body.earth-luxury .role-spaceholder, body.earth-luxury .role-guide { background: var(--neuro-accent-a10); border: 1px solid rgba(157,56,53,0.40); color: var(--neuro-sage); }
+body.earth-luxury .profile-inspiration { background: var(--neuro-bg-lighter); border-left: 3px solid var(--neuro-sage); color: var(--neuro-text-light); }
+
+body.earth-luxury .ref-content { background: var(--neuro-bg-lighter); border: 1px solid rgba(157,56,53,0.25); }
+body.earth-luxury .ref-action:hover { color: var(--neuro-sage); }
+body.earth-luxury .ref-action:active { color: var(--neuro-sage-dark); }
+
+body.earth-luxury .progress-fill, body.earth-luxury .prog-fill { background: linear-gradient(90deg,var(--neuro-sage-dark),var(--neuro-sage-light)); box-shadow: 0 0 8px rgba(157,56,53,0.40); }
+body.earth-luxury .progress-bar, body.earth-luxury .prog-bar { background: var(--neuro-bg); border: 1px solid rgba(157,56,53,0.25); box-shadow: var(--shadow-inset-sm); }
+
+body.earth-luxury .view-toggle { background: var(--neuro-bg); border: 1px solid rgba(157,56,53,0.30); box-shadow: var(--shadow-inset-sm); }
+body.earth-luxury .v-btn.active { background: linear-gradient(135deg,var(--neuro-sage-dark),var(--neuro-sage-light)); color: #fff; box-shadow: 0 0 10px rgba(157,56,53,0.40); }
+body.earth-luxury .toggle-switch.active { background: var(--neuro-sage); }
+body.earth-luxury .sound-preview-btn { background: var(--neuro-bg-lighter); border: 1px solid rgba(157,56,53,0.30); color: var(--neuro-sage); }
+body.earth-luxury .sound-preview-btn:hover { border-color: rgba(157,56,53,0.60); box-shadow: 0 0 10px rgba(157,56,53,0.20); }
+
+body.earth-luxury .safety-bar { background: var(--neuro-bg-lighter); border-top: 1px solid rgba(157,56,53,0.30); }
+body.earth-luxury .safety-btn { background: var(--neuro-bg); border: 1px solid rgba(157,56,53,0.30); color: var(--neuro-text-light); }
+body.earth-luxury .safety-btn:hover { border-color: rgba(157,56,53,0.60); color: var(--neuro-sage); }
+body.earth-luxury .toast { background: var(--neuro-bg-lighter); border: 1px solid rgba(157,56,53,0.50); color: var(--neuro-text); box-shadow: var(--shadow-raised-lg),var(--shadow-glow); }
+
+body.earth-luxury .ritual-card { background: var(--neuro-bg-lighter); border: 2px solid rgba(157,56,53,0.50); box-shadow: var(--shadow-raised-lg),var(--shadow-glow); }
+body.earth-luxury .ritual-text { color: var(--neuro-text); }
+body.earth-luxury .ritual-btn { background: linear-gradient(135deg,var(--neuro-sage-dark),var(--neuro-sage-light)); color: #fff; border: 1px solid rgba(157,56,53,0.50); }
+
+body.earth-luxury .celestial-time, body.earth-luxury .time-value { color: var(--neuro-sage); }
+body.earth-luxury .next-phase, body.earth-luxury .next-season { border-top: 1px solid rgba(157,56,53,0.25); color: var(--neuro-text-light); }
+body.earth-luxury .moon-phase-name, body.earth-luxury .solar-season-name { color: var(--neuro-sage); font-weight: 700; }
+
+body.earth-luxury .ps-leave { background: var(--neuro-bg); border: 1px solid rgba(157,56,53,0.30); color: var(--neuro-text-light); }
+body.earth-luxury .ps-leave:hover { border-color: rgba(157,56,53,0.60); color: var(--neuro-sage); }
+body.earth-luxury .timer-display { color: var(--neuro-sage); }
+
+body.earth-luxury .badge { background: var(--neuro-accent-a20); border: 1px solid rgba(157,56,53,0.40); color: var(--neuro-sage); }
+body.earth-luxury .badge-tooltip { background: var(--neuro-highlight); border: 1px solid rgba(157,56,53,0.40); color: var(--neuro-text); box-shadow: var(--shadow-raised); }
+body.earth-luxury .member-mini-status { background: var(--neuro-sage); }
+
+body.earth-luxury .campfire-participant:hover { background: var(--neuro-accent-a08); }
+body.earth-luxury .event-flyer img { filter: none; }
+body.earth-luxury #communityHubFullscreenContainer { background: var(--neuro-bg); color: var(--neuro-text); }
+
+/* dark mode */
+body.earth-luxury.dark-mode {
+  --neuro-accent-a08: rgba(157,56,53,0.08);
+  --neuro-accent-a10: rgba(157,56,53,0.10);
+  --neuro-accent-a20: rgba(157,56,53,0.20);
+  --neuro-accent-a30: rgba(157,56,53,0.30);
+  --neuro-warning-a10: rgba(166,138,95,0.10);
+}
+body.earth-luxury.dark-mode .presence-widget, body.earth-luxury.dark-mode .practice-room,
+body.earth-luxury.dark-mode .collective-card, body.earth-luxury.dark-mode .wave-card,
+body.earth-luxury.dark-mode .active-members-grid,
+body.earth-luxury.dark-mode .reflection, body.earth-luxury.dark-mode .member-card,
+body.earth-luxury.dark-mode .member-card-mini, body.earth-luxury.dark-mode .event-card,
+body.earth-luxury.dark-mode .campfire-welcome, body.earth-luxury.dark-mode .campfire-msg,
+body.earth-luxury.dark-mode .campfire-sidebar-always-visible,
+body.earth-luxury.dark-mode .campfire-input-area, body.earth-luxury.dark-mode .presence-sanctuary,
+body.earth-luxury.dark-mode .celestial-card-full, body.earth-luxury.dark-mode .celestial-card,
+body.earth-luxury.dark-mode .ps-header, body.earth-luxury.dark-mode .sound-settings,
+body.earth-luxury.dark-mode .safety-menu, body.earth-luxury.dark-mode .ps-sidebar,
+body.earth-luxury.dark-mode .chat-msg {
+  background: var(--neuro-bg-lighter);
+  border: 1px solid rgba(157,56,53,0.45);
+  box-shadow: var(--shadow-raised); color: var(--neuro-text);
+}
+body.earth-luxury.dark-mode .presence-widget:hover, body.earth-luxury.dark-mode .practice-room:hover,
+body.earth-luxury.dark-mode .collective-card:hover, body.earth-luxury.dark-mode .wave-card:hover,
+body.earth-luxury.dark-mode .member-card:hover, body.earth-luxury.dark-mode .event-card:hover,
+body.earth-luxury.dark-mode .celestial-card:hover { border-color: rgba(184,90,82,0.70); box-shadow: var(--shadow-raised-hover),var(--shadow-glow); }
+body.earth-luxury.dark-mode .join-btn, body.earth-luxury.dark-mode .join-btn-inline,
+body.earth-luxury.dark-mode .event-btn, body.earth-luxury.dark-mode .contrib-btn,
+body.earth-luxury.dark-mode .collective-action-btn { background: linear-gradient(135deg,var(--neuro-sage-dark),var(--neuro-sage),var(--neuro-sage-light)); color: #fff; border: 1px solid rgba(157,56,53,0.60); box-shadow: var(--shadow-raised),var(--shadow-glow); }
+body.earth-luxury.dark-mode .join-btn:hover, body.earth-luxury.dark-mode .event-btn:hover,
+body.earth-luxury.dark-mode .contrib-btn:hover { box-shadow: var(--shadow-raised-hover),var(--shadow-intense); }
+body.earth-luxury.dark-mode .campfire-input, body.earth-luxury.dark-mode .chat-input { background: var(--neuro-bg); border: 1px solid rgba(157,56,53,0.45); color: var(--neuro-text); }
+body.earth-luxury.dark-mode .campfire-send, body.earth-luxury.dark-mode .chat-send { background: linear-gradient(135deg,var(--neuro-sage-dark),var(--neuro-sage-light)); color: #fff; border: 1px solid rgba(157,56,53,0.60); }
+body.earth-luxury.dark-mode .profile-avatar { border-color: rgba(157,56,53,0.70); box-shadow: 0 0 20px rgba(157,56,53,0.50); }
+body.earth-luxury.dark-mode .karma-badge { color: var(--neuro-sage-light); border-color: rgba(157,56,53,0.50); }
+body.earth-luxury.dark-mode .role-spaceholder, body.earth-luxury.dark-mode .role-guide { color: var(--neuro-sage-light); }
+body.earth-luxury.dark-mode .profile-inspiration { border-left-color: var(--neuro-sage); }
+body.earth-luxury.dark-mode .progress-fill, body.earth-luxury.dark-mode .prog-fill { background: linear-gradient(90deg,var(--neuro-sage-dark),var(--neuro-sage-light)); box-shadow: 0 0 10px rgba(157,56,53,0.50); }
+body.earth-luxury.dark-mode .progress-bar, body.earth-luxury.dark-mode .prog-bar { background: var(--neuro-bg); border-color: rgba(157,56,53,0.30); }
+body.earth-luxury.dark-mode .v-btn.active { background: linear-gradient(135deg,var(--neuro-sage-dark),var(--neuro-sage-light)); color: #fff; }
+body.earth-luxury.dark-mode .toggle-switch.active { background: var(--neuro-sage); box-shadow: 0 0 10px rgba(157,56,53,0.50); }
+body.earth-luxury.dark-mode .safety-bar { border-top-color: rgba(157,56,53,0.50); }
+body.earth-luxury.dark-mode .toast { border-color: rgba(157,56,53,0.60); box-shadow: var(--shadow-raised-lg),var(--shadow-glow); }
+body.earth-luxury.dark-mode .ritual-card { border-color: rgba(157,56,53,0.60); box-shadow: var(--shadow-raised-lg),var(--shadow-glow); }
+body.earth-luxury.dark-mode .celestial-time, body.earth-luxury.dark-mode .time-value { color: var(--neuro-sage-light); text-shadow: var(--shadow-glow); }
+body.earth-luxury.dark-mode .moon-phase-name, body.earth-luxury.dark-mode .solar-season-name { color: var(--neuro-sage-light); }
+body.earth-luxury.dark-mode .timer-display { color: var(--neuro-sage-light); text-shadow: var(--shadow-glow); }
+body.earth-luxury.dark-mode .badge { border-color: rgba(157,56,53,0.50); color: var(--neuro-sage-light); }
+body.earth-luxury.dark-mode .member-mini-status { background: var(--neuro-sage); }
+body.earth-luxury.dark-mode .campfire-participant:hover { background: var(--neuro-accent-a10); }
+body.earth-luxury.dark-mode .event-flyer img { filter: none; }
+body.earth-luxury.dark-mode #communityHubFullscreenContainer { background: var(--neuro-bg); color: var(--neuro-text); }
+
+/* =========================================================
+   END COMMUNITY HUB PATCH  —  EARTH LUXURY
+   ========================================================= */
