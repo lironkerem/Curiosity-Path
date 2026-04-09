@@ -28,5 +28,5 @@ engine.state.activeShadowId = null;
   card.style.maxWidth = '700px';
   card.style.maxHeight = '90vh';
 
-import('/src/Mini-Apps/ShadowAlchemyLab/js/src/Features/subShadowJourney.js').then(m => m.renderStep(modal));
+import('/src/Mini-Apps/ShadowAlchemyLab/js/features/subShadowJourney.js').then(m => m.renderStep(modal));
 }

@@ -38,33 +38,33 @@ export function attachDashboardListeners() {
       /* main card buttons */
       if (id === 'startNewJourney' || t.closest('#startNewJourney')) {
         e.preventDefault();
-        const { openShadowGuidedProcessModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/src/Features/shadowGuidedProcess.js');
+        const { openShadowGuidedProcessModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/features/shadowGuidedProcess.js');
         return openShadowGuidedProcessModal();
       }
       if (id === 'openFreeJournal' || t.closest('#openFreeJournal')) {
         e.preventDefault();
-        const { openShadowDialogueModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/src/Features/shadowDialogue.js');
+        const { openShadowDialogueModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/features/shadowDialogue.js');
         return openShadowDialogueModal();
       }
       if (id === 'openTriggerLog' || t.closest('#openTriggerLog')) {
         e.preventDefault();
-        const { openTriggerReleaseModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/src/Features/triggerRelease.js');
+        const { openTriggerReleaseModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/features/triggerRelease.js');
         return openTriggerReleaseModal();
       }
       if (id === 'open-sub-shadows-lab' || t.closest('#open-sub-shadows-lab')) {
         e.preventDefault();
-        const { openSubShadowsLabGrid } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/src/Features/subShadowsLabGrid.js');
+        const { openSubShadowsLabGrid } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/features/subShadowsLabGrid.js');
         return openSubShadowsLabGrid();
       }
       if (id === 'continue-last-session' || t.closest('#continue-last-session')) {
         e.preventDefault();
         const engine = window.archetypesEngine;
         if (engine.state.activeShadowId) {
-          const { openSubShadowJourneyModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/src/Features/subShadowJourney.js');
+          const { openSubShadowJourneyModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/features/subShadowJourney.js');
           return openSubShadowJourneyModal(engine.state.activeShadowId);
         }
         if (engine.state.activeArchetypeId) {
-          const { openArchetypeIntegrationStudioModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/src/Features/archetypeStudio.js');
+          const { openArchetypeIntegrationStudioModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/features/archetypeStudio.js');
           return openArchetypeIntegrationStudioModal();
         }
         return;
@@ -102,14 +102,14 @@ export function attachDashboardListeners() {
           if (entryType === 'free') {
             const entry = state.journalEntries.find(j => j.id === entryId);
             if (entry) {
-              const { openShadowDialogueModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/src/Features/shadowDialogue.js');
+              const { openShadowDialogueModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/features/shadowDialogue.js');
               return openShadowDialogueModal(entry);
             }
           }
           if (entryType === 'trigger') {
             const entry = state.triggers.find(tr => tr.id === entryId);
             if (entry) {
-              const { openTriggerReleaseModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/src/Features/triggerRelease.js');
+              const { openTriggerReleaseModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/features/triggerRelease.js');
               return openTriggerReleaseModal(entry);
             }
           }
@@ -121,7 +121,7 @@ export function attachDashboardListeners() {
             const all   = window.DailyJourneyEngine?.getAllJourneys() || [];
             const entry = all.find(j => j.id === entryId);
             if (entry) {
-              const { openShadowGuidedProcessViewModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/src/Features/shadowGuidedProcessViewer.js');
+              const { openShadowGuidedProcessViewModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/features/shadowGuidedProcessViewer.js');
               return openShadowGuidedProcessViewModal(entry);
             }
           }
@@ -165,21 +165,21 @@ export function attachDashboardListeners() {
           const all   = window.DailyJourneyEngine?.getAllJourneys() || [];
           const entry = all.find(j => j.id === rowId);
           if (entry) {
-            const { openShadowGuidedProcessViewModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/src/Features/shadowGuidedProcessViewer.js');
+            const { openShadowGuidedProcessViewModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/features/shadowGuidedProcessViewer.js');
             return openShadowGuidedProcessViewModal(entry);
           }
         }
         if (rowType === 'free') {
           const entry = state.journalEntries.find(j => j.id === rowId);
           if (entry) {
-            const { openShadowDialogueModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/src/Features/shadowDialogue.js');
+            const { openShadowDialogueModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/features/shadowDialogue.js');
             return openShadowDialogueModal(entry);
           }
         }
         if (rowType === 'trigger') {
           const entry = state.triggers.find(tr => tr.id === rowId);
           if (entry) {
-            const { openTriggerReleaseModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/src/Features/triggerRelease.js');
+            const { openTriggerReleaseModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/features/triggerRelease.js');
             return openTriggerReleaseModal(entry);
           }
         }
@@ -191,7 +191,7 @@ export function attachDashboardListeners() {
       if (archetypeCard) {
         const archetypeId = archetypeCard.dataset.archetypeId;
         if (archetypeId) {
-          const { openArchetypeIntegrationStudioModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/src/Features/archetypeStudio.js');
+          const { openArchetypeIntegrationStudioModal } = await import('/src/Mini-Apps/ShadowAlchemyLab/js/features/archetypeStudio.js');
           return openArchetypeIntegrationStudioModal(archetypeId);
         }
       }

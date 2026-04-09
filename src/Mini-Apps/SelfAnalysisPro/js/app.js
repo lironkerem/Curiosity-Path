@@ -1,4 +1,4 @@
-/*  /src/src/Mini-Apps/SelfAnalysisPro/js/app.js  – Big-App Integration Ready  */
+/*  /src/Mini-Apps/SelfAnalysisPro/js/app.js  – Big-App Integration Ready  */
 
 import Utils from './utils.js';
 import { UIManager } from './ui.js';

@@ -87,7 +87,7 @@ function openFilteredShadowList(archetypeId) {
     item.addEventListener('click', () => {
       const shadowId = item.dataset.shadowId;
       closeModal();
-      import('/src/Mini-Apps/ShadowAlchemyLab/js/src/Features/subShadowJourney.js').then(m => m.openSubShadowJourneyModal(shadowId));
+      import('/src/Mini-Apps/ShadowAlchemyLab/js/features/subShadowJourney.js').then(m => m.openSubShadowJourneyModal(shadowId));
     });
   });
   modal.querySelector('#close-filtered-btn').addEventListener('click', closeModal);

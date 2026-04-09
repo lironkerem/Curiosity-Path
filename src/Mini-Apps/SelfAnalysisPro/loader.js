@@ -24,7 +24,7 @@ export default class SelfAnalysisLauncher {
     host.innerHTML = '<div class="loading-spinner-inner"><div class="spinner"></div><p>Loading Self-Analysis Pro...</p></div>';
 
     // Fetch HTML content
-    fetch('/src/src/Mini-Apps/SelfAnalysisPro/index.html')
+    fetch('/src/Mini-Apps/SelfAnalysisPro/index.html')
       .then(r => r.text())
       .then(html => {
         const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -61,7 +61,7 @@ host.innerHTML = `
         // Initialize ALL components BEFORE booting the app
         return this.initializeComponents().then(() => {
           // Boot the mini-app
-          return import('/src/src/Mini-Apps/SelfAnalysisPro/js/app.js');
+          return import('/src/Mini-Apps/SelfAnalysisPro/js/app.js');
         });
       })
       .then(module => {
@@ -93,9 +93,9 @@ host.innerHTML = `
         { CustomTimePicker },
         { StepIndicator }
       ] = await Promise.all([
-        import('/src/src/Mini-Apps/SelfAnalysisPro/js/customDatePicker.js'),
-        import('/src/src/Mini-Apps/SelfAnalysisPro/js/customTimePicker.js'),
-        import('/src/src/Mini-Apps/SelfAnalysisPro/js/stepindicator.js')
+        import('/src/Mini-Apps/SelfAnalysisPro/js/customDatePicker.js'),
+        import('/src/Mini-Apps/SelfAnalysisPro/js/customTimePicker.js'),
+        import('/src/Mini-Apps/SelfAnalysisPro/js/stepindicator.js')
       ]);
       
       // Initialize date picker
