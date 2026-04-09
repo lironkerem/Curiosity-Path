@@ -53,7 +53,7 @@ class TarotRoom extends PracticeRoom {
     // ── Data initialisation ───────────────────────────────────────────────────
 
     async _initializeTarotData() {
-        this.TAROT_BASE_URL = '/public/Tarot%20Cards%20images/';
+        this.TAROT_BASE_URL = '/Tarot%20Cards%20images/';
         this.suits       = ['pentacles', 'swords', 'cups', 'wands'];
         this.SUIT_NAMES  = { pentacles: 'Pentacles', swords: 'Swords', cups: 'Cups', wands: 'Wands' };
         this.COURT_RANKS = { 11: 'Page', 12: 'Knight', 13: 'Queen', 14: 'King' };

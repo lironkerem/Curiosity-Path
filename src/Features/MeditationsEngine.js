@@ -21,7 +21,7 @@ class MeditationsEngine {
     this.eventCleanup = [];
     
     // Configuration
-    this.pdfGuideUrl = '/public/Source_PDF/Meditation_Demo.pdf';
+    this.pdfGuideUrl = '/Source_PDF/Meditation_Demo.pdf';
     this.SKIP_SECONDS = 15;
     this.MIN_PLAYER_WIDTH = 380;
     this.PROGRESS_UPDATE_MS = 1000;

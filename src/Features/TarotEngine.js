@@ -140,8 +140,8 @@ const ANIMATION_TIMING = {
 class TarotEngine {
   constructor(app) {
     this.app = app;
-    this.TAROT_BASE_URL = '/public/Tarot Cards images/';
-    this.CARD_BACK_URL = '/public/Tarot Cards images/CardBacks.webp';
+    this.TAROT_BASE_URL = '/Tarot Cards images/';
+    this.CARD_BACK_URL = '/Tarot Cards images/CardBacks.webp';
 
     // Spread configurations
     this.spreads = {

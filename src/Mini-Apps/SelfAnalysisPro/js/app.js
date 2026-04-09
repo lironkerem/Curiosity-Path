@@ -301,7 +301,7 @@ class SelfAnalysisApp {
     try {
       const PDFAssembler = await loadPDFAssembler();
       const pdf = new PDFAssembler({
-        sourcePdfUrl: '/public/Source_PDF/Self%20Analysis%20Pro%20Guidebook.pdf',
+        sourcePdfUrl: '/Source_PDF/Self%20Analysis%20Pro%20Guidebook.pdf',
         options: {
           autoDownload:     true,
           downloadFilename: `${esc(formData.firstName)}_Self-Analysis.pdf`

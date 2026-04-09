@@ -89,7 +89,7 @@ class CommunityHubEngine {
       <div class="universal-content">
 
           <header class="main-header project-curiosity"
-                  style="--header-img:url('/public/Tabs/NavCommunity.webp');
+                  style="--header-img:url('/Tabs/NavCommunity.webp');
                          --header-title:'';
                          --header-tag:'A space for mindful practice and togetherness'">
             <h1>Community Hub</h1>

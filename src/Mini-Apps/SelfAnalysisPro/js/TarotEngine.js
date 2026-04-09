@@ -4,7 +4,7 @@
  * onload/onerror handlers use data-* delegation (no inline JS injection).
  */
 
-const TAROT_BASE_URL = '/public/Tarot%20Cards%20images/';
+const TAROT_BASE_URL = '/Tarot%20Cards%20images/';
 
 // Frozen lookup for major arcana names
 const MAJOR_ARCANA_NAMES = Object.freeze({

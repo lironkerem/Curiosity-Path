@@ -20,7 +20,7 @@ const ls = {
  * Card flipping animations, midnight timer, localStorage caching, daily rotation
  */
 export default class DailyCards {
-  static CARD_BACK_URL = '/public/Tarot%20Cards%20images/CardBacks.webp';
+  static CARD_BACK_URL = '/Tarot%20Cards%20images/CardBacks.webp';
 
   static STORAGE_KEYS = Object.freeze({
     BOOSTER:        'daily_booster',
