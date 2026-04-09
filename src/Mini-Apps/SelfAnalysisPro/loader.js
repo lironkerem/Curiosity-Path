@@ -61,7 +61,7 @@ host.innerHTML = `
         // Initialize ALL components BEFORE booting the app
         return this.initializeComponents().then(() => {
           // Boot the mini-app
-          return import('/src/Mini-Apps/SelfAnalysisPro/js/app.js');
+          return import(/* @vite-ignore */ '/src/Mini-Apps/SelfAnalysisPro/js/app.js');
         });
       })
       .then(module => {
@@ -93,9 +93,9 @@ host.innerHTML = `
         { CustomTimePicker },
         { StepIndicator }
       ] = await Promise.all([
-        import('/src/Mini-Apps/SelfAnalysisPro/js/customDatePicker.js'),
-        import('/src/Mini-Apps/SelfAnalysisPro/js/customTimePicker.js'),
-        import('/src/Mini-Apps/SelfAnalysisPro/js/stepindicator.js')
+        import(/* @vite-ignore */ '/src/Mini-Apps/SelfAnalysisPro/js/customDatePicker.js'),
+        import(/* @vite-ignore */ '/src/Mini-Apps/SelfAnalysisPro/js/customTimePicker.js'),
+        import(/* @vite-ignore */ '/src/Mini-Apps/SelfAnalysisPro/js/stepindicator.js')
       ]);
       
       // Initialize date picker
