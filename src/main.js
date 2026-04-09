@@ -1,16 +1,7 @@
-/**
- * src/main.js — Application Entry Point
- *
- * Single source of truth for app initialization.
- * Imports styles, bootstraps core modules, and starts the app.
- */
-
-// ─── Styles ──────────────────────────────────────────────────────────────────
 import './styles/main-styles.css';
 import './styles/mobile-styles.css';
 import './styles/community-hub.css';
 
-// ─── Service Worker ───────────────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
@@ -18,7 +9,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// ─── Bootstrap ────────────────────────────────────────────────────────────────
 async function init() {
   try {
     const [aff, { QUOTES, getRandomQuote, getQuoteOfTheDay }] = await Promise.all([
@@ -33,4 +23,21 @@ async function init() {
     const { default: UserTab } = await import('./Core/User-Tab.js');
 
     window.app = new Core.ProjectCuriosityApp({
-      AppState:
+      AppState:          Core.AppState,
+      AuthManager:       Core.AuthManager,
+      NavigationManager: Core.NavigationManager,
+      DashboardManager:  Core.DashboardManager,
+      UserTab
+    });
+
+    window.app.init();
+
+  } catch (e) {
+    console.error('[FATAL] Bootstrap failed:', e);
+    document.body.innerHTML = '<div style="padding:2rem;text-align:center;font-family:system-ui"><h1>Loading Error</h1><p>Unable to load the application. Please refresh the page.</p><button onclick="location.reload()" style="margin-top:1.5rem;padding:0.75rem 2rem;background:#6b9b37;color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer">Retry</button></div>';
+  }
+}
+
+document.readyState === 'loading'
+  ? document.addEventListener('DOMContentLoaded', init)
+  : init();
