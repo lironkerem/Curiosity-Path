@@ -1,0 +1,820 @@
+{
+  "boosters": [
+    {
+      "id": 1,
+      "title": "Deep Breathing",
+      "description": "Practice deep, intentional breathing for 3 minutes",
+      "duration": "3 min",
+      "category": "Breathwork",
+      "emoji": "🌬️"
+    },
+    {
+      "id": 2,
+      "title": "Gratitude Water",
+      "description": "Drink a full glass of water infused with gratitude",
+      "duration": "2 min",
+      "category": "Mindfulness",
+      "emoji": "💧"
+    },
+    {
+      "id": 3,
+      "title": "Cat Stretch",
+      "description": "Stretch your body like a cat",
+      "duration": "3 min",
+      "category": "Movement",
+      "emoji": "🐱"
+    },
+    {
+      "id": 4,
+      "title": "Intentional Smile",
+      "description": "Smile intentionally for 60 seconds and feel the shift in your face and heart",
+      "duration": "1 min",
+      "category": "Joy",
+      "emoji": "😊"
+    },
+    {
+      "id": 5,
+      "title": "Sunlight Gratitude",
+      "description": "Open a window, take in sunlight, and whisper 'thank you' to life",
+      "duration": "2 min",
+      "category": "Gratitude",
+      "emoji": "☀️"
+    },
+    {
+      "id": 6,
+      "title": "Gratitude Journal",
+      "description": "Journal three things you're grateful for - new ones each day",
+      "duration": "5 min",
+      "category": "Gratitude",
+      "emoji": "📝"
+    },
+    {
+      "id": 7,
+      "title": "Mood Music",
+      "description": "Listen to a song that elevates your mood instantly",
+      "duration": "3 min",
+      "category": "Joy",
+      "emoji": "🎵"
+    },
+    {
+      "id": 8,
+      "title": "Barefoot Walk",
+      "description": "Take a short barefoot walk to ground your energy",
+      "duration": "5 min",
+      "category": "Grounding",
+      "emoji": "👣"
+    },
+    {
+      "id": 9,
+      "title": "Silent Observation",
+      "description": "Spend five minutes in silence observing your breath",
+      "duration": "5 min",
+      "category": "Meditation",
+      "emoji": "🧘"
+    },
+    {
+      "id": 10,
+      "title": "Give a Compliment",
+      "description": "Compliment a stranger or someone close to you",
+      "duration": "1 min",
+      "category": "Connection",
+      "emoji": "💝"
+    },
+    {
+      "id": 11,
+      "title": "Dance Party",
+      "description": "Dance for one song without caring how you look",
+      "duration": "3 min",
+      "category": "Movement",
+      "emoji": "💃"
+    },
+    {
+      "id": 12,
+      "title": "Aromatherapy",
+      "description": "Light incense or essential oil that uplifts your spirit",
+      "duration": "2 min",
+      "category": "Sensory",
+      "emoji": "🕯️"
+    },
+    {
+      "id": 13,
+      "title": "Power Affirmation",
+      "description": "Speak one powerful affirmation out loud with conviction",
+      "duration": "1 min",
+      "category": "Affirmation",
+      "emoji": "💪"
+    },
+    {
+      "id": 14,
+      "title": "Conscious Pauses",
+      "description": "Take three conscious pauses during the day to realign your breath",
+      "duration": "3 min",
+      "category": "Breathwork",
+      "emoji": "⏸️"
+    },
+    {
+      "id": 15,
+      "title": "Mindful Tea",
+      "description": "Drink herbal tea slowly, mindfully, and fully present",
+      "duration": "5 min",
+      "category": "Mindfulness",
+      "emoji": "🍵"
+    },
+    {
+      "id": 16,
+      "title": "Organize Something",
+      "description": "Organize one small thing in your space for clarity",
+      "duration": "5 min",
+      "category": "Clarity",
+      "emoji": "🗂️"
+    },
+    {
+      "id": 17,
+      "title": "Laugh Break",
+      "description": "Watch something that makes you genuinely laugh",
+      "duration": "5 min",
+      "category": "Joy",
+      "emoji": "😂"
+    },
+    {
+      "id": 18,
+      "title": "Inspiration Note",
+      "description": "Write down one idea that excites or inspires you",
+      "duration": "3 min",
+      "category": "Creativity",
+      "emoji": "💡"
+    },
+    {
+      "id": 19,
+      "title": "Phone-Free Walk",
+      "description": "Take a 10-minute walk without your phone",
+      "duration": "10 min",
+      "category": "Grounding",
+      "emoji": "🚶"
+    },
+    {
+      "id": 20,
+      "title": "Heart Hug",
+      "description": "Hug someone you love or hold your own heart for 20 seconds",
+      "duration": "1 min",
+      "category": "Connection",
+      "emoji": "🤗"
+    },
+    {
+      "id": 21,
+      "title": "Voice Message",
+      "description": "Send a voice message to someone you miss",
+      "duration": "2 min",
+      "category": "Connection",
+      "emoji": "🎤"
+    },
+    {
+      "id": 22,
+      "title": "Nature Sit",
+      "description": "Sit in nature and let the wind or sun touch your face",
+      "duration": "5 min",
+      "category": "Grounding",
+      "emoji": "🌿"
+    },
+    {
+      "id": 23,
+      "title": "Memory Gratitude",
+      "description": "Recall one beautiful memory and relive it with gratitude",
+      "duration": "3 min",
+      "category": "Gratitude",
+      "emoji": "🌟"
+    },
+    {
+      "id": 24,
+      "title": "Feeling Visualization",
+      "description": "Visualize how you want to feel today - not what you want to do",
+      "duration": "3 min",
+      "category": "Visualization",
+      "emoji": "✨"
+    },
+    {
+      "id": 25,
+      "title": "Golden Light Breathing",
+      "description": "Close your eyes and breathe in golden light, exhale tension",
+      "duration": "3 min",
+      "category": "Breathwork",
+      "emoji": "💛"
+    },
+    {
+      "id": 26,
+      "title": "Sing or Hum",
+      "description": "Sing or hum a tune while doing something mundane",
+      "duration": "3 min",
+      "category": "Joy",
+      "emoji": "🎶"
+    },
+    {
+      "id": 27,
+      "title": "Mini Declutter",
+      "description": "Declutter a small corner or bag and feel the release",
+      "duration": "5 min",
+      "category": "Clarity",
+      "emoji": "🧹"
+    },
+    {
+      "id": 28,
+      "title": "Random Kindness",
+      "description": "Do something kind for no reason",
+      "duration": "5 min",
+      "category": "Connection",
+      "emoji": "❤️"
+    },
+    {
+      "id": 29,
+      "title": "Energy Reset Shower",
+      "description": "Take a cold or refreshing shower and feel your energy reset",
+      "duration": "5 min",
+      "category": "Energy",
+      "emoji": "🚿"
+    },
+    {
+      "id": 30,
+      "title": "Creative Play",
+      "description": "Write or draw a creative idea just for fun",
+      "duration": "10 min",
+      "category": "Creativity",
+      "emoji": "🎨"
+    },
+    {
+      "id": 31,
+      "title": "Mindful Eating",
+      "description": "Eat one meal with complete awareness - no screens, no rush",
+      "duration": "15 min",
+      "category": "Mindfulness",
+      "emoji": "🍽️"
+    },
+    {
+      "id": 32,
+      "title": "Sky Gazing",
+      "description": "Look at the sky or stars for one full minute",
+      "duration": "1 min",
+      "category": "Grounding",
+      "emoji": "🌌"
+    },
+    {
+      "id": 33,
+      "title": "Heart Rate Boost",
+      "description": "Do one physical thing that raises your pulse - jump, dance, walk uphill",
+      "duration": "5 min",
+      "category": "Movement",
+      "emoji": "🏃"
+    },
+    {
+      "id": 34,
+      "title": "Silent Forgiveness",
+      "description": "Forgive someone silently and release the mental weight",
+      "duration": "3 min",
+      "category": "Release",
+      "emoji": "🕊️"
+    },
+    {
+      "id": 35,
+      "title": "Self-Affirmation",
+      "description": "Touch your heart and say 'I am safe, I am free, I am enough'",
+      "duration": "1 min",
+      "category": "Affirmation",
+      "emoji": "💚"
+    },
+    {
+      "id": 36,
+      "title": "Learn Something New",
+      "description": "Learn one new fact, word, or idea every day",
+      "duration": "5 min",
+      "category": "Growth",
+      "emoji": "📚"
+    },
+    {
+      "id": 37,
+      "title": "Celebrate Wins",
+      "description": "Write down your wins, no matter how small",
+      "duration": "3 min",
+      "category": "Gratitude",
+      "emoji": "🏆"
+    },
+    {
+      "id": 38,
+      "title": "Digital Detox",
+      "description": "Unplug from your devices for one hour daily",
+      "duration": "60 min",
+      "category": "Clarity",
+      "emoji": "📵"
+    },
+    {
+      "id": 39,
+      "title": "Guided Meditation",
+      "description": "Listen to a guided meditation or uplifting talk",
+      "duration": "10 min",
+      "category": "Meditation",
+      "emoji": "🎧"
+    },
+    {
+      "id": 40,
+      "title": "Success Visualization",
+      "description": "Visualize yourself succeeding at something you're working on",
+      "duration": "5 min",
+      "category": "Visualization",
+      "emoji": "🎯"
+    },
+    {
+      "id": 41,
+      "title": "Guilt-Free Rest",
+      "description": "Enjoy a guilt-free nap or moment of rest",
+      "duration": "20 min",
+      "category": "Rest",
+      "emoji": "😴"
+    },
+    {
+      "id": 42,
+      "title": "Water Connection",
+      "description": "Connect with water - swim, shower, or just feel it consciously",
+      "duration": "5 min",
+      "category": "Sensory",
+      "emoji": "💦"
+    },
+    {
+      "id": 43,
+      "title": "Genuine Laughter",
+      "description": "Laugh out loud, even if you fake it at first",
+      "duration": "2 min",
+      "category": "Joy",
+      "emoji": "🤣"
+    },
+    {
+      "id": 44,
+      "title": "Let Go & Give",
+      "description": "Give away or donate something you no longer need",
+      "duration": "10 min",
+      "category": "Release",
+      "emoji": "🎁"
+    },
+    {
+      "id": 45,
+      "title": "Sunset Stillness",
+      "description": "Sit in stillness after sunset and observe the shift in energy",
+      "duration": "10 min",
+      "category": "Meditation",
+      "emoji": "🌅"
+    },
+    {
+      "id": 46,
+      "title": "Passion Revival",
+      "description": "Reconnect with a passion or hobby you've ignored",
+      "duration": "15 min",
+      "category": "Creativity",
+      "emoji": "🔥"
+    },
+    {
+      "id": 47,
+      "title": "Fire Gazing",
+      "description": "Watch firelight, candlelight, or sunrise for a few minutes",
+      "duration": "5 min",
+      "category": "Meditation",
+      "emoji": "🔥"
+    },
+    {
+      "id": 48,
+      "title": "Daily Lesson",
+      "description": "Reflect on one lesson life taught you today",
+      "duration": "3 min",
+      "category": "Growth",
+      "emoji": "📖"
+    },
+    {
+      "id": 49,
+      "title": "Mirror Love",
+      "description": "Tell yourself 'I love you' while looking in the mirror",
+      "duration": "1 min",
+      "category": "Self-Love",
+      "emoji": "🪞"
+    },
+    {
+      "id": 50,
+      "title": "Evening Gratitude",
+      "description": "End the day by saying thank you - for everything, even the chaos",
+      "duration": "2 min",
+      "category": "Gratitude",
+      "emoji": "🌙"
+    },
+    {
+      "id": 51,
+      "title": "Conscious Start",
+      "description": "Take three conscious breaths before starting anything new",
+      "duration": "1 min",
+      "category": "Breathwork",
+      "emoji": "🌬️"
+    },
+    {
+      "id": 52,
+      "title": "Present Appreciation",
+      "description": "Write a single sentence about what you most appreciate in this moment",
+      "duration": "2 min",
+      "category": "Gratitude",
+      "emoji": "✍️"
+    },
+    {
+      "id": 53,
+      "title": "Silent Observation",
+      "description": "Spend two minutes observing your surroundings in complete silence",
+      "duration": "2 min",
+      "category": "Mindfulness",
+      "emoji": "👀"
+    },
+    {
+      "id": 54,
+      "title": "Sacred Fruit",
+      "description": "Eat one piece of fruit as if it's sacred nourishment",
+      "duration": "5 min",
+      "category": "Mindfulness",
+      "emoji": "🍎"
+    },
+    {
+      "id": 55,
+      "title": "Shoulder Release",
+      "description": "Do ten slow shoulder rolls and release built-up tension",
+      "duration": "2 min",
+      "category": "Movement",
+      "emoji": "💆"
+    },
+    {
+      "id": 56,
+      "title": "Sound Meditation",
+      "description": "Listen to a sound meditation or natural ambient soundscape",
+      "duration": "10 min",
+      "category": "Meditation",
+      "emoji": "🔊"
+    },
+    {
+      "id": 57,
+      "title": "Self Love Note",
+      "description": "Write a love note to yourself and keep it visible",
+      "duration": "5 min",
+      "category": "Self-Love",
+      "emoji": "💌"
+    },
+    {
+      "id": 58,
+      "title": "Body Gratitude",
+      "description": "Do a one-minute body scan and thank each part for serving you",
+      "duration": "1 min",
+      "category": "Gratitude",
+      "emoji": "🙏"
+    },
+    {
+      "id": 59,
+      "title": "Daily Intention",
+      "description": "Choose one word as your 'intention of the day'",
+      "duration": "2 min",
+      "category": "Mindfulness",
+      "emoji": "🎯"
+    },
+    {
+      "id": 60,
+      "title": "Mirror Compassion",
+      "description": "Look at yourself in the mirror with compassion, not judgment",
+      "duration": "2 min",
+      "category": "Self-Love",
+      "emoji": "💖"
+    },
+    {
+      "id": 61,
+      "title": "Random Inspiration",
+      "description": "Read a random page from an inspiring book",
+      "duration": "5 min",
+      "category": "Growth",
+      "emoji": "📕"
+    },
+    {
+      "id": 62,
+      "title": "Ideal Day Vision",
+      "description": "Spend five minutes imagining your ideal day, vividly",
+      "duration": "5 min",
+      "category": "Visualization",
+      "emoji": "🌈"
+    },
+    {
+      "id": 63,
+      "title": "Pause Alarm",
+      "description": "Set an alarm titled 'pause and breathe' halfway through your day",
+      "duration": "1 min",
+      "category": "Mindfulness",
+      "emoji": "⏰"
+    },
+    {
+      "id": 64,
+      "title": "Departure Smile",
+      "description": "Smile at your reflection before leaving your space",
+      "duration": "1 min",
+      "category": "Joy",
+      "emoji": "😄"
+    },
+    {
+      "id": 65,
+      "title": "Say Yes",
+      "description": "Say 'yes' to something spontaneous",
+      "duration": "Variable",
+      "category": "Adventure",
+      "emoji": "✅"
+    },
+    {
+      "id": 66,
+      "title": "Say No",
+      "description": "Say 'no' to something draining",
+      "duration": "1 min",
+      "category": "Boundaries",
+      "emoji": "🚫"
+    },
+    {
+      "id": 67,
+      "title": "Sacred Space Refresh",
+      "description": "Rearrange or refresh your personal altar or sacred space",
+      "duration": "10 min",
+      "category": "Clarity",
+      "emoji": "🕉️"
+    },
+    {
+      "id": 68,
+      "title": "Card Reading",
+      "description": "Draw a card (Tarot or Oracle) and reflect on its message",
+      "duration": "5 min",
+      "category": "Spirituality",
+      "emoji": "🃏"
+    },
+    {
+      "id": 69,
+      "title": "Belief Transformation",
+      "description": "Write down one limiting belief and replace it with truth",
+      "duration": "5 min",
+      "category": "Growth",
+      "emoji": "🔄"
+    },
+    {
+      "id": 70,
+      "title": "Belly Breathing",
+      "description": "Do ten deep belly breaths with eyes closed",
+      "duration": "3 min",
+      "category": "Breathwork",
+      "emoji": "🫁"
+    },
+    {
+      "id": 71,
+      "title": "Gravity Rest",
+      "description": "Lie down on the floor and let gravity hold you fully",
+      "duration": "5 min",
+      "category": "Rest",
+      "emoji": "🧘‍♀️"
+    },
+    {
+      "id": 72,
+      "title": "Nature Touch",
+      "description": "Touch something natural - tree, soil, sand, leaf - and connect",
+      "duration": "2 min",
+      "category": "Grounding",
+      "emoji": "🌱"
+    },
+    {
+      "id": 73,
+      "title": "Self-Massage",
+      "description": "Do a brief self-massage on your temples, neck, or feet",
+      "duration": "5 min",
+      "category": "Self-Care",
+      "emoji": "💆‍♀️"
+    },
+    {
+      "id": 74,
+      "title": "Food Blessing",
+      "description": "Take a moment to bless your food before eating",
+      "duration": "1 min",
+      "category": "Gratitude",
+      "emoji": "🙏"
+    },
+    {
+      "id": 75,
+      "title": "Kind Self-Talk",
+      "description": "Speak kindly to yourself as you would to a friend",
+      "duration": "3 min",
+      "category": "Self-Love",
+      "emoji": "💬"
+    },
+    {
+      "id": 76,
+      "title": "Fluid Motion",
+      "description": "Move your body in slow, fluid, conscious motion for 3 minutes",
+      "duration": "3 min",
+      "category": "Movement",
+      "emoji": "🌊"
+    },
+    {
+      "id": 77,
+      "title": "Heartbeat Gratitude",
+      "description": "Listen to your heartbeat and feel gratitude for it",
+      "duration": "2 min",
+      "category": "Gratitude",
+      "emoji": "❤️‍🔥"
+    },
+    {
+      "id": 78,
+      "title": "Emotional Release",
+      "description": "Let yourself cry or release emotion without resistance",
+      "duration": "Variable",
+      "category": "Release",
+      "emoji": "😢"
+    },
+    {
+      "id": 79,
+      "title": "Teacher Appreciation",
+      "description": "Send appreciation to someone who once taught you something hard",
+      "duration": "3 min",
+      "category": "Gratitude",
+      "emoji": "🎓"
+    },
+    {
+      "id": 80,
+      "title": "Mindful Tidying",
+      "description": "Make your bed or tidy your space with awareness and love",
+      "duration": "5 min",
+      "category": "Clarity",
+      "emoji": "🛏️"
+    },
+    {
+      "id": 81,
+      "title": "Single-Tasking Hour",
+      "description": "Spend one hour without multitasking",
+      "duration": "60 min",
+      "category": "Focus",
+      "emoji": "🎯"
+    },
+    {
+      "id": 82,
+      "title": "Candle Meditation",
+      "description": "Light a candle and stare into the flame until your mind softens",
+      "duration": "5 min",
+      "category": "Meditation",
+      "emoji": "🕯️"
+    },
+    {
+      "id": 83,
+      "title": "Cloud Watching",
+      "description": "Watch the movement of clouds and let thoughts drift with them",
+      "duration": "10 min",
+      "category": "Meditation",
+      "emoji": "☁️"
+    },
+    {
+      "id": 84,
+      "title": "Daily Mantra",
+      "description": "Create a short mantra and repeat it throughout the day",
+      "duration": "Variable",
+      "category": "Affirmation",
+      "emoji": "🔮"
+    },
+    {
+      "id": 85,
+      "title": "Trust Practice",
+      "description": "Practice saying 'I trust life' whenever uncertainty arises",
+      "duration": "Variable",
+      "category": "Affirmation",
+      "emoji": "🌟"
+    },
+    {
+      "id": 86,
+      "title": "Window Breathing",
+      "description": "Sit by a window and feel the rhythm of your breath matching nature's",
+      "duration": "5 min",
+      "category": "Breathwork",
+      "emoji": "🪟"
+    },
+    {
+      "id": 87,
+      "title": "Beauty Photography",
+      "description": "Take a digital photo of something that symbolizes beauty to you",
+      "duration": "5 min",
+      "category": "Creativity",
+      "emoji": "📸"
+    },
+    {
+      "id": 88,
+      "title": "Self-Compliment",
+      "description": "Compliment yourself out loud on one thing you did well today",
+      "duration": "1 min",
+      "category": "Self-Love",
+      "emoji": "👏"
+    },
+    {
+      "id": 89,
+      "title": "Future Excitement",
+      "description": "Write down what you're looking forward to this week",
+      "duration": "3 min",
+      "category": "Gratitude",
+      "emoji": "📅"
+    },
+    {
+      "id": 90,
+      "title": "Healing Light",
+      "description": "Imagine sending healing light to someone in need",
+      "duration": "3 min",
+      "category": "Connection",
+      "emoji": "✨"
+    },
+    {
+      "id": 91,
+      "title": "Intentional Cooking",
+      "description": "Cook or prepare something with full intention and gratitude",
+      "duration": "15 min",
+      "category": "Mindfulness",
+      "emoji": "👨‍🍳"
+    },
+    {
+      "id": 92,
+      "title": "Emotion Observation",
+      "description": "Observe your emotions for one minute without labeling them",
+      "duration": "1 min",
+      "category": "Mindfulness",
+      "emoji": "🧠"
+    },
+    {
+      "id": 93,
+      "title": "Gentle Truth",
+      "description": "Speak your truth gently but firmly in one interaction today",
+      "duration": "Variable",
+      "category": "Authenticity",
+      "emoji": "💎"
+    },
+    {
+      "id": 94,
+      "title": "Post-Task Silence",
+      "description": "Practice five minutes of silence after completing a task",
+      "duration": "5 min",
+      "category": "Meditation",
+      "emoji": "🤫"
+    },
+    {
+      "id": 95,
+      "title": "Hand Creation",
+      "description": "Create something with your hands - doodle, sculpt, or rearrange",
+      "duration": "10 min",
+      "category": "Creativity",
+      "emoji": "✋"
+    },
+    {
+      "id": 96,
+      "title": "Breath-Step Walk",
+      "description": "Walk slowly, consciously, matching your steps to your breath",
+      "duration": "10 min",
+      "category": "Grounding",
+      "emoji": "👟"
+    },
+    {
+      "id": 97,
+      "title": "Life Appreciation",
+      "description": "List ten things you love about being alive",
+      "duration": "5 min",
+      "category": "Gratitude",
+      "emoji": "💝"
+    },
+    {
+      "id": 98,
+      "title": "Intuition Practice",
+      "description": "Listen to your intuition before making a small decision",
+      "duration": "2 min",
+      "category": "Mindfulness",
+      "emoji": "🔮"
+    },
+    {
+      "id": 99,
+      "title": "Golden Light Protection",
+      "description": "Visualize yourself surrounded by protective golden light",
+      "duration": "3 min",
+      "category": "Visualization",
+      "emoji": "💛"
+    },
+    {
+      "id": 100,
+      "title": "Bedtime Gratitude",
+      "description": "Whisper 'thank you' to the Universe before sleep",
+      "duration": "1 min",
+      "category": "Gratitude",
+      "emoji": "🌙"
+    },
+    {
+      "id": 101,
+      "title": "Full Body Shake",
+      "description": "Stand up and shake your entire body for 5 minutes",
+      "duration": "5 min",
+      "category": "Movement",
+      "emoji": "🤸"
+    },
+    {
+      "id": 102,
+      "title": "Laughter Yoga",
+      "description": "Laugh for 5 minutes, just because you can!",
+      "duration": "5 min",
+      "category": "Joy",
+      "emoji": "😆"
+    }
+  ]
+}
