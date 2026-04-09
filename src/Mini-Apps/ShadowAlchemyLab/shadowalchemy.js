@@ -72,15 +72,15 @@ tab.innerHTML = `
     window.AppController.renderDashboard();
   }
 }
+
   async initializeShadowAlchemy() {
     try {
-
       // engines
-      await import('/src/Mini-Apps/ShadowAlchemyLab/js/engines/archetypesEngine.js');
-      await this.loadScript('/src/Mini-Apps/ShadowAlchemyLab/js/engines/DailyJourneyEngine.js');
+      await import(/* @vite-ignore */ '/src/Mini-Apps/ShadowAlchemyLab/js/engines/archetypesEngine.js');
+      await import(/* @vite-ignore */ '/src/Mini-Apps/ShadowAlchemyLab/js/engines/DailyJourneyEngine.js');
 
       // controller
-      await import('/src/Mini-Apps/ShadowAlchemyLab/js/controller.js');
+      await import(/* @vite-ignore */ '/src/Mini-Apps/ShadowAlchemyLab/js/controller.js');
 
       if (window.AppController?.init) await window.AppController.init();
     } catch (err) {
@@ -94,17 +94,6 @@ tab.innerHTML = `
         </div>
       `;
     }
-  }
-
-  loadScript(src) {
-    return new Promise((resolve, reject) => {
-      if (document.querySelector(`script[src="${src}"]`)) return resolve();
-      const script = document.createElement('script');
-      script.src = src;
-      script.onload = resolve;
-      script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
-      document.body.appendChild(script);
-    });
   }
 }
 
