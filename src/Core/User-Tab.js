@@ -37,7 +37,6 @@ export default class UserTab {
   // ============== RENDERING ==============
 
   render() {
-    this.loadStylesheet();
     const u = this.currentUser;
 
     return `
@@ -71,17 +70,6 @@ export default class UserTab {
           <button class="dropdown-item" data-action="logout"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20h9"/><path d="M10 12v.01"/><path d="M13 4l-6 2v14l6 2V4z"/></svg> Logout</button>
         </div>
       </div>`;
-  }
-
-  /** Load CSS if not already present */
-  loadStylesheet() {
-    if (!document.getElementById('user-tab-styles')) {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = './src/styles/user-tab-styles.css';
-      link.id = 'user-tab-styles';
-      document.head.appendChild(link);
-    }
   }
 
   // ============== INITIALIZATION ==============
