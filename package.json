@@ -14,14 +14,11 @@
     "mindfulness",
     "personal-growth"
   ],
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "start": "npx serve . --listen 3000",
-    "lint": "npx eslint . --ext .js --ignore-pattern 'node_modules/' --ignore-pattern 'CSS/'",
-    "audit-deps": "npm audit --audit-level=moderate"
-  },
+"scripts": {
+  "dev": "vite",
+  "build": "vite build && node copy-assets.mjs",
+  "preview": "vite preview"
+},
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"

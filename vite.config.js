@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import { fileURLToPath } from 'url';
-import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
@@ -18,22 +17,6 @@ export default defineConfig({
       '/CSS/':        resolve(__dirname, './src/styles/'),
     },
   },
-
-plugins: [
-    viteStaticCopy({
-      targets: [
-        // Service worker — lives at root
-        { src: 'service-worker.js', dest: '' },
-        // Features data JSON files
-        { src: 'src/Features/Data', dest: 'src/Features' },
-        // Mini-Apps runtime files
-        { src: 'src/Mini-Apps/CommunityHub', dest: 'src/Mini-Apps' },
-        { src: 'src/Mini-Apps/SelfAnalysisPro', dest: 'src/Mini-Apps' },
-        { src: 'src/Mini-Apps/ShadowAlchemyLab', dest: 'src/Mini-Apps' },
-        { src: 'src/Mini-Apps/FlipTheScript', dest: 'src/Mini-Apps' },
-      ]
-    })
-  ],
 
   server: {
     port: 3000,
