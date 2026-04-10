@@ -49,16 +49,20 @@ if ('serviceWorker' in navigator) {
 // ─── Bootstrap ────────────────────────────────────────────────────────────────
 async function init() {
   try {
-    const [aff, { QUOTES, getRandomQuote, getQuoteOfTheDay }] = await Promise.all([
+    const [
+      aff,
+      { QUOTES, getRandomQuote, getQuoteOfTheDay },
+      Core,
+      { default: UserTab }
+    ] = await Promise.all([
       import('./Features/Data/AffirmationsList.js'),
-      import('./Features/Data/QuotesList.js')
+      import('./Features/Data/QuotesList.js'),
+      import('./Core/Index.js'),
+      import('./Core/User-Tab.js')
     ]);
 
     window.affirmations = aff.default;
     window.QuotesData   = { QUOTES, getRandomQuote, getQuoteOfTheDay };
-
-    const Core                 = await import('./Core/Index.js');
-    const { default: UserTab } = await import('./Core/User-Tab.js');
 
     window.app = new Core.ProjectCuriosityApp({
       AppState:          Core.AppState,
