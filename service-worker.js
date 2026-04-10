@@ -1,6 +1,6 @@
 // The Curiosity Path — Service Worker
 
-const CACHE_VERSION  = 'tcp-2026-03-31';
+const CACHE_VERSION  = 'tcp-2026-04-10';
 const CACHE_NAME     = `tcp-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE  = `tcp-runtime-${CACHE_VERSION}`;
 const ICON_PATH      = './Icons/';
@@ -9,9 +9,6 @@ const ICON_PATH      = './Icons/';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './CSS/main-styles.css',
-  './CSS/mobile-styles.css',
-  './CSS/dark-mode.css',
   `${ICON_PATH}icon-192x192.png`,
   `${ICON_PATH}icon-512x512.png`,
   `${ICON_PATH}icon-512-maskable.png`,
@@ -195,8 +192,6 @@ self.addEventListener('notificationclick', event => {
           const client = clientList[0];
           client.focus();
 
-          // If this is a whisper notification, tell the app to open the thread directly.
-          // The app handles this via a 'message' event listener in ProjectCuriosityApp.js.
           if (notifData.type === 'whisper' && typeof notifData.senderId === 'string') {
             client.postMessage({
               type:     'OPEN_WHISPER_THREAD',
@@ -207,8 +202,6 @@ self.addEventListener('notificationclick', event => {
           return;
         }
 
-        // App is closed — open it. For whispers the URL contains ?whisper=senderId
-        // so the app will handle deep-linking on boot.
         if (clients.openWindow) return clients.openWindow(fullUrl);
       })
   );
