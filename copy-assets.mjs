@@ -1,4 +1,4 @@
-import { cpSync } from 'fs';
+import { cpSync, readdirSync, unlinkSync } from 'fs';
 
 const copies = [
   // [source, destination]
@@ -17,4 +17,17 @@ for (const [src, dest] of copies) {
   } catch (e) {
     console.error(`✗ Failed ${src}: ${e.message}`);
   }
+}
+
+// Remove stale Vite build manifest from dist/assets/
+try {
+  const files = readdirSync('dist/assets');
+  for (const f of files) {
+    if (f.startsWith('manifest-') && f.endsWith('.json')) {
+      unlinkSync(`dist/assets/${f}`);
+      console.log(`✓ Deleted stale build manifest: dist/assets/${f}`);
+    }
+  }
+} catch (e) {
+  console.error(`✗ Failed to clean stale manifest: ${e.message}`);
 }

@@ -23,6 +23,19 @@ export default defineConfig({
     open: true,
   },
 
+  plugins: [
+    {
+      name: 'fix-manifest-link',
+      enforce: 'post',
+      transformIndexHtml(html) {
+        return html.replace(
+          /<link rel="manifest" href="\/assets\/[^"]+\.json">/,
+          '<link rel="manifest" href="/manifest.json">'
+        );
+      }
+    }
+  ],
+
   build: {
     outDir: 'dist',
     emptyOutDir: true,
