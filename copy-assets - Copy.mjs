@@ -6,6 +6,8 @@ const copies = [
   ['src/Features/Data',              'dist/src/Features/Data'],
   ['src/Mini-Apps/CommunityHub',     'dist/src/Mini-Apps/CommunityHub'],
   ['src/Mini-Apps/SelfAnalysisPro',  'dist/src/Mini-Apps/SelfAnalysisPro'],
+  ['src/Mini-Apps/ShadowAlchemyLab', 'dist/src/Mini-Apps/ShadowAlchemyLab'],
+  ['src/Mini-Apps/FlipTheScript',    'dist/src/Mini-Apps/FlipTheScript'],
 ];
 
 for (const [src, dest] of copies) {
