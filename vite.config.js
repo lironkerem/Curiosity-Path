@@ -22,17 +22,36 @@ export default defineConfig({
   plugins: [
     viteStaticCopy({
       targets: [
-        // CommunityHub — loaded via @vite-ignore dynamic imports at runtime
-        { src: 'src/Mini-Apps/CommunityHub', dest: 'src/Mini-Apps' },
-        // SelfAnalysisPro — loader fetches index.html and JS files at runtime
-        { src: 'src/Mini-Apps/SelfAnalysisPro', dest: 'src/Mini-Apps' },
-        // ShadowAlchemyLab JSON data — fetched at runtime
+        // Service worker — lives at root, copy to dist root
         {
-          src: 'src/Mini-Apps/ShadowAlchemyLab/js/engines/archetypes_data.json',
-          dest: 'src/Mini-Apps/ShadowAlchemyLab/js/engines'
+          src: 'service-worker.js',
+          dest: '.'
         },
-        // Features data files — fetched at runtime via fetch()
-        { src: 'src/Features/Data', dest: 'src/Features' },
+        // Features data JSON files — fetched at runtime via fetch()
+        {
+          src: 'src/Features/Data/*',
+          dest: 'src/Features/Data'
+        },
+        // CommunityHub — all files, loaded via @vite-ignore at runtime
+        {
+          src: 'src/Mini-Apps/CommunityHub/**/*',
+          dest: 'src/Mini-Apps/CommunityHub'
+        },
+        // SelfAnalysisPro — loader fetches index.html and JS at runtime
+        {
+          src: 'src/Mini-Apps/SelfAnalysisPro/**/*',
+          dest: 'src/Mini-Apps/SelfAnalysisPro'
+        },
+        // ShadowAlchemyLab — JSON data + JS loaded at runtime
+        {
+          src: 'src/Mini-Apps/ShadowAlchemyLab/**/*',
+          dest: 'src/Mini-Apps/ShadowAlchemyLab'
+        },
+        // FlipTheScript data files
+        {
+          src: 'src/Mini-Apps/FlipTheScript/**/*',
+          dest: 'src/Mini-Apps/FlipTheScript'
+        },
       ]
     })
   ],
