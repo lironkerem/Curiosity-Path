@@ -2,10 +2,12 @@
  * Mini-Apps/ShadowAlchemyLab/js/engines/archetypesEngine.js
  * Patched: ls wrapper, frozen constants, crypto-based session ID,
  * validated numeric fields, safe deepClone, parseInt radix 10.
+ * Vite: JSON loaded via static import instead of fetch().
  */
 
+import archetypeData from './archetypes_data.json';
+
 const STORAGE_KEY = 'archetypes_engine_v2';
-const DATA_URL    = '/src/Mini-Apps/ShadowAlchemyLab/js/engines/archetypes_data.json';
 
 // Safe localStorage wrapper
 const ls = {
@@ -17,12 +19,10 @@ const ls = {
 function nowISO() { return new Date().toISOString(); }
 
 function deepClone(obj) {
-  // Guard against non-serializable values
   try { return JSON.parse(JSON.stringify(obj)); }
   catch { return obj; }
 }
 
-// Crypto-based session ID with fallback
 function newSessionId() {
   if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
     const arr = new Uint32Array(2);
@@ -60,21 +60,10 @@ class ArchetypesEngine {
   // ========== DATA LOADING ==========
   async loadArchetypeData() {
     try {
-      if (window.ARCHETYPES_DATA) {
-        this.universal  = deepClone(window.ARCHETYPES_DATA.universalArchetypes);
-        this.shadows    = deepClone(window.ARCHETYPES_DATA.shadowArchetypes);
-        this.dataLoaded = true;
-        return;
-      }
-
-      const response = await fetch(DATA_URL);
-      if (!response.ok) throw new Error(`Failed to load archetype data: ${response.status}`);
-
-      const data = await response.json();
+      const data      = archetypeData;
       this.universal  = deepClone(data.universalArchetypes);
       this.shadows    = deepClone(data.shadowArchetypes);
       this.dataLoaded = true;
-
     } catch (e) {
       console.error('[ArchetypesEngine] Failed to load archetype data:', e);
       this.universal  = {};
@@ -99,7 +88,6 @@ class ArchetypesEngine {
     if (!raw) return;
     try {
       const parsed = JSON.parse(raw);
-      // Validate numeric fields before merging
       if (parsed.xp !== undefined) {
         parsed.xp = Math.max(0, Math.min(9999, parseInt(String(parsed.xp), 10) || 0));
       }
@@ -156,7 +144,7 @@ class ArchetypesEngine {
   }
 
   getActiveJourney() {
-    if (this.state.activeShadowId)    return this.shadows[this.state.activeShadowId]   || null;
+    if (this.state.activeShadowId)    return this.shadows[this.state.activeShadowId]      || null;
     if (this.state.activeArchetypeId) return this.universal[this.state.activeArchetypeId] || null;
     return null;
   }
@@ -278,14 +266,14 @@ class ArchetypesEngine {
   }
 
   // ========== UTILITY ==========
-  getUserState()     { return deepClone(this.state); }
+  getUserState() { return deepClone(this.state); }
 
   exportUserNotes() {
     const journey = this.getActiveJourney();
     return JSON.stringify({
-      state:        this.state,
-      activeJourney:journey,
-      summary:      this.generateIntegrationSummary()
+      state:         this.state,
+      activeJourney: journey,
+      summary:       this.generateIntegrationSummary()
     }, null, 2);
   }
 }
