@@ -1,0 +1,1072 @@
+Folder PATH listing for volume ˜€™‰ 2026
+Volume serial number is F2BF-1848
+C:.
+|   .gitignore
+|   bump-version.bat
+|   convertToWebP.bat
+|   copy-assets.mjs
+|   file-tree.txt
+|   FileTree.txt
+|   index.html
+|   package-lock.json
+|   package.json
+|   QR Code.png
+|   README.md
+|   service-worker.js
+|   vercel.json
+|   vite.config.js
+|   
++---api
+|       astro-proxy.js
+|       chat.js
+|       geocode.js
+|       save-sub.js
+|       send.js
+|       subs.js
+|       tarot-vision.js
+|       
++---dist
+|   |   index.html
+|   |   manifest.json
+|   |   service-worker.js
+|   |   
+|   +---assets
+|   |       app-CUsvDtC2.js
+|   |       archetypesEngine-C2YSgS9x.js
+|   |       archetypeStudio-Cg-siPE6.js
+|   |       champagne-gold-Dc1aETAR.css
+|   |       controller-BSp3qnOl.js
+|   |       customDatePicker-D1KxK3Zv.js
+|   |       customTimePicker-CV_1OXuF.js
+|   |       DailyJourneyEngine-CClVLJQA.js
+|   |       dark-mode-FCNYAfWW.css
+|   |       data-DOM1BW4p.js
+|   |       earth-luxury-OrYpJbon.css
+|   |       engine-BhPMoS0d.js
+|   |       Index-DkJyCc4h.js
+|   |       loader-CuYUdiiU.js
+|   |       main-Ch1Nciyc.css
+|   |       main-CX7LP7We.js
+|   |       matrix-code-jvjPuNax.css
+|   |       modal-1yjDmyAf.js
+|   |       PDFAssembler-4kiYlczz.js
+|   |       QuotesList-BeF9xuKi.js
+|   |       royal-indigo-C0XK9sR-.css
+|   |       shadowDialogue-EsvMJ7ej.js
+|   |       shadowGuidedProcess-WG23kA8t.js
+|   |       shadowGuidedProcessViewer-D4OabSty.js
+|   |       stepindicator-DS_fPbqw.js
+|   |       subShadowJourney-Dd6n-r7c.js
+|   |       subShadowsLabGrid-Drf7ivlu.js
+|   |       triggerRelease-9chkK78G.js
+|   |       ui-cFve4UsT.js
+|   |       User-Tab-CVzAHTyX.js
+|   |       
+|   +---Community
+|   |   |   AdminDashboard.png
+|   |   |   AdminDashboard.webp
+|   |   |   Breathwork.png
+|   |   |   Breathwork.webp
+|   |   |   Campfire.png
+|   |   |   Campfire.webp
+|   |   |   Focus.png
+|   |   |   Focus.webp
+|   |   |   OSHO.png
+|   |   |   OSHO.webp
+|   |   |   Reiki.png
+|   |   |   Reiki.webp
+|   |   |   Silent.png
+|   |   |   Silent.webp
+|   |   |   Tarot.png
+|   |   |   Tarot.webp
+|   |   |   Visualization.png
+|   |   |   Visualization.webp
+|   |   |   
+|   |   +---Chakras
+|   |   |       Ajna1.jpg
+|   |   |       Ajna1.webp
+|   |   |       Ajna2.jpg
+|   |   |       Ajna2.webp
+|   |   |       Anahata1.jpg
+|   |   |       Anahata1.webp
+|   |   |       Anahata2.jpg
+|   |   |       Anahata2.webp
+|   |   |       Aura1.jpg
+|   |   |       Aura1.webp
+|   |   |       Aura2.jpg
+|   |   |       Aura2.webp
+|   |   |       Chakras1.jpg
+|   |   |       Chakras1.webp
+|   |   |       Chakras2.jpg
+|   |   |       Chakras2.webp
+|   |   |       Manipura1.jpg
+|   |   |       Manipura1.webp
+|   |   |       Manipura2.jpg
+|   |   |       Manipura2.webp
+|   |   |       Muladhara1.jpg
+|   |   |       Muladhara1.webp
+|   |   |       Muladhara2.jpg
+|   |   |       Muladhara2.webp
+|   |   |       Sahasrara1.jpg
+|   |   |       Sahasrara1.webp
+|   |   |       Sahasrara2.jpg
+|   |   |       Sahasrara2.webp
+|   |   |       Svadhistana1.jpg
+|   |   |       Svadhistana1.webp
+|   |   |       Svadhistana2.jpg
+|   |   |       Svadhistana2.webp
+|   |   |       Vishuddha1.jpg
+|   |   |       Vishuddha1.webp
+|   |   |       Vishuddha2.jpg
+|   |   |       Vishuddha2.webp
+|   |   |       
+|   |   +---Lunar
+|   |   |       FullMoon.png
+|   |   |       FullMoon.webp
+|   |   |       NewMoon.png
+|   |   |       NewMoon.webp
+|   |   |       WaningMoon.png
+|   |   |       WaningMoon.webp
+|   |   |       WaxingMoon.png
+|   |   |       WaxingMoon.webp
+|   |   |       
+|   |   \---Solar
+|   |           Autumn.png
+|   |           Autumn.webp
+|   |           Spring.png
+|   |           Spring.webp
+|   |           Summer.png
+|   |           Summer.webp
+|   |           Winter.png
+|   |           Winter.webp
+|   |           
+|   +---CTA
+|   |   +---Sessions
+|   |   |       Sessions1.jpg
+|   |   |       Sessions1.webp
+|   |   |       Sessions2.jpg
+|   |   |       Sessions2.webp
+|   |   |       Sessions3.jpg
+|   |   |       Sessions3.webp
+|   |   |       Sessions4.jpg
+|   |   |       Sessions4.webp
+|   |   |       Sessions5.jpg
+|   |   |       Sessions5.webp
+|   |   |       Sessions6.jpg
+|   |   |       Sessions6.webp
+|   |   |       Sessions7.jpg
+|   |   |       Sessions7.webp
+|   |   |       Sessions8.jpg
+|   |   |       Sessions8.webp
+|   |   |       Sessions9.jpg
+|   |   |       Sessions9.webp
+|   |   |       
+|   |   \---Workshops
+|   |           Workshops1.jpg
+|   |           Workshops1.webp
+|   |           Workshops2.jpg
+|   |           Workshops2.webp
+|   |           Workshops3.jpg
+|   |           Workshops3.webp
+|   |           Workshops4.jpg
+|   |           Workshops4.webp
+|   |           Workshops5.jpg
+|   |           Workshops5.webp
+|   |           Workshops6.jpg
+|   |           Workshops6.webp
+|   |           
+|   +---Icons
+|   |       apple-touch-icon.png
+|   |       badge-96x96.png
+|   |       favicon-96x96.png
+|   |       favicon.ico
+|   |       favicon.svg
+|   |       icon-128x128.png
+|   |       icon-192x192-loading.webp
+|   |       icon-192x192.png
+|   |       icon-512-maskable.png
+|   |       icon-512x512.png
+|   |       icon-64x64.png
+|   |       Thumbnail (Original).png
+|   |       web-app-manifest-192x192.png
+|   |       web-app-manifest-512x512.png
+|   |       
+|   +---Source_PDF
+|   |       Meditation_Demo.pdf
+|   |       Self Analysis Pro Guidebook.pdf
+|   |       
+|   +---src
+|   |   +---Features
+|   |   |   \---Data
+|   |   |           AffirmationsList.js
+|   |   |           HappinessBoostersList.json
+|   |   |           InquiryList.js
+|   |   |           QuotesList.js
+|   |   |           
+|   |   \---Mini-Apps
+|   |       +---CommunityHub
+|   |       |   |   CommunityHubEngine.js
+|   |       |   |   
+|   |       |   \---js
+|   |       |       |   active-members.js
+|   |       |       |   AdminDashboard.js
+|   |       |       |   avatar-icons.js
+|   |       |       |   collective-field-db.js
+|   |       |       |   collective-field.js
+|   |       |       |   community-module.js
+|   |       |       |   community-supabase.js
+|   |       |       |   core.js
+|   |       |       |   member-profile-modal.js
+|   |       |       |   profile-module.js
+|   |       |       |   resonance.js
+|   |       |       |   rituals.js
+|   |       |       |   SafetyBar.js
+|   |       |       |   supabase-client.js
+|   |       |       |   upcoming-events.js
+|   |       |       |   WhisperModal.js
+|   |       |       |   
+|   |       |       +---Lunar
+|   |       |       |       fullmoon-room.js
+|   |       |       |       lunar-config.js
+|   |       |       |       lunar-core.js
+|   |       |       |       lunar-ui.js
+|   |       |       |       lunarengine.js
+|   |       |       |       newmoon-room.js
+|   |       |       |       waningmoon-room.js
+|   |       |       |       waxingmoon-room.js
+|   |       |       |       
+|   |       |       +---Rooms
+|   |       |       |   |   breathwork-room.js
+|   |       |       |   |   campfire-room.js
+|   |       |       |   |   chakra-data.json
+|   |       |       |   |   deepwork-room.js
+|   |       |       |   |   guided-room.js
+|   |       |       |   |   osho-room.js
+|   |       |       |   |   PracticeRoom.js
+|   |       |       |   |   reiki-room.js
+|   |       |       |   |   silent-room.js
+|   |       |       |   |   tarot-data.json
+|   |       |       |   |   tarot-room.js
+|   |       |       |   |   
+|   |       |       |   \---mixins
+|   |       |       |           ChatMixin.js
+|   |       |       |           CycleStateMixin.js
+|   |       |       |           SoundSettingsMixin.js
+|   |       |       |           TabRoomMixin.js
+|   |       |       |           TimedVideoRoom.js
+|   |       |       |           TimerMixin.js
+|   |       |       |           YouTubePlayerMixin.js
+|   |       |       |           
+|   |       |       \---Solar
+|   |       |               autumn-solar-room.js
+|   |       |               solar-base-room.js
+|   |       |               solar-config.js
+|   |       |               solar-ui.js
+|   |       |               solarengine.js
+|   |       |               spring-solar-room.js
+|   |       |               summer-solar-room.js
+|   |       |               winter-solar-room.js
+|   |       |               
+|   |       \---SelfAnalysisPro
+|   |           |   index.html
+|   |           |   loader.js
+|   |           |   
+|   |           \---js
+|   |                   app.js
+|   |                   astroAPI.js
+|   |                   astrology.js
+|   |                   customDatePicker.js
+|   |                   customTimePicker.js
+|   |                   meanings.js
+|   |                   narrativeEngine.js
+|   |                   numerology.js
+|   |                   PDFAssembler.js
+|   |                   stepindicator.js
+|   |                   TarotEngine.js
+|   |                   ui.js
+|   |                   ui.natal.js
+|   |                   utils.js
+|   |                   
+|   +---Tabs
+|   |   |   Chat.png
+|   |   |   Chat.webp
+|   |   |   Community.png
+|   |   |   Community.webp
+|   |   |   CommunityHub.png
+|   |   |   CommunityHub.webp
+|   |   |   Dashboard.png
+|   |   |   Dashboard.webp
+|   |   |   Features.png
+|   |   |   Features.webp
+|   |   |   Header.png
+|   |   |   Header.webp
+|   |   |   MiniApps.png
+|   |   |   MiniApps.webp
+|   |   |   NavAnalysis.png
+|   |   |   NavAnalysis.webp
+|   |   |   NavCommunity.png
+|   |   |   NavCommunity.webp
+|   |   |   NavDashboard.png
+|   |   |   NavDashboard.webp
+|   |   |   NavEnergy.png
+|   |   |   NavEnergy.webp
+|   |   |   NavFlip.png
+|   |   |   NavFlip.webp
+|   |   |   NavGratitude.png
+|   |   |   NavGratitude.webp
+|   |   |   NavHappiness.png
+|   |   |   NavHappiness.webp
+|   |   |   NavJournal.png
+|   |   |   NavJournal.webp
+|   |   |   NavMeditations.png
+|   |   |   NavMeditations.webp
+|   |   |   NavShadow.png
+|   |   |   NavShadow.webp
+|   |   |   NavShop.png
+|   |   |   NavShop.webp
+|   |   |   NavTarot.png
+|   |   |   NavTarot.webp
+|   |   |   
+|   |   \---Dots
+|   |           AnalysisDot.png
+|   |           AnalysisDot.webp
+|   |           DashDot.png
+|   |           DashDot.webp
+|   |           EnergyDot.png
+|   |           EnergyDot.webp
+|   |           FlipDot.png
+|   |           FlipDot.webp
+|   |           GratitudeDot.png
+|   |           GratitudeDot.webp
+|   |           HappinessDot.png
+|   |           HappinessDot.webp
+|   |           JournalDot.png
+|   |           JournalDot.webp
+|   |           MeditationsDot.png
+|   |           MeditationsDot.webp
+|   |           ShadowDot.png
+|   |           ShadowDot.webp
+|   |           ShopDot.png
+|   |           ShopDot.webp
+|   |           TarotDot.png
+|   |           TarotDot.webp
+|   |           
+|   +---Tarot Cards images
+|   |       00-TheFool.jpg
+|   |       00-TheFool.webp
+|   |       01-TheMagician.jpg
+|   |       01-TheMagician.webp
+|   |       02-TheHighPriestess.jpg
+|   |       02-TheHighPriestess.webp
+|   |       03-TheEmpress.jpg
+|   |       03-TheEmpress.webp
+|   |       04-TheEmperor.jpg
+|   |       04-TheEmperor.webp
+|   |       05-TheHierophant.jpg
+|   |       05-TheHierophant.webp
+|   |       06-TheLovers.jpg
+|   |       06-TheLovers.webp
+|   |       07-TheChariot.jpg
+|   |       07-TheChariot.webp
+|   |       08-Strength.jpg
+|   |       08-Strength.webp
+|   |       09-TheHermit.jpg
+|   |       09-TheHermit.webp
+|   |       10-WheelofFortune.jpg
+|   |       10-WheelofFortune.webp
+|   |       11-Justice.jpg
+|   |       11-Justice.webp
+|   |       12-TheHangedMan.jpg
+|   |       12-TheHangedMan.webp
+|   |       13-Death.jpg
+|   |       13-Death.webp
+|   |       14-Temperance.jpg
+|   |       14-Temperance.webp
+|   |       15-TheDevil.jpg
+|   |       15-TheDevil.webp
+|   |       16-TheTower.jpg
+|   |       16-TheTower.webp
+|   |       17-TheStar.jpg
+|   |       17-TheStar.webp
+|   |       18-TheMoon.jpg
+|   |       18-TheMoon.webp
+|   |       19-TheSun.jpg
+|   |       19-TheSun.webp
+|   |       20-Judgement.jpg
+|   |       20-Judgement.webp
+|   |       21-TheWorld.jpg
+|   |       21-TheWorld.webp
+|   |       CardBacks.jpg
+|   |       CardBacks.webp
+|   |       Cups01.jpg
+|   |       Cups01.webp
+|   |       Cups02.jpg
+|   |       Cups02.webp
+|   |       Cups03.jpg
+|   |       Cups03.webp
+|   |       Cups04.jpg
+|   |       Cups04.webp
+|   |       Cups05.jpg
+|   |       Cups05.webp
+|   |       Cups06.jpg
+|   |       Cups06.webp
+|   |       Cups07.jpg
+|   |       Cups07.webp
+|   |       Cups08.jpg
+|   |       Cups08.webp
+|   |       Cups09.jpg
+|   |       Cups09.webp
+|   |       Cups10.jpg
+|   |       Cups10.webp
+|   |       Cups11.jpg
+|   |       Cups11.webp
+|   |       Cups12.jpg
+|   |       Cups12.webp
+|   |       Cups13.jpg
+|   |       Cups13.webp
+|   |       Cups14.jpg
+|   |       Cups14.webp
+|   |       Pentacles01.jpg
+|   |       Pentacles01.webp
+|   |       Pentacles02.jpg
+|   |       Pentacles02.webp
+|   |       Pentacles03.jpg
+|   |       Pentacles03.webp
+|   |       Pentacles04.jpg
+|   |       Pentacles04.webp
+|   |       Pentacles05.jpg
+|   |       Pentacles05.webp
+|   |       Pentacles06.jpg
+|   |       Pentacles06.webp
+|   |       Pentacles07.jpg
+|   |       Pentacles07.webp
+|   |       Pentacles08.jpg
+|   |       Pentacles08.webp
+|   |       Pentacles09.jpg
+|   |       Pentacles09.webp
+|   |       Pentacles10.jpg
+|   |       Pentacles10.webp
+|   |       Pentacles11.jpg
+|   |       Pentacles11.webp
+|   |       Pentacles12.jpg
+|   |       Pentacles12.webp
+|   |       Pentacles13.jpg
+|   |       Pentacles13.webp
+|   |       Pentacles14.jpg
+|   |       Pentacles14.webp
+|   |       Swords01.jpg
+|   |       Swords01.webp
+|   |       Swords02.jpg
+|   |       Swords02.webp
+|   |       Swords03.jpg
+|   |       Swords03.webp
+|   |       Swords04.jpg
+|   |       Swords04.webp
+|   |       Swords05.jpg
+|   |       Swords05.webp
+|   |       Swords06.jpg
+|   |       Swords06.webp
+|   |       Swords07.jpg
+|   |       Swords07.webp
+|   |       Swords08.jpg
+|   |       Swords08.webp
+|   |       Swords09.jpg
+|   |       Swords09.webp
+|   |       Swords10.jpg
+|   |       Swords10.webp
+|   |       Swords11.jpg
+|   |       Swords11.webp
+|   |       Swords12.jpg
+|   |       Swords12.webp
+|   |       Swords13.jpg
+|   |       Swords13.webp
+|   |       Swords14.jpg
+|   |       Swords14.webp
+|   |       Wands01.jpg
+|   |       Wands01.webp
+|   |       Wands02.jpg
+|   |       Wands02.webp
+|   |       Wands03.jpg
+|   |       Wands03.webp
+|   |       Wands04.jpg
+|   |       Wands04.webp
+|   |       Wands05.jpg
+|   |       Wands05.webp
+|   |       Wands06.jpg
+|   |       Wands06.webp
+|   |       Wands07.jpg
+|   |       Wands07.webp
+|   |       Wands08.jpg
+|   |       Wands08.webp
+|   |       Wands09.jpg
+|   |       Wands09.webp
+|   |       Wands10.jpg
+|   |       Wands10.webp
+|   |       Wands11.jpg
+|   |       Wands11.webp
+|   |       Wands12.jpg
+|   |       Wands12.webp
+|   |       Wands13.jpg
+|   |       Wands13.webp
+|   |       Wands14.jpg
+|   |       Wands14.webp
+|   |       
+|   \---Watermarks
+|           Astrology.svg
+|           Logo.svg
+|           Numerology.svg
+|           Story.svg
+|           Tree of Life.svg
+|           
++---public
+|   |   manifest.json
+|   |   
+|   +---Community
+|   |   |   AdminDashboard.png
+|   |   |   AdminDashboard.webp
+|   |   |   Breathwork.png
+|   |   |   Breathwork.webp
+|   |   |   Campfire.png
+|   |   |   Campfire.webp
+|   |   |   Focus.png
+|   |   |   Focus.webp
+|   |   |   OSHO.png
+|   |   |   OSHO.webp
+|   |   |   Reiki.png
+|   |   |   Reiki.webp
+|   |   |   Silent.png
+|   |   |   Silent.webp
+|   |   |   Tarot.png
+|   |   |   Tarot.webp
+|   |   |   Visualization.png
+|   |   |   Visualization.webp
+|   |   |   
+|   |   +---Chakras
+|   |   |       Ajna1.jpg
+|   |   |       Ajna1.webp
+|   |   |       Ajna2.jpg
+|   |   |       Ajna2.webp
+|   |   |       Anahata1.jpg
+|   |   |       Anahata1.webp
+|   |   |       Anahata2.jpg
+|   |   |       Anahata2.webp
+|   |   |       Aura1.jpg
+|   |   |       Aura1.webp
+|   |   |       Aura2.jpg
+|   |   |       Aura2.webp
+|   |   |       Chakras1.jpg
+|   |   |       Chakras1.webp
+|   |   |       Chakras2.jpg
+|   |   |       Chakras2.webp
+|   |   |       Manipura1.jpg
+|   |   |       Manipura1.webp
+|   |   |       Manipura2.jpg
+|   |   |       Manipura2.webp
+|   |   |       Muladhara1.jpg
+|   |   |       Muladhara1.webp
+|   |   |       Muladhara2.jpg
+|   |   |       Muladhara2.webp
+|   |   |       Sahasrara1.jpg
+|   |   |       Sahasrara1.webp
+|   |   |       Sahasrara2.jpg
+|   |   |       Sahasrara2.webp
+|   |   |       Svadhistana1.jpg
+|   |   |       Svadhistana1.webp
+|   |   |       Svadhistana2.jpg
+|   |   |       Svadhistana2.webp
+|   |   |       Vishuddha1.jpg
+|   |   |       Vishuddha1.webp
+|   |   |       Vishuddha2.jpg
+|   |   |       Vishuddha2.webp
+|   |   |       
+|   |   +---Lunar
+|   |   |       FullMoon.png
+|   |   |       FullMoon.webp
+|   |   |       NewMoon.png
+|   |   |       NewMoon.webp
+|   |   |       WaningMoon.png
+|   |   |       WaningMoon.webp
+|   |   |       WaxingMoon.png
+|   |   |       WaxingMoon.webp
+|   |   |       
+|   |   \---Solar
+|   |           Autumn.png
+|   |           Autumn.webp
+|   |           Spring.png
+|   |           Spring.webp
+|   |           Summer.png
+|   |           Summer.webp
+|   |           Winter.png
+|   |           Winter.webp
+|   |           
+|   +---CTA
+|   |   +---Sessions
+|   |   |       Sessions1.jpg
+|   |   |       Sessions1.webp
+|   |   |       Sessions2.jpg
+|   |   |       Sessions2.webp
+|   |   |       Sessions3.jpg
+|   |   |       Sessions3.webp
+|   |   |       Sessions4.jpg
+|   |   |       Sessions4.webp
+|   |   |       Sessions5.jpg
+|   |   |       Sessions5.webp
+|   |   |       Sessions6.jpg
+|   |   |       Sessions6.webp
+|   |   |       Sessions7.jpg
+|   |   |       Sessions7.webp
+|   |   |       Sessions8.jpg
+|   |   |       Sessions8.webp
+|   |   |       Sessions9.jpg
+|   |   |       Sessions9.webp
+|   |   |       
+|   |   \---Workshops
+|   |           Workshops1.jpg
+|   |           Workshops1.webp
+|   |           Workshops2.jpg
+|   |           Workshops2.webp
+|   |           Workshops3.jpg
+|   |           Workshops3.webp
+|   |           Workshops4.jpg
+|   |           Workshops4.webp
+|   |           Workshops5.jpg
+|   |           Workshops5.webp
+|   |           Workshops6.jpg
+|   |           Workshops6.webp
+|   |           
+|   +---Icons
+|   |       apple-touch-icon.png
+|   |       badge-96x96.png
+|   |       favicon-96x96.png
+|   |       favicon.ico
+|   |       favicon.svg
+|   |       icon-128x128.png
+|   |       icon-192x192-loading.webp
+|   |       icon-192x192.png
+|   |       icon-512-maskable.png
+|   |       icon-512x512.png
+|   |       icon-64x64.png
+|   |       Thumbnail (Original).png
+|   |       web-app-manifest-192x192.png
+|   |       web-app-manifest-512x512.png
+|   |       
+|   +---Source_PDF
+|   |       Meditation_Demo.pdf
+|   |       Self Analysis Pro Guidebook.pdf
+|   |       
+|   +---Tabs
+|   |   |   Chat.png
+|   |   |   Chat.webp
+|   |   |   Community.png
+|   |   |   Community.webp
+|   |   |   CommunityHub.png
+|   |   |   CommunityHub.webp
+|   |   |   Dashboard.png
+|   |   |   Dashboard.webp
+|   |   |   Features.png
+|   |   |   Features.webp
+|   |   |   Header.png
+|   |   |   Header.webp
+|   |   |   MiniApps.png
+|   |   |   MiniApps.webp
+|   |   |   NavAnalysis.png
+|   |   |   NavAnalysis.webp
+|   |   |   NavCommunity.png
+|   |   |   NavCommunity.webp
+|   |   |   NavDashboard.png
+|   |   |   NavDashboard.webp
+|   |   |   NavEnergy.png
+|   |   |   NavEnergy.webp
+|   |   |   NavFlip.png
+|   |   |   NavFlip.webp
+|   |   |   NavGratitude.png
+|   |   |   NavGratitude.webp
+|   |   |   NavHappiness.png
+|   |   |   NavHappiness.webp
+|   |   |   NavJournal.png
+|   |   |   NavJournal.webp
+|   |   |   NavMeditations.png
+|   |   |   NavMeditations.webp
+|   |   |   NavShadow.png
+|   |   |   NavShadow.webp
+|   |   |   NavShop.png
+|   |   |   NavShop.webp
+|   |   |   NavTarot.png
+|   |   |   NavTarot.webp
+|   |   |   
+|   |   \---Dots
+|   |           AnalysisDot.png
+|   |           AnalysisDot.webp
+|   |           DashDot.png
+|   |           DashDot.webp
+|   |           EnergyDot.png
+|   |           EnergyDot.webp
+|   |           FlipDot.png
+|   |           FlipDot.webp
+|   |           GratitudeDot.png
+|   |           GratitudeDot.webp
+|   |           HappinessDot.png
+|   |           HappinessDot.webp
+|   |           JournalDot.png
+|   |           JournalDot.webp
+|   |           MeditationsDot.png
+|   |           MeditationsDot.webp
+|   |           ShadowDot.png
+|   |           ShadowDot.webp
+|   |           ShopDot.png
+|   |           ShopDot.webp
+|   |           TarotDot.png
+|   |           TarotDot.webp
+|   |           
+|   +---Tarot Cards images
+|   |       00-TheFool.jpg
+|   |       00-TheFool.webp
+|   |       01-TheMagician.jpg
+|   |       01-TheMagician.webp
+|   |       02-TheHighPriestess.jpg
+|   |       02-TheHighPriestess.webp
+|   |       03-TheEmpress.jpg
+|   |       03-TheEmpress.webp
+|   |       04-TheEmperor.jpg
+|   |       04-TheEmperor.webp
+|   |       05-TheHierophant.jpg
+|   |       05-TheHierophant.webp
+|   |       06-TheLovers.jpg
+|   |       06-TheLovers.webp
+|   |       07-TheChariot.jpg
+|   |       07-TheChariot.webp
+|   |       08-Strength.jpg
+|   |       08-Strength.webp
+|   |       09-TheHermit.jpg
+|   |       09-TheHermit.webp
+|   |       10-WheelofFortune.jpg
+|   |       10-WheelofFortune.webp
+|   |       11-Justice.jpg
+|   |       11-Justice.webp
+|   |       12-TheHangedMan.jpg
+|   |       12-TheHangedMan.webp
+|   |       13-Death.jpg
+|   |       13-Death.webp
+|   |       14-Temperance.jpg
+|   |       14-Temperance.webp
+|   |       15-TheDevil.jpg
+|   |       15-TheDevil.webp
+|   |       16-TheTower.jpg
+|   |       16-TheTower.webp
+|   |       17-TheStar.jpg
+|   |       17-TheStar.webp
+|   |       18-TheMoon.jpg
+|   |       18-TheMoon.webp
+|   |       19-TheSun.jpg
+|   |       19-TheSun.webp
+|   |       20-Judgement.jpg
+|   |       20-Judgement.webp
+|   |       21-TheWorld.jpg
+|   |       21-TheWorld.webp
+|   |       CardBacks.jpg
+|   |       CardBacks.webp
+|   |       Cups01.jpg
+|   |       Cups01.webp
+|   |       Cups02.jpg
+|   |       Cups02.webp
+|   |       Cups03.jpg
+|   |       Cups03.webp
+|   |       Cups04.jpg
+|   |       Cups04.webp
+|   |       Cups05.jpg
+|   |       Cups05.webp
+|   |       Cups06.jpg
+|   |       Cups06.webp
+|   |       Cups07.jpg
+|   |       Cups07.webp
+|   |       Cups08.jpg
+|   |       Cups08.webp
+|   |       Cups09.jpg
+|   |       Cups09.webp
+|   |       Cups10.jpg
+|   |       Cups10.webp
+|   |       Cups11.jpg
+|   |       Cups11.webp
+|   |       Cups12.jpg
+|   |       Cups12.webp
+|   |       Cups13.jpg
+|   |       Cups13.webp
+|   |       Cups14.jpg
+|   |       Cups14.webp
+|   |       Pentacles01.jpg
+|   |       Pentacles01.webp
+|   |       Pentacles02.jpg
+|   |       Pentacles02.webp
+|   |       Pentacles03.jpg
+|   |       Pentacles03.webp
+|   |       Pentacles04.jpg
+|   |       Pentacles04.webp
+|   |       Pentacles05.jpg
+|   |       Pentacles05.webp
+|   |       Pentacles06.jpg
+|   |       Pentacles06.webp
+|   |       Pentacles07.jpg
+|   |       Pentacles07.webp
+|   |       Pentacles08.jpg
+|   |       Pentacles08.webp
+|   |       Pentacles09.jpg
+|   |       Pentacles09.webp
+|   |       Pentacles10.jpg
+|   |       Pentacles10.webp
+|   |       Pentacles11.jpg
+|   |       Pentacles11.webp
+|   |       Pentacles12.jpg
+|   |       Pentacles12.webp
+|   |       Pentacles13.jpg
+|   |       Pentacles13.webp
+|   |       Pentacles14.jpg
+|   |       Pentacles14.webp
+|   |       Swords01.jpg
+|   |       Swords01.webp
+|   |       Swords02.jpg
+|   |       Swords02.webp
+|   |       Swords03.jpg
+|   |       Swords03.webp
+|   |       Swords04.jpg
+|   |       Swords04.webp
+|   |       Swords05.jpg
+|   |       Swords05.webp
+|   |       Swords06.jpg
+|   |       Swords06.webp
+|   |       Swords07.jpg
+|   |       Swords07.webp
+|   |       Swords08.jpg
+|   |       Swords08.webp
+|   |       Swords09.jpg
+|   |       Swords09.webp
+|   |       Swords10.jpg
+|   |       Swords10.webp
+|   |       Swords11.jpg
+|   |       Swords11.webp
+|   |       Swords12.jpg
+|   |       Swords12.webp
+|   |       Swords13.jpg
+|   |       Swords13.webp
+|   |       Swords14.jpg
+|   |       Swords14.webp
+|   |       Wands01.jpg
+|   |       Wands01.webp
+|   |       Wands02.jpg
+|   |       Wands02.webp
+|   |       Wands03.jpg
+|   |       Wands03.webp
+|   |       Wands04.jpg
+|   |       Wands04.webp
+|   |       Wands05.jpg
+|   |       Wands05.webp
+|   |       Wands06.jpg
+|   |       Wands06.webp
+|   |       Wands07.jpg
+|   |       Wands07.webp
+|   |       Wands08.jpg
+|   |       Wands08.webp
+|   |       Wands09.jpg
+|   |       Wands09.webp
+|   |       Wands10.jpg
+|   |       Wands10.webp
+|   |       Wands11.jpg
+|   |       Wands11.webp
+|   |       Wands12.jpg
+|   |       Wands12.webp
+|   |       Wands13.jpg
+|   |       Wands13.webp
+|   |       Wands14.jpg
+|   |       Wands14.webp
+|   |       
+|   \---Watermarks
+|           Astrology.svg
+|           Logo.svg
+|           Numerology.svg
+|           Story.svg
+|           Tree of Life.svg
+|           
+\---src
+    |   main.js
+    |   
+    +---api
+    +---assets
+    +---Core
+    |   |   AppState.js
+    |   |   AuthManager.js
+    |   |   avatar-icons.js
+    |   |   CTA.js
+    |   |   DashboardManager.js
+    |   |   DB.js
+    |   |   Features.js
+    |   |   GamificationEngine.js
+    |   |   Index.js
+    |   |   Modal-Compat.js
+    |   |   Modal.js
+    |   |   NavigationManager.js
+    |   |   ProjectCuriosityApp.js
+    |   |   Supabase.js
+    |   |   Toast.js
+    |   |   user-tab-data.js
+    |   |   user-tab-templates.js
+    |   |   User-Tab.js
+    |   |   Utils.js
+    |   |   
+    |   \---Legal
+    |           privacy.html
+    |           terms.html
+    |           
+    +---Features
+    |   |   AffirmationsEngine.js
+    |   |   ChatBotAI.js
+    |   |   DailyCards.js
+    |   |   EnergyTracker.js
+    |   |   GratitudeEngine.js
+    |   |   HappinessEngine.js
+    |   |   InquiryEngine.js
+    |   |   JournalEngine.js
+    |   |   KarmaShopEngine.js
+    |   |   MeditationsEngine.js
+    |   |   QuotesEngine.js
+    |   |   TarotEngine.js
+    |   |   TarotVisionAI.js
+    |   |   WellnessKit.js
+    |   |   
+    |   \---Data
+    |           AffirmationsList.js
+    |           HappinessBoostersList.json
+    |           InquiryList.js
+    |           QuotesList.js
+    |           
+    +---Mini-Apps
+    |   +---CommunityHub
+    |   |   |   CommunityHubEngine.js
+    |   |   |   
+    |   |   \---js
+    |   |       |   active-members.js
+    |   |       |   AdminDashboard.js
+    |   |       |   avatar-icons.js
+    |   |       |   collective-field-db.js
+    |   |       |   collective-field.js
+    |   |       |   community-module.js
+    |   |       |   community-supabase.js
+    |   |       |   core.js
+    |   |       |   member-profile-modal.js
+    |   |       |   profile-module.js
+    |   |       |   resonance.js
+    |   |       |   rituals.js
+    |   |       |   SafetyBar.js
+    |   |       |   supabase-client.js
+    |   |       |   upcoming-events.js
+    |   |       |   WhisperModal.js
+    |   |       |   
+    |   |       +---Lunar
+    |   |       |       fullmoon-room.js
+    |   |       |       lunar-config.js
+    |   |       |       lunar-core.js
+    |   |       |       lunar-ui.js
+    |   |       |       lunarengine.js
+    |   |       |       newmoon-room.js
+    |   |       |       waningmoon-room.js
+    |   |       |       waxingmoon-room.js
+    |   |       |       
+    |   |       +---Rooms
+    |   |       |   |   breathwork-room.js
+    |   |       |   |   campfire-room.js
+    |   |       |   |   chakra-data.json
+    |   |       |   |   deepwork-room.js
+    |   |       |   |   guided-room.js
+    |   |       |   |   osho-room.js
+    |   |       |   |   PracticeRoom.js
+    |   |       |   |   reiki-room.js
+    |   |       |   |   silent-room.js
+    |   |       |   |   tarot-data.json
+    |   |       |   |   tarot-room.js
+    |   |       |   |   
+    |   |       |   \---mixins
+    |   |       |           ChatMixin.js
+    |   |       |           CycleStateMixin.js
+    |   |       |           SoundSettingsMixin.js
+    |   |       |           TabRoomMixin.js
+    |   |       |           TimedVideoRoom.js
+    |   |       |           TimerMixin.js
+    |   |       |           YouTubePlayerMixin.js
+    |   |       |           
+    |   |       \---Solar
+    |   |               autumn-solar-room.js
+    |   |               solar-base-room.js
+    |   |               solar-config.js
+    |   |               solar-ui.js
+    |   |               solarengine.js
+    |   |               spring-solar-room.js
+    |   |               summer-solar-room.js
+    |   |               winter-solar-room.js
+    |   |               
+    |   +---FlipTheScript
+    |   |       data.js
+    |   |       engine.js
+    |   |       index.js
+    |   |       ui.js
+    |   |       
+    |   +---SelfAnalysisPro
+    |   |   |   index.html
+    |   |   |   loader.js
+    |   |   |   
+    |   |   \---js
+    |   |           app.js
+    |   |           astroAPI.js
+    |   |           astrology.js
+    |   |           customDatePicker.js
+    |   |           customTimePicker.js
+    |   |           meanings.js
+    |   |           narrativeEngine.js
+    |   |           numerology.js
+    |   |           PDFAssembler.js
+    |   |           stepindicator.js
+    |   |           TarotEngine.js
+    |   |           ui.js
+    |   |           ui.natal.js
+    |   |           utils.js
+    |   |           
+    |   \---ShadowAlchemyLab
+    |       |   shadowalchemy.js
+    |       |   
+    |       \---js
+    |           |   controller.js
+    |           |   dashboardRenderer.js
+    |           |   eventListeners.js
+    |           |   
+    |           +---core
+    |           |       modal.js
+    |           |       state.js
+    |           |       utils.js
+    |           |       
+    |           +---engines
+    |           |       archetypesEngine.js
+    |           |       archetypes_data.json
+    |           |       DailyJourneyEngine.js
+    |           |       
+    |           \---features
+    |                   archetypeStudio.js
+    |                   shadowDialogue.js
+    |                   shadowGuidedProcess.js
+    |                   shadowGuidedProcessViewer.js
+    |                   subShadowJourney.js
+    |                   subShadowsLab.js
+    |                   subShadowsLabGrid.js
+    |                   triggerRelease.js
+    |                   
+    +---styles
+    |   |   community-hub.css
+    |   |   dark-mode.css
+    |   |   main-styles.css
+    |   |   mobile-styles.css
+    |   |   user-tab-styles.css
+    |   |   
+    |   \---Skins
+    |           champagne-gold.css
+    |           earth-luxury.css
+    |           matrix-code.css
+    |           MatrixRain.js
+    |           royal-indigo.css
+    |           
+    \---utils
