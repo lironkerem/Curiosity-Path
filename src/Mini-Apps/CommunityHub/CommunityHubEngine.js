@@ -437,6 +437,10 @@ class CommunityHubEngine {
       // may be null at module-parse time; window.AppSupabase is ready by now.
       await CommunityDB.init();
 
+      // Same pattern as window.Core below: pin the initialized instance to window so
+      // all @vite-ignore runtime-loaded modules share the live instance (_sb + _uid set).
+      window.CommunityDB = CommunityDB;
+
       await Core.init();
 
       // CRITICAL: The Community Hub files are loaded via @vite-ignore dynamic imports,
