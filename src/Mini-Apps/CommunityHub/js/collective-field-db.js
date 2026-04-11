@@ -9,14 +9,15 @@
  * @version 1.1.0
  */
 
-import { CommunityDB } from './community-supabase.js';
-
-// CollectiveField is NOT imported here to avoid a circular dependency
-// (collective-field.js imports CollectiveFieldDB, CollectiveFieldDB pushes back to CollectiveField).
-// CollectiveField's window bridge is guaranteed to be set before init() is ever called
-// (CommunityHubEngine loads collective-field.js in Group 4b, then calls CollectiveFieldDB.init()).
-// eslint-disable-next-line no-undef
-const _cf = () => window.CollectiveField;
+// Neither CommunityDB nor CollectiveField are imported directly:
+// - CollectiveField: avoided to prevent a circular dependency.
+// - CommunityDB: avoided because dynamic-import deduplication is not guaranteed in the
+//   raw-copied (non-bundled) module context — each importer may receive its own instance,
+//   so CommunityDB._uid would be null here even after CommunityHubEngine calls CommunityDB.init().
+//   window.CommunityDB is always set by community-supabase.js and .init() is called by
+//   CommunityHubEngine before CollectiveFieldDB.init(), so the window reference is safe.
+const _cf  = () => window.CollectiveField;
+const _cdb = () => window.CommunityDB;
 
 const CollectiveFieldDB = {
 
@@ -62,13 +63,6 @@ const CollectiveFieldDB = {
     // (before Supabase.js has run). AppSupabase is always set by the time any
     // DB method is called (after auth + CommunityHub init).
     get _sb() { return window.AppSupabase || window.CommunitySupabase || null; },
-
-    // Resolve userId from CommunityDB first, then fall back to Core.state
-    get _userId() {
-        return CommunityDB?.userId
-            || window.Core?.state?.currentUser?.id
-            || null;
-    },
 
     _todayUTC() {
         return new Date().toISOString().slice(0, 10);
@@ -141,7 +135,7 @@ const CollectiveFieldDB = {
     // =========================================================================
 
     async recordPulse() {
-        const userId = this._userId;
+        const userId = _cdb()?.userId;
         if (!userId) { this._err('recordPulse', 'no userId'); return; }
 
         const today = this._todayUTC();
@@ -189,7 +183,7 @@ const CollectiveFieldDB = {
     },
 
     async loadUserContribution() {
-        const userId = this._userId;
+        const userId = _cdb()?.userId;
         if (!userId) return;
 
         const today = this._todayUTC();
@@ -212,7 +206,7 @@ const CollectiveFieldDB = {
     // =========================================================================
 
     async logWaveContribution(minutes, completed) {
-        const userId = this._userId;
+        const userId = _cdb()?.userId;
         if (!userId)    { this._err('logWaveContribution', 'no userId'); return; }
         if (minutes < 1) return;
 
