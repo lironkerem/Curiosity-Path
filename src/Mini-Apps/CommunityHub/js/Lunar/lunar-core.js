@@ -15,7 +15,7 @@
 import { LunarConfig } from './lunar-config.js';
 import { LunarUI } from './lunar-ui.js';
 import { LunarEngine } from './lunarengine.js';
-import { CommunityDB } from '../community-supabase.js';
+const _cdb = () => window.CommunityDB;
 
 class LunarRoom {
 
@@ -660,8 +660,8 @@ class LunarRoom {
         if (!this.collectiveWords) this.collectiveWords = this.getMockCollectiveWords();
         this.collectiveWords.push({ word: sanitized, timestamp: Date.now() });
 
-        if (CommunityDB?.ready) {
-            CommunityDB.sendRoomMessage(`${this._getLunarRoomId()}-collective`, sanitized)
+        if (_cdb()?.ready) {
+            _cdb()?.sendRoomMessage(`${this._getLunarRoomId()}-collective`, sanitized)
                 .catch(e => console.error('[LunarRoom] submitWordToCollective DB error:', e));
         }
 
@@ -788,11 +788,11 @@ class LunarRoom {
     }
 
     _setPresence() {
-        if (!CommunityDB?.ready) return;
+        if (!_cdb()?.ready) return;
         try {
             const roomId   = this._getLunarRoomId();
             const activity = `${this.config.emoji} ${this.config.name}`;
-            CommunityDB.setPresence('online', activity, roomId);
+            _cdb()?.setPresence('online', activity, roomId);
             if (window.Core?.state) {
                 window.Core.state.currentRoom = roomId;
                 if (window.Core.state.currentUser) window.Core.state.currentUser.activity = activity;
@@ -801,9 +801,9 @@ class LunarRoom {
     }
 
     _clearPresence() {
-        if (!CommunityDB?.ready) return;
+        if (!_cdb()?.ready) return;
         try {
-            CommunityDB.setPresence('online', '✨ Available', null);
+            _cdb()?.setPresence('online', '✨ Available', null);
             if (window.Core?.state) {
                 window.Core.state.currentRoom = null;
                 if (window.Core.state.currentUser) window.Core.state.currentUser.activity = '✨ Available';
@@ -812,13 +812,13 @@ class LunarRoom {
     }
 
     async _refreshLivePresence() {
-        if (!CommunityDB?.ready) return;
+        if (!_cdb()?.ready) return;
         const roomId = this._getLunarRoomId();
 
         const refresh = async () => {
             try {
-                const participants = await CommunityDB.getRoomParticipants(roomId);
-                const blocked      = await CommunityDB.getBlockedUsers();
+                const participants = await _cdb()?.getRoomParticipants(roomId);
+                const blocked      = await _cdb()?.getBlockedUsers();
                 const visible      = participants.filter(p => !blocked.has(p.user_id));
                 this._cachedPresenceCount = visible.length;
                 this._cachedParticipants  = visible;
@@ -836,7 +836,7 @@ class LunarRoom {
 
         await refresh();
         if (this._presenceSub) { try { this._presenceSub.unsubscribe(); } catch (_) {} }
-        this._presenceSub = CommunityDB.subscribeToPresence(refresh);
+        this._presenceSub = _cdb()?.subscribeToPresence(refresh);
     }
 
     _buildRealAvatars(participants) {
@@ -865,12 +865,12 @@ class LunarRoom {
     }
 
     async _loadCollectiveWords() {
-        if (!CommunityDB?.ready) return;
+        if (!_cdb()?.ready) return;
         const collectiveRoomId = `${this._getLunarRoomId()}-collective`;
 
         const load = async () => {
             try {
-                const rows = await CommunityDB.getRoomMessages(collectiveRoomId, 100);
+                const rows = await _cdb()?.getRoomMessages(collectiveRoomId, 100);
                 if (rows?.length) {
                     this.collectiveWords = rows.map(r => ({ word: r.message, timestamp: new Date(r.created_at).getTime() }));
                     const cloudEl = document.getElementById('wordCloud');
@@ -883,7 +883,7 @@ class LunarRoom {
 
         await load();
         if (this._collectiveWordsSub) { try { this._collectiveWordsSub.unsubscribe(); } catch (_) {} }
-        this._collectiveWordsSub = CommunityDB.subscribeToRoomChat(collectiveRoomId, load);
+        this._collectiveWordsSub = _cdb()?.subscribeToRoomChat(collectiveRoomId, load);
     }
 
     cleanup() {

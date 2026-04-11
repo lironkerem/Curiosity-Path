@@ -11,7 +11,7 @@
  */
 
 import { LunarUI } from './lunar-ui.js';
-import { CommunityDB } from '../community-supabase.js';
+const _cdb = () => window.CommunityDB;
 
 const LunarEngine = {
 
@@ -396,7 +396,7 @@ const LunarEngine = {
     // ── Presence ────────────────────────────────────────────────────────────────
 
     _refreshOuterCard() {
-        if (!CommunityDB?.ready) {
+        if (!_cdb()?.ready) {
             if (!this._outerCardRetry) {
                 this._outerCardRetry = setTimeout(() => {
                     this._outerCardRetry = null;
@@ -411,7 +411,7 @@ const LunarEngine = {
 
         const doCount = async () => {
             try {
-                const participants = await CommunityDB.getRoomParticipants(roomId);
+                const participants = await _cdb()?.getRoomParticipants(roomId);
                 const el = document.getElementById('lunarRoomPresence');
                 if (el) el.textContent = `${participants.length} present`;
             } catch (e) {
@@ -424,7 +424,7 @@ const LunarEngine = {
         this._attachAdminListeners();
 
         if (this._outerCardSub) { try { this._outerCardSub.unsubscribe(); } catch (e) {} }
-        this._outerCardSub = CommunityDB.subscribeToPresence(doCount);
+        this._outerCardSub = _cdb()?.subscribeToPresence(doCount);
     },
 
     // ── Utils ───────────────────────────────────────────────────────────────────
