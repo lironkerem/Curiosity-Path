@@ -18,6 +18,8 @@
 //   CommunityHubEngine before CollectiveFieldDB.init(), so the window reference is safe.
 const _cf  = () => window.CollectiveField;
 const _cdb = () => window.CommunityDB;
+// Resolve the current user's UUID: CommunityDB._uid when available, else Core.state.currentUser.id
+const _userId = () => window.CommunityDB?.userId || window.Core?.state?.currentUser?.id || null;
 
 const CollectiveFieldDB = {
 
@@ -135,7 +137,7 @@ const CollectiveFieldDB = {
     // =========================================================================
 
     async recordPulse() {
-        const userId = _cdb()?.userId;
+        const userId = _userId();
         if (!userId) { this._err('recordPulse', 'no userId'); return; }
 
         const today = this._todayUTC();
@@ -183,7 +185,7 @@ const CollectiveFieldDB = {
     },
 
     async loadUserContribution() {
-        const userId = _cdb()?.userId;
+        const userId = _userId();
         if (!userId) return;
 
         const today = this._todayUTC();
@@ -206,12 +208,7 @@ const CollectiveFieldDB = {
     // =========================================================================
 
     async logWaveContribution(minutes, completed) {
-        console.log('[DEBUG logWave] window.CommunityDB:', window.CommunityDB);
-        console.log('[DEBUG logWave] window.CommunityDB?.userId:', window.CommunityDB?.userId);
-        console.log('[DEBUG logWave] window.CommunityDB?._uid:', window.CommunityDB?._uid);
-        console.log('[DEBUG logWave] window.Core?.state?.currentUser:', window.Core?.state?.currentUser);
-        console.log('[DEBUG logWave] window.AppSupabase?.auth?.getUser:', typeof window.AppSupabase?.auth?.getUser);
-        const userId = _cdb()?.userId;
+        const userId = _userId();
         if (!userId)    { this._err('logWaveContribution', 'no userId'); return; }
         if (minutes < 1) return;
 
