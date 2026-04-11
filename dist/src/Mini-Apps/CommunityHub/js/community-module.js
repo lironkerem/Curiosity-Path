@@ -205,6 +205,18 @@ const CommunityModule = {
     },
 
     subscribeToNewReflections() {
+        // FIX #1: Guard against CommunityDB not yet initialized (_sb still null).
+        // This happens when Core.init() fires before CommunityDB.init() completes.
+        // Retry until ready rather than crashing on _sb.channel().
+        if (!CommunityDB?.ready) {
+            const interval = setInterval(() => {
+                if (!CommunityDB?.ready) return;
+                clearInterval(interval);
+                this.subscribeToNewReflections();
+            }, 300);
+            return;
+        }
+
         const sub = CommunityDB.subscribeToReflections(async (ref) => {
             if (ref.profiles?.id === Core?.state?.currentUser?.id) return; // skip own (optimistic)
             const blocked = await CommunityDB.getBlockedUsers();
