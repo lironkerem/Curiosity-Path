@@ -441,7 +441,7 @@ class CommunityHubEngine {
         console.warn('[CommunityHub] CommunityDB.init() failed — user may not be authenticated');
       }
 
-      Core.init();
+      await Core.init();
 
       if (window.Rituals) window.Rituals.state.hasSeenOpening = false;
       if (window.CollectiveFieldDB) await window.CollectiveFieldDB.init();

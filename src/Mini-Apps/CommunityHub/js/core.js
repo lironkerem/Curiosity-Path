@@ -244,7 +244,14 @@ const Core = {
 
         for (const { name, instance } of modules) {
             if (instance?.init) {
-                try { instance.init(); }
+                try {
+                    // Reset isInitialized so a stale-state singleton always re-runs
+                    // after Core has finished loading the current user.
+                    if (instance.state?.isInitialized !== undefined) {
+                        instance.state.isInitialized = false;
+                    }
+                    instance.init();
+                }
                 catch (e) { console.error(`✗ [Core] ${name} init failed:`, e); }
             } else {
                 console.warn(`⚠ [Core] ${name} not found or missing init()`);
