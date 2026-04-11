@@ -63,6 +63,13 @@ const CollectiveFieldDB = {
     // DB method is called (after auth + CommunityHub init).
     get _sb() { return window.AppSupabase || window.CommunitySupabase || null; },
 
+    // Resolve userId from CommunityDB first, then fall back to Core.state
+    get _userId() {
+        return CommunityDB?.userId
+            || window.Core?.state?.currentUser?.id
+            || null;
+    },
+
     _todayUTC() {
         return new Date().toISOString().slice(0, 10);
     },
@@ -134,7 +141,7 @@ const CollectiveFieldDB = {
     // =========================================================================
 
     async recordPulse() {
-        const userId = CommunityDB?.userId;
+        const userId = this._userId;
         if (!userId) { this._err('recordPulse', 'no userId'); return; }
 
         const today = this._todayUTC();
@@ -182,7 +189,7 @@ const CollectiveFieldDB = {
     },
 
     async loadUserContribution() {
-        const userId = CommunityDB?.userId;
+        const userId = this._userId;
         if (!userId) return;
 
         const today = this._todayUTC();
@@ -205,7 +212,7 @@ const CollectiveFieldDB = {
     // =========================================================================
 
     async logWaveContribution(minutes, completed) {
-        const userId = CommunityDB?.userId;
+        const userId = this._userId;
         if (!userId)    { this._err('logWaveContribution', 'no userId'); return; }
         if (minutes < 1) return;
 
