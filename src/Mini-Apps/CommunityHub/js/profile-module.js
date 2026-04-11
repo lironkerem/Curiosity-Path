@@ -10,7 +10,8 @@
  * - No auto-init: core.js calls init() after CommunityDB is ready
  */
 
-import { CommunityDB } from './community-supabase.js';
+// CommunityDB accessed via window to avoid stale-instance bug (see collective-field-db.js)
+const _cdb = () => window.CommunityDB;
 
 const ProfileModule = {
 
@@ -538,7 +539,7 @@ const ProfileModule = {
     // ── Karma / XP / Level ───────────────────────────────────────────────────────
 
     updateKarma(user) {
-        const g = CommunityDB?.getOwnGamificationState?.();
+        const g = _cdb()?.getOwnGamificationState?.();
 
         const karma = g?.karma  ?? user.karma  ?? 0;
         const xp    = g?.xp     ?? user.xp     ?? 0;
@@ -567,7 +568,7 @@ const ProfileModule = {
     // ── Community stats (blessings + fav room) ───────────────────────────────────
 
     async loadCommunityStats() {
-        if (!CommunityDB?.ready) return;
+        if (!_cdb()?.ready) return;
         const userId = this._user()?.id;
         if (!userId) return;
 
@@ -577,12 +578,12 @@ const ProfileModule = {
             // room_blessings only has one row per room (upsert), so counting it would
             // give unique rooms blessed, not total blessings sent.
             const [{ data: profileData, error: pErr }, { data: entries, error: rErr }] = await Promise.all([
-                CommunityDB._sb
+                _cdb()?._sb
                     .from('profiles')
                     .select('gifts_given')
                     .eq('id', userId)
                     .single(),
-                CommunityDB._sb
+                _cdb()?._sb
                     .from('room_entries')
                     .select('room_id')
                     .eq('user_id', userId),
@@ -660,9 +661,9 @@ const ProfileModule = {
     async updateProfileLocationRow(user) {
         let { birthday, country } = user;
 
-        if (!birthday && !country && CommunityDB?.ready) {
+        if (!birthday && !country && _cdb()?.ready) {
             try {
-                const profile = await CommunityDB.getMyProfile();
+                const profile = await _cdb()?.getMyProfile();
                 if (profile) {
                     birthday = profile.birthday;
                     country  = profile.country;
@@ -745,8 +746,8 @@ const ProfileModule = {
 
         // ── Tertiary: DB fetch (community hub context, no app state) ─────────
         try {
-            if (CommunityDB?.ready) {
-                const payload = await CommunityDB.getOwnFullProgress();
+            if (_cdb()?.ready) {
+                const payload = await _cdb()?.getOwnFullProgress();
                 if (payload) {
                     const totalGratitudes = (payload.gratitudeEntries || []).reduce(
                         (sum, e) => sum + (e.entries?.length || 0), 0
@@ -961,8 +962,8 @@ const ProfileModule = {
         try {
             const roomId = window.Core?.state?.currentRoom || null;
             await Promise.all([
-                CommunityDB.setPresence(status, activity, roomId),
-                CommunityDB.updateProfile({ community_status: status }),
+                _cdb()?.setPresence(status, activity, roomId),
+                _cdb()?.updateProfile({ community_status: status }),
             ]);
             window.Core.showToast(`Status set to ${label}`);
         } catch (err) {
@@ -1018,7 +1019,7 @@ const ProfileModule = {
                 if (pulseFill) pulseFill.style.width = '50%';
 
                 window.Core.showToast('Calm offered to the community');
-                await CommunityDB.setPresence('online', '💗 Offering calm', state.currentRoom || null);
+                await _cdb()?.setPresence('online', '💗 Offering calm', state.currentRoom || null);
                 const cu = this._user();
                 if (cu) cu.activity = '💗 Offering calm';
             }, this.config.PULSE_ANIMATION_DURATION);
@@ -1067,7 +1068,7 @@ const ProfileModule = {
         reader.readAsDataURL(file);
 
         window.Core.showToast('Uploading photo...');
-        const url = await CommunityDB.uploadAvatar(file);
+        const url = await _cdb()?.uploadAvatar(file);
         if (url) {
             const cu = this._user();
             if (cu) cu.avatar_url = url;
@@ -1084,7 +1085,7 @@ const ProfileModule = {
         if (newVal === null) return;
 
         const trimmed = newVal.trim().substring(0, 60);
-        const ok = await CommunityDB.updateProfile({ community_role: trimmed || null });
+        const ok = await _cdb()?.updateProfile({ community_role: trimmed || null });
         if (!ok) { window.Core.showToast('Could not save - please try again'); return; }
 
         const cu = this._user();
@@ -1103,7 +1104,7 @@ const ProfileModule = {
         const sanitized = newText.trim().substring(0, this.config.MAX_INSPIRATION_LENGTH).replace(/<[^>]*>/g, '');
         if (!sanitized) return;
 
-        const ok = await CommunityDB.updateProfile({ inspiration: sanitized });
+        const ok = await _cdb()?.updateProfile({ inspiration: sanitized });
         if (!ok) { window.Core.showToast('Could not save - please try again'); return; }
 
         el.textContent = `"${sanitized}"`;
@@ -1116,7 +1117,7 @@ const ProfileModule = {
      * Shared inline editor for birthday and country fields.
      * @param {object} opts
      * @param {string} opts.fieldId        - ID of the display element
-     * @param {string} opts.dbKey          - Key to pass to CommunityDB.updateProfile
+     * @param {string} opts.dbKey          - Key to pass to _cdb()?.updateProfile
      * @param {string} opts.currentValue   - Pre-filled value
      * @param {string} opts.inputType      - 'date' | 'text'
      * @param {string} opts.placeholder    - Input placeholder
@@ -1173,7 +1174,7 @@ const ProfileModule = {
             }
             saveBtn.disabled = true;
             saveBtn.textContent = '...';
-            const ok = await CommunityDB.updateProfile({ [dbKey]: trimmed || null });
+            const ok = await _cdb()?.updateProfile({ [dbKey]: trimmed || null });
             if (!ok) {
                 window.Core.showToast('Could not save - please try again');
                 saveBtn.disabled = false;
@@ -1212,7 +1213,7 @@ const ProfileModule = {
         const save = async () => {
             const val = input.value.trim();
             if (val && !/^\d{4}-\d{2}-\d{2}$/.test(val)) { window.Core.showToast('Invalid date'); return; }
-            const ok = await CommunityDB.updateProfile({ birthday: val || null });
+            const ok = await _cdb()?.updateProfile({ birthday: val || null });
             if (!ok) { window.Core.showToast('Could not save - please try again'); return; }
             const cu = this._user();
             if (cu) cu.birthday = val;
@@ -1245,7 +1246,7 @@ const ProfileModule = {
 
         const save = async () => {
             const val = input.value.trim();
-            const ok  = await CommunityDB.updateProfile({ country: val || null });
+            const ok  = await _cdb()?.updateProfile({ country: val || null });
             if (!ok) { window.Core.showToast('Could not save - please try again'); return; }
             const cu = this._user();
             if (cu) cu.country = val;
