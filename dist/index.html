@@ -308,8 +308,8 @@
       } else if (dark) {
         var dmLink = document.getElementById('dark-mode-css');
         if (dmLink) dmLink.media = 'all';
+        document.body.classList.add('dark-mode');
       }
-      if (dark) document.body.classList.add('dark-mode');
     } catch(e) {}
   })();
   </script>
