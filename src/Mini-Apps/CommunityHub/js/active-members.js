@@ -5,7 +5,6 @@
  */
 
 import { CommunityDB } from './community-supabase.js';
-import { Core } from './core.js';
 import { renderAvatarIcon } from './avatar-icons.js';
 
 const ActiveMembers = {
@@ -143,7 +142,7 @@ const ActiveMembers = {
         const rawStatus = row.status        || 'online';
         const activity  = row.activity      || '✨ Available';
         const userId    = row.user_id;
-        const gradient  = Core.getAvatarGradient(userId || name);
+        const gradient  = window.Core.getAvatarGradient(userId || name);
         const safeName  = this._escape(name);
 
         const DOT_CLASS_MAP = {
@@ -193,7 +192,7 @@ const ActiveMembers = {
         if (window.MemberProfileModal) {
             MemberProfileModal.open(userId);
         } else {
-            Core.showToast('Member profiles loading...');
+            window.Core.showToast('Member profiles loading...');
         }
     },
 

@@ -8,7 +8,6 @@
  */
 
 import { CommunityDB } from './community-supabase.js';
-import { Core } from './core.js';
 import { renderAvatarIcon } from './avatar-icons.js';
 
 const MemberProfileModal = {
@@ -69,7 +68,7 @@ const MemberProfileModal = {
         window.addEventListener('statusChanged', (e) => {
             const { status } = e.detail || {};
             if (!status || !this.state.isOpen) return;
-            const isSelf = this.state.currentUserId === Core.state.currentUser?.id;
+            const isSelf = this.state.currentUserId === window.Core.state.currentUser?.id;
             if (!isSelf) return;
             const ring = document.getElementById('memberModalStatusRing');
             if (!ring) return;
@@ -452,7 +451,7 @@ const MemberProfileModal = {
         this.init();
         if (!userId) return;
 
-        const isSelf = userId === Core.state.currentUser?.id;
+        const isSelf = userId === window.Core.state.currentUser?.id;
         this.state.currentUserId = userId;
         this.state.isOpen        = true;
 
@@ -475,7 +474,7 @@ const MemberProfileModal = {
         try {
             const profile = await CommunityDB.getProfile(userId);
             if (!profile) {
-                Core.showToast('Could not load member profile');
+                window.Core.showToast('Could not load member profile');
                 this.close();
                 return;
             }
@@ -503,7 +502,7 @@ const MemberProfileModal = {
             if (appreciateBtn) appreciateBtn.style.display = isSelf ? 'none' : 'block';
 
             const adminSection = document.getElementById('memberModalAdminSection');
-            const isAdmin      = Core.state.currentUser?.is_admin === true;
+            const isAdmin      = window.Core.state.currentUser?.is_admin;
             if (adminSection) {
                 adminSection.style.display = isAdmin ? 'block' : 'none';
                 if (isAdmin && profile.community_role) {
@@ -541,7 +540,7 @@ const MemberProfileModal = {
 
         } catch (err) {
             console.error('[MemberProfileModal] open error:', err);
-            Core.showToast('Could not load member profile');
+            window.Core.showToast('Could not load member profile');
             this.close();
         }
     },
@@ -581,7 +580,7 @@ const MemberProfileModal = {
                     style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
                     alt="${this._esc(profile.name)}">`;
             } else {
-                avatarEl.style.background = Core.getAvatarGradient(profile.id);
+                avatarEl.style.background = window.Core.getAvatarGradient(profile.id);
                 avatarEl.innerHTML = `<span>${this._esc(profile.emoji || (profile.name || '?').charAt(0).toUpperCase())}</span>`;
             }
         }
@@ -679,14 +678,14 @@ const MemberProfileModal = {
         btn.disabled = true;
         try {
             const result = await CommunityDB.toggleUserAppreciation(this.state.currentUserId, this.state.isAppreciated);
-            if (!result) { Core.showToast('Could not update - please try again'); return; }
+            if (!result) { window.Core.showToast('Could not update - please try again'); return; }
             this.state.isAppreciated     = result.appreciated;
             this.state.appreciationCount = await CommunityDB.getUserAppreciationCount(this.state.currentUserId);
             this._updateAppreciateBtn();
-            Core.showToast(result.appreciated ? 'Appreciation sent' : 'Appreciation removed');
+            window.Core.showToast(result.appreciated ? 'Appreciation sent' : 'Appreciation removed');
         } catch (err) {
             console.error('[MemberProfileModal] toggleAppreciate error:', err);
-            Core.showToast('Could not update - please try again');
+            window.Core.showToast('Could not update - please try again');
         } finally {
             btn.disabled = false;
         }
@@ -734,11 +733,11 @@ const MemberProfileModal = {
     async sendWhisper() {
         const txt     = document.getElementById('memberModalWhisperText');
         const message = txt?.value.trim();
-        if (!message) { Core.showToast('Please write a message first'); return; }
+        if (!message) { window.Core.showToast('Please write a message first'); return; }
         await this._withBtnState('#memberModalWhisperPanel button', 'Sending...', 'Send', async () => {
             const result = await CommunityDB.sendWhisper(this.state.currentUserId, message);
-            if (result) { Core.showToast('Whisper sent'); this.cancelWhisper(); }
-            else Core.showToast('Could not send - please try again');
+            if (result) { window.Core.showToast('Whisper sent'); this.cancelWhisper(); }
+            else window.Core.showToast('Could not send - please try again');
         });
     },
 
@@ -764,11 +763,11 @@ const MemberProfileModal = {
     async submitReport() {
         const reason  = document.getElementById('memberModalReportReason')?.value;
         const details = document.getElementById('memberModalReportDetails')?.value.trim() || '';
-        if (!reason) { Core.showToast('Please select a reason'); return; }
+        if (!reason) { window.Core.showToast('Please select a reason'); return; }
         await this._withBtnState('#memberModalReportPanel button', 'Submitting...', 'Submit Report', async () => {
             const ok = await CommunityDB.submitReport(this.state.currentUserId, reason, details);
-            if (ok) { Core.showToast('Report submitted - thank you'); this.cancelReport(); }
-            else Core.showToast('Could not submit - please try again');
+            if (ok) { window.Core.showToast('Report submitted - thank you'); this.cancelReport(); }
+            else window.Core.showToast('Could not submit - please try again');
         });
     },
 
@@ -782,15 +781,15 @@ const MemberProfileModal = {
         try {
             const ok = await CommunityDB.blockUser(this.state.currentUserId);
             if (ok) {
-                Core.showToast(`${name} blocked`);
+                window.Core.showToast(`${name} blocked`);
                 this.close();
                 window.ActiveMembers?.refresh();
             } else {
-                Core.showToast('Could not block - please try again');
+                window.Core.showToast('Could not block - please try again');
             }
         } catch (err) {
             console.error('[MemberProfileModal] blockUser error:', err);
-            Core.showToast('Could not block - please try again');
+            window.Core.showToast('Could not block - please try again');
         }
     },
 
@@ -839,7 +838,7 @@ const MemberProfileModal = {
             if (error) throw error;
             this._setHTML('memberModalRole', `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${role}`);
             await this._adminPushNotify(this.state.currentUserId, '👤 Role Updated', `Your community role has been changed to ${role}.`);
-            Core.showToast(`Role changed to ${role}`);
+            window.Core.showToast(`Role changed to ${role}`);
             this._closeAdminSubs();
             await this._safeRefresh(this.state.currentUserId);
         });
@@ -847,12 +846,12 @@ const MemberProfileModal = {
 
     async _adminSendXP() {
         const amount = parseInt(document.getElementById('adminXpAmount')?.value, 10);
-        if (!amount || amount < 1) { Core.showToast('Enter a valid XP amount'); return; }
+        if (!amount || amount < 1) { window.Core.showToast('Enter a valid XP amount'); return; }
         await this._withBtnState('#adminSubXp button', 'Sending...', 'Send XP', async () => {
             const ok = await CommunityDB.adminUpdateGamification(this.state.currentUserId, { xpDelta: amount });
             if (!ok) throw new Error('Save failed');
             await this._adminPushNotify(this.state.currentUserId, '🎁 Gift from Aanandoham!', `You received +${amount} XP!`);
-            Core.showToast(`Sent ${amount} XP`);
+            window.Core.showToast(`Sent ${amount} XP`);
             this._closeAdminSubs();
             await this._safeRefresh(this.state.currentUserId);
         });
@@ -860,12 +859,12 @@ const MemberProfileModal = {
 
     async _adminSendKarma() {
         const amount = parseInt(document.getElementById('adminKarmaAmount')?.value, 10);
-        if (!amount || amount < 1) { Core.showToast('Enter a valid Karma amount'); return; }
+        if (!amount || amount < 1) { window.Core.showToast('Enter a valid Karma amount'); return; }
         await this._withBtnState('#adminSubKarma button', 'Sending...', 'Send Karma', async () => {
             const ok = await CommunityDB.adminUpdateGamification(this.state.currentUserId, { karmaDelta: amount });
             if (!ok) throw new Error('Save failed');
             await this._adminPushNotify(this.state.currentUserId, '🎁 Gift from Aanandoham!', `You received +${amount} Karma!`);
-            Core.showToast(`Sent ${amount} Karma`);
+            window.Core.showToast(`Sent ${amount} Karma`);
             this._closeAdminSubs();
             await this._safeRefresh(this.state.currentUserId);
         });
@@ -888,7 +887,7 @@ const MemberProfileModal = {
             const payload = prog?.payload || {};
             const badges  = payload.badges || [];
             if (badges.find(b => b.id === badge.id)) {
-                Core.showToast('Member already has this badge'); return;
+                window.Core.showToast('Member already has this badge'); return;
             }
             badges.push({ ...badge, date: new Date().toISOString(), unlocked: true });
             const { error } = await CommunityDB._sb.from('user_progress')
@@ -896,7 +895,7 @@ const MemberProfileModal = {
                 .eq('user_id', this.state.currentUserId);
             if (error) throw error;
             await this._adminPushNotify(this.state.currentUserId, '🎖️ New Badge Earned!', `You received the ${badge.name} badge!`);
-            Core.showToast(`Awarded ${badge.icon} ${badge.name}`);
+            window.Core.showToast(`Awarded ${badge.icon} ${badge.name}`);
             this._closeAdminSubs();
             await this._safeRefresh(this.state.currentUserId);
         });
@@ -905,7 +904,7 @@ const MemberProfileModal = {
     async _adminUnlockPremium() {
         const checked = [...document.querySelectorAll('#adminSubPremium input[type=checkbox]:checked')]
             .map(cb => cb.value);
-        if (!checked.length) { Core.showToast('Select at least one feature'); return; }
+        if (!checked.length) { window.Core.showToast('Select at least one feature'); return; }
         await this._withBtnState('#adminSubPremium button', 'Unlocking...', 'Unlock Selected', async () => {
             let ok = 0;
             const failed = [];
@@ -918,7 +917,7 @@ const MemberProfileModal = {
             if (!ok) throw new Error('All unlocks failed');
             const names = checked.map(f => f.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())).join(', ');
             await this._adminPushNotify(this.state.currentUserId, '🔓 New Features Unlocked!', `Admin unlocked: ${names}`);
-            Core.showToast(`Unlocked ${ok}/${checked.length} feature(s)${failed.length ? ` (${failed.length} failed)` : ''}`);
+            window.Core.showToast(`Unlocked ${ok}/${checked.length} feature(s)${failed.length ? ` (${failed.length} failed)` : ''}`);
             this._closeAdminSubs();
             await this._safeRefresh(this.state.currentUserId);
         });
@@ -927,8 +926,8 @@ const MemberProfileModal = {
     async _adminSendMessage() {
         const title   = document.getElementById('adminMessageTitle')?.value.trim();
         const content = document.getElementById('adminMessageContent')?.value.trim();
-        if (!title)   { Core.showToast('Please enter a message title'); return; }
-        if (!content) { Core.showToast('Please enter a message'); return; }
+        if (!title)   { window.Core.showToast('Please enter a message title'); return; }
+        if (!content) { window.Core.showToast('Please enter a message'); return; }
         await this._withBtnState('#adminSubMessage button', 'Sending...', 'Send Message', async () => {
             const { data: prog } = await CommunityDB._sb.from('user_progress')
                 .select('payload').eq('user_id', this.state.currentUserId).single();
@@ -941,7 +940,7 @@ const MemberProfileModal = {
             if (error) throw error;
             const preview = content.length > 80 ? content.slice(0, 80) + '...' : content;
             await this._adminPushNotify(this.state.currentUserId, `💬 ${title}`, preview);
-            Core.showToast('Message sent');
+            window.Core.showToast('Message sent');
             this._closeAdminSubs();
             document.getElementById('adminMessageTitle').value   = '';
             document.getElementById('adminMessageContent').value = '';
@@ -949,7 +948,7 @@ const MemberProfileModal = {
     },
 
     async _safeRefresh(targetUserId) {
-        const myId   = Core.state.currentUser?.id;
+        const myId   = window.Core.state.currentUser?.id;
         const isSelf = targetUserId === myId;
 
         if (isSelf) {
@@ -989,7 +988,7 @@ const MemberProfileModal = {
 
     async _refreshMainProfileStats(targetUserId) {
         try {
-            const myId = Core.state.currentUser?.id;
+            const myId = window.Core.state.currentUser?.id;
             if (!myId) return;
 
             const userId = targetUserId || myId;
@@ -997,9 +996,9 @@ const MemberProfileModal = {
             if (!g) return;
 
             if (userId === myId) {
-                if (g.xp    !== undefined) Core.state.currentUser.xp    = g.xp;
-                if (g.karma !== undefined) Core.state.currentUser.karma = g.karma;
-                if (g.level !== undefined) Core.state.currentUser.level = g.level;
+                if (g.xp    !== undefined) window.Core.state.currentUser.xp    = g.xp;
+                if (g.karma !== undefined) window.Core.state.currentUser.karma = g.karma;
+                if (g.level !== undefined) window.Core.state.currentUser.level = g.level;
 
                 await window.app?.gamification?.reloadFromDatabase?.();
 
@@ -1066,7 +1065,7 @@ const MemberProfileModal = {
             await fn();
         } catch (err) {
             console.error(`[AdminPanel] ${idleLabel} error:`, err);
-            Core.showToast(`Could not complete: ${idleLabel}`);
+            window.Core.showToast(`Could not complete: ${idleLabel}`);
         } finally {
             if (btn) { btn.disabled = false; btn.textContent = idleLabel; }
         }

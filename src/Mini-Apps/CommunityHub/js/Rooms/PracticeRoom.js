@@ -11,7 +11,6 @@
  *   so onEnter() hooks don't need to trigger a second fetch.
  */
 
-import { Core } from '../core.js';
 import { SafetyBar } from '../SafetyBar.js';
 import { CommunityDB } from '../community-supabase.js';
 import { CollectiveField } from '../collective-field.js';
@@ -152,14 +151,14 @@ class PracticeRoom {
 
     enterRoom() {
         if (!this.canEnterRoom()) {
-            Core.showToast('Session in progress. Please wait for the next opening.');
+            window.Core.showToast('Session in progress. Please wait for the next opening.');
             return;
         }
 
         PracticeRoom.stopHubPresence();
         this.createPracticeView();
-        Core.navigateTo('practiceRoomView');
-        Core.showToast(`${this.config.icon} Entered ${this.config.name}`);
+        window.Core.navigateTo('practiceRoomView');
+        window.Core.showToast(`${this.config.icon} Entered ${this.config.name}`);
 
         this.setupEventListeners();
         this.onEnter?.();
@@ -191,8 +190,8 @@ class PracticeRoom {
 
     leaveRoom() {
         this._exitCleanup();
-        Core.navigateTo('hubView');
-        Core.showToast(`Left ${this.config.name}`);
+        window.Core.navigateTo('hubView');
+        window.Core.showToast(`Left ${this.config.name}`);
         this.onLeave?.();
         PracticeRoom.startHubPresence();
     }
@@ -205,7 +204,7 @@ class PracticeRoom {
         if (window.Rituals) {
             Rituals.showClosing();
         } else {
-            Core.navigateTo('hubView');
+            window.Core.navigateTo('hubView');
         }
     }
 
@@ -266,9 +265,9 @@ class PracticeRoom {
             const activity = PracticeRoom.ROOM_ACTIVITIES[roomId]
                 ?? `${this.config.icon} ${this.config.name}`;
             CommunityDB.setPresence('online', activity, roomId);
-            if (Core?.state) {
-                Core.state.currentRoom = roomId;
-                if (Core.state.currentUser) Core.state.currentUser.activity = activity;
+            if (window.Core?.state) {
+                window.Core.state.currentRoom = roomId;
+                if (window.Core.state.currentUser) window.Core.state.currentUser.activity = activity;
             }
         } catch (e) {
             console.error('[PracticeRoom] _setRoomPresence error:', e);
@@ -279,9 +278,9 @@ class PracticeRoom {
         if (!this._dbReady()) return;
         try {
             CommunityDB.setPresence('online', '✨ Available', null);
-            if (Core?.state) {
-                Core.state.currentRoom = null;
-                if (Core.state.currentUser) Core.state.currentUser.activity = '✨ Available';
+            if (window.Core?.state) {
+                window.Core.state.currentRoom = null;
+                if (window.Core.state.currentUser) window.Core.state.currentUser.activity = '✨ Available';
             }
         } catch (e) {
             console.error('[PracticeRoom] _clearRoomPresence error:', e);
@@ -404,7 +403,7 @@ class PracticeRoom {
             const avatarUrl  = _esc(p.avatar_url || '');
             const emoji      = _esc(p.emoji      || '');
             const initial    = emoji || name.charAt(0).toUpperCase();
-            const gradient   = Core?.getAvatarGradient?.(row.user_id || name) ?? fallbackGradient;
+            const gradient   = window.Core?.getAvatarGradient?.(row.user_id || name) ?? fallbackGradient;
             const inner      = avatarUrl
                 ? `<img src="${avatarUrl}" width="40" height="40" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}" loading="lazy" decoding="async">`
                 : `<span style="color:white;font-size:${fontSize}px;font-weight:700;">${initial}</span>`;
@@ -431,7 +430,7 @@ class PracticeRoom {
             const name      = _esc(profile.name      || 'Member');
             const avatarUrl = _esc(profile.avatar_url || '');
             const emoji     = _esc(profile.emoji     || '');
-            const gradient  = Core?.getAvatarGradient?.(userId || name) ?? fallbackGradient;
+            const gradient  = window.Core?.getAvatarGradient?.(userId || name) ?? fallbackGradient;
             const inner     = avatarUrl
                 ? `<img src="${avatarUrl}" width="40" height="40" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}" loading="lazy" decoding="async">`
                 : `<span aria-hidden="true">${emoji || name.charAt(0).toUpperCase()}</span>`;
@@ -466,7 +465,7 @@ class PracticeRoom {
             const name      = _esc(profile.name      || 'Member');
             const avatarUrl = _esc(profile.avatar_url || '');
             const emoji     = _esc(profile.emoji     || '');
-            const gradient  = Core?.getAvatarGradient?.(userId || name) ?? fallbackGradient;
+            const gradient  = window.Core?.getAvatarGradient?.(userId || name) ?? fallbackGradient;
             const inner     = avatarUrl
                 ? `<img src="${avatarUrl}" referrerpolicy="no-referrer" width="40" height="40" style="width:40px;height:40px;min-width:40px;min-height:40px;object-fit:cover;border-radius:50%;display:block;" alt="${name}" loading="lazy" decoding="async">`
                 : `<span style="color:white;font-weight:600;font-size:13px;">${emoji || name.charAt(0).toUpperCase()}</span>`;
@@ -491,7 +490,7 @@ class PracticeRoom {
         const btn = document.getElementById(`${this.roomId}BlessBtn`);
 
         if (!this._dbReady()) {
-            Core.showToast('Blessing sent ✨');
+            window.Core.showToast('Blessing sent ✨');
             this._showBlessingAnimation(null);
             return;
         }
@@ -504,7 +503,7 @@ class PracticeRoom {
         const COOLDOWN = 60_000;
         if (now - lastSent < COOLDOWN) {
             const remaining = Math.ceil((COOLDOWN - (now - lastSent)) / 1000);
-            Core.showToast(`✦ Room is holding your blessing — try again in ${remaining}s`);
+            window.Core.showToast(`✦ Room is holding your blessing — try again in ${remaining}s`);
             return;
         }
 
@@ -525,13 +524,13 @@ class PracticeRoom {
         // Fire animation immediately — instant feedback, don't wait for DB
         this._lastBlessedAt = now;
         this._showBlessingAnimation(null);
-        Core.showToast('Blessing sent ✨');
+        window.Core.showToast('Blessing sent ✨');
 
         const result = await CommunityDB.blessRoom(this.roomId);
 
         if (result.status === 'cooldown') {
             // Server rejected it (e.g. client clock skew) — reset client timer
-            Core.showToast('✦ This room is still holding your last blessing');
+            window.Core.showToast('✦ This room is still holding your last blessing');
             this._lastBlessedAt = now; // keep guard up
             return;
         }

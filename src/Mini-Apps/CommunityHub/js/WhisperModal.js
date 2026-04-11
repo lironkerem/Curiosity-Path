@@ -17,7 +17,6 @@
  */
 
 import { CommunityDB } from './community-supabase.js';
-import { Core } from './core.js';
 
 const WhisperModal = {
 
@@ -384,11 +383,11 @@ const WhisperModal = {
                     created_at: new Date().toISOString(),
                 });
             } else {
-                Core.showToast('Could not send - please try again');
+                window.Core.showToast('Could not send - please try again');
             }
         } catch (err) {
             console.error('[WhisperModal] sendReply error:', err);
-            Core.showToast('Could not send - please try again');
+            window.Core.showToast('Could not send - please try again');
         } finally {
             if (btn) { btn.disabled = false; btn.textContent = 'Send'; }
             textarea.disabled = false;
@@ -416,7 +415,7 @@ const WhisperModal = {
                 this._appendMessage(whisper);
                 CommunityDB.markConversationRead(whisper.sender_id).catch(() => {});
             } else {
-                Core.showToast(`New whisper from ${whisper.sender?.name || 'Someone'}`);
+                window.Core.showToast(`New whisper from ${whisper.sender?.name || 'Someone'}`);
                 if (this.state.view === 'inbox') this._showInbox();
                 else this.refreshUnreadBadge();
             }
@@ -469,7 +468,7 @@ const WhisperModal = {
                          style="width:${s};height:${s};border-radius:50%;object-fit:cover;display:block;"
                          alt="${this._escape(profile.name || '')}">`;
         }
-        const gradient = Core.getAvatarGradient(profile?.id || '');
+        const gradient = window.Core.getAvatarGradient(profile?.id || '');
         const label = profile?.emoji || (profile?.name || '?').charAt(0).toUpperCase();
         return `<div style="width:${s};height:${s};border-radius:50%;background:${gradient};
                             display:flex;align-items:center;justify-content:center;

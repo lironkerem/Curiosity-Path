@@ -4,7 +4,6 @@
  * @version 1.1.0
  */
 
-import { Core } from './core.js';
 
 const AdminDashboard = {
 
@@ -122,12 +121,12 @@ const AdminDashboard = {
     // =========================================================================
 
     injectAdminUI() {
-        if (Core?.state?.currentUser?.is_admin === true) this.injectBadge();
+        if (window.Core?.state?.currentUser?.is_admin) this.injectBadge();
     },
 
     injectBadge() {
         if (document.getElementById('adminDashBadge')) return;
-        if (!Core?.state?.currentUser?.is_admin) return;
+        if (!window.Core?.state?.currentUser?.is_admin) return;
 
         this._injectStyles();
 
@@ -368,7 +367,7 @@ const AdminDashboard = {
                             margin-bottom:4px;background:rgba(255,255,255,0.5);cursor:pointer;"
                      onclick="MemberProfileModal?.open('${p.id}')">
                     <div style="width:32px;height:32px;border-radius:50%;
-                                background:${Core.getAvatarGradient(p.id)};
+                                background:${window.Core.getAvatarGradient(p.id)};
                                 display:flex;align-items:center;justify-content:center;
                                 font-size:0.9rem;color:#fff;flex-shrink:0;overflow:hidden;">
                         ${p.avatar_url
@@ -674,7 +673,7 @@ const AdminDashboard = {
 
     _bulkGuard() {
         if (this._bulkSelected.size === 0) {
-            Core.showToast('Select at least one member first');
+            window.Core.showToast('Select at least one member first');
             return false;
         }
         return true;
@@ -684,10 +683,10 @@ const AdminDashboard = {
     async _bulkSendGamification({ inputId, label, xpDelta = 0, karmaDelta = 0, notifTitle, notifBody }) {
         if (!this._bulkGuard()) return;
         const amount = parseInt(document.getElementById(inputId)?.value, 10);
-        if (!amount || amount < 1) { Core.showToast(`Enter a valid ${label} amount`); return; }
+        if (!amount || amount < 1) { window.Core.showToast(`Enter a valid ${label} amount`); return; }
 
         const ids = [...this._bulkSelected];
-        Core.showToast(`Sending ${amount} ${label} to ${ids.length} members...`);
+        window.Core.showToast(`Sending ${amount} ${label} to ${ids.length} members...`);
         let ok = 0;
 
         for (const uid of ids) {
@@ -700,7 +699,7 @@ const AdminDashboard = {
                 window.MemberProfileModal?._adminPushNotify?.(uid, notifTitle, notifBody(amount));
             }
         }
-        Core.showToast(`Sent ${amount} ${label} to ${ok}/${ids.length} members`);
+        window.Core.showToast(`Sent ${amount} ${label} to ${ok}/${ids.length} members`);
     },
 
     async _bulkSendXP() {
@@ -729,7 +728,7 @@ const AdminDashboard = {
         const badgeId    = sel?.value;
         const opt        = sel?.options[sel.selectedIndex];
         const badgeLabel = opt?.text || badgeId;
-        if (!badgeId) { Core.showToast('Select a badge'); return; }
+        if (!badgeId) { window.Core.showToast('Select a badge'); return; }
 
         // Read real badge metadata from the select option's data attributes
         const badgeName   = badgeLabel.replace(/^[^\s]+\s/, '').trim();
@@ -739,7 +738,7 @@ const AdminDashboard = {
         const badgeDesc   = opt?.dataset?.desc   || '';
 
         const ids = [...this._bulkSelected];
-        Core.showToast(`Sending badge to ${ids.length} members...`);
+        window.Core.showToast(`Sending badge to ${ids.length} members...`);
         let ok = 0;
 
         for (const uid of ids) {
@@ -758,7 +757,7 @@ const AdminDashboard = {
                 window.MemberProfileModal?._adminPushNotify?.(uid, '🏅 New Badge!', `You earned the ${badgeLabel} badge!`);
             }
         }
-        Core.showToast(`Sent badge to ${ok}/${ids.length} members`);
+        window.Core.showToast(`Sent badge to ${ok}/${ids.length} members`);
     },
 
     async _bulkSendUnlock() {
@@ -766,10 +765,10 @@ const AdminDashboard = {
         const sel          = document.getElementById('bulkUnlockSelect');
         const feature      = sel?.value;
         const featureLabel = sel?.options[sel.selectedIndex]?.text || feature;
-        if (!feature) { Core.showToast('Select a feature'); return; }
+        if (!feature) { window.Core.showToast('Select a feature'); return; }
 
         const ids = [...this._bulkSelected];
-        Core.showToast(`Unlocking ${featureLabel} for ${ids.length} members...`);
+        window.Core.showToast(`Unlocking ${featureLabel} for ${ids.length} members...`);
         let ok = 0;
 
         for (const uid of ids) {
@@ -779,16 +778,16 @@ const AdminDashboard = {
                 window.MemberProfileModal?._adminPushNotify?.(uid, '🔓 Feature Unlocked!', `${featureLabel} has been unlocked for you!`);
             }
         }
-        Core.showToast(`Unlocked ${featureLabel} for ${ok}/${ids.length} members`);
+        window.Core.showToast(`Unlocked ${featureLabel} for ${ok}/${ids.length} members`);
     },
 
     async _bulkSendMessage() {
         if (!this._bulkGuard()) return;
         const message = document.getElementById('bulkMessageText')?.value?.trim();
-        if (!message) { Core.showToast('Write a message first'); return; }
+        if (!message) { window.Core.showToast('Write a message first'); return; }
 
         const ids    = [...this._bulkSelected];
-        Core.showToast(`Broadcasting to ${ids.length} members...`);
+        window.Core.showToast(`Broadcasting to ${ids.length} members...`);
         const result = await CommunityDB.broadcastMessage(ids, message);
 
         if (result.sent > 0) {
@@ -796,9 +795,9 @@ const AdminDashboard = {
                 window.MemberProfileModal?._adminPushNotify?.(uid, '💬 Message from Aanandoham', message.substring(0, 80));
             }
             document.getElementById('bulkMessageText').value = '';
-            Core.showToast(`Message sent to ${result.sent}/${ids.length} members`);
+            window.Core.showToast(`Message sent to ${result.sent}/${ids.length} members`);
         } else {
-            Core.showToast('Failed to send messages');
+            window.Core.showToast('Failed to send messages');
         }
     },
 
@@ -828,9 +827,9 @@ const AdminDashboard = {
         const ok = await CommunityDB.deleteReflection(reflectionId);
         if (ok) {
             btn.closest('.admin-refl-row')?.remove();
-            Core.showToast('Reflection deleted');
+            window.Core.showToast('Reflection deleted');
         } else {
-            Core.showToast('Could not delete');
+            window.Core.showToast('Could not delete');
             btn.disabled = false;
         }
     },
