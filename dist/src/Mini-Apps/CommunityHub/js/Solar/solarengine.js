@@ -5,7 +5,6 @@
  */
 
 import { SOLAR_CONSTANTS } from './solar-config.js';
-import { Core } from '../core.js';
 import { CommunityDB } from '../community-supabase.js';
 
 const SolarEngine = {
@@ -405,7 +404,7 @@ const SolarEngine = {
     }
 
     const { currentSolarData: d, currentSolarRoom: room } = this;
-    const isAdmin       = Core?.state?.currentUser?.is_admin === true;
+    const isAdmin       = window.Core?.state?.currentUser?.is_admin;
     const seasonDisplay = d.currentSeason.charAt(0).toUpperCase() + d.currentSeason.slice(1);
 
     container.innerHTML = `
@@ -551,7 +550,7 @@ const SolarEngine = {
   },
 
   injectAdminUI() {
-    if (!Core?.state?.currentUser?.is_admin) return;
+    if (!window.Core?.state?.currentUser?.is_admin) return;
     const container = document.getElementById('solarContainer');
     if (!container || container.querySelector('#solarAdminPanel')) return;
     const card = container.querySelector('.celestial-card-full');
@@ -571,7 +570,7 @@ const SolarEngine = {
 
   async _loadAndEnterRoom(roomId) {
     const meta = this._roomFileMap[roomId];
-    if (!meta) { Core?.showToast?.(`Unknown room: ${roomId}`); return; }
+    if (!meta) { window.Core?.showToast?.(`Unknown room: ${roomId}`); return; }
 
     try {
       const basePath = '/src/Mini-Apps/CommunityHub/js/Solar/';
@@ -579,15 +578,15 @@ const SolarEngine = {
       const instance = mod[meta.exportName];
       instance
         ? instance.enterRoom()
-        : Core?.showToast?.(`${roomId} failed to initialise`);
+        : window.Core?.showToast?.(`${roomId} failed to initialise`);
     } catch (err) {
       console.error(`[SolarEngine] _loadAndEnterRoom error for ${roomId}:`, err);
-      Core?.showToast?.(`Failed to load ${meta.file}`);
+      window.Core?.showToast?.(`Failed to load ${meta.file}`);
     }
   },
 
   joinSolarRoom() {
-    if (!this.currentSolarRoom) { Core?.showToast?.('Solar room not ready'); return; }
+    if (!this.currentSolarRoom) { window.Core?.showToast?.('Solar room not ready'); return; }
     this._loadAndEnterRoom(this.currentSolarRoom.roomId);
   },
 

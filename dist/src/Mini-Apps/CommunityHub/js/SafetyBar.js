@@ -13,7 +13,6 @@
  * - Community guidelines display
  */
 
-import { Core } from './core.js';
 import { CommunityDB } from './community-supabase.js';
 
 const SafetyBar = {
@@ -378,7 +377,7 @@ const SafetyBar = {
     async submitReport() {
         const reason  = document.getElementById('reportReason')?.value;
         const details = document.getElementById('reportDetails')?.value?.trim();
-        if (!reason) { Core.showToast('Please select a reason'); return; }
+        if (!reason) { window.Core.showToast('Please select a reason'); return; }
 
         window.Community?.submitReport?.();
 
@@ -406,7 +405,7 @@ const SafetyBar = {
 
     async submitHelpMe() {
         const text = document.getElementById('helpMeText')?.value?.trim();
-        if (!text) { Core.showToast('Please write a short message'); return; }
+        if (!text) { window.Core.showToast('Please write a short message'); return; }
 
         const btn = document.querySelector('#helpMePanel button');
         if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
@@ -415,13 +414,13 @@ const SafetyBar = {
             await this._writeAdminNotification('help', { message: text, room: this._getCurrentRoom() });
             await this._pushAdmins('🆘 Help Request',
                 `${this._senderName()} needs help: "${text.substring(0, 80)}"`);
-            Core.showToast('Your message was sent to the admin');
+            window.Core.showToast('Your message was sent to the admin');
             document.getElementById('helpMeText').value = '';
             document.getElementById('helpMePanel').style.display = 'none';
             this.closeModal('help');
         } catch (err) {
             console.error('submitHelpMe error:', err);
-            Core.showToast('Could not send - please try again');
+            window.Core.showToast('Could not send - please try again');
         } finally {
             if (btn) { btn.disabled = false; btn.textContent = 'Send to Admin'; }
         }
@@ -435,11 +434,11 @@ const SafetyBar = {
             await this._writeAdminNotification('moderator', { urgency, message, room: this._getCurrentRoom() });
             await this._pushAdmins('👥 Moderator Request',
                 `${this._senderName()} [${urgency}]: ${message ? message.substring(0, 80) : '-'}`);
-            Core.showToast('Moderator contacted');
+            window.Core.showToast('Moderator contacted');
             this.closeModal('moderator');
         } catch (err) {
             console.error('submitModeratorRequest error:', err);
-            Core.showToast('Could not send - please try again');
+            window.Core.showToast('Could not send - please try again');
         }
     },
 
@@ -510,7 +509,7 @@ const SafetyBar = {
     },
 
     _senderName() {
-        return Core?.state?.currentUser?.name || 'A member';
+        return window.Core?.state?.currentUser?.name || 'A member';
     },
 };
 
@@ -535,7 +534,7 @@ const SafetyBar = {
         showModeratorModal:   () => SafetyBar.openModal('moderator'),
         showTechnicalModal:   () => SafetyBar.openModal('technical'),
         showGuidelinesModal:  () => SafetyBar.openModal('guidelines'),
-        muteChat:             () => Core?.showToast?.('Chat muted'),
+        muteChat:             () => window.Core?.showToast?.('Chat muted'),
         closeReportModal:     () => SafetyBar.closeModal('report'),
         closeBlockModal:      () => SafetyBar.closeModal('block'),
         closeHelpModal:       () => SafetyBar.closeModal('help'),

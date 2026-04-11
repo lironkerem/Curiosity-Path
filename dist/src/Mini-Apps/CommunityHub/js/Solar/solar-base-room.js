@@ -8,7 +8,6 @@
 import { SOLAR_CONSTANTS, SolarConfig } from './solar-config.js';
 import { SolarUIManager } from './solar-ui.js';
 import { SolarEngine } from './solarengine.js';
-import { Core } from '../core.js';
 import { CommunityDB } from '../community-supabase.js';
 
 const BaseSolarRoom = {
@@ -144,7 +143,7 @@ const BaseSolarRoom = {
   },
 
   checkIfActive() {
-    if (Core?.state?.currentUser?.is_admin === true) {
+    if (window.Core?.state?.currentUser?.is_admin) {
       this.isActive = true;
       return;
     }
@@ -196,14 +195,14 @@ const BaseSolarRoom = {
   // ============================================================================
 
   enterRoom() {
-    const isAdmin = Core?.state?.currentUser?.is_admin === true;
+    const isAdmin = window.Core?.state?.currentUser?.is_admin;
     if (!this.isActive && !isAdmin) {
       SolarUIManager.showToast(`${this.config.emoji} ${this.config.displayName} room opens during ${this.config.displayName.toLowerCase()} season`);
       return;
     }
     if (!this.startDate) this.calculateDates();
 
-    Core?.navigateTo?.('practiceRoomView');
+    window.Core?.navigateTo?.('practiceRoomView');
     window.PracticeRoom?.stopHubPresence?.();
     document.body.classList.add('solar-room-active');
 
@@ -222,7 +221,7 @@ const BaseSolarRoom = {
       document.body.classList.remove('solar-room-active');
       window.currentSolarRoom = null;
       window.PracticeRoom?.startHubPresence?.();
-      Core?.navigateTo?.('hubView');
+      window.Core?.navigateTo?.('hubView');
     } catch (err) {
       console.error('Error leaving solar room:', err);
     }
@@ -710,7 +709,7 @@ const BaseSolarRoom = {
       const profile  = p.profiles || {};
       const name     = profile.name || profile.display_name || '?';
       const initial  = name.charAt(0).toUpperCase();
-      const gradient = Core?.getAvatarGradient?.(p.user_id) ?? 'background:var(--season-accent,#f59e0b)';
+      const gradient = window.Core?.getAvatarGradient?.(p.user_id) ?? 'background:var(--season-accent,#f59e0b)';
 
       let inner;
       if (profile.avatar_url) {
@@ -736,9 +735,9 @@ const BaseSolarRoom = {
       const roomId   = this._getSolarRoomId();
       const activity = `${this.config.emoji} ${this.config.displayName}`;
       CommunityDB.setPresence('online', activity, roomId);
-      if (Core?.state) {
-        Core.state.currentRoom = roomId;
-        if (Core.state.currentUser) Core.state.currentUser.activity = activity;
+      if (window.Core?.state) {
+        window.Core.state.currentRoom = roomId;
+        if (window.Core.state.currentUser) window.Core.state.currentUser.activity = activity;
       }
     } catch (err) { console.error('[BaseSolarRoom] _setPresence error:', err); }
   },
@@ -747,9 +746,9 @@ const BaseSolarRoom = {
     if (!CommunityDB?.ready) return;
     try {
       CommunityDB.setPresence('online', '✨ Available', null);
-      if (Core?.state) {
-        Core.state.currentRoom = null;
-        if (Core.state.currentUser) Core.state.currentUser.activity = '✨ Available';
+      if (window.Core?.state) {
+        window.Core.state.currentRoom = null;
+        if (window.Core.state.currentUser) window.Core.state.currentUser.activity = '✨ Available';
       }
     } catch (err) { console.error('[BaseSolarRoom] _clearPresence error:', err); }
   },

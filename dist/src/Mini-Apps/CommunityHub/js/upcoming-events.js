@@ -14,7 +14,6 @@
  * - Admin flyer editor (admin users only)
  */
 
-import { Core } from './core.js';
 import { CommunityDB } from './community-supabase.js';
 
 const UpcomingEvents = {
@@ -423,7 +422,7 @@ const UpcomingEvents = {
     },
 
     injectAdminUI() {
-        const isAdmin = Core?.state?.currentUser?.is_admin === true;
+        const isAdmin = window.Core?.state?.currentUser?.is_admin;
         const existing = document.getElementById('upcomingAdminBtn');
         if (existing) { existing.style.display = isAdmin ? 'inline-block' : 'none'; return; }
         if (!isAdmin) return;
@@ -624,11 +623,11 @@ const UpcomingEvents = {
             this.updateCard('classes',  this.state.classIndex);
             this.updateCard('sessions', this.state.sessionIndex);
 
-            Core.showToast('Flyers updated for all users');
+            window.Core.showToast('Flyers updated for all users');
             this.closeAdminModal();
         } catch (err) {
             console.error('_adminSave error:', err);
-            Core.showToast('Could not save - please try again');
+            window.Core.showToast('Could not save - please try again');
             if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save & Publish'; }
         }
     },

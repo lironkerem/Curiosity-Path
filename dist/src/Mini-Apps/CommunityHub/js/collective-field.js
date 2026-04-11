@@ -9,7 +9,6 @@
  * @version 2.1.0
  */
 
-import { Core } from './core.js';
 import { CollectiveFieldDB } from './collective-field-db.js';
 
 const CollectiveField = {
@@ -410,7 +409,7 @@ const CollectiveField = {
         if (value) value.textContent = `${level}%`;
 
         const adminBtn = document.getElementById('adminEnergyBtn');
-        if (adminBtn) adminBtn.style.display = Core?.state?.currentUser?.is_admin ? 'inline' : 'none';
+        if (adminBtn) adminBtn.style.display = window.Core?.state?.currentUser?.is_admin ? 'inline' : 'none';
     },
 
     // =========================================================================
@@ -532,7 +531,7 @@ const CollectiveField = {
         if (value) value.textContent = `${progress}%`;
 
         const adminWaveBtn = document.getElementById('adminWaveBtn');
-        if (adminWaveBtn) adminWaveBtn.style.display = Core?.state?.currentUser?.is_admin ? 'inline' : 'none';
+        if (adminWaveBtn) adminWaveBtn.style.display = window.Core?.state?.currentUser?.is_admin ? 'inline' : 'none';
     },
 
     _updateWaveStatusLine(elapsedMs) {
@@ -656,7 +655,7 @@ const CollectiveField = {
         const stage = document.getElementById('waveRippleStage');
         if (!stage) return;
 
-        const user      = Core?.state?.currentUser;
+        const user      = window.Core?.state?.currentUser;
         const avatarUrl = user?.avatar_url || null;
         const emoji     = user?.emoji || '🧘';
         const leftPx    = Math.floor(Math.random() * ((stage.offsetWidth || 80) - 36)) + 2;
@@ -728,7 +727,7 @@ const CollectiveField = {
     },
 
     _addSelfToRecentSenders() {
-        const user = Core?.state?.currentUser;
+        const user = window.Core?.state?.currentUser;
         this.state.recentSenders = [
             { emoji: user?.emoji || '🧘', avatarUrl: user?.avatar_url || null },
             ...this.state.recentSenders
@@ -820,7 +819,7 @@ const CollectiveField = {
     // =========================================================================
 
     injectAdminUI() {
-        const isAdmin = Core?.state?.currentUser?.is_admin === true;
+        const isAdmin = window.Core?.state?.currentUser?.is_admin;
         const energyBtn = document.getElementById('adminEnergyBtn');
         const waveBtn   = document.getElementById('adminWaveBtn');
         if (energyBtn) energyBtn.style.display = isAdmin ? 'inline' : 'none';
@@ -828,7 +827,7 @@ const CollectiveField = {
     },
 
     async adminAddEnergy() {
-        if (!Core?.state?.currentUser?.is_admin) return;
+        if (!window.Core?.state?.currentUser?.is_admin) return;
         try {
             const sb = window.AppSupabase || window.CommunitySupabase;
             if (!sb) throw new TypeError('Supabase client unavailable');
@@ -846,7 +845,7 @@ const CollectiveField = {
     },
 
     async adminAddWaveMinutes() {
-        if (!Core?.state?.currentUser?.is_admin) return;
+        if (!window.Core?.state?.currentUser?.is_admin) return;
         try {
             await window.CollectiveFieldDB.logWaveContribution(60, false);
             this._toast('+60 min added to Wave');
@@ -861,7 +860,7 @@ const CollectiveField = {
     // =========================================================================
 
     _toast(message) {
-        Core?.showToast(message);
+        window.Core?.showToast(message);
     },
 };
 
@@ -869,7 +868,7 @@ const CollectiveField = {
 // BOOTSTRAP
 // =========================================================================
 
-// Core.js calls render() after CommunityDB is ready - self-init is a fallback
+// window.Core.js calls render() after CommunityDB is ready - self-init is a fallback
 // only if this module is loaded standalone (e.g. development).
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => CollectiveField.render());

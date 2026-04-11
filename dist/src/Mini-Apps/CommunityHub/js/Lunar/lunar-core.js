@@ -15,7 +15,6 @@
 import { LunarConfig } from './lunar-config.js';
 import { LunarUI } from './lunar-ui.js';
 import { LunarEngine } from './lunarengine.js';
-import { Core } from '../core.js';
 import { CommunityDB } from '../community-supabase.js';
 
 class LunarRoom {
@@ -103,7 +102,7 @@ class LunarRoom {
                 return;
             }
 
-            const isAdmin = Core?.state?.currentUser?.is_admin === true;
+            const isAdmin = window.Core?.state?.currentUser?.is_admin;
             if (isAdmin) {
                 this.isActive = true;
                 this.calculateWeekDates();
@@ -137,7 +136,7 @@ class LunarRoom {
             let range = this.config.phaseRanges.find(([lo, hi]) => phase >= lo && phase <= hi);
 
             if (!range) {
-                const isAdmin = Core?.state?.currentUser?.is_admin === true;
+                const isAdmin = window.Core?.state?.currentUser?.is_admin;
                 range = isAdmin ? this.config.phaseRanges[0] : null;
                 if (!range) { this._calculateNextOccurrence(phase, age); return; }
             }
@@ -198,7 +197,7 @@ class LunarRoom {
             localStorage.setItem(this.config.storageKey, JSON.stringify(this.userWeekData));
         } catch (e) {
             console.error('_performSave error:', e);
-            Core?.showToast('Failed to save data');
+            window.Core?.showToast('Failed to save data');
         }
     }
 
@@ -236,13 +235,13 @@ class LunarRoom {
 
     enterRoom() {
         try {
-            const isAdmin = Core?.state?.currentUser?.is_admin === true;
+            const isAdmin = window.Core?.state?.currentUser?.is_admin;
             if (!this.isActive && !isAdmin) {
-                Core?.showToast(`${this.config.emoji} ${this.config.name} room opens during the ${this.config.name} phase`);
+                window.Core?.showToast(`${this.config.emoji} ${this.config.name} room opens during the ${this.config.name} phase`);
                 return;
             }
 
-            Core?.navigateTo('practiceRoomView');
+            window.Core?.navigateTo('practiceRoomView');
             window.PracticeRoom?.stopHubPresence?.();
             window.currentLunarRoom = this;
             this.renderRoomDashboard();
@@ -251,7 +250,7 @@ class LunarRoom {
             setTimeout(() => this._refreshLivePresence(), 300);
         } catch (e) {
             console.error('enterRoom error:', e);
-            Core?.showToast('Failed to enter room');
+            window.Core?.showToast('Failed to enter room');
         }
     }
 
@@ -265,7 +264,7 @@ class LunarRoom {
             this._removeEventListeners();
             window.currentLunarRoom = null;
             window.PracticeRoom?.startHubPresence?.();
-            Core?.navigateTo('hubView');
+            window.Core?.navigateTo('hubView');
         } catch (e) {
             console.error('leaveRoom error:', e);
         }
@@ -522,25 +521,25 @@ class LunarRoom {
             const releaseList = this._sanitizeInput(releaseListEl.value);
 
             const iv = this._validateIntention(intention);
-            if (!iv.valid) { Core?.showToast(iv.error); return; }
+            if (!iv.valid) { window.Core?.showToast(iv.error); return; }
 
             const av = this._validateAffirmation(affirmation);
-            if (!av.valid) { Core?.showToast(av.error); return; }
+            if (!av.valid) { window.Core?.showToast(av.error); return; }
 
             Object.assign(this.userWeekData, { intention, affirmation, releaseList });
             this.userWeekData.practiceCount++;
             this.saveUserWeekData(true);
-            Core?.showToast('Practice saved');
+            window.Core?.showToast('Practice saved');
             this.closePracticePopup();
             this.renderRoomDashboard();
         } catch (e) {
             console.error('saveIntentionPractice error:', e);
-            Core?.showToast('Failed to save practice');
+            window.Core?.showToast('Failed to save practice');
         }
     }
 
     showLockedMessage() {
-        Core?.showToast('✓ Practice completed for this cycle');
+        window.Core?.showToast('✓ Practice completed for this cycle');
     }
 
     // ── Collective intention ─────────────────────────────────────────────────────
@@ -654,7 +653,7 @@ class LunarRoom {
     submitWordToCollective(word) {
         const sanitized  = this._sanitizeInput(word);
         const validation = this._validateCollectiveWord(sanitized);
-        if (!validation.valid) { Core?.showToast(validation.error); return; }
+        if (!validation.valid) { window.Core?.showToast(validation.error); return; }
 
         this.userWeekData.collectiveWord  = sanitized;
         this.userWeekData.intentionShared = true;
@@ -720,7 +719,7 @@ class LunarRoom {
     completeCollectivePractice() {
         this.userWeekData.practiceCount++;
         this.saveUserWeekData(true);
-        Core?.showToast('Intention planted with the collective');
+        window.Core?.showToast('Intention planted with the collective');
         this.closeCollectivePopup();
         this.renderRoomDashboard();
     }
@@ -741,13 +740,13 @@ class LunarRoom {
                 this.userWeekData.closureReflection = this._sanitizeInput(reflectionEl.value);
                 this.saveUserWeekData(true);
             }
-            Core?.showToast(this.config.completionMessage);
+            window.Core?.showToast(this.config.completionMessage);
             this.userWeekData = this._getDefaultUserData();
             this.saveUserWeekData(true);
-            Core?.navigateTo('hubView');
+            window.Core?.navigateTo('hubView');
         } catch (e) {
             console.error('submitClosure error:', e);
-            Core?.showToast('Failed to submit closure');
+            window.Core?.showToast('Failed to submit closure');
         }
     }
 
@@ -794,9 +793,9 @@ class LunarRoom {
             const roomId   = this._getLunarRoomId();
             const activity = `${this.config.emoji} ${this.config.name}`;
             CommunityDB.setPresence('online', activity, roomId);
-            if (Core?.state) {
-                Core.state.currentRoom = roomId;
-                if (Core.state.currentUser) Core.state.currentUser.activity = activity;
+            if (window.Core?.state) {
+                window.Core.state.currentRoom = roomId;
+                if (window.Core.state.currentUser) window.Core.state.currentUser.activity = activity;
             }
         } catch (e) { console.error('[LunarRoom] _setPresence error:', e); }
     }
@@ -805,9 +804,9 @@ class LunarRoom {
         if (!CommunityDB?.ready) return;
         try {
             CommunityDB.setPresence('online', '✨ Available', null);
-            if (Core?.state) {
-                Core.state.currentRoom = null;
-                if (Core.state.currentUser) Core.state.currentUser.activity = '✨ Available';
+            if (window.Core?.state) {
+                window.Core.state.currentRoom = null;
+                if (window.Core.state.currentUser) window.Core.state.currentUser.activity = '✨ Available';
             }
         } catch (e) { console.error('[LunarRoom] _clearPresence error:', e); }
     }
@@ -849,7 +848,7 @@ class LunarRoom {
             const profile  = p.profiles ?? {};
             const name     = profile.name ?? profile.display_name ?? '?';
             const initial  = name.charAt(0).toUpperCase();
-            const gradient = Core?.getAvatarGradient?.(p.user_id) ?? 'background:#8B7AFF';
+            const gradient = window.Core?.getAvatarGradient?.(p.user_id) ?? 'background:#8B7AFF';
             let inner = profile.avatar_url
                 ? `<img src="${profile.avatar_url}" alt="${initial}" width="40" height="40" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
                 : profile.emoji

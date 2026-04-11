@@ -1,5 +1,5 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/app-BdOLPwjK.js","assets/main-CjuMvlR2.js","assets/main-Ch1Nciyc.css"])))=>i.map(i=>d[i]);
-import{_ as l}from"./main-CjuMvlR2.js";import"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/+esm";class v{constructor(t){this.bigApp=t,this.instance=null,this.isInitialized=!1}render(){const t=document.getElementById("calculator-tab");if(!t){console.error("❌ Calculator tab not found");return}if(this.isInitialized){this.revalidate();return}t.innerHTML='<div class="loading-spinner-inner"><div class="spinner"></div><p>Loading Self-Analysis Pro...</p></div>',fetch("/src/Mini-Apps/SelfAnalysisPro/index.html").then(e=>e.text()).then(e=>{const a=new DOMParser().parseFromString(e,"text/html").getElementById("app-page");if(!a)throw new Error("app-page element not found in HTML");return t.innerHTML=`
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/app-BR7JiQPw.js","assets/main-D3odyCjA.js","assets/main-Ch1Nciyc.css"])))=>i.map(i=>d[i]);
+import{_ as l}from"./main-D3odyCjA.js";import"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/+esm";class v{constructor(t){this.bigApp=t,this.instance=null,this.isInitialized=!1}render(){const t=document.getElementById("calculator-tab");if(!t){console.error("❌ Calculator tab not found");return}if(this.isInitialized){this.revalidate();return}t.innerHTML='<div class="loading-spinner-inner"><div class="spinner"></div><p>Loading Self-Analysis Pro...</p></div>',fetch("/src/Mini-Apps/SelfAnalysisPro/index.html").then(e=>e.text()).then(e=>{const a=new DOMParser().parseFromString(e,"text/html").getElementById("app-page");if(!a)throw new Error("app-page element not found in HTML");return t.innerHTML=`
   <div style="padding:1.5rem;min-height:100vh;">
     <div class="universal-content">
 
@@ -20,7 +20,7 @@ import{_ as l}from"./main-CjuMvlR2.js";import"https://cdn.jsdelivr.net/npm/@supa
 
     </div>
   </div>
-`,this.initializeComponents().then(()=>l(()=>import("./app-BdOLPwjK.js"),__vite__mapDeps([0,1,2])))}).then(e=>{if(typeof e.bootSelfAnalysis=="function")this.instance=e.bootSelfAnalysis(t),this.isInitialized=!0;else throw new Error("bootSelfAnalysis function not found")}).catch(e=>{console.error("❌ Self-Analysis loader failed:",e),t.innerHTML=`
+`,this.initializeComponents().then(()=>l(()=>import("./app-BR7JiQPw.js"),__vite__mapDeps([0,1,2])))}).then(e=>{if(typeof e.bootSelfAnalysis=="function")this.instance=e.bootSelfAnalysis(t),this.isInitialized=!0;else throw new Error("bootSelfAnalysis function not found")}).catch(e=>{console.error("❌ Self-Analysis loader failed:",e),t.innerHTML=`
           <div class="card" style="padding:2rem;text-align:center;color:var(--neuro-error);">
             <h2>Failed to Load Self-Analysis Pro</h2>
             <p>${e.message}</p>
