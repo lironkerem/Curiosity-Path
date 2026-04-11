@@ -98,6 +98,16 @@ const Core = {
 
             await this.loadCurrentUser();
 
+            console.log('[Core] currentUser loaded:', { id: this.state.currentUser.id, name: this.state.currentUser.name, avatar_url: this.state.currentUser.avatar_url, is_admin: this.state.currentUser.is_admin, community_role: this.state.currentUser.community_role });
+
+            // If avatar_url not in DB profile, fall back to Google OAuth avatar
+            // (AuthManager stores it as avatarUrl on app.state.currentUser)
+            if (!this.state.currentUser.avatar_url) {
+                const appUser = window.app?.state?.currentUser;
+                const googleAvatar = appUser?.avatarUrl || appUser?.avatar_url || null;
+                if (googleAvatar) this.state.currentUser.avatar_url = googleAvatar;
+            }
+
             await CommunityDB.setPresence(
                 this.state.currentUser.status   || 'online',
                 this.state.currentUser.activity || '✨ Available',
@@ -201,14 +211,15 @@ const Core = {
                 bio:              p.inspiration      || 'Here to practice with intention.',
                 status:           resolvedStatus,
                 community_status: resolvedStatus,
-                role:             p.is_admin === true ? 'Admin' : (p.community_role || 'Member'),
+                role:             p.is_admin ? 'Admin' : (p.community_role || 'Member'),
+                community_role:   p.community_role   || 'Member',
                 minutes:          p.total_minutes    || 0,
                 circles:          p.total_sessions   || 0,
                 offered:          p.gifts_given      || 0,
                 birthday:         p.birthday         || null,
                 country:          p.country          || null,
                 email:            p.email            || '',
-                is_admin:         p.is_admin === true,
+                is_admin:         !!p.is_admin,
                 // Gamification - sourced from GamificationEngine
                 karma:            window.app?.gamification?.state?.karma  ?? 0,
                 xp:               window.app?.gamification?.state?.xp     ?? 0,

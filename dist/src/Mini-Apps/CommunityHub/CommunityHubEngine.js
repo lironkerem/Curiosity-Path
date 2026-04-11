@@ -432,35 +432,13 @@ class CommunityHubEngine {
       // Boot Core
       if (!Core?.init) throw new Error('Core module not found');
 
-      // ─── FIX #1 & #3: Init CommunityDB before Core so _sb is ready
-      // when subscribeToReflections / ProfileModule.populateData run.
+      // Ensure window.AppSupabase is available before Core.init() calls CommunityDB.init().
+      // In Vite builds, the CommunitySupabase named import may be null at module parse time
+      // if Supabase.js sets window.AppSupabase after supabase-client.js was evaluated.
+      // Pre-initialising CommunityDB here guarantees _sb is set before Core uses it.
       const dbReady = await CommunityDB.init();
       if (!dbReady) {
         console.warn('[CommunityHub] CommunityDB.init() failed — user may not be authenticated');
-      }
-
-      // ─── FIX #2: Merge DB profile fields (incl. is_admin) into currentUser
-      // so admin bypasses, role badge, birthday, country, avatar all render correctly.
-      if (dbReady && Core?.state?.currentUser) {
-        try {
-          const profile = await CommunityDB.getMyProfile();
-          if (profile) {
-            Object.assign(Core.state.currentUser, {
-              is_admin:         profile.is_admin         ?? false,
-              community_role:   profile.community_role   ?? Core.state.currentUser.community_role,
-              community_status: profile.community_status ?? Core.state.currentUser.community_status,
-              inspiration:      profile.inspiration      ?? Core.state.currentUser.inspiration,
-              birthday:         profile.birthday         ?? Core.state.currentUser.birthday,
-              country:          profile.country          ?? Core.state.currentUser.country,
-              avatar_url:       profile.avatar_url       ?? Core.state.currentUser.avatar_url,
-              gifts_given:      profile.gifts_given      ?? 0,
-              total_sessions:   profile.total_sessions   ?? 0,
-              total_minutes:    profile.total_minutes    ?? 0,
-            });
-          }
-        } catch (e) {
-          console.warn('[CommunityHub] Failed to merge profile into currentUser:', e);
-        }
       }
 
       Core.init();
