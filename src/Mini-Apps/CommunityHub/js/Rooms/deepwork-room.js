@@ -7,7 +7,6 @@ import { PracticeRoom } from './PracticeRoom.js';
 import { TimerMixin } from './mixins/TimerMixin.js';
 import { SoundSettingsMixin } from './mixins/SoundSettingsMixin.js';
 import { ChatMixin } from './mixins/ChatMixin.js';
-import { Core } from '../core.js';
 import { CommunityDB } from '../community-supabase.js';
 
 class DeepWorkRoom extends PracticeRoom {
@@ -121,7 +120,7 @@ class DeepWorkRoom extends PracticeRoom {
         this._attachVisibilityHandler();
 
         this._restoreFocusStatus();
-        Core.showToast('Timer started');
+        window.Core.showToast('Timer started');
     }
 
     // ── Status management ─────────────────────────────────────────────────────
@@ -154,7 +153,7 @@ class DeepWorkRoom extends PracticeRoom {
         // Drive collapsible chat panel
         this._setChatPanelOpen(isBreak);
 
-        Core.showToast(isBreak ? 'Break time — chat unlocked!' : `${this.getStatusText()}`);
+        window.Core.showToast(isBreak ? 'Break time — chat unlocked!' : `${this.getStatusText()}`);
     }
 
     _setChatPanelOpen(open) {
@@ -234,7 +233,7 @@ class DeepWorkRoom extends PracticeRoom {
             categoryBadge.style.border     = `2px solid ${cat.border}`;
         }
 
-        Core.showToast('Session set - click Begin!');
+        window.Core.showToast('Session set - click Begin!');
 
     }
 

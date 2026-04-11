@@ -6,7 +6,6 @@
 import { PracticeRoom } from './PracticeRoom.js';
 import { TimerMixin } from './mixins/TimerMixin.js';
 import { SoundSettingsMixin } from './mixins/SoundSettingsMixin.js';
-import { Core } from '../core.js';
 
 class SilentRoom extends PracticeRoom {
     constructor() {
@@ -178,7 +177,7 @@ class SilentRoom extends PracticeRoom {
     }
 
     offerGratitude() {
-        Core.showToast('Gratitude offered to the space');
+        window.Core.showToast('Gratitude offered to the space');
         const el = document.getElementById(`${this.roomId}GratitudeContainer`);
         if (!el) return;
         el.style.transform = 'scale(1.05)';

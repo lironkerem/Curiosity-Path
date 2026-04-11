@@ -8,7 +8,6 @@
  * Usage: Object.assign(YourRoom.prototype, SoundSettingsMixin);
  */
 
-import { Core } from '../../core.js';
 
 // ─── Sound catalogue ──────────────────────────────────────────────────────────
 
@@ -161,7 +160,7 @@ const SoundSettingsMixin = {
         const opts = document.getElementById(optionsId);
         if (opts) opts.style.display = next ? 'block' : 'none';
 
-        Core.showToast(`${label} ${next ? 'enabled' : 'disabled'}`);
+        window.Core.showToast(`${label} ${next ? 'enabled' : 'disabled'}`);
         (next ? onEnable : onDisable)?.call(this);
     },
 
@@ -203,7 +202,7 @@ const SoundSettingsMixin = {
     previewSound(soundType, event) {
         event?.stopPropagation();
         this._playBellProfile(soundType);
-        Core.showToast(`▶ ${soundType}`);
+        window.Core.showToast(`▶ ${soundType}`);
     },
 
     previewAmbient(ambientType, event) {
@@ -216,13 +215,13 @@ const SoundSettingsMixin = {
         }
         const audio = new Audio(url);
         audio.volume = 0.5;
-        audio.play().catch(() => Core.showToast('Preview unavailable'));
+        audio.play().catch(() => window.Core.showToast('Preview unavailable'));
         this._previewAudio = audio;
         setTimeout(() => {
             audio.pause();
             this._previewAudio = null;
         }, 4000);
-        Core.showToast(`▶ ${ambientType}`);
+        window.Core.showToast(`▶ ${ambientType}`);
     },
 
     // ── Playback ──────────────────────────────────────────────────────────────
@@ -234,7 +233,7 @@ const SoundSettingsMixin = {
         const audio = new Audio(url);
         audio.loop   = true;
         audio.volume = 0.35;
-        audio.play().catch(() => Core.showToast('Ambient audio unavailable'));
+        audio.play().catch(() => window.Core.showToast('Ambient audio unavailable'));
         this._ambientAudio = audio;
     },
 
@@ -249,12 +248,12 @@ const SoundSettingsMixin = {
     play5MinBell() {
         if (!this.state.fiveMinBellEnabled) return;
         this._playBellProfile(this.state.selectedBell, 0.7);
-        Core.showToast('5-minute bell');
+        window.Core.showToast('5-minute bell');
     },
 
     playCompletionSound() {
         this._playBellProfile(this.state.selectedCompletion, 1.0);
-        Core.showToast('Session complete');
+        window.Core.showToast('Session complete');
     },
 
     cleanupSound() {

@@ -5,7 +5,6 @@
  * Usage: Object.assign(YourRoom.prototype, TimerMixin);
  */
 
-import { Core } from '../../core.js';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -59,7 +58,7 @@ const TimerMixin = {
         // Visibility fix: suspend interval while tab is hidden, reconcile on return.
         this._attachVisibilityHandler();
 
-        Core.showToast('Timer started');
+        window.Core.showToast('Timer started');
     },
 
     pauseTimer() {
@@ -79,7 +78,7 @@ const TimerMixin = {
         this._updateTimer();
         this._setTimerGlow('idle');
         this.playCompletionSound?.();
-        Core.showToast('Session complete!');
+        window.Core.showToast('Session complete!');
         this.onTimerComplete?.();
     },
 
