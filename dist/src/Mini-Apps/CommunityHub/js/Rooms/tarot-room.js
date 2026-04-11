@@ -18,7 +18,6 @@
 import { PracticeRoom } from './PracticeRoom.js';
 import { ChatMixin } from './mixins/ChatMixin.js';
 import { TabRoomMixin } from './mixins/TabRoomMixin.js';
-import { Core } from '../core.js';
 import { CommunityDB } from '../community-supabase.js';
 
 class TarotRoom extends PracticeRoom {
@@ -443,9 +442,9 @@ class TarotRoom extends PracticeRoom {
     async _saveJournalEntry() {
         const input = document.getElementById(`${this.roomId}JournalInput`);
         const text  = input?.value?.trim();
-        if (!text) { Core.showToast('Please write something first'); return; }
+        if (!text) { window.Core.showToast('Please write something first'); return; }
 
-        const user  = Core.state.currentUser;
+        const user  = window.Core.state.currentUser;
         const card  = this.state.dailyCard;
         const today = new Date().toISOString().slice(0,10);
 
@@ -458,15 +457,15 @@ class TarotRoom extends PracticeRoom {
                 reflection: text,
             });
             input.value = '';
-            Core.showToast('Saved to your journal ✨');
+            window.Core.showToast('Saved to your journal ✨');
         } catch (e) {
             console.warn('[TarotRoom] journal save failed', e);
-            Core.showToast('Could not save — please try again');
+            window.Core.showToast('Could not save — please try again');
         }
     }
 
     async _loadJournalLog() {
-        const user   = Core.state.currentUser;
+        const user   = window.Core.state.currentUser;
         const listEl = document.getElementById(`${this.roomId}JournalLogList`);
         if (!listEl || !user?.id) return;
         listEl.innerHTML = `<div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px;">Loading…</div>`;
@@ -529,10 +528,10 @@ class TarotRoom extends PracticeRoom {
             const textDiv = document.getElementById(`jr-text-${id}`);
             if (textDiv) textDiv.textContent = newText;
             this._cancelEditEntry(id);
-            Core.showToast('Entry updated');
+            window.Core.showToast('Entry updated');
         } catch (e) {
             console.warn('[TarotRoom] edit failed', e);
-            Core.showToast('Could not update entry');
+            window.Core.showToast('Could not update entry');
         }
     }
 
@@ -540,10 +539,10 @@ class TarotRoom extends PracticeRoom {
         try {
             await CommunityDB._sb.from('tarot_reflections').delete().eq('id', id);
             document.getElementById(`jr-${id}`)?.remove();
-            Core.showToast('Entry deleted');
+            window.Core.showToast('Entry deleted');
         } catch (e) {
             console.warn('[TarotRoom] delete failed', e);
-            Core.showToast('Could not delete entry');
+            window.Core.showToast('Could not delete entry');
         }
     }
 
@@ -552,7 +551,7 @@ class TarotRoom extends PracticeRoom {
         const text  = input?.value?.trim();
         if (!text) return;
 
-        const user  = Core.state.currentUser;
+        const user  = window.Core.state.currentUser;
         const card  = this.state.dailyCard;
         const today = new Date().toISOString().slice(0,10);
 
@@ -566,10 +565,10 @@ class TarotRoom extends PracticeRoom {
             });
             input.value = '';
             await this._loadInterpretations();
-            Core.showToast('Shared 🌀');
+            window.Core.showToast('Shared 🌀');
         } catch (e) {
             console.warn('[TarotRoom] interpretation save failed', e);
-            Core.showToast('Could not share — please try again');
+            window.Core.showToast('Could not share — please try again');
         }
     }
 
@@ -658,7 +657,7 @@ class TarotRoom extends PracticeRoom {
 
     async _logDraw(card) {
         if (!CommunityDB._sb) return;
-        const cu = Core?.state?.currentUser;
+        const cu = window.Core?.state?.currentUser;
         if (!cu?.id) return;
         const name = this.getCardName(card.number, card.suit);
         const type = card.suit === 'major' ? 'major' : card.number <= 10 ? 'minor' : 'court';
@@ -677,7 +676,7 @@ class TarotRoom extends PracticeRoom {
     async _loadDrawHistory() {
         const el = document.getElementById(`${this.roomId}DrawHistory`);
         if (!el || !CommunityDB._sb) return;
-        const cu = Core?.state?.currentUser;
+        const cu = window.Core?.state?.currentUser;
         if (!cu?.id) return;
         try {
             const { data } = await CommunityDB._sb
@@ -719,7 +718,7 @@ class TarotRoom extends PracticeRoom {
         const progressEl = document.getElementById(`${this.roomId}MasteryProgress`);
         const cardsEl    = document.getElementById(`${this.roomId}MasteryCards`);
         if (!countEl || !CommunityDB._sb) return;
-        const cu = Core?.state?.currentUser;
+        const cu = window.Core?.state?.currentUser;
         if (!cu?.id) return;
         try {
             const { data } = await CommunityDB._sb
@@ -755,7 +754,7 @@ class TarotRoom extends PracticeRoom {
 
     async _clearDrawHistory() {
         if (!CommunityDB._sb) return;
-        const cu = Core?.state?.currentUser;
+        const cu = window.Core?.state?.currentUser;
         if (!cu?.id) return;
         if (!confirm('Clear your entire draw history? This cannot be undone.')) return;
         try {
@@ -763,7 +762,7 @@ class TarotRoom extends PracticeRoom {
             this._personalDataLoaded = false;
             this._loadDrawHistory();
             this._loadMastery();
-            Core.showToast('Draw history cleared');
+            window.Core.showToast('Draw history cleared');
         } catch(e) {
             console.warn('[TarotRoom] clearDrawHistory failed', e);
         }

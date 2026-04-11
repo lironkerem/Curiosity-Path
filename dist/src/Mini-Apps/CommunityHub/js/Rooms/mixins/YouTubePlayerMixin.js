@@ -9,7 +9,6 @@
  *   - getCurrentSession() → { videoId, title, duration, emoji }
  */
 
-import { Core } from '../../core.js';
 
 // ─── YT player state aliases ──────────────────────────────────────────────────
 const _YT = { ENDED: 0, PLAYING: 1, PAUSED: 2 };
@@ -96,7 +95,7 @@ const YouTubePlayerMixin = {
         // Regular users cannot enter mid-session — only admins can.
         // If an admin enters while a session is running, seek to the correct
         // offset so they're synchronized with all other participants.
-        if (this.state.isInSession && Core.state?.currentUser?.is_admin === true) {
+        if (this.state.isInSession && window.Core.state?.currentUser?.is_admin) {
             this._startAtCycleOffset(event.target);
         }
 
@@ -122,7 +121,7 @@ const YouTubePlayerMixin = {
         this._showPlayer();
 
         const session = this.getCurrentSession();
-        if (session) Core.showToast(`${session.emoji} Joining session in progress…`);
+        if (session) window.Core.showToast(`${session.emoji} Joining session in progress…`);
     },
 
     onPlayerStateChange(event) {
@@ -139,7 +138,7 @@ const YouTubePlayerMixin = {
 
     onVideoEnded() {
         this.stopProgressTracking();
-        Core.showToast('Session complete');
+        window.Core.showToast('Session complete');
     },
 
     // ── Session / playback control ────────────────────────────────────────────
@@ -158,7 +157,7 @@ const YouTubePlayerMixin = {
         this.state.player?.setVolume(100);
         this.state.player?.playVideo();
         this.state.sessionStarted = true;
-        Core.showToast(`${session.emoji} Session starting…`);
+        window.Core.showToast(`${session.emoji} Session starting…`);
     },
 
     togglePlayPause() {

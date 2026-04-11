@@ -77,7 +77,7 @@ class OshoRoom extends TimedVideoRoom {
         this.state.player?.setVolume(100);
         this.state.player?.playVideo();
         this.state.sessionStarted = true;
-        Core.showToast(`${session.emoji} Intro starting…`);
+        window.Core.showToast(`${session.emoji} Intro starting…`);
     }
 
     // When intro ends, auto-load the practice video
@@ -88,11 +88,11 @@ class OshoRoom extends TimedVideoRoom {
             if (session?.videoId && this.state.player) {
                 this.state.player.loadVideoById(session.videoId);
                 this.state.player.playVideo();
-                Core.showToast(`${session.emoji} Practice starting…`);
+                window.Core.showToast(`${session.emoji} Practice starting…`);
             }
         } else {
             this.stopProgressTracking();
-            Core.showToast('Session complete');
+            window.Core.showToast('Session complete');
         }
     }
 

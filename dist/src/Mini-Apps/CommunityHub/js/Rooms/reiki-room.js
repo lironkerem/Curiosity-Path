@@ -15,7 +15,6 @@
 import { PracticeRoom } from './PracticeRoom.js';
 import { ChatMixin } from './mixins/ChatMixin.js';
 import { TabRoomMixin } from './mixins/TabRoomMixin.js';
-import { Core } from '../core.js';
 import { CommunityDB } from '../community-supabase.js';
 
 class ReikiRoom extends PracticeRoom {
@@ -284,9 +283,9 @@ class ReikiRoom extends PracticeRoom {
     // ── Personal session ──────────────────────────────────────────────────────
 
     startPersonalSession() {
-        if (!this._chakraDataReady) { Core.showToast('Loading chakra data, please wait…'); return; }
+        if (!this._chakraDataReady) { window.Core.showToast('Loading chakra data, please wait…'); return; }
         const focus = document.getElementById(`${this.roomId}PersonalFocus`)?.value;
-        if (!focus) { Core.showToast('Please select a focus'); return; }
+        if (!focus) { window.Core.showToast('Please select a focus'); return; }
 
         this.state.personalFocus      = focus;
         this.state.personalImageIndex = 0;
@@ -300,7 +299,7 @@ class ReikiRoom extends PracticeRoom {
             `${this.getClassName()}.nextPersonalImage()`,
             false, false
         );
-        Core.showToast(`${selected.label} session started`);
+        window.Core.showToast(`${selected.label} session started`);
     }
 
     // ── Chakra display (with HTML caching) ────────────────────────────────────
@@ -584,9 +583,9 @@ class ReikiRoom extends PracticeRoom {
         const roomId = this.roomId;
         const input  = document.getElementById(`${roomId}${prefix}JournalInput`);
         const text   = input?.value?.trim();
-        if (!text) { Core.showToast('Please write something first'); return; }
+        if (!text) { window.Core.showToast('Please write something first'); return; }
 
-        const user  = Core.state.currentUser;
+        const user  = window.Core.state.currentUser;
         const today = new Date().toISOString().slice(0,10);
 
         try {
@@ -598,19 +597,19 @@ class ReikiRoom extends PracticeRoom {
                 entry:       text,
             });
             input.value = '';
-            Core.showToast('Saved to your chakra journal ✨');
+            window.Core.showToast('Saved to your chakra journal ✨');
             // Only reload mastery after an actual save, and mark it stale
             this._masteryLoaded = false;
             if (prefix === 'Personal') this._loadChakraMastery();
         } catch (e) {
             console.warn('[ReikiRoom] journal save failed', e);
-            Core.showToast('Could not save — please try again');
+            window.Core.showToast('Could not save — please try again');
         }
     }
 
     async _loadChakraJournalLog(prefix) {
         const roomId = this.roomId;
-        const user   = Core.state.currentUser;
+        const user   = window.Core.state.currentUser;
         const listEl = document.getElementById(`${roomId}${prefix}JournalLogList`);
         if (!listEl || !user?.id) return;
         listEl.innerHTML = `<div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px;">Loading…</div>`;
@@ -673,10 +672,10 @@ class ReikiRoom extends PracticeRoom {
             const textDiv = document.getElementById(`rj-text-${id}`);
             if (textDiv) textDiv.textContent = newText;
             this._cancelEditEntry(id);
-            Core.showToast('Entry updated');
+            window.Core.showToast('Entry updated');
         } catch (e) {
             console.warn('[ReikiRoom] edit failed', e);
-            Core.showToast('Could not update entry');
+            window.Core.showToast('Could not update entry');
         }
     }
 
@@ -684,10 +683,10 @@ class ReikiRoom extends PracticeRoom {
         try {
             await CommunityDB._sb.from('reiki_sessions').delete().eq('id', id);
             document.getElementById(`rj-${id}`)?.remove();
-            Core.showToast('Entry deleted');
+            window.Core.showToast('Entry deleted');
         } catch (e) {
             console.warn('[ReikiRoom] delete failed', e);
-            Core.showToast('Could not delete entry');
+            window.Core.showToast('Could not delete entry');
         }
     }
 
@@ -698,7 +697,7 @@ class ReikiRoom extends PracticeRoom {
         const text  = input?.value?.trim();
         if (!text) return;
 
-        const user   = Core.state.currentUser;
+        const user   = window.Core.state.currentUser;
         const chakra = this.CHAKRA_SCHEDULE[this.state.currentDay];
         const today  = new Date().toISOString().slice(0,10);
 
@@ -712,10 +711,10 @@ class ReikiRoom extends PracticeRoom {
             });
             input.value = '';
             await this._loadCommunityEnergy();
-            Core.showToast('Shared 🌀');
+            window.Core.showToast('Shared 🌀');
         } catch (e) {
             console.warn('[ReikiRoom] community energy save failed', e);
-            Core.showToast('Could not share — please try again');
+            window.Core.showToast('Could not share — please try again');
         }
     }
 
@@ -759,7 +758,7 @@ class ReikiRoom extends PracticeRoom {
     }
 
     async _loadChakraMastery() {
-        const user       = Core.state.currentUser;
+        const user       = window.Core.state.currentUser;
         const countEl    = document.getElementById(`${this.roomId}MasteryCount`);
         const progressEl = document.getElementById(`${this.roomId}MasteryProgress`);
         const pillsEl    = document.getElementById(`${this.roomId}MasteryChakras`);

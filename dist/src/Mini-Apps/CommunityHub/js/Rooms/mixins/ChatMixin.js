@@ -12,7 +12,6 @@
  * Do NOT redefine it in room subclasses.
  */
 
-import { Core } from '../../core.js';
 import { CommunityDB } from '../../community-supabase.js';
 
 // ─── Module-level helpers (not mixed into instances) ─────────────────────────
@@ -23,7 +22,7 @@ const _cap = str => str.charAt(0).toUpperCase() + str.slice(1);
 /** Build a consistent avatar { inner, bg } pair from profile data. */
 function _avatarParts(name, avatarUrl, emoji, userId) {
     const initial  = emoji || name.charAt(0).toUpperCase();
-    const gradient = Core?.getAvatarGradient?.(userId || name)
+    const gradient = window.Core?.getAvatarGradient?.(userId || name)
         ?? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
     const inner = avatarUrl
         ? `<img src="${avatarUrl}" width="36" height="36" style="width:36px;height:36px;object-fit:cover;border-radius:50%;display:block;flex-shrink:0;" alt="${name}" loading="lazy" decoding="async">`
@@ -70,7 +69,7 @@ const ChatMixin = {
 
     _rowToMsgData(row, isOwn = false) {
         const profile   = row.profiles || {};
-        const cu        = Core?.state?.currentUser || {};
+        const cu        = window.Core?.state?.currentUser || {};
         const name      = isOwn ? (cu.name || 'You')          : (profile.name || 'Member');
         const avatarUrl = isOwn ? (cu.avatar_url || '')        : (profile.avatar_url || '');
         const emoji     = isOwn ? (cu.emoji || '')             : (profile.emoji || '');
@@ -94,7 +93,7 @@ const ChatMixin = {
 
         const message   = input.value.trim();
         const container = document.getElementById(this._msgContainerId(channel));
-        const cu        = Core?.state?.currentUser || {};
+        const cu        = window.Core?.state?.currentUser || {};
         const name      = cu.name || 'You';
         const { gradient, initial } = _avatarParts(name, cu.avatar_url || '', cu.emoji || '', cu.id);
 
@@ -119,7 +118,7 @@ const ChatMixin = {
         }
 
         input.value = '';
-        Core.showToast('Message sent');
+        window.Core.showToast('Message sent');
 
         if (CommunityDB?.ready) {
             try {
@@ -141,7 +140,7 @@ const ChatMixin = {
 
         const dbRoomId  = this._getDbRoomId(channel);
         const container = document.getElementById(this._msgContainerId(channel));
-        const currentId = Core?.state?.currentUser?.id;
+        const currentId = window.Core?.state?.currentUser?.id;
 
         try {
             const [rows, blocked] = await Promise.all([
@@ -237,7 +236,7 @@ const ChatMixin = {
 
     _injectSenderAvatar(channel = null) {
         const channels = channel ? [channel] : (this.chatChannels || ['main']);
-        const cu = Core?.state?.currentUser;
+        const cu = window.Core?.state?.currentUser;
         if (!cu) return;
 
         const { inner, bg } = _avatarParts(cu.name || 'Me', cu.avatar_url || '', cu.emoji || '', cu.id);
@@ -289,7 +288,7 @@ const ChatMixin = {
         localStorage.removeItem(`${this.roomId}_messages_${channel}`);
         const container = document.getElementById(this._msgContainerId(channel));
         if (container) container.innerHTML = '';
-        Core.showToast('Messages cleared');
+        window.Core.showToast('Messages cleared');
     },
 
     // ── Utility ───────────────────────────────────────────────────────────────

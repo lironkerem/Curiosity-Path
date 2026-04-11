@@ -10,7 +10,6 @@
  *   - config.sessionDuration (seconds) - session length after open window
  */
 
-import { Core } from '../../core.js';
 
 const CycleStateMixin = {
 
@@ -76,11 +75,11 @@ const CycleStateMixin = {
     // ── Room entry checks ─────────────────────────────────────────────────────
 
     isUserInRoom() {
-        return Core?.state?.currentRoom === this.roomId;
+        return window.Core?.state?.currentRoom === this.roomId;
     },
 
     canEnterRoom() {
-        return Core.state?.currentUser?.is_admin === true || this.state.isOpen;
+        return window.Core.state?.currentUser?.is_admin || this.state.isOpen;
     },
 
     _checkCycleWindow() {
