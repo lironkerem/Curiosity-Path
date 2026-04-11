@@ -98,10 +98,7 @@ const Core = {
 
             await this.loadCurrentUser();
 
-            console.log('[Core] currentUser loaded:', { id: this.state.currentUser.id, name: this.state.currentUser.name, avatar_url: this.state.currentUser.avatar_url, is_admin: this.state.currentUser.is_admin, community_role: this.state.currentUser.community_role });
-
-            // If avatar_url not in DB profile, fall back to Google OAuth avatar
-            // (AuthManager stores it as avatarUrl on app.state.currentUser)
+            // Fallback: if DB profile has no avatar_url, use Google OAuth avatar
             if (!this.state.currentUser.avatar_url) {
                 const appUser = window.app?.state?.currentUser;
                 const googleAvatar = appUser?.avatarUrl || appUser?.avatar_url || null;
@@ -244,14 +241,7 @@ const Core = {
 
         for (const { name, instance } of modules) {
             if (instance?.init) {
-                try {
-                    // Reset isInitialized so a stale-state singleton always re-runs
-                    // after Core has finished loading the current user.
-                    if (instance.state?.isInitialized !== undefined) {
-                        instance.state.isInitialized = false;
-                    }
-                    instance.init();
-                }
+                try { instance.init(); }
                 catch (e) { console.error(`✗ [Core] ${name} init failed:`, e); }
             } else {
                 console.warn(`⚠ [Core] ${name} not found or missing init()`);

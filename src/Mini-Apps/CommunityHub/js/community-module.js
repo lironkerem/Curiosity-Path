@@ -73,10 +73,10 @@ const CommunityModule = {
     },
 
     _buildReflectionsShell() {
-        const user      = Core?.state?.currentUser || {};
+        const user      = window.Core?.state?.currentUser || {};
         const name      = user.name      || 'You';
         const avatarUrl = user.avatar_url || '';
-        const gradient  = Core.getAvatarGradient(user.id || 'me');
+        const gradient  = window.Core.getAvatarGradient(user.id || 'me');
 
         const avatarInner = avatarUrl
             ? `<img src="${avatarUrl}" alt="${name}" width="40" height="40" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" loading="lazy" decoding="async">`
@@ -154,10 +154,10 @@ const CommunityModule = {
         const profile   = ref.profiles || {};
         const name      = profile.name      || 'Community Member';
         const avatarUrl = profile.avatar_url || '';
-        const gradient  = Core.getAvatarGradient(profile.id || ref.id);
+        const gradient  = window.Core.getAvatarGradient(profile.id || ref.id);
         const timeStr   = this._timeAgo(ref.created_at);
-        const isOwn     = profile.id === Core?.state?.currentUser?.id;
-        const isAdmin   = Core?.state?.currentUser?.is_admin === true;
+        const isOwn     = profile.id === window.Core?.state?.currentUser?.id;
+        const isAdmin   = window.Core?.state?.currentUser?.is_admin;
         const appreciated = this.state.appreciatedReflections.has(ref.id);
 
         const avatarInner = avatarUrl
@@ -205,9 +205,7 @@ const CommunityModule = {
     },
 
     subscribeToNewReflections() {
-        // FIX #1: Guard against CommunityDB not yet initialized (_sb still null).
-        // This happens when Core.init() fires before CommunityDB.init() completes.
-        // Retry until ready rather than crashing on _sb.channel().
+        // Guard: if CommunityDB not ready yet, defer until it is
         if (!CommunityDB?.ready) {
             const interval = setInterval(() => {
                 if (!CommunityDB?.ready) return;
@@ -218,7 +216,7 @@ const CommunityModule = {
         }
 
         const sub = CommunityDB.subscribeToReflections(async (ref) => {
-            if (ref.profiles?.id === Core?.state?.currentUser?.id) return; // skip own (optimistic)
+            if (ref.profiles?.id === window.Core?.state?.currentUser?.id) return; // skip own (optimistic)
             const blocked = await CommunityDB.getBlockedUsers();
             if (blocked.has(ref.profiles?.id)) return;
             this._prependReflection(ref);
@@ -253,24 +251,24 @@ const CommunityModule = {
 
         const text = input.value.trim();
         if (text.length < this.config.MIN_REFLECTION_LENGTH) {
-            Core.showToast('Please write something first');
+            window.Core.showToast('Please write something first');
             return;
         }
         if (text.length > this.config.MAX_REFLECTION_LENGTH) {
-            Core.showToast(`Reflection too long (max ${this.config.MAX_REFLECTION_LENGTH} characters)`);
+            window.Core.showToast(`Reflection too long (max ${this.config.MAX_REFLECTION_LENGTH} characters)`);
             return;
         }
 
         try {
             const result = await CommunityDB.postReflection(text);
-            if (!result) { Core.showToast('Could not share reflection - please try again'); return; }
+            if (!result) { window.Core.showToast('Could not share reflection - please try again'); return; }
 
             input.value = '';
             const counter = document.getElementById('charCount');
             if (counter) counter.textContent = '0';
 
             this._prependReflection(result);
-            Core.showToast('Reflection shared with the community');
+            window.Core.showToast('Reflection shared with the community');
 
         } catch (err) {
             console.error('[CommunityModule] shareReflection error:', err);
@@ -282,9 +280,9 @@ const CommunityModule = {
         const ok = await CommunityDB.deleteReflection(reflectionId);
         if (ok) {
             document.querySelector(`[data-reflection-id="${reflectionId}"]`)?.remove();
-            Core.showToast('Reflection removed');
+            window.Core.showToast('Reflection removed');
         } else {
-            Core.showToast('Could not remove reflection');
+            window.Core.showToast('Could not remove reflection');
         }
     },
 
@@ -340,18 +338,18 @@ const CommunityModule = {
         if (!ta) return;
 
         const newText = ta.value.trim();
-        if (!newText)           { Core.showToast('Reflection cannot be empty'); return; }
-        if (newText.length > 500) { Core.showToast('Too long (max 500 characters)'); return; }
+        if (!newText)           { window.Core.showToast('Reflection cannot be empty'); return; }
+        if (newText.length > 500) { window.Core.showToast('Too long (max 500 characters)'); return; }
 
         ta.disabled = true;
         const ok = await CommunityDB.updateReflection(reflectionId, newText);
         if (ok) {
             const contentEl = document.querySelector(`[data-reflection-id="${reflectionId}"] .ref-content`);
             if (contentEl) contentEl.textContent = newText;
-            Core.showToast('Reflection updated');
+            window.Core.showToast('Reflection updated');
         } else {
             ta.disabled = false;
-            Core.showToast('Could not update - please try again');
+            window.Core.showToast('Could not update - please try again');
         }
     },
 
@@ -409,7 +407,7 @@ const CommunityModule = {
         if (window.MemberProfileModal) {
             MemberProfileModal.open(userId);
         } else {
-            Core.showToast('Member profiles loading...');
+            window.Core.showToast('Member profiles loading...');
         }
     },
 
@@ -442,7 +440,7 @@ const CommunityModule = {
     },
 
     contributeWave() {
-        Core.showToast('Contribution recorded! Start your practice.');
+        window.Core.showToast('Contribution recorded! Start your practice.');
     },
 
     // =========================================================================
@@ -465,14 +463,14 @@ const CommunityModule = {
     async submitReport() {
         const reason  = document.getElementById('reportReason')?.value;
         const details = document.getElementById('reportDetails')?.value?.trim() || '';
-        if (!reason) { Core.showToast('Please select a reason'); return; }
+        if (!reason) { window.Core.showToast('Please select a reason'); return; }
 
         const ok = await CommunityDB.submitReport(this.state.reportingUserId, reason, details);
         if (ok) {
-            Core.showToast('Report submitted. Thank you for keeping the space safe.');
+            window.Core.showToast('Report submitted. Thank you for keeping the space safe.');
             this.closeReportModal();
         } else {
-            Core.showToast('Could not submit report - please try again');
+            window.Core.showToast('Could not submit report - please try again');
         }
     },
 
@@ -484,18 +482,18 @@ const CommunityModule = {
 
     async confirmBlock() {
         const username = document.getElementById('blockUsername')?.value?.trim();
-        if (!username) { Core.showToast('Please enter a username'); return; }
+        if (!username) { window.Core.showToast('Please enter a username'); return; }
 
         const data = await CommunityDB.getUserByName(username);
-        if (!data) { Core.showToast('User not found'); return; }
+        if (!data) { window.Core.showToast('User not found'); return; }
 
         const ok = await CommunityDB.blockUser(data.id);
         if (ok) {
-            Core.showToast(`${data.name} has been blocked`);
+            window.Core.showToast(`${data.name} has been blocked`);
             this.closeBlockModal();
             await this.renderReflections();
         } else {
-            Core.showToast('Could not block user - please try again');
+            window.Core.showToast('Could not block user - please try again');
         }
     },
 
@@ -523,10 +521,10 @@ const CommunityModule = {
     submitModeratorRequest() {
         const message = document.getElementById('moderatorMessage')?.value?.trim();
         if (!message || message.length < this.config.MIN_MODERATOR_MESSAGE_LENGTH) {
-            Core.showToast(`Please describe your situation (at least ${this.config.MIN_MODERATOR_MESSAGE_LENGTH} characters)`);
+            window.Core.showToast(`Please describe your situation (at least ${this.config.MIN_MODERATOR_MESSAGE_LENGTH} characters)`);
             return;
         }
-        Core.showToast('Request sent. A moderator will reach out shortly.');
+        window.Core.showToast('Request sent. A moderator will reach out shortly.');
         this.closeModeratorModal();
     },
 
@@ -540,12 +538,12 @@ const CommunityModule = {
     submitTechnicalIssue() {
         const type        = document.getElementById('technicalType')?.value;
         const description = document.getElementById('technicalDescription')?.value?.trim();
-        if (!type) { Core.showToast('Please select an issue type'); return; }
+        if (!type) { window.Core.showToast('Please select an issue type'); return; }
         if (!description || description.length < this.config.MIN_TECHNICAL_DESCRIPTION_LENGTH) {
-            Core.showToast(`Please provide more details (at least ${this.config.MIN_TECHNICAL_DESCRIPTION_LENGTH} characters)`);
+            window.Core.showToast(`Please provide more details (at least ${this.config.MIN_TECHNICAL_DESCRIPTION_LENGTH} characters)`);
             return;
         }
-        Core.showToast('Issue reported. Our tech team will investigate.');
+        window.Core.showToast('Issue reported. Our tech team will investigate.');
         this.closeTechnicalModal();
     },
 
@@ -562,7 +560,7 @@ const CommunityModule = {
         if (!sidebar) return;
         const isMuted = sidebar.classList.contains('muted');
         sidebar.classList.toggle('muted');
-        Core.showToast(isMuted ? 'Chat unmuted' : 'Chat muted');
+        window.Core.showToast(isMuted ? 'Chat unmuted' : 'Chat muted');
         if (!isMuted && sidebar.classList.contains('open')) {
             // Close the sidebar when muting
             sidebar.classList.remove('open');
@@ -575,7 +573,7 @@ const CommunityModule = {
     // =========================================================================
 
     registerEvent() {
-        Core.showToast('Registration confirmed! Check your email.');
+        window.Core.showToast('Registration confirmed! Check your email.');
     },
 
     // =========================================================================
