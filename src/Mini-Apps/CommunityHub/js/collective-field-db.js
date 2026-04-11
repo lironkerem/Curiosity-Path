@@ -206,6 +206,11 @@ const CollectiveFieldDB = {
     // =========================================================================
 
     async logWaveContribution(minutes, completed) {
+        console.log('[DEBUG logWave] window.CommunityDB:', window.CommunityDB);
+        console.log('[DEBUG logWave] window.CommunityDB?.userId:', window.CommunityDB?.userId);
+        console.log('[DEBUG logWave] window.CommunityDB?._uid:', window.CommunityDB?._uid);
+        console.log('[DEBUG logWave] window.Core?.state?.currentUser:', window.Core?.state?.currentUser);
+        console.log('[DEBUG logWave] window.AppSupabase?.auth?.getUser:', typeof window.AppSupabase?.auth?.getUser);
         const userId = _cdb()?.userId;
         if (!userId)    { this._err('logWaveContribution', 'no userId'); return; }
         if (minutes < 1) return;
