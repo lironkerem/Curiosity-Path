@@ -432,16 +432,31 @@ class CommunityHubEngine {
       // Boot Core
       if (!Core?.init) throw new Error('Core module not found');
 
-      // Ensure window.AppSupabase is available before Core.init() calls CommunityDB.init().
-      // In Vite builds, the CommunitySupabase named import may be null at module parse time
-      // if Supabase.js sets window.AppSupabase after supabase-client.js was evaluated.
-      // Pre-initialising CommunityDB here guarantees _sb is set before Core uses it.
-      const dbReady = await CommunityDB.init();
-      if (!dbReady) {
-        console.warn('[CommunityHub] CommunityDB.init() failed — user may not be authenticated');
-      }
+      // Pre-init CommunityDB so _sb is set before Core.init() runs.
+      // In Vite builds the CommunitySupabase named import in supabase-client.js
+      // may be null at module-parse time; window.AppSupabase is ready by now.
+      await CommunityDB.init();
 
       await Core.init();
+
+      // CRITICAL: The Community Hub files are loaded via @vite-ignore dynamic imports,
+      // so each file gets its own module-scope instance of core.js.
+      // CommunityHubEngine imports Core at build time (one instance);
+      // profile-module.js / community-module.js import it at runtime (another instance).
+      // After Core.init() populates state.currentUser, make this instance the global
+      // authority so all runtime-loaded modules read the correct data.
+      window.Core = Core;
+
+      // Re-init profile and community modules now that window.Core is authoritative.
+      // They may have already run with the empty default state before Core.init() resolved.
+      if (window.ProfileModule) {
+        window.ProfileModule.state.isInitialized = false;
+        try { window.ProfileModule.init(); } catch(e) { console.warn('[CommunityHub] ProfileModule re-init:', e); }
+      }
+      if (window.CommunityModule) {
+        window.CommunityModule.state.isInitialized = false;
+        try { window.CommunityModule.init(); } catch(e) { console.warn('[CommunityHub] CommunityModule re-init:', e); }
+      }
 
       if (window.Rituals) window.Rituals.state.hasSeenOpening = false;
       if (window.CollectiveFieldDB) await window.CollectiveFieldDB.init();

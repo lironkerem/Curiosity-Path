@@ -10,7 +10,6 @@
  * - No auto-init: core.js calls init() after CommunityDB is ready
  */
 
-import { Core } from './core.js';
 import { CommunityDB } from './community-supabase.js';
 
 const ProfileModule = {
@@ -80,9 +79,9 @@ const ProfileModule = {
     // HELPERS
     // ============================================================================
 
-    /** Returns Core.state.currentUser or null. */
+    /** Returns window.Core.state.currentUser or null. */
     _user() {
-        return Core?.state?.currentUser ?? null;
+        return window.Core?.state?.currentUser ?? null;
     },
 
     /** Escapes a string for safe HTML insertion. */
@@ -479,7 +478,7 @@ const ProfileModule = {
     populateData() {
         const user = this._user();
         if (!user) {
-            console.warn('Core.state.currentUser not available');
+            console.warn('window.Core.state.currentUser not available');
             return;
         }
         try {
@@ -524,8 +523,8 @@ const ProfileModule = {
             if (avatarImg) avatarImg.style.display = 'none';
         }
 
-        if (Core?.getAvatarGradient) {
-            avatarWrap.style.background = Core.getAvatarGradient(user.id || user.name || 'default');
+        if (window.Core?.getAvatarGradient) {
+            avatarWrap.style.background = window.Core.getAvatarGradient(user.id || user.name || 'default');
         }
     },
 
@@ -960,15 +959,15 @@ const ProfileModule = {
         }
 
         try {
-            const roomId = Core?.state?.currentRoom || null;
+            const roomId = window.Core?.state?.currentRoom || null;
             await Promise.all([
                 CommunityDB.setPresence(status, activity, roomId),
                 CommunityDB.updateProfile({ community_status: status }),
             ]);
-            Core.showToast(`Status set to ${label}`);
+            window.Core.showToast(`Status set to ${label}`);
         } catch (err) {
             console.error('[ProfileModule] setStatus error:', err);
-            Core.showToast('Could not update status - please try again');
+            window.Core.showToast('Could not update status - please try again');
         }
 
         // Notify User Tab ring
@@ -976,7 +975,7 @@ const ProfileModule = {
     },
 
     updatePresenceCount() {
-        Core?.updatePresenceCount?.();
+        window.Core?.updatePresenceCount?.();
     },
 
     // ============================================================================
@@ -1000,9 +999,9 @@ const ProfileModule = {
     // ============================================================================
 
     async sendPulse() {
-        const state = Core?.state;
+        const state = window.Core?.state;
         if (!state) { console.error('Core not available'); return; }
-        if (state.pulseSent) { Core.showToast('Already offered'); return; }
+        if (state.pulseSent) { window.Core.showToast('Already offered'); return; }
 
         const btn = document.getElementById('pulseBtn');
         if (!btn) return;
@@ -1018,7 +1017,7 @@ const ProfileModule = {
                 const pulseFill = document.getElementById('pulseFill');
                 if (pulseFill) pulseFill.style.width = '50%';
 
-                Core.showToast('Calm offered to the community');
+                window.Core.showToast('Calm offered to the community');
                 await CommunityDB.setPresence('online', '💗 Offering calm', state.currentRoom || null);
                 const cu = this._user();
                 if (cu) cu.activity = '💗 Offering calm';
@@ -1052,7 +1051,7 @@ const ProfileModule = {
 
     async _uploadAvatar(file) {
         if (file.size > 5 * 1024 * 1024) {
-            Core.showToast('Image too large - max 5MB');
+            window.Core.showToast('Image too large - max 5MB');
             return;
         }
 
@@ -1067,14 +1066,14 @@ const ProfileModule = {
         };
         reader.readAsDataURL(file);
 
-        Core.showToast('Uploading photo...');
+        window.Core.showToast('Uploading photo...');
         const url = await CommunityDB.uploadAvatar(file);
         if (url) {
             const cu = this._user();
             if (cu) cu.avatar_url = url;
-            Core.showToast('Profile photo updated');
+            window.Core.showToast('Profile photo updated');
         } else {
-            Core.showToast('Upload failed - please try again');
+            window.Core.showToast('Upload failed - please try again');
             this.updateAvatar(this._user());
         }
     },
@@ -1086,12 +1085,12 @@ const ProfileModule = {
 
         const trimmed = newVal.trim().substring(0, 60);
         const ok = await CommunityDB.updateProfile({ community_role: trimmed || null });
-        if (!ok) { Core.showToast('Could not save - please try again'); return; }
+        if (!ok) { window.Core.showToast('Could not save - please try again'); return; }
 
         const cu = this._user();
         if (cu) { cu.community_role = trimmed || 'Member'; cu.role = trimmed || 'Member'; }
         this.updateRole(this._user());
-        Core.showToast('Role updated');
+        window.Core.showToast('Role updated');
     },
 
     async editInspiration() {
@@ -1105,12 +1104,12 @@ const ProfileModule = {
         if (!sanitized) return;
 
         const ok = await CommunityDB.updateProfile({ inspiration: sanitized });
-        if (!ok) { Core.showToast('Could not save - please try again'); return; }
+        if (!ok) { window.Core.showToast('Could not save - please try again'); return; }
 
         el.textContent = `"${sanitized}"`;
         const cu = this._user();
         if (cu) cu.inspiration = sanitized;
-        Core.showToast('Inspiration updated');
+        window.Core.showToast('Inspiration updated');
     },
 
     /**
@@ -1170,20 +1169,20 @@ const ProfileModule = {
             const trimmed = input.value.trim().substring(0, maxLength);
             if (validate) {
                 const err = validate(trimmed);
-                if (err) { Core.showToast(err); return; }
+                if (err) { window.Core.showToast(err); return; }
             }
             saveBtn.disabled = true;
             saveBtn.textContent = '...';
             const ok = await CommunityDB.updateProfile({ [dbKey]: trimmed || null });
             if (!ok) {
-                Core.showToast('Could not save - please try again');
+                window.Core.showToast('Could not save - please try again');
                 saveBtn.disabled = false;
                 saveBtn.textContent = '✓';
                 return;
             }
             cancel();
             onSave(trimmed || null);
-            Core.showToast(successToast);
+            window.Core.showToast(successToast);
         };
 
         saveBtn.onclick   = save;
@@ -1212,16 +1211,16 @@ const ProfileModule = {
 
         const save = async () => {
             const val = input.value.trim();
-            if (val && !/^\d{4}-\d{2}-\d{2}$/.test(val)) { Core.showToast('Invalid date'); return; }
+            if (val && !/^\d{4}-\d{2}-\d{2}$/.test(val)) { window.Core.showToast('Invalid date'); return; }
             const ok = await CommunityDB.updateProfile({ birthday: val || null });
-            if (!ok) { Core.showToast('Could not save - please try again'); return; }
+            if (!ok) { window.Core.showToast('Could not save - please try again'); return; }
             const cu = this._user();
             if (cu) cu.birthday = val;
             input.replaceWith(valEl);
             valEl.style.display = '';
             this.updateBirthday(this._user());
             this.updateProfileLocationRow(this._user());
-            Core.showToast('Birthday updated');
+            window.Core.showToast('Birthday updated');
         };
 
         input.addEventListener('keydown', e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') { input.replaceWith(valEl); valEl.style.display = ''; } });
@@ -1247,14 +1246,14 @@ const ProfileModule = {
         const save = async () => {
             const val = input.value.trim();
             const ok  = await CommunityDB.updateProfile({ country: val || null });
-            if (!ok) { Core.showToast('Could not save - please try again'); return; }
+            if (!ok) { window.Core.showToast('Could not save - please try again'); return; }
             const cu = this._user();
             if (cu) cu.country = val;
             input.replaceWith(valEl);
             valEl.style.display = '';
             this.updateCountry(this._user());
             this.updateProfileLocationRow(this._user());
-            Core.showToast('Country updated');
+            window.Core.showToast('Country updated');
         };
 
         input.addEventListener('keydown', e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') { input.replaceWith(valEl); valEl.style.display = ''; } });
