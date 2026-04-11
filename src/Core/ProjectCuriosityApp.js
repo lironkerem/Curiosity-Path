@@ -9,7 +9,6 @@ import { showToast }    from './Toast.js';
 import * as modal       from './Modal.js';
 import { GamificationEngine } from '../Core/GamificationEngine.js';
 import { supabase }     from './Supabase.js';
-import { DarkMode }     from '/src/Core/Utils.js';
 import DailyCards       from '../Features/DailyCards.js';
 import CTA              from './CTA.js';
 import { fetchProgress, saveProgress, clearCache } from '/src/Core/DB.js';
@@ -67,7 +66,6 @@ const ls = {
 
 // ─── Module-level side effects ────────────────────────────────────────────────
 
-DarkMode.init();
 // Expose Supabase client globally for Community Hub scripts (set in Supabase.js too)
 window.AppSupabase = supabase;
 
@@ -240,235 +238,114 @@ export default class ProjectCuriosityApp {
 
   // ─── Gamification setup ─────────────────────────────────────────────────────
 
-  setupGamificationListeners() {
+  _setupGamificationListeners() {
     if (this._gamificationListenersReady) return;
-    this._gamificationListenersReady = true;
+    if (!this.gamification) return;
 
     const g = this.gamification;
 
-    const subs = [
-      g.on('levelUp',           ({ level, title }) => {
-        showToast(`Level Up! You are now a ${title} (Level ${level})!`, 'success');
-      }),
-      g.on('streakUpdated',     ({ current, best }) => {
-        if (current > 1) showToast(`${current} Day Streak!`, 'success');
-        if (current === best && current > 3) showToast(`New Best Streak: ${best} Days!`, 'success');
-      }),
-      g.on('xpGained',          ({ amount, source, skipToast }) => {
-        if (!skipToast) showToast(`+${amount} XP from ${source}`, 'success');
-      }),
-      g.on('karmaGained',       ({ amount, source, skipToast }) => {
-        if (!skipToast) showToast(`+${amount} Karma from ${source}`, 'success');
-      }),
-      g.on('achievementUnlocked', achievement => {
-        showToast(`Achievement: ${achievement.name}`, 'success');
-        this.showAchievementModal(achievement);
-      }),
-      g.on('badgeUnlocked',     badge => {
-        showToast(`New Badge: ${badge.name}`, 'success');
-      }),
-      g.on('chakraUpdated',     ({ chakra, value }) => {
-        if (value >= 100) showToast(`${chakra} Chakra Mastered!`, 'success');
-      }),
-      g.on('featureUnlocked',   featureId => {
-        showToast(`New Feature Unlocked: ${featureId}`, 'success');
-      })
-    ];
+    const onLevelUp = ({ detail }) => {
+      const { newLevel, title } = detail || {};
+      if (!newLevel) return;
+      this.showToastOnce(`🎉 Level Up! You reached Level ${newLevel}${title ? ` — ${title}` : ''}`, 'success', 'level-up', ANIMATION_DURATIONS.LEVEL_UP);
+    };
 
-    this._gamificationUnsubscribers.push(...subs);
-  }
+    const onAchievement = ({ detail }) => {
+      const { achievement } = detail || {};
+      if (!achievement) return;
+      this.showToastOnce(`🏆 Achievement Unlocked: ${achievement.name}`, 'success', `ach-${achievement.id}`, ANIMATION_DURATIONS.ACHIEVEMENT_MODAL);
+    };
 
-  /** Simple level-up confetti element (supplementary to GamificationEngine spectacle) */
-  playLevelUpAnimation() {
-    const el = document.createElement('div');
-    el.setAttribute('aria-hidden', 'true');
-    el.className   = 'level-up-confetti';
-    el.textContent = '🎉';
-    Object.assign(el.style, {
-      position: 'fixed', top: '40%', left: '50%',
-      transform: 'translate(-50%, -50%)',
-      fontSize: '3rem', animation: 'fadeOut 3s forwards',
-      pointerEvents: 'none', zIndex: '10001'
-    });
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), ANIMATION_DURATIONS.LEVEL_UP);
-  }
+    const onKarmaChange = ({ detail }) => {
+      const { amount, reason } = detail || {};
+      if (!amount) return;
+      const sign = amount > 0 ? '+' : '';
+      this.showToastOnce(`✨ ${sign}${amount} Karma${reason ? ` — ${reason}` : ''}`, amount > 0 ? 'success' : 'warning', `karma-${reason}`, TOAST_COOLDOWN.DEFAULT);
+    };
 
-  /**
-   * Show achievement modal.
-   * Built entirely via DOM methods — no innerHTML with achievement data (XSS safe).
-   */
-  showAchievementModal(achievement) {
-    document.getElementById('achievement-modal')?.remove();
+    window.addEventListener('levelUp',     onLevelUp);
+    window.addEventListener('achievement', onAchievement);
+    window.addEventListener('karmaChange', onKarmaChange);
 
-    const modalEl  = document.createElement('div');
-    modalEl.id     = 'achievement-modal';
-    modalEl.setAttribute('role', 'dialog');
-    modalEl.setAttribute('aria-modal', 'true');
-    modalEl.setAttribute('aria-labelledby', 'achievement-modal-title');
+    this._gamificationUnsubscribers.push(
+      () => window.removeEventListener('levelUp',     onLevelUp),
+      () => window.removeEventListener('achievement', onAchievement),
+      () => window.removeEventListener('karmaChange', onKarmaChange)
+    );
 
-    const wrapper  = document.createElement('div');
-    Object.assign(wrapper.style, {
-      position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
-      background: 'rgba(0,0,0,.75)', display: 'flex',
-      alignItems: 'center', justifyContent: 'center',
-      zIndex: '10000', opacity: '0', transition: 'opacity 0.3s',
-      backdropFilter: 'blur(4px)'
-    });
-
-    const content  = document.createElement('div');
-    Object.assign(content.style, {
-      background: 'linear-gradient(135deg,#667eea 0%,#764ba2 100%)',
-      padding: '50px 40px', borderRadius: '25px', textAlign: 'center',
-      maxWidth: '450px', width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,.4)',
-      transform: 'scale(0.7) translateY(-50px)',
-      transition: 'all 0.4s cubic-bezier(0.68,-0.55,0.265,1.55)'
-    });
-
-    // Icon — textContent, never innerHTML
-    const icon     = document.createElement('div');
-    icon.setAttribute('aria-hidden', 'true');
-    Object.assign(icon.style, { fontSize: '5rem', marginBottom: '1.5rem' });
-    icon.textContent = achievement.icon || '🏆';
-
-    const h2       = document.createElement('h2');
-    h2.id          = 'achievement-modal-title';
-    Object.assign(h2.style, { color: 'white', fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem', textShadow: '2px 2px 4px rgba(0,0,0,.3)' });
-    h2.textContent = 'Achievement Unlocked!';
-
-    const h3       = document.createElement('h3');
-    Object.assign(h3.style, { color: 'rgba(255,255,255,.95)', fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem' });
-    h3.textContent = achievement.name || '';
-
-    const desc     = document.createElement('p');
-    Object.assign(desc.style, { color: 'rgba(255,255,255,.9)', fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '2rem' });
-    desc.textContent = achievement.inspirational || '';
-
-    const btn      = document.createElement('button');
-    btn.type       = 'button';
-    Object.assign(btn.style, {
-      background: 'white', color: '#667eea', border: 'none',
-      padding: '12px 40px', borderRadius: '50px', fontSize: '1.1rem',
-      fontWeight: 'bold', cursor: 'pointer',
-      boxShadow: '0 4px 15px rgba(0,0,0,.2)', transition: 'all 0.3s'
-    });
-    btn.textContent = 'Awesome! 🎉';
-    btn.addEventListener('mouseover', () => { btn.style.transform = 'scale(1.05)'; });
-    btn.addEventListener('mouseout',  () => { btn.style.transform = 'scale(1)'; });
-    btn.addEventListener('click',     () => modalEl.remove());
-
-    content.append(icon, h2, h3, desc, btn);
-    wrapper.appendChild(content);
-    modalEl.appendChild(wrapper);
-    document.body.appendChild(modalEl);
-
-    // Return focus on close
-    const previouslyFocused = document.activeElement;
-    const close = () => { modalEl.remove(); previouslyFocused?.focus(); };
-    btn.addEventListener('click', close, { once: true });
-    wrapper.addEventListener('click', e => { if (e.target === wrapper) close(); });
-    document.addEventListener('keydown', function esc(e) {
-      if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc); }
-    });
-
-    // Animate in
-    requestAnimationFrame(() => {
-      wrapper.style.opacity          = '1';
-      content.style.transform        = 'scale(1) translateY(0)';
-    });
-
-    // Auto-close
-    setTimeout(close, ANIMATION_DURATIONS.ACHIEVEMENT_MODAL);
-
-    // Focus the dismiss button
-    setTimeout(() => btn.focus(), 100);
+    this._gamificationListenersReady = true;
   }
 
   // ─── App initialization ─────────────────────────────────────────────────────
 
   async init() {
-    try {
-      if (!(await this.auth.checkAuth())) {
-        return this.auth.renderAuthScreen();
-      }
-      await this.state.loadData();
-      await this.state.ready;
-      if (!this._validateState()) this.state.data = this.state.emptyModel();
-      await this.initializeApp();
-    } catch (error) {
-      console.error('[App] Initialization failed:', error);
-      this.showToast('Failed to initialize app. Please refresh.', 'error');
+    const authenticated = await this.auth.checkAuth();
+    if (!authenticated) {
+      this.auth.renderAuthScreen();
     }
   }
-
-  _validateState() { return !!(this.state && this.state.data); }
 
   async initializeApp() {
     if (this._initialized) return;
     this._initialized = true;
 
     try {
-      if (!this._validateState()) {
-        await this.state.ready;
-        if (!this._validateState()) this.state.data = this.state.emptyModel();
+      this._startToastCleanup();
+
+      // ── Navigation ───────────────────────────────────────────────────────────
+      this.nav = new this.deps.NavigationManager(this);
+      this.nav.init();
+
+      // ── User Tab ─────────────────────────────────────────────────────────────
+      if (this.deps.UserTab) {
+        this.userTab = new this.deps.UserTab(this);
+        const headerHtml = this.userTab.render();
+        const headerEl   = document.querySelector('.app-header, header, #app-header');
+        if (headerEl) {
+          headerEl.insertAdjacentHTML('beforeend', headerHtml);
+        }
+        await this.userTab.init();
       }
 
-      // Gamification
+      // ── Gamification ─────────────────────────────────────────────────────────
       this.gamification = new GamificationEngine(this);
-      this.setupGamificationListeners();
+      await this.gamification.loadState();
+      this._setupGamificationListeners();
 
-      // Daily cards — fire & forget (non-blocking); only await if it gates visible UI
+      // ── Daily Cards ──────────────────────────────────────────────────────────
       this.dailyCards = new DailyCards(this);
-      const boosterPromise = this.dailyCards.initializeBoosters().catch(e => {
-        console.warn('[App] DailyCards.initializeBoosters() failed (non-fatal):', e);
-      });
 
-      // ── SHOW APP IMMEDIATELY ─────────────────────────────────────────────────
-      // Render shell now so LCP / Speed Index are not blocked by network calls.
+      // ── Footer CTA ───────────────────────────────────────────────────────────
+      this.footerCTA = new CTA(this);
 
+      // ── Show app ─────────────────────────────────────────────────────────────
       this._hideAuthScreen();
       this._showMainApp();
 
-      this.dashboard = new this.deps.DashboardManager(this);
-      this.nav       = new this.deps.NavigationManager(this);
-      this.nav.render();
-
-      this.footerCTA = new CTA();
-      this.footerCTA.render();
-
-      this.checkDailyReset();
+      // ── Load modules & restore tab ───────────────────────────────────────────
       this.loadModules();
       this.restoreLastTab();
-      this._startToastCleanup();
-      // ────────────────────────────────────────────────────────────────────────
+      this.checkDailyReset();
 
-      // Community DB is non-critical (only needed for the Active Members widget).
-      // Run after the app is visible — never block initial render on it.
-      Promise.resolve().then(async () => {
+      // ── Community Hub ────────────────────────────────────────────────────────
+      const boosterPromise = (async () => {
         try {
-          if (!CommunityCore.state.initialized) {
-            const communityReady = await CommunityDB.init();
-            if (!communityReady) {
-              console.warn('[App] CommunityDB.init() failed — Active Members widget unavailable');
-            } else {
-              await CommunityCore.loadCurrentUser();
-              await CommunityDB.setPresence(
-                CommunityCore.state.currentUser?.status   || 'online',
-                CommunityCore.state.currentUser?.activity || '✨ Available',
-                null
-              );
-            }
-          }
+          await CommunityCore.init(this);
+          window.CommunityDB = CommunityDB;
+
+          if (!CommunityDB.ready) await CommunityDB.init(this.state.currentUser);
+
+          window.MemberProfileModal = MemberProfileModal;
+          MemberProfileModal.init();
+
+          WhisperModal.init(this.state.currentUser);
         } catch (e) {
-          console.warn('[App] Community init failed (non-fatal):', e);
+          console.warn('[App] Community Hub init failed (non-fatal):', e);
         }
-      });
+      })();
 
       // ── Whisper push notification handlers ───────────────────────────────────
 
-      // 1. Handle SW postMessage when app is already open and user taps a
-      //    whisper notification. The SW sends OPEN_WHISPER_THREAD instead of
-      //    navigating, so the currently-open session handles it without a reload.
       if (navigator.serviceWorker) {
         navigator.serviceWorker.addEventListener('message', (event) => {
           if (event.data?.type === 'OPEN_WHISPER_THREAD') {
@@ -483,12 +360,8 @@ export default class ProjectCuriosityApp {
         });
       }
 
-      // 2. Handle cold-launch deep-link: push-cron Edge Function sets
-      //    data.url = '/?whisper=<senderId>' so tapping the notification
-      //    when the app is closed opens it here.
       const _whisperParam = new URLSearchParams(window.location.search).get('whisper');
       if (_whisperParam) {
-        // CommunityDB may still be initialising — poll until ready.
         const _tryOpenWhisper = () => {
           if (CommunityDB.ready) {
             CommunityDB.getProfile(_whisperParam).then(profile => {
@@ -503,9 +376,6 @@ export default class ProjectCuriosityApp {
         _tryOpenWhisper();
       }
 
-      // ─────────────────────────────────────────────────────────────────────────
-
-      // Await booster init quietly in the background (already started above)
       await boosterPromise;
 
     } catch (error) {
@@ -610,8 +480,6 @@ export default class ProjectCuriosityApp {
       return;
     }
     if (previousTab && previousTab !== tab && previousTab !== TAB_NAMES.DASHBOARD) {
-      // Community Hub manages its own re-visit refresh internally (via _refreshHubPresence).
-      // Destroying it would reset `initialized` and cause a full re-init on every return visit.
       if (previousTab !== TAB_NAMES.COMMUNITY_HUB) {
         this.features.destroy(previousTab);
       }
