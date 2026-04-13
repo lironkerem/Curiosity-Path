@@ -16,7 +16,7 @@
  *   Security server-side). Never commit service-role keys here.
  */
 
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/+esm';
+import { createClient } from '@supabase/supabase-js';
 
 // ─── Credential resolution ────────────────────────────────────────────────────
 
