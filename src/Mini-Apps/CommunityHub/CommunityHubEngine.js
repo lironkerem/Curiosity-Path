@@ -5,7 +5,6 @@ import { CommunityDB }        from './js/community-supabase.js';
 import { Core }               from './js/core.js';
 import { MemberProfileModal } from './js/member-profile-modal.js';
 import { WhisperModal }       from './js/WhisperModal.js';
-import SunCalc                from 'suncalc';
 
 // ── Group 2: Hub utilities ──────────────────────────────────────────────────
 import './js/rituals.js';

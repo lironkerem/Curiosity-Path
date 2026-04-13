@@ -11,6 +11,7 @@
  */
 
 import { LunarUI } from './lunar-ui.js';
+import SunCalc from 'suncalc';
 const _cdb = () => window.CommunityDB;
 
 const LunarEngine = {
@@ -69,11 +70,6 @@ const LunarEngine = {
         if (this._initialized) return;
         this._initialized = true;
 
-        if (typeof SunCalc === 'undefined') {
-            console.error('❌ SunCalc not loaded - moon visualizations disabled.');
-            return;
-        }
-
         const run = () => this.updateAll();
 
         if (navigator.geolocation) {
@@ -107,8 +103,6 @@ const LunarEngine = {
     },
 
     updateMoonData() {
-        if (typeof SunCalc === 'undefined') return;
-
         const now = new Date();
         const illum = SunCalc.getMoonIllumination(now);
         const times = SunCalc.getMoonTimes(now, this.location.latitude, this.location.longitude);

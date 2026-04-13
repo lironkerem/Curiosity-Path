@@ -6,6 +6,7 @@
 
 import { SOLAR_CONSTANTS } from './solar-config.js';
 import { CommunityDB } from '../community-supabase.js';
+import SunCalc from 'suncalc';
 
 const SolarEngine = {
 
@@ -48,10 +49,6 @@ const SolarEngine = {
     if (this._initialized) return;
     this._initialized = true;
 
-    if (typeof SunCalc === 'undefined') {
-      console.error('❌ SunCalc library not loaded! Sun visualizations will not work.');
-      return;
-    }
 
     const run = () => this.updateAll();
 
@@ -88,8 +85,6 @@ const SolarEngine = {
   // ============================================================================
 
   updateSolarData() {
-    if (typeof SunCalc === 'undefined') { console.error('❌ SunCalc not available'); return; }
-
     const now               = new Date();
     const { latitude, longitude } = this.location;
     const sunTimes          = SunCalc.getTimes(now, latitude, longitude);

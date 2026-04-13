@@ -4,6 +4,7 @@
  */
 
 import { CommunityDB } from './community-supabase.js';
+import SunCalc from 'suncalc';
 
 const Core = {
 
@@ -354,27 +355,14 @@ const Core = {
     },
 
     initializeCelestialSystems() {
-        const tryInit = (attemptsLeft) => {
-            if (typeof SunCalc === 'undefined') {
-                if (attemptsLeft > 0) {
-                    setTimeout(() => tryInit(attemptsLeft - 1), 200);
-                } else {
-                    console.error('[Core] SunCalc never loaded - celestial systems unavailable');
-                }
-                return;
+        for (const [name, engine] of [['LunarEngine', window.LunarEngine], ['SolarEngine', window.SolarEngine]]) {
+            if (engine?.init) {
+                try { engine.init(); }
+                catch (e) { console.error(`✗ [Core] ${name} init failed:`, e); }
+            } else {
+                console.warn(`⚠ [Core] ${name} not found`);
             }
-
-            for (const [name, engine] of [['LunarEngine', window.LunarEngine], ['SolarEngine', window.SolarEngine]]) {
-                if (engine?.init) {
-                    try { engine.init(); }
-                    catch (e) { console.error(`✗ [Core] ${name} init failed:`, e); }
-                } else {
-                    console.warn(`⚠ [Core] ${name} not found`);
-                }
-            }
-        };
-
-        tryInit(this.config.CELESTIAL_POLL_MAX);
+        }
     },
 
     // =========================================================================
