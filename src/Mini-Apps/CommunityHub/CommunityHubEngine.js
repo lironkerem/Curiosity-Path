@@ -1,12 +1,53 @@
 // Mini-Apps/CommunityHub/CommunityHubEngine.js
-// v3.0 - All room/utility scripts converted to ES module dynamic import()
+// v4.0 - Static imports replacing all @vite-ignore dynamic paths
 
-import { CommunityDB }       from './js/community-supabase.js';
-import { Core }              from './js/core.js';
+import { CommunityDB }        from './js/community-supabase.js';
+import { Core }               from './js/core.js';
 import { MemberProfileModal } from './js/member-profile-modal.js';
-import { WhisperModal }      from './js/WhisperModal.js';
+import { WhisperModal }       from './js/WhisperModal.js';
 
-const BASE_PATH = '/src/Mini-Apps/CommunityHub';
+// ── Group 2: Hub utilities ──────────────────────────────────────────────────
+import './js/rituals.js';
+import './js/profile-module.js';
+import './js/community-module.js';
+import './js/SafetyBar.js';
+import './js/AdminDashboard.js';
+import './js/collective-field-db.js';
+import './js/Rooms/PracticeRoom.js';
+
+// ── Group 3: Mixins + Lunar/Solar foundations ───────────────────────────────
+import './js/Rooms/mixins/YouTubePlayerMixin.js';
+import './js/Rooms/mixins/CycleStateMixin.js';
+import './js/Rooms/mixins/ChatMixin.js';
+import './js/Rooms/mixins/SoundSettingsMixin.js';
+import './js/Rooms/mixins/TimerMixin.js';
+import './js/Solar/solar-config.js';
+import './js/Lunar/lunar-core.js';
+import './js/Lunar/lunar-ui.js';
+import './js/Lunar/lunar-config.js';
+import './js/Lunar/lunarengine.js';
+import './js/Rooms/mixins/TimedVideoRoom.js';
+import './js/Rooms/mixins/TabRoomMixin.js';
+
+// ── Group 4: Solar UI + base room (order-sensitive) ─────────────────────────
+import './js/Solar/solar-ui.js';
+import './js/Solar/solar-base-room.js';
+
+// ── Group 4b: All rooms + dynamic sections ──────────────────────────────────
+import './js/Rooms/silent-room.js';
+import './js/Rooms/guided-room.js';
+import './js/Rooms/osho-room.js';
+import './js/Rooms/breathwork-room.js';
+import './js/Rooms/deepwork-room.js';
+import './js/Rooms/campfire-room.js';
+import './js/Rooms/tarot-room.js';
+import './js/Rooms/reiki-room.js';
+import './js/collective-field.js';
+import './js/resonance.js';
+import './js/upcoming-events.js';
+
+// ── Group 5: Engines ────────────────────────────────────────────────────────
+import './js/Solar/solarengine.js';
 
 const RITUAL_TEXTS = [
   "Enter with intention, leave with gratitude",
@@ -354,101 +395,37 @@ class CommunityHubEngine {
     });
   }
 
-  /** Dynamic ES module import with absolute path. */
-  _import(path) {
-    return import(/* @vite-ignore */ `${BASE_PATH}/${path}`);
-  }
-
-  /** Parallel dynamic imports. */
-  _importAll(paths) {
-    return Promise.all(paths.map(p => this._import(p)));
-  }
-
   // ---------------------------------------------------------------------------
   // Initialization
   // ---------------------------------------------------------------------------
 
   async initializeCommunityHub() {
     try {
-      // Group 1: CDN scripts (not ES modules — keep as script tags)
+      // CDN script (not an ES module — must remain a script tag)
       await this.loadScript('https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js');
 
-      // Group 2: Hub utilities — also pre-load YouTube IFrame API here so
-      // timed rooms don't each trigger a script load on entry (Issue #4).
-      this._preloadYouTubeAPI();
-      await this._importAll([
-        'js/rituals.js',
-        'js/profile-module.js',
-        'js/community-module.js',
-        'js/SafetyBar.js',
-        'js/AdminDashboard.js',
-        'js/collective-field-db.js',
-        'js/Rooms/PracticeRoom.js',
-      ]);
+      // All Hub modules are now statically imported at the top of this file
+      // and bundled by Vite. No dynamic imports needed here.
 
-      // Group 3: Mixins + Lunar/Solar foundations + composite classes that
-      // depend on them. All loaded in one parallel batch (Fix #6 — TimedVideoRoom
-      // and TabRoomMixin don't need to wait for a separate sequential await).
-      await this._importAll([
-        'js/Rooms/mixins/YouTubePlayerMixin.js',
-        'js/Rooms/mixins/CycleStateMixin.js',
-        'js/Rooms/mixins/ChatMixin.js',
-        'js/Rooms/mixins/SoundSettingsMixin.js',
-        'js/Rooms/mixins/TimerMixin.js',
-        'js/Solar/solar-config.js',
-        'js/Lunar/lunar-core.js',
-        'js/Lunar/lunar-ui.js',
-        'js/Lunar/lunar-config.js',
-        'js/Lunar/lunarengine.js',
-        'js/Rooms/mixins/TimedVideoRoom.js',
-        'js/Rooms/mixins/TabRoomMixin.js',
-      ]);
+      this._preloadYouTubeAPI();
 
       // Init LunarEngine early - lunar rooms need currentMoonData
       window.LunarEngine?.init?.();
-
-      // Group 4a: Solar UI must precede base room (sequential)
-      await this._import('js/Solar/solar-ui.js');
-      await this._import('js/Solar/solar-base-room.js');
-
-      // Group 4b: All rooms + dynamic sections (parallel)
-      await this._importAll([
-        'js/Rooms/silent-room.js',
-        'js/Rooms/guided-room.js',
-        'js/Rooms/osho-room.js',
-        'js/Rooms/breathwork-room.js',
-        'js/Rooms/deepwork-room.js',
-        'js/Rooms/campfire-room.js',
-        'js/Rooms/tarot-room.js',
-        'js/Rooms/reiki-room.js',
-        'js/collective-field.js',
-        'js/resonance.js',
-        'js/upcoming-events.js',
-      ]);
-
-      // Group 5: Engines last
-      await this._import('js/Solar/solarengine.js');
 
       // Boot Core
       if (!Core?.init) throw new Error('Core module not found');
 
       // Pre-init CommunityDB so _sb is set before Core.init() runs.
-      // In Vite builds the CommunitySupabase named import in supabase-client.js
-      // may be null at module-parse time; window.AppSupabase is ready by now.
       await CommunityDB.init();
 
       // Same pattern as window.Core below: pin the initialized instance to window so
-      // all @vite-ignore runtime-loaded modules share the live instance (_sb + _uid set).
+      // Pin the initialized instance to window so all bundled modules share the live instance.
       window.CommunityDB = CommunityDB;
 
       await Core.init();
 
-      // CRITICAL: The Community Hub files are loaded via @vite-ignore dynamic imports,
-      // so each file gets its own module-scope instance of core.js.
-      // CommunityHubEngine imports Core at build time (one instance);
-      // profile-module.js / community-module.js import it at runtime (another instance).
       // After Core.init() populates state.currentUser, make this instance the global
-      // authority so all runtime-loaded modules read the correct data.
+      // authority so all statically-bundled modules read the correct data.
       window.Core = Core;
 
       // Re-init profile and community modules now that window.Core is authoritative.

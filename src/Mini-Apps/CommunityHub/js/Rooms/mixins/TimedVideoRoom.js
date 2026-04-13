@@ -75,7 +75,7 @@ class TimedVideoRoom extends PracticeRoom {
         return `
         <div class="modal-overlay" id="${this.roomId}ScheduleModal" role="dialog" aria-modal="true" aria-labelledby="${this.roomId}ScheduleTitle">
             <div class="modal-card schedule-modal">
-                <button type="button" class="modal-close" aria-label="Close schedule modal" onclick="window[`${this.roomId}_closeScheduleModal`]?.()">×</button>
+                <button type="button" class="modal-close" aria-label="Close schedule modal" data-action="closeScheduleModal">×</button>
                 <h2 id="${this.roomId}ScheduleTitle">${this.scheduleModalTitle}</h2>
                 <div class="schedule-content" id="${this.roomId}ScheduleContent"></div>
             </div>

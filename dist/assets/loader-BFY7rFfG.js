@@ -1,5 +1,5 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/app-DCHkASi8.js","assets/communityHub-CzjQtjET.js"])))=>i.map(i=>d[i]);
-import{_ as l}from"./communityHub-CzjQtjET.js";class h{constructor(t){this.bigApp=t,this.instance=null,this.isInitialized=!1}render(){const t=document.getElementById("calculator-tab");if(!t){console.error("❌ Calculator tab not found");return}if(this.isInitialized){this.revalidate();return}t.innerHTML='<div class="loading-spinner-inner"><div class="spinner"></div><p>Loading Self-Analysis Pro...</p></div>',fetch("/src/Mini-Apps/SelfAnalysisPro/index.html").then(e=>e.text()).then(e=>{const a=new DOMParser().parseFromString(e,"text/html").getElementById("app-page");if(!a)throw new Error("app-page element not found in HTML");return t.innerHTML=`
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/app-Dp26gZuz.js","assets/communityHub-D6qpEoMP.js"])))=>i.map(i=>d[i]);
+import{_ as l}from"./communityHub-D6qpEoMP.js";class h{constructor(t){this.bigApp=t,this.instance=null,this.isInitialized=!1}render(){const t=document.getElementById("calculator-tab");if(!t){console.error("❌ Calculator tab not found");return}if(this.isInitialized){this.revalidate();return}t.innerHTML='<div class="loading-spinner-inner"><div class="spinner"></div><p>Loading Self-Analysis Pro...</p></div>',fetch("/src/Mini-Apps/SelfAnalysisPro/index.html").then(e=>e.text()).then(e=>{const a=new DOMParser().parseFromString(e,"text/html").getElementById("app-page");if(!a)throw new Error("app-page element not found in HTML");return t.innerHTML=`
   <div style="padding:1.5rem;min-height:100vh;">
     <div class="universal-content">
 
@@ -20,7 +20,7 @@ import{_ as l}from"./communityHub-CzjQtjET.js";class h{constructor(t){this.bigAp
 
     </div>
   </div>
-`,this.initializeComponents().then(()=>l(()=>import("./app-DCHkASi8.js"),__vite__mapDeps([0,1])))}).then(e=>{if(typeof e.bootSelfAnalysis=="function")this.instance=e.bootSelfAnalysis(t),this.isInitialized=!0;else throw new Error("bootSelfAnalysis function not found")}).catch(e=>{console.error("❌ Self-Analysis loader failed:",e),t.innerHTML=`
+`,this.initializeComponents().then(()=>l(()=>import("./app-Dp26gZuz.js"),__vite__mapDeps([0,1])))}).then(e=>{if(typeof e.bootSelfAnalysis=="function")this.instance=e.bootSelfAnalysis(t),this.isInitialized=!0;else throw new Error("bootSelfAnalysis function not found")}).catch(e=>{console.error("❌ Self-Analysis loader failed:",e),t.innerHTML=`
           <div class="card" style="padding:2rem;text-align:center;color:var(--neuro-error);">
             <h2>Failed to Load Self-Analysis Pro</h2>
             <p>${e.message}</p>
