@@ -222,26 +222,32 @@ const LunarEngine = {
 
     // ── Lazy-load & enter ───────────────────────────────────────────────────────
 
-    _roomFileMap: {
-        'new-moon':    { file: 'newmoon-room.js',    exportName: 'NewMoonRoom'    },
-        'waxing-moon': { file: 'waxingmoon-room.js', exportName: 'WaxingMoonRoom' },
-        'full-moon':   { file: 'fullmoon-room.js',   exportName: 'FullMoonRoom'   },
-        'waning-moon': { file: 'waningmoon-room.js', exportName: 'WaningMoonRoom' },
+    _ROOM_MODULES: {
+        'new-moon':    () => import('./newmoon-room.js'),
+        'waxing-moon': () => import('./waxingmoon-room.js'),
+        'full-moon':   () => import('./fullmoon-room.js'),
+        'waning-moon': () => import('./waningmoon-room.js'),
+    },
+
+    _roomExportName: {
+        'new-moon':    'NewMoonRoom',
+        'waxing-moon': 'WaxingMoonRoom',
+        'full-moon':   'FullMoonRoom',
+        'waning-moon': 'WaningMoonRoom',
     },
 
     async _loadAndEnterRoom(roomId) {
-        const meta = this._roomFileMap[roomId];
-        if (!meta) { window.Core?.showToast(`Unknown room: ${roomId}`); return; }
+        const loader = this._ROOM_MODULES[roomId];
+        if (!loader) { window.Core?.showToast(`Unknown room: ${roomId}`); return; }
 
         try {
-            const basePath = '/src/Mini-Apps/CommunityHub/js/Lunar/';
-            const mod = await import(`${basePath}${meta.file}`);
-            const instance = mod[meta.exportName];
+            const mod = await loader();
+            const instance = mod[this._roomExportName[roomId]];
             if (instance) instance.enterRoom();
             else window.Core?.showToast(`${roomId} failed to initialise`);
         } catch (e) {
-            console.error(`[LunarEngine] Failed to load ${meta.file}:`, e);
-            window.Core?.showToast(`Failed to load ${meta.file}`);
+            console.error(`[LunarEngine] Failed to load ${roomId}:`, e);
+            window.Core?.showToast(`Failed to load ${roomId}`);
         }
     },
 

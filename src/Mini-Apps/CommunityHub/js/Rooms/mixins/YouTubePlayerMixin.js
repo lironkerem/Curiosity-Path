@@ -230,13 +230,12 @@ const YouTubePlayerMixin = {
     },
 
     buildPlayerControls() {
-        const cn = this.getClassName();
         return `
         <div class="guided-controls" id="${this.roomId}Controls" style="display:none;">
             <div class="control-buttons">
-                <button type="button" class="control-btn" aria-label="Skip backward 10 seconds" onclick="${cn}.skipBackward()"><span style="font-size:20px;">⏪</span></button>
-                <button type="button" class="control-btn primary" aria-label="Play or pause" onclick="${cn}.togglePlayPause()" id="${this.roomId}PlayBtn"><span style="font-size:24px;">⏸</span></button>
-                <button type="button" class="control-btn" aria-label="Skip forward 10 seconds" onclick="${cn}.skipForward()"><span style="font-size:20px;">⏩</span></button>
+                <button type="button" class="control-btn" aria-label="Skip backward 10 seconds" data-action="skipBackward"><span style="font-size:20px;">⏪</span></button>
+                <button type="button" class="control-btn primary" aria-label="Play or pause" data-action="togglePlayPause" id="${this.roomId}PlayBtn"><span style="font-size:24px;">⏸</span></button>
+                <button type="button" class="control-btn" aria-label="Skip forward 10 seconds" data-action="skipForward"><span style="font-size:20px;">⏩</span></button>
             </div>
             <div class="time-display" id="${this.roomId}TimeDisplay">0:00 / 0:00</div>
         </div>`;

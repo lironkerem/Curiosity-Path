@@ -45,7 +45,7 @@ class HappinessEngine {
    */
   async loadBoosters() {
     try {
-      const res = await fetch('./src/Features/Data/HappinessBoostersList.json');
+      const res = await fetch('/Data/HappinessBoostersList.json');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       this.boosters = data.boosters;

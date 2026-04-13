@@ -58,7 +58,7 @@ class TarotRoom extends PracticeRoom {
         this.COURT_RANKS = { 11: 'Page', 12: 'Knight', 13: 'Queen', 14: 'King' };
 
         try {
-            const res = await fetch('/src/Mini-Apps/CommunityHub/js/Rooms/tarot-data.json');
+            const res = await fetch('/Data/tarot-data.json');
             if (res.ok) {
                 const data = await res.json();
                 this._tarotData = data;
@@ -837,7 +837,6 @@ class TarotRoom extends PracticeRoom {
     }
 
     _buildPersonalTab() {
-        const cn     = this.getClassName();
         const roomId = this.roomId;
 
         const majorOptions = Object.entries(this.MAJOR_ARCANA_NAMES || {})
@@ -876,7 +875,7 @@ class TarotRoom extends PracticeRoom {
                 <div>
                     <label style="font-weight:700;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Major Arcana</label>
                     <select id="${roomId}MajorSelect" style="${selectStyle}"
-                            onchange="${cn}._onPersonalSelectChange('major')">
+                            data-action="personalSelectChange" data-source="major">
                         <option value="">— Select —</option>
                         ${majorOptions}
                     </select>
@@ -884,7 +883,7 @@ class TarotRoom extends PracticeRoom {
                 <div>
                     <label style="font-weight:700;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> Minor Arcana</label>
                     <select id="${roomId}MinorSelect" style="${selectStyle}"
-                            onchange="${cn}._onPersonalSelectChange('minor')">
+                            data-action="personalSelectChange" data-source="minor">
                         <option value="">— Select —</option>
                         ${minorOptions}
                     </select>
@@ -892,7 +891,7 @@ class TarotRoom extends PracticeRoom {
                 <div>
                     <label style="font-weight:700;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><path d="M2 20h20"/><path d="m4 14 4-8 4 8 4-8 4 8"/></svg> Court Cards</label>
                     <select id="${roomId}CourtSelect" style="${selectStyle}"
-                            onchange="${cn}._onPersonalSelectChange('court')">
+                            data-action="personalSelectChange" data-source="court">
                         <option value="">— Select —</option>
                         ${courtOptions}
                     </select>
@@ -900,7 +899,7 @@ class TarotRoom extends PracticeRoom {
             </div>
 
             <div style="text-align:center;margin-bottom:24px;">
-                <button onclick="${cn}.drawPersonalCard()"
+                <button type="button" data-action="drawPersonalCard"
                         style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:linear-gradient(135deg,var(--neuro-accent),var(--neuro-accent-light));color:white;border:none;border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:15px;letter-spacing:0.5px;box-shadow:var(--shadow-raised);">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg> Random Draw
                 </button>
@@ -931,7 +930,7 @@ class TarotRoom extends PracticeRoom {
                 <div style="border:2px solid var(--border);border-radius:var(--radius-lg);padding:20px;background:var(--background);">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
                         <h4 style="font-family:var(--serif);font-size:18px;margin:0;display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg> Cards You've Drawn</h4>
-                        <button onclick="${cn}._clearDrawHistory()" style="font-size:12px;color:var(--text-muted);background:none;border:1px solid var(--border);border-radius:var(--radius-md);padding:4px 10px;cursor:pointer;">Clear History</button>
+                        <button type="button" data-action="clearDrawHistory" style="font-size:12px;color:var(--text-muted);background:none;border:1px solid var(--border);border-radius:var(--radius-md);padding:4px 10px;cursor:pointer;">Clear History</button>
                     </div>
                     <div id="${roomId}DrawHistory" style="max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;">
                         <span style="color:var(--text-muted);font-size:13px;">No cards drawn yet.</span>
@@ -961,6 +960,18 @@ class TarotRoom extends PracticeRoom {
             card = { type:'court', number: parseInt(parts[1]), suit: parts[2] };
         }
         this._renderPersonalCard(card);
+    }
+
+    // ── Action map ────────────────────────────────────────────────────────────
+
+    getActions() {
+        return {
+            ...super.getActions(),
+            drawPersonalCard:     () => this.drawPersonalCard(),
+            clearDrawHistory:     () => this._clearDrawHistory(),
+            // Handles all three arcana selects — data-source identifies which
+            personalSelectChange: e  => this._onPersonalSelectChange(this._actionEl(e).dataset.source),
+        };
     }
 
     getInstructions() {

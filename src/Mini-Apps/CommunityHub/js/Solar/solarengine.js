@@ -558,30 +558,36 @@ const SolarEngine = {
   },
 
   // ============================================================================
-  // LAZY ROOM LOADING — dynamic import() replaces <script> injection
+  // LAZY ROOM LOADING — static imports Vite can analyze and chunk
   // ============================================================================
 
-  _roomFileMap: {
-    'spring-equinox':  { file: 'spring-solar-room.js',  exportName: 'SpringSolarRoom'  },
-    'summer-solstice': { file: 'summer-solar-room.js',  exportName: 'SummerSolarRoom'  },
-    'autumn-equinox':  { file: 'autumn-solar-room.js',  exportName: 'AutumnSolarRoom'  },
-    'winter-solstice': { file: 'winter-solar-room.js',  exportName: 'WinterSolarRoom'  },
+  _ROOM_MODULES: {
+    'spring-equinox':  () => import('./spring-solar-room.js'),
+    'summer-solstice': () => import('./summer-solar-room.js'),
+    'autumn-equinox':  () => import('./autumn-solar-room.js'),
+    'winter-solstice': () => import('./winter-solar-room.js'),
+  },
+
+  _roomExportName: {
+    'spring-equinox':  'SpringSolarRoom',
+    'summer-solstice': 'SummerSolarRoom',
+    'autumn-equinox':  'AutumnSolarRoom',
+    'winter-solstice': 'WinterSolarRoom',
   },
 
   async _loadAndEnterRoom(roomId) {
-    const meta = this._roomFileMap[roomId];
-    if (!meta) { window.Core?.showToast?.(`Unknown room: ${roomId}`); return; }
+    const loader = this._ROOM_MODULES[roomId];
+    if (!loader) { window.Core?.showToast?.(`Unknown room: ${roomId}`); return; }
 
     try {
-      const basePath = '/src/Mini-Apps/CommunityHub/js/Solar/';
-      const mod = await import(`${basePath}${meta.file}`);
-      const instance = mod[meta.exportName];
+      const mod = await loader();
+      const instance = mod[this._roomExportName[roomId]];
       instance
         ? instance.enterRoom()
         : window.Core?.showToast?.(`${roomId} failed to initialise`);
     } catch (err) {
       console.error(`[SolarEngine] _loadAndEnterRoom error for ${roomId}:`, err);
-      window.Core?.showToast?.(`Failed to load ${meta.file}`);
+      window.Core?.showToast?.(`Failed to load ${roomId}`);
     }
   },
 

@@ -89,7 +89,7 @@ export default class DailyCards {
 
   async initializeBoosters() {
     try {
-      const response = await fetch('./src/Features/Data/HappinessBoostersList.json');
+      const response = await fetch('/Data/HappinessBoostersList.json');
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
       this.happinessBoosters = data.boosters || DailyCards.FALLBACK_BOOSTERS;

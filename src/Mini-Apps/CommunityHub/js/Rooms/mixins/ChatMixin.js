@@ -204,9 +204,9 @@ const ChatMixin = {
     },
 
     buildChatContainer(channel = 'main', placeholder = 'Type your message...') {
-        const cap         = _cap(channel);
-        const avatarSlot  = `${this.roomId}${cap}SenderAvatar`;
-        const className   = this.getClassName();
+        const cap        = _cap(channel);
+        const avatarSlot = `${this.roomId}${cap}SenderAvatar`;
+        const sendBtnId  = `${this.roomId}${cap}SendBtn`;
 
         return `
         <div class="chat-container" id="${this.roomId}${cap}ChatContainer"
@@ -222,9 +222,11 @@ const ChatMixin = {
                            id="${this.roomId}${cap}Input"
                            aria-label="${placeholder}"
                            placeholder="${placeholder}"
-                           onkeypress="if(event.key==='Enter')${className}.sendMessage('${channel}')"
+                           onkeypress="if(event.key==='Enter')document.getElementById('${sendBtnId}')?.click()"
                            style="flex:1;min-width:0;width:100%;">
-                    <button type="button" class="chat-send" onclick="${className}.sendMessage('${channel}')" aria-label="Send message" style="flex-shrink:0;">
+                    <button type="button" class="chat-send" id="${sendBtnId}"
+                            data-action="sendMessage" data-channel="${channel}"
+                            aria-label="Send message" style="flex-shrink:0;">
                         <span style="font-size:20px;">→</span>
                     </button>
                 </div>

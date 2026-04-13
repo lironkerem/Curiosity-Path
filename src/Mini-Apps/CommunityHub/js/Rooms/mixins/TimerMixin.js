@@ -355,12 +355,11 @@ const TimerMixin = {
     },
 
     buildTimerControls() {
-        const cn = this.getClassName();
         return `
         <div class="timer-controls" role="group" aria-label="Timer controls">
-            <button type="button" class="t-btn" onclick="${cn}.adjustTime(-5)" aria-label="Subtract 5 minutes">−5m</button>
-            <button type="button" class="t-btn primary" onclick="${cn}.toggleTimer()" id="${this.roomId}TimerBtn" aria-live="polite">${_BTN_LABEL.idle}</button>
-            <button type="button" class="t-btn" onclick="${cn}.adjustTime(5)" aria-label="Add 5 minutes">+5m</button>
+            <button type="button" class="t-btn" data-action="adjustTime" data-minutes="-5" aria-label="Subtract 5 minutes">−5m</button>
+            <button type="button" class="t-btn primary" data-action="toggleTimer" id="${this.roomId}TimerBtn" aria-live="polite">${_BTN_LABEL.idle}</button>
+            <button type="button" class="t-btn" data-action="adjustTime" data-minutes="5" aria-label="Add 5 minutes">+5m</button>
         </div>`;
     },
 

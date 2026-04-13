@@ -116,7 +116,11 @@ class PracticeRoom {
 
     init() {
         this.updateRoomCard();
-        window[`${this.roomId}_blessRoom`] = () => this._blessRoom();
+        window[`${this.roomId}_blessRoom`]         = () => this._blessRoom();
+        // Pre-register schedule modal globals — needed on hub card before room entry
+        // (setupEventListeners hasn't run yet at card render time).
+        window[`${this.roomId}_showScheduleModal`]  = () => this.showScheduleModal?.();
+        window[`${this.roomId}_closeScheduleModal`] = () => this.closeScheduleModal?.();
         this.mountHubModals();
         this._loadBlessingCount();
         this.onInit?.();
@@ -866,7 +870,6 @@ class PracticeRoom {
     }
 
     buildHeader() {
-        window[`${this.roomId}_gentlyLeave`] = () => this.gentlyLeave();
 
         return `
         <header class="ps-header" style="padding:12px 16px;display:flex;flex-direction:column;gap:12px;${this.getHeaderGradient()}">
@@ -887,7 +890,7 @@ class PracticeRoom {
             <div class="ps-header-btn-grid">
                 ${this.buildAdditionalHeaderButtons?.() ?? ''}
                 ${this.buildSafetyDropdown()}
-                <button type="button" class="ps-leave ps-header-btn" onclick="window['${this.roomId}_gentlyLeave']()">
+                <button type="button" class="ps-leave ps-header-btn" data-action="gentlyLeave">
                     ${_ICONS.leave} Gently Leave
                 </button>
             </div>
@@ -895,28 +898,29 @@ class PracticeRoom {
     }
 
     buildSafetyDropdown() {
-        const toggle  = `${this.roomId}_toggleSafetyDropdown`;
-        const showInst = `${this.roomId}_showInstructions`;
-        // Issue #7: only register globals once — guard prevents re-assignment
-        // on every room entry (buildHeader → buildSafetyDropdown is called each time).
-        if (!window[toggle])   window[toggle]   = e => this.toggleSafetyDropdown(e);
-        if (!window[showInst]) window[showInst] = () => this.showInstructions();
+        // All room-instance interactions now use data-action — no window globals needed.
+        // CommunityModule calls keep their direct onclick (stable global, different module).
+        const communityItems = [
+            ['CommunityModule.showReportModal()', _ICONS.alert, 'Report Issue'],
+            ['CommunityModule.showBlockModal()',  _ICONS.block, 'Block User'],
+            ['CommunityModule.muteChat()',        _ICONS.mute,  'Mute Chat'],
+            ['CommunityModule.showHelpModal()',   _ICONS.help,  'Get Help'],
+        ];
 
         return `
         <div style="position:relative;" id="${this.roomId}SafetyDropdownContainer">
-            <button type="button" class="ps-leave" onclick="${toggle}(event)" aria-haspopup="true" aria-expanded="false"
+            <button type="button" class="ps-leave" data-action="toggleSafety"
+                    aria-haspopup="true" aria-expanded="false"
                     style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);white-space:nowrap;padding:10px 16px;">
                 ${_ICONS.shield} Safety <span style="font-size:12px;">▼</span>
             </button>
             <div id="${this.roomId}SafetyDropdown"
                  style="display:none;position:absolute;top:100%;right:0;margin-top:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:100001;">
-                ${[
-                    [`${showInst}(); ${toggle}(event);`,              _ICONS.book,  'Instructions'],
-                    [`CommunityModule.showReportModal(); ${toggle}(event);`, _ICONS.alert, 'Report Issue'],
-                    [`CommunityModule.showBlockModal();  ${toggle}(event);`, _ICONS.block, 'Block User'],
-                    [`CommunityModule.muteChat();        ${toggle}(event);`, _ICONS.mute,  'Mute Chat'],
-                    [`CommunityModule.showHelpModal();   ${toggle}(event);`, _ICONS.help,  'Get Help'],
-                ].map(([fn, icon, label], i, arr) => {
+                <button type="button" data-action="showInstructions"
+                        style="width:100%;padding:12px 16px;text-align:left;background:none;border:none;border-bottom:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:12px;color:var(--text);">
+                    <span aria-hidden="true">${_ICONS.book}</span> Instructions
+                </button>
+                ${communityItems.map(([fn, icon, label], i, arr) => {
                     const border = i < arr.length - 1 ? 'border-bottom:1px solid var(--border);' : '';
                     return `<button type="button" onclick="${fn}" style="width:100%;padding:12px 16px;text-align:left;background:none;border:none;${border}cursor:pointer;display:flex;align-items:center;gap:12px;color:var(--text);"><span aria-hidden="true">${icon}</span> ${label}</button>`;
                 }).join('')}
@@ -938,16 +942,14 @@ class PracticeRoom {
     }
 
     buildInstructionsModal() {
-        const closeKey = `${this.roomId}_closeInstructions`;
-        window[closeKey] = () => this.closeInstructions();
         return `
         <div class="modal-overlay" id="${this.roomId}InstructionsModal">
             <div class="modal-card">
-                <button type="button" class="modal-close" aria-label="Close modal" onclick="${closeKey}()">×</button>
+                <button type="button" class="modal-close" aria-label="Close modal" data-action="closeInstructions">×</button>
                 <div class="modal-content">
                     <h2 style="font-family:var(--serif);margin-top:0;display:flex;align-items:center;gap:0.5rem;"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> ${this.config.name}</h2>
                     ${this.getInstructions()}
-                    <button type="button" onclick="${closeKey}()" style="width:100%;padding:12px;border:2px solid var(--border);background:var(--surface);border-radius:var(--radius-md);cursor:pointer;font-weight:600;margin-top:16px;">Close</button>
+                    <button type="button" data-action="closeInstructions" style="width:100%;padding:12px;border:2px solid var(--border);background:var(--surface);border-radius:var(--radius-md);cursor:pointer;font-weight:600;margin-top:16px;">Close</button>
                 </div>
             </div>
         </div>`;
@@ -1058,7 +1060,7 @@ class PracticeRoom {
     buildCardFooter() {
         if (this.roomType === 'timed' && this.getTimerText) {
             const scheduleLink = this.showScheduleModal
-                ? `<button type="button" onclick="event.stopPropagation();${this.getClassName()}.showScheduleModal()" style="background:none;border:none;padding:0;font-size:11px;color:var(--text-muted);cursor:pointer;text-decoration:underline;text-align:left;display:inline-flex;align-items:center;gap:0.3rem;white-space:nowrap;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> View Schedule</button>`
+                ? `<button type="button" onclick="event.stopPropagation();window['${this.roomId}_showScheduleModal']()" style="background:none;border:none;padding:0;font-size:11px;color:var(--text-muted);cursor:pointer;text-decoration:underline;text-align:left;display:inline-flex;align-items:center;gap:0.3rem;white-space:nowrap;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> View Schedule</button>`
                 : '';
             return `
             <div class="room-participants" style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">${this.state.participants} present</div>
@@ -1078,13 +1080,90 @@ class PracticeRoom {
 
     setupEventListeners() {
         setTimeout(() => {
-            const handler = e => this.handleOutsideClick(e);
-            document.addEventListener('click', handler);
-            this.eventListeners.push({ element: document, event: 'click', handler });
+            // ── Delegated click handler ───────────────────────────────────────
+            // All data-action buttons route through here. Minification-immune:
+            // no class names referenced at runtime.
+            const clickHandler = e => {
+                const el = e.target.closest('[data-action]');
+                if (el) {
+                    e.stopPropagation();
+                    const action = el.dataset.action;
+                    const fn = this.getActions()[action];
+                    if (fn) { fn(e); return; }
+                    console.warn(`[${this.roomId}] Unknown data-action: "${action}"`);
+                    return;
+                }
+                this._handleOutsideClick(e);
+            };
+            document.addEventListener('click', clickHandler);
+            this.eventListeners.push({ element: document, event: 'click', handler: clickHandler });
+
+            // ── Delegated change handler (SELECT elements only) ───────────────
+            // Handles tarot arcana selects. SELECT does not fire click on value
+            // change, so a separate listener is needed. Guarded to SELECT only
+            // to prevent double-firing with click on other elements.
+            const changeHandler = e => {
+                if (e.target.tagName !== 'SELECT') return;
+                const el = e.target.closest('[data-action]');
+                if (!el) return;
+                const fn = this.getActions()[el.dataset.action];
+                if (fn) fn(e);
+            };
+            document.addEventListener('change', changeHandler);
+            this.eventListeners.push({ element: document, event: 'change', handler: changeHandler });
         }, 100);
     }
 
-    handleOutsideClick(e) {
+    /**
+     * Action map for this room instance. Base actions cover all shared
+     * functionality from PracticeRoom and its mixins.
+     * Subclasses override and spread super.getActions() to add room-specific actions.
+     */
+    getActions() {
+        return {
+            // ── Navigation ───────────────────────────────────────────────────
+            gentlyLeave:         ()  => this.gentlyLeave(),
+            // ── Safety / instructions ─────────────────────────────────────────
+            toggleSafety:        e  => this.toggleSafetyDropdown(e),
+            showInstructions:    ()  => this.showInstructions(),
+            closeInstructions:   ()  => this.closeInstructions(),
+            // ── Schedule (timed rooms via CycleStateMixin / TimedVideoRoom) ───
+            showSchedule:        ()  => this.showScheduleModal?.(),
+            closeScheduleModal:  ()  => this.closeScheduleModal?.(),
+            // ── Dim mode (silent-room, deepwork-room) ─────────────────────────
+            toggleDimMode:       ()  => this.toggleDimMode?.(),
+            // ── Timer (TimerMixin) ────────────────────────────────────────────
+            toggleTimer:         ()  => this.toggleTimer?.(),
+            adjustTime:          e  => this.adjustTime?.(+this._actionEl(e).dataset.minutes),
+            // ── Sound (SoundSettingsMixin) ────────────────────────────────────
+            toggleSoundSettings: ()  => this.toggleSoundSettings?.(),
+            toggle5minBell:      ()  => this.toggle5minBell?.(),
+            toggleAmbientSound:  ()  => this.toggleAmbientSound?.(),
+            selectBell:          e  => this.selectBell?.(this._actionEl(e).dataset.value),
+            selectCompletion:    e  => this.selectCompletion?.(this._actionEl(e).dataset.value),
+            selectAmbient:       e  => this.selectAmbient?.(this._actionEl(e).dataset.value),
+            previewSound:        e  => this.previewSound?.(this._actionEl(e).dataset.value, e),
+            previewAmbient:      e  => this.previewAmbient?.(this._actionEl(e).dataset.value, e),
+            // ── Chat (ChatMixin) ──────────────────────────────────────────────
+            sendMessage:         e  => this.sendMessage?.(this._actionEl(e).dataset.channel),
+            // ── Tabs (TabRoomMixin) ───────────────────────────────────────────
+            switchTab:           e  => this.switchTab?.(this._actionEl(e).dataset.tab),
+            // ── YouTube player (YouTubePlayerMixin) ───────────────────────────
+            skipBackward:        ()  => this.skipBackward?.(),
+            togglePlayPause:     ()  => this.togglePlayPause?.(),
+            skipForward:         ()  => this.skipForward?.(),
+        };
+    }
+
+    /**
+     * Returns the closest ancestor (or self) that has a data-action attribute.
+     * Centralised so action handlers don't repeat closest() inline.
+     */
+    _actionEl(e) {
+        return e.target.closest('[data-action]');
+    }
+
+    _handleOutsideClick(e) {
         const container = document.getElementById(`${this.roomId}SafetyDropdownContainer`);
         if (container && !container.contains(e.target)) {
             const dropdown = document.getElementById(`${this.roomId}SafetyDropdown`);
@@ -1130,7 +1209,6 @@ class PracticeRoom {
 
     // ── Utility ───────────────────────────────────────────────────────────────
 
-    getClassName()       { return 'window.' + this.constructor.name; }
     getParticipantText() { return `${this.state.participants} present`; }
     getHeaderGradient()  { return 'background:linear-gradient(135deg,rgba(139,92,246,0.1) 0%,rgba(168,85,247,0.05) 100%);'; }
     getDevModeBadge()    { return ''; }

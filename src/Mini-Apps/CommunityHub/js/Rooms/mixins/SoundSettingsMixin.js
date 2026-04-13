@@ -270,21 +270,23 @@ const SoundSettingsMixin = {
 
     // ── HTML builders ─────────────────────────────────────────────────────────
 
-    _soundOption(groupName, value, label, previewFn, selectFn) {
-        const cn      = this.getClassName();
-        const checked = this.state[`selected${groupName}`] === value ? 'checked' : '';
+    _soundOption(groupName, value, label, previewAction, selectAction) {
+        const isSelected = this.state[`selected${groupName}`] === value;
         return `
         <div class="sound-option">
-            <input type="radio" name="${this.roomId}${groupName}" value="${value}" ${checked}
-                   id="${this.roomId}_${groupName}_${value}"
-                   onchange="${cn}.${selectFn}('${value}')">
-            <label for="${this.roomId}_${groupName}_${value}">${label}</label>
-            <button type="button" class="sound-preview-btn" aria-label="Preview ${label}" onclick="${cn}.${previewFn}('${value}',event)">▶</button>
+            <button type="button" class="sound-select-btn${isSelected ? ' active' : ''}"
+                    data-action="${selectAction}" data-value="${value}"
+                    aria-pressed="${isSelected}"
+                    style="flex:1;text-align:left;background:none;border:none;cursor:pointer;padding:4px 0;color:var(--text);font-size:14px;">
+                ${isSelected ? '✓ ' : ''}${label}
+            </button>
+            <button type="button" class="sound-preview-btn"
+                    data-action="${previewAction}" data-value="${value}"
+                    aria-label="Preview ${label}">▶</button>
         </div>`;
     },
 
     buildSoundSettings() {
-        const cn = this.getClassName();
         const id = this.roomId;
 
         const bellOptions = _BELL_OPTIONS.map(o =>
@@ -302,7 +304,9 @@ const SoundSettingsMixin = {
             <div class="sound-section">
                 <div class="sound-toggle">
                     <span class="sound-toggle-label">5-Minute Bell</span>
-                    <div class="toggle-switch" id="${id}Toggle5min" role="switch" aria-checked="false" tabindex="0" onclick="${cn}.toggle5minBell()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${cn}.toggle5minBell();}">
+                    <div class="toggle-switch" id="${id}Toggle5min" role="switch" aria-checked="false" tabindex="0"
+                         data-action="toggle5minBell"
+                         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
                         <div class="toggle-slider"></div>
                     </div>
                 </div>
@@ -317,7 +321,9 @@ const SoundSettingsMixin = {
             <div class="sound-section">
                 <div class="sound-toggle">
                     <span class="sound-toggle-label">Ambient Sound</span>
-                    <div class="toggle-switch" id="${id}ToggleAmbient" role="switch" aria-checked="false" tabindex="0" onclick="${cn}.toggleAmbientSound()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${cn}.toggleAmbientSound();}">
+                    <div class="toggle-switch" id="${id}ToggleAmbient" role="switch" aria-checked="false" tabindex="0"
+                         data-action="toggleAmbientSound"
+                         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
                         <div class="toggle-slider"></div>
                     </div>
                 </div>
@@ -330,7 +336,7 @@ const SoundSettingsMixin = {
     buildSoundButton() {
         return `
         <button type="button" class="ps-leave"
-                onclick="${this.getClassName()}.toggleSoundSettings()"
+                data-action="toggleSoundSettings"
                 aria-label="Sound settings" aria-expanded="false"
                 style="background:var(--surface);color:var(--text);padding:10px 16px;white-space:nowrap;">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg> Sound

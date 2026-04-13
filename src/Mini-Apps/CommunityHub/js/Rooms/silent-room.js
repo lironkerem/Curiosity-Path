@@ -66,7 +66,7 @@ class SilentRoom extends PracticeRoom {
 
     onOutsideClick(e) {
         const panel = document.getElementById(`${this.roomId}SoundSettings`);
-        if (panel && !panel.contains(e.target) && !e.target.closest('[onclick*="toggleSoundSettings"]')) {
+        if (panel && !panel.contains(e.target) && !e.target.closest('[data-action="toggleSoundSettings"]')) {
             panel.classList.remove('visible');
         }
     }
@@ -76,7 +76,7 @@ class SilentRoom extends PracticeRoom {
     buildAdditionalHeaderButtons() {
         return `
             ${this.buildSoundButton()}
-            <button type="button" class="ps-leave" onclick="${this.getClassName()}.toggleDimMode()"
+            <button type="button" class="ps-leave" data-action="toggleDimMode"
                     id="${this.roomId}DimModeBtn" style="padding:10px 16px;white-space:nowrap;">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg> Dim
             </button>`;
@@ -182,6 +182,15 @@ class SilentRoom extends PracticeRoom {
         if (!el) return;
         el.style.transform = 'scale(1.05)';
         setTimeout(() => { el.style.transform = 'scale(1)'; }, 200);
+    }
+
+    // ── Action map ────────────────────────────────────────────────────────────
+
+    getActions() {
+        return {
+            ...super.getActions(),
+            toggleDimMode: () => this.toggleDimMode(),
+        };
     }
 }
 

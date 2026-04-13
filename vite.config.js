@@ -43,7 +43,8 @@ export default defineConfig({
     manifest: false,
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'index.html'),
+        main:         resolve(__dirname, 'index.html'),
+        communityHub: resolve(__dirname, 'src/Mini-Apps/CommunityHub/CommunityHubEngine.js'),
       },
     },
   },

@@ -3,8 +3,6 @@ import { cpSync, readdirSync, unlinkSync } from 'fs';
 const copies = [
   // [source, destination]
   ['service-worker.js',              'dist/service-worker.js'],
-  ['src/Features/Data',              'dist/src/Features/Data'],
-  ['src/Mini-Apps/CommunityHub',     'dist/src/Mini-Apps/CommunityHub'],
   ['src/Mini-Apps/SelfAnalysisPro',  'dist/src/Mini-Apps/SelfAnalysisPro'],
 ];
 
