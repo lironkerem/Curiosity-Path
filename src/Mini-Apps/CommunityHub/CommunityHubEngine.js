@@ -428,6 +428,11 @@ class CommunityHubEngine {
       // authority so all statically-bundled modules read the correct data.
       window.Core = Core;
 
+      // Render DOM-dependent modules now that the Hub tab HTML exists
+      window.CollectiveField?.render();
+      window.Resonance?.render();
+      window.UpcomingEvents?.render();
+
       // Re-init profile and community modules now that window.Core is authoritative.
       // They may have already run with the empty default state before Core.init() resolved.
       if (window.ProfileModule) {

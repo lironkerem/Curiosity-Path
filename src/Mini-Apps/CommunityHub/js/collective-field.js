@@ -868,14 +868,6 @@ const CollectiveField = {
 // BOOTSTRAP
 // =========================================================================
 
-// window.Core.js calls render() after CommunityDB is ready - self-init is a fallback
-// only if this module is loaded standalone (e.g. development).
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => CollectiveField.render());
-} else {
-    CollectiveField.render();
-}
-
 window.addEventListener('beforeunload', () => CollectiveField._cleanup());
 
 // Window bridge: preserved for external callers

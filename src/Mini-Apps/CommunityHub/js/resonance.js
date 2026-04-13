@@ -100,12 +100,6 @@ const Resonance = {
 // GLOBAL EXPOSURE & AUTO-INIT
 // ============================================================================
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => Resonance.render());
-} else {
-    Resonance.render();
-}
-
 // Window bridge: preserved for external callers
 window.Resonance = Resonance;
 

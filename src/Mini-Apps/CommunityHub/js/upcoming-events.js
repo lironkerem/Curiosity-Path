@@ -653,12 +653,6 @@ const UpcomingEvents = {
 // ============================================================================
 
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => UpcomingEvents.render());
-} else {
-    UpcomingEvents.render();
-}
-
 // Window bridge: preserved for external callers
 window.UpcomingEvents = UpcomingEvents;
 
