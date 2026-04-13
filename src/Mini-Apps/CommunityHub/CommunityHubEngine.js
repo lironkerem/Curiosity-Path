@@ -5,6 +5,7 @@ import { CommunityDB }        from './js/community-supabase.js';
 import { Core }               from './js/core.js';
 import { MemberProfileModal } from './js/member-profile-modal.js';
 import { WhisperModal }       from './js/WhisperModal.js';
+import SunCalc                from 'suncalc';
 
 // ── Group 2: Hub utilities ──────────────────────────────────────────────────
 import './js/rituals.js';
@@ -401,9 +402,6 @@ class CommunityHubEngine {
 
   async initializeCommunityHub() {
     try {
-      // CDN script (not an ES module — must remain a script tag)
-      await this.loadScript('https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js');
-
       // All Hub modules are now statically imported at the top of this file
       // and bundled by Vite. No dynamic imports needed here.
 
