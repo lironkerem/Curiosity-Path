@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service – The Curiosity Path</title>
+  <style>
+    :root {
+      --neuro-bg: #c4ad91;
+      --neuro-bg-lighter: #d4c0a8;
+      --neuro-shadow-dark: #a08968;
+      --neuro-shadow-light: #e0d4bf;
+      --neuro-highlight: #ebe2d4;
+      --neuro-text: #3d2f1f;
+      --neuro-text-light: #4a3a28;
+      --neuro-text-dim: #a89279;
+      --neuro-accent: #3d6b1a;
+      --neuro-forest-dark: #558030;
+      --neuro-shadow-darker: #8b7355;
+      --spacing-sm: 0.5rem;
+      --spacing-md: 1rem;
+      --spacing-lg: 1.5rem;
+      --spacing-xl: 2rem;
+      --spacing-2xl: 3rem;
+      --radius-lg: 20px;
+      --radius-xl: 24px;
+      --radius-full: 9999px;
+      --transition-fast: 150ms ease-in-out;
+      --shadow-raised:
+        10px 10px 20px var(--neuro-shadow-dark),
+        -6px -6px 12px var(--neuro-shadow-light),
+        inset 1px 1px 2px var(--neuro-highlight);
+      --shadow-inset-sm:
+        inset 3px 3px 6px var(--neuro-shadow-dark),
+        inset -2px -2px 4px var(--neuro-shadow-light);
+    }
+
+    *, ::after, ::before { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--neuro-bg);
+      color: var(--neuro-text);
+      font-family: 'Georgia', serif;
+      min-height: 100vh;
+      padding: var(--spacing-xl) var(--spacing-md);
+      line-height: 1.5;
+    }
+
+    a { color: inherit; text-decoration: inherit; }
+    ol, ul { list-style: none; }
+
+    .legal-wrapper {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .legal-header {
+      margin-bottom: var(--spacing-2xl);
+      position: relative;
+    }
+
+    .legal-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--neuro-text-light);
+      text-decoration: none;
+      margin-bottom: var(--spacing-lg);
+      transition: color var(--transition-fast);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+    }
+    .legal-back:hover { color: var(--neuro-accent); }
+    .legal-back svg { flex-shrink: 0; display: block; }
+
+    .legal-badge {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: var(--neuro-accent);
+      color: #fff;
+      font-size: 0.7rem;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+    }
+
+    .legal-title {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      color: var(--neuro-text);
+      line-height: 1.15;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .legal-meta {
+      font-size: 0.85rem;
+      color: var(--neuro-text-dim);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .legal-divider {
+      height: 3px;
+      background: linear-gradient(90deg, var(--neuro-accent), transparent);
+      border-radius: var(--radius-full);
+      margin: var(--spacing-xl) 0;
+    }
+
+    .legal-card {
+      background: var(--neuro-bg-lighter);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-raised);
+      padding: var(--spacing-xl) var(--spacing-2xl);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .legal-section {
+      margin-bottom: var(--spacing-xl);
+    }
+    .legal-section:last-child { margin-bottom: 0; }
+
+    .legal-section h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      color: var(--neuro-text);
+      margin-bottom: var(--spacing-sm);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--neuro-bg);
+      box-shadow: var(--shadow-inset-sm);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--neuro-accent);
+      flex-shrink: 0;
+    }
+
+    .legal-section p {
+      font-size: 0.95rem;
+      color: var(--neuro-text-light);
+      line-height: 1.75;
+      margin-bottom: var(--spacing-sm);
+    }
+    .legal-section p:last-child { margin-bottom: 0; }
+
+    .legal-section ul {
+      padding-left: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+    }
+    .legal-section ul li {
+      font-size: 0.95rem;
+      color: var(--neuro-text-light);
+      line-height: 1.75;
+      position: relative;
+      padding-left: var(--spacing-sm);
+      margin-bottom: 4px;
+    }
+    .legal-section ul li::before {
+      content: '–';
+      position: absolute;
+      left: -14px;
+      color: var(--neuro-accent);
+    }
+
+    .legal-footer {
+      text-align: center;
+      margin-top: var(--spacing-2xl);
+      padding-bottom: var(--spacing-xl);
+    }
+
+    .legal-footer p {
+      font-size: 0.8rem;
+      color: var(--neuro-text-dim);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .legal-footer a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: var(--neuro-accent);
+      text-decoration: none;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-weight: 600;
+      transition: color var(--transition-fast);
+    }
+    .legal-footer a:hover { color: var(--neuro-forest-dark); }
+    .legal-footer svg { display: block; }
+
+    @media (max-width: 600px) {
+      .legal-card { padding: var(--spacing-lg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="legal-wrapper">
+
+    <div class="legal-header">
+      <a href="#" onclick="window.close(); return false;" class="legal-back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        Back to The Curiosity Path
+      </a>
+      <div class="legal-badge">Legal</div>
+      <h1 class="legal-title">Terms of Service</h1>
+      <p class="legal-meta">Last updated: June 2025</p>
+    </div>
+
+    <div class="legal-divider"></div>
+
+    <div class="legal-card">
+
+      <div class="legal-section">
+        <h2><span class="section-num">1</span>Acceptance of Terms</h2>
+        <p>By accessing or using The Curiosity Path ("the Platform," "we," "us," or "our"), you confirm that you are at least 13 years of age, have read and understood these Terms of Service, and agree to be legally bound by them. If you do not agree, you must not use the Platform.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">2</span>Description of Service</h2>
+        <p>The Curiosity Path is a free, community-based platform designed to support learning and personal growth. We reserve the right to modify, suspend, or discontinue any part of the Platform at any time without prior notice.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">3</span>User Accounts</h2>
+        <p>You are responsible for maintaining the confidentiality of your login credentials and for all activities that occur under your account. You agree to notify us immediately of any unauthorized use of your account. We reserve the right to suspend or terminate accounts that violate these Terms.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">4</span>User Conduct</h2>
+        <p>You agree not to:</p>
+        <ul>
+          <li>Post content that is illegal, harmful, hateful, defamatory, or infringes on third-party rights</li>
+          <li>Impersonate any person or entity or misrepresent your affiliation</li>
+          <li>Use the Platform to distribute spam, malware, or unsolicited communications</li>
+          <li>Attempt to gain unauthorized access to any part of the Platform or its infrastructure</li>
+          <li>Scrape, crawl, or systematically extract data from the Platform without written permission</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">5</span>User-Generated Content</h2>
+        <p>You retain ownership of content you post. By posting, you grant The Curiosity Path a non-exclusive, royalty-free, worldwide license to display and distribute your content within the Platform. You are solely responsible for ensuring your content does not violate any applicable laws or third-party rights.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">6</span>Intellectual Property</h2>
+        <p>All Platform content, design, code, and branding not created by users is the exclusive property of The Curiosity Path and is protected by applicable intellectual property laws. You may not copy, reproduce, or redistribute any part of the Platform without prior written consent.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">7</span>Disclaimer of Warranties</h2>
+        <p>The Platform is provided "as is" and "as available" without warranties of any kind, express or implied. We do not warrant that the Platform will be uninterrupted, error-free, or free of harmful components.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">8</span>Limitation of Liability</h2>
+        <p>To the fullest extent permitted by law, The Curiosity Path and its operators shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the Platform, even if advised of the possibility of such damages.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">9</span>Governing Law</h2>
+        <p>These Terms are governed by the laws of the State of Israel. Any disputes shall be subject to the exclusive jurisdiction of the competent courts of Israel. Users in other jurisdictions agree that these Terms represent the entire agreement between the parties.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">10</span>Modifications to Terms</h2>
+        <p>We may update these Terms at any time. Material changes will be communicated via the Platform. Continued use of the Platform after changes are posted constitutes your acceptance of the revised Terms.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">11</span>Contact</h2>
+        <p>For questions or concerns about these Terms, please contact us through the Platform's support channels.</p>
+      </div>
+
+    </div>
+
+    <div class="legal-footer">
+      <p>© 2025 The Curiosity Path. All rights reserved.</p>
+      <a href="/Legal/privacy.html">
+        View Privacy Policy
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+
+  </div>
+</body>
+</html>

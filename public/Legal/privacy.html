@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy – The Curiosity Path</title>
+  <style>
+    :root {
+      --neuro-bg: #c4ad91;
+      --neuro-bg-lighter: #d4c0a8;
+      --neuro-shadow-dark: #a08968;
+      --neuro-shadow-light: #e0d4bf;
+      --neuro-highlight: #ebe2d4;
+      --neuro-text: #3d2f1f;
+      --neuro-text-light: #4a3a28;
+      --neuro-text-dim: #a89279;
+      --neuro-info: #6ba3b3;
+      --neuro-shadow-darker: #8b7355;
+      --spacing-sm: 0.5rem;
+      --spacing-md: 1rem;
+      --spacing-lg: 1.5rem;
+      --spacing-xl: 2rem;
+      --spacing-2xl: 3rem;
+      --radius-lg: 20px;
+      --radius-xl: 24px;
+      --radius-full: 9999px;
+      --transition-fast: 150ms ease-in-out;
+      --shadow-raised:
+        10px 10px 20px var(--neuro-shadow-dark),
+        -6px -6px 12px var(--neuro-shadow-light),
+        inset 1px 1px 2px var(--neuro-highlight);
+      --shadow-inset-sm:
+        inset 3px 3px 6px var(--neuro-shadow-dark),
+        inset -2px -2px 4px var(--neuro-shadow-light);
+    }
+
+    *, ::after, ::before { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--neuro-bg);
+      color: var(--neuro-text);
+      font-family: 'Georgia', serif;
+      min-height: 100vh;
+      padding: var(--spacing-xl) var(--spacing-md);
+      line-height: 1.5;
+    }
+
+    a { color: inherit; text-decoration: inherit; }
+    ol, ul { list-style: none; }
+
+    .legal-wrapper {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .legal-header {
+      margin-bottom: var(--spacing-2xl);
+      position: relative;
+    }
+
+    .legal-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--neuro-text-light);
+      text-decoration: none;
+      margin-bottom: var(--spacing-lg);
+      transition: color var(--transition-fast);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+    }
+    .legal-back:hover { color: var(--neuro-info); }
+    .legal-back svg { flex-shrink: 0; display: block; }
+
+    .legal-badge {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: var(--neuro-info);
+      color: #fff;
+      font-size: 0.7rem;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+    }
+
+    .legal-title {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      color: var(--neuro-text);
+      line-height: 1.15;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .legal-meta {
+      font-size: 0.85rem;
+      color: var(--neuro-text-dim);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .legal-divider {
+      height: 3px;
+      background: linear-gradient(90deg, var(--neuro-info), transparent);
+      border-radius: var(--radius-full);
+      margin: var(--spacing-xl) 0;
+    }
+
+    .legal-intro {
+      background: var(--neuro-bg-lighter);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-inset-sm);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+      font-size: 0.95rem;
+      color: var(--neuro-text-light);
+      line-height: 1.75;
+    }
+
+    .legal-card {
+      background: var(--neuro-bg-lighter);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-raised);
+      padding: var(--spacing-xl) var(--spacing-2xl);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .legal-section {
+      margin-bottom: var(--spacing-xl);
+    }
+    .legal-section:last-child { margin-bottom: 0; }
+
+    .legal-section h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      color: var(--neuro-text);
+      margin-bottom: var(--spacing-sm);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--neuro-bg);
+      box-shadow: var(--shadow-inset-sm);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--neuro-info);
+      flex-shrink: 0;
+    }
+
+    .legal-section p {
+      font-size: 0.95rem;
+      color: var(--neuro-text-light);
+      line-height: 1.75;
+      margin-bottom: var(--spacing-sm);
+    }
+    .legal-section p:last-child { margin-bottom: 0; }
+
+    .legal-section ul {
+      padding-left: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+    }
+    .legal-section ul li {
+      font-size: 0.95rem;
+      color: var(--neuro-text-light);
+      line-height: 1.75;
+      position: relative;
+      padding-left: var(--spacing-sm);
+      margin-bottom: 4px;
+    }
+    .legal-section ul li::before {
+      content: '–';
+      color: var(--neuro-info);
+      margin-right: 6px;
+    }
+
+    .legal-section strong {
+      color: var(--neuro-text);
+      font-weight: 600;
+    }
+
+    .legal-footer {
+      text-align: center;
+      margin-top: var(--spacing-2xl);
+      padding-bottom: var(--spacing-xl);
+    }
+
+    .legal-footer p {
+      font-size: 0.8rem;
+      color: var(--neuro-text-dim);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .legal-footer a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: var(--neuro-info);
+      text-decoration: none;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-weight: 600;
+      transition: color var(--transition-fast);
+    }
+    .legal-footer a:hover { color: var(--neuro-text); }
+    .legal-footer svg { display: block; }
+
+    @media (max-width: 600px) {
+      .legal-card { padding: var(--spacing-lg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="legal-wrapper">
+
+    <div class="legal-header">
+      <a href="#" onclick="window.close(); return false;" class="legal-back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        Back to The Curiosity Path
+      </a>
+      <div class="legal-badge">Legal</div>
+      <h1 class="legal-title">Privacy Policy</h1>
+      <p class="legal-meta">Last updated: June 2025</p>
+    </div>
+
+    <div class="legal-divider"></div>
+
+    <div class="legal-intro">
+      This Privacy Policy explains how The Curiosity Path ("we," "us," or "our") collects, uses, stores, and protects your personal information. We are committed to protecting your privacy in accordance with applicable laws, including the Israeli Privacy Protection Law, 5741-1981 and, where applicable, the EU General Data Protection Regulation (GDPR).
+    </div>
+
+    <div class="legal-card">
+
+      <div class="legal-section">
+        <h2><span class="section-num">1</span>Information We Collect</h2>
+        <p>We collect the following categories of personal data:</p>
+        <ul>
+          <li><strong>Account data:</strong> email address, display name, and password (stored in hashed form)</li>
+          <li><strong>Profile data:</strong> any optional information you add to your profile</li>
+          <li><strong>Usage data:</strong> interactions within the Platform (e.g., posts, activity, preferences)</li>
+          <li><strong>Technical data:</strong> browser type, device information, and session tokens stored in local storage</li>
+        </ul>
+        <p>We do not collect payment information, government IDs, or sensitive personal data.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">2</span>How We Use Your Information</h2>
+        <p>We use your data solely to:</p>
+        <ul>
+          <li>Create and manage your account</li>
+          <li>Operate and improve the Platform</li>
+          <li>Send service-related communications (e.g., security alerts)</li>
+          <li>Ensure compliance with these Terms and applicable law</li>
+        </ul>
+        <p>We do not use your data for advertising or sell it to third parties.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">3</span>Legal Basis for Processing (GDPR)</h2>
+        <p>For users in the EU/EEA, our legal bases for processing your personal data are: (a) performance of a contract — to provide the Platform services; (b) legitimate interests — to maintain security and improve the Platform; and (c) your consent — where explicitly provided.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">4</span>Data Sharing</h2>
+        <p>We do not sell, rent, or trade your personal information. We share data only with:</p>
+        <ul>
+          <li><strong>Supabase:</strong> our cloud database provider, which stores your data with industry-standard encryption. Supabase is GDPR-compliant and processes data under appropriate data processing agreements.</li>
+          <li><strong>Legal authorities:</strong> if required by law, court order, or to protect the rights and safety of users or the public.</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">5</span>Data Storage & Security</h2>
+        <p>Your data is stored on Supabase Cloud servers with AES-256 encryption at rest and TLS encryption in transit. We apply row-level security (RLS) policies to ensure users can only access their own data. While we implement strong safeguards, no system is completely immune to security risks.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">6</span>Data Retention</h2>
+        <p>We retain your personal data for as long as your account is active. If you delete your account, we will delete or anonymize your personal data within 30 days, unless retention is required by law.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">7</span>Cookies & Local Storage</h2>
+        <p>We use browser local storage solely to maintain your session and user preferences. We do not use third-party tracking cookies or advertising pixels.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">8</span>Your Rights</h2>
+        <p>Depending on your jurisdiction, you may have the right to:</p>
+        <ul>
+          <li><strong>Access</strong> the personal data we hold about you</li>
+          <li><strong>Correct</strong> inaccurate or incomplete data</li>
+          <li><strong>Delete</strong> your account and associated data</li>
+          <li><strong>Restrict or object</strong> to certain processing activities</li>
+          <li><strong>Data portability</strong> — receive your data in a structured, machine-readable format (EU users)</li>
+          <li><strong>Withdraw consent</strong> at any time where processing is based on consent</li>
+        </ul>
+        <p>To exercise any of these rights, contact us through the Platform's support channels. EU users also have the right to lodge a complaint with their local data protection authority.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">9</span>Children's Privacy</h2>
+        <p>The Platform is not directed to children under the age of 13. We do not knowingly collect personal data from children. If we become aware that a child under 13 has provided us with personal data, we will delete it promptly.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">10</span>Changes to This Policy</h2>
+        <p>We may update this Privacy Policy from time to time. Material changes will be communicated via the Platform. Continued use after changes are posted constitutes acceptance of the revised policy.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="section-num">11</span>Contact Us</h2>
+        <p>For privacy-related questions, requests, or complaints, please contact us through the Platform's support channels.</p>
+      </div>
+
+    </div>
+
+    <div class="legal-footer">
+      <p>© 2025 The Curiosity Path. All rights reserved.</p>
+      <a href="/Legal/terms.html">
+        View Terms of Service
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+
+  </div>
+</body>
+</html>

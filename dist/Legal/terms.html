@@ -4,15 +4,50 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Terms of Service – The Curiosity Path</title>
-  <link rel="stylesheet" href="../../CSS/main-styles.css" />
   <style>
+    :root {
+      --neuro-bg: #c4ad91;
+      --neuro-bg-lighter: #d4c0a8;
+      --neuro-shadow-dark: #a08968;
+      --neuro-shadow-light: #e0d4bf;
+      --neuro-highlight: #ebe2d4;
+      --neuro-text: #3d2f1f;
+      --neuro-text-light: #4a3a28;
+      --neuro-text-dim: #a89279;
+      --neuro-accent: #3d6b1a;
+      --neuro-forest-dark: #558030;
+      --neuro-shadow-darker: #8b7355;
+      --spacing-sm: 0.5rem;
+      --spacing-md: 1rem;
+      --spacing-lg: 1.5rem;
+      --spacing-xl: 2rem;
+      --spacing-2xl: 3rem;
+      --radius-lg: 20px;
+      --radius-xl: 24px;
+      --radius-full: 9999px;
+      --transition-fast: 150ms ease-in-out;
+      --shadow-raised:
+        10px 10px 20px var(--neuro-shadow-dark),
+        -6px -6px 12px var(--neuro-shadow-light),
+        inset 1px 1px 2px var(--neuro-highlight);
+      --shadow-inset-sm:
+        inset 3px 3px 6px var(--neuro-shadow-dark),
+        inset -2px -2px 4px var(--neuro-shadow-light);
+    }
+
+    *, ::after, ::before { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       background: var(--neuro-bg);
       color: var(--neuro-text);
       font-family: 'Georgia', serif;
       min-height: 100vh;
       padding: var(--spacing-xl) var(--spacing-md);
+      line-height: 1.5;
     }
+
+    a { color: inherit; text-decoration: inherit; }
+    ol, ul { list-style: none; }
 
     .legal-wrapper {
       max-width: 760px;
@@ -33,9 +68,10 @@
       text-decoration: none;
       margin-bottom: var(--spacing-lg);
       transition: color var(--transition-fast);
+      font-family: ui-sans-serif, system-ui, sans-serif;
     }
     .legal-back:hover { color: var(--neuro-accent); }
-    .legal-back svg { flex-shrink: 0; }
+    .legal-back svg { flex-shrink: 0; display: block; }
 
     .legal-badge {
       position: absolute;
@@ -135,9 +171,8 @@
     .legal-section ul li::before {
       content: '–';
       position: absolute;
-      left: -var(--spacing-sm);
+      left: -14px;
       color: var(--neuro-accent);
-      margin-left: -14px;
     }
 
     .legal-footer {
@@ -165,6 +200,7 @@
       transition: color var(--transition-fast);
     }
     .legal-footer a:hover { color: var(--neuro-forest-dark); }
+    .legal-footer svg { display: block; }
 
     @media (max-width: 600px) {
       .legal-card { padding: var(--spacing-lg); }
@@ -254,7 +290,7 @@
 
     <div class="legal-footer">
       <p>© 2025 The Curiosity Path. All rights reserved.</p>
-      <a href="privacy.html">
+      <a href="/Legal/privacy.html">
         View Privacy Policy
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
       </a>
