@@ -549,14 +549,14 @@ class TarotEngine {
             })()}
           </div>
 
-          ${this.buildTarotCTA()}
-
           <div class="card" id="tarot-cards-result" style="padding: 2rem;">
             <div class="flex items-center justify-between" style="margin-bottom: 5rem;">
               <h3 class="text-2xl font-bold" style="color: var(--neuro-text);">${spread.name}</h3>
             </div>
             ${cardArea}
           </div>
+
+          ${this.buildTarotCTA()}
 
         </div>
       </div>
