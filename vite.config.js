@@ -39,12 +39,19 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    sourcemap: false,
+    sourcemap: 'hidden',
     manifest: false,
     rollupOptions: {
       input: {
         main:         resolve(__dirname, 'index.html'),
         communityHub: resolve(__dirname, 'src/Mini-Apps/CommunityHub/CommunityHubEngine.js'),
+      },
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/@supabase')) {
+            return 'supabase';
+          }
+        },
       },
     },
   },

@@ -14,17 +14,17 @@
     "mindfulness",
     "personal-growth"
   ],
-"scripts": {
-  "dev": "vite",
-  "build": "vite build && node copy-assets.mjs",
-  "preview": "vite preview"
-},
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node copy-assets.mjs",
+    "preview": "vite preview"
+  },
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.89.0",
+    "@supabase/supabase-js": "^2.103.0",
     "groq-sdk": "^0.8.0",
     "web-push": "^3.6.7"
   },

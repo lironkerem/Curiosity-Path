@@ -658,11 +658,12 @@ export default class NavigationManager {
       <!-- CENTERED HEADER -->
       <div class="app-header">
         <picture>
-          <source srcset="/Tabs/Header.webp" type="image/webp">
+          <source media="(max-width: 768px)" srcset="/Tabs/Header-mobile.webp" type="image/webp">
+          <source srcset="/Tabs/Header-desktop.webp" type="image/webp">
           <img class="header-image"
-               src="/Tabs/Header.png"
+               src="/Tabs/Header-desktop.webp"
                alt="Aanandoham Header"
-               width="1280" height="400"
+               width="1920" height="500"
                loading="eager"
                fetchpriority="high"
                decoding="async">
@@ -717,18 +718,18 @@ export default class NavigationManager {
 
       <!-- MOBILE 4-BUTTON BAR -->
       <nav id="mobile-bottom-bar" class="mobile-bottom-bar mobile-bottom-bar-4" aria-label="Mobile navigation">
-        <div role="tablist" aria-label="Main navigation" style="display:contents">
-          <button class="mobile-tab" data-popup="miniapps" aria-haspopup="true" aria-expanded="false">
-            <picture><source srcset="/Tabs/MiniApps.webp" type="image/webp"><img src="/Tabs/MiniApps.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Mini Apps</span>
+        <div aria-label="Main navigation" style="display:contents">
+          <button class="mobile-tab" data-popup="miniapps" aria-haspopup="dialog" aria-expanded="false" aria-label="Mini Apps">
+            <picture><source srcset="/Tabs/MiniApps.webp" type="image/webp"><img src="/Tabs/MiniApps.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span aria-hidden="true">Mini Apps</span>
           </button>
-          <button class="mobile-tab" data-popup="features" aria-haspopup="true" aria-expanded="false">
-            <picture><source srcset="/Tabs/Features.webp" type="image/webp"><img src="/Tabs/Features.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Features</span>
+          <button class="mobile-tab" data-popup="features" aria-haspopup="dialog" aria-expanded="false" aria-label="Features">
+            <picture><source srcset="/Tabs/Features.webp" type="image/webp"><img src="/Tabs/Features.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span aria-hidden="true">Features</span>
           </button>
-          <button class="mobile-tab" role="tab" data-tab="dashboard" aria-selected="false">
-            <picture><source srcset="/Tabs/Dashboard.webp" type="image/webp"><img src="/Tabs/Dashboard.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Home</span>
+          <button class="mobile-tab" role="tab" data-tab="dashboard" aria-selected="false" aria-label="Home">
+            <picture><source srcset="/Tabs/Dashboard.webp" type="image/webp"><img src="/Tabs/Dashboard.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span aria-hidden="true">Home</span>
           </button>
-          <button class="mobile-tab" role="tab" data-tab="community-hub" aria-selected="false">
-            <picture><source srcset="/Tabs/Community.webp" type="image/webp"><img src="/Tabs/Community.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span>Community</span>
+          <button class="mobile-tab" role="tab" data-tab="community-hub" aria-selected="false" aria-label="Community">
+            <picture><source srcset="/Tabs/Community.webp" type="image/webp"><img src="/Tabs/Community.png" alt="" loading="lazy" decoding="async" width="48" height="48"></picture><span aria-hidden="true">Community</span>
           </button>
         </div>
       </nav>
@@ -789,7 +790,7 @@ export default class NavigationManager {
     ];
 
     const dots = tabs.map(t =>
-      `<span class="tab-dot${t.active ? ' active' : ''}" data-tab="${t.tab}" title="${t.title}" aria-label="${t.title}"><picture><source srcset="/Tabs/Dots/${t.img.replace('.png', '.webp')}" type="image/webp"><img src="/Tabs/Dots/${t.img}" alt="" role="presentation" loading="lazy" decoding="async" width="48" height="48"></picture></span>`
+      `<span class="tab-dot${t.active ? ' active' : ''}" role="button" data-tab="${t.tab}" title="${t.title}" aria-label="${t.title}"><picture><source srcset="/Tabs/Dots/${t.img.replace('.png', '.webp')}" type="image/webp"><img src="/Tabs/Dots/${t.img}" alt="" role="presentation" loading="lazy" decoding="async" width="48" height="48"></picture></span>`
     ).join('\n        ');
 
     return `

@@ -15,12 +15,12 @@
   --neuro-highlight: #ebe2d4;
 
   --neuro-text: #3d2f1f;
-  --neuro-text-light: #6d5a42;
+  --neuro-text-light: #4a3a28;        /* was #6d5a42 — darkened for 4.5:1 contrast on #c4ad91 */
   --neuro-text-lighter: #8b7355;
   --neuro-text-dim: #a89279;
   --neuro-text-secondary: #4a3728;
 
-  --neuro-accent: #6b9b37;        /* vibrant leaf green */
+  --neuro-accent: #3d6b1a;            /* was #6b9b37 — darkened for 4.5:1 contrast on #c4ad91 */
   --neuro-accent-light: #8bc34a;  /* bright spring green */
   --neuro-accent-dark:    #3d6e10;
 
