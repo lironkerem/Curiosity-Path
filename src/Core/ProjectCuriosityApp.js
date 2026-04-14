@@ -492,6 +492,10 @@ export default class ProjectCuriosityApp {
             CommunityDB.getProfile(_whisperParam).then(profile => {
               if (profile) {
                 WhisperModal.openThread(profile.id, profile.name, profile.emoji, profile.avatar_url);
+                // Remove ?whisper param so refresh doesn't reopen the thread
+                const _cleanUrl = new URL(window.location.href);
+                _cleanUrl.searchParams.delete('whisper');
+                history.replaceState(null, '', _cleanUrl);
               }
             }).catch(e => console.warn('[App] Whisper cold-launch profile fetch failed:', e));
           } else {

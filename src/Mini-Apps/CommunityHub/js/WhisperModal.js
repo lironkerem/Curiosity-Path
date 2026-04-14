@@ -253,7 +253,7 @@ const WhisperModal = {
             : '';
 
         return `
-            <div onclick="WhisperModal._showThread('${safeId}','${name}','${safeEmoji}','${safeAvatar}')"
+            <div data-partner-id="${safeId}" onclick="WhisperModal._showThread('${safeId}','${name}','${safeEmoji}','${safeAvatar}')"
                  style="display:flex;align-items:center;gap:12px;padding:0.75rem 1.25rem;
                         cursor:pointer;transition:background 0.15s;border-radius:0;"
                  onmouseover="this.style.background='rgba(0,0,0,0.03)'"
@@ -261,7 +261,7 @@ const WhisperModal = {
                 <div style="flex-shrink:0;">${avatar}</div>
                 <div style="flex:1;min-width:0;">
                     <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;">
-                        <span style="font-weight:${c.unread > 0 ? '700' : '500'};font-size:0.9rem;
+                        <span class="whisper-partner-name" style="font-weight:${c.unread > 0 ? '700' : '500'};font-size:0.9rem;
                                      color:var(--neuro-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                             ${name}
                         </span>
@@ -270,7 +270,9 @@ const WhisperModal = {
                     <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
                         <span style="font-size:0.8rem;color:var(--text-muted);white-space:nowrap;
                                      overflow:hidden;text-overflow:ellipsis;flex:1;">${preview}</span>
-                        ${unreadBadge}
+                        <span class="whisper-unread-badge" style="display:${c.unread > 0 ? 'inline' : 'none'};background:var(--primary,#667eea);color:#fff;border-radius:99px;
+                                        font-size:0.7rem;font-weight:700;padding:2px 7px;min-width:18px;
+                                        text-align:center;">${c.unread > 0 ? c.unread : ''}</span>
                     </div>
                 </div>
             </div>`;
@@ -309,6 +311,15 @@ const WhisperModal = {
         setTimeout(() => { threadView.scrollTop = threadView.scrollHeight; }, 50);
         document.getElementById('whisperReplyText')?.focus();
         await this.refreshUnreadBadge();
+
+        // Clear the inbox row badge immediately without re-rendering the whole list
+        const row = document.querySelector(`#whisperInboxList [data-partner-id="${userId}"]`);
+        if (row) {
+            const badge = row.querySelector('.whisper-unread-badge');
+            if (badge) badge.style.display = 'none';
+            const nameEl = row.querySelector('.whisper-partner-name');
+            if (nameEl) nameEl.style.fontWeight = '500';
+        }
     },
 
     _renderThreadMessages(messages) {
