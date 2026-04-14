@@ -2,6 +2,10 @@
 // /api/send.js
 // Sends push notifications using Web Push Protocol
 // Handles subscription cleanup for expired subscriptions
+//
+// Supports two modes:
+//   1. { sub, payload }    — single subscription (existing behaviour)
+//   2. { userId, payload } — server-side lookup via service role (bypasses RLS)
 // ============================================
 
 import webpush from 'web-push';
@@ -26,7 +30,7 @@ function validateRequest(subscription, payload) {
 }
 
 /**
- * Initializes Supabase client
+ * Initializes Supabase client (anon key — for existing single-sub path)
  * @returns {Object} Supabase client instance
  */
 function initializeSupabase() {
@@ -66,7 +70,7 @@ async function deleteExpiredSubscription(supabase, endpoint) {
       .from('push_subscriptions')
       .delete()
       .eq('endpoint', endpoint);
-    
+
     if (error) {
       console.error('Failed to delete expired subscription:', error.message);
     }
@@ -97,16 +101,60 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Service not configured' });
   }
 
-  const { sub, payload } = req.body;
+  const { sub, userId, payload } = req.body;
 
-  // Validate request
+  // -----------------------------------------------------------------------
+  // MODE 2: userId provided — server-side subscription lookup (bypasses RLS)
+  // Used by admin gift/role/message actions in member-profile-modal.js
+  // -----------------------------------------------------------------------
+  if (userId && !sub) {
+    if (!payload || typeof payload !== 'object') {
+      return res.status(400).json({ error: 'Invalid payload object' });
+    }
+
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('SUPABASE_SERVICE_ROLE_KEY not configured');
+      return res.status(500).json({ error: 'Service not configured' });
+    }
+
+    const supabaseAdmin = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    );
+
+    const { data: subs, error: dbError } = await supabaseAdmin
+      .from('push_subscriptions')
+      .select('subscription')
+      .eq('user_id', userId);
+
+    if (dbError) {
+      console.error('Failed to fetch subscriptions:', dbError.message);
+      return res.status(500).json({ error: 'Failed to fetch subscriptions' });
+    }
+
+    if (!subs?.length) {
+      return res.status(200).json({ sent: 0, reason: 'no subscriptions found' });
+    }
+
+    const results = await Promise.allSettled(
+      subs.map(s => webpush.sendNotification(s.subscription, JSON.stringify(payload)))
+    );
+
+    const sent   = results.filter(r => r.status === 'fulfilled').length;
+    const failed = results.filter(r => r.status === 'rejected').length;
+
+    return res.status(200).json({ sent, failed });
+  }
+
+  // -----------------------------------------------------------------------
+  // MODE 1: single subscription object passed directly (existing behaviour)
+  // -----------------------------------------------------------------------
   const validationError = validateRequest(sub, payload);
   if (validationError) {
     return res.status(400).json(validationError);
   }
 
   try {
-    // Send push notification
     await webpush.sendNotification(sub, JSON.stringify(payload));
     return res.status(200).json({ sent: true });
 
@@ -114,17 +162,16 @@ export default async function handler(req, res) {
     // Handle expired subscription (410 Gone)
     if (error.statusCode === 410) {
       await deleteExpiredSubscription(supabase, sub.endpoint);
-      return res.status(410).json({ 
-        error: 'Subscription expired', 
-        deleted: true 
+      return res.status(410).json({
+        error: 'Subscription expired',
+        deleted: true,
       });
     }
 
-    // Handle other push notification errors
     console.error('Push notification error:', error.message);
-    return res.status(400).json({ 
+    return res.status(400).json({
       error: 'Failed to send notification',
-      message: error.message 
+      message: error.message,
     });
   }
 }
