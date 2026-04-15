@@ -1,7 +1,7 @@
 /**
  * ADMIN DASHBOARD
  * Full-screen admin console for Community Hub.
- * @version 1.1.0
+ * @version 1.2.0
  */
 
 
@@ -53,6 +53,25 @@ const AdminDashboard = {
     ],
 
     _NOTIF_ICONS: { report: '⚠️', help: '🆘', technical: '🔧' },
+
+    // =========================================================================
+    // PUSH NOTIFY — calls /api/send directly, no dependency on MemberProfileModal
+    // =========================================================================
+
+    async _pushNotify(userId, title, body) {
+        try {
+            await fetch('/api/send', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({
+                    userId,
+                    payload: { title, body, icon: '/icons/icon-192x192.png', data: { url: '/' } },
+                }),
+            });
+        } catch (err) {
+            console.error('[AdminDashboard] push notify error:', err);
+        }
+    },
 
     // =========================================================================
     // STYLES - injected once
@@ -151,7 +170,6 @@ const AdminDashboard = {
                            onclick="AdminDashboard.openDashboard()"
                            alt="Open Admin Dashboard"
                            width="48" height="48" loading="lazy" decoding="async"
-                           loading="lazy" decoding="async"
                            style="width:100%;border-radius:14px;cursor:pointer;display:block;
                                   transition:opacity 0.15s,transform 0.15s;box-shadow:0 4px 16px rgba(0,0,0,0.1);"
                            onmouseover="this.style.opacity='0.9';this.style.transform='scale(1.01)'"
@@ -690,13 +708,19 @@ const AdminDashboard = {
         let ok = 0;
 
         for (const uid of ids) {
-            const success = await CommunityDB.adminUpdateGamification(uid, {
-                xpDelta:    xpDelta    === 'amount' ? amount : xpDelta,
-                karmaDelta: karmaDelta === 'amount' ? amount : karmaDelta,
-            });
-            if (success) {
-                ok++;
-                window.MemberProfileModal?._adminPushNotify?.(uid, notifTitle, notifBody(amount));
+            try {
+                const success = await CommunityDB.adminUpdateGamification(uid, {
+                    xpDelta:    xpDelta    === 'amount' ? amount : xpDelta,
+                    karmaDelta: karmaDelta === 'amount' ? amount : karmaDelta,
+                });
+                if (success) {
+                    ok++;
+                    await this._pushNotify(uid, notifTitle, notifBody(amount));
+                } else {
+                    console.warn('[AdminDashboard] _bulkSendGamification: no success for', uid);
+                }
+            } catch (err) {
+                console.error('[AdminDashboard] _bulkSendGamification error for', uid, err);
             }
         }
         window.Core.showToast(`Sent ${amount} ${label} to ${ok}/${ids.length} members`);
@@ -730,7 +754,6 @@ const AdminDashboard = {
         const badgeLabel = opt?.text || badgeId;
         if (!badgeId) { window.Core.showToast('Select a badge'); return; }
 
-        // Read real badge metadata from the select option's data attributes
         const badgeName   = badgeLabel.replace(/^[^\s]+\s/, '').trim();
         const badgeIcon   = opt?.dataset?.icon   || '🏅';
         const badgeRarity = opt?.dataset?.rarity || 'common';
@@ -742,19 +765,18 @@ const AdminDashboard = {
         let ok = 0;
 
         for (const uid of ids) {
-            // Use atomic RPC — avoids race conditions from the old
-            // fetch → merge → update pattern, and correctly awards badge XP.
-            const success = await CommunityDB.adminUpdateGamification(uid, {
-                badgeId,
-                badgeName,
-                badgeIcon,
-                badgeRarity,
-                badgeXp,
-                badgeDesc,
-            });
-            if (success) {
-                ok++;
-                window.MemberProfileModal?._adminPushNotify?.(uid, '🏅 New Badge!', `You earned the ${badgeLabel} badge!`);
+            try {
+                const success = await CommunityDB.adminUpdateGamification(uid, {
+                    badgeId, badgeName, badgeIcon, badgeRarity, badgeXp, badgeDesc,
+                });
+                if (success) {
+                    ok++;
+                    await this._pushNotify(uid, '🏅 New Badge!', `You earned the ${badgeLabel} badge!`);
+                } else {
+                    console.warn('[AdminDashboard] _bulkSendBadge: no success for', uid);
+                }
+            } catch (err) {
+                console.error('[AdminDashboard] _bulkSendBadge error for', uid, err);
             }
         }
         window.Core.showToast(`Sent badge to ${ok}/${ids.length} members`);
@@ -772,10 +794,16 @@ const AdminDashboard = {
         let ok = 0;
 
         for (const uid of ids) {
-            const success = await CommunityDB.adminUpdateGamification(uid, { unlockFeature: feature });
-            if (success) {
-                ok++;
-                window.MemberProfileModal?._adminPushNotify?.(uid, '🔓 Feature Unlocked!', `${featureLabel} has been unlocked for you!`);
+            try {
+                const success = await CommunityDB.adminUpdateGamification(uid, { unlockFeature: feature });
+                if (success) {
+                    ok++;
+                    await this._pushNotify(uid, '🔓 Feature Unlocked!', `${featureLabel} has been unlocked for you!`);
+                } else {
+                    console.warn('[AdminDashboard] _bulkSendUnlock: no success for', uid);
+                }
+            } catch (err) {
+                console.error('[AdminDashboard] _bulkSendUnlock error for', uid, err);
             }
         }
         window.Core.showToast(`Unlocked ${featureLabel} for ${ok}/${ids.length} members`);
@@ -786,13 +814,21 @@ const AdminDashboard = {
         const message = document.getElementById('bulkMessageText')?.value?.trim();
         if (!message) { window.Core.showToast('Write a message first'); return; }
 
-        const ids    = [...this._bulkSelected];
+        const ids = [...this._bulkSelected];
         window.Core.showToast(`Broadcasting to ${ids.length} members...`);
-        const result = await CommunityDB.broadcastMessage(ids, message);
+
+        let result = { sent: 0 };
+        try {
+            result = await CommunityDB.broadcastMessage(ids, message);
+        } catch (err) {
+            console.error('[AdminDashboard] _bulkSendMessage broadcastMessage error:', err);
+            window.Core.showToast('Failed to send messages');
+            return;
+        }
 
         if (result.sent > 0) {
             for (const uid of ids) {
-                window.MemberProfileModal?._adminPushNotify?.(uid, '💬 Message from Aanandoham', message.substring(0, 80));
+                await this._pushNotify(uid, '💬 Message from Aanandoham', message.substring(0, 80));
             }
             document.getElementById('bulkMessageText').value = '';
             window.Core.showToast(`Message sent to ${result.sent}/${ids.length} members`);
