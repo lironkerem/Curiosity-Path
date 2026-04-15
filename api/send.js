@@ -30,21 +30,6 @@ function validateRequest(subscription, payload) {
 }
 
 /**
- * Initializes Supabase client (anon key — for existing single-sub path)
- * @returns {Object} Supabase client instance
- */
-function initializeSupabase() {
-  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
-    throw new Error('Supabase credentials not configured');
-  }
-
-  return createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY
-  );
-}
-
-/**
  * Initializes Web Push VAPID configuration
  */
 function initializeWebPush() {
@@ -61,11 +46,15 @@ function initializeWebPush() {
 
 /**
  * Deletes expired subscription from database
- * @param {Object} supabase - Supabase client
  * @param {string} endpoint - Subscription endpoint
  */
-async function deleteExpiredSubscription(supabase, endpoint) {
+async function deleteExpiredSubscription(endpoint) {
   try {
+    // Use service role for cleanup too — avoids RLS issues
+    const supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY
+    );
     const { error } = await supabase
       .from('push_subscriptions')
       .delete()
@@ -79,13 +68,13 @@ async function deleteExpiredSubscription(supabase, endpoint) {
   }
 }
 
-// Initialize services
-let supabase;
+// Initialize VAPID — log but don't crash if missing
+let vapidReady = false;
 try {
-  supabase = initializeSupabase();
   initializeWebPush();
+  vapidReady = true;
 } catch (error) {
-  console.error('Initialization error:', error.message);
+  console.error('VAPID initialization error:', error.message);
 }
 
 /**
@@ -96,31 +85,39 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Check if services are initialized
-  if (!supabase) {
-    return res.status(500).json({ error: 'Service not configured' });
+  if (!vapidReady) {
+    return res.status(500).json({ error: 'VAPID not configured' });
   }
 
   const { sub, userId, payload } = req.body;
 
   // -----------------------------------------------------------------------
   // MODE 2: userId provided — server-side subscription lookup (bypasses RLS)
-  // Used by admin gift/role/message actions in member-profile-modal.js
+  // Used by admin gift/role/message actions
   // -----------------------------------------------------------------------
   if (userId && !sub) {
     if (!payload || typeof payload !== 'object') {
       return res.status(400).json({ error: 'Invalid payload object' });
     }
 
-    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      console.error('SUPABASE_SERVICE_ROLE_KEY not configured');
-      return res.status(500).json({ error: 'Service not configured' });
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+      return res.status(500).json({
+        error: 'Service not configured',
+        detail: `SUPABASE_URL=${!!process.env.SUPABASE_URL} SERVICE_ROLE_KEY=${!!process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+      });
     }
 
-    const supabaseAdmin = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
+    let supabaseAdmin;
+    try {
+      supabaseAdmin = createClient(
+        process.env.SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_ROLE_KEY
+      );
+    } catch (err) {
+      console.error('Failed to create supabaseAdmin client:', err.message);
+      return res.status(500).json({ error: 'Failed to create admin client', detail: err.message });
+    }
 
     const { data: subs, error: dbError } = await supabaseAdmin
       .from('push_subscriptions')
@@ -129,7 +126,7 @@ export default async function handler(req, res) {
 
     if (dbError) {
       console.error('Failed to fetch subscriptions:', dbError.message);
-      return res.status(500).json({ error: 'Failed to fetch subscriptions' });
+      return res.status(500).json({ error: 'Failed to fetch subscriptions', detail: dbError.message });
     }
 
     if (!subs?.length) {
@@ -142,6 +139,11 @@ export default async function handler(req, res) {
 
     const sent   = results.filter(r => r.status === 'fulfilled').length;
     const failed = results.filter(r => r.status === 'rejected').length;
+    if (failed > 0) {
+      results
+        .filter(r => r.status === 'rejected')
+        .forEach(r => console.error('Push send error:', r.reason?.message));
+    }
 
     return res.status(200).json({ sent, failed });
   }
@@ -149,6 +151,11 @@ export default async function handler(req, res) {
   // -----------------------------------------------------------------------
   // MODE 1: single subscription object passed directly (existing behaviour)
   // -----------------------------------------------------------------------
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+    // Anon client only needed for expired sub cleanup — warn but continue
+    console.warn('SUPABASE_ANON_KEY not set — expired subscription cleanup disabled');
+  }
+
   const validationError = validateRequest(sub, payload);
   if (validationError) {
     return res.status(400).json(validationError);
@@ -161,7 +168,7 @@ export default async function handler(req, res) {
   } catch (error) {
     // Handle expired subscription (410 Gone)
     if (error.statusCode === 410) {
-      await deleteExpiredSubscription(supabase, sub.endpoint);
+      await deleteExpiredSubscription(sub.endpoint);
       return res.status(410).json({
         error: 'Subscription expired',
         deleted: true,
