@@ -43,7 +43,7 @@ host.innerHTML = `
       <header class="main-header project-curiosity"
               style="--header-img:url('/Tabs/NavAnalysis.webp');
                      --header-title:'';
-                     --header-tag:'Analyse your \'Self\', using Numerology, Astrology, Tree of Life and Tarot'">
+                     --header-tag:'Analyse your \\'Self\\', using Numerology, Astrology, Tree of Life and Tarot'">
         <h1>Self-Analysis Pro</h1>
         <h3>Analyse your 'Self', using Numerology, Astrology, Tree of Life and Tarot</h3>
         <span class="header-sub"></span>
@@ -127,116 +127,119 @@ host.innerHTML = `
     }
   }
 
-/* ---- Location Autocomplete ---- */
-initializeLocationAutocomplete() {
-  const locationInput = document.getElementById('location-birth');
-  const dropdown = document.getElementById('location-dropdown');
-  
-  if (!locationInput || !dropdown) {
-    console.warn('⚠️ Location elements not found');
-    return;
-  }
-  
-  const GEOCODE_API = '/api/geocode';
-  let debounceTimer;
-  const cache = new Map();
-  
-  // Define displayResults BEFORE fetchLocations so it's in scope
-  const displayResults = (list) => {
-    if (!list || !list.length) {
-      dropdown.innerHTML = '<div style="padding:10px;color:#888;">No locations found</div>';
-      dropdown.classList.add('active');
-      setTimeout(() => dropdown.classList.remove('active'), 2000);
+  /* ---- Location Autocomplete ---- */
+  initializeLocationAutocomplete() {
+    const locationInput = document.getElementById('location-birth');
+    const dropdown = document.getElementById('location-dropdown');
+    
+    if (!locationInput || !dropdown) {
+      console.warn('⚠️ Location elements not found');
       return;
     }
     
-    dropdown.innerHTML = list.map(it => `
-      <div class="location-option" data-lat="${it.lat}" data-lon="${it.lon}" data-name="${it.display_name}">
-        ${it.display_name}
-      </div>`).join('');
+    const GEOCODE_API = '/api/geocode';
+    let debounceTimer;
+    const cache = new Map();
     
-    dropdown.classList.add('active');
-    
-    dropdown.querySelectorAll('.location-option').forEach(opt => {
-      opt.addEventListener('click', () => {
-        const name = opt.dataset.name;
-        const lat = opt.dataset.lat;
-        const lon = opt.dataset.lon;
-        
-        locationInput.value = name;
-        locationInput.dataset.lat = lat;
-        locationInput.dataset.lon = lon;
-        
-        dropdown.classList.remove('active');
-        dropdown.innerHTML = '';
-        
-        locationInput.style.borderColor = '#4caf50';
-        setTimeout(() => locationInput.style.borderColor = '', 1000);
-      });
-    });
-  };
-  
-  // Now define fetchLocations with access to displayResults
-  const fetchLocations = async (q) => {
-    try {
-      const res = await fetch(`${GEOCODE_API}?q=${encodeURIComponent(q)}`);
-      
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error('❌ Geocode error:', errorText);
-        throw new Error('geo err');
+    const displayResults = (list) => {
+      if (!list || !list.length) {
+        dropdown.innerHTML = '<div style="padding:10px;color:#888;">No locations found</div>';
+        dropdown.classList.add('active');
+        setTimeout(() => dropdown.classList.remove('active'), 2000);
+        return;
       }
       
-      const data = await res.json();
-      cache.set(q.toLowerCase(), data);
-      if (cache.size > 50) cache.delete(cache.keys().next().value);
+      dropdown.innerHTML = list.map(it => `
+        <div class="location-option" data-lat="${it.lat}" data-lon="${it.lon}" data-name="${it.display_name}">
+          ${it.display_name}
+        </div>`).join('');
       
-      displayResults(data);
-    } catch (e) {
-      console.warn('❌ Location fetch error:', e.message);
-      dropdown.innerHTML = '<div style="padding:10px;color:#d32f2f;background:#ffebee;">Unable to load suggestions. Try typing your city name.</div>';
       dropdown.classList.add('active');
-      setTimeout(() => dropdown.classList.remove('active'), 3000);
-    }
-  };
-  
-  // Input event listener
-  locationInput.addEventListener('input', () => {
-    const q = locationInput.value.trim();
-    clearTimeout(debounceTimer);
+      
+      dropdown.querySelectorAll('.location-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+          const name = opt.dataset.name;
+          const lat = opt.dataset.lat;
+          const lon = opt.dataset.lon;
+          
+          locationInput.value = name;
+          locationInput.dataset.lat = lat;
+          locationInput.dataset.lon = lon;
+          
+          dropdown.classList.remove('active');
+          dropdown.innerHTML = '';
+          
+          locationInput.style.borderColor = '#4caf50';
+          setTimeout(() => locationInput.style.borderColor = '', 1000);
+        });
+      });
+    };
     
-    if (q.length < 3) {
-      dropdown.classList.remove('active');
-      dropdown.innerHTML = '';
-      return;
-    }
+    const fetchLocations = async (q) => {
+      try {
+        const res = await fetch(`${GEOCODE_API}?q=${encodeURIComponent(q)}`);
+        
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('❌ Geocode error:', errorText);
+          throw new Error('geo err');
+        }
+        
+        const data = await res.json();
+        cache.set(q.toLowerCase(), data);
+        if (cache.size > 50) cache.delete(cache.keys().next().value);
+        
+        displayResults(data);
+      } catch (e) {
+        console.warn('❌ Location fetch error:', e.message);
+        dropdown.innerHTML = '<div style="padding:10px;color:#d32f2f;background:#ffebee;">Unable to load suggestions. Try typing your city name.</div>';
+        dropdown.classList.add('active');
+        setTimeout(() => dropdown.classList.remove('active'), 3000);
+      }
+    };
     
-    const key = q.toLowerCase();
-    if (cache.has(key)) {
-      displayResults(cache.get(key));
-      return;
-    }
-    
-    debounceTimer = setTimeout(() => fetchLocations(q), 400);
-  });
-  
-  // Click outside to close
-  document.addEventListener('click', e => {
-    if (e.target !== locationInput && !dropdown.contains(e.target)) {
-      dropdown.classList.remove('active');
-    }
-  });
-}
+    locationInput.addEventListener('input', () => {
+      const q = locationInput.value.trim();
+      clearTimeout(debounceTimer);
+      
+      if (q.length < 3) {
+        dropdown.classList.remove('active');
+        dropdown.innerHTML = '';
+        return;
+      }
+      
+      const key = q.toLowerCase();
+      if (cache.has(key)) {
+        displayResults(cache.get(key));
+        return;
+      }
+      
+      debounceTimer = setTimeout(() => fetchLocations(q), 400);
+    });
+
+    // Store handler ref for cleanup
+    this._outsideClickHandler = (e) => {
+      if (e.target !== locationInput && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('active');
+      }
+    };
+    document.addEventListener('click', this._outsideClickHandler);
+  }
 
   /* ---- Re-validate form when tab is re-entered ---- */
   revalidate() {
-    if (window.revalidateForm && typeof window.revalidateForm === 'function') {
+    if (typeof window.revalidateForm === 'function') {
       window.revalidateForm();
     }
   }
 
-  /* ---- Cleanup when switching away from tab ---- */
-  cleanup() {
-    // Optional: Clear any timers, remove listeners, etc.
+  /* ---- Cleanup when FeaturesManager destroys this engine ---- */
+  destroy() {
+    if (this._outsideClickHandler) {
+      document.removeEventListener('click', this._outsideClickHandler);
+      this._outsideClickHandler = null;
+    }
+    this.instance = null;
+    this.isInitialized = false;
   }
 }

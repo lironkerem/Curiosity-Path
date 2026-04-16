@@ -6,19 +6,20 @@
  */
 
 /* ---------- Engine imports ---------- */
-import EnergyEngineEnhanced from '../Features/EnergyTracker.js';
-import KarmaShopEngine      from '../Features/KarmaShopEngine.js';
-import MeditationsEngine    from '../Features/MeditationsEngine.js';
-import TarotEngine          from '../Features/TarotEngine.js';
-import HappinessEngine      from '../Features/HappinessEngine.js';
-import GratitudeEngine      from '../Features/GratitudeEngine.js';
-import QuotesEngine         from '../Features/QuotesEngine.js';
-import AffirmationsEngine   from '../Features/AffirmationsEngine.js';
-import GamificationEngine   from './GamificationEngine.js';
-import JournalEngine        from '../Features/JournalEngine.js';
-import ShadowAlchemyEngine  from '../Mini-Apps/ShadowAlchemyLab/shadowalchemy.js';
-import CommunityHubEngine   from '../Mini-Apps/CommunityHub/CommunityHubEngine.js';
-import { ChatBotAI }        from '../Features/ChatBotAI.js';
+import EnergyEngineEnhanced  from '../Features/EnergyTracker.js';
+import KarmaShopEngine       from '../Features/KarmaShopEngine.js';
+import MeditationsEngine     from '../Features/MeditationsEngine.js';
+import TarotEngine           from '../Features/TarotEngine.js';
+import HappinessEngine       from '../Features/HappinessEngine.js';
+import GratitudeEngine       from '../Features/GratitudeEngine.js';
+import QuotesEngine          from '../Features/QuotesEngine.js';
+import AffirmationsEngine    from '../Features/AffirmationsEngine.js';
+import GamificationEngine    from './GamificationEngine.js';
+import JournalEngine         from '../Features/JournalEngine.js';
+import ShadowAlchemyEngine   from '../Mini-Apps/ShadowAlchemyLab/shadowalchemy.js';
+import CommunityHubEngine    from '../Mini-Apps/CommunityHub/CommunityHubEngine.js';
+import { ChatBotAI }         from '../Features/ChatBotAI.js';
+import SelfAnalysisLauncher  from '../Mini-Apps/SelfAnalysisPro/loader.js';
 
 /* ---------- App imports ---------- */
 import FlipTheScriptApp from '../Mini-Apps/FlipTheScript/index.js';
@@ -39,7 +40,8 @@ export const FEATURE_IDS = Object.freeze({
   SHADOW_ALCHEMY: 'shadow-alchemy',
   KARMA_SHOP:     'karma-shop',
   CHATBOT:        'chatbot',
-  COMMUNITY_HUB:  'community-hub'
+  COMMUNITY_HUB:  'community-hub',
+  CALCULATOR:     'calculator'
 });
 
 // ─── Feature registry ─────────────────────────────────────────────────────────
@@ -58,7 +60,8 @@ const FEATURE_MAP = Object.freeze({
   [FEATURE_IDS.SHADOW_ALCHEMY]: ShadowAlchemyEngine,
   [FEATURE_IDS.KARMA_SHOP]:     KarmaShopEngine,
   [FEATURE_IDS.CHATBOT]:        ChatBotAI,
-  [FEATURE_IDS.COMMUNITY_HUB]:  CommunityHubEngine
+  [FEATURE_IDS.COMMUNITY_HUB]:  CommunityHubEngine,
+  [FEATURE_IDS.CALCULATOR]:     SelfAnalysisLauncher
 });
 
 // ─── FeaturesManager ─────────────────────────────────────────────────────────
@@ -195,7 +198,6 @@ class FeaturesManager {
 }
 
 // ─── Minimal window exposure (only what legacy onclick handlers need) ─────────
-// Avoid polluting window with every engine class — expose only the manager and IDs.
 if (typeof window !== 'undefined') {
   window.FeaturesManager = FeaturesManager;
   window.FEATURE_IDS     = FEATURE_IDS;
