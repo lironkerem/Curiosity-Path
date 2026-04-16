@@ -1,16 +1,7 @@
 /**
  * ACTIVE MEMBERS MODULE
  * Real presence data from Supabase + realtime updates
- * @version 3.0.0
- *
- * ARCHITECTURE CHANGE (v3):
- *  - Converted from singleton object → instantiable class (ActiveMembersWidget)
- *  - Each mount point (Dashboard, Community Hub) creates its own instance
- *  - Shared presence subscription is managed by a single PresenceManager
- *  - No more ID-swap hack; render() accepts a DOM element directly
- *  - Blocked users are fetched once and cached; re-fetched only on change
- *  - `window.ActiveMembers` is kept for legacy event listeners (avatarChanged etc.)
- *    but now refers to the Hub instance (the canonical one)
+ * @version 3.1.0
  */
 
 import { CommunityDB } from './community-supabase.js';
@@ -18,32 +9,27 @@ import { renderAvatarIcon } from './avatar-icons.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PRESENCE MANAGER  (singleton — owns the single Supabase channel)
-// Notifies every registered ActiveMembersWidget instance on updates.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const PresenceManager = {
-    _instances:   new Set(),   // registered ActiveMembersWidget instances
-    _subscribed:  false,
-    _retryTimer:  null,
-    _blockedCache: null,       // Promise<Set<string>> — fetched once, shared
+    _instances:    new Set(),
+    _subscribed:   false,
+    _retryTimer:   null,
+    _blockedCache: null,
 
-    /** Register a widget instance to receive live updates */
     register(instance) {
         this._instances.add(instance);
         if (!this._subscribed) this._subscribe();
     },
 
-    /** Unregister a widget instance (e.g. on destroy) */
     unregister(instance) {
         this._instances.delete(instance);
-        // If no more consumers, tear down the channel
         if (this._instances.size === 0) {
             this._unsubscribe();
             this._blockedCache = null;
         }
     },
 
-    /** Fetch blocked users — result is cached for the session */
     async getBlocked() {
         if (!this._blockedCache) {
             this._blockedCache = CommunityDB.getBlockedUsers().catch(() => new Set());
@@ -51,7 +37,6 @@ const PresenceManager = {
         return this._blockedCache;
     },
 
-    /** Invalidate blocked-user cache (call after block/unblock actions) */
     invalidateBlocked() {
         this._blockedCache = null;
     },
@@ -80,16 +65,13 @@ const PresenceManager = {
 
     _unsubscribe() {
         clearInterval(this._retryTimer);
-        this._retryTimer  = null;
-        this._subscribed  = false;
-        // CommunityDB.subscribeToPresence re-uses the same channel key,
-        // so unsubscribing here is handled by CommunityDB._unsub('presence')
-        // if called explicitly — we leave that to the Hub's own cleanup.
+        this._retryTimer = null;
+        this._subscribed = false;
     },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ACTIVE MEMBERS WIDGET  (one instance per mount point)
+// ACTIVE MEMBERS WIDGET
 // ─────────────────────────────────────────────────────────────────────────────
 
 const VALID_STATUSES = new Set(['online', 'available', 'away', 'guiding', 'silent', 'deep', 'offline']);
@@ -104,80 +86,72 @@ const DOT_CLASS_MAP = {
     offline:   'offline',
 };
 
+// How long to wait for CommunityDB to become ready before giving up (ms)
+const DB_READY_TIMEOUT  = 10_000;
+const DB_READY_INTERVAL = 150;
+
 class ActiveMembersWidget {
-    /**
-     * @param {HTMLElement} containerEl  - The DOM element to render into.
-     *                                     Must remain in the document for the
-     *                                     lifetime of this instance.
-     */
     constructor(containerEl) {
         if (!(containerEl instanceof HTMLElement)) {
             throw new TypeError('[ActiveMembersWidget] containerEl must be an HTMLElement');
         }
         this.container  = containerEl;
         this.isRendered = false;
+        this._destroyed = false;
     }
 
     // ─── Public API ──────────────────────────────────────────────────────────
 
-    /**
-     * Initial render. Paints the shell immediately (no DB wait),
-     * then fills in member data async without blocking the caller.
-     */
     render() {
-        // Paint skeleton NOW — synchronous, zero latency
+        // Paint shell immediately — zero latency
         this.container.innerHTML = this._buildShell('Loading...');
 
-        // Fetch data in parallel, non-blocking
-        Promise.all([
-            CommunityDB.getActiveMembers(),
-            PresenceManager.getBlocked(),
-        ]).then(([members, blocked]) => {
-            const visible = members.filter(m => !blocked.has(m.user_id));
-            this._paint(visible);
-            PresenceManager.register(this);
-            this.isRendered = true;
-        }).catch(err => {
-            console.error('[ActiveMembersWidget] render error:', err);
-            this.container.innerHTML = this._buildShell('Could not load members.');
-        });
+        // Wait for CommunityDB to be ready, then fetch
+        this._waitForDB()
+            .then(() => Promise.all([
+                CommunityDB.getActiveMembers(),
+                PresenceManager.getBlocked(),
+            ]))
+            .then(([members, blocked]) => {
+                if (this._destroyed) return;
+                const visible = members.filter(m => !blocked.has(m.user_id));
+                this._paint(visible);
+                PresenceManager.register(this);
+                this.isRendered = true;
+            })
+            .catch(err => {
+                if (this._destroyed) return;
+                console.error('[ActiveMembersWidget] render error:', err);
+                this.container.innerHTML = this._buildShell('Could not load members.');
+            });
     }
 
-    /** Force a full re-fetch and re-render */
     async refresh() {
         this.isRendered = false;
         this.render();
     }
 
-    /** Update a single member's status dot in-place */
     updateMemberStatus(userId, status) {
-        if (!VALID_STATUSES.has(status)) {
-            console.error('[ActiveMembersWidget] Invalid status:', status);
-            return;
-        }
+        if (!VALID_STATUSES.has(status)) return;
         const card = this.container.querySelector(`[data-member-id="${userId}"]`);
         const dot  = card?.querySelector('.member-mini-status');
         if (!dot) return;
-
         ['online','away','offline','silent','deep'].forEach(s => dot.classList.remove(s));
         dot.classList.add(DOT_CLASS_MAP[status] || 'offline');
         dot.setAttribute('aria-label', status);
         dot.setAttribute('title', _capitalize(status));
     }
 
-    /** Update a single member's activity text in-place */
     updateMemberActivity(userId, activity) {
         if (!activity || typeof activity !== 'string') return;
         const el = this.container.querySelector(`[data-member-id="${userId}"] .member-mini-info`);
         if (el) el.textContent = activity;
     }
 
-    /** Update avatar after a profile save */
     updateMemberAvatar(userId, { emoji, avatarUrl } = {}) {
         const card     = this.container.querySelector(`[data-member-id="${userId}"]`);
         const avatarEl = card?.querySelector('.member-mini-avatar');
         if (!avatarEl) return;
-
         if (avatarUrl) {
             avatarEl.style.background = 'transparent';
             avatarEl.innerHTML = `<img src="${avatarUrl}"
@@ -189,26 +163,48 @@ class ActiveMembersWidget {
         }
     }
 
-    /** Clean up — unregister from PresenceManager */
     destroy() {
+        this._destroyed = true;
         PresenceManager.unregister(this);
         this.isRendered = false;
     }
 
-    // ─── Called by PresenceManager on live updates ───────────────────────────
+    // ─── Internal ────────────────────────────────────────────────────────────
+
+    /**
+     * Resolves once CommunityDB.ready is true, or rejects after DB_READY_TIMEOUT.
+     * This is the key fix for Issue 1: the Dashboard widget mounts before
+     * CommunityDB.init() has run (it runs inside CommunityHubEngine, not on app boot).
+     * We poll until it's ready rather than silently returning [].
+     */
+    _waitForDB() {
+        if (CommunityDB.ready) return Promise.resolve();
+        return new Promise((resolve, reject) => {
+            const start = Date.now();
+            const timer = setInterval(() => {
+                if (this._destroyed) {
+                    clearInterval(timer);
+                    reject(new Error('widget destroyed'));
+                } else if (CommunityDB.ready) {
+                    clearInterval(timer);
+                    resolve();
+                } else if (Date.now() - start > DB_READY_TIMEOUT) {
+                    clearInterval(timer);
+                    reject(new Error('CommunityDB not ready after timeout'));
+                }
+            }, DB_READY_INTERVAL);
+        });
+    }
 
     _onPresenceUpdate(visibleMembers) {
         this._paint(visibleMembers);
     }
-
-    // ─── Rendering helpers ───────────────────────────────────────────────────
 
     _paint(members) {
         const onlineCount = members.filter(
             m => m.status === 'online' || m.status === 'available'
         ).length;
 
-        // Update counter without full re-render if already rendered
         const countEl = this.container.querySelector('.active-members-online-count');
         const grid    = this.container.querySelector('.active-members-grid');
 
@@ -216,10 +212,7 @@ class ActiveMembersWidget {
             countEl.textContent = `${onlineCount} online`;
             grid.innerHTML = _buildMemberCards(members);
         } else {
-            this.container.innerHTML = this._buildShell(
-                `${onlineCount} online`,
-                members
-            );
+            this.container.innerHTML = this._buildShell(`${onlineCount} online`, members);
         }
     }
 
@@ -258,7 +251,6 @@ class ActiveMembersWidget {
             </section>`;
     }
 
-    /** Unique ID per instance to avoid duplicate aria IDs */
     get _uid() {
         if (!this.__uid) this.__uid = Math.random().toString(36).slice(2, 7);
         return this.__uid;
@@ -266,7 +258,7 @@ class ActiveMembersWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PURE FUNCTIONS  (stateless helpers shared by all instances)
+// PURE FUNCTIONS
 // ─────────────────────────────────────────────────────────────────────────────
 
 function _buildMemberCards(members) {
@@ -334,7 +326,6 @@ function _capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// Global click handler (avoids inline script CSP issues with per-instance binding)
 window._activeMembersHandleView = function(userId) {
     if (!userId) return;
     if (window.MemberProfileModal) {
@@ -344,11 +335,6 @@ window._activeMembersHandleView = function(userId) {
     }
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GLOBAL avatarChanged LISTENER
-// Forwards to all registered instances
-// ─────────────────────────────────────────────────────────────────────────────
-
 window.addEventListener('avatarChanged', (e) => {
     const { userId, emoji, avatarUrl } = e.detail || {};
     if (!userId) return;
@@ -356,9 +342,5 @@ window.addEventListener('avatarChanged', (e) => {
         inst.updateMemberAvatar(userId, { emoji, avatarUrl });
     });
 });
-
-// ─────────────────────────────────────────────────────────────────────────────
-// EXPORTS
-// ─────────────────────────────────────────────────────────────────────────────
 
 export { ActiveMembersWidget, PresenceManager };

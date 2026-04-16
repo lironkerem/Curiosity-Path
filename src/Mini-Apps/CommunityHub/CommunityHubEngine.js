@@ -1,5 +1,5 @@
 // Mini-Apps/CommunityHub/CommunityHubEngine.js
-// v4.1 - ActiveMembersWidget refactor (production-grade instance management)
+// v4.2 - Fix ritual overlay + ActiveMembersWidget instance management
 
 import { CommunityDB }        from './js/community-supabase.js';
 import { Core }               from './js/core.js';
@@ -77,6 +77,9 @@ class CommunityHubEngine {
       return;
     }
 
+    // BUG 2 FIX: createFullscreenRoomContainer() must run BEFORE _buildTabHTML()
+    // so that Rituals.createOpeningRitual() can append the fully-styled overlay
+    // (with candle SVG, gradient defs, etc.) to the DOM before the blur fires.
     this.createFullscreenRoomContainer();
 
     if (!this.initialized) {
@@ -90,14 +93,11 @@ class CommunityHubEngine {
       await this.initializeCommunityHub();
       this.initialized = true;
     } else {
-      // Re-visit: only refresh presence-dependent UI, not the full Core init.
       this._refreshHubPresence();
     }
 
-    // Issue #1: suspend chat subscriptions when user leaves the Hub tab entirely
     this._attachHubVisibility();
 
-    // Auto-open a room requested from an external CTA (e.g. Energy Tracker).
     if (window._pendingRoomOpen) {
       const roomKey = window._pendingRoomOpen;
       window._pendingRoomOpen = null;
@@ -180,36 +180,26 @@ class CommunityHubEngine {
     `;
   }
 
-  _buildCandleSVG(idSuffix) {
-    return `
-      <svg viewBox="0 0 48 70" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <ellipse class="flame-outer" cx="24" cy="16" rx="7" ry="11" fill="url(#flameGradOuter-${idSuffix})" opacity="0.9"/>
-        <ellipse class="flame-inner" cx="24" cy="18" rx="4.5" ry="7.5" fill="url(#flameGradInner-${idSuffix})" opacity="0.95"/>
-        <ellipse class="flame-core"  cx="24" cy="20" rx="2" ry="3.5" fill="#fff9e6" opacity="0.95"/>
-        <line x1="24" y1="26" x2="24" y2="29" stroke="#3a2a1a" stroke-width="1.2" stroke-linecap="round"/>
-        <rect x="14" y="29" width="20" height="34" rx="3" fill="url(#candleGrad-${idSuffix})"/>
-        <path d="M14 35 Q11 38 12 43 Q13 46 14 48 L14 35Z" fill="url(#dripGrad-${idSuffix})" opacity="0.7"/>
-        <path d="M34 38 Q37 41 36 46 Q35 48 34 49 L34 38Z" fill="url(#dripGrad-${idSuffix})" opacity="0.5"/>
-        <ellipse cx="24" cy="29" rx="10" ry="2.5" fill="url(#topGrad-${idSuffix})"/>
-      </svg>`;
-  }
-
   // ---------------------------------------------------------------------------
   // Ritual overlay
   // ---------------------------------------------------------------------------
 
   createFullscreenRoomContainer() {
+    // BUG 2 FIX: Delegate entirely to window.Rituals.createOpeningRitual().
+    // Our previous refactor replaced this with a plain hardcoded div, which
+    // lost the candle SVG, gradient defs, and styled container that Rituals
+    // builds. The blur fired (body class was set) but the overlay was invisible.
     if (document.getElementById('openingOverlay')) return;
-    const el = document.createElement('div');
-    el.innerHTML = `
-      <div id="openingOverlay" class="opening-overlay" role="dialog" aria-modal="true" aria-labelledby="openingRitualText">
-        <div class="opening-overlay-content">
-          <p id="openingRitualText" class="opening-ritual-text"></p>
-          <button class="opening-enter-btn" onclick="window.Rituals?.completeOpening()">Enter the Space</button>
-        </div>
-      </div>`;
-    const root = document.getElementById('app-container') || document.body;
-    root.appendChild(el.firstElementChild);
+
+    if (window.Rituals?.createOpeningRitual) {
+      window.Rituals.createOpeningRitual({
+        action: 'ritual-opening',
+        label: 'Enter the space',
+        buttonText: 'Enter the Space',
+      });
+    }
+    // If Rituals isn't loaded yet it will build the overlay itself on first call.
+    // _showRitualImmediately() guards with `if (!overlay) return` so nothing breaks.
   }
 
   _showRitualImmediately() {
@@ -235,12 +225,11 @@ class CommunityHubEngine {
   }
 
   // ---------------------------------------------------------------------------
-  // Lightweight hub refresh on re-visit (Issue #5)
+  // Lightweight hub refresh on re-visit
   // ---------------------------------------------------------------------------
 
   _refreshHubPresence() {
     try {
-      // Refresh active members widget in-place — no full Core.init() needed
       this._activeMembersWidget?.refresh();
 
       if (window.PracticeRoom?._hubRooms?.length) {
@@ -257,7 +246,7 @@ class CommunityHubEngine {
   }
 
   // ---------------------------------------------------------------------------
-  // YouTube API preload (Issue #4)
+  // YouTube API preload
   // ---------------------------------------------------------------------------
 
   _preloadYouTubeAPI() {
@@ -270,7 +259,7 @@ class CommunityHubEngine {
   }
 
   // ---------------------------------------------------------------------------
-  // Hub visibility — suspend/resume chat subs on tab hide (Issue #1)
+  // Hub visibility — suspend/resume chat subs on tab hide
   // ---------------------------------------------------------------------------
 
   _attachHubVisibility() {
