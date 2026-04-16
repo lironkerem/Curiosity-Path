@@ -1,5 +1,5 @@
 // Mini-Apps/CommunityHub/CommunityHubEngine.js
-// v4.3 - Fix ritual overlay + ActiveMembersWidget instance management + Hub section scroll
+// v4.3 - ActiveMembersWidget + hub scroll + original ritual overlay preserved
 
 import { CommunityDB }        from './js/community-supabase.js';
 import { Core }               from './js/core.js';
@@ -188,18 +188,87 @@ class CommunityHubEngine {
   }
 
   // ---------------------------------------------------------------------------
-  // Ritual overlay
+  // Ritual overlay — original builders preserved exactly as shipped
   // ---------------------------------------------------------------------------
 
-  createFullscreenRoomContainer() {
-    if (document.getElementById('openingOverlay')) return;
+  _buildCandleSVG(idSuffix) {
+    return `
+      <svg viewBox="0 0 48 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse class="flame-outer" cx="24" cy="16" rx="7" ry="11" fill="url(#flameGradOuter-${idSuffix})" opacity="0.9"/>
+        <ellipse class="flame-inner" cx="24" cy="18" rx="4.5" ry="7.5" fill="url(#flameGradInner-${idSuffix})" opacity="0.95"/>
+        <ellipse class="flame-core"  cx="24" cy="20" rx="2" ry="3.5" fill="#fff9e6" opacity="0.95"/>
+        <line x1="24" y1="26" x2="24" y2="29" stroke="#3a2a1a" stroke-width="1.2" stroke-linecap="round"/>
+        <rect x="14" y="29" width="20" height="34" rx="3" fill="url(#candleGrad-${idSuffix})"/>
+        <path d="M14 35 Q11 38 12 43 Q13 46 14 48 L14 35Z" fill="url(#dripGrad-${idSuffix})" opacity="0.7"/>
+        <path d="M34 38 Q37 41 36 46 Q35 48 34 49 L34 38Z" fill="url(#dripGrad-${idSuffix})" opacity="0.5"/>
+        <ellipse cx="24" cy="29" rx="10" ry="2.5" fill="url(#topGrad-${idSuffix})"/>
+        <rect x="17" y="31" width="4" height="28" rx="2" fill="white" opacity="0.08"/>
+        <defs>
+          <radialGradient id="flameGradOuter-${idSuffix}" cx="50%" cy="80%" r="60%">
+            <stop offset="0%"   stop-color="#ffe066"/>
+            <stop offset="50%"  stop-color="#ff9a00"/>
+            <stop offset="100%" stop-color="#ff4400" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="flameGradInner-${idSuffix}" cx="50%" cy="80%" r="60%">
+            <stop offset="0%"   stop-color="#fff5c0"/>
+            <stop offset="60%"  stop-color="#ffb830"/>
+            <stop offset="100%" stop-color="#ff6600" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="candleGrad-${idSuffix}" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%"   stop-color="#c8a882"/>
+            <stop offset="40%"  stop-color="#e8d0b0"/>
+            <stop offset="70%"  stop-color="#d4b88a"/>
+            <stop offset="100%" stop-color="#b89060"/>
+          </linearGradient>
+          <linearGradient id="dripGrad-${idSuffix}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#e8d0b0"/>
+            <stop offset="100%" stop-color="#c8a882" stop-opacity="0"/>
+          </linearGradient>
+          <radialGradient id="topGrad-${idSuffix}" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="#f0dfc0"/>
+            <stop offset="100%" stop-color="#c8a882"/>
+          </radialGradient>
+        </defs>
+      </svg>`;
+  }
 
-    if (window.Rituals?.createOpeningRitual) {
-      window.Rituals.createOpeningRitual({
-        action: 'ritual-opening',
-        label: 'Enter the space',
-        buttonText: 'Enter the Space',
+  _buildRitualCard({ id, textId, type, action, label, buttonText }) {
+    return `
+      <div class="ritual-overlay ${type}" id="${id}" role="dialog" aria-modal="true" aria-labelledby="${textId}">
+        <div class="ritual-card">
+          <div class="ritual-candle" aria-hidden="true">${this._buildCandleSVG(type[0])}</div>
+          <div class="ritual-text" id="${textId}"></div>
+          <button class="ritual-btn" data-action="${action}" aria-label="${label}">${buttonText}</button>
+        </div>
+      </div>`;
+  }
+
+  createFullscreenRoomContainer() {
+    if (document.getElementById('communityHubFullscreenContainer')) return;
+
+    const container = document.createElement('div');
+    container.id = 'communityHubFullscreenContainer';
+    container.style.cssText = 'position:fixed;inset:0;z-index:99999;background:transparent;display:none;overflow:auto;pointer-events:auto;';
+
+    container.innerHTML = `
+      ${this._buildRitualCard({
+        id: 'closingOverlay', textId: 'closingRitualText', type: 'closing',
+        action: 'ritual-closing', label: 'Close gently', buttonText: 'Close Gently',
+      })}
+      <div id="dynamicRoomContent" style="display:flex;flex-direction:column;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;width:100%;"></div>
+    `;
+
+    document.body.appendChild(container);
+
+    // Opening overlay goes into app-container (or body) so it covers all UI chrome
+    if (!document.getElementById('openingOverlay')) {
+      const el = document.createElement('div');
+      el.innerHTML = this._buildRitualCard({
+        id: 'openingOverlay', textId: 'openingRitualText', type: 'opening',
+        action: 'ritual-opening', label: 'Enter the space', buttonText: 'Enter the Space',
       });
+      const root = document.getElementById('app-container') || document.body;
+      root.appendChild(el.firstElementChild);
     }
   }
 
@@ -216,6 +285,7 @@ class CommunityHubEngine {
     document.body.classList.add('ritual-active');
     overlay.classList.add('active');
 
+    // Auto-dismiss after 5 s (mirrors Rituals.config.OPENING_AUTO_CLOSE_MS)
     setTimeout(() => {
       if (window.Rituals) window.Rituals.completeOpening();
       else {
@@ -231,6 +301,7 @@ class CommunityHubEngine {
 
   _refreshHubPresence() {
     try {
+      // Refresh active members widget in-place — no full Core.init() needed
       this._activeMembersWidget?.refresh();
 
       if (window.PracticeRoom?._hubRooms?.length) {
@@ -332,7 +403,7 @@ class CommunityHubEngine {
       await Core.init();
       window.Core = Core;
 
-      // Mount Active Members widget — non-blocking, owns its container element directly
+      // Mount Active Members widget — non-blocking, owns its container directly
       const hubMembersEl = document.getElementById('activeMembersContainer');
       if (hubMembersEl) {
         if (this._activeMembersWidget) {
@@ -358,7 +429,7 @@ class CommunityHubEngine {
       if (window.Rituals) window.Rituals.state.hasSeenOpening = false;
       if (window.CollectiveFieldDB) await window.CollectiveFieldDB.init();
 
-      // Scroll to pending section target — first-load path (async init completes here)
+      // Scroll to pending section target — first-load path
       if (window._pendingHubScrollTarget) {
         const scrollTarget = window._pendingHubScrollTarget;
         window._pendingHubScrollTarget = null;

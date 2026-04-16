@@ -71,7 +71,7 @@ const PresenceManager = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ACTIVE MEMBERS WIDGET
+// CONSTANTS
 // ─────────────────────────────────────────────────────────────────────────────
 
 const VALID_STATUSES = new Set(['online', 'available', 'away', 'guiding', 'silent', 'deep', 'offline']);
@@ -86,9 +86,13 @@ const DOT_CLASS_MAP = {
     offline:   'offline',
 };
 
-// How long to wait for CommunityDB to become ready before giving up (ms)
+// How long to wait for CommunityDB to become ready before giving up
 const DB_READY_TIMEOUT  = 10_000;
 const DB_READY_INTERVAL = 150;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ACTIVE MEMBERS WIDGET CLASS
+// ─────────────────────────────────────────────────────────────────────────────
 
 class ActiveMembersWidget {
     constructor(containerEl) {
@@ -103,10 +107,8 @@ class ActiveMembersWidget {
     // ─── Public API ──────────────────────────────────────────────────────────
 
     render() {
-        // Paint shell immediately — zero latency
         this.container.innerHTML = this._buildShell('Loading...');
 
-        // Wait for CommunityDB to be ready, then fetch
         this._waitForDB()
             .then(() => Promise.all([
                 CommunityDB.getActiveMembers(),
@@ -172,10 +174,9 @@ class ActiveMembersWidget {
     // ─── Internal ────────────────────────────────────────────────────────────
 
     /**
-     * Resolves once CommunityDB.ready is true, or rejects after DB_READY_TIMEOUT.
-     * This is the key fix for Issue 1: the Dashboard widget mounts before
-     * CommunityDB.init() has run (it runs inside CommunityHubEngine, not on app boot).
-     * We poll until it's ready rather than silently returning [].
+     * Waits for CommunityDB.ready, polling every DB_READY_INTERVAL ms.
+     * Fixes the Dashboard first-load blank: the widget mounts before
+     * CommunityDB.init() has run (which only happens inside CommunityHubEngine).
      */
     _waitForDB() {
         if (CommunityDB.ready) return Promise.resolve();
@@ -326,6 +327,10 @@ function _capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// GLOBAL HANDLERS
+// ─────────────────────────────────────────────────────────────────────────────
+
 window._activeMembersHandleView = function(userId) {
     if (!userId) return;
     if (window.MemberProfileModal) {
@@ -342,5 +347,49 @@ window.addEventListener('avatarChanged', (e) => {
         inst.updateMemberAvatar(userId, { emoji, avatarUrl });
     });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// window.ActiveMembers COMPATIBILITY SHIM
+//
+// Core (core.js) references window.ActiveMembers directly and logs
+// "⚠ [Core] ActiveMembers not found" when it is absent.
+// We expose a shim that forwards the calls Core expects to the PresenceManager
+// and the Hub widget instance, without resurrecting the old singleton pattern.
+// ─────────────────────────────────────────────────────────────────────────────
+
+window.ActiveMembers = {
+    // Core calls render() when it finishes initialising.
+    // By this point CommunityHubEngine has already created the Hub widget,
+    // so we just refresh all registered instances instead of creating a new one.
+    async render() {
+        if (PresenceManager._instances.size > 0) {
+            PresenceManager._instances.forEach(inst => inst.refresh());
+        }
+        // If no instances yet (Dashboard first-load), do nothing —
+        // DashboardManager creates its own ActiveMembersWidget independently.
+    },
+
+    // Core may call updateMemberStatus / updateMemberActivity on the global
+    updateMemberStatus(userId, status) {
+        PresenceManager._instances.forEach(inst => inst.updateMemberStatus(userId, status));
+    },
+
+    updateMemberActivity(userId, activity) {
+        PresenceManager._instances.forEach(inst => inst.updateMemberActivity(userId, activity));
+    },
+
+    async refresh() {
+        PresenceManager._instances.forEach(inst => inst.refresh());
+    },
+
+    // Expose state flag Core may read
+    get state() {
+        return { isRendered: PresenceManager._instances.size > 0 };
+    },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EXPORTS
+// ─────────────────────────────────────────────────────────────────────────────
 
 export { ActiveMembersWidget, PresenceManager };
