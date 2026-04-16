@@ -1,5 +1,5 @@
 // Mini-Apps/CommunityHub/CommunityHubEngine.js
-// v4.2 - Fix ritual overlay + ActiveMembersWidget instance management
+// v4.3 - Fix ritual overlay + ActiveMembersWidget instance management + Hub section scroll
 
 import { CommunityDB }        from './js/community-supabase.js';
 import { Core }               from './js/core.js';
@@ -77,9 +77,6 @@ class CommunityHubEngine {
       return;
     }
 
-    // BUG 2 FIX: createFullscreenRoomContainer() must run BEFORE _buildTabHTML()
-    // so that Rituals.createOpeningRitual() can append the fully-styled overlay
-    // (with candle SVG, gradient defs, etc.) to the DOM before the blur fires.
     this.createFullscreenRoomContainer();
 
     if (!this.initialized) {
@@ -97,6 +94,16 @@ class CommunityHubEngine {
     }
 
     this._attachHubVisibility();
+
+    // Scroll to pending section target after DOM is ready (re-visit path)
+    if (window._pendingHubScrollTarget) {
+      const scrollTarget = window._pendingHubScrollTarget;
+      window._pendingHubScrollTarget = null;
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const el = document.getElementById(scrollTarget);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }));
+    }
 
     if (window._pendingRoomOpen) {
       const roomKey = window._pendingRoomOpen;
@@ -185,10 +192,6 @@ class CommunityHubEngine {
   // ---------------------------------------------------------------------------
 
   createFullscreenRoomContainer() {
-    // BUG 2 FIX: Delegate entirely to window.Rituals.createOpeningRitual().
-    // Our previous refactor replaced this with a plain hardcoded div, which
-    // lost the candle SVG, gradient defs, and styled container that Rituals
-    // builds. The blur fired (body class was set) but the overlay was invisible.
     if (document.getElementById('openingOverlay')) return;
 
     if (window.Rituals?.createOpeningRitual) {
@@ -198,8 +201,6 @@ class CommunityHubEngine {
         buttonText: 'Enter the Space',
       });
     }
-    // If Rituals isn't loaded yet it will build the overlay itself on first call.
-    // _showRitualImmediately() guards with `if (!overlay) return` so nothing breaks.
   }
 
   _showRitualImmediately() {
@@ -356,6 +357,16 @@ class CommunityHubEngine {
 
       if (window.Rituals) window.Rituals.state.hasSeenOpening = false;
       if (window.CollectiveFieldDB) await window.CollectiveFieldDB.init();
+
+      // Scroll to pending section target — first-load path (async init completes here)
+      if (window._pendingHubScrollTarget) {
+        const scrollTarget = window._pendingHubScrollTarget;
+        window._pendingHubScrollTarget = null;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          const el = document.getElementById(scrollTarget);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }));
+      }
 
     } catch (err) {
       console.error('❌ Failed to load Community Hub:', err);
