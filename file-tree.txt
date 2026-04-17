@@ -6,7 +6,6 @@ C:.
 |   convertToWebP.bat
 |   copy-assets.mjs
 |   file-tree.txt
-|   FileTree.txt
 |   index.html
 |   package-lock.json
 |   package.json
