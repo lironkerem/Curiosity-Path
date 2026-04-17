@@ -4,11 +4,18 @@
  * Features: avatar, name/role/inspiration, XP/karma/badges,
  *           whisper, report, block, admin controls.
  *
- * @version 2.1.0
+ * @version 2.2.0
  */
 
 import { CommunityDB } from './community-supabase.js';
 import { renderAvatarIcon } from './avatar-icons.js';
+
+// ── Shared emoji palette for custom badge picker ──────────────────────────────
+const BADGE_EMOJIS = [
+  '🏅','🎖️','🌟','👑','🧪','🕉️','🦸','🌱','🎪','🌙','☀️','⚡','🌊','💜','🔱',
+  '🔥','💎','🦋','🌸','🍀','🌈','⭐','🎯','🏆','🎗️','🌀','🔮','💫','🧘','🦅',
+  '🐉','🌺','🎵','💡','🌿','🦁','🐬','🌍','🎭','🛡️','⚔️','🗝️','🧬','🌠','🎋',
+];
 
 const MemberProfileModal = {
 
@@ -56,6 +63,38 @@ const MemberProfileModal = {
     },
 
     _ADMIN_SUB_IDS: ['adminSubRole','adminSubXp','adminSubKarma','adminSubBadge','adminSubPremium','adminSubMessage','adminSubCustomBadge'],
+
+    // =========================================================================
+    // EMOJI PICKER HELPER
+    // =========================================================================
+
+    _buildEmojiPicker(inputId, pickerId) {
+        return `
+            <div id="${pickerId}" style="display:none;margin-top:6px;padding:8px;border-radius:10px;
+                        border:1px solid rgba(0,0,0,0.12);background:var(--neuro-bg);
+                        display:none;flex-wrap:wrap;gap:4px;max-height:130px;overflow-y:auto;">
+                ${BADGE_EMOJIS.map(e =>
+                    `<button type="button" onclick="MemberProfileModal._pickEmoji('${inputId}','${pickerId}','${e}')"
+                             style="font-size:1.3rem;background:none;border:none;cursor:pointer;
+                                    padding:3px 5px;border-radius:6px;line-height:1;transition:background 0.1s;"
+                             onmouseover="this.style.background='rgba(0,0,0,0.07)'"
+                             onmouseout="this.style.background='none'">${e}</button>`
+                ).join('')}
+            </div>`;
+    },
+
+    _pickEmoji(inputId, pickerId, emoji) {
+        const inp = document.getElementById(inputId);
+        if (inp) inp.value = emoji;
+        const picker = document.getElementById(pickerId);
+        if (picker) picker.style.display = 'none';
+    },
+
+    _toggleEmojiPicker(pickerId) {
+        const picker = document.getElementById(pickerId);
+        if (!picker) return;
+        picker.style.display = picker.style.display === 'none' ? 'flex' : 'none';
+    },
 
     // =========================================================================
     // INIT - inject modal shell once
@@ -310,7 +349,9 @@ const MemberProfileModal = {
                                         background:rgba(var(--neuro-accent-rgb, 168,85,247),0.08);border:2px dashed rgba(var(--neuro-accent-rgb, 168,85,247),0.4);
                                         user-select:none;">
                                 <span style="font-size:0.78rem;font-weight:700;text-transform:uppercase;
-                                             letter-spacing:1px;color:var(--neuro-accent);display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin Controls</span>
+                                             letter-spacing:1px;color:var(--neuro-accent);display:inline-flex;align-items:center;gap:0.4rem;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin Controls
+                                </span>
                                 <span id="memberModalAdminToggle" style="font-size:0.75rem;color:var(--neuro-accent);">▶</span>
                             </div>
 
@@ -377,37 +418,60 @@ const MemberProfileModal = {
 
                                 <!-- Sub: Custom Badge -->
                                 <div id="adminSubCustomBadge" style="display:none;" class="admin-sub-panel">
-                                    <div style="display:grid;grid-template-columns:72px 1fr;gap:8px;margin-bottom:8px;">
-                                        <input type="text" id="adminCustomBadgeIcon" maxlength="4" placeholder="Emoji"
-                                               value="🏅"
-                                               style="padding:9px;border-radius:10px;box-sizing:border-box;
-                                                      border:1px solid rgba(0,0,0,0.12);font-size:1.4rem;text-align:center;
-                                                      background:var(--neuro-bg);color:var(--neuro-text);">
-                                        <input type="text" id="adminCustomBadgeName" maxlength="40" placeholder="Badge name"
-                                               style="padding:9px;border-radius:10px;box-sizing:border-box;
-                                                      border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
-                                                      background:var(--neuro-bg);color:var(--neuro-text);">
+
+                                    <!-- Emoji row: preview + pick button -->
+                                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                                        <input type="text" id="adminCustomBadgeIcon" maxlength="4" value="🏅" readonly
+                                               style="width:52px;padding:9px;border-radius:10px;box-sizing:border-box;
+                                                      border:1px solid rgba(0,0,0,0.12);font-size:1.5rem;text-align:center;
+                                                      background:var(--neuro-bg);color:var(--neuro-text);cursor:default;">
+                                        <button type="button"
+                                                onclick="MemberProfileModal._toggleEmojiPicker('adminCustomBadgeEmojiPicker')"
+                                                style="flex:1;padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);
+                                                       font-size:0.82rem;font-weight:600;cursor:pointer;
+                                                       background:var(--neuro-bg);color:var(--neuro-accent);">
+                                            Choose Emoji ▾
+                                        </button>
                                     </div>
+                                    ${this._buildEmojiPicker('adminCustomBadgeIcon', 'adminCustomBadgeEmojiPicker')}
+
+                                    <input type="text" id="adminCustomBadgeName" maxlength="40" placeholder="Badge name"
+                                           style="width:100%;padding:9px;border-radius:10px;box-sizing:border-box;
+                                                  border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
+                                                  margin-bottom:8px;background:var(--neuro-bg);color:var(--neuro-text);">
+
                                     <textarea id="adminCustomBadgeDesc" placeholder="Description (optional)" maxlength="120" rows="2"
                                               style="width:100%;padding:9px;border-radius:10px;box-sizing:border-box;
                                                      border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;resize:none;
                                                      margin-bottom:8px;background:var(--neuro-bg);color:var(--neuro-text);"></textarea>
+
+                                    <select id="adminCustomBadgeRarity"
+                                            style="width:100%;padding:9px;border-radius:10px;margin-bottom:8px;
+                                                   border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
+                                                   background:var(--neuro-bg);color:var(--neuro-text);">
+                                        <option value="common">Common</option>
+                                        <option value="uncommon">Uncommon</option>
+                                        <option value="rare">Rare</option>
+                                        <option value="epic" selected>Epic</option>
+                                        <option value="legendary">Legendary</option>
+                                    </select>
+
+                                    <!-- XP + Karma side by side -->
                                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-                                        <select id="adminCustomBadgeRarity"
-                                                style="padding:9px;border-radius:10px;
-                                                       border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
-                                                       background:var(--neuro-bg);color:var(--neuro-text);">
-                                            <option value="common">Common</option>
-                                            <option value="uncommon">Uncommon</option>
-                                            <option value="rare">Rare</option>
-                                            <option value="epic" selected>Epic</option>
-                                            <option value="legendary">Legendary</option>
-                                        </select>
                                         <input type="number" id="adminCustomBadgeXp" min="0" value="100" placeholder="XP reward"
                                                style="padding:9px;border-radius:10px;box-sizing:border-box;
                                                       border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
                                                       background:var(--neuro-bg);color:var(--neuro-text);">
+                                        <input type="number" id="adminCustomBadgeKarma" min="0" value="15" placeholder="Karma reward"
+                                               style="padding:9px;border-radius:10px;box-sizing:border-box;
+                                                      border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
+                                                      background:var(--neuro-bg);color:var(--neuro-text);">
                                     </div>
+                                    <div style="display:grid;grid-template-columns:1fr 1fr;font-size:0.72rem;
+                                                color:var(--text-muted);text-align:center;margin-bottom:8px;">
+                                        <span>XP reward</span><span>Karma reward</span>
+                                    </div>
+
                                     ${this._adminSubFooter('_adminSendCustomBadge', 'Award Custom Badge')}
                                 </div>
 
@@ -859,10 +923,8 @@ const MemberProfileModal = {
         if (!role || !this.state.currentUserId) return;
         await this._withBtnState('#adminSubRole button', 'Saving...', 'Save Role', async () => {
             const profileUpdate = { community_role: role };
-            if (role === 'VIP')   profileUpdate.is_vip   = true;
-            else                  profileUpdate.is_vip   = false;
-            if (role === 'Admin') profileUpdate.is_admin = true;
-            else                  profileUpdate.is_admin = false;
+            profileUpdate.is_vip   = role === 'VIP';
+            profileUpdate.is_admin = role === 'Admin';
             const { error } = await CommunityDB._sb.rpc('admin_update_profile', {
                 target_user_id: this.state.currentUserId,
                 new_role:       profileUpdate.community_role,
@@ -909,16 +971,15 @@ const MemberProfileModal = {
         const opt = sel?.selectedOptions[0];
         if (!opt) return;
 
-        // Pull from shared registry for full metadata
         const registry = window.BADGE_REGISTRY || [];
         const reg      = registry.find(b => b.id === opt.value) || {};
         const badge = {
             id:          opt.value,
-            name:        reg.name        || opt.textContent.replace(/^.+? /, '').trim(),
-            icon:        reg.icon        || opt.dataset.icon   || '🏅',
-            rarity:      reg.rarity      || opt.dataset.rarity || 'common',
-            xp:          reg.xp          ?? parseInt(opt.dataset.xp, 10) ?? 0,
-            description: reg.desc        || opt.dataset.desc   || '',
+            name:        reg.name   || opt.textContent.replace(/^.+? /, '').trim(),
+            icon:        reg.icon   || opt.dataset.icon   || '🏅',
+            rarity:      reg.rarity || opt.dataset.rarity || 'common',
+            xp:          reg.xp     ?? parseInt(opt.dataset.xp, 10) ?? 0,
+            description: reg.desc   || opt.dataset.desc   || '',
         };
 
         await this._withBtnState('#adminSubBadge button', 'Awarding...', 'Award Badge', async () => {
@@ -943,14 +1004,15 @@ const MemberProfileModal = {
         const name   = document.getElementById('adminCustomBadgeName')?.value.trim();
         const desc   = document.getElementById('adminCustomBadgeDesc')?.value.trim()  || '';
         const rarity = document.getElementById('adminCustomBadgeRarity')?.value       || 'epic';
-        const xp     = parseInt(document.getElementById('adminCustomBadgeXp')?.value, 10) || 0;
+        const xp     = parseInt(document.getElementById('adminCustomBadgeXp')?.value,    10) || 0;
+        const karma  = parseInt(document.getElementById('adminCustomBadgeKarma')?.value, 10) || 0;
 
         if (!name) { window.Core.showToast('Please enter a badge name'); return; }
 
-        // Generate a slug-style id from name + timestamp to ensure uniqueness
         const badgeId = 'custom_' + name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') + '_' + Date.now();
 
         await this._withBtnState('#adminSubCustomBadge button', 'Awarding...', 'Award Custom Badge', async () => {
+            // Award the badge XP via gamification RPC
             const ok = await CommunityDB.adminUpdateGamification(this.state.currentUserId, {
                 badgeId,
                 badgeName:   name,
@@ -960,6 +1022,12 @@ const MemberProfileModal = {
                 badgeDesc:   desc,
             });
             if (!ok) throw new Error('Save failed');
+
+            // Award karma separately if requested
+            if (karma > 0) {
+                await CommunityDB.adminUpdateGamification(this.state.currentUserId, { karmaDelta: karma });
+            }
+
             await this._adminPushNotify(this.state.currentUserId, '🎖️ Special Badge Earned!', `You received the ${name} badge!`);
             window.Core.showToast(`Awarded custom badge: ${icon} ${name}`);
             this._closeAdminSubs();
@@ -1025,18 +1093,18 @@ const MemberProfileModal = {
             try {
                 const fresh = await CommunityDB.getUserProgress(targetUserId);
                 if (fresh && ge?.state) {
-                    if (fresh.xp    !== undefined)              ge.state.xp               = fresh.xp;
-                    if (fresh.karma !== undefined)              ge.state.karma            = fresh.karma;
-                    if (fresh.level !== undefined)              ge.state.level            = fresh.level;
-                    if (Array.isArray(fresh.badges))            ge.state.badges           = fresh.badges;
-                    if (Array.isArray(fresh.unlockedFeatures))  ge.state.unlockedFeatures = fresh.unlockedFeatures;
+                    if (fresh.xp    !== undefined)             ge.state.xp               = fresh.xp;
+                    if (fresh.karma !== undefined)             ge.state.karma            = fresh.karma;
+                    if (fresh.level !== undefined)             ge.state.level            = fresh.level;
+                    if (Array.isArray(fresh.badges))           ge.state.badges           = fresh.badges;
+                    if (Array.isArray(fresh.unlockedFeatures)) ge.state.unlockedFeatures = fresh.unlockedFeatures;
                 }
                 if (fresh && window.app?.state?.data) {
-                    if (fresh.xp    !== undefined)              window.app.state.data.xp               = fresh.xp;
-                    if (fresh.karma !== undefined)              window.app.state.data.karma            = fresh.karma;
-                    if (fresh.level !== undefined)              window.app.state.data.level            = fresh.level;
-                    if (Array.isArray(fresh.badges))            window.app.state.data.badges           = fresh.badges;
-                    if (Array.isArray(fresh.unlockedFeatures))  window.app.state.data.unlockedFeatures = fresh.unlockedFeatures;
+                    if (fresh.xp    !== undefined)             window.app.state.data.xp               = fresh.xp;
+                    if (fresh.karma !== undefined)             window.app.state.data.karma            = fresh.karma;
+                    if (fresh.level !== undefined)             window.app.state.data.level            = fresh.level;
+                    if (Array.isArray(fresh.badges))           window.app.state.data.badges           = fresh.badges;
+                    if (Array.isArray(fresh.unlockedFeatures)) window.app.state.data.unlockedFeatures = fresh.unlockedFeatures;
                 }
             } catch (e) { console.warn('[_safeRefresh] pre-patch failed:', e); }
         }

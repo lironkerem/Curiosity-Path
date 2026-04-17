@@ -1,23 +1,18 @@
 /**
  * ADMIN DASHBOARD
  * Full-screen admin console for Community Hub.
- * @version 1.3.0
+ * @version 1.4.0
  */
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SHARED BADGE REGISTRY
-// Single source of truth for all badge definitions across the app.
-// Loaded onto window.BADGE_REGISTRY so MemberProfileModal can read it
-// without a circular import (AdminDashboard loads first via injectAdminUI).
 // ─────────────────────────────────────────────────────────────────────────────
 const BADGE_REGISTRY = [
-    // ── Originally Admin Console only ────────────────────────────────────────
     { id: 'early_supporter', icon: '🌟', name: 'Early Supporter', rarity: 'epic',      xp: 100, desc: 'Joined during early access'            },
     { id: 'vip_member',      icon: '👑', name: 'VIP Member',      rarity: 'legendary', xp: 150, desc: 'VIP community member'                   },
     { id: 'beta_tester',     icon: '🧪', name: 'Beta Tester',     rarity: 'rare',      xp: 100, desc: 'Helped test new features'               },
     { id: 'spiritual_guide', icon: '🕉️', name: 'Spiritual Guide', rarity: 'epic',      xp: 150, desc: 'Community mentor and guide'             },
     { id: 'community_hero',  icon: '🦸', name: 'Community Hero',  rarity: 'legendary', xp: 200, desc: 'Outstanding community contribution'     },
-    // ── Originally Bulk Send only ─────────────────────────────────────────────
     { id: 'first_step',      icon: '🌱', name: 'First Step',      rarity: 'common',    xp:  25, desc: 'Took their first step in the community' },
     { id: 'triple_threat',   icon: '🎪', name: 'Triple Threat',   rarity: 'uncommon',  xp:  50, desc: 'Active in three different rooms'         },
     { id: 'moon_walker',     icon: '🌙', name: 'Moon Walker',     rarity: 'rare',      xp:  75, desc: 'Night-time community explorer'           },
@@ -28,6 +23,13 @@ const BADGE_REGISTRY = [
     { id: 'deep_diver',      icon: '🔱', name: 'Deep Diver',      rarity: 'epic',      xp: 125, desc: 'Explores the depths of every topic'      },
 ];
 window.BADGE_REGISTRY = BADGE_REGISTRY;
+
+// Shared emoji palette — same list used in MemberProfileModal
+const BADGE_EMOJIS = [
+    '🏅','🎖️','🌟','👑','🧪','🕉️','🦸','🌱','🎪','🌙','☀️','⚡','🌊','💜','🔱',
+    '🔥','💎','🦋','🌸','🍀','🌈','⭐','🎯','🏆','🎗️','🌀','🔮','💫','🧘','🦅',
+    '🐉','🌺','🎵','💡','🌿','🦁','🐬','🌍','🎭','🛡️','⚔️','🗝️','🧬','🌠','🎋',
+];
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -69,6 +71,40 @@ const AdminDashboard = {
     ],
 
     _NOTIF_ICONS: { report: '⚠️', help: '🆘', technical: '🔧' },
+
+    // =========================================================================
+    // EMOJI PICKER HELPERS
+    // =========================================================================
+
+    _buildEmojiPicker(inputId, pickerId) {
+        return `
+            <div id="${pickerId}"
+                 style="display:none;flex-wrap:wrap;gap:4px;padding:8px;border-radius:10px;
+                        border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);
+                        max-height:130px;overflow-y:auto;margin-bottom:10px;">
+                ${BADGE_EMOJIS.map(e =>
+                    `<button type="button"
+                             onclick="AdminDashboard._pickEmoji('${inputId}','${pickerId}','${e}')"
+                             style="font-size:1.25rem;background:none;border:none;cursor:pointer;
+                                    padding:3px 5px;border-radius:6px;line-height:1;transition:background 0.1s;"
+                             onmouseover="this.style.background='rgba(0,0,0,0.07)'"
+                             onmouseout="this.style.background='none'">${e}</button>`
+                ).join('')}
+            </div>`;
+    },
+
+    _pickEmoji(inputId, pickerId, emoji) {
+        const inp = document.getElementById(inputId);
+        if (inp) inp.value = emoji;
+        const picker = document.getElementById(pickerId);
+        if (picker) picker.style.display = 'none';
+    },
+
+    _toggleEmojiPicker(pickerId) {
+        const picker = document.getElementById(pickerId);
+        if (!picker) return;
+        picker.style.display = picker.style.display === 'none' ? 'flex' : 'none';
+    },
 
     // =========================================================================
     // PUSH NOTIFY
@@ -171,7 +207,9 @@ const AdminDashboard = {
         badge.innerHTML = `
             <section class="section">
                 <div class="section-header">
-                    <div class="section-title" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin Tools</div>
+                    <div class="section-title" style="display:flex;align-items:center;gap:0.5rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin Tools
+                    </div>
                     <div style="font-size:12px;color:var(--text-muted);">
                         <span id="adminDashUnreadBadge"
                               style="display:none;background:#ef4444;color:#fff;border-radius:99px;
@@ -364,11 +402,11 @@ const AdminDashboard = {
                             From: <strong>${n.payload?.sender_name || 'Unknown'}</strong>
                             ${n.payload?.room ? `· ${n.payload.room}` : ''}
                         </div>
-                        ${n.payload?.message     ? `<div style="font-size:0.82rem;margin-top:4px;font-style:italic;">"${this._esc(n.payload.message)}"</div>`          : ''}
-                        ${n.payload?.reason      ? `<div style="font-size:0.82rem;margin-top:4px;">Reason: ${this._esc(n.payload.reason)}</div>`                       : ''}
-                        ${n.payload?.details     ? `<div style="font-size:0.82rem;color:var(--text-muted,#888);">${this._esc(n.payload.details)}</div>`                : ''}
-                        ${n.payload?.issueType   ? `<div style="font-size:0.82rem;margin-top:4px;">Type: ${this._esc(n.payload.issueType)}</div>`                      : ''}
-                        ${n.payload?.description ? `<div style="font-size:0.82rem;color:var(--text-muted,#888);">${this._esc(n.payload.description)}</div>`            : ''}
+                        ${n.payload?.message     ? `<div style="font-size:0.82rem;margin-top:4px;font-style:italic;">"${this._esc(n.payload.message)}"</div>`       : ''}
+                        ${n.payload?.reason      ? `<div style="font-size:0.82rem;margin-top:4px;">Reason: ${this._esc(n.payload.reason)}</div>`                    : ''}
+                        ${n.payload?.details     ? `<div style="font-size:0.82rem;color:var(--text-muted,#888);">${this._esc(n.payload.details)}</div>`             : ''}
+                        ${n.payload?.issueType   ? `<div style="font-size:0.82rem;margin-top:4px;">Type: ${this._esc(n.payload.issueType)}</div>`                   : ''}
+                        ${n.payload?.description ? `<div style="font-size:0.82rem;color:var(--text-muted,#888);">${this._esc(n.payload.description)}</div>`         : ''}
                     </div>
                     ${!n.read ? `
                     <button onclick="AdminDashboard._markRead(${n.id})"
@@ -458,7 +496,6 @@ const AdminDashboard = {
 
     async _renderLeaderboard(el) {
         const lb = await CommunityDB.getLeaderboard();
-
         const renderList = (list, key) => list.length
             ? list.map((r, i) => `
                 <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;
@@ -556,7 +593,6 @@ const AdminDashboard = {
         this._bulkMembers  = members;
         this._bulkSelected = new Set();
 
-        // Build badge options from shared registry
         const badgeOptions = BADGE_REGISTRY.map(b =>
             `<option value="${b.id}" data-icon="${b.icon}" data-rarity="${b.rarity}" data-xp="${b.xp}" data-desc="${b.desc}">${b.icon} ${b.name}</option>`
         ).join('');
@@ -564,8 +600,8 @@ const AdminDashboard = {
         const selectStyle = 'width:100%;padding:8px 12px;border-radius:10px;margin-bottom:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;';
         const btnStyle    = 'width:100%;padding:8px 18px;border-radius:10px;border:none;cursor:pointer;font-size:0.88rem;font-weight:700;background:var(--neuro-accent-a20);color:var(--neuro-accent);';
         const inputStyle  = 'flex:1;padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;';
-        const mutedLabel  = 'font-size:0.82rem;color:var(--text-muted,#888);margin-bottom:8px;';
         const fieldStyle  = 'width:100%;padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;box-sizing:border-box;margin-bottom:8px;';
+        const mutedLabel  = 'font-size:0.82rem;color:var(--text-muted,#888);margin-bottom:8px;';
 
         el.innerHTML = `
             <div style="margin-bottom:16px;">
@@ -632,7 +668,7 @@ const AdminDashboard = {
                     </div>
                 </div>
 
-                <!-- Badge panel (from shared registry) -->
+                <!-- Badge panel -->
                 <div id="bulkPanel_badge" style="display:none;">
                     <div style="${mutedLabel}">Send a badge to all selected members</div>
                     <select id="bulkBadgeSelect" style="${selectStyle}">
@@ -643,27 +679,49 @@ const AdminDashboard = {
 
                 <!-- Custom Badge panel -->
                 <div id="bulkPanel_customBadge" style="display:none;">
-                    <div style="${mutedLabel}">Create and send a one-off custom badge to all selected members</div>
-                    <div style="display:grid;grid-template-columns:72px 1fr;gap:8px;margin-bottom:8px;">
-                        <input type="text" id="bulkCustomIcon" maxlength="4" placeholder="Emoji" value="🏅"
-                               style="padding:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:1.4rem;text-align:center;box-sizing:border-box;">
-                        <input type="text" id="bulkCustomName" maxlength="40" placeholder="Badge name"
-                               style="${fieldStyle}margin-bottom:0;">
+                    <div style="${mutedLabel}">Create and send a custom badge to all selected members</div>
+
+                    <!-- Emoji row -->
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                        <input type="text" id="bulkCustomIcon" maxlength="4" value="🏅" readonly
+                               style="width:52px;padding:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);
+                                      background:var(--surface,#fff);color:var(--neuro-text);
+                                      font-size:1.5rem;text-align:center;box-sizing:border-box;">
+                        <button type="button"
+                                onclick="AdminDashboard._toggleEmojiPicker('bulkCustomEmojiPicker')"
+                                style="flex:1;padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);
+                                       background:var(--surface,#fff);color:var(--neuro-accent);
+                                       font-size:0.82rem;font-weight:600;cursor:pointer;">
+                            Choose Emoji ▾
+                        </button>
                     </div>
+                    ${this._buildEmojiPicker('bulkCustomIcon', 'bulkCustomEmojiPicker')}
+
+                    <input type="text" id="bulkCustomName" maxlength="40" placeholder="Badge name"
+                           style="${fieldStyle}">
                     <textarea id="bulkCustomDesc" placeholder="Description (optional)" maxlength="120" rows="2"
                               style="${fieldStyle}resize:none;"></textarea>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-                        <select id="bulkCustomRarity"
-                                style="padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;">
-                            <option value="common">Common</option>
-                            <option value="uncommon">Uncommon</option>
-                            <option value="rare">Rare</option>
-                            <option value="epic" selected>Epic</option>
-                            <option value="legendary">Legendary</option>
-                        </select>
-                        <input type="number" id="bulkCustomXp" min="0" value="100" placeholder="XP reward"
+
+                    <select id="bulkCustomRarity" style="${selectStyle}">
+                        <option value="common">Common</option>
+                        <option value="uncommon">Uncommon</option>
+                        <option value="rare">Rare</option>
+                        <option value="epic" selected>Epic</option>
+                        <option value="legendary">Legendary</option>
+                    </select>
+
+                    <!-- XP + Karma side by side -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;">
+                        <input type="number" id="bulkCustomXp"    min="0" value="100" placeholder="XP reward"
+                               style="padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;box-sizing:border-box;">
+                        <input type="number" id="bulkCustomKarma" min="0" value="15"  placeholder="Karma reward"
                                style="padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;box-sizing:border-box;">
                     </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;font-size:0.72rem;
+                                color:var(--text-muted,#888);text-align:center;margin-bottom:10px;">
+                        <span>XP reward</span><span>Karma reward</span>
+                    </div>
+
                     <button onclick="AdminDashboard._bulkSendCustomBadge()" style="${btnStyle}">Send Custom Badge</button>
                 </div>
 
@@ -758,12 +816,8 @@ const AdminDashboard = {
                     xpDelta:    xpDelta    === 'amount' ? amount : xpDelta,
                     karmaDelta: karmaDelta === 'amount' ? amount : karmaDelta,
                 });
-                if (success) {
-                    ok++;
-                    await this._pushNotify(uid, notifTitle, notifBody(amount));
-                } else {
-                    console.warn('[AdminDashboard] _bulkSendGamification: no success for', uid);
-                }
+                if (success) { ok++; await this._pushNotify(uid, notifTitle, notifBody(amount)); }
+                else console.warn('[AdminDashboard] _bulkSendGamification: no success for', uid);
             } catch (err) {
                 console.error('[AdminDashboard] _bulkSendGamification error for', uid, err);
             }
@@ -797,8 +851,7 @@ const AdminDashboard = {
         const badgeId = sel?.value;
         if (!badgeId) { window.Core.showToast('Select a badge'); return; }
 
-        // Pull full metadata from shared registry
-        const reg = BADGE_REGISTRY.find(b => b.id === badgeId) || {};
+        const reg         = BADGE_REGISTRY.find(b => b.id === badgeId) || {};
         const badgeName   = reg.name   || badgeId;
         const badgeIcon   = reg.icon   || '🏅';
         const badgeRarity = reg.rarity || 'common';
@@ -814,12 +867,8 @@ const AdminDashboard = {
                 const success = await CommunityDB.adminUpdateGamification(uid, {
                     badgeId, badgeName, badgeIcon, badgeRarity, badgeXp, badgeDesc,
                 });
-                if (success) {
-                    ok++;
-                    await this._pushNotify(uid, '🏅 New Badge!', `You earned the ${badgeIcon} ${badgeName} badge!`);
-                } else {
-                    console.warn('[AdminDashboard] _bulkSendBadge: no success for', uid);
-                }
+                if (success) { ok++; await this._pushNotify(uid, '🏅 New Badge!', `You earned the ${badgeIcon} ${badgeName} badge!`); }
+                else console.warn('[AdminDashboard] _bulkSendBadge: no success for', uid);
             } catch (err) {
                 console.error('[AdminDashboard] _bulkSendBadge error for', uid, err);
             }
@@ -833,11 +882,11 @@ const AdminDashboard = {
         const name   = document.getElementById('bulkCustomName')?.value.trim();
         const desc   = document.getElementById('bulkCustomDesc')?.value.trim()  || '';
         const rarity = document.getElementById('bulkCustomRarity')?.value       || 'epic';
-        const xp     = parseInt(document.getElementById('bulkCustomXp')?.value, 10) || 0;
+        const xp     = parseInt(document.getElementById('bulkCustomXp')?.value,    10) || 0;
+        const karma  = parseInt(document.getElementById('bulkCustomKarma')?.value, 10) || 0;
 
         if (!name) { window.Core.showToast('Please enter a badge name'); return; }
 
-        // Unique id per bulk send so recipients don't collide with each other's custom badges
         const badgeId = 'custom_' + name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') + '_' + Date.now();
 
         const ids = [...this._bulkSelected];
@@ -855,6 +904,8 @@ const AdminDashboard = {
                     badgeDesc:   desc,
                 });
                 if (success) {
+                    // Award karma separately if set
+                    if (karma > 0) await CommunityDB.adminUpdateGamification(uid, { karmaDelta: karma });
                     ok++;
                     await this._pushNotify(uid, '🎖️ Special Badge!', `You received the ${icon} ${name} badge!`);
                 } else {
@@ -881,12 +932,8 @@ const AdminDashboard = {
         for (const uid of ids) {
             try {
                 const success = await CommunityDB.adminUpdateGamification(uid, { unlockFeature: feature });
-                if (success) {
-                    ok++;
-                    await this._pushNotify(uid, '🔓 Feature Unlocked!', `${featureLabel} has been unlocked for you!`);
-                } else {
-                    console.warn('[AdminDashboard] _bulkSendUnlock: no success for', uid);
-                }
+                if (success) { ok++; await this._pushNotify(uid, '🔓 Feature Unlocked!', `${featureLabel} has been unlocked for you!`); }
+                else console.warn('[AdminDashboard] _bulkSendUnlock: no success for', uid);
             } catch (err) {
                 console.error('[AdminDashboard] _bulkSendUnlock error for', uid, err);
             }
@@ -906,7 +953,7 @@ const AdminDashboard = {
         try {
             result = await CommunityDB.broadcastMessage(ids, message);
         } catch (err) {
-            console.error('[AdminDashboard] _bulkSendMessage broadcastMessage error:', err);
+            console.error('[AdminDashboard] _bulkSendMessage error:', err);
             window.Core.showToast('Failed to send messages');
             return;
         }
@@ -929,10 +976,7 @@ const AdminDashboard = {
     async _markRead(id) {
         await CommunityDB.markNotificationRead(id);
         const row = document.getElementById(`adminNotif_${id}`);
-        if (row) {
-            row.classList.remove('unread');
-            row.querySelector('button')?.remove();
-        }
+        if (row) { row.classList.remove('unread'); row.querySelector('button')?.remove(); }
         this._updateBadge();
     },
 
@@ -946,13 +990,8 @@ const AdminDashboard = {
         if (!confirm('Delete this reflection?')) return;
         btn.disabled = true;
         const ok = await CommunityDB.deleteReflection(reflectionId);
-        if (ok) {
-            btn.closest('.admin-refl-row')?.remove();
-            window.Core.showToast('Reflection deleted');
-        } else {
-            window.Core.showToast('Could not delete');
-            btn.disabled = false;
-        }
+        if (ok) { btn.closest('.admin-refl-row')?.remove(); window.Core.showToast('Reflection deleted'); }
+        else { window.Core.showToast('Could not delete'); btn.disabled = false; }
     },
 
     // =========================================================================
