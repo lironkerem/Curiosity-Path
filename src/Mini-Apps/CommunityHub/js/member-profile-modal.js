@@ -4,7 +4,7 @@
  * Features: avatar, name/role/inspiration, XP/karma/badges,
  *           whisper, report, block, admin controls.
  *
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 import { CommunityDB } from './community-supabase.js';
@@ -55,7 +55,7 @@ const MemberProfileModal = {
         'singapore':'SG','thailand':'TH','indonesia':'ID','malaysia':'MY','philippines':'PH',
     },
 
-    _ADMIN_SUB_IDS: ['adminSubRole','adminSubXp','adminSubKarma','adminSubBadge','adminSubPremium','adminSubMessage'],
+    _ADMIN_SUB_IDS: ['adminSubRole','adminSubXp','adminSubKarma','adminSubBadge','adminSubPremium','adminSubMessage','adminSubCustomBadge'],
 
     // =========================================================================
     // INIT - inject modal shell once
@@ -64,7 +64,6 @@ const MemberProfileModal = {
     init() {
         if (document.getElementById('memberProfileModal')) return;
 
-        // Fix 1: update modal ring instantly when the logged-in user changes their own status
         window.addEventListener('statusChanged', (e) => {
             const { status } = e.detail || {};
             if (!status || !this.state.isOpen) return;
@@ -77,7 +76,6 @@ const MemberProfileModal = {
             ring.style.boxShadow   = `0 0 0 3px ${cfg.s}`;
         });
 
-        // Fix 3: update modal avatar instantly when the viewed user changes their avatar
         window.addEventListener('avatarChanged', (e) => {
             const { userId, emoji, avatarUrl } = e.detail || {};
             if (!userId || !this.state.isOpen || this.state.currentUserId !== userId) return;
@@ -92,6 +90,12 @@ const MemberProfileModal = {
                 avatarEl.innerHTML = `<span>${renderAvatarIcon(emoji)}</span>`;
             }
         });
+
+        // Build badge <option> list from shared registry
+        const badgeRegistry = window.BADGE_REGISTRY || [];
+        const badgeOptions = badgeRegistry.map(b =>
+            `<option value="${b.id}" data-icon="${b.icon}" data-rarity="${b.rarity}" data-xp="${b.xp}" data-desc="${b.desc}">${b.icon} ${b.name}</option>`
+        ).join('');
 
         const shell = document.createElement('div');
         shell.innerHTML = `
@@ -135,11 +139,9 @@ const MemberProfileModal = {
                                             pointer-events:none;"></div>
                             </div>
 
-                            <!-- Name -->
                             <div id="memberModalName"
                                  style="font-size:1.25rem;font-weight:800;color:var(--neuro-text);text-align:center;"></div>
 
-                            <!-- Meta pill: Role · Birthday · Country -->
                             <div id="memberModalMetaRow"
                                  style="display:inline-flex;align-items:center;gap:0;
                                         background:var(--neuro-bg,#f0f0f3);border-radius:99px;
@@ -308,19 +310,20 @@ const MemberProfileModal = {
                                         background:rgba(var(--neuro-accent-rgb, 168,85,247),0.08);border:2px dashed rgba(var(--neuro-accent-rgb, 168,85,247),0.4);
                                         user-select:none;">
                                 <span style="font-size:0.78rem;font-weight:700;text-transform:uppercase;
-                                             letter-spacing:1px;color:var(--neuro-accent);"style="display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin Controls</span>
+                                             letter-spacing:1px;color:var(--neuro-accent);display:inline-flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin Controls</span>
                                 <span id="memberModalAdminToggle" style="font-size:0.75rem;color:var(--neuro-accent);">▶</span>
                             </div>
 
                             <div id="memberModalAdminBody" style="display:none;margin-top:10px;">
                                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
                                     ${[
-                                        ['role',    '👤 Change Role'],
-                                        ['xp',      '⭐ Send XP'],
-                                        ['karma',   '🌀 Send Karma'],
-                                        ['badge',   '🎖️ Send Badge'],
-                                        ['premium', '🔓 Unlock Premium'],
-                                        ['message', '📩 Send Message'],
+                                        ['role',        '👤 Change Role'],
+                                        ['xp',          '⭐ Send XP'],
+                                        ['karma',       '🌀 Send Karma'],
+                                        ['badge',       '🎖️ Send Badge'],
+                                        ['customBadge', '✨ Custom Badge'],
+                                        ['premium',     '🔓 Unlock Premium'],
+                                        ['message',     '📩 Send Message'],
                                     ].map(([key, label]) =>
                                         `<button onclick="MemberProfileModal._openAdminSub('${key}')"
                                                 style="padding:9px 6px;border-radius:10px;border:none;cursor:pointer;
@@ -361,19 +364,51 @@ const MemberProfileModal = {
                                     ${this._adminSubFooter('_adminSendKarma', 'Send Karma')}
                                 </div>
 
-                                <!-- Sub: Send Badge -->
+                                <!-- Sub: Send Badge (from registry) -->
                                 <div id="adminSubBadge" style="display:none;" class="admin-sub-panel">
                                     <select id="adminBadgeSelect"
                                             style="width:100%;padding:9px;border-radius:10px;margin-bottom:8px;
                                                    border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
                                                    background:var(--neuro-bg);color:var(--neuro-text);">
-                                        <option value="early_supporter"  data-icon="🌟" data-rarity="epic"      data-xp="100" data-desc="Joined during early access">🌟 Early Supporter</option>
-                                        <option value="vip_member"       data-icon="👑" data-rarity="legendary" data-xp="150" data-desc="VIP community member">👑 VIP Member</option>
-                                        <option value="beta_tester"      data-icon="🧪" data-rarity="rare"      data-xp="100" data-desc="Helped test new features">🧪 Beta Tester</option>
-                                        <option value="spiritual_guide"  data-icon="🕉️" data-rarity="epic"      data-xp="150" data-desc="Community mentor and guide">🕉️ Spiritual Guide</option>
-                                        <option value="community_hero"   data-icon="🦸" data-rarity="legendary" data-xp="200" data-desc="Outstanding community contribution">🦸 Community Hero</option>
+                                        ${badgeOptions}
                                     </select>
                                     ${this._adminSubFooter('_adminSendBadge', 'Award Badge')}
+                                </div>
+
+                                <!-- Sub: Custom Badge -->
+                                <div id="adminSubCustomBadge" style="display:none;" class="admin-sub-panel">
+                                    <div style="display:grid;grid-template-columns:72px 1fr;gap:8px;margin-bottom:8px;">
+                                        <input type="text" id="adminCustomBadgeIcon" maxlength="4" placeholder="Emoji"
+                                               value="🏅"
+                                               style="padding:9px;border-radius:10px;box-sizing:border-box;
+                                                      border:1px solid rgba(0,0,0,0.12);font-size:1.4rem;text-align:center;
+                                                      background:var(--neuro-bg);color:var(--neuro-text);">
+                                        <input type="text" id="adminCustomBadgeName" maxlength="40" placeholder="Badge name"
+                                               style="padding:9px;border-radius:10px;box-sizing:border-box;
+                                                      border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
+                                                      background:var(--neuro-bg);color:var(--neuro-text);">
+                                    </div>
+                                    <textarea id="adminCustomBadgeDesc" placeholder="Description (optional)" maxlength="120" rows="2"
+                                              style="width:100%;padding:9px;border-radius:10px;box-sizing:border-box;
+                                                     border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;resize:none;
+                                                     margin-bottom:8px;background:var(--neuro-bg);color:var(--neuro-text);"></textarea>
+                                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+                                        <select id="adminCustomBadgeRarity"
+                                                style="padding:9px;border-radius:10px;
+                                                       border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
+                                                       background:var(--neuro-bg);color:var(--neuro-text);">
+                                            <option value="common">Common</option>
+                                            <option value="uncommon">Uncommon</option>
+                                            <option value="rare">Rare</option>
+                                            <option value="epic" selected>Epic</option>
+                                            <option value="legendary">Legendary</option>
+                                        </select>
+                                        <input type="number" id="adminCustomBadgeXp" min="0" value="100" placeholder="XP reward"
+                                               style="padding:9px;border-radius:10px;box-sizing:border-box;
+                                                      border:1px solid rgba(0,0,0,0.12);font-size:0.88rem;
+                                                      background:var(--neuro-bg);color:var(--neuro-text);">
+                                    </div>
+                                    ${this._adminSubFooter('_adminSendCustomBadge', 'Award Custom Badge')}
                                 </div>
 
                                 <!-- Sub: Unlock Premium -->
@@ -481,7 +516,6 @@ const MemberProfileModal = {
 
             this._populate(profile);
 
-            // Fix 2: live ring updates for other users while modal is open
             if (!isSelf) {
                 const presenceCh = CommunityDB.subscribeToPresence((members) => {
                     const updated = members.find(m => m.user_id === userId);
@@ -492,7 +526,6 @@ const MemberProfileModal = {
                     ring.style.borderColor = cfg.c;
                     ring.style.boxShadow   = `0 0 0 3px ${cfg.s}`;
                 });
-                // Store as a callable unsubscribe function, not the channel object
                 this._presenceUnsub = () => { try { presenceCh?.unsubscribe(); } catch (_) {} };
             }
 
@@ -559,7 +592,6 @@ const MemberProfileModal = {
             this.state.currentUserId = null;
             document.body.style.overflow = '';
             this._hideActionPanels();
-            // Clean up presence subscription (Fix 2)
             if (this._presenceUnsub) {
                 this._presenceUnsub();
                 this._presenceUnsub = null;
@@ -747,7 +779,8 @@ const MemberProfileModal = {
 
     startReport() {
         this._hideActionPanels();
-        document.getElementById('memberModalReportPanel')?.style && (document.getElementById('memberModalReportPanel').style.display = 'block');
+        const panel = document.getElementById('memberModalReportPanel');
+        if (panel) panel.style.display = 'block';
     },
 
     cancelReport() {
@@ -809,7 +842,8 @@ const MemberProfileModal = {
 
     _openAdminSub(name) {
         this._closeAdminSubs();
-        const el = document.getElementById(`adminSub${name.charAt(0).toUpperCase() + name.slice(1)}`);
+        const key = name.charAt(0).toUpperCase() + name.slice(1);
+        const el  = document.getElementById(`adminSub${key}`);
         if (el) el.style.display = 'block';
     },
 
@@ -871,31 +905,63 @@ const MemberProfileModal = {
     },
 
     async _adminSendBadge() {
-        const opt = document.getElementById('adminBadgeSelect')?.selectedOptions[0];
+        const sel = document.getElementById('adminBadgeSelect');
+        const opt = sel?.selectedOptions[0];
         if (!opt) return;
+
+        // Pull from shared registry for full metadata
+        const registry = window.BADGE_REGISTRY || [];
+        const reg      = registry.find(b => b.id === opt.value) || {};
         const badge = {
             id:          opt.value,
-            name:        opt.textContent.replace(/^.+? /, '').trim(),
-            icon:        opt.dataset.icon   || '🏅',
-            rarity:      opt.dataset.rarity || 'common',
-            xp:          parseInt(opt.dataset.xp, 10) || 0,
-            description: opt.dataset.desc   || '',
+            name:        reg.name        || opt.textContent.replace(/^.+? /, '').trim(),
+            icon:        reg.icon        || opt.dataset.icon   || '🏅',
+            rarity:      reg.rarity      || opt.dataset.rarity || 'common',
+            xp:          reg.xp          ?? parseInt(opt.dataset.xp, 10) ?? 0,
+            description: reg.desc        || opt.dataset.desc   || '',
         };
+
         await this._withBtnState('#adminSubBadge button', 'Awarding...', 'Award Badge', async () => {
-            const { data: prog } = await CommunityDB._sb.from('user_progress')
-                .select('payload').eq('user_id', this.state.currentUserId).single();
-            const payload = prog?.payload || {};
-            const badges  = payload.badges || [];
-            if (badges.find(b => b.id === badge.id)) {
-                window.Core.showToast('Member already has this badge'); return;
-            }
-            badges.push({ ...badge, date: new Date().toISOString(), unlocked: true });
-            const { error } = await CommunityDB._sb.from('user_progress')
-                .update({ payload: { ...payload, badges }, updated_at: new Date().toISOString() })
-                .eq('user_id', this.state.currentUserId);
-            if (error) throw error;
+            const ok = await CommunityDB.adminUpdateGamification(this.state.currentUserId, {
+                badgeId:     badge.id,
+                badgeName:   badge.name,
+                badgeIcon:   badge.icon,
+                badgeRarity: badge.rarity,
+                badgeXp:     badge.xp,
+                badgeDesc:   badge.description,
+            });
+            if (!ok) throw new Error('Save failed');
             await this._adminPushNotify(this.state.currentUserId, '🎖️ New Badge Earned!', `You received the ${badge.name} badge!`);
             window.Core.showToast(`Awarded ${badge.icon} ${badge.name}`);
+            this._closeAdminSubs();
+            await this._safeRefresh(this.state.currentUserId);
+        });
+    },
+
+    async _adminSendCustomBadge() {
+        const icon   = document.getElementById('adminCustomBadgeIcon')?.value.trim()  || '🏅';
+        const name   = document.getElementById('adminCustomBadgeName')?.value.trim();
+        const desc   = document.getElementById('adminCustomBadgeDesc')?.value.trim()  || '';
+        const rarity = document.getElementById('adminCustomBadgeRarity')?.value       || 'epic';
+        const xp     = parseInt(document.getElementById('adminCustomBadgeXp')?.value, 10) || 0;
+
+        if (!name) { window.Core.showToast('Please enter a badge name'); return; }
+
+        // Generate a slug-style id from name + timestamp to ensure uniqueness
+        const badgeId = 'custom_' + name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') + '_' + Date.now();
+
+        await this._withBtnState('#adminSubCustomBadge button', 'Awarding...', 'Award Custom Badge', async () => {
+            const ok = await CommunityDB.adminUpdateGamification(this.state.currentUserId, {
+                badgeId,
+                badgeName:   name,
+                badgeIcon:   icon,
+                badgeRarity: rarity,
+                badgeXp:     xp,
+                badgeDesc:   desc,
+            });
+            if (!ok) throw new Error('Save failed');
+            await this._adminPushNotify(this.state.currentUserId, '🎖️ Special Badge Earned!', `You received the ${name} badge!`);
+            window.Core.showToast(`Awarded custom badge: ${icon} ${name}`);
             this._closeAdminSubs();
             await this._safeRefresh(this.state.currentUserId);
         });
@@ -953,36 +1019,27 @@ const MemberProfileModal = {
 
         if (isSelf) {
             const ge = window.app?.gamification;
-
-            if (ge?.saveTimeout) {
-                clearTimeout(ge.saveTimeout);
-                ge.saveTimeout = null;
-            }
-
+            if (ge?.saveTimeout) { clearTimeout(ge.saveTimeout); ge.saveTimeout = null; }
             window.DB?.clearCache?.();
             window.app?.state?.clearCache?.();
-
             try {
                 const fresh = await CommunityDB.getUserProgress(targetUserId);
                 if (fresh && ge?.state) {
-                    if (fresh.xp !== undefined)               ge.state.xp               = fresh.xp;
-                    if (fresh.karma !== undefined)            ge.state.karma            = fresh.karma;
-                    if (fresh.level !== undefined)            ge.state.level            = fresh.level;
-                    if (Array.isArray(fresh.badges))          ge.state.badges           = fresh.badges;
-                    if (Array.isArray(fresh.unlockedFeatures)) ge.state.unlockedFeatures = fresh.unlockedFeatures;
+                    if (fresh.xp    !== undefined)              ge.state.xp               = fresh.xp;
+                    if (fresh.karma !== undefined)              ge.state.karma            = fresh.karma;
+                    if (fresh.level !== undefined)              ge.state.level            = fresh.level;
+                    if (Array.isArray(fresh.badges))            ge.state.badges           = fresh.badges;
+                    if (Array.isArray(fresh.unlockedFeatures))  ge.state.unlockedFeatures = fresh.unlockedFeatures;
                 }
                 if (fresh && window.app?.state?.data) {
-                    if (fresh.xp !== undefined)               window.app.state.data.xp               = fresh.xp;
-                    if (fresh.karma !== undefined)            window.app.state.data.karma            = fresh.karma;
-                    if (fresh.level !== undefined)            window.app.state.data.level            = fresh.level;
-                    if (Array.isArray(fresh.badges))          window.app.state.data.badges           = fresh.badges;
-                    if (Array.isArray(fresh.unlockedFeatures)) window.app.state.data.unlockedFeatures = fresh.unlockedFeatures;
+                    if (fresh.xp    !== undefined)              window.app.state.data.xp               = fresh.xp;
+                    if (fresh.karma !== undefined)              window.app.state.data.karma            = fresh.karma;
+                    if (fresh.level !== undefined)              window.app.state.data.level            = fresh.level;
+                    if (Array.isArray(fresh.badges))            window.app.state.data.badges           = fresh.badges;
+                    if (Array.isArray(fresh.unlockedFeatures))  window.app.state.data.unlockedFeatures = fresh.unlockedFeatures;
                 }
-            } catch (e) {
-                console.warn('[_safeRefresh] pre-patch failed:', e);
-            }
+            } catch (e) { console.warn('[_safeRefresh] pre-patch failed:', e); }
         }
-
         await this._refreshMainProfileStats(targetUserId);
     },
 
@@ -990,27 +1047,20 @@ const MemberProfileModal = {
         try {
             const myId = window.Core.state.currentUser?.id;
             if (!myId) return;
-
             const userId = targetUserId || myId;
             const g = await CommunityDB.getUserProgress(userId);
             if (!g) return;
-
             if (userId === myId) {
                 if (g.xp    !== undefined) window.Core.state.currentUser.xp    = g.xp;
                 if (g.karma !== undefined) window.Core.state.currentUser.karma = g.karma;
                 if (g.level !== undefined) window.Core.state.currentUser.level = g.level;
-
                 await window.app?.gamification?.reloadFromDatabase?.();
-
                 const xpEl = document.getElementById('profileGamificationXP');
                 if (xpEl && g.xp !== undefined) xpEl.textContent = g.xp.toLocaleString();
                 window.ProfileModule?.refreshGamification?.();
             }
-
             this._populateGamification(g);
-        } catch (e) {
-            console.warn('[AdminPanel] _refreshMainProfileStats:', e);
-        }
+        } catch (e) { console.warn('[AdminPanel] _refreshMainProfileStats:', e); }
     },
 
     async _adminPushNotify(userId, title, body) {
@@ -1025,9 +1075,7 @@ const MemberProfileModal = {
                     body:    JSON.stringify({ sub: s.subscription, payload: { title, body, icon: '/icons/icon-192x192.png', data: { url: '/' } } }),
                 }).catch(() => {})
             ));
-        } catch (err) {
-            console.error('[AdminPanel] push notify error:', err);
-        }
+        } catch (err) { console.error('[AdminPanel] push notify error:', err); }
     },
 
     // =========================================================================
@@ -1048,15 +1096,8 @@ const MemberProfileModal = {
         this._closeAdminSubs();
     },
 
-    _setText(id, text) {
-        const el = document.getElementById(id);
-        if (el) el.textContent = text;
-    },
-
-    _setHTML(id, html) {
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = html;
-    },
+    _setText(id, text) { const el = document.getElementById(id); if (el) el.textContent = text; },
+    _setHTML(id, html) { const el = document.getElementById(id); if (el) el.innerHTML  = html; },
 
     async _withBtnState(selector, busyLabel, idleLabel, fn) {
         const btn = document.querySelector(selector);
@@ -1085,8 +1126,5 @@ const MemberProfileModal = {
     },
 };
 
-// Named export for ES module consumers
 export { MemberProfileModal };
-
-// Keep window assignment for classic scripts
 window.MemberProfileModal = MemberProfileModal;

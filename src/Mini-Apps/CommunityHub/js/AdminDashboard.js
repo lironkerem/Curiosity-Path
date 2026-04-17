@@ -1,9 +1,35 @@
 /**
  * ADMIN DASHBOARD
  * Full-screen admin console for Community Hub.
- * @version 1.2.0
+ * @version 1.3.0
  */
 
+// ─────────────────────────────────────────────────────────────────────────────
+// SHARED BADGE REGISTRY
+// Single source of truth for all badge definitions across the app.
+// Loaded onto window.BADGE_REGISTRY so MemberProfileModal can read it
+// without a circular import (AdminDashboard loads first via injectAdminUI).
+// ─────────────────────────────────────────────────────────────────────────────
+const BADGE_REGISTRY = [
+    // ── Originally Admin Console only ────────────────────────────────────────
+    { id: 'early_supporter', icon: '🌟', name: 'Early Supporter', rarity: 'epic',      xp: 100, desc: 'Joined during early access'            },
+    { id: 'vip_member',      icon: '👑', name: 'VIP Member',      rarity: 'legendary', xp: 150, desc: 'VIP community member'                   },
+    { id: 'beta_tester',     icon: '🧪', name: 'Beta Tester',     rarity: 'rare',      xp: 100, desc: 'Helped test new features'               },
+    { id: 'spiritual_guide', icon: '🕉️', name: 'Spiritual Guide', rarity: 'epic',      xp: 150, desc: 'Community mentor and guide'             },
+    { id: 'community_hero',  icon: '🦸', name: 'Community Hero',  rarity: 'legendary', xp: 200, desc: 'Outstanding community contribution'     },
+    // ── Originally Bulk Send only ─────────────────────────────────────────────
+    { id: 'first_step',      icon: '🌱', name: 'First Step',      rarity: 'common',    xp:  25, desc: 'Took their first step in the community' },
+    { id: 'triple_threat',   icon: '🎪', name: 'Triple Threat',   rarity: 'uncommon',  xp:  50, desc: 'Active in three different rooms'         },
+    { id: 'moon_walker',     icon: '🌙', name: 'Moon Walker',     rarity: 'rare',      xp:  75, desc: 'Night-time community explorer'           },
+    { id: 'sun_keeper',      icon: '☀️', name: 'Sun Keeper',      rarity: 'uncommon',  xp:  50, desc: 'Consistent morning presence'             },
+    { id: 'energy_master',   icon: '⚡', name: 'Energy Master',   rarity: 'epic',      xp: 125, desc: 'Master of community energy'              },
+    { id: 'wave_rider',      icon: '🌊', name: 'Wave Rider',      rarity: 'rare',      xp:  75, desc: 'Goes with the flow'                      },
+    { id: 'community_heart', icon: '💜', name: 'Community Heart', rarity: 'uncommon',  xp:  50, desc: 'Heart of the community'                  },
+    { id: 'deep_diver',      icon: '🔱', name: 'Deep Diver',      rarity: 'epic',      xp: 125, desc: 'Explores the depths of every topic'      },
+];
+window.BADGE_REGISTRY = BADGE_REGISTRY;
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 const AdminDashboard = {
 
@@ -23,22 +49,12 @@ const AdminDashboard = {
     _SECTIONS: ['notifications', 'members', 'engagement', 'safety', 'leaderboard', 'rooms', 'retention', 'bulk'],
 
     _BULK_TABS: [
-        ['xp',      '🎁 XP'],
-        ['karma',   '🌀 Karma'],
-        ['badge',   '🏅 Badge'],
-        ['unlock',  '🔓 Unlock'],
-        ['message', '💬 Message'],
-    ],
-
-    _BADGES: [
-        ['first_step',       '🌱 First Step'],
-        ['triple_threat',    '🎪 Triple Threat'],
-        ['moon_walker',      '🌙 Moon Walker'],
-        ['sun_keeper',       '☀️ Sun Keeper'],
-        ['energy_master',    '⚡ Energy Master'],
-        ['wave_rider',       '🌊 Wave Rider'],
-        ['community_heart',  '💜 Community Heart'],
-        ['deep_diver',       '🔱 Deep Diver'],
+        ['xp',          '🎁 XP'],
+        ['karma',       '🌀 Karma'],
+        ['badge',       '🏅 Badge'],
+        ['customBadge', '✨ Custom Badge'],
+        ['unlock',      '🔓 Unlock'],
+        ['message',     '💬 Message'],
     ],
 
     _UNLOCKS: [
@@ -55,7 +71,7 @@ const AdminDashboard = {
     _NOTIF_ICONS: { report: '⚠️', help: '🆘', technical: '🔧' },
 
     // =========================================================================
-    // PUSH NOTIFY — calls /api/send directly, no dependency on MemberProfileModal
+    // PUSH NOTIFY
     // =========================================================================
 
     async _pushNotify(userId, title, body) {
@@ -74,7 +90,7 @@ const AdminDashboard = {
     },
 
     // =========================================================================
-    // STYLES - injected once
+    // STYLES
     // =========================================================================
 
     _injectStyles() {
@@ -136,7 +152,7 @@ const AdminDashboard = {
     },
 
     // =========================================================================
-    // BADGE - injected into hub after user loads
+    // BADGE
     // =========================================================================
 
     injectAdminUI() {
@@ -298,7 +314,6 @@ const AdminDashboard = {
     refreshAll() {
         const sub = document.getElementById('adminDashSubtitle');
         if (sub) sub.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
-
         for (const id of this._SECTIONS) {
             const body = document.getElementById(`adminSec_${id}`);
             if (body && (body.style.display !== 'none' || id === 'notifications')) {
@@ -328,7 +343,6 @@ const AdminDashboard = {
             el.innerHTML = '<div style="color:var(--text-muted,#888);padding:8px;font-size:0.83rem;">No notifications yet.</div>';
             return;
         }
-
         const unread = notifs.filter(n => !n.read).length;
         el.innerHTML = `
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -542,10 +556,16 @@ const AdminDashboard = {
         this._bulkMembers  = members;
         this._bulkSelected = new Set();
 
+        // Build badge options from shared registry
+        const badgeOptions = BADGE_REGISTRY.map(b =>
+            `<option value="${b.id}" data-icon="${b.icon}" data-rarity="${b.rarity}" data-xp="${b.xp}" data-desc="${b.desc}">${b.icon} ${b.name}</option>`
+        ).join('');
+
         const selectStyle = 'width:100%;padding:8px 12px;border-radius:10px;margin-bottom:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;';
         const btnStyle    = 'width:100%;padding:8px 18px;border-radius:10px;border:none;cursor:pointer;font-size:0.88rem;font-weight:700;background:var(--neuro-accent-a20);color:var(--neuro-accent);';
         const inputStyle  = 'flex:1;padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;';
         const mutedLabel  = 'font-size:0.82rem;color:var(--text-muted,#888);margin-bottom:8px;';
+        const fieldStyle  = 'width:100%;padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;box-sizing:border-box;margin-bottom:8px;';
 
         el.innerHTML = `
             <div style="margin-bottom:16px;">
@@ -612,13 +632,39 @@ const AdminDashboard = {
                     </div>
                 </div>
 
-                <!-- Badge panel -->
+                <!-- Badge panel (from shared registry) -->
                 <div id="bulkPanel_badge" style="display:none;">
                     <div style="${mutedLabel}">Send a badge to all selected members</div>
                     <select id="bulkBadgeSelect" style="${selectStyle}">
-                        ${this._BADGES.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
+                        ${badgeOptions}
                     </select>
                     <button onclick="AdminDashboard._bulkSendBadge()" style="${btnStyle}">Send Badge</button>
+                </div>
+
+                <!-- Custom Badge panel -->
+                <div id="bulkPanel_customBadge" style="display:none;">
+                    <div style="${mutedLabel}">Create and send a one-off custom badge to all selected members</div>
+                    <div style="display:grid;grid-template-columns:72px 1fr;gap:8px;margin-bottom:8px;">
+                        <input type="text" id="bulkCustomIcon" maxlength="4" placeholder="Emoji" value="🏅"
+                               style="padding:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:1.4rem;text-align:center;box-sizing:border-box;">
+                        <input type="text" id="bulkCustomName" maxlength="40" placeholder="Badge name"
+                               style="${fieldStyle}margin-bottom:0;">
+                    </div>
+                    <textarea id="bulkCustomDesc" placeholder="Description (optional)" maxlength="120" rows="2"
+                              style="${fieldStyle}resize:none;"></textarea>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+                        <select id="bulkCustomRarity"
+                                style="padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;">
+                            <option value="common">Common</option>
+                            <option value="uncommon">Uncommon</option>
+                            <option value="rare">Rare</option>
+                            <option value="epic" selected>Epic</option>
+                            <option value="legendary">Legendary</option>
+                        </select>
+                        <input type="number" id="bulkCustomXp" min="0" value="100" placeholder="XP reward"
+                               style="padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;box-sizing:border-box;">
+                    </div>
+                    <button onclick="AdminDashboard._bulkSendCustomBadge()" style="${btnStyle}">Send Custom Badge</button>
                 </div>
 
                 <!-- Unlock panel -->
@@ -679,13 +725,13 @@ const AdminDashboard = {
 
     _bulkShowTab(tab) {
         for (const [id] of this._BULK_TABS) {
-            const panel  = document.getElementById(`bulkPanel_${id}`);
-            const btn    = document.getElementById(`bulkTab_${id}`);
+            const panel = document.getElementById(`bulkPanel_${id}`);
+            const btn   = document.getElementById(`bulkTab_${id}`);
             if (!panel || !btn) continue;
             const active = id === tab;
             panel.style.display  = active ? 'block' : 'none';
             btn.style.background = active ? 'var(--neuro-accent-a20)' : 'rgba(0,0,0,0.05)';
-            btn.style.color      = active ? 'var(--neuro-accent)'  : 'var(--text-muted,#888)';
+            btn.style.color      = active ? 'var(--neuro-accent)'     : 'var(--text-muted,#888)';
         }
     },
 
@@ -697,7 +743,6 @@ const AdminDashboard = {
         return true;
     },
 
-    // Shared loop for XP / Karma bulk sends
     async _bulkSendGamification({ inputId, label, xpDelta = 0, karmaDelta = 0, notifTitle, notifBody }) {
         if (!this._bulkGuard()) return;
         const amount = parseInt(document.getElementById(inputId)?.value, 10);
@@ -748,17 +793,17 @@ const AdminDashboard = {
 
     async _bulkSendBadge() {
         if (!this._bulkGuard()) return;
-        const sel        = document.getElementById('bulkBadgeSelect');
-        const badgeId    = sel?.value;
-        const opt        = sel?.options[sel.selectedIndex];
-        const badgeLabel = opt?.text || badgeId;
+        const sel     = document.getElementById('bulkBadgeSelect');
+        const badgeId = sel?.value;
         if (!badgeId) { window.Core.showToast('Select a badge'); return; }
 
-        const badgeName   = badgeLabel.replace(/^[^\s]+\s/, '').trim();
-        const badgeIcon   = opt?.dataset?.icon   || '🏅';
-        const badgeRarity = opt?.dataset?.rarity || 'common';
-        const badgeXp     = parseInt(opt?.dataset?.xp, 10) || 0;
-        const badgeDesc   = opt?.dataset?.desc   || '';
+        // Pull full metadata from shared registry
+        const reg = BADGE_REGISTRY.find(b => b.id === badgeId) || {};
+        const badgeName   = reg.name   || badgeId;
+        const badgeIcon   = reg.icon   || '🏅';
+        const badgeRarity = reg.rarity || 'common';
+        const badgeXp     = reg.xp     ?? 0;
+        const badgeDesc   = reg.desc   || '';
 
         const ids = [...this._bulkSelected];
         window.Core.showToast(`Sending badge to ${ids.length} members...`);
@@ -771,7 +816,7 @@ const AdminDashboard = {
                 });
                 if (success) {
                     ok++;
-                    await this._pushNotify(uid, '🏅 New Badge!', `You earned the ${badgeLabel} badge!`);
+                    await this._pushNotify(uid, '🏅 New Badge!', `You earned the ${badgeIcon} ${badgeName} badge!`);
                 } else {
                     console.warn('[AdminDashboard] _bulkSendBadge: no success for', uid);
                 }
@@ -780,6 +825,46 @@ const AdminDashboard = {
             }
         }
         window.Core.showToast(`Sent badge to ${ok}/${ids.length} members`);
+    },
+
+    async _bulkSendCustomBadge() {
+        if (!this._bulkGuard()) return;
+        const icon   = document.getElementById('bulkCustomIcon')?.value.trim()  || '🏅';
+        const name   = document.getElementById('bulkCustomName')?.value.trim();
+        const desc   = document.getElementById('bulkCustomDesc')?.value.trim()  || '';
+        const rarity = document.getElementById('bulkCustomRarity')?.value       || 'epic';
+        const xp     = parseInt(document.getElementById('bulkCustomXp')?.value, 10) || 0;
+
+        if (!name) { window.Core.showToast('Please enter a badge name'); return; }
+
+        // Unique id per bulk send so recipients don't collide with each other's custom badges
+        const badgeId = 'custom_' + name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') + '_' + Date.now();
+
+        const ids = [...this._bulkSelected];
+        window.Core.showToast(`Sending custom badge to ${ids.length} members...`);
+        let ok = 0;
+
+        for (const uid of ids) {
+            try {
+                const success = await CommunityDB.adminUpdateGamification(uid, {
+                    badgeId,
+                    badgeName:   name,
+                    badgeIcon:   icon,
+                    badgeRarity: rarity,
+                    badgeXp:     xp,
+                    badgeDesc:   desc,
+                });
+                if (success) {
+                    ok++;
+                    await this._pushNotify(uid, '🎖️ Special Badge!', `You received the ${icon} ${name} badge!`);
+                } else {
+                    console.warn('[AdminDashboard] _bulkSendCustomBadge: no success for', uid);
+                }
+            } catch (err) {
+                console.error('[AdminDashboard] _bulkSendCustomBadge error for', uid, err);
+            }
+        }
+        window.Core.showToast(`Sent custom badge to ${ok}/${ids.length} members`);
     },
 
     async _bulkSendUnlock() {
@@ -913,8 +998,5 @@ const AdminDashboard = {
     },
 };
 
-
-// Window bridge: preserved for external callers
 window.AdminDashboard = AdminDashboard;
-
 export { AdminDashboard };
