@@ -5059,8 +5059,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
    Append to end of community-hub.css
    ========================================================= */
 
-/* ── 1. Sound Settings Panel ──────────────────────────────
-   .sound-option was input[type=radio]+label, now two <button> elements. */
+/* ── 1. Sound Settings Panel ────────────────────────────── */
 
 .sound-option {
   display: flex;
@@ -5073,58 +5072,60 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 .sound-option:hover { background: var(--neuro-bg-lightest); }
 
-.sound-select-btn {
+.sound-settings .sound-select-btn {
   flex: 1;
   text-align: left;
-  background: none;
-  border: none;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
   cursor: pointer;
-  padding: 4px 0;
-  color: var(--text);
-  font-size: 14px;
+  padding: 4px 0 !important;
+  color: var(--text) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
   font-family: inherit;
   line-height: 1.4;
   transition: color var(--transition-fast);
 }
 
-.sound-select-btn:hover { color: var(--neuro-accent); }
+.sound-settings .sound-select-btn:hover { color: var(--neuro-accent) !important; }
 
-.sound-select-btn.active {
-  color: var(--neuro-accent);
-  font-weight: 600;
+.sound-settings .sound-select-btn.active {
+  color: var(--neuro-accent) !important;
+  font-weight: 600 !important;
 }
 
-/* Preview button — ensure it never stretches */
-.sound-preview-btn { flex-shrink: 0; }
+.sound-settings .sound-preview-btn { flex-shrink: 0; }
 
-/* ── 2. Safety Dropdown Items ─────────────────────────────
-   SafetyBar injects plain <button> elements; ensure consistent styling. */
+/* ── 2. Safety Dropdown Items ─────────────────────────────  */
 
 [id$="SafetyDropdown"] button,
 #safetyDropdown button {
   width: 100%;
-  padding: 12px 16px;
+  padding: 12px 16px !important;
   text-align: left;
-  background: none;
-  border: none;
-  border-bottom: 1px solid var(--border);
+  background: none !important;
+  border: none !important;
+  border-bottom: 1px solid var(--border) !important;
+  box-shadow: none !important;
   cursor: pointer;
-  display: flex;
+  display: flex !important;
   align-items: center;
   gap: 12px;
-  color: var(--text);
-  font-size: 14px;
+  color: var(--text) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
   font-family: inherit;
   transition: background var(--transition-fast), color var(--transition-fast);
 }
 
 [id$="SafetyDropdown"] button:last-child,
-#safetyDropdown button:last-child { border-bottom: none; }
+#safetyDropdown button:last-child { border-bottom: none !important; }
 
 [id$="SafetyDropdown"] button:hover,
 #safetyDropdown button:hover {
-  background: var(--neuro-bg-lightest);
-  color: var(--neuro-accent);
+  background: var(--neuro-bg-lightest) !important;
+  color: var(--neuro-accent) !important;
 }
 
 [id$="SafetyDropdown"] button svg {
@@ -5134,21 +5135,22 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
   opacity: 0.75;
 }
 
-/* ── 3. CycleStateMixin — Schedule Link Button ────────────
-   Was <div role="button">, now <button data-action="showSchedule">. */
+/* ── 3. CycleStateMixin — Schedule Link Button ────────────  */
 
 button.view-schedule,
 [data-action="showSchedule"],
 [data-action="showScheduleModal"] {
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 11px;
-  color: var(--text-muted);
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  font-size: 11px !important;
+  font-weight: 400 !important;
+  color: var(--text-muted) !important;
   cursor: pointer;
   text-decoration: underline;
   text-align: left;
-  display: inline-flex;
+  display: inline-flex !important;
   align-items: center;
   gap: 0.3rem;
   white-space: nowrap;
@@ -5159,42 +5161,47 @@ button.view-schedule,
 
 button.view-schedule:hover,
 [data-action="showSchedule"]:hover,
-[data-action="showScheduleModal"]:hover { color: var(--neuro-accent); }
+[data-action="showScheduleModal"]:hover { color: var(--neuro-accent) !important; }
 
-button.view-schedule svg {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-}
+button.view-schedule svg { width: 14px; height: 14px; flex-shrink: 0; }
 
-/* ── 4. Reflection Action Buttons ─────────────────────────
-   Appreciate / Whisper / Edit / Delete — patch box-model drift. */
+/* ── 4. Reflection Action Buttons ─────────────────────────  */
 
-.ref-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-size: 13px;
+.ref-actions .ref-action {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--text-muted) !important;
+  cursor: pointer !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
   font-family: inherit;
-  padding: 4px 6px;
+  padding: 4px 6px !important;
   border-radius: var(--radius-sm);
   transition: color var(--transition-fast), background var(--transition-fast);
   line-height: 1;
 }
 
-.ref-action:hover { color: var(--neuro-accent); background: var(--neuro-accent-a08); }
-.ref-action.appreciated { color: var(--neuro-accent); font-weight: 700; }
-.ref-action.appreciated span:first-child { transform: scale(1.2); display: inline-block; }
-
-.ref-action svg {
-  width: 15px;
-  height: 15px;
-  flex-shrink: 0;
+.ref-actions .ref-action:hover {
+  color: var(--neuro-accent) !important;
+  background: var(--neuro-accent-a08) !important;
+  box-shadow: none !important;
 }
+
+.ref-actions .ref-action.appreciated {
+  color: var(--neuro-accent) !important;
+  font-weight: 700 !important;
+}
+
+.ref-actions .ref-action.appreciated span:first-child {
+  transform: scale(1.2);
+  display: inline-block;
+}
+
+.ref-actions .ref-action svg { width: 15px; height: 15px; flex-shrink: 0; }
 
 .ref-actions > div[style*="margin-left:auto"],
 .ref-actions > div[style*="margin-left: auto"] {
@@ -5208,18 +5215,18 @@ button.view-schedule svg {
 @media (max-width: 768px) {
 
   .sound-option { flex-wrap: nowrap; gap: 6px; padding: 6px 4px; }
-  .sound-select-btn { font-size: 13px; }
+  .sound-settings .sound-select-btn { font-size: 13px !important; }
 
-  [id$="SafetyDropdown"] button { padding: 14px 16px; font-size: 13px; }
+  [id$="SafetyDropdown"] button { padding: 14px 16px !important; font-size: 13px !important; }
 
   button.view-schedule,
   [data-action="showSchedule"],
-  [data-action="showScheduleModal"] { font-size: 12px; }
+  [data-action="showScheduleModal"] { font-size: 12px !important; }
 
-  .ref-action { font-size: 12px; padding: 4px 5px; gap: 4px; }
-  .ref-action svg { width: 14px; height: 14px; }
+  .ref-actions .ref-action { font-size: 12px !important; padding: 4px 5px !important; gap: 4px !important; }
+  .ref-actions .ref-action svg { width: 14px; height: 14px; }
 }
 
 @media (max-width: 380px) {
-  [id$="SafetyDropdown"] button { padding: 12px 14px; }
+  [id$="SafetyDropdown"] button { padding: 12px 14px !important; }
 }
