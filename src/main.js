@@ -1,8 +1,8 @@
 // ─── Styles ──────────────────────────────────────────────────────────────────
 import './styles/main-styles.css';
 import './styles/mobile-styles.css';
-import './styles/community-hub.css';
 import './styles/user-tab-styles.css';
+import './styles/community-hub.css';
 
 // ─── Skin / Matrix ───────────────────────────────────────────────────────────
 import './styles/Skins/MatrixRain.js';
