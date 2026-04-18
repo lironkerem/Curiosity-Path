@@ -1,11 +1,12 @@
 /**
  * WHISPER MODAL
  * Full private messaging UI for the Community Hub.
- * @version 1.3.0
+ * @version 1.4.0
  *
- * Changes from 1.2.0:
- * - Fix: unread badge inside inbox row is cleared immediately on thread open
- * - UI: larger modal, no back-arrow, cleaner professional layout
+ * Unread count is managed via a local Map (_unreadMap) that is the single
+ * source of truth for the inbox UI. The DB is used only to seed it on first
+ * load. Marking a thread read zeroes the Map immediately — no DB round-trip
+ * latency can restore the badge.
  */
 
 import { CommunityDB } from './community-supabase.js';
@@ -18,13 +19,18 @@ const WhisperModal = {
 
     state: {
         isOpen:            false,
-        view:              'inbox',  // 'inbox' | 'thread'
+        view:              'inbox',
         threadPartnerId:   null,
         threadPartnerName: null,
         realtimeSub:       null,
         bgSub:             null,
-        readPartnerIds:    new Set(), // optimistic local read tracking
     },
+
+    /** Local unread counts: partnerId → count. Single source of truth for UI. */
+    _unreadMap: new Map(),
+
+    /** Cached conversation list from last DB fetch. */
+    _conversations: [],
 
     // ============================================================================
     // INIT
@@ -82,7 +88,6 @@ const WhisperModal = {
                             </div>
                         </div>
 
-                        <!-- View switcher pill (only visible in thread view) -->
                         <button id="whisperBackBtn"
                                 onclick="WhisperModal._showInbox()"
                                 aria-label="All conversations"
@@ -140,7 +145,7 @@ const WhisperModal = {
                         <div id="whisperThreadMessages" style="display:flex;flex-direction:column;gap:10px;"></div>
                     </div>
 
-                    <!-- Reply bar (thread view only) -->
+                    <!-- Reply bar -->
                     <div id="whisperReplyBar"
                          style="display:none;padding:1rem 1.25rem 1.25rem;
                                 border-top:1px solid rgba(0,0,0,0.07);flex-shrink:0;
@@ -177,15 +182,15 @@ const WhisperModal = {
             </div>`;
 
         document.body.appendChild(shell.firstElementChild);
-        document.getElementById('whisperModal').addEventListener('click', (e) => {
+        document.getElementById('whisperModal').addEventListener('click', e => {
             if (e.target.id === 'whisperModal') this.close();
         });
-        document.addEventListener('keydown', (e) => {
+        document.addEventListener('keydown', e => {
             if (e.key === 'Escape' && this.state.isOpen) this.close();
         });
 
         const tryBg = () => {
-            if (CommunityDB?.ready) { this.startBackgroundListener(); }
+            if (CommunityDB?.ready) this.startBackgroundListener();
             else setTimeout(tryBg, 500);
         };
         tryBg();
@@ -217,10 +222,8 @@ const WhisperModal = {
         const modal = document.getElementById('whisperModal');
         const inner = document.getElementById('whisperModalInner');
         if (!modal) return;
-
         modal.style.opacity   = '0';
         inner.style.transform = 'translateY(20px)';
-
         setTimeout(() => {
             modal.style.display        = 'none';
             this.state.isOpen          = false;
@@ -251,11 +254,8 @@ const WhisperModal = {
         document.getElementById('whisperInboxView').style.display  = isInbox ? 'block' : 'none';
         document.getElementById('whisperThreadView').style.display  = isInbox ? 'none'  : 'flex';
         document.getElementById('whisperReplyBar').style.display    = isInbox ? 'none'  : 'block';
-
-        // Show "All Whispers" pill only in thread; hide subtitle in inbox
         document.getElementById('whisperBackBtn').style.display     = isInbox ? 'none'  : 'inline-flex';
         const subtitle = document.getElementById('whisperModalSubtitle');
-
         if (isInbox) {
             document.getElementById('whisperModalTitle').textContent = 'Whispers';
             subtitle.style.display = 'none';
@@ -263,7 +263,7 @@ const WhisperModal = {
     },
 
     // ============================================================================
-    // INBOX VIEW
+    // INBOX — driven entirely by _unreadMap, never re-fetches unread from DB
     // ============================================================================
 
     async _showInbox() {
@@ -275,27 +275,38 @@ const WhisperModal = {
         const empty   = document.getElementById('whisperInboxEmpty');
         const list    = document.getElementById('whisperInboxList');
 
-        loading.style.display = 'block';
-        empty.style.display   = 'none';
-        list.innerHTML        = '';
+        // Only hit the DB if we have no cached conversations yet
+        if (!this._conversations.length) {
+            loading.style.display = 'block';
+            empty.style.display   = 'none';
+            list.innerHTML        = '';
 
-        const conversations = await CommunityDB.getWhisperInbox();
-        loading.style.display = 'none';
+            const raw = await CommunityDB.getWhisperInbox();
 
-        if (!conversations.length) {
+            // Seed _unreadMap from DB — only on first load
+            this._unreadMap.clear();
+            for (const c of raw) {
+                if (c.unread > 0) this._unreadMap.set(c.partner?.id, c.unread);
+            }
+            this._conversations = raw;
+            loading.style.display = 'none';
+        }
+
+        if (!this._conversations.length) {
             empty.style.display = 'block';
             return;
         }
 
-        // Apply optimistic read state before rendering
-        conversations.forEach(c => {
-            if (this.state.readPartnerIds.has(c.partner?.id)) c.unread = 0;
-        });
-        list.innerHTML = conversations.map(c => this._conversationRowHTML(c)).join('');
-        this._setBadge(conversations.reduce((sum, c) => sum + c.unread, 0));
+        // Render using local _unreadMap — immune to DB latency
+        list.innerHTML = this._conversations
+            .map(c => this._conversationRowHTML(c, this._unreadMap.get(c.partner?.id) ?? 0))
+            .join('');
+
+        // Sync global badge from local map
+        this._setBadgeFromMap();
     },
 
-    _conversationRowHTML(c) {
+    _conversationRowHTML(c, unread) {
         const partner    = c.partner || {};
         const name       = this._escape(partner.name || 'Member');
         const avatar     = this._avatarHTML(partner, 44);
@@ -304,7 +315,7 @@ const WhisperModal = {
         const safeId     = this._escape(partner.id       || '');
         const safeEmoji  = this._escape(partner.emoji    || '');
         const safeAvatar = this._escape(partner.avatar_url || '');
-        const hasUnread  = c.unread > 0;
+        const hasUnread  = unread > 0;
 
         return `
             <div data-partner-id="${safeId}"
@@ -318,9 +329,11 @@ const WhisperModal = {
 
                 <div style="position:relative;flex-shrink:0;">
                     ${avatar}
-                    ${hasUnread ? `<span style="position:absolute;top:-2px;right:-2px;
-                        width:10px;height:10px;border-radius:50%;
-                        background:var(--neuro-accent);border:2px solid var(--neuro-bg);"></span>` : ''}
+                    ${hasUnread ? `<span class="whisper-dot"
+                        style="position:absolute;top:-2px;right:-2px;
+                               width:10px;height:10px;border-radius:50%;
+                               background:var(--neuro-accent);
+                               border:2px solid var(--neuro-bg);"></span>` : ''}
                 </div>
 
                 <div style="flex:1;min-width:0;">
@@ -333,24 +346,26 @@ const WhisperModal = {
                         </span>
                         <span style="font-size:0.7rem;color:var(--text-muted);flex-shrink:0;">${time}</span>
                     </div>
-                    <div style="font-size:0.8rem;color:var(--text-muted);
+                    <div class="whisper-preview"
+                         style="font-size:0.8rem;color:var(--text-muted);
                                 white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
                                 font-weight:${hasUnread ? '600' : '400'};">
                         ${preview}
                     </div>
                 </div>
 
-                ${hasUnread ? `<span class="whisper-unread-badge"
-                    style="background:var(--neuro-accent);color:#fff;border-radius:99px;
-                           font-size:0.68rem;font-weight:700;padding:2px 8px;
-                           min-width:20px;text-align:center;flex-shrink:0;">
-                    ${c.unread}
-                </span>` : '<span class="whisper-unread-badge" style="display:none;"></span>'}
+                <span class="whisper-unread-badge"
+                      style="display:${hasUnread ? 'inline-flex' : 'none'};
+                             background:var(--neuro-accent);color:#fff;border-radius:99px;
+                             font-size:0.68rem;font-weight:700;padding:2px 8px;
+                             min-width:20px;text-align:center;flex-shrink:0;">
+                    ${hasUnread ? unread : ''}
+                </span>
             </div>`;
     },
 
     // ============================================================================
-    // THREAD VIEW
+    // THREAD
     // ============================================================================
 
     async _showThread(userId, name, emoji, avatarUrl) {
@@ -359,9 +374,9 @@ const WhisperModal = {
         this.state.threadPartnerName = name;
         this._setView('thread');
 
-        document.getElementById('whisperModalTitle').textContent    = name;
+        document.getElementById('whisperModalTitle').textContent = name;
         const subtitle = document.getElementById('whisperModalSubtitle');
-        subtitle.textContent  = 'Private whisper thread';
+        subtitle.textContent   = 'Private whisper thread';
         subtitle.style.display = 'block';
 
         const loading    = document.getElementById('whisperThreadLoading');
@@ -371,50 +386,23 @@ const WhisperModal = {
         loading.style.display = 'block';
         messages.innerHTML    = '';
 
-        this.state.readPartnerIds.add(userId);
+        // ── 1. Zero the local map immediately — before any await ──
+        this._unreadMap.set(userId, 0);
+        this._setBadgeFromMap();
 
-        const [msgs] = await Promise.all([
-            CommunityDB.getWhispers(userId),
-            CommunityDB.markConversationRead(userId),
-        ]);
+        // ── 2. Fetch messages + fire-and-forget DB mark ──
+        const msgs = await CommunityDB.getWhispers(userId);
+        CommunityDB.markConversationRead(userId).catch(() => {});
+
         loading.style.display = 'none';
         this._renderThreadMessages(msgs);
-
         setTimeout(() => { threadView.scrollTop = threadView.scrollHeight; }, 50);
         document.getElementById('whisperReplyText')?.focus();
-
-        this._clearInboxRowUnread(userId);
-        await this.refreshUnreadBadge();
-    },
-
-    /** Zero out unread dot + badge + bold styling on the inbox row for `userId`. */
-    _clearInboxRowUnread(userId) {
-        const row = document.querySelector(`#whisperInboxList [data-partner-id="${userId}"]`);
-        if (!row) return;
-
-        // Remove all <span> children of the avatar wrapper that act as the dot
-        row.querySelectorAll('span').forEach(el => {
-            if (el.style.position === 'absolute') el.remove();
-        });
-
-        // Count badge
-        const badge = row.querySelector('.whisper-unread-badge');
-        if (badge) badge.style.display = 'none';
-
-        // Bold name → normal
-        const nameEl = row.querySelector('.whisper-partner-name');
-        if (nameEl) nameEl.style.fontWeight = '500';
-
-        // Bold preview → normal (first div after the name row div)
-        const nameRow = nameEl?.closest('div[style*="justify-content"]');
-        const previewEl = nameRow?.nextElementSibling;
-        if (previewEl) previewEl.style.fontWeight = '400';
     },
 
     _renderThreadMessages(messages) {
         const container = document.getElementById('whisperThreadMessages');
         if (!container) return;
-
         if (!messages.length) {
             container.innerHTML = `
                 <div style="text-align:center;padding:3rem;color:var(--text-muted);font-size:0.85rem;">
@@ -422,7 +410,6 @@ const WhisperModal = {
                 </div>`;
             return;
         }
-
         const myId = CommunityDB._uid;
         container.innerHTML = messages.map(m => {
             const isMe = m.sender_id === myId || m.sender?.id === myId;
@@ -433,16 +420,12 @@ const WhisperModal = {
     _appendMessage(message) {
         const container = document.getElementById('whisperThreadMessages');
         if (!container) return;
-
         container.querySelector('[data-empty]')?.remove();
-
         const myId = CommunityDB._uid;
         const isMe = message.sender_id === myId;
-
-        const div = document.createElement('div');
+        const div  = document.createElement('div');
         div.innerHTML = this._messageBubbleHTML(isMe, this._escape(message.message), this._relativeTime(message.created_at));
         container.appendChild(div.firstElementChild);
-
         document.getElementById('whisperThreadView')?.scrollTo({ top: 999999 });
     },
 
@@ -479,16 +462,12 @@ const WhisperModal = {
             const ok = await CommunityDB.sendWhisper(this.state.threadPartnerId, message);
             if (ok) {
                 textarea.value = '';
-                this._appendMessage({
-                    sender_id:  CommunityDB._uid,
-                    message,
-                    created_at: new Date().toISOString(),
-                });
+                this._appendMessage({ sender_id: CommunityDB._uid, message, created_at: new Date().toISOString() });
             } else {
                 window.Core.showToast('Could not send — please try again');
             }
         } catch (err) {
-            console.error('[WhisperModal] sendReply error:', err);
+            console.error('[WhisperModal] sendReply:', err);
             window.Core.showToast('Could not send — please try again');
         } finally {
             if (btn) { btn.disabled = false; btn.textContent = 'Send'; }
@@ -510,24 +489,44 @@ const WhisperModal = {
 
     _subscribeRealtime() {
         this.state.realtimeSub?.unsubscribe?.();
-        this.state.realtimeSub = CommunityDB.subscribeToWhispers((whisper) => {
+        this.state.realtimeSub = CommunityDB.subscribeToWhispers(whisper => {
             if (this.state.view === 'thread' && whisper.sender_id === this.state.threadPartnerId) {
+                // Message arrived while thread is open — show it, mark read immediately
                 this._appendMessage(whisper);
                 CommunityDB.markConversationRead(whisper.sender_id).catch(() => {});
             } else {
+                // Increment local map for the sender
+                const prev = this._unreadMap.get(whisper.sender_id) ?? 0;
+                this._unreadMap.set(whisper.sender_id, prev + 1);
+                this._setBadgeFromMap();
+
+                // Invalidate cache so inbox re-fetches on next open
+                this._conversations = [];
+
                 window.Core.showToast(`New whisper from ${whisper.sender?.name || 'Someone'}`);
                 if (this.state.view === 'inbox') this._showInbox();
-                else this.refreshUnreadBadge();
             }
         });
     },
 
     // ============================================================================
-    // UNREAD BADGE
+    // BADGE — always derived from _unreadMap
     // ============================================================================
 
+    _setBadgeFromMap() {
+        let total = 0;
+        this._unreadMap.forEach(v => { total += v; });
+        this._setBadge(total);
+    },
+
     async refreshUnreadBadge() {
-        this._setBadge(await CommunityDB.getUnreadWhisperCount());
+        // Seed from DB only when map is empty (cold start / background)
+        if (this._unreadMap.size === 0) {
+            const count = await CommunityDB.getUnreadWhisperCount().catch(() => 0);
+            this._setBadge(count);
+        } else {
+            this._setBadgeFromMap();
+        }
     },
 
     _setBadge(count) {
@@ -541,11 +540,18 @@ const WhisperModal = {
         if (this.state.bgSub) return;
         if (!CommunityDB?.ready) return;
 
-        this.refreshUnreadBadge().catch(() => {});
+        // Cold-seed the map from DB
+        CommunityDB.getUnreadWhisperCount()
+            .then(count => { if (count > 0 && this._unreadMap.size === 0) this._setBadge(count); })
+            .catch(() => {});
 
-        this.state.bgSub = CommunityDB.subscribeToWhispersBackground((whisper) => {
-            if (this.state.isOpen && this.state.view === 'thread' && whisper.sender_id === this.state.threadPartnerId) return;
-            this.refreshUnreadBadge().catch(() => {});
+        this.state.bgSub = CommunityDB.subscribeToWhispersBackground(whisper => {
+            if (this.state.isOpen && this.state.view === 'thread' &&
+                whisper.sender_id === this.state.threadPartnerId) return;
+            const prev = this._unreadMap.get(whisper.sender_id) ?? 0;
+            this._unreadMap.set(whisper.sender_id, prev + 1);
+            this._setBadgeFromMap();
+            this._conversations = []; // invalidate inbox cache
         });
     },
 
