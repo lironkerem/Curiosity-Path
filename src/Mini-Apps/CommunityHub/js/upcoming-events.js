@@ -416,6 +416,7 @@ const UpcomingEvents = {
             container.innerHTML = this.getHTML();
             setTimeout(() => this.initRotation(), 100);
             this.state.isInitialized = true;
+            this.injectAdminUI();
         } catch (error) {
             console.error('UpcomingEvents render error:', error);
         }
