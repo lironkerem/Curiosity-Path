@@ -1291,7 +1291,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   min-width: 0;
   background: var(--neuro-bg);
   border: none;
-  padding: 0.875rem 0.5rem;
+  padding: 0.75rem 0.5rem;
   border-radius: 0.625rem;
   font-weight: 600;
   cursor: pointer;
@@ -1300,11 +1300,11 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   box-shadow: var(--shadow-raised);
   text-align: center;
   display: flex;
+  flex-direction: column;   /* stack label row + timer */
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  overflow: hidden;
+  gap: 0;
+  overflow: visible;        /* never clip the badge */
 }
 
 .quest-tab-btn.active {
@@ -1337,16 +1337,13 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   color: #fff;
   font-family: 'Orbitron', ui-monospace, monospace;
   font-size: 0.75rem;
-  padding: 0.125rem 0.4rem;
+  padding: 0.2rem 0.6rem;
   border-radius: 0.75rem;
-  margin-left: 0.375rem;
-  display: inline-block;
-  min-width: 4.5rem;
-  text-align: center;
-  letter-spacing: 0.03125rem;
+  display: block;           /* own line */
+  width: fit-content;
+  margin: 0.3rem auto 0;   /* centred below label */
   white-space: nowrap;
-  flex-shrink: 0;
-  overflow: hidden;
+  letter-spacing: 0.03125rem;
 }
 
 .card.dashboard-quest-hub {
