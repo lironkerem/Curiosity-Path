@@ -1,35 +1,23 @@
 @echo off
 :: bump-version.bat — updates SW cache version to today's date + HHMM
-:: Place in project root and double-click or run from Command Prompt
+:: Runs automatically before every build
 
-:: Use PowerShell for reliable date/time (wmic is deprecated in Win 11)
 for /f %%a in ('powershell -NoProfile -Command "Get-Date -Format yyyy-MM-dd-HHmm"') do set SW_DATE=%%a
 
 if "%SW_DATE%"=="" (
   echo ERROR: Could not determine date/time. Aborting.
-  pause
   exit /b 1
 )
 
-echo Bumping SW cache version to: tcp-%SW_DATE%
-echo.
+echo [BUMP] Updating Service Worker cache version to: tcp-%SW_DATE%
 
-:: --- Update service-worker.js (root — source of truth) ---
-if not exist service-worker.js (
-  echo WARNING: service-worker.js not found
+:: Update service-worker.js in public/ folder (source of truth)
+if not exist public\service-worker.js (
+  echo [WARNING] public\service-worker.js not found
 ) else (
-  powershell -NoProfile -Command "$c = [System.IO.File]::ReadAllText('service-worker.js'); $c = $c -replace 'tcp-[\d-]+', 'tcp-%SW_DATE%'; $enc = New-Object System.Text.UTF8Encoding $false; [System.IO.File]::WriteAllText((Resolve-Path 'service-worker.js'), $c, $enc)"
-  echo Done: service-worker.js
+  powershell -NoProfile -Command "$c = [System.IO.File]::ReadAllText('public\service-worker.js'); $c = $c -replace 'tcp-[\d-]+', 'tcp-%SW_DATE%'; $enc = New-Object System.Text.UTF8Encoding $false; [System.IO.File]::WriteAllText((Resolve-Path 'public\service-worker.js'), $c, $enc)"
+  echo [BUMP] ✓ Updated public/service-worker.js
 )
 
-:: --- Update dist\service-worker.js (served file — must match root) ---
-if not exist dist\service-worker.js (
-  echo WARNING: dist\service-worker.js not found - run "npm run build" first
-) else (
-  powershell -NoProfile -Command "$c = [System.IO.File]::ReadAllText('dist\service-worker.js'); $c = $c -replace 'tcp-[\d-]+', 'tcp-%SW_DATE%'; $enc = New-Object System.Text.UTF8Encoding $false; [System.IO.File]::WriteAllText((Resolve-Path 'dist\service-worker.js'), $c, $enc)"
-  echo Done: dist\service-worker.js
-)
-
+echo [BUMP] Service Worker version bumped successfully.
 echo.
-echo All done! SW version: tcp-%SW_DATE%
-pause

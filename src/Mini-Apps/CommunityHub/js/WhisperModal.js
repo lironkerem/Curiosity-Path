@@ -23,6 +23,7 @@ const WhisperModal = {
         threadPartnerName: null,
         realtimeSub:       null,
         bgSub:             null,
+        readPartnerIds:    new Set(), // optimistic local read tracking
     },
 
     // ============================================================================
@@ -286,6 +287,10 @@ const WhisperModal = {
             return;
         }
 
+        // Apply optimistic read state before rendering
+        conversations.forEach(c => {
+            if (this.state.readPartnerIds.has(c.partner?.id)) c.unread = 0;
+        });
         list.innerHTML = conversations.map(c => this._conversationRowHTML(c)).join('');
         this._setBadge(conversations.reduce((sum, c) => sum + c.unread, 0));
     },
@@ -365,6 +370,9 @@ const WhisperModal = {
 
         loading.style.display = 'block';
         messages.innerHTML    = '';
+
+        // Mark as read optimistically so inbox re-renders don't restore the badge
+        this.state.readPartnerIds.add(userId);
 
         const [msgs] = await Promise.all([
             CommunityDB.getWhispers(userId),

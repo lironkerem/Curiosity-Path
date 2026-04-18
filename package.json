@@ -16,7 +16,8 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node copy-assets.mjs",
+    "bump": "bump-version.bat",
+    "build": "npm run bump && vite build && node copy-assets.mjs",
     "preview": "vite preview"
   },
   "engines": {

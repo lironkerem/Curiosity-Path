@@ -2,8 +2,8 @@ import { cpSync, readdirSync, unlinkSync } from 'fs';
 
 const copies = [
   // [source, destination]
-  ['service-worker.js',              'dist/service-worker.js'],
-  ['src/Mini-Apps/SelfAnalysisPro',  'dist/src/Mini-Apps/SelfAnalysisPro'],
+  ['src/Mini-Apps/SelfAnalysisPro', 'dist/src/Mini-Apps/SelfAnalysisPro'],
+  // Note: service-worker.js is automatically handled by Vite via the public/ folder
 ];
 
 for (const [src, dest] of copies) {
@@ -11,11 +11,11 @@ for (const [src, dest] of copies) {
     cpSync(src, dest, { recursive: true });
     console.log(`✓ Copied ${src} → ${dest}`);
   } catch (e) {
-    console.error(`✗ Failed ${src}: ${e.message}`);
+    console.error(`✗ Failed to copy ${src}: ${e.message}`);
   }
 }
 
-// Remove stale Vite build manifest from dist/assets/
+// Clean up stale Vite build manifests
 try {
   const files = readdirSync('dist/assets');
   for (const f of files) {
@@ -25,5 +25,8 @@ try {
     }
   }
 } catch (e) {
-  console.error(`✗ Failed to clean stale manifest: ${e.message}`);
+  // dist/assets may not exist yet on first build
+  if (e.code !== 'ENOENT') {
+    console.error(`✗ Failed to clean stale manifest: ${e.message}`);
+  }
 }
