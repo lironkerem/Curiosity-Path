@@ -386,11 +386,12 @@ const WhisperModal = {
         const row = document.querySelector(`#whisperInboxList [data-partner-id="${userId}"]`);
         if (!row) return;
 
-        // Unread dot (absolute-positioned on avatar)
-        const dot = row.querySelector('span[style*="width:10px"]');
-        if (dot) dot.remove();
+        // Remove all <span> children of the avatar wrapper that act as the dot
+        row.querySelectorAll('span').forEach(el => {
+            if (el.style.position === 'absolute') el.remove();
+        });
 
-        // Count badge on the right
+        // Count badge
         const badge = row.querySelector('.whisper-unread-badge');
         if (badge) badge.style.display = 'none';
 
@@ -398,9 +399,10 @@ const WhisperModal = {
         const nameEl = row.querySelector('.whisper-partner-name');
         if (nameEl) nameEl.style.fontWeight = '500';
 
-        // Bold preview → normal
-        const preview = nameEl?.parentElement?.nextElementSibling;
-        if (preview) preview.style.fontWeight = '400';
+        // Bold preview → normal (first div after the name row div)
+        const nameRow = nameEl?.closest('div[style*="justify-content"]');
+        const previewEl = nameRow?.nextElementSibling;
+        if (previewEl) previewEl.style.fontWeight = '400';
     },
 
     _renderThreadMessages(messages) {
