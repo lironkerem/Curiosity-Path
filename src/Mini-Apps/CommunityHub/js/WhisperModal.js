@@ -371,14 +371,11 @@ const WhisperModal = {
         loading.style.display = 'block';
         messages.innerHTML    = '';
 
-        // Mark as read optimistically so inbox re-renders don't restore the badge
         this.state.readPartnerIds.add(userId);
 
         const [msgs] = await Promise.all([
             CommunityDB.getWhispers(userId),
-            CommunityDB.markConversationRead(userId)
-                .then(r => console.log('[Whisper] markConversationRead result:', r))
-                .catch(e => console.error('[Whisper] markConversationRead error:', e)),
+            CommunityDB.markConversationRead(userId),
         ]);
         loading.style.display = 'none';
         this._renderThreadMessages(msgs);
@@ -386,13 +383,8 @@ const WhisperModal = {
         setTimeout(() => { threadView.scrollTop = threadView.scrollHeight; }, 50);
         document.getElementById('whisperReplyText')?.focus();
 
-        // ── Nuke all unread indicators immediately ──
         this._clearInboxRowUnread(userId);
-
-        // ── Refresh global badge, log result ──
-        const count = await CommunityDB.getUnreadWhisperCount().catch(() => null);
-        console.log('[Whisper] getUnreadWhisperCount after read:', count);
-        if (count !== null) this._setBadge(count);
+        await this.refreshUnreadBadge();
     },
 
     /** Zero out unread dot + badge + bold styling on the inbox row for `userId`. */

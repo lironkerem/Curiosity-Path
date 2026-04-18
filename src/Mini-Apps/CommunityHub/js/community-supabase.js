@@ -456,10 +456,11 @@ const CommunityDB = {
         await this._sb.from('whispers').update({ read: true }).eq('id', whisperId);
     },
 
-    async markConversationRead(otherUserId) {
+async markConversationRead(otherUserId) {
         if (!this.ready) return;
-        await this._sb.from('whispers').update({ read: true })
+        const { error } = await this._sb.from('whispers').update({ read: true })
             .eq('recipient_id', this._uid).eq('sender_id', otherUserId).eq('read', false);
+        if (error) this._err('markConversationRead', error);
     },
 
     async getWhisperInbox() {
