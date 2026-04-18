@@ -833,18 +833,9 @@ async enablePushNotifications() {
 
   /** Disable push notifications */
   async disablePushNotifications() {
-    try {
-      const sw = await navigator.serviceWorker.ready;
-      const sub = await sw.pushManager.getSubscription();
-      
-      if (sub) {
-        await sub.unsubscribe();
         this.app.showToast('Notifications disabled', 'success');
       }
-    } catch (e) {
-      console.error(e);
-    }
-  }
+
 
   /**
    * Convert base64 VAPID key to Uint8Array

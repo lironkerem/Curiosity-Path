@@ -21,11 +21,26 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Database not configured' });
   }
 
-  // Service role key — safe here, this is a trusted server-side API route
   const supabase = createClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY
   );
+
+  // If we have a user_id, delete ALL their previous subs first.
+  // This prevents duplicate sends when the browser creates a new endpoint
+  // (e.g. after unsubscribe/resubscribe or browser update).
+  if (user_id) {
+    const { error: delErr } = await supabase
+      .from('push_subscriptions')
+      .delete()
+      .eq('user_id', user_id)
+      .neq('endpoint', endpoint); // keep if same endpoint (no-op upsert below)
+
+    if (delErr) {
+      console.warn('save-sub: cleanup of old subs failed:', delErr.message);
+      // non-fatal — continue
+    }
+  }
 
   const { error } = await supabase
     .from('push_subscriptions')

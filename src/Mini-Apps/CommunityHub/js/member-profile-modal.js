@@ -1131,20 +1131,23 @@ const MemberProfileModal = {
         } catch (e) { console.warn('[AdminPanel] _refreshMainProfileStats:', e); }
     },
 
-    async _adminPushNotify(userId, title, body) {
-        try {
-            const { data: subs } = await CommunityDB._sb.from('push_subscriptions')
-                .select('subscription').eq('user_id', userId);
-            if (!subs?.length) return;
-            await Promise.allSettled(subs.map(s =>
-                fetch('/api/send', {
-                    method:  'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body:    JSON.stringify({ sub: s.subscription, payload: { title, body, icon: '/icons/icon-192x192.png', data: { url: '/' } } }),
-                }).catch(() => {})
-            ));
-        } catch (err) { console.error('[AdminPanel] push notify error:', err); }
-    },
+async _adminPushNotify(userId, title, body) {
+    try {
+        const res = await fetch('/api/send', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({
+                userId,
+                payload: { title, body, icon: '/icons/icon-192x192.png', data: { url: '/' } },
+            }),
+        });
+        if (!res.ok) {
+            console.warn(`[MemberProfileModal] push notify non-200: ${res.status}`);
+        }
+    } catch (err) {
+        console.warn('[MemberProfileModal] push notify unavailable:', err.message);
+    }
+},
 
     // =========================================================================
     // UTILITIES
