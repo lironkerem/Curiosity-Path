@@ -214,6 +214,7 @@ class PracticeRoom {
 
     /** Shared teardown for both leaveRoom and gentlyLeave. */
     _exitCleanup() {
+       this._teardownDelegatedListeners();
         if (CollectiveField?.state.isContributing) {
             CollectiveField._endWave();
         }
@@ -1076,42 +1077,157 @@ class PracticeRoom {
         </div>`;
     }
 
-    // ── Event handling ────────────────────────────────────────────────────────
+setupEventListeners() {
+        // Guard: remove any previously registered delegated handlers first.
+        // Without this, each enterRoom() stacks another document-level listener,
+        // causing exponential handler calls per click on repeated room visits.
+        this._teardownDelegatedListeners();
+
+        const clickHandler = e => {
+            const el = e.target.closest('[data-action]');
+            if (el) {
+                e.stopPropagation();
+                const fn = this.getActions()[el.dataset.action];
+                if (fn) { fn(e); return; }
+                console.warn(`[${this.roomId}] Unknown data-action: "${el.dataset.action}"`);
+                return;
+            }
+            this._handleOutsideClick(e);
+        };
+
+        const changeHandler = e => {
+            if (e.target.tagName !== 'SELECT') return;
+            const el = e.target.closest('[data-action]');
+            if (!el) return;
+            const fn = this.getActions()[el.dataset.action];
+            if (fn) fn(e);
+        };
+
+        document.addEventListener('click', clickHandler);
+        document.addEventListener('change', changeHandler);
+
+        this._delegatedClickHandler  = clickHandler;
+        this._delegatedChangeHandler = changeHandler;
+
+        this.eventListeners.push(
+            { element: document, event: 'click',  handler: clickHandler  },
+            { element: document, event: 'change', handler: changeHandler },
+        );
+    }
+
+    _teardownDelegatedListeners() {
+        if (!this._delegatedClickHandler) return;
+        document.removeEventListener('click',  this._delegatedClickHandler);
+        document.removeEventListener('change', this._delegatedChangeHandler);
+        this.eventListeners = this.eventListeners.filter(
+            ({ handler }) =>
+                handler !== this._delegatedClickHandler &&
+                handler !== this._delegatedChangeHandler
+        );
+        this._delegatedClickHandler  = null;
+        this._delegatedChangeHandler = null;
+    }
+
+setupEventListeners() {
+        // Guard: remove any previously registered delegated handlers first.
+        // Without this, each enterRoom() stacks another document-level listener,
+        // causing exponential handler calls per click on repeated room visits.
+        this._teardownDelegatedListeners();
+
+        const clickHandler = e => {
+            const el = e.target.closest('[data-action]');
+            if (el) {
+                e.stopPropagation();
+                const fn = this.getActions()[el.dataset.action];
+                if (fn) { fn(e); return; }
+                console.warn(`[${this.roomId}] Unknown data-action: "${el.dataset.action}"`);
+                return;
+            }
+            this._handleOutsideClick(e);
+        };
+
+        const changeHandler = e => {
+            if (e.target.tagName !== 'SELECT') return;
+            const el = e.target.closest('[data-action]');
+            if (!el) return;
+            const fn = this.getActions()[el.dataset.action];
+            if (fn) fn(e);
+        };
+
+        document.addEventListener('click', clickHandler);
+        document.addEventListener('change', changeHandler);
+
+        this._delegatedClickHandler  = clickHandler;
+        this._delegatedChangeHandler = changeHandler;
+
+        this.eventListeners.push(
+            { element: document, event: 'click',  handler: clickHandler  },
+            { element: document, event: 'change', handler: changeHandler }
+        );
+    }
+
+    _teardownDelegatedListeners() {
+        if (!this._delegatedClickHandler) return;
+        document.removeEventListener('click',  this._delegatedClickHandler);
+        document.removeEventListener('change', this._delegatedChangeHandler);
+        this.eventListeners = this.eventListeners.filter(
+            ({ handler }) =>
+                handler !== this._delegatedClickHandler &&
+                handler !== this._delegatedChangeHandler
+        );
+        this._delegatedClickHandler  = null;
+        this._delegatedChangeHandler = null;
+    }
+
+
+// ── Event handling ────────────────────────────────────────────────────────
 
     setupEventListeners() {
-        setTimeout(() => {
-            // ── Delegated click handler ───────────────────────────────────────
-            // All data-action buttons route through here. Minification-immune:
-            // no class names referenced at runtime.
-            const clickHandler = e => {
-                const el = e.target.closest('[data-action]');
-                if (el) {
-                    e.stopPropagation();
-                    const action = el.dataset.action;
-                    const fn = this.getActions()[action];
-                    if (fn) { fn(e); return; }
-                    console.warn(`[${this.roomId}] Unknown data-action: "${action}"`);
-                    return;
-                }
-                this._handleOutsideClick(e);
-            };
-            document.addEventListener('click', clickHandler);
-            this.eventListeners.push({ element: document, event: 'click', handler: clickHandler });
+        this._teardownDelegatedListeners();
 
-            // ── Delegated change handler (SELECT elements only) ───────────────
-            // Handles tarot arcana selects. SELECT does not fire click on value
-            // change, so a separate listener is needed. Guarded to SELECT only
-            // to prevent double-firing with click on other elements.
-            const changeHandler = e => {
-                if (e.target.tagName !== 'SELECT') return;
-                const el = e.target.closest('[data-action]');
-                if (!el) return;
+        const clickHandler = e => {
+            const el = e.target.closest('[data-action]');
+            if (el) {
+                e.stopPropagation();
                 const fn = this.getActions()[el.dataset.action];
-                if (fn) fn(e);
-            };
-            document.addEventListener('change', changeHandler);
-            this.eventListeners.push({ element: document, event: 'change', handler: changeHandler });
-        }, 100);
+                if (fn) { fn(e); return; }
+                console.warn(`[${this.roomId}] Unknown data-action: "${el.dataset.action}"`);
+                return;
+            }
+            this._handleOutsideClick(e);
+        };
+
+        const changeHandler = e => {
+            if (e.target.tagName !== 'SELECT') return;
+            const el = e.target.closest('[data-action]');
+            if (!el) return;
+            const fn = this.getActions()[el.dataset.action];
+            if (fn) fn(e);
+        };
+
+        document.addEventListener('click', clickHandler);
+        document.addEventListener('change', changeHandler);
+
+        this._delegatedClickHandler  = clickHandler;
+        this._delegatedChangeHandler = changeHandler;
+
+        this.eventListeners.push(
+            { element: document, event: 'click',  handler: clickHandler  },
+            { element: document, event: 'change', handler: changeHandler }
+        );
+    }
+
+    _teardownDelegatedListeners() {
+        if (!this._delegatedClickHandler) return;
+        document.removeEventListener('click',  this._delegatedClickHandler);
+        document.removeEventListener('change', this._delegatedChangeHandler);
+        this.eventListeners = this.eventListeners.filter(
+            ({ handler }) =>
+                handler !== this._delegatedClickHandler &&
+                handler !== this._delegatedChangeHandler
+        );
+        this._delegatedClickHandler  = null;
+        this._delegatedChangeHandler = null;
     }
 
     /**
