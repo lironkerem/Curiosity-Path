@@ -1074,6 +1074,45 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 .sound-settings .toggle-switch.active .toggle-slider { transform: translateX(20px); }
 
+.sound-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: var(--radius-md);
+    transition: background var(--transition-fast);
+}
+
+.sound-option:hover { background: var(--neuro-bg-lightest); }
+
+button.sound-select-btn {
+    flex: 1;
+    text-align: left;
+    background: none;
+    border: none;
+    box-shadow: none;
+    cursor: pointer;
+    padding: 4px 0;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 400;
+    font-family: inherit;
+    line-height: 1.4;
+    transition: color var(--transition-fast);
+}
+
+button.sound-select-btn:hover { 
+    color: var(--neuro-accent);
+    background: none;
+    box-shadow: none;
+    transform: none;
+}
+
+button.sound-select-btn.active {
+    color: var(--neuro-accent);
+    font-weight: 600;
+}
+
 .timer-display {
     font-family: var(--serif);
     font-size: 72px;
@@ -1291,7 +1330,7 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     border-top: 2px solid var(--border); 
 }
 
-.ref-action { 
+button.ref-action { 
     display: flex; 
     align-items: center; 
     gap: 6px; 
@@ -1303,10 +1342,10 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     transition: color var(--transition-fast); 
 }
 
-.ref-action:hover { color: var(--neuro-accent); }
-.ref-action.active { color: var(--neuro-accent); }
-.ref-action.appreciated { color: var(--neuro-accent); font-weight: 700; }
-.ref-action.appreciated span:first-child { transform: scale(1.2); display: inline-block; }
+button.ref-action:hover { color: var(--neuro-accent); }
+button.ref-action.active { color: var(--neuro-accent); }
+button.ref-action.appreciated { color: var(--neuro-accent); font-weight: 700; }
+button.ref-action.appreciated span:first-child { transform: scale(1.2); display: inline-block; }
 
 .ref-avatar img {
     width: 100%;
@@ -3059,6 +3098,31 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 }
 .schedule-modal h2   { font-size: clamp(15px, 4vw, 20px); margin-top: 0; }
 .schedule-item       { flex-wrap: wrap; gap: 6px; }
+
+button.view-schedule {
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-muted);
+    cursor: pointer;
+    text-decoration: underline;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    white-space: nowrap;
+    font-family: inherit;
+    transition: color var(--transition-fast);
+}
+
+button.view-schedule:hover {
+    color: var(--neuro-accent);
+    background: none;
+    box-shadow: none;
+    transform: none;
+}
 
 /* ── Chat input row ── */
 .chat-input-container input,
