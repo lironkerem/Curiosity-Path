@@ -1085,34 +1085,6 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 
 .sound-option:hover { background: var(--neuro-bg-lightest); }
 
-button.sound-select-btn {
-    flex: 1;
-    text-align: left;
-    background: none;
-    border: none;
-    box-shadow: none;
-    cursor: pointer;
-    padding: 4px 0;
-    color: var(--text);
-    font-size: 14px;
-    font-weight: 400;
-    font-family: inherit;
-    line-height: 1.4;
-    transition: color var(--transition-fast);
-}
-
-button.sound-select-btn:hover { 
-    color: var(--neuro-accent);
-    background: none;
-    box-shadow: none;
-    transform: none;
-}
-
-button.sound-select-btn.active {
-    color: var(--neuro-accent);
-    font-weight: 600;
-}
-
 .timer-display {
     font-family: var(--serif);
     font-size: 72px;
@@ -1556,34 +1528,6 @@ button.ref-action.appreciated span:first-child { transform: scale(1.2); display:
 }
 
 .safety-menu button:hover { background: var(--neuro-bg-lightest); }
-
-.safety-dropdown-item {
-    width: 100%;
-    padding: 12px 16px;
-    text-align: left;
-    background: none;
-    border: none;
-    border-bottom: 1px solid var(--border);
-    box-shadow: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: var(--text);
-    font-size: 14px;
-    font-weight: 400;
-    font-family: inherit;
-    transition: background var(--transition-fast), color var(--transition-fast);
-}
-
-.safety-dropdown-item:last-child { border-bottom: none; }
-
-.safety-dropdown-item:hover {
-    background: var(--neuro-bg-lightest);
-    color: var(--neuro-accent);
-    box-shadow: none;
-    transform: none;
-}
 
 /* TOAST */
 #community-hub-toast.toast {

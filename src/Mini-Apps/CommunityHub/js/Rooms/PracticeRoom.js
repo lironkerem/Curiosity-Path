@@ -898,7 +898,9 @@ class PracticeRoom {
         </header>`;
     }
 
-buildSafetyDropdown() {
+    buildSafetyDropdown() {
+        // All room-instance interactions now use data-action — no window globals needed.
+        // CommunityModule calls keep their direct onclick (stable global, different module).
         const communityItems = [
             ['CommunityModule.showReportModal()', _ICONS.alert, 'Report Issue'],
             ['CommunityModule.showBlockModal()',  _ICONS.block, 'Block User'],
@@ -915,12 +917,14 @@ buildSafetyDropdown() {
             </button>
             <div id="${this.roomId}SafetyDropdown"
                  style="display:none;position:absolute;top:100%;right:0;margin-top:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:100001;">
-                <button type="button" class="safety-dropdown-item" data-action="showInstructions">
+                <button type="button" data-action="showInstructions"
+                        style="width:100%;padding:12px 16px;text-align:left;background:none;border:none;border-bottom:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:12px;color:var(--text);">
                     <span aria-hidden="true">${_ICONS.book}</span> Instructions
                 </button>
-                ${communityItems.map(([fn, icon, label]) =>
-                    `<button type="button" class="safety-dropdown-item" onclick="${fn}"><span aria-hidden="true">${icon}</span> ${label}</button>`
-                ).join('')}
+                ${communityItems.map(([fn, icon, label], i, arr) => {
+                    const border = i < arr.length - 1 ? 'border-bottom:1px solid var(--border);' : '';
+                    return `<button type="button" onclick="${fn}" style="width:100%;padding:12px 16px;text-align:left;background:none;border:none;${border}cursor:pointer;display:flex;align-items:center;gap:12px;color:var(--text);"><span aria-hidden="true">${icon}</span> ${label}</button>`;
+                }).join('')}
             </div>
         </div>`;
     }
