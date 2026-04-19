@@ -31,10 +31,10 @@ const _AMBIENT_OPTIONS = [
 ];
 
 const _AMBIENT_URLS = {
-    stream: 'https://cdn.pixabay.com/audio/2022/03/10/audio_2ded6c2d03.mp3',
-    rain:   'https://cdn.pixabay.com/audio/2022/05/13/audio_257112ce70.mp3',
-    forest: 'https://cdn.pixabay.com/audio/2021/10/19/audio_e7fb33e943.mp3',
-    ocean:  'https://cdn.pixabay.com/audio/2021/09/06/audio_6f8e47c21a.mp3',
+    stream: '/Community/Ambient/Stream.mp3',
+    rain:   '/Community/Ambient/Rain.mp3',
+    forest: '/Community/Ambient/Forrest.mp3',
+    ocean:  '/Community/Ambient/Ocean.mp3',
 };
 
 const _BELL_PROFILES = {

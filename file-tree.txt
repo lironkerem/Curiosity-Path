@@ -32,6 +32,10 @@ ROOT:.
 |   +---Community
 |   |   |   png and webp images for Community Hub
 |   |   |
+|   |   |
+|   |   +---Ambient
+|   |   |        MP3 audios for Sound (Practice rooms)
+|   |   |
 |   |   +---Chakras
 |   |   |       jpg and webp images for Chakras Information (Reiki room)
 |   |   |
@@ -121,6 +125,9 @@ ROOT:.
 |   |
 |   +---Community
 |   |   |   png and webp images for Community Hub
+|   |   |
+|   |   +---Ambient
+|   |   |        MP3 audios for Sound (Practice rooms)
 |   |   |
 |   |   +---Chakras
 |   |   |        jpg and webp images for Chakras Information (Reiki room)
