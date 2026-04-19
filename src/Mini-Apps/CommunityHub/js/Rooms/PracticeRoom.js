@@ -898,9 +898,7 @@ class PracticeRoom {
         </header>`;
     }
 
-    buildSafetyDropdown() {
-        // All room-instance interactions now use data-action — no window globals needed.
-        // CommunityModule calls keep their direct onclick (stable global, different module).
+buildSafetyDropdown() {
         const communityItems = [
             ['CommunityModule.showReportModal()', _ICONS.alert, 'Report Issue'],
             ['CommunityModule.showBlockModal()',  _ICONS.block, 'Block User'],
@@ -917,14 +915,12 @@ class PracticeRoom {
             </button>
             <div id="${this.roomId}SafetyDropdown"
                  style="display:none;position:absolute;top:100%;right:0;margin-top:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:100001;">
-                <button type="button" data-action="showInstructions"
-                        style="width:100%;padding:12px 16px;text-align:left;background:none;border:none;border-bottom:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:12px;color:var(--text);">
+                <button type="button" class="safety-dropdown-item" data-action="showInstructions">
                     <span aria-hidden="true">${_ICONS.book}</span> Instructions
                 </button>
-                ${communityItems.map(([fn, icon, label], i, arr) => {
-                    const border = i < arr.length - 1 ? 'border-bottom:1px solid var(--border);' : '';
-                    return `<button type="button" onclick="${fn}" style="width:100%;padding:12px 16px;text-align:left;background:none;border:none;${border}cursor:pointer;display:flex;align-items:center;gap:12px;color:var(--text);"><span aria-hidden="true">${icon}</span> ${label}</button>`;
-                }).join('')}
+                ${communityItems.map(([fn, icon, label]) =>
+                    `<button type="button" class="safety-dropdown-item" onclick="${fn}"><span aria-hidden="true">${icon}</span> ${label}</button>`
+                ).join('')}
             </div>
         </div>`;
     }
@@ -1058,10 +1054,10 @@ class PracticeRoom {
         </div>`;
     }
 
-    buildCardFooter() {
+buildCardFooter() {
         if (this.roomType === 'timed' && this.getTimerText) {
             const scheduleLink = this.showScheduleModal
-                ? `<button type="button" onclick="event.stopPropagation();window['${this.roomId}_showScheduleModal']()" style="background:none;border:none;padding:0;font-size:11px;color:var(--text-muted);cursor:pointer;text-decoration:underline;text-align:left;display:inline-flex;align-items:center;gap:0.3rem;white-space:nowrap;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> View Schedule</button>`
+                ? `<button type="button" class="view-schedule" onclick="event.stopPropagation();window['${this.roomId}_showScheduleModal']()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> View Schedule</button>`
                 : '';
             return `
             <div class="room-participants" style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">${this.state.participants} present</div>

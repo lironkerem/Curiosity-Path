@@ -1557,6 +1557,34 @@ button.ref-action.appreciated span:first-child { transform: scale(1.2); display:
 
 .safety-menu button:hover { background: var(--neuro-bg-lightest); }
 
+.safety-dropdown-item {
+    width: 100%;
+    padding: 12px 16px;
+    text-align: left;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    box-shadow: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 400;
+    font-family: inherit;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.safety-dropdown-item:last-child { border-bottom: none; }
+
+.safety-dropdown-item:hover {
+    background: var(--neuro-bg-lightest);
+    color: var(--neuro-accent);
+    box-shadow: none;
+    transform: none;
+}
+
 /* TOAST */
 #community-hub-toast.toast {
     position: fixed;
