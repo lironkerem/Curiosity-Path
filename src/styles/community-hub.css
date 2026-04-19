@@ -4063,7 +4063,7 @@ button.view-schedule:hover {
 
   /* Hide verbose label, keep emoji + count only */
   .ref-action .appreciation-count {
-    display: none;
+    display: inline;
   }
 
   /* Edit/Delete stay pinned right */
