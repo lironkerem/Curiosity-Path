@@ -63,11 +63,7 @@ const LAZY_FEATURES = {
   [TAB_NAMES.SHADOW_ALCHEMY]:() => import('../Mini-Apps/ShadowAlchemyLab/shadowalchemy.js'),
   [TAB_NAMES.FLIP_SCRIPT]:   () => import('../Mini-Apps/FlipTheScript/index.js'),
   [TAB_NAMES.CHATBOT]:       () => import('../Features/ChatBotAI.js'),
-  [TAB_NAMES.COMMUNITY_HUB]: () => Promise.all([
-    import('../Mini-Apps/CommunityHub/CommunityHubEngine.js'),
-    import('../styles/community-hub.css'),
-    import('../styles/user-tab-styles.css'),
-  ]),
+  [TAB_NAMES.COMMUNITY_HUB]: () => import('../Mini-Apps/CommunityHub/CommunityHubEngine.js'),
 };
 
 // Tracks which lazy modules have already been loaded

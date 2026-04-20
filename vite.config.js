@@ -41,7 +41,7 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: 'hidden',
     manifest: false,
-    cssCodeSplit: true,
+    cssCodeSplit: false,  // keep all CSS in one bundle to avoid style flash
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),

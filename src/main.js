@@ -1,6 +1,8 @@
-// ─── Styles (critical path only) ─────────────────────────────────────────────
+// ─── Styles (critical path) ───────────────────────────────────────────────────
 import './styles/main-styles.css';
 import './styles/mobile-styles.css';
+import './styles/user-tab-styles.css';   // required by User-Tab (renders on boot)
+import './styles/community-hub.css';     // required by ActiveMembersWidget
 
 // ─── Skin / Matrix ───────────────────────────────────────────────────────────
 import './styles/Skins/MatrixRain.js';
