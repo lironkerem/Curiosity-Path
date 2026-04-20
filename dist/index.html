@@ -277,27 +277,17 @@
       var dark = localStorage.getItem('darkMode') === 'enabled';
       var validSkins = ['champagne-gold', 'royal-indigo', 'earth-luxury', 'matrix-code'];
 
-      if (skin && validSkins.includes(skin)) {
-        var preload = document.createElement('link');
-        preload.rel  = 'preload';
-        preload.as   = 'style';
-        preload.href = '/src/styles/Skins/' + skin + '.css';
-        document.head.appendChild(preload);
-
+      if (skin && validSkins.indexOf(skin) !== -1) {
         var link  = document.createElement('link');
         link.rel  = 'stylesheet';
+        link.type = 'text/css';
         link.href = '/src/styles/Skins/' + skin + '.css';
         link.id   = 'skin_' + skin;
         document.head.appendChild(link);
       } else if (dark) {
-        var dmPreload  = document.createElement('link');
-        dmPreload.rel  = 'preload';
-        dmPreload.as   = 'style';
-        dmPreload.href = '/src/styles/dark-mode.css';
-        document.head.appendChild(dmPreload);
-
         var dmLink  = document.createElement('link');
         dmLink.rel  = 'stylesheet';
+        dmLink.type = 'text/css';
         dmLink.href = '/src/styles/dark-mode.css';
         dmLink.id   = 'dark-mode-css';
         document.head.appendChild(dmLink);
@@ -318,7 +308,7 @@
   <link rel="apple-touch-icon" href="/Icons/apple-touch-icon.png">
   <link rel="icon" href="/Icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/Icons/favicon.ico">
-  <script type="module" crossorigin src="/assets/main-BGqFCY9r.js"></script>
+  <script type="module" crossorigin src="/assets/main-5pW-8FCW.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/shadow-alchemy-C-dEHqCu.js">
   <link rel="modulepreload" crossorigin href="/assets/energy-4z8lVD8r.js">
   <link rel="modulepreload" crossorigin href="/assets/karma-shop-D1yE7bQ-.js">
@@ -481,30 +471,29 @@
 
   <!-- ===== Theme Management ===== -->
   <script>
+  function _createStyleLink(href, id) {
+    var l = document.createElement('link');
+    l.rel  = 'stylesheet';
+    l.type = 'text/css';
+    l.href = href;
+    if (id) l.id = id;
+    document.head.appendChild(l);
+    return l;
+  }
+
   window.setSkin = function(name) {
     if (window.app && window.app.userTab && window.app.userTab.switchTheme) {
       window.app.userTab.switchTheme(name);
       return;
     }
-    // Remove any active skin links
     document.querySelectorAll('link[id^="skin_"]').forEach(function(l) { l.remove(); });
     var dmLink = document.getElementById('dark-mode-css');
 
     if (name !== 'default') {
-      var link  = document.createElement('link');
-      link.rel  = 'stylesheet';
-      link.href = '/src/styles/Skins/' + name + '.css';
-      link.id   = 'skin_' + name;
-      document.head.appendChild(link);
+      _createStyleLink('/src/styles/Skins/' + name + '.css', 'skin_' + name);
       if (dmLink) dmLink.remove();
     } else if (localStorage.getItem('darkMode') === 'enabled') {
-      if (!dmLink) {
-        var dm  = document.createElement('link');
-        dm.rel  = 'stylesheet';
-        dm.href = '/src/styles/dark-mode.css';
-        dm.id   = 'dark-mode-css';
-        document.head.appendChild(dm);
-      }
+      if (!dmLink) _createStyleLink('/src/styles/dark-mode.css', 'dark-mode-css');
     }
     try { localStorage.setItem('activeTheme', name); } catch(e) {}
   };
@@ -521,11 +510,7 @@
     if (!premiumActive) {
       var dm = document.getElementById('dark-mode-css');
       if (enable && !dm) {
-        var newDm  = document.createElement('link');
-        newDm.rel  = 'stylesheet';
-        newDm.href = '/src/styles/dark-mode.css';
-        newDm.id   = 'dark-mode-css';
-        document.head.appendChild(newDm);
+        _createStyleLink('/src/styles/dark-mode.css', 'dark-mode-css');
       } else if (!enable && dm) {
         dm.remove();
       }

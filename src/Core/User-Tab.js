@@ -523,13 +523,19 @@ export default class UserTab {
    * Handle dark mode toggle
    * @param {boolean} enabled - Whether dark mode is enabled
    */
-  handleDarkModeToggle(enabled) {
+ handleDarkModeToggle(enabled) {
     document.body.classList.toggle('dark-mode', enabled);
-    
-    const link = document.getElementById('dark-mode-css');
-    if (link) link.media = enabled ? 'all' : 'not all';
-    
     localStorage.setItem('darkMode', enabled ? 'enabled' : 'disabled');
+
+    const premiumActive = document.querySelector('link[id^="skin_"]');
+    if (!premiumActive) {
+      const existing = document.getElementById('dark-mode-css');
+      if (enabled && !existing) {
+        this._injectStyleLink('/src/styles/dark-mode.css', 'dark-mode-css');
+      } else if (!enabled && existing) {
+        existing.remove();
+      }
+    }
 
     // Reinit matrix rain if active
     if (localStorage.getItem('activeTheme') === 'matrix-code' && window.app?.initMatrixRain) {
@@ -543,45 +549,42 @@ export default class UserTab {
    */
   switchTheme(name) {
     // Disable dark mode CSS for non-default themes
-    if (name !== 'default') {
-      document.getElementById('dark-mode-css')?.style && (document.getElementById('dark-mode-css').media = 'not all');
-    }
+    const dmLink = document.getElementById('dark-mode-css');
 
-    // Remove all theme classes
+    // Remove all active skin stylesheets (both preloaded and dynamically injected)
+    document.querySelectorAll('link[id^="skin_"], link[data-premium-theme]').forEach(l => l.remove());
+
+    // Remove all theme body classes
     document.body.classList.remove(...UserTab.THEME_CLASSES);
 
-    // Disable all preloaded skin stylesheets and remove any dynamically injected ones
-    document.querySelectorAll('link[id^="skin_"]').forEach(l => l.media = 'not all');
-    document.querySelectorAll('link[data-premium-theme]').forEach(l => l.remove());
-
     // Clean up matrix rain
-    const rain = document.querySelector('.matrix-rain-container');
-    if (rain) rain.remove();
+    document.querySelector('.matrix-rain-container')?.remove();
     if (window.matrixRain) window.matrixRain.destroy();
 
     localStorage.setItem('activeTheme', name);
 
-    // Handle default theme
     if (name === 'default') {
-      const darkLink = document.getElementById('dark-mode-css');
-      if (darkLink) darkLink.media = localStorage.getItem('darkMode') === 'enabled' ? 'all' : 'not all';
+      // Restore dark mode if it was enabled
+      if (localStorage.getItem('darkMode') === 'enabled') {
+        if (dmLink) {
+          dmLink.media = 'all';
+        } else {
+          this._injectStyleLink('/src/styles/dark-mode.css', 'dark-mode-css');
+        }
+      } else if (dmLink) {
+        dmLink.remove();
+      }
       return;
     }
 
-    // Apply premium theme body class
+    // Remove dark mode for premium themes
+    if (dmLink) dmLink.remove();
+
+    // Apply body class
     document.body.classList.add(name);
 
-    // Reuse the preloaded skin_ stylesheet if available; otherwise inject dynamically
-    const preloaded = document.getElementById('skin_' + name);
-    if (preloaded) {
-      preloaded.media = 'all';
-    } else {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = `./src/styles/Skins/${name}.css`;
-      link.setAttribute('data-premium-theme', name);
-      document.head.appendChild(link);
-    }
+    // Always inject a fresh link with correct absolute path + type
+    this._injectStyleLink(`/src/styles/Skins/${name}.css`, `skin_${name}`);
 
     // Initialize matrix rain if needed
     if (name === 'matrix-code') {
@@ -592,11 +595,26 @@ export default class UserTab {
     }
   }
 
+  // ── Helper: inject a stylesheet link with correct MIME type ───────────────
+
+  _injectStyleLink(href, id) {
+    // Remove existing link with same id if present
+    document.getElementById(id)?.remove();
+    const link = document.createElement('link');
+    link.rel   = 'stylesheet';
+    link.type  = 'text/css';   // explicit MIME — prevents Vercel plain-text rejection
+    link.href  = href;
+    if (id) link.id = id;
+    document.head.appendChild(link);
+    return link;
+  }
+
   /** Load saved theme from localStorage */
-  loadActiveTheme() {
+ loadActiveTheme() {
     try {
       const theme = localStorage.getItem('activeTheme');
       if (theme && theme !== 'default') {
+        // Small delay to ensure DOM is ready
         setTimeout(() => this.switchTheme(theme), UserTab.CONFIG.THEME_INIT_DELAY);
       }
     } catch (e) {
@@ -604,15 +622,24 @@ export default class UserTab {
     }
   }
 
+
   /** Restore dark mode state from localStorage */
-  restoreDarkMode() {
-    const dark = localStorage.getItem('darkMode') === 'enabled';
+ restoreDarkMode() {
+    const dark   = localStorage.getItem('darkMode') === 'enabled';
+    const theme  = localStorage.getItem('activeTheme') || 'default';
     document.body.classList.toggle('dark-mode', dark);
-    
-    const link = document.getElementById('dark-mode-css');
+
+    // Don't touch dark-mode link if a premium skin is active
+    if (theme === 'default') {
+      const existing = document.getElementById('dark-mode-css');
+      if (dark && !existing) {
+        this._injectStyleLink('/src/styles/dark-mode.css', 'dark-mode-css');
+      } else if (!dark && existing) {
+        existing.remove();
+      }
+    }
+
     const toggle = document.getElementById('dark-mode-toggle');
-    
-    if (link) link.media = dark ? 'all' : 'not all';
     if (toggle) toggle.checked = dark;
   }
 
