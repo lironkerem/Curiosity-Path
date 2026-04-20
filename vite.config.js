@@ -41,16 +41,35 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: 'hidden',
     manifest: false,
+    cssCodeSplit: true,
     rollupOptions: {
       input: {
-        main:         resolve(__dirname, 'index.html'),
-        communityHub: resolve(__dirname, 'src/Mini-Apps/CommunityHub/CommunityHubEngine.js'),
+        main: resolve(__dirname, 'index.html'),
       },
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules/@supabase')) {
-            return 'supabase';
-          }
+          // ── Vendor ──────────────────────────────────────────────────────────
+          if (id.includes('node_modules/@supabase'))    return 'supabase';
+
+          // ── Community Hub (largest chunk — lazy loaded) ──────────────────
+          if (id.includes('CommunityHub'))              return 'community';
+
+          // ── Mini-Apps ────────────────────────────────────────────────────
+          if (id.includes('ShadowAlchemyLab'))          return 'shadow-alchemy';
+          if (id.includes('FlipTheScript'))             return 'flip-script';
+          if (id.includes('SelfAnalysisPro'))           return 'calculator';
+
+          // ── Features ─────────────────────────────────────────────────────
+          if (id.includes('Features/TarotEngine') ||
+              id.includes('Features/TarotVision')) return 'tarot';
+          if (id.includes('Features/ChatBot'))          return 'chatbot';
+          if (id.includes('Features/KarmaShop'))        return 'karma-shop';
+          if (id.includes('Features/Journal'))          return 'journal';
+          if (id.includes('Features/Meditations'))      return 'meditations';
+          if (id.includes('Features/ShadowAlchemy'))    return 'shadow-alchemy';
+          if (id.includes('Features/Happiness'))        return 'happiness';
+          if (id.includes('Features/Gratitude'))        return 'gratitude';
+          if (id.includes('Features/EnergyTracker'))    return 'energy';
         },
       },
     },

@@ -1,13 +1,12 @@
 /**
- * DashboardManager.js - Complete Optimized Version
- * Manages the user dashboard including gamification, quests, badges, and wellness tracking
- * @author Aanandoham (Liron Kerem)
- * @copyright 2026
+ * DashboardManager.js - Optimized Version
+ * - Lazy-loads ActiveMembersWidget (no Community Hub code at boot)
+ * - Partial DOM updates instead of full innerHTML re-renders on quest progress
  */
 
 import { InquiryEngine } from '../Features/InquiryEngine.js';
 import DailyCards from '../Features/DailyCards.js';
-import { ActiveMembersWidget } from '/src/Mini-Apps/CommunityHub/js/active-members.js';
+// ActiveMembersWidget is now lazy-loaded on first render
 
 const CONSTANTS = {
   BADGES_PREVIEW_COUNT: 9,
@@ -15,7 +14,7 @@ const CONSTANTS = {
   WELLNESS_POLL_INTERVAL: 3000,
   COUNTDOWN_UPDATE_INTERVAL: 1000,
   RENDER_DEBOUNCE_MS: 100,
-  
+
   RARITY_GRADIENTS: {
     common:    'linear-gradient(135deg, rgba(245, 245, 247, 0.85) 0%, rgba(210, 214, 220, 0.85) 100%), linear-gradient(#f5f5f7, #d2d6dc)',
     uncommon:  'linear-gradient(135deg, rgba(0, 224, 132, 0.85) 0%, rgba(0, 185, 108, 0.85) 100%), linear-gradient(#00e084, #00b96c)',
@@ -23,26 +22,26 @@ const CONSTANTS = {
     epic:      'linear-gradient(135deg, rgba(184, 0, 230, 0.85) 0%, rgba(142, 0, 204, 0.85) 100%), linear-gradient(#b800e6, #8e00cc)',
     legendary: 'linear-gradient(135deg, rgba(255, 195, 0, 0.85) 0%, rgba(255, 135, 0, 0.85) 100%), linear-gradient(#ffc300, #ff8700)'
   },
-  
+
   KARMA_BY_RARITY: {
     common: 3, uncommon: 5, rare: 10, epic: 15, legendary: 30
   },
-  
+
   BADGE_CATEGORIES: {
-    'First Wins':                    ['first_step', 'first_gratitude', 'first_journal', 'first_energy', 'first_tarot', 'first_meditation', 'first_purchase'],
-    'Gratitude Badges':              ['gratitude_warrior', 'gratitude_legend', 'gratitude_200', 'gratitude_500'],
-    'Journaling Badges':             ['journal_keeper', 'journal_master', 'journal_150', 'journal_400'],
-    'Energy Tracking Badges':        ['energy_tracker', 'energy_sage', 'energy_300', 'energy_600'],
-    'Tarot Spreads Badges':          ['tarot_apprentice', 'tarot_mystic', 'tarot_oracle', 'tarot_150', 'tarot_400'],
-    'Meditations Badges':            ['meditation_devotee', 'meditation_master', 'meditation_100', 'meditation_200'],
+    'First Wins':                      ['first_step', 'first_gratitude', 'first_journal', 'first_energy', 'first_tarot', 'first_meditation', 'first_purchase'],
+    'Gratitude Badges':                ['gratitude_warrior', 'gratitude_legend', 'gratitude_200', 'gratitude_500'],
+    'Journaling Badges':               ['journal_keeper', 'journal_master', 'journal_150', 'journal_400'],
+    'Energy Tracking Badges':          ['energy_tracker', 'energy_sage', 'energy_300', 'energy_600'],
+    'Tarot Spreads Badges':            ['tarot_apprentice', 'tarot_mystic', 'tarot_oracle', 'tarot_150', 'tarot_400'],
+    'Meditations Badges':              ['meditation_devotee', 'meditation_master', 'meditation_100', 'meditation_200'],
     'Happiness and Motivation Badges': ['happiness_seeker', 'joy_master', 'happiness_300', 'happiness_700'],
-    'Wellness Exercises Badges':     ['wellness_champion', 'wellness_guru', 'wellness_300', 'wellness_700'],
-    'Streaks Badges':                ['perfect_week', 'dedication_streak', 'unstoppable', 'legendary_streak'],
-    'Quest Completion Badges':       ['weekly_warrior', 'monthly_master', 'quest_crusher', 'daily_champion'],
-    'Karma Currency Badges':         ['karma_collector', 'karma_lord', 'xp_milestone', 'xp_titan'],
-    'Level-Up Badges':               ['level_5_hero', 'level_7_hero', 'level_10_hero'],
-    'Chakra Balance Badges':         ['chakra_balancer', 'chakra_master'],
-    'Cross-Features Badges':         ['triple_threat', 'super_day', 'complete_explorer', 'renaissance_soul']
+    'Wellness Exercises Badges':       ['wellness_champion', 'wellness_guru', 'wellness_300', 'wellness_700'],
+    'Streaks Badges':                  ['perfect_week', 'dedication_streak', 'unstoppable', 'legendary_streak'],
+    'Quest Completion Badges':         ['weekly_warrior', 'monthly_master', 'quest_crusher', 'daily_champion'],
+    'Karma Currency Badges':           ['karma_collector', 'karma_lord', 'xp_milestone', 'xp_titan'],
+    'Level-Up Badges':                 ['level_5_hero', 'level_7_hero', 'level_10_hero'],
+    'Chakra Balance Badges':           ['chakra_balancer', 'chakra_master'],
+    'Cross-Features Badges':           ['triple_threat', 'super_day', 'complete_explorer', 'renaissance_soul']
   }
 };
 
@@ -54,27 +53,16 @@ const UI_CONSTANTS = {
   DAILY_BONUS_XP: 50
 };
 
-// ---------------------------------------------------------------------------
-// isAdminBadge(badge, allDefs)
-//
-// A badge is "admin-awarded" (not earned through normal gameplay) when its id
-// is NOT present in the game's badge definitions.  This replaces the old
-// hard-coded KNOWN_ADMIN_BADGE_IDS Set, so every badge sent via the Admin
-// Console or Bulk Send — including the full merged registry and any custom_*
-// badges — renders correctly in the dashboard.
-// ---------------------------------------------------------------------------
 function isAdminBadge(badge, allDefs) {
   return !allDefs[badge.id];
 }
 
-// Global helper: navigate to Community Hub tab then scroll to a specific section.
 window._navigateToHubSection = function(targetId) {
   window._pendingHubScrollTarget = targetId;
   window.app?.nav?.switchTab('community-hub');
 };
 
 export default class DashboardManager {
-  /** @type {Object} Fallback quote when QuotesData unavailable */
   static FALLBACK_QUOTE = {
     text: 'What you think, you become. What you feel, you attract. What you imagine, you create.',
     author: 'Buddha'
@@ -87,30 +75,32 @@ export default class DashboardManager {
     this.intervals = [];
     this.cachedElements = {};
     this._activeMembersWidget = null;
+    this._firstRender = true; // track whether full render has run
 
     this.globals = { QuotesData: () => window.QuotesData };
-    
+
     if (window.app) window.app.dailyCards = this.dailyCards;
 
     this.setupQuestListeners();
     this.startCountdown();
-    
+
     this.boundMethods = {
       refreshQuote:    this.refreshQuote.bind(this),
       switchQuestTab:  this.switchQuestTab.bind(this),
       toggleAllBadges: this.toggleAllBadges.bind(this)
     };
-    
+
     if (window.app?.dashboard) {
       window.app.dashboard.refreshQuote    = this.boundMethods.refreshQuote;
       window.app.dashboard.switchQuestTab  = this.boundMethods.switchQuestTab;
       window.app.dashboard.toggleAllBadges = this.boundMethods.toggleAllBadges;
     }
-    
+
+    // Full render is debounced; quest-only updates use _updateQuestsOnly
     this.render = this.debounce(this._render.bind(this), CONSTANTS.RENDER_DEBOUNCE_MS);
   }
 
-  /* ---------- Utility Methods ---------- */
+  /* ---------- Utility ---------- */
 
   debounce(func, wait) {
     let timeout;
@@ -167,7 +157,7 @@ export default class DashboardManager {
     return parts.join(' ');
   }
 
-  /* ---------- Countdown & Intervals ---------- */
+  /* ---------- Countdown ---------- */
 
   startCountdown() {
     const interval = setInterval(() => this.updateCountdownDisplays(), CONSTANTS.COUNTDOWN_UPDATE_INTERVAL);
@@ -175,8 +165,7 @@ export default class DashboardManager {
   }
 
   updateCountdownDisplays() {
-    if (!this.app.gamification) return;
-    if (document.hidden) return;
+    if (!this.app.gamification || document.hidden) return;
     try {
       const resets = this._getNextResetTimes();
       const now    = new Date();
@@ -184,8 +173,8 @@ export default class DashboardManager {
         const el = document.getElementById(`countdown-${type}`);
         if (el) el.textContent = this._formatCountdown(resets[type] - now);
       });
-    } catch (error) {
-      console.error('Error updating countdown:', error);
+    } catch (e) {
+      console.error('Error updating countdown:', e);
     }
   }
 
@@ -193,36 +182,59 @@ export default class DashboardManager {
 
   setupQuestListeners() {
     if (!this.app.gamification) return;
-    
+
     this.app.gamification.on('questCompleted', quest => {
       if (this.app.gamification.state._bulkMode) return;
       this.app.showToast(`Quest Complete: ${quest.name}! +${quest.xpReward} XP`, 'success');
       if (quest.inspirational) {
         setTimeout(() => this.app.showToast(`${quest.inspirational}`, 'info'), 1500);
       }
-      this.render();
+      // Partial update — only re-render the quest hub, not the full dashboard
+      this._updateQuestsOnly();
     });
-    
+
     this.app.gamification.on('bulkQuestsComplete', ({ type, done, xp, karma }) => {
-      const typeCapitalized = type.charAt(0).toUpperCase() + type.slice(1);
-      this.app.showToast(`${typeCapitalized} quests complete! +${xp} XP${karma ? ` +${karma} Karma` : ''}`, 'success');
+      const t = type.charAt(0).toUpperCase() + type.slice(1);
+      this.app.showToast(`${t} quests complete! +${xp} XP${karma ? ` +${karma} Karma` : ''}`, 'success');
     });
-    
-    this.app.gamification.on('questProgress', () => this.render());
+
+    // Partial update on progress too
+    this.app.gamification.on('questProgress', () => this._updateQuestsOnly());
 
     this.app.gamification.on('dailyQuestsComplete', () => {
       this.app.showToast(`All Daily Quests Complete! +${UI_CONSTANTS.DAILY_BONUS_XP} Bonus XP `, 'success');
     });
   }
 
+  /**
+   * Re-render only the quest hub section in-place.
+   * Avoids the full dashboard innerHTML replacement on every quest tick.
+   */
+  _updateQuestsOnly() {
+    const questHub = document.querySelector('.dashboard-quest-hub');
+    if (!questHub) {
+      // Dashboard not rendered yet — do nothing (full render will come)
+      return;
+    }
+    if (!this.app.gamification) return;
+    const status = this.app.gamification.getStatusSummary();
+    const tmp = document.createElement('div');
+    tmp.innerHTML = this.renderQuestHub(status);
+    const newHub = tmp.firstElementChild;
+    if (newHub) {
+      questHub.replaceWith(newHub);
+      this.animateProgressBars();
+    }
+  }
+
   /* ---------- Quote Card ---------- */
 
   renderQuoteCard() {
     const QuotesData = this.globals.QuotesData();
-    this.currentQuote = QuotesData 
+    this.currentQuote = QuotesData
       ? QuotesData.getQuoteOfTheDay()
       : DashboardManager.FALLBACK_QUOTE;
-    
+
     return `
       <div class="neuro-card flip-card" id="dashboard-quote-card">
         <div class="flip-card-inner">
@@ -277,8 +289,8 @@ export default class DashboardManager {
         </div>`;
       this._flipCard('dashboard-quote-card', html);
       if (this.app.showToast) this.app.showToast('New quote revealed!', 'success');
-    } catch (error) {
-      console.error('Error refreshing quote:', error);
+    } catch (e) {
+      console.error('Error refreshing quote:', e);
     }
   }
 
@@ -296,14 +308,14 @@ export default class DashboardManager {
     }
 
     const statItems = [
-      { value: status.karma, label: 'Karma', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="2" y2="9"/><line x1="12" y1="3" x2="22" y2="9"/></svg>' },
-      { value: stats.totalGratitudes || 0, label: 'Gratitudes', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' },
-      { value: status.totalJournalEntries, label: 'Journaling', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' },
-      { value: status.totalHappinessViews, label: 'Boosters', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>' },
-      { value: status.totalTarotSpreads, label: 'Tarot Spreads', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="11" height="14" rx="2"/><path d="M15.5 5.5 18 3l4 4-5.5 5.5"/><path d="m13 13 4.5 4.5"/><path d="m17.5 17.5 1 1"/></svg>' },
-      { value: stats.totalMeditations || 0, label: 'Meditations', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>' },
-      { value: status.totalWellnessRuns, label: 'Wellness Kit', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22c1.25-1.25 2.5-2.5 3.75-3.75"/><path d="M22 2C11 2 2 11 2 22c5.5 0 11-2.5 14.5-6S22 7.5 22 2z"/></svg>' },
-      { value: status.badges.length, label: 'Badges', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>' }
+      { value: status.karma,                   label: 'Karma',        emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="2" y2="9"/><line x1="12" y1="3" x2="22" y2="9"/></svg>' },
+      { value: stats.totalGratitudes || 0,     label: 'Gratitudes',   emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' },
+      { value: status.totalJournalEntries,      label: 'Journaling',   emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' },
+      { value: status.totalHappinessViews,      label: 'Boosters',     emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>' },
+      { value: status.totalTarotSpreads,        label: 'Tarot Spreads',emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="11" height="14" rx="2"/><path d="M15.5 5.5 18 3l4 4-5.5 5.5"/><path d="m13 13 4.5 4.5"/><path d="m17.5 17.5 1 1"/></svg>' },
+      { value: stats.totalMeditations || 0,    label: 'Meditations',  emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>' },
+      { value: status.totalWellnessRuns,        label: 'Wellness Kit', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22c1.25-1.25 2.5-2.5 3.75-3.75"/><path d="M22 2C11 2 2 11 2 22c5.5 0 11-2.5 14.5-6S22 7.5 22 2z"/></svg>' },
+      { value: status.badges.length,            label: 'Badges',       emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>' }
     ];
 
     const article = levelInfo.title.match(/^[aeiou]/i) ? 'an' : 'a';
@@ -448,8 +460,8 @@ export default class DashboardManager {
             ${this.renderQuestCompleteMessage('monthly', monthlyCompleted, monthlyTotal, '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>', 'All Monthly Quests Complete! Legendary!')}
           </div>
         </div>`;
-    } catch (error) {
-      console.error('Error rendering quest hub:', error);
+    } catch (e) {
+      console.error('Error rendering quest hub:', e);
       return '<div class="card mb-8"><p style="text-align:center;padding:20px;">Unable to load quests. Please refresh.</p></div>';
     }
   }
@@ -480,7 +492,7 @@ export default class DashboardManager {
     const clickableClass  = (!quest.completed && quest.tab) ? 'dashboard-quest-clickable' : '';
     const hintHtml        = (!quest.completed && quest.tab) ? '<div class="dashboard-quest-hint"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041-1.041 4.35a.5.5 0 0 1-.949.074z"/></svg> Click to start</div>' : '';
     const clickHandler    = (!quest.completed && quest.tab)
-      ? `onclick="window.app.nav.switchTab('${quest.tab}'); window.scrollTo({top:0,behavior:'smooth'});"` 
+      ? `onclick="window.app.nav.switchTab('${quest.tab}'); window.scrollTo({top:0,behavior:'smooth'});"`
       : '';
 
     return `
@@ -527,12 +539,12 @@ export default class DashboardManager {
       const isMobile     = window.innerWidth <= UI_CONSTANTS.MOBILE_BREAKPOINT;
       const previewCount = isMobile ? UI_CONSTANTS.BADGE_PREVIEW_MOBILE : UI_CONSTANTS.BADGE_PREVIEW_DESKTOP;
 
-      const latestEarned      = this.getLatestEarnedBadges(status, allDefs, previewCount);
-      const gameBadges        = this.getGameBadges(allDefs, earned);
+      const latestEarned       = this.getLatestEarnedBadges(status, allDefs, previewCount);
+      const gameBadges         = this.getGameBadges(allDefs, earned);
       const awardedAdminBadges = this.getAwardedAdminBadges(status.badges || [], allDefs);
-      const fullList          = [...gameBadges, ...awardedAdminBadges];
-      const categories        = this.buildBadgeCategories(fullList, awardedAdminBadges);
-      const categoryHtml      = this.renderBadgeCategories(categories);
+      const fullList           = [...gameBadges, ...awardedAdminBadges];
+      const categories         = this.buildBadgeCategories(fullList, awardedAdminBadges);
+      const categoryHtml       = this.renderBadgeCategories(categories);
 
       const previewHtml = latestEarned.length > 0
         ? latestEarned.map(badge => this.renderBadgeCard(badge)).join('')
@@ -562,8 +574,8 @@ export default class DashboardManager {
           </div>
           ${mobileCss}
         </div>`;
-    } catch (error) {
-      console.error('Error rendering badges:', error);
+    } catch (e) {
+      console.error('Error rendering badges:', e);
       return '<div class="card mb-8"><p style="text-align:center;padding:20px;">Unable to load badges.</p></div>';
     }
   }
@@ -574,18 +586,9 @@ export default class DashboardManager {
       .filter(Boolean);
   }
 
-  /**
-   * Map a stored badge to a renderable object.
-   * Game badges use allDefs for metadata; admin/custom badges fall back to
-   * the badge's own stored fields so nothing is lost.
-   */
   processBadge(badge, allDefs) {
     const def = allDefs[badge.id];
-    if (def) {
-      // Normal game badge
-      return { ...badge, ...def, earned: true, karma: CONSTANTS.KARMA_BY_RARITY[def.rarity] || 3 };
-    }
-    // Admin-awarded or custom badge — use stored metadata directly
+    if (def) return { ...badge, ...def, earned: true, karma: CONSTANTS.KARMA_BY_RARITY[def.rarity] || 3 };
     return this._adminBadgeToRenderable(badge);
   }
 
@@ -609,10 +612,6 @@ export default class DashboardManager {
     }));
   }
 
-  /**
-   * Return only the badges that were admin-awarded (not in allDefs).
-   * This covers every badge in BADGE_REGISTRY plus any custom_* badges.
-   */
   getAwardedAdminBadges(badges, allDefs) {
     return badges
       .filter(b => isAdminBadge(b, allDefs))
@@ -628,9 +627,9 @@ export default class DashboardManager {
   }
 
   renderBadgeCategories(categories) {
-    const allDefs = this.app.gamification.getBadgeDefinitions();
-    const status  = this.app.gamification.getStatusSummary();
-    const earned  = new Set(status.badges.map(b => b.id));
+    const allDefs            = this.app.gamification.getBadgeDefinitions();
+    const status             = this.app.gamification.getStatusSummary();
+    const earned             = new Set(status.badges.map(b => b.id));
     const gameBadges         = this.getGameBadges(allDefs, earned);
     const awardedAdminBadges = this.getAwardedAdminBadges(status.badges, allDefs);
     const fullList           = [...gameBadges, ...awardedAdminBadges];
@@ -668,7 +667,7 @@ export default class DashboardManager {
     const container = document.getElementById('all-badges-container');
     const btn       = document.getElementById('show-all-btn');
     if (!container || !btn) return;
-    const isOpen = container.style.display !== 'none';
+    const isOpen         = container.style.display !== 'none';
     container.style.display = isOpen ? 'none' : 'block';
     const allDefs        = this.app.gamification.getBadgeDefinitions();
     const status         = this.app.gamification.getStatusSummary();
@@ -684,15 +683,9 @@ export default class DashboardManager {
     if (!dashboard) return;
 
     try {
-      const status = this.app.gamification 
+      const status = this.app.gamification
         ? this.app.gamification.getStatusSummary()
-        : {
-            quests: { daily: [], weekly: [], monthly: [] },
-            badges: [], xp: 0, karma: 0,
-            streak: { current: 0 },
-            totalJournalEntries: 0, totalHappinessViews: 0,
-            totalTarotSpreads: 0, totalWellnessRuns: 0
-          };
+        : { quests: { daily: [], weekly: [], monthly: [] }, badges: [], xp: 0, karma: 0, streak: { current: 0 }, totalJournalEntries: 0, totalHappinessViews: 0, totalTarotSpreads: 0, totalWellnessRuns: 0 };
 
       const stats    = this.app.state?.getStats?.() || {};
       const userName = this.app.state.currentUser?.name || 'Seeker';
@@ -720,21 +713,25 @@ export default class DashboardManager {
         </div>`;
 
       this.animateProgressBars();
+      this._firstRender = false;
 
+      // Lazy-load ActiveMembersWidget only when dashboard is actually rendered
       const dashEl = document.getElementById('dashboardActiveMembersContainer');
       if (dashEl) {
         if (this._activeMembersWidget) this._activeMembersWidget.destroy();
-        this._activeMembersWidget = new ActiveMembersWidget(dashEl);
-        this._activeMembersWidget.render();
+        import('/src/Mini-Apps/CommunityHub/js/active-members.js').then(({ ActiveMembersWidget }) => {
+          this._activeMembersWidget = new ActiveMembersWidget(dashEl);
+          this._activeMembersWidget.render();
+        }).catch(e => console.warn('[Dashboard] ActiveMembersWidget failed to load:', e));
       }
 
       this._renderSanctuarySection();
-      
-    } catch (error) {
-      console.error('Error rendering dashboard:', error);
+
+    } catch (e) {
+      console.error('Error rendering dashboard:', e);
       dashboard.innerHTML = `
         <div class="card" style="padding: 2rem; text-align: center;">
-          <h2 style="color: var(--neuro-accent);"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Error Loading Dashboard</h2>
+          <h2 style="color: var(--neuro-accent);">Error Loading Dashboard</h2>
           <p>Please refresh the page or contact support if the issue persists.</p>
         </div>`;
     }
@@ -749,7 +746,7 @@ export default class DashboardManager {
     });
   }
 
-  /* ---------- Sanctuary / Community Hub Invite ---------- */
+  /* ---------- Sanctuary ---------- */
 
   _renderSanctuarySection() {
     const container = document.getElementById('sanctuaryContainer');
@@ -766,6 +763,7 @@ export default class DashboardManager {
       <div class="card dashboard-wellness-toolkit dashboard-community-sanctuary mb-8">
         <img src="/Tabs/CommunityHub.webp" alt="Community Sanctuary"
              width="800" height="450"
+             loading="lazy"
              style="width:100%;border-radius:var(--radius-md);display:block;">
         <div class="wellness-buttons-grid">
           ${features.map(f => `
@@ -791,7 +789,7 @@ export default class DashboardManager {
   /* ---------- Cleanup ---------- */
 
   destroy() {
-    this.intervals.forEach(interval => clearInterval(interval));
+    this.intervals.forEach(clearInterval);
     this.intervals = [];
     this.cachedElements = {};
 

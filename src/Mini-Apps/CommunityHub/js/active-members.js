@@ -87,7 +87,7 @@ const DOT_CLASS_MAP = {
 };
 
 // How long to wait for CommunityDB to become ready before giving up
-const DB_READY_TIMEOUT  = 10_000;
+const DB_READY_TIMEOUT  = 20_000;
 const DB_READY_INTERVAL = 150;
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -131,7 +131,7 @@
       opacity: 1 !important;
     }
 
-    /* ── PWA Install Toast — entire toast is the install button ── */
+    /* ── PWA Install Toast ── */
     #pwa-install-toast {
       position: fixed;
       bottom: 1.5rem;
@@ -262,31 +262,54 @@
   <link rel="preload" href="/Tabs/Header-mobile.webp" as="image" type="image/webp" fetchpriority="high" media="(max-width: 768px)">
 
   <!-- ===== CDN Preconnect ===== -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <!-- ===== Google Fonts — non-blocking ===== -->
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&display=swap"></noscript>
 
-  <!-- ===== Skin stylesheets (toggled via JS) ===== -->
-  <link rel="preload" href="/src/styles/dark-mode.css" as="style">
-  <link rel="stylesheet" href="/src/styles/dark-mode.css" id="dark-mode-css" media="not all">
+  <!-- ===== Skin stylesheets — load only the active skin ===== -->
+  <script>
+  (function() {
+    try {
+      var skin = localStorage.getItem('activeTheme');
+      var dark = localStorage.getItem('darkMode') === 'enabled';
+      var validSkins = ['champagne-gold', 'royal-indigo', 'earth-luxury', 'matrix-code'];
 
-  <link rel="preload" href="/src/styles/Skins/champagne-gold.css" as="style">
-  <link rel="preload" href="/src/styles/Skins/royal-indigo.css"   as="style">
-  <link rel="preload" href="/src/styles/Skins/earth-luxury.css"   as="style">
-  <link rel="preload" href="/src/styles/Skins/matrix-code.css"    as="style">
+      if (skin && validSkins.includes(skin)) {
+        var preload = document.createElement('link');
+        preload.rel  = 'preload';
+        preload.as   = 'style';
+        preload.href = '/src/styles/Skins/' + skin + '.css';
+        document.head.appendChild(preload);
 
-  <link rel="stylesheet" href="/src/styles/Skins/champagne-gold.css" id="skin_champagne-gold" media="not all">
-  <link rel="stylesheet" href="/src/styles/Skins/royal-indigo.css"   id="skin_royal-indigo"   media="not all">
-  <link rel="stylesheet" href="/src/styles/Skins/earth-luxury.css"   id="skin_earth-luxury"   media="not all">
-  <link rel="stylesheet" href="/src/styles/Skins/matrix-code.css"    id="skin_matrix-code"    media="not all">
+        var link  = document.createElement('link');
+        link.rel  = 'stylesheet';
+        link.href = '/src/styles/Skins/' + skin + '.css';
+        link.id   = 'skin_' + skin;
+        document.head.appendChild(link);
+      } else if (dark) {
+        var dmPreload  = document.createElement('link');
+        dmPreload.rel  = 'preload';
+        dmPreload.as   = 'style';
+        dmPreload.href = '/src/styles/dark-mode.css';
+        document.head.appendChild(dmPreload);
+
+        var dmLink  = document.createElement('link');
+        dmLink.rel  = 'stylesheet';
+        dmLink.href = '/src/styles/dark-mode.css';
+        dmLink.id   = 'dark-mode-css';
+        document.head.appendChild(dmLink);
+      }
+    } catch(e) {}
+  })();
+  </script>
 
   <!-- ===== PWA / icons ===== -->
-<script>
-  (function(){var l=document.createElement('link');l.rel='manifest';l.href='/manifest.json';document.head.appendChild(l);})();
-</script>
+  <script>
+    (function(){var l=document.createElement('link');l.rel='manifest';l.href='/manifest.json';document.head.appendChild(l);})();
+  </script>
   <meta name="theme-color" content="#6b9b37">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -302,16 +325,17 @@
   <script>
   (function() {
     try {
-      var dark = localStorage.getItem('darkMode') === 'enabled';
       var skin = localStorage.getItem('activeTheme') || 'default';
+      var dark = localStorage.getItem('darkMode') === 'enabled';
+
       if (skin !== 'default') {
         document.body.classList.add(skin);
         var skinLink = document.getElementById('skin_' + skin);
         if (skinLink) skinLink.media = 'all';
       } else if (dark) {
+        document.body.classList.add('dark-mode');
         var dmLink = document.getElementById('dark-mode-css');
         if (dmLink) dmLink.media = 'all';
-        document.body.classList.add('dark-mode');
       }
     } catch(e) {}
   })();
@@ -448,15 +472,25 @@
       window.app.userTab.switchTheme(name);
       return;
     }
-    document.querySelectorAll('link[id^="skin_"]').forEach(function(l) { l.media = 'not all'; });
+    // Remove any active skin links
+    document.querySelectorAll('link[id^="skin_"]').forEach(function(l) { l.remove(); });
+    var dmLink = document.getElementById('dark-mode-css');
+
     if (name !== 'default') {
-      var wanted = document.getElementById('skin_' + name);
-      if (wanted) wanted.media = 'all';
-      var dm = document.getElementById('dark-mode-css');
-      if (dm) dm.media = 'not all';
+      var link  = document.createElement('link');
+      link.rel  = 'stylesheet';
+      link.href = '/src/styles/Skins/' + name + '.css';
+      link.id   = 'skin_' + name;
+      document.head.appendChild(link);
+      if (dmLink) dmLink.remove();
     } else if (localStorage.getItem('darkMode') === 'enabled') {
-      var dm2 = document.getElementById('dark-mode-css');
-      if (dm2) dm2.media = 'all';
+      if (!dmLink) {
+        var dm  = document.createElement('link');
+        dm.rel  = 'stylesheet';
+        dm.href = '/src/styles/dark-mode.css';
+        dm.id   = 'dark-mode-css';
+        document.head.appendChild(dm);
+      }
     }
     try { localStorage.setItem('activeTheme', name); } catch(e) {}
   };
@@ -469,10 +503,18 @@
   window.setDark = function(enable) {
     try { localStorage.setItem('darkMode', enable ? 'enabled' : 'disabled'); } catch(e) {}
     document.body.classList.toggle('dark-mode', enable);
-    var premiumActive = document.querySelector('link[id^="skin_"][media="all"]');
+    var premiumActive = document.querySelector('link[id^="skin_"]');
     if (!premiumActive) {
       var dm = document.getElementById('dark-mode-css');
-      if (dm) dm.media = enable ? 'all' : 'not all';
+      if (enable && !dm) {
+        var newDm  = document.createElement('link');
+        newDm.rel  = 'stylesheet';
+        newDm.href = '/src/styles/dark-mode.css';
+        newDm.id   = 'dark-mode-css';
+        document.head.appendChild(newDm);
+      } else if (!enable && dm) {
+        dm.remove();
+      }
     }
   };
   </script>

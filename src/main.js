@@ -1,13 +1,11 @@
-// ─── Styles ──────────────────────────────────────────────────────────────────
+// ─── Styles (critical path only) ─────────────────────────────────────────────
 import './styles/main-styles.css';
 import './styles/mobile-styles.css';
-import './styles/user-tab-styles.css';
-import './styles/community-hub.css';
 
 // ─── Skin / Matrix ───────────────────────────────────────────────────────────
 import './styles/Skins/MatrixRain.js';
 
-// ─── Core ────────────────────────────────────────────────────────────────────
+// ─── Core (always needed at boot) ────────────────────────────────────────────
 import './Core/Utils.js';
 import './Core/GamificationEngine.js';
 import './Core/Features.js';
@@ -17,26 +15,6 @@ import './Core/Toast.js';
 import './Core/CTA.js';
 import './Core/DB.js';
 import './Core/avatar-icons.js';
-
-// ─── Features ────────────────────────────────────────────────────────────────
-import './Features/TarotEngine.js';
-import './Features/TarotVisionAI.js';
-import './Features/KarmaShopEngine.js';
-import './Features/EnergyTracker.js';
-import './Features/WellnessKit.js';
-import './Features/AffirmationsEngine.js';
-import './Features/ChatBotAI.js';
-import './Features/DailyCards.js';
-import './Features/GratitudeEngine.js';
-import './Features/HappinessEngine.js';
-import './Features/InquiryEngine.js';
-import './Features/JournalEngine.js';
-import './Features/MeditationsEngine.js';
-import './Features/QuotesEngine.js';
-
-// ─── Mini-Apps ───────────────────────────────────────────────────────────────
-import './Mini-Apps/FlipTheScript/index.js';
-import './Mini-Apps/ShadowAlchemyLab/shadowalchemy.js';
 
 // ─── Service Worker ───────────────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
