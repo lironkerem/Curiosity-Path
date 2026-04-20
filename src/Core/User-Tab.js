@@ -390,12 +390,8 @@ export default class UserTab {
     document.body.classList.toggle('dark-mode', enabled);
     localStorage.setItem('darkMode', enabled ? 'enabled' : 'disabled');
 
-    // Only touch dark-mode skin when no premium skin is active
-    const premiumActive = document.getElementById('dynamic-skin-style');
-    if (!premiumActive) {
-      if (enabled) window.loadSkin('dark-mode');
-      else         window.removeSkin();
-    }
+    if (enabled) window.loadSkin('dark-mode');
+    else         window.removeDarkSkin();
 
     if (localStorage.getItem('activeTheme') === 'matrix-code' && window.app?.initMatrixRain) {
       setTimeout(() => window.app.initMatrixRain(), 50);
@@ -403,35 +399,28 @@ export default class UserTab {
   }
 
   switchTheme(name) {
-    // Remove any active skin (inline style tag)
-    window.removeSkin();
+    const dark = localStorage.getItem('darkMode') === 'enabled';
 
-    // Remove all theme body classes
+    window.removeSkin(); // removes both skin + dark overlay
     document.body.classList.remove(...UserTab.THEME_CLASSES, 'dark-mode');
-
-    // Clean up matrix rain
     document.querySelector('.matrix-rain-container')?.remove();
     if (window.matrixRain) window.matrixRain.destroy();
 
     localStorage.setItem('activeTheme', name);
 
     if (name === 'default') {
-      // Restore dark mode if it was enabled
-      if (localStorage.getItem('darkMode') === 'enabled') {
-        document.body.classList.add('dark-mode');
-        window.loadSkin('dark-mode');
-      }
+      if (dark) { document.body.classList.add('dark-mode'); window.loadSkin('dark-mode'); }
       return;
     }
 
     document.body.classList.add(name);
+    if (dark) document.body.classList.add('dark-mode');
     window.loadSkin(name);
+    if (dark) window.loadSkin('dark-mode'); // overlay dark on top of skin
 
     if (name === 'matrix-code') {
       if (window.matrixRain) window.matrixRain.init();
-      if (window.app?.initMatrixRain) {
-        setTimeout(() => window.app.initMatrixRain(), UserTab.CONFIG.THEME_INIT_DELAY);
-      }
+      if (window.app?.initMatrixRain) setTimeout(() => window.app.initMatrixRain(), UserTab.CONFIG.THEME_INIT_DELAY);
     }
   }
 

@@ -18,6 +18,7 @@ const SKINS = {
   'matrix-code':    matrixCode,
   'dark-mode':      darkMode,
 };
+
 const SKIN_STYLE_ID = 'dynamic-skin-style';
 
 window.loadSkin = (name) => {
