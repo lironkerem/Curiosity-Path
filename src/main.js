@@ -1,8 +1,35 @@
 // ─── Styles (critical path) ───────────────────────────────────────────────────
 import './styles/main-styles.css';
 import './styles/mobile-styles.css';
-import './styles/user-tab-styles.css';   // required by User-Tab (renders on boot)
-import './styles/community-hub.css';     // required by ActiveMembersWidget
+import './styles/user-tab-styles.css';
+import './styles/community-hub.css';
+
+// ─── Skins (bundled by Vite, served as text/css — no MIME issues) ─────────────
+import champagneGold from './styles/Skins/champagne-gold.css?inline';
+import royalIndigo   from './styles/Skins/royal-indigo.css?inline';
+import earthLuxury   from './styles/Skins/earth-luxury.css?inline';
+import matrixCode    from './styles/Skins/matrix-code.css?inline';
+import darkMode      from './styles/dark-mode.css?inline';
+
+const SKINS = {
+  'champagne-gold': champagneGold,
+  'royal-indigo':   royalIndigo,
+  'earth-luxury':   earthLuxury,
+  'matrix-code':    matrixCode,
+  'dark-mode':      darkMode,
+};
+const SKIN_STYLE_ID = 'dynamic-skin-style';
+
+window.loadSkin = (name) => {
+  document.getElementById(SKIN_STYLE_ID)?.remove();
+  const css = SKINS[name];
+  if (!css) return;
+  const s = document.createElement('style');
+  s.id = SKIN_STYLE_ID;
+  s.textContent = css;
+  document.head.appendChild(s);
+};
+window.removeSkin = () => document.getElementById(SKIN_STYLE_ID)?.remove();
 
 // ─── Skin / Matrix ───────────────────────────────────────────────────────────
 import './styles/Skins/MatrixRain.js';

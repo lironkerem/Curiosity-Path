@@ -25,7 +25,6 @@
 
   <!-- ===== Critical Styles (inline — guaranteed before first paint) ===== -->
   <style>
-    /* Prevent FOUC on hidden tabs */
     .hidden { display: none !important; }
 
     .lucide-icon {
@@ -41,7 +40,6 @@
       .lucide-icon { width: 20px; height: 20px; }
     }
 
-    /* ── LCP: auth loading screen ── */
     #auth-screen {
       display: flex;
       align-items: center;
@@ -78,7 +76,6 @@
       opacity: 0.75;
     }
 
-    /* Spinner */
     #auth-spinner {
       width: 40px;
       height: 40px;
@@ -91,7 +88,6 @@
       to { transform: rotate(360deg); }
     }
 
-    /* ── Tab-dot base styles ── */
     .tab-dot {
       display: inline-flex !important;
       align-items: center;
@@ -131,7 +127,6 @@
       opacity: 1 !important;
     }
 
-    /* ── PWA Install Toast ── */
     #pwa-install-toast {
       position: fixed;
       bottom: 1.5rem;
@@ -269,33 +264,6 @@
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&display=swap"></noscript>
 
-  <!-- ===== Skin stylesheets — load only the active skin ===== -->
-  <script>
-  (function() {
-    try {
-      var skin = localStorage.getItem('activeTheme');
-      var dark = localStorage.getItem('darkMode') === 'enabled';
-      var validSkins = ['champagne-gold', 'royal-indigo', 'earth-luxury', 'matrix-code'];
-
-      if (skin && validSkins.indexOf(skin) !== -1) {
-        var link  = document.createElement('link');
-        link.rel  = 'stylesheet';
-        link.type = 'text/css';
-        link.href = '/src/styles/Skins/' + skin + '.css';
-        link.id   = 'skin_' + skin;
-        document.head.appendChild(link);
-      } else if (dark) {
-        var dmLink  = document.createElement('link');
-        dmLink.rel  = 'stylesheet';
-        dmLink.type = 'text/css';
-        dmLink.href = '/src/styles/dark-mode.css';
-        dmLink.id   = 'dark-mode-css';
-        document.head.appendChild(dmLink);
-      }
-    } catch(e) {}
-  })();
-  </script>
-
   <!-- ===== PWA / icons ===== -->
   <script>
     (function(){var l=document.createElement('link');l.rel='manifest';l.href='/manifest.json';document.head.appendChild(l);})();
@@ -308,7 +276,7 @@
   <link rel="apple-touch-icon" href="/Icons/apple-touch-icon.png">
   <link rel="icon" href="/Icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/Icons/favicon.ico">
-  <script type="module" crossorigin src="/assets/main-5pW-8FCW.js"></script>
+  <script type="module" crossorigin src="/assets/main-CmLj4SDy.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/shadow-alchemy-C-dEHqCu.js">
   <link rel="modulepreload" crossorigin href="/assets/energy-4z8lVD8r.js">
   <link rel="modulepreload" crossorigin href="/assets/karma-shop-D1yE7bQ-.js">
@@ -326,21 +294,17 @@
 </head>
 
 <body>
-  <!-- ===== Boot: apply theme & dark mode before first paint ===== -->
+  <!-- ===== Boot: apply body class only — actual CSS injected by main.js via window.loadSkin() ===== -->
   <script>
   (function() {
     try {
-      var skin = localStorage.getItem('activeTheme') || 'default';
+      var skin = localStorage.getItem('activeTheme');
       var dark = localStorage.getItem('darkMode') === 'enabled';
-
-      if (skin !== 'default') {
+      var validSkins = ['champagne-gold', 'royal-indigo', 'earth-luxury', 'matrix-code'];
+      if (skin && validSkins.indexOf(skin) !== -1) {
         document.body.classList.add(skin);
-        var skinLink = document.getElementById('skin_' + skin);
-        if (skinLink) skinLink.media = 'all';
       } else if (dark) {
         document.body.classList.add('dark-mode');
-        var dmLink = document.getElementById('dark-mode-css');
-        if (dmLink) dmLink.media = 'all';
       }
     } catch(e) {}
   })();
@@ -469,51 +433,16 @@
   })();
   </script>
 
-  <!-- ===== Theme Management ===== -->
+  <!-- ===== Theme helpers (window.setSkin / window.setDark) ===== -->
   <script>
-  function _createStyleLink(href, id) {
-    var l = document.createElement('link');
-    l.rel  = 'stylesheet';
-    l.type = 'text/css';
-    l.href = href;
-    if (id) l.id = id;
-    document.head.appendChild(l);
-    return l;
-  }
-
   window.setSkin = function(name) {
     if (window.app && window.app.userTab && window.app.userTab.switchTheme) {
       window.app.userTab.switchTheme(name);
-      return;
     }
-    document.querySelectorAll('link[id^="skin_"]').forEach(function(l) { l.remove(); });
-    var dmLink = document.getElementById('dark-mode-css');
-
-    if (name !== 'default') {
-      _createStyleLink('/src/styles/Skins/' + name + '.css', 'skin_' + name);
-      if (dmLink) dmLink.remove();
-    } else if (localStorage.getItem('darkMode') === 'enabled') {
-      if (!dmLink) _createStyleLink('/src/styles/dark-mode.css', 'dark-mode-css');
-    }
-    try { localStorage.setItem('activeTheme', name); } catch(e) {}
   };
-
-  window.shareTheme = function(name) {
-    try { localStorage.setItem('activeTheme', name); } catch(e) {}
-    window.setSkin(name);
-  };
-
   window.setDark = function(enable) {
-    try { localStorage.setItem('darkMode', enable ? 'enabled' : 'disabled'); } catch(e) {}
-    document.body.classList.toggle('dark-mode', enable);
-    var premiumActive = document.querySelector('link[id^="skin_"]');
-    if (!premiumActive) {
-      var dm = document.getElementById('dark-mode-css');
-      if (enable && !dm) {
-        _createStyleLink('/src/styles/dark-mode.css', 'dark-mode-css');
-      } else if (!enable && dm) {
-        dm.remove();
-      }
+    if (window.app && window.app.userTab) {
+      window.app.userTab.handleDarkModeToggle(enable);
     }
   };
   </script>
