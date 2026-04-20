@@ -463,6 +463,29 @@ body.champagne-gold.dark-mode .profile-avatar img,
 body.champagne-gold.dark-mode .member-mini-avatar img { filter: none; }
 body.champagne-gold.dark-mode #communityHubFullscreenContainer { background: var(--neuro-bg); color: var(--neuro-text); }
 
+body.champagne-gold.dark-mode .ref-avatar img,
+body.champagne-gold.dark-mode .campfire-msg-avatar img,
+body.champagne-gold.dark-mode .campfire-participant-avatar img,
+body.champagne-gold.dark-mode .p-avatar img,
+body.champagne-gold.dark-mode [id$="ParticipantStack"] img,
+body.champagne-gold.dark-mode [id$="ParticipantListEl"] img,
+body.champagne-gold.dark-mode .campfire-participants img,
+body.champagne-gold.dark-mode .active-members-grid img,
+body.champagne-gold.dark-mode #activeMembersContainer img,
+body.champagne-gold.dark-mode .member-card-mini img,
+body.champagne-gold.dark-mode .member-mini-avatar img,
+body.champagne-gold.dark-mode .chat-messages img,
+body.champagne-gold.dark-mode .campfire-msg img,
+body.champagne-gold.dark-mode #communityHubFullscreenContainer img,
+body.champagne-gold.dark-mode .practice-room img,
+body.champagne-gold.dark-mode .ps-header img,
+body.champagne-gold.dark-mode [id$="CarouselImg"],
+body.champagne-gold.dark-mode [id$="DailyCardContainer"] img,
+body.champagne-gold.dark-mode [id$="PersonalCardContainer"] img,
+body.champagne-gold.dark-mode #community-hub-tab img {
+  filter: none !important;
+}
+
 /* =========================================================
    END COMMUNITY HUB PATCH  —  CHAMPAGNE GOLD
    ========================================================= */

@@ -580,5 +580,102 @@ body.dark-mode #communityHubFullscreenContainer {
 }
 
 /* =========================================================
+   COMMUNITY HUB — DARK MODE AVATAR & TEXT FIXES
+   Append to end of dark-mode.css
+   ========================================================= */
+
+/* ── Fix 1: Avatar inversion exclusions (Community Hub) ── */
+body.dark-mode .ref-avatar img,
+body.dark-mode .campfire-msg-avatar img,
+body.dark-mode .campfire-participant-avatar img,
+body.dark-mode .p-avatar img,
+body.dark-mode .p-avatar > img,
+body.dark-mode .participant-stack img,
+body.dark-mode [id$="ParticipantStack"] img,
+body.dark-mode [id$="ParticipantListEl"] img,
+body.dark-mode .campfire-participants img,
+body.dark-mode .active-members-grid img,
+body.dark-mode #activeMembersContainer img,
+body.dark-mode .member-card-mini img,
+body.dark-mode .member-mini-avatar img,
+body.dark-mode .chat-container img,
+body.dark-mode .chat-messages img,
+body.dark-mode .campfire-msg img,
+body.dark-mode #communityHubFullscreenContainer img,
+body.dark-mode .ritual-candle img,
+body.dark-mode .practice-room img,
+body.dark-mode .ps-header img,
+body.dark-mode .tarot-daily-grid img,
+body.dark-mode [id$="CarouselImg"],
+body.dark-mode [id$="DailyCardContainer"] img,
+body.dark-mode [id$="PersonalCardContainer"] img,
+body.dark-mode [id$="PersonalSession"] img,
+body.dark-mode .event-flyer img,
+body.dark-mode .collective-card img,
+body.dark-mode .celestial-card-full img,
+body.dark-mode #community-hub-tab img {
+  filter: none !important;
+}
+
+/* ── Fix 2: Community Hub text color in dark mode ── */
+body.dark-mode #community-hub-tab,
+body.dark-mode #community-hub-tab *,
+body.dark-mode #communityHubFullscreenContainer,
+body.dark-mode #communityHubFullscreenContainer * {
+  color: var(--neuro-text);
+}
+
+/* Re-apply muted text where needed */
+body.dark-mode #community-hub-tab .campfire-msg-time,
+body.dark-mode #community-hub-tab .campfire-participant-country,
+body.dark-mode #community-hub-tab .ref-time,
+body.dark-mode #community-hub-tab .room-desc,
+body.dark-mode #community-hub-tab .room-meta,
+body.dark-mode #community-hub-tab .section-title,
+body.dark-mode #community-hub-tab .count-label,
+body.dark-mode #community-hub-tab .progress-label,
+body.dark-mode #community-hub-tab .member-mini-info,
+body.dark-mode #community-hub-tab .time-label,
+body.dark-mode #community-hub-tab .presence-label,
+body.dark-mode #community-hub-tab .wave-meta,
+body.dark-mode #community-hub-tab .event-type,
+body.dark-mode #community-hub-tab .breath-indicator,
+body.dark-mode #community-hub-tab .time-remaining,
+body.dark-mode #community-hub-tab .campfire-hint,
+body.dark-mode #community-hub-tab .chat-hint,
+body.dark-mode #community-hub-tab [style*="color:var(--text-muted)"],
+body.dark-mode #community-hub-tab [style*="color: var(--text-muted)"],
+body.dark-mode #communityHubFullscreenContainer .campfire-msg-time,
+body.dark-mode #communityHubFullscreenContainer .campfire-participant-country,
+body.dark-mode #communityHubFullscreenContainer [style*="color:var(--text-muted)"],
+body.dark-mode #communityHubFullscreenContainer [style*="color: var(--text-muted)"] {
+  color: var(--neuro-text-light) !important;
+}
+
+/* Ensure white text stays white on gradient buttons/headers */
+body.dark-mode #community-hub-tab .join-btn,
+body.dark-mode #community-hub-tab .join-btn-inline,
+body.dark-mode #community-hub-tab .event-btn,
+body.dark-mode #community-hub-tab .contrib-btn,
+body.dark-mode #community-hub-tab .collective-action-btn,
+body.dark-mode #community-hub-tab .ritual-btn,
+body.dark-mode #community-hub-tab .chat-send,
+body.dark-mode #community-hub-tab .campfire-send,
+body.dark-mode #community-hub-tab .btn-primary,
+body.dark-mode #communityHubFullscreenContainer .join-btn,
+body.dark-mode #communityHubFullscreenContainer .join-btn-inline,
+body.dark-mode #communityHubFullscreenContainer .ritual-btn,
+body.dark-mode #communityHubFullscreenContainer .chat-send,
+body.dark-mode #communityHubFullscreenContainer .campfire-send,
+body.dark-mode #communityHubFullscreenContainer .ps-leave,
+body.dark-mode #communityHubFullscreenContainer [class*="lunar-btn"],
+body.dark-mode #communityHubFullscreenContainer [class*="solar-btn"] {
+  color: inherit;
+}
+
+/* =========================================================
+   END COMMUNITY HUB DARK MODE FIX
+   ========================================================= */
+/* =========================================================
    END COMMUNITY HUB PATCH — DARK-MODE
    ========================================================= */
