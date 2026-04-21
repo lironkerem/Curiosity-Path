@@ -1,28 +1,7 @@
 /**
  * Features.js - Feature Registry and Manager
- * Manages lazy initialisation of feature engines and mini-apps.
- * @author Aanandoham (Liron Kerem)
- * @copyright 2026
+ * All engines are lazy-loaded on first init() call — nothing executes at boot.
  */
-
-/* ---------- Engine imports ---------- */
-import EnergyEngineEnhanced  from '../Features/EnergyTracker.js';
-import KarmaShopEngine       from '../Features/KarmaShopEngine.js';
-import MeditationsEngine     from '../Features/MeditationsEngine.js';
-import TarotEngine           from '../Features/TarotEngine.js';
-import HappinessEngine       from '../Features/HappinessEngine.js';
-import GratitudeEngine       from '../Features/GratitudeEngine.js';
-import QuotesEngine          from '../Features/QuotesEngine.js';
-import AffirmationsEngine    from '../Features/AffirmationsEngine.js';
-import GamificationEngine    from './GamificationEngine.js';
-import JournalEngine         from '../Features/JournalEngine.js';
-import ShadowAlchemyEngine   from '../Mini-Apps/ShadowAlchemyLab/shadowalchemy.js';
-import CommunityHubEngine    from '../Mini-Apps/CommunityHub/CommunityHubEngine.js';
-import { ChatBotAI }         from '../Features/ChatBotAI.js';
-import SelfAnalysisLauncher  from '../Mini-Apps/SelfAnalysisPro/loader.js';
-
-/* ---------- App imports ---------- */
-import FlipTheScriptApp from '../Mini-Apps/FlipTheScript/index.js';
 
 // ─── Feature ID constants ─────────────────────────────────────────────────────
 
@@ -44,36 +23,33 @@ export const FEATURE_IDS = Object.freeze({
   CALCULATOR:     'calculator'
 });
 
-// ─── Feature registry ─────────────────────────────────────────────────────────
+// ─── Lazy factory map ─────────────────────────────────────────────────────────
+// Each value is a () => import(...) — module code runs only when first called.
 
-const FEATURE_MAP = Object.freeze({
-  [FEATURE_IDS.MEDITATIONS]:    MeditationsEngine,
-  [FEATURE_IDS.TAROT]:          TarotEngine,
-  [FEATURE_IDS.ENERGY]:         EnergyEngineEnhanced,
-  [FEATURE_IDS.HAPPINESS]:      HappinessEngine,
-  [FEATURE_IDS.GRATITUDE]:      GratitudeEngine,
-  [FEATURE_IDS.QUOTES]:         QuotesEngine,
-  [FEATURE_IDS.AFFIRMATIONS]:   AffirmationsEngine,
-  [FEATURE_IDS.PROGRESS]:       GamificationEngine,
-  [FEATURE_IDS.FLIP_SCRIPT]:    FlipTheScriptApp,
-  [FEATURE_IDS.JOURNAL]:        JournalEngine,
-  [FEATURE_IDS.SHADOW_ALCHEMY]: ShadowAlchemyEngine,
-  [FEATURE_IDS.KARMA_SHOP]:     KarmaShopEngine,
-  [FEATURE_IDS.CHATBOT]:        ChatBotAI,
-  [FEATURE_IDS.COMMUNITY_HUB]:  CommunityHubEngine,
-  [FEATURE_IDS.CALCULATOR]:     SelfAnalysisLauncher
+const FEATURE_LOADERS = Object.freeze({
+  [FEATURE_IDS.MEDITATIONS]:    () => import('../Features/MeditationsEngine.js').then(m => m.default),
+  [FEATURE_IDS.TAROT]:          () => import('../Features/TarotEngine.js').then(m => m.default),
+  [FEATURE_IDS.ENERGY]:         () => import('../Features/EnergyTracker.js').then(m => m.default),
+  [FEATURE_IDS.HAPPINESS]:      () => import('../Features/HappinessEngine.js').then(m => m.default),
+  [FEATURE_IDS.GRATITUDE]:      () => import('../Features/GratitudeEngine.js').then(m => m.default),
+  [FEATURE_IDS.QUOTES]:         () => import('../Features/QuotesEngine.js').then(m => m.default),
+  [FEATURE_IDS.AFFIRMATIONS]:   () => import('../Features/AffirmationsEngine.js').then(m => m.default),
+  [FEATURE_IDS.PROGRESS]:       () => import('./GamificationEngine.js').then(m => m.GamificationEngine ?? m.default),
+  [FEATURE_IDS.FLIP_SCRIPT]:    () => import('../Mini-Apps/FlipTheScript/index.js').then(m => m.default),
+  [FEATURE_IDS.JOURNAL]:        () => import('../Features/JournalEngine.js').then(m => m.default),
+  [FEATURE_IDS.SHADOW_ALCHEMY]: () => import('../Mini-Apps/ShadowAlchemyLab/shadowalchemy.js').then(m => m.default),
+  [FEATURE_IDS.KARMA_SHOP]:     () => import('../Features/KarmaShopEngine.js').then(m => m.default),
+  [FEATURE_IDS.CHATBOT]:        () => import('../Features/ChatBotAI.js').then(m => m.ChatBotAI ?? m.default),
+  [FEATURE_IDS.COMMUNITY_HUB]:  () => import('../Mini-Apps/CommunityHub/CommunityHubEngine.js').then(m => m.default),
+  [FEATURE_IDS.CALCULATOR]:     () => import('../Mini-Apps/SelfAnalysisPro/loader.js').then(m => m.default),
 });
+
+// Cache resolved classes so we only import() once per feature
+const _classCache = {};
 
 // ─── FeaturesManager ─────────────────────────────────────────────────────────
 
-/**
- * Manages feature lifecycle: lazy init, status tracking, cleanup.
- */
 class FeaturesManager {
-  /**
-   * @param {Object} app - Main application instance
-   * @throws {Error} If app is not provided
-   */
   constructor(app) {
     if (!app) throw new Error('[Features] FeaturesManager requires app instance');
     this.app     = app;
@@ -83,18 +59,23 @@ class FeaturesManager {
   // ─── Public API ────────────────────────────────────────────────────────────
 
   /**
-   * Lazily initialises a feature by ID.
-   * @param {string} id
-   * @returns {boolean} true if successful
+   * Lazily loads + initialises a feature by ID.
+   * Returns a Promise<boolean> — callers that previously used sync return value
+   * should await or ignore the promise (both work).
    */
-  init(id) {
+  async init(id) {
     try {
-      const EngineClass = FEATURE_MAP[id];
-      if (!EngineClass) {
+      const loader = FEATURE_LOADERS[id];
+      if (!loader) {
         console.error(`[Features] Unknown feature: "${id}"`);
         return false;
       }
-      // Lazy init — only create once
+
+      // Resolve class once
+      if (!_classCache[id]) _classCache[id] = await loader();
+      const EngineClass = _classCache[id];
+
+      // Instantiate once
       const engine = (this.engines[id] ??= new EngineClass(this.app));
       engine.render?.();
       return true;
@@ -104,59 +85,23 @@ class FeaturesManager {
     }
   }
 
-  /**
-   * Initialises multiple features in sequence.
-   * @param {string[]} ids
-   * @returns {{ results: Array, successful: number, failed: number, total: number }}
-   */
-  initMultiple(ids) {
-    const results    = ids.map(id => ({ id, success: this.init(id) }));
+  async initMultiple(ids) {
+    const results    = await Promise.all(ids.map(async id => ({ id, success: await this.init(id) })));
     const successful = results.filter(r =>  r.success).length;
     const failed     = results.filter(r => !r.success).length;
     return { results, successful, failed, total: ids.length };
   }
 
-  /**
-   * Returns an initialised engine, or null.
-   * @param {string} id
-   * @returns {Object|null}
-   */
-  getEngine(id) {
-    return this.engines[id] ?? null;
-  }
+  getEngine(id)             { return this.engines[id] ?? null; }
+  isInitialized(id)         { return !!this.engines[id]; }
+  getInitializedFeatures()  { return Object.keys(this.engines); }
+  getInitializedCount()     { return Object.keys(this.engines).length; }
+  getAvailableFeatures()    { return Object.keys(FEATURE_LOADERS); }
 
-  /** @param {string} id @returns {boolean} */
-  isInitialized(id) {
-    return !!this.engines[id];
-  }
-
-  /** @returns {string[]} */
-  getInitializedFeatures() {
-    return Object.keys(this.engines);
-  }
-
-  /** @returns {number} */
-  getInitializedCount() {
-    return Object.keys(this.engines).length;
-  }
-
-  /** @returns {string[]} */
-  getAvailableFeatures() {
-    return Object.keys(FEATURE_MAP);
-  }
-
-  /**
-   * Destroys a single feature engine.
-   * @param {string} id
-   * @returns {boolean}
-   */
   destroy(id) {
     try {
       const engine = this.engines[id];
-      if (!engine) {
-        console.warn(`[Features] Cannot destroy uninitialised feature: "${id}"`);
-        return false;
-      }
+      if (!engine) { console.warn(`[Features] Cannot destroy uninitialised feature: "${id}"`); return false; }
       engine.destroy?.();
       delete this.engines[id];
       return true;
@@ -166,21 +111,13 @@ class FeaturesManager {
     }
   }
 
-  /**
-   * Destroys all initialised features.
-   * @returns {{ destroyed: number, total: number }}
-   */
   destroyAll() {
-    const ids       = Object.keys(this.engines);
-    let   destroyed = 0;
+    const ids = Object.keys(this.engines);
+    let destroyed = 0;
     ids.forEach(id => { if (this.destroy(id)) destroyed++; });
     return { destroyed, total: ids.length };
   }
 
-  /**
-   * Returns debug information about feature status.
-   * @returns {Object}
-   */
   getDebugInfo() {
     return {
       initialized:      this.getInitializedFeatures(),
@@ -197,7 +134,6 @@ class FeaturesManager {
   }
 }
 
-// ─── Minimal window exposure (only what legacy onclick handlers need) ─────────
 if (typeof window !== 'undefined') {
   window.FeaturesManager = FeaturesManager;
   window.FEATURE_IDS     = FEATURE_IDS;

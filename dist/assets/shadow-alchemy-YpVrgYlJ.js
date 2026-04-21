@@ -361,4 +361,4 @@ const fe="modulepreload",be=function(e){return"/"+e},X={},x=function(t,i,o){let 
             <strong>Suggested Practice:</strong> ${((n=e.suggestedPractice)==null?void 0:n.title)||"None"}
           </div>
         </div>
-      </div>`,actions:'<button id="closeShadowGuidedProcessModal" class="btn">Close</button>'});document.getElementById("closeShadowGuidedProcessModal").addEventListener("click",i)}const ie=Object.freeze(Object.defineProperty({__proto__:null,openShadowGuidedProcessViewModal:ot},Symbol.toStringTag,{value:"Module"}));export{xe as S,x as _,rt as s};
+      </div>`,actions:'<button id="closeShadowGuidedProcessModal" class="btn">Close</button>'});document.getElementById("closeShadowGuidedProcessModal").addEventListener("click",i)}const ie=Object.freeze(Object.defineProperty({__proto__:null,openShadowGuidedProcessViewModal:ot},Symbol.toStringTag,{value:"Module"}));export{x as _,rt as s};

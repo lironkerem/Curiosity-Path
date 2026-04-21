@@ -1,4 +1,4 @@
-import{_ as oe}from"./shadow-alchemy-C-dEHqCu.js";class me{constructor(E){this.app=E}async render(){if(!window.affirmations)try{const f=await oe(()=>Promise.resolve().then(()=>le),void 0);window.affirmations=f.default||f.affirmations}catch(f){console.error("Failed to load affirmations:",f)}if(!window.FlipEngine)try{await oe(()=>Promise.resolve().then(()=>ce),void 0)}catch(f){console.error("Failed to load FlipEngine:",f)}const E=document.getElementById("flip-script-tab");E.innerHTML=`
+import{_ as oe}from"./shadow-alchemy-YpVrgYlJ.js";class me{constructor(E){this.app=E}async render(){if(!window.affirmations)try{const f=await oe(()=>Promise.resolve().then(()=>le),void 0);window.affirmations=f.default||f.affirmations}catch(f){console.error("Failed to load affirmations:",f)}if(!window.FlipEngine)try{await oe(()=>Promise.resolve().then(()=>ce),void 0)}catch(f){console.error("Failed to load FlipEngine:",f)}const E=document.getElementById("flip-script-tab");E.innerHTML=`
   <div style="padding:1.5rem;min-height:100vh;">
     <div class="universal-content">
 

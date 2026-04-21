@@ -4,7 +4,7 @@ import './styles/mobile-styles.css';
 import './styles/user-tab-styles.css';
 import './styles/community-hub.css';
 
-// ─── Skins (bundled by Vite, served as text/css — no MIME issues) ─────────────
+// ─── Skins ────────────────────────────────────────────────────────────────────
 import champagneGold from './styles/Skins/champagne-gold.css?inline';
 import royalIndigo   from './styles/Skins/royal-indigo.css?inline';
 import earthLuxury   from './styles/Skins/earth-luxury.css?inline';
@@ -21,11 +21,8 @@ const SKINS = {
 const SKIN_STYLE_ID      = 'dynamic-skin-style';
 const DARK_MODE_STYLE_ID = 'dynamic-dark-mode-style';
 
-/** Load/replace a premium skin (never touches dark-mode layer) */
 window.loadSkin = (name) => {
-  // Legacy callers sometimes pass 'dark-mode' — redirect correctly
   if (name === 'dark-mode') { window.loadDarkSkin(); return; }
-
   document.getElementById(SKIN_STYLE_ID)?.remove();
   const css = SKINS[name];
   if (!css) return;
@@ -35,22 +32,16 @@ window.loadSkin = (name) => {
   document.head.appendChild(s);
 };
 
-/** Remove premium skin only */
-window.removeSkin = () => document.getElementById(SKIN_STYLE_ID)?.remove();
+window.removeSkin    = () => document.getElementById(SKIN_STYLE_ID)?.remove();
 
-/**
- * Load the standalone dark-mode.css overlay.
- * Only used when NO premium skin is active (default theme + dark mode).
- */
-window.loadDarkSkin = () => {
-  if (document.getElementById(DARK_MODE_STYLE_ID)) return; // already loaded
+window.loadDarkSkin  = () => {
+  if (document.getElementById(DARK_MODE_STYLE_ID)) return;
   const s = document.createElement('style');
   s.id = DARK_MODE_STYLE_ID;
   s.textContent = darkMode;
   document.head.appendChild(s);
 };
 
-/** Remove the standalone dark-mode overlay */
 window.removeDarkSkin = () => document.getElementById(DARK_MODE_STYLE_ID)?.remove();
 
 // ─── Skin / Matrix ───────────────────────────────────────────────────────────
@@ -59,7 +50,9 @@ import './styles/Skins/MatrixRain.js';
 // ─── Core (always needed at boot) ────────────────────────────────────────────
 import './Core/Utils.js';
 import './Core/GamificationEngine.js';
-import './Core/Features.js';
+// NOTE: Features.js is NO LONGER imported here — FeaturesManager is lazy-loaded
+//       via window.FeaturesManager which ProjectCuriosityApp.loadModules() reads.
+//       It is registered on window inside Features.js when first imported.
 import './Core/Modal.js';
 import './Core/Modal-Compat.js';
 import './Core/Toast.js';
@@ -82,16 +75,19 @@ async function init() {
       aff,
       { QUOTES, getRandomQuote, getQuoteOfTheDay },
       Core,
-      { default: UserTab }
+      { default: UserTab },
+      { default: FeaturesManager } // lazy — but loaded before app.init() so window.FeaturesManager is set
     ] = await Promise.all([
       import('./Features/Data/AffirmationsList.js'),
       import('./Features/Data/QuotesList.js'),
       import('./Core/Index.js'),
-      import('./Core/User-Tab.js')
+      import('./Core/User-Tab.js'),
+      import('./Core/Features.js'),   // ← dynamic import (not static at top)
     ]);
 
-    window.affirmations = aff.default;
-    window.QuotesData   = { QUOTES, getRandomQuote, getQuoteOfTheDay };
+    window.affirmations    = aff.default;
+    window.QuotesData      = { QUOTES, getRandomQuote, getQuoteOfTheDay };
+    window.FeaturesManager = FeaturesManager; // ensure available before loadModules()
 
     window.app = new Core.ProjectCuriosityApp({
       AppState:          Core.AppState,

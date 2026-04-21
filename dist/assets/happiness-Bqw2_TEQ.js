@@ -155,4 +155,4 @@ var b=Object.defineProperty;var I=(d,t,i)=>t in d?b(d,t,{enumerable:!0,configura
           </div>
           <div class="flip-card-back"></div>
         </div>
-      </div>`}};u(o,"QUEST_TARGET",5),u(o,"DEBOUNCE_MS",1e3),u(o,"ROTATION_DEG",360),u(o,"INTENSITY_EMOJIS",{1:"🌱",2:"🌿",3:"🌳",4:"🔥"});let m=o;typeof window<"u"&&(window.HappinessEngine=m);const W=Object.freeze(Object.defineProperty({__proto__:null,default:m},Symbol.toStringTag,{value:"Module"}));export{v as A,m as H,p as I,f as a,W as b};
+      </div>`}};u(o,"QUEST_TARGET",5),u(o,"DEBOUNCE_MS",1e3),u(o,"ROTATION_DEG",360),u(o,"INTENSITY_EMOJIS",{1:"🌱",2:"🌿",3:"🌳",4:"🔥"});let m=o;typeof window<"u"&&(window.HappinessEngine=m);const W=Object.freeze(Object.defineProperty({__proto__:null,default:m},Symbol.toStringTag,{value:"Module"}));export{v as A,W as H,p as I,f as a};
