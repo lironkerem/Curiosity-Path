@@ -1,11 +1,11 @@
 // Mini-Apps/CommunityHub/CommunityHubEngine.js
-// v4.3 - ActiveMembersWidget + hub scroll + original ritual overlay preserved
+// v4.4 - active-members lazy-imported to keep it out of the community boot chunk
 
 import { CommunityDB }        from './js/community-supabase.js';
 import { Core }               from './js/core.js';
 import { MemberProfileModal } from './js/member-profile-modal.js';
 import { WhisperModal }       from './js/WhisperModal.js';
-import { ActiveMembersWidget } from './js/active-members.js';
+// ActiveMembersWidget is now lazy-imported (see _mountActiveMembersWidget)
 
 // ── Group 2: Hub utilities ──────────────────────────────────────────────────
 import './js/rituals.js';
@@ -83,7 +83,6 @@ class CommunityHubEngine {
       tab.innerHTML = this._buildTabHTML();
     }
 
-    // Double rAF ensures DOM is painted before overlay shows
     requestAnimationFrame(() => requestAnimationFrame(() => this._showRitualImmediately()));
 
     if (!this.initialized) {
@@ -95,7 +94,6 @@ class CommunityHubEngine {
 
     this._attachHubVisibility();
 
-    // Scroll to pending section target after DOM is ready (re-visit path)
     if (window._pendingHubScrollTarget) {
       const scrollTarget = window._pendingHubScrollTarget;
       window._pendingHubScrollTarget = null;
@@ -108,7 +106,6 @@ class CommunityHubEngine {
     if (window._pendingRoomOpen) {
       const roomKey = window._pendingRoomOpen;
       window._pendingRoomOpen = null;
-
       const fn = window[`${roomKey}_enterRoom`];
       if (typeof fn === 'function') {
         fn();
@@ -125,13 +122,28 @@ class CommunityHubEngine {
   }
 
   // ---------------------------------------------------------------------------
+  // Active Members — lazy mount (shared chunk, not pulled at boot)
+  // ---------------------------------------------------------------------------
+
+  async _mountActiveMembersWidget(containerEl) {
+    if (!containerEl) return;
+    if (this._activeMembersWidget) this._activeMembersWidget.destroy();
+    try {
+      const { ActiveMembersWidget } = await import('./js/active-members.js');
+      this._activeMembersWidget = new ActiveMembersWidget(containerEl);
+      this._activeMembersWidget.render();
+    } catch (e) {
+      console.warn('[CommunityHub] ActiveMembersWidget failed:', e);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
   // HTML Builders
   // ---------------------------------------------------------------------------
 
   _buildTabHTML() {
     return `
       <div class="universal-content">
-
           <header class="main-header project-curiosity"
                   style="--header-img:url('/Tabs/NavCommunity.webp');
                          --header-title:'';
@@ -140,9 +152,7 @@ class CommunityHubEngine {
             <h3>A space for mindful practice and togetherness</h3>
             <span class="header-sub"></span>
           </header>
-
             <div class="season-flash" id="seasonFlash" aria-live="polite"></div>
-
             <a href="https://chat.whatsapp.com/HQGczWRf70tGqIspByIrL4"
                target="_blank" rel="noopener noreferrer"
                class="whatsapp-float"
@@ -151,44 +161,37 @@ class CommunityHubEngine {
                    alt="" width="24" height="24" aria-hidden="true" role="presentation">
               <span>Join our Community Chat</span>
             </a>
-
             <div id="hubView" class="view active">
               <div id="profileHeroContainer"></div>
-
               <div class="sanctuary-content">
                 <div id="activeMembersContainer"></div>
                 <div id="collectiveFieldContainer"></div>
                 <div id="resonanceContainer"></div>
-
                 <section class="section" aria-labelledby="practiceSpacesTitle">
                   <div class="section-header">
                     <div class="section-title" id="practiceSpacesTitle">Practice Spaces</div>
                   </div>
                   <div class="rooms-grid" id="roomsGrid"></div>
                 </section>
-
                 <section class="section" id="celestialLunarSection" aria-labelledby="celestialCyclesTitle">
                   <div class="section-header">
                     <div class="section-title" id="celestialCyclesTitle">Celestial Cycles</div>
                   </div>
                   <div id="lunarContainer" class="celestial-container"></div>
                 </section>
-
                 <section class="section" id="celestialSolarSection" aria-label="Solar Cycles">
                   <div id="solarContainer" class="celestial-container"></div>
                 </section>
-
                 <div id="communityReflectionsContainer"></div>
                 <div id="upcomingEventsContainer"></div>
               </div>
             </div>
-
         </div>
     `;
   }
 
   // ---------------------------------------------------------------------------
-  // Ritual overlay — original builders preserved exactly as shipped
+  // Ritual overlay
   // ---------------------------------------------------------------------------
 
   _buildCandleSVG(idSuffix) {
@@ -260,7 +263,6 @@ class CommunityHubEngine {
 
     document.body.appendChild(container);
 
-    // Opening overlay goes into app-container (or body) so it covers all UI chrome
     if (!document.getElementById('openingOverlay')) {
       const el = document.createElement('div');
       el.innerHTML = this._buildRitualCard({
@@ -285,7 +287,6 @@ class CommunityHubEngine {
     document.body.classList.add('ritual-active');
     overlay.classList.add('active');
 
-    // Auto-dismiss after 5 s (mirrors Rituals.config.OPENING_AUTO_CLOSE_MS)
     setTimeout(() => {
       if (window.Rituals) window.Rituals.completeOpening();
       else {
@@ -301,25 +302,15 @@ class CommunityHubEngine {
 
   _refreshHubPresence() {
     try {
-      // Refresh active members widget in-place — no full Core.init() needed
       this._activeMembersWidget?.refresh();
-
-      if (window.PracticeRoom?._hubRooms?.length) {
-        PracticeRoom.startHubPresence();
-      }
-      if (window.CollectiveFieldDB?.refreshCount) {
-        window.CollectiveFieldDB.refreshCount();
-      }
+      if (window.PracticeRoom?._hubRooms?.length) PracticeRoom.startHubPresence();
+      if (window.CollectiveFieldDB?.refreshCount) window.CollectiveFieldDB.refreshCount();
     } catch (e) {
       console.warn('[CommunityHub] _refreshHubPresence fallback to Core.init', e);
       Core.state.initialized = false;
       Core.init();
     }
   }
-
-  // ---------------------------------------------------------------------------
-  // YouTube API preload
-  // ---------------------------------------------------------------------------
 
   _preloadYouTubeAPI() {
     if (window.YT?.Player) return;
@@ -330,13 +321,8 @@ class CommunityHubEngine {
     document.head.appendChild(tag);
   }
 
-  // ---------------------------------------------------------------------------
-  // Hub visibility — suspend/resume chat subs on tab hide
-  // ---------------------------------------------------------------------------
-
   _attachHubVisibility() {
     if (this._hubVisibilityHandler) return;
-
     this._hubVisibilityHandler = () => {
       if (document.hidden) {
         this._hubChatRooms?.forEach(roomId => {
@@ -344,12 +330,9 @@ class CommunityHubEngine {
         });
       } else {
         const currentRoom = Core?.state?.currentRoom;
-        if (currentRoom && this._hubChatResubscribe) {
-          this._hubChatResubscribe(currentRoom);
-        }
+        if (currentRoom && this._hubChatResubscribe) this._hubChatResubscribe(currentRoom);
       }
     };
-
     document.addEventListener('visibilitychange', this._hubVisibilityHandler);
   }
 
@@ -357,10 +340,6 @@ class CommunityHubEngine {
     this._hubChatRooms       = roomIds;
     this._hubChatResubscribe = resubFn;
   }
-
-  // ---------------------------------------------------------------------------
-  // Script / Style Loading
-  // ---------------------------------------------------------------------------
 
   loadStylesheet(href, { critical = false } = {}) {
     if (document.querySelector(`link[href="${href}"]`)) return;
@@ -379,7 +358,7 @@ class CommunityHubEngine {
     return new Promise((resolve, reject) => {
       if (document.querySelector(`script[src="${src}"]`)) return resolve();
       const script = Object.assign(document.createElement('script'), { src, async: true });
-      script.onload = resolve;
+      script.onload  = resolve;
       script.onerror = () => reject(new Error(`Failed to load: ${src}`));
       document.body.appendChild(script);
     });
@@ -392,9 +371,7 @@ class CommunityHubEngine {
   async initializeCommunityHub() {
     try {
       this._preloadYouTubeAPI();
-
       window.LunarEngine?.init?.();
-
       if (!Core?.init) throw new Error('Core module not found');
 
       await CommunityDB.init();
@@ -403,15 +380,8 @@ class CommunityHubEngine {
       await Core.init();
       window.Core = Core;
 
-      // Mount Active Members widget — non-blocking, owns its container directly
-      const hubMembersEl = document.getElementById('activeMembersContainer');
-      if (hubMembersEl) {
-        if (this._activeMembersWidget) {
-          this._activeMembersWidget.destroy();
-        }
-        this._activeMembersWidget = new ActiveMembersWidget(hubMembersEl);
-        this._activeMembersWidget.render();
-      }
+      // Mount Active Members widget — lazy import keeps it in its own chunk
+      await this._mountActiveMembersWidget(document.getElementById('activeMembersContainer'));
 
       window.CollectiveField?.render();
       window.Resonance?.render();
@@ -429,7 +399,6 @@ class CommunityHubEngine {
       if (window.Rituals) window.Rituals.state.hasSeenOpening = false;
       if (window.CollectiveFieldDB) await window.CollectiveFieldDB.init();
 
-      // Scroll to pending section target — first-load path
       if (window._pendingHubScrollTarget) {
         const scrollTarget = window._pendingHubScrollTarget;
         window._pendingHubScrollTarget = null;
