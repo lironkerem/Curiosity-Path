@@ -390,10 +390,20 @@ export default class UserTab {
     document.body.classList.toggle('dark-mode', enabled);
     localStorage.setItem('darkMode', enabled ? 'enabled' : 'disabled');
 
-    if (enabled) window.loadSkin('dark-mode');
-    else         window.removeDarkSkin();
+    const activeSkin = localStorage.getItem('activeTheme') || 'default';
+    const hasPremiumSkin = activeSkin !== 'default' && UserTab.THEME_CLASSES.has(activeSkin);
 
-    if (localStorage.getItem('activeTheme') === 'matrix-code' && window.app?.initMatrixRain) {
+    if (hasPremiumSkin) {
+      // Premium skin contains its own dark-mode rules — no overlay needed.
+      // Ensure the standalone dark-mode.css is NOT loaded (would conflict).
+      window.removeDarkSkin();
+    } else {
+      // Default theme: load/remove the standalone dark-mode overlay.
+      if (enabled) window.loadDarkSkin();
+      else         window.removeDarkSkin();
+    }
+
+    if (activeSkin === 'matrix-code' && window.app?.initMatrixRain) {
       setTimeout(() => window.app.initMatrixRain(), 50);
     }
   }
@@ -401,7 +411,9 @@ export default class UserTab {
   switchTheme(name) {
     const dark = localStorage.getItem('darkMode') === 'enabled';
 
-    window.removeSkin(); // removes both skin + dark overlay
+    // Tear down everything
+    window.removeSkin();
+    window.removeDarkSkin();
     document.body.classList.remove(...UserTab.THEME_CLASSES, 'dark-mode');
     document.querySelector('.matrix-rain-container')?.remove();
     if (window.matrixRain) window.matrixRain.destroy();
@@ -409,14 +421,19 @@ export default class UserTab {
     localStorage.setItem('activeTheme', name);
 
     if (name === 'default') {
-      if (dark) { document.body.classList.add('dark-mode'); window.loadSkin('dark-mode'); }
+      // No premium skin — restore dark overlay if needed
+      if (dark) {
+        document.body.classList.add('dark-mode');
+        window.loadDarkSkin();
+      }
       return;
     }
 
+    // Premium skin: its CSS file contains both light + dark-mode rules.
     document.body.classList.add(name);
     if (dark) document.body.classList.add('dark-mode');
-    window.loadSkin(name);
-    if (dark) window.loadSkin('dark-mode'); // overlay dark on top of skin
+    window.loadSkin(name); // dark-mode rules are already inside the skin CSS
+    // Do NOT call loadDarkSkin() — the skin handles its own dark mode.
 
     if (name === 'matrix-code') {
       if (window.matrixRain) window.matrixRain.init();
@@ -441,9 +458,9 @@ export default class UserTab {
 
     document.body.classList.toggle('dark-mode', dark);
 
-    // Only inject dark-mode skin when no premium theme is active
+    // Only inject the standalone dark-mode overlay when no premium skin is active
     if (theme === 'default' && dark) {
-      window.loadSkin('dark-mode');
+      window.loadDarkSkin();
     }
 
     const toggle = document.getElementById('dark-mode-toggle');

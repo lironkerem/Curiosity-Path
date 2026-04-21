@@ -16,12 +16,16 @@ const SKINS = {
   'royal-indigo':   royalIndigo,
   'earth-luxury':   earthLuxury,
   'matrix-code':    matrixCode,
-  'dark-mode':      darkMode,
 };
 
-const SKIN_STYLE_ID = 'dynamic-skin-style';
+const SKIN_STYLE_ID      = 'dynamic-skin-style';
+const DARK_MODE_STYLE_ID = 'dynamic-dark-mode-style';
 
+/** Load/replace a premium skin (never touches dark-mode layer) */
 window.loadSkin = (name) => {
+  // Legacy callers sometimes pass 'dark-mode' — redirect correctly
+  if (name === 'dark-mode') { window.loadDarkSkin(); return; }
+
   document.getElementById(SKIN_STYLE_ID)?.remove();
   const css = SKINS[name];
   if (!css) return;
@@ -30,7 +34,24 @@ window.loadSkin = (name) => {
   s.textContent = css;
   document.head.appendChild(s);
 };
+
+/** Remove premium skin only */
 window.removeSkin = () => document.getElementById(SKIN_STYLE_ID)?.remove();
+
+/**
+ * Load the standalone dark-mode.css overlay.
+ * Only used when NO premium skin is active (default theme + dark mode).
+ */
+window.loadDarkSkin = () => {
+  if (document.getElementById(DARK_MODE_STYLE_ID)) return; // already loaded
+  const s = document.createElement('style');
+  s.id = DARK_MODE_STYLE_ID;
+  s.textContent = darkMode;
+  document.head.appendChild(s);
+};
+
+/** Remove the standalone dark-mode overlay */
+window.removeDarkSkin = () => document.getElementById(DARK_MODE_STYLE_ID)?.remove();
 
 // ─── Skin / Matrix ───────────────────────────────────────────────────────────
 import './styles/Skins/MatrixRain.js';
