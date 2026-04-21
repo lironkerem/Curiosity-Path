@@ -1,6 +1,6 @@
 // The Curiosity Path — Service Worker
 
-const CACHE_VERSION  = 'tcp-2026-04-21-1604';
+const CACHE_VERSION  = 'tcp-2026-04-21-1614';
 const CACHE_NAME     = `tcp-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE  = `tcp-runtime-${CACHE_VERSION}`;
 const ICON_PATH      = './Icons/';

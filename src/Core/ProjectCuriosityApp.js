@@ -50,7 +50,6 @@ const ALLOWED_AVATAR_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', '
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 
 // ─── Lazy feature map ─────────────────────────────────────────────────────────
-// Each entry is a () => import(...) factory. Modules are loaded once on first visit.
 
 const LAZY_FEATURES = {
   [TAB_NAMES.TAROT]:         () => import('../Features/TarotEngine.js'),
@@ -66,7 +65,6 @@ const LAZY_FEATURES = {
   [TAB_NAMES.COMMUNITY_HUB]: () => import('../Mini-Apps/CommunityHub/CommunityHubEngine.js'),
 };
 
-// Tracks which lazy modules have already been loaded
 const _loadedChunks = new Set();
 
 // ─── Safe localStorage ────────────────────────────────────────────────────────
@@ -95,8 +93,9 @@ export default class ProjectCuriosityApp {
     this.features      = null;
     this.currentTab    = null;
 
-    this._initialized               = false;
+    this._initialized                = false;
     this._gamificationListenersReady = false;
+    this._communityPresenceReady     = false;
 
     this.toastThrottle              = new Map();
     this._toastCleanupInterval      = null;
@@ -214,8 +213,8 @@ export default class ProjectCuriosityApp {
     this._gamificationUnsubscribers.push(
       g.on('levelUp',             ({ level, title }) => showToast(`Level Up! You are now a ${title} (Level ${level})!`, 'success')),
       g.on('streakUpdated',       ({ current, best }) => {
-        if (current > 1)                    showToast(`${current} Day Streak!`, 'success');
-        if (current === best && current > 3) showToast(`New Best Streak: ${best} Days!`, 'success');
+        if (current > 1)                     showToast(`${current} Day Streak!`, 'success');
+        if (current === best && current > 3)  showToast(`New Best Streak: ${best} Days!`, 'success');
       }),
       g.on('xpGained',            ({ amount, source, skipToast }) => { if (!skipToast) showToast(`+${amount} XP from ${source}`, 'success'); }),
       g.on('karmaGained',         ({ amount, source, skipToast }) => { if (!skipToast) showToast(`+${amount} Karma from ${source}`, 'success'); }),
@@ -354,7 +353,6 @@ export default class ProjectCuriosityApp {
         console.warn('[App] DailyCards.initializeBoosters() failed (non-fatal):', e)
       );
 
-      // ── Show app shell immediately ───────────────────────────────────────────
       this._hideAuthScreen();
       this._showMainApp();
 
@@ -369,34 +367,10 @@ export default class ProjectCuriosityApp {
       this.loadModules();
       this.restoreLastTab();
       this._startToastCleanup();
-      // ────────────────────────────────────────────────────────────────────────
 
-      // Community: non-critical — init after paint
-      Promise.resolve().then(async () => {
-        try {
-          const [{ CommunityDB }, { Core: CommunityCore }] = await Promise.all([
-            import('/src/Mini-Apps/CommunityHub/js/community-supabase.js'),
-            import('/src/Mini-Apps/CommunityHub/js/core.js'),
-          ]);
-          if (!CommunityCore.state.initialized) {
-            const ok = await CommunityDB.init();
-            if (ok) {
-              await CommunityCore.loadCurrentUser();
-              await CommunityDB.setPresence(
-                CommunityCore.state.currentUser?.status   || 'online',
-                CommunityCore.state.currentUser?.activity || '✨ Available',
-                null
-              );
-            }
-          }
-          // Store refs for Whisper deep-link handling below
-          this._CommunityDB   = CommunityDB;
-          this._CommunityCore = CommunityCore;
-          this._initWhisperHandlers();
-        } catch (e) {
-          console.warn('[App] Community init failed (non-fatal):', e);
-        }
-      });
+      // Wire Whisper SW handler at boot (no community chunk needed — handler
+      // is registered lazily and only fetches the chunk when a message arrives)
+      this._initWhisperHandlers();
 
       await boosterPromise;
 
@@ -406,13 +380,50 @@ export default class ProjectCuriosityApp {
     }
   }
 
-  _initWhisperHandlers() {
-    const { _CommunityDB: CommunityDB } = this;
-    if (!CommunityDB) return;
+  // ─── Community presence — deferred until first Hub visit ────────────────────
 
-    // Dynamic import WhisperModal only when needed
+  _initCommunityPresence() {
+    if (this._communityPresenceReady) return;
+    this._communityPresenceReady = true;
+
+    Promise.resolve().then(async () => {
+      try {
+        const [{ CommunityDB }, { Core: CommunityCore }] = await Promise.all([
+          import('/src/Mini-Apps/CommunityHub/js/community-supabase.js'),
+          import('/src/Mini-Apps/CommunityHub/js/core.js'),
+        ]);
+        if (!CommunityCore.state.initialized) {
+          const ok = await CommunityDB.init();
+          if (ok) {
+            await CommunityCore.loadCurrentUser();
+            await CommunityDB.setPresence(
+              CommunityCore.state.currentUser?.status   || 'online',
+              CommunityCore.state.currentUser?.activity || '✨ Available',
+              null
+            );
+          }
+        }
+        this._CommunityDB   = CommunityDB;
+        this._CommunityCore = CommunityCore;
+      } catch (e) {
+        console.warn('[App] Community presence init failed (non-fatal):', e);
+      }
+    });
+  }
+
+  // ─── Whisper handlers — registered at boot but imports are deferred ──────────
+
+  _initWhisperHandlers() {
     const getWhisperModal = () => import('/src/Mini-Apps/CommunityHub/js/WhisperModal.js')
       .then(m => m.WhisperModal);
+
+    const getCommunityDB = async () => {
+      if (this._CommunityDB) return this._CommunityDB;
+      const { CommunityDB } = await import('/src/Mini-Apps/CommunityHub/js/community-supabase.js');
+      this._CommunityDB = CommunityDB;
+      if (!CommunityDB.ready) await CommunityDB.init();
+      return CommunityDB;
+    };
 
     if (navigator.serviceWorker) {
       navigator.serviceWorker.addEventListener('message', async (event) => {
@@ -420,6 +431,7 @@ export default class ProjectCuriosityApp {
         const { senderId } = event.data;
         if (!senderId) return;
         try {
+          const CommunityDB = await getCommunityDB();
           const [profile, WhisperModal] = await Promise.all([
             CommunityDB.getProfile(senderId),
             getWhisperModal()
@@ -432,8 +444,9 @@ export default class ProjectCuriosityApp {
     const whisperParam = new URLSearchParams(window.location.search).get('whisper');
     if (whisperParam) {
       const tryOpen = async () => {
-        if (!CommunityDB.ready) { setTimeout(tryOpen, 300); return; }
         try {
+          const CommunityDB = await getCommunityDB();
+          if (!CommunityDB.ready) { setTimeout(tryOpen, 300); return; }
           const [profile, WhisperModal] = await Promise.all([
             CommunityDB.getProfile(whisperParam),
             getWhisperModal()
@@ -505,6 +518,10 @@ export default class ProjectCuriosityApp {
         if (this.state.currentUser?.isAdmin) this._loadAdminTab();
         else { console.warn('[App] Admin access denied'); this.showToast('Admin access required', 'error'); }
         break;
+      case TAB_NAMES.COMMUNITY_HUB:
+        this._initCommunityPresence(); // deferred — only runs on first Hub visit
+        this._loadLazyTab(tab, previousTab);
+        break;
       default:
         if (LAZY_FEATURES[tab]) {
           this._loadLazyTab(tab, previousTab);
@@ -519,11 +536,7 @@ export default class ProjectCuriosityApp {
     this.dashboard.render();
   }
 
-  /**
-   * Load a lazy feature chunk on first visit, then hand off to FeaturesManager.
-   */
   async _loadLazyTab(tab, previousTab) {
-    // Show loading indicator while chunk fetches
     if (!_loadedChunks.has(tab)) {
       const host = document.getElementById(`${tab}-tab`);
       if (host && !host.hasChildNodes()) {
@@ -621,11 +634,12 @@ export default class ProjectCuriosityApp {
     this._gamificationUnsubscribers.forEach(fn => { if (typeof fn === 'function') fn(); });
     this._gamificationUnsubscribers = [];
     this.gamification?.destroy();
-    this.gamification = null;
+    this.gamification  = null;
     this.dashboard?.destroy();
     this.dashboard     = null;
     this.footerCTA     = null;
     this._initialized  = false;
+    this._communityPresenceReady     = false;
     this._gamificationListenersReady = false;
   }
 }
