@@ -531,6 +531,29 @@ body.royal-indigo.dark-mode .campfire-participant:hover { background: var(--neur
 body.royal-indigo.dark-mode .event-flyer img { filter: none; }
 body.royal-indigo.dark-mode #communityHubFullscreenContainer { background: var(--neuro-bg); color: var(--neuro-text); }
 
+
+body.royal-indigo.dark-mode .ref-avatar img,
+body.royal-indigo.dark-mode .campfire-msg-avatar img,
+body.royal-indigo.dark-mode .campfire-participant-avatar img,
+body.royal-indigo.dark-mode .p-avatar img,
+body.royal-indigo.dark-mode [id$="ParticipantStack"] img,
+body.royal-indigo.dark-mode [id$="ParticipantListEl"] img,
+body.royal-indigo.dark-mode .campfire-participants img,
+body.royal-indigo.dark-mode .active-members-grid img,
+body.royal-indigo.dark-mode #activeMembersContainer img,
+body.royal-indigo.dark-mode .member-card-mini img,
+body.royal-indigo.dark-mode .member-mini-avatar img,
+body.royal-indigo.dark-mode .chat-messages img,
+body.royal-indigo.dark-mode .campfire-msg img,
+body.royal-indigo.dark-mode #communityHubFullscreenContainer img,
+body.royal-indigo.dark-mode #adminDashBadge .card img,
+body.royal-indigo.dark-mode [id$="CarouselImg"],
+body.royal-indigo.dark-mode [id$="DailyCardContainer"] img,
+body.royal-indigo.dark-mode [id$="PersonalCardContainer"] img,
+body.royal-indigo.dark-mode #community-hub-tab img {
+  filter: none !important;
+}
+
 /* =========================================================
    END COMMUNITY HUB PATCH  —  ROYAL INDIGO
    ========================================================= */

@@ -492,6 +492,29 @@ body.earth-luxury.dark-mode .campfire-participant:hover { background: var(--neur
 body.earth-luxury.dark-mode .event-flyer img { filter: none; }
 body.earth-luxury.dark-mode #communityHubFullscreenContainer { background: var(--neuro-bg); color: var(--neuro-text); }
 
+
+body.earth-luxury.dark-mode .ref-avatar img,
+body.earth-luxury.dark-mode .campfire-msg-avatar img,
+body.earth-luxury.dark-mode .campfire-participant-avatar img,
+body.earth-luxury.dark-mode .p-avatar img,
+body.earth-luxury.dark-mode [id$="ParticipantStack"] img,
+body.earth-luxury.dark-mode [id$="ParticipantListEl"] img,
+body.earth-luxury.dark-mode .campfire-participants img,
+body.earth-luxury.dark-mode .active-members-grid img,
+body.earth-luxury.dark-mode #activeMembersContainer img,
+body.earth-luxury.dark-mode .member-card-mini img,
+body.earth-luxury.dark-mode .member-mini-avatar img,
+body.earth-luxury.dark-mode .chat-messages img,
+body.earth-luxury.dark-mode .campfire-msg img,
+body.earth-luxury.dark-mode #communityHubFullscreenContainer img,
+body.earth-luxury.dark-mode #adminDashBadge .card img,
+body.earth-luxury.dark-mode [id$="CarouselImg"],
+body.earth-luxury.dark-mode [id$="DailyCardContainer"] img,
+body.earth-luxury.dark-mode [id$="PersonalCardContainer"] img,
+body.earth-luxury.dark-mode #community-hub-tab img {
+  filter: none !important;
+}
+
 /* =========================================================
    END COMMUNITY HUB PATCH  —  EARTH LUXURY
    ========================================================= */
