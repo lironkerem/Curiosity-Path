@@ -1700,23 +1700,6 @@ button.ref-action.appreciated span:first-child { transform: scale(1.2); display:
     padding: 1.5rem 1.5rem 40px;
 }
 
-/* ===== ACTIVE MEMBERS: constrain container during async lazy-load render ===== */
-#activeMembersContainer {
-    max-width: 100%;
-    overflow-x: hidden;
-    box-sizing: border-box;
-}
-
-#activeMembersContainer .section {
-    max-width: 100%;
-    box-sizing: border-box;
-}
-
-#activeMembersContainer button[style] {
-    max-width: 100%;
-    box-sizing: border-box;
-}
-
 /* Daily Cycle Bar */
 
 /* Presence Sanctuary */

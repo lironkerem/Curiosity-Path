@@ -41,7 +41,7 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: 'hidden',
     manifest: false,
-    cssCodeSplit: false,  // keep all CSS in one bundle to avoid style flash
+    cssCodeSplit: false,
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
@@ -51,7 +51,12 @@ export default defineConfig({
           // ── Vendor ──────────────────────────────────────────────────────────
           if (id.includes('node_modules/@supabase'))    return 'supabase';
 
-          // ── Community Hub (largest chunk — lazy loaded) ──────────────────
+          // ── active-members MUST be its own chunk (used by Dashboard only) ──
+          // Keep it separate so Dashboard lazy-import doesn't pull the full
+          // community chunk (all solar/lunar/room modules) at boot.
+          if (id.includes('CommunityHub/js/active-members')) return 'active-members';
+
+          // ── Community Hub (largest chunk — lazy loaded on tab visit) ────────
           if (id.includes('CommunityHub'))              return 'community';
 
           // ── Mini-Apps ────────────────────────────────────────────────────
