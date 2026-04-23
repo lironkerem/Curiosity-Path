@@ -4142,7 +4142,7 @@ button.view-schedule:hover {
     box-sizing: border-box;
   }
 
-/* 1. Prevent the tab itself from overflowing horizontally */
+  /* 1. Prevent the tab itself from overflowing horizontally */
   #community-hub-tab {
     overflow-x: hidden;
     width: 100%;
@@ -4176,9 +4176,9 @@ button.view-schedule:hover {
         The button is anchored to the left edge; the vertical text stays
         readable without pushing the scroll width out.                   */
   .whatsapp-float {
-    left: 0;
+    left: 6px;
     padding: 14px 8px;
-    border-radius: 0 20px 20px 0;   /* flat on the left, rounded on the right */
+    border-radius: 20px;   /* all 4 corners rounded */
     gap: 8px;
     transform: translateY(-50%);
     box-shadow: 2px 4px 12px rgba(37, 211, 102, 0.4);
