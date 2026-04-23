@@ -4142,60 +4142,6 @@ button.view-schedule:hover {
     box-sizing: border-box;
   }
 
-/* 1. Prevent the tab itself from overflowing horizontally */
-  #community-hub-tab {
-    overflow-x: hidden;
-    width: 100%;
-    max-width: 100vw;
-  }
-
-  /* 2. Constrain the universal-content wrapper */
-  #community-hub-tab .universal-content {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-    box-sizing: border-box;
-  }
-
-  /* 3. Sanctuary content */
-  .sanctuary-content {
-    width: 100%;
-    box-sizing: border-box;
-    overflow-x: hidden;
-  }
-
-  /* 4. Grids — prevent bleed */
-  .rooms-grid,
-  .collective-grid,
-  .events-grid {
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  /* 5. WhatsApp float — kept with text, but clipped to viewport edge.
-        The button is anchored to the left edge; the vertical text stays
-        readable without pushing the scroll width out.                   */
-  .whatsapp-float {
-    left: 0;
-    padding: 14px 8px;
-    border-radius: 0 20px 20px 0;   /* flat on the left, rounded on the right */
-    gap: 8px;
-    transform: translateY(-50%);
-    box-shadow: 2px 4px 12px rgba(37, 211, 102, 0.4);
-    /* Critical: keep it out of the scroll-width calculation */
-    position: fixed;
-    z-index: 1000;
-  }
-
-  .whatsapp-float img {
-    width: 20px;
-    height: 20px;
-  }
-
-  .whatsapp-float span {
-    font-size: 10px;
-  }
-
   /* ===== SOLAR TOP BAR ===== */
 
 
