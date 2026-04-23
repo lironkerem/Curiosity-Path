@@ -25,6 +25,7 @@
 
   <!-- ===== Critical Styles (inline — guaranteed before first paint) ===== -->
   <style>
+    /* Prevent FOUC on hidden tabs */
     .hidden { display: none !important; }
 
     .lucide-icon {
@@ -40,6 +41,7 @@
       .lucide-icon { width: 20px; height: 20px; }
     }
 
+    /* ── LCP: auth loading screen ── */
     #auth-screen {
       display: flex;
       align-items: center;
@@ -76,6 +78,7 @@
       opacity: 0.75;
     }
 
+    /* Spinner */
     #auth-spinner {
       width: 40px;
       height: 40px;
@@ -88,6 +91,7 @@
       to { transform: rotate(360deg); }
     }
 
+    /* ── Tab-dot base styles ── */
     .tab-dot {
       display: inline-flex !important;
       align-items: center;
@@ -127,6 +131,7 @@
       opacity: 1 !important;
     }
 
+    /* ── PWA Install Toast — entire toast is the install button ── */
     #pwa-install-toast {
       position: fixed;
       bottom: 1.5rem;
@@ -257,17 +262,31 @@
   <link rel="preload" href="/Tabs/Header-mobile.webp" as="image" type="image/webp" fetchpriority="high" media="(max-width: 768px)">
 
   <!-- ===== CDN Preconnect ===== -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <!-- ===== Google Fonts — non-blocking ===== -->
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&display=swap"></noscript>
 
+  <!-- ===== Skin stylesheets (toggled via JS) ===== -->
+  <link rel="preload" href="/src/styles/dark-mode.css" as="style">
+  <link rel="stylesheet" href="/src/styles/dark-mode.css" id="dark-mode-css" media="not all">
+
+  <link rel="preload" href="/src/styles/Skins/champagne-gold.css" as="style">
+  <link rel="preload" href="/src/styles/Skins/royal-indigo.css"   as="style">
+  <link rel="preload" href="/src/styles/Skins/earth-luxury.css"   as="style">
+  <link rel="preload" href="/src/styles/Skins/matrix-code.css"    as="style">
+
+  <link rel="stylesheet" href="/src/styles/Skins/champagne-gold.css" id="skin_champagne-gold" media="not all">
+  <link rel="stylesheet" href="/src/styles/Skins/royal-indigo.css"   id="skin_royal-indigo"   media="not all">
+  <link rel="stylesheet" href="/src/styles/Skins/earth-luxury.css"   id="skin_earth-luxury"   media="not all">
+  <link rel="stylesheet" href="/src/styles/Skins/matrix-code.css"    id="skin_matrix-code"    media="not all">
+
   <!-- ===== PWA / icons ===== -->
-  <script>
-    (function(){var l=document.createElement('link');l.rel='manifest';l.href='/manifest.json';document.head.appendChild(l);})();
-  </script>
+<script>
+  (function(){var l=document.createElement('link');l.rel='manifest';l.href='/manifest.json';document.head.appendChild(l);})();
+</script>
   <meta name="theme-color" content="#6b9b37">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -279,16 +298,19 @@
 </head>
 
 <body>
-  <!-- ===== Boot: apply body class only — actual CSS injected by main.js via window.loadSkin() ===== -->
+  <!-- ===== Boot: apply theme & dark mode before first paint ===== -->
   <script>
   (function() {
     try {
-      var skin = localStorage.getItem('activeTheme');
       var dark = localStorage.getItem('darkMode') === 'enabled';
-      var validSkins = ['champagne-gold', 'royal-indigo', 'earth-luxury', 'matrix-code'];
-      if (skin && validSkins.indexOf(skin) !== -1) {
+      var skin = localStorage.getItem('activeTheme') || 'default';
+      if (skin !== 'default') {
         document.body.classList.add(skin);
+        var skinLink = document.getElementById('skin_' + skin);
+        if (skinLink) skinLink.media = 'all';
       } else if (dark) {
+        var dmLink = document.getElementById('dark-mode-css');
+        if (dmLink) dmLink.media = 'all';
         document.body.classList.add('dark-mode');
       }
     } catch(e) {}
@@ -419,16 +441,38 @@
   })();
   </script>
 
-  <!-- ===== Theme helpers (window.setSkin / window.setDark) ===== -->
+  <!-- ===== Theme Management ===== -->
   <script>
   window.setSkin = function(name) {
     if (window.app && window.app.userTab && window.app.userTab.switchTheme) {
       window.app.userTab.switchTheme(name);
+      return;
     }
+    document.querySelectorAll('link[id^="skin_"]').forEach(function(l) { l.media = 'not all'; });
+    if (name !== 'default') {
+      var wanted = document.getElementById('skin_' + name);
+      if (wanted) wanted.media = 'all';
+      var dm = document.getElementById('dark-mode-css');
+      if (dm) dm.media = 'not all';
+    } else if (localStorage.getItem('darkMode') === 'enabled') {
+      var dm2 = document.getElementById('dark-mode-css');
+      if (dm2) dm2.media = 'all';
+    }
+    try { localStorage.setItem('activeTheme', name); } catch(e) {}
   };
+
+  window.shareTheme = function(name) {
+    try { localStorage.setItem('activeTheme', name); } catch(e) {}
+    window.setSkin(name);
+  };
+
   window.setDark = function(enable) {
-    if (window.app && window.app.userTab) {
-      window.app.userTab.handleDarkModeToggle(enable);
+    try { localStorage.setItem('darkMode', enable ? 'enabled' : 'disabled'); } catch(e) {}
+    document.body.classList.toggle('dark-mode', enable);
+    var premiumActive = document.querySelector('link[id^="skin_"][media="all"]');
+    if (!premiumActive) {
+      var dm = document.getElementById('dark-mode-css');
+      if (dm) dm.media = enable ? 'all' : 'not all';
     }
   };
   </script>

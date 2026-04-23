@@ -663,7 +663,7 @@ export default class NavigationManager {
           <img class="header-image"
                src="/Tabs/Header-desktop.webp"
                alt="Aanandoham Header"
-               width="1440" height="375"
+               width="1920" height="500"
                loading="eager"
                fetchpriority="high"
                decoding="async">

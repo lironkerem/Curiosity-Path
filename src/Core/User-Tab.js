@@ -7,16 +7,17 @@ import { supabase } from './Supabase.js';
 import * as Templates from './user-tab-templates.js';
 
 export default class UserTab {
+  // Configuration constants
   static CONFIG = {
-    MAX_AVATAR_SIZE: 5_242_880,
+    MAX_AVATAR_SIZE: 5_242_880, // 5MB
     AUTOSAVE_DELAY: 1500,
     THEME_INIT_DELAY: 100,
-    MIN_NOTIFICATION_WINDOW: 6,
+    MIN_NOTIFICATION_WINDOW: 6, // hours
   };
 
   static THEME_CLASSES = new Set([
     'champagne-gold',
-    'royal-indigo',
+    'royal-indigo', 
     'earth-luxury',
     'matrix-code'
   ]);
@@ -28,6 +29,7 @@ export default class UserTab {
     this.saveProfileLock = false;
   }
 
+  /** @returns {Object|null} Current user from app state */
   get currentUser() {
     return this.app.state.currentUser;
   }
@@ -35,6 +37,8 @@ export default class UserTab {
   // ============== RENDERING ==============
 
   render() {
+    const u = this.currentUser;
+
     return `
       <div class="user-menu" id="user-menu">
         <button class="user-disc" id="user-menu-btn" aria-expanded="false" aria-controls="user-dropdown">
@@ -73,45 +77,53 @@ export default class UserTab {
   async init() {
     this.dropdown = document.getElementById('user-dropdown');
     this.btn = document.getElementById('user-menu-btn');
-
+    
     if (!this.dropdown || !this.btn) return;
 
     this.attachMenuHandlers();
     this.attachButtonHandlers();
     this.attachGlobalHandlers();
-
+    
     this.syncAvatar();
     this.loadActiveTheme();
     this.restoreDarkMode();
     await this.hydrateUserProfile();
     await this.initPricingModal();
 
+    // Listen for status changes from Community Hub Hero Profile
     window.addEventListener('statusChanged', (e) => {
       const { status } = e.detail || {};
       if (!status) return;
       if (this.currentUser) {
         this.currentUser.community_status = status;
-        this.currentUser.status = status;
+        this.currentUser.status = status; // keep both in sync
       }
       this.updateStatusRing(status);
+      // Sync active state in picker if it's open
       document.querySelectorAll('.status-option-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.status === status);
       });
     });
   }
 
+  /** Attach handlers to dropdown menu */
   attachMenuHandlers() {
     this.dropdown.addEventListener('click', (e) => {
       const sectionBtn = e.target.closest('.dropdown-item[data-section]');
-      const actionBtn  = e.target.closest('.dropdown-item[data-action]');
+      const actionBtn = e.target.closest('.dropdown-item[data-action]');
       const installBtn = e.target.closest('#pwa-install-menu-btn');
 
-      if (installBtn)                              this.handlePwaInstall();
-      else if (sectionBtn)                         this.handleSectionClick(sectionBtn.dataset.section);
-      else if (actionBtn?.dataset.action === 'logout') this.handleLogout();
+      if (installBtn) {
+        this.handlePwaInstall();
+      } else if (sectionBtn) {
+        this.handleSectionClick(sectionBtn.dataset.section);
+      } else if (actionBtn?.dataset.action === 'logout') {
+        this.handleLogout();
+      }
     });
   }
 
+  /** Trigger PWA install prompt */
   async handlePwaInstall() {
     if (!window._pwaInstallPrompt) return;
     try {
@@ -128,22 +140,30 @@ export default class UserTab {
     this.toggleDropdown(false);
   }
 
+  /** Attach handlers to user menu button */
   attachButtonHandlers() {
     this.btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const expanded = this.btn.getAttribute('aria-expanded') === 'true';
       this.toggleDropdown(!expanded);
+      
+      // Collapse all sections when opening dropdown
       if (!expanded) this.collapseAllSections();
+      
       this.syncAvatar();
     });
   }
 
+  /** Attach global document handlers */
   attachGlobalHandlers() {
+    // Close dropdown on outside click
     document.addEventListener('click', (e) => {
       if (!this.btn.contains(e.target) && !this.dropdown.contains(e.target)) {
         this.toggleDropdown(false);
       }
     });
+
+    // Close on escape key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         this.toggleDropdown(false);
@@ -152,25 +172,32 @@ export default class UserTab {
     });
   }
 
+  /** Toggle dropdown visibility */
   toggleDropdown(open) {
     this.btn.setAttribute('aria-expanded', open);
     this.dropdown.classList.toggle('active', open);
   }
 
+  /** Initialize pricing modal in DOM */
   async initPricingModal() {
     await new Promise(r => requestAnimationFrame(r));
-
+    
     if (!document.getElementById('pricing-modal-overlay')) {
       document.documentElement.insertAdjacentHTML('afterbegin', Templates.pricingModal());
-      const overlay  = document.getElementById('pricing-modal-overlay');
+      
+      const overlay = document.getElementById('pricing-modal-overlay');
       const closeBtn = overlay.querySelector('.pricing-close');
+      
       closeBtn.addEventListener('click', () => this.closePricingModal());
-      overlay.addEventListener('click', (e) => { if (e.target === overlay) this.closePricingModal(); });
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) this.closePricingModal();
+      });
     }
   }
 
   // ============== SECTION MANAGEMENT ==============
 
+  /** Collapse all accordion panels */
   collapseAllSections() {
     document.querySelectorAll('.accordion-panel').forEach(panel => {
       panel.classList.remove('active');
@@ -178,8 +205,15 @@ export default class UserTab {
     });
   }
 
+  /**
+   * Handle section click - toggle accordion
+   * @param {string} section - Section ID to toggle
+   */
   handleSectionClick(section) {
-    if (section === 'billing') { this.showPricingModal(); return; }
+    if (section === 'billing') {
+      this.showPricingModal();
+      return;
+    }
 
     const panel = document.getElementById(`panel-${section}`);
     if (!panel) return;
@@ -189,6 +223,7 @@ export default class UserTab {
 
     if (!isOpen) {
       panel.classList.add('active');
+      // Render content on first open
       if (!panel.dataset.filled) {
         this.renderSection(section, panel);
         panel.dataset.filled = '1';
@@ -196,55 +231,108 @@ export default class UserTab {
     }
   }
 
+  /**
+   * Render section content based on type
+   * @param {string} section - Section ID
+   * @param {HTMLElement} panel - Target panel element
+   */
   renderSection(section, panel) {
     const renderers = {
-      profile:       () => { panel.innerHTML = Templates.profile(this.currentUser); this.attachProfileHandlers(); },
-      skins:         () => { panel.innerHTML = Templates.skins(this.app); this.attachSkinsHandlers(); },
-      notifications: () => { panel.innerHTML = Templates.notifications(); this.attachNotificationsHandlers(); },
-      about:         () => { panel.innerHTML = Templates.about(); },
-      rules:         () => { panel.innerHTML = Templates.rules(); this.attachRulesHandlers(panel); },
-      contact:       () => { panel.innerHTML = Templates.contact(); },
-      export:        () => { panel.innerHTML = Templates.exportData(); }
+      profile: () => {
+        panel.innerHTML = Templates.profile(this.currentUser);
+        this.attachProfileHandlers();
+      },
+      skins: () => {
+        panel.innerHTML = Templates.skins(this.app);
+        this.attachSkinsHandlers();
+      },
+      notifications: () => {
+        panel.innerHTML = Templates.notifications();
+        this.attachNotificationsHandlers();
+      },
+      about: () => {
+        panel.innerHTML = Templates.about();
+      },
+      rules: () => {
+        panel.innerHTML = Templates.rules();
+        this.attachRulesHandlers(panel);
+      },
+      contact: () => {
+        panel.innerHTML = Templates.contact();
+      },
+      export: () => {
+        panel.innerHTML = Templates.exportData();
+      }
     };
-    renderers[section]?.();
+
+    const renderer = renderers[section];
+    if (renderer) renderer();
   }
 
   // ============== PROFILE MANAGEMENT ==============
 
   attachProfileHandlers() {
+    // Icon picker modal open/close
     const modal = document.getElementById('icon-picker-modal');
-    document.getElementById('open-icon-picker-btn')?.addEventListener('click', () => { if (modal) modal.style.display = 'flex'; });
-    document.getElementById('close-icon-picker-btn')?.addEventListener('click', () => { if (modal) modal.style.display = 'none'; });
-    modal?.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+    document.getElementById('open-icon-picker-btn')?.addEventListener('click', () => {
+      if (modal) modal.style.display = 'flex';
+    });
+    document.getElementById('close-icon-picker-btn')?.addEventListener('click', () => {
+      if (modal) modal.style.display = 'none';
+    });
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) modal.style.display = 'none';
+    });
 
+    // Icon picker: clicking an SVG button updates the hidden input + preview
     document.querySelectorAll('.avatar-icon-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const key        = btn.dataset.value;
+        const key = btn.dataset.value;
         const hiddenInput = document.getElementById('profile-emoji');
-        const emojiSpan  = document.querySelector('.profile-avatar-emoji');
-        const img        = document.getElementById('profile-avatar-img');
+        const emojiSpan = document.querySelector('.profile-avatar-emoji');
+        const img = document.getElementById('profile-avatar-img');
 
         if (hiddenInput) hiddenInput.value = key;
-        if (emojiSpan)   emojiSpan.innerHTML = renderAvatarIcon(key);
-        if (img) { img.style.display = 'none'; emojiSpan.style.display = 'block'; }
+        if (emojiSpan) emojiSpan.innerHTML = renderAvatarIcon(key);
+        if (img) {
+          img.style.display = 'none';
+          emojiSpan.style.display = 'block';
+        }
 
+        // Highlight selected
         document.querySelectorAll('.avatar-icon-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
+
+        // Close modal after selection
         if (modal) modal.style.display = 'none';
       });
     });
 
-    this.attachListener('avatar-upload', 'change', () => this.handleAvatarUpload());
-    this.attachListener('save-profile-btn', 'click', () => this.saveQuickProfile());
-    this.attachListener('delete-account-btn', 'click', () => this.showDeleteAccountModal());
-
-    document.querySelectorAll('.status-option-btn').forEach(btn => {
-      btn.addEventListener('click', () => this.setStatus(btn.dataset.status, btn.dataset.color, btn.dataset.label));
+    this.attachListener('avatar-upload', 'change', () => {
+      this.handleAvatarUpload();
     });
 
+    this.attachListener('save-profile-btn', 'click', () => {
+      this.saveQuickProfile();
+    });
+
+    // Delete account
+    this.attachListener('delete-account-btn', 'click', () => {
+      this.showDeleteAccountModal();
+    });
+
+    // Status picker
+    document.querySelectorAll('.status-option-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.setStatus(btn.dataset.status, btn.dataset.color, btn.dataset.label);
+      });
+    });
+
+    // Highlight current status on open
     this.updateStatusRing(this.currentUser?.community_status || 'offline');
   }
 
+  /** Handle avatar image upload - uploads to Supabase Storage, saves public URL */
   async handleAvatarUpload() {
     const file = document.getElementById('avatar-upload').files[0];
     if (!file) return;
@@ -254,6 +342,7 @@ export default class UserTab {
       return;
     }
 
+    // Optimistic preview
     const reader = new FileReader();
     reader.onload = (e) => {
       const img   = document.getElementById('profile-avatar-img');
@@ -276,21 +365,32 @@ export default class UserTab {
         .from('community-avatars')
         .upload(path, file, { upsert: true, contentType: file.type });
 
-      if (upErr) { this.app.showToast('Upload failed - please try again', 'error'); return; }
+      if (upErr) {
+        console.warn('Avatar upload error:', upErr.message);
+        this.app.showToast('Upload failed - please try again', 'error');
+        return;
+      }
 
       const { data } = supabase.storage.from('community-avatars').getPublicUrl(path);
       const publicUrl = data?.publicUrl ? `${data.publicUrl}?t=${Date.now()}` : null;
       if (!publicUrl) { this.app.showToast('Upload failed - please try again', 'error'); return; }
 
+      // Update img element to real URL (replace base64 preview)
       const img = document.getElementById('profile-avatar-img');
       if (img) img.src = publicUrl;
 
+      // Save to profiles table
       const { error: saveErr } = await supabase
         .from('profiles')
         .upsert({ id: uid, avatar_url: publicUrl }, { onConflict: 'id' });
 
-      if (saveErr) { this.app.showToast('Photo uploaded but profile save failed', 'warning'); return; }
+      if (saveErr) {
+        console.warn('Profile avatar_url save error:', saveErr.message);
+        this.app.showToast('Photo uploaded but profile save failed', 'warning');
+        return;
+      }
 
+      // Sync into app state
       if (this.currentUser) this.currentUser.avatar_url = publicUrl;
       localStorage.setItem(`profile_${uid}`, JSON.stringify({
         ...JSON.parse(localStorage.getItem(`profile_${uid}`) || '{}'),
@@ -305,64 +405,92 @@ export default class UserTab {
     }
   }
 
+  /** Save user profile (with lock to prevent double-save) */
   async saveQuickProfile() {
     if (this.saveProfileLock) return;
     this.saveProfileLock = true;
 
     const uid = this.currentUser?.id;
-    if (!uid) { this.saveProfileLock = false; return this.app.showToast('Not logged in', 'error'); }
+    if (!uid) {
+      this.saveProfileLock = false;
+      return this.app.showToast('Not logged in', 'error');
+    }
 
     const payload = {
-      name:     document.getElementById('profile-name')?.value.trim()     || null,
-      email:    document.getElementById('profile-email')?.value.trim()    || null,
-      phone:    document.getElementById('profile-phone')?.value.trim()    || null,
-      birthday: document.getElementById('profile-birthday')?.value        || null,
-      emoji:    document.getElementById('profile-emoji')?.value           || '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
-      country:  document.getElementById('profile-country')?.value.trim()  || null,
+      name: document.getElementById('profile-name')?.value.trim() || null,
+      email: document.getElementById('profile-email')?.value.trim() || null,
+      phone: document.getElementById('profile-phone')?.value.trim() || null,
+      birthday: document.getElementById('profile-birthday')?.value || null,
+      emoji: document.getElementById('profile-emoji')?.value || '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+      country: document.getElementById('profile-country')?.value.trim() || null,
+      // Preserve community_status - managed by setStatus(), not a form field
       community_status: this.currentUser?.community_status || 'online',
+      // avatar_url is managed separately by handleAvatarUpload (Supabase Storage)
     };
 
     let savedOnServer = false;
     try {
-      const { error } = await supabase.from('profiles').upsert({ id: uid, ...payload }, { onConflict: 'id' });
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({ id: uid, ...payload }, { onConflict: 'id' });
+      
       if (!error) savedOnServer = true;
-    } catch (e) { console.warn('Profile save failed', e); }
+    } catch (e) {
+      console.warn('Profile save failed', e);
+    }
 
+    // Always save locally as backup
     localStorage.setItem(`profile_${uid}`, JSON.stringify(payload));
     Object.assign(this.currentUser, payload);
-
+    
     this.syncAvatar();
     window.dispatchEvent(new CustomEvent('avatarChanged', {
-      detail: { userId: uid, emoji: payload.emoji, avatarUrl: payload.avatar_url || this.currentUser?.avatar_url || null }
+        detail: { userId: uid, emoji: payload.emoji, avatarUrl: payload.avatar_url || this.currentUser?.avatar_url || null }
     }));
     this.app.showToast(
-      savedOnServer
-        ? '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Profile saved'
-        : '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Saved locally',
+      savedOnServer ? '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Profile saved' : '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Saved locally',
       savedOnServer ? 'success' : 'warning'
     );
-
+    
     this.saveProfileLock = false;
   }
 
+  /** Fetch and restore user profile from server or localStorage */
   async hydrateUserProfile() {
     const uid = this.currentUser?.id;
     if (!uid) return;
 
     let data = null;
-    try {
-      const { data: row, error } = await supabase.from('profiles').select('*').eq('id', uid).single();
-      if (!error && row) data = row;
-    } catch (e) { console.warn('Profile fetch error', e); }
 
-    if (!data) {
-      try { data = JSON.parse(localStorage.getItem(`profile_${uid}`)); }
-      catch (e) { console.warn('localStorage parse error', e); }
+    // Try server first
+    try {
+      const { data: row, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', uid)
+        .single();
+      
+      if (!error && row) data = row;
+    } catch (e) {
+      console.warn('Profile fetch error', e);
     }
 
+    // Fallback to localStorage
+    if (!data) {
+      try {
+        data = JSON.parse(localStorage.getItem(`profile_${uid}`));
+      } catch (e) {
+        console.warn('localStorage parse error', e);
+      }
+    }
+
+    // Merge data into current user
     if (data) {
-      ['name','email','phone','birthday','emoji','avatar_url','country','community_status'].forEach(f => {
-        if (data[f] !== undefined) this.currentUser[f] = data[f];
+      const fields = ['name', 'email', 'phone', 'birthday', 'emoji', 'avatar_url', 'country', 'community_status'];
+      fields.forEach(field => {
+        if (data[field] !== undefined) {
+          this.currentUser[field] = data[field];
+        }
       });
       this.syncAvatar();
       this.updateStatusRing(this.currentUser.community_status || 'offline');
@@ -372,75 +500,99 @@ export default class UserTab {
   // ============== SKINS & THEMES ==============
 
   attachSkinsHandlers() {
-    this.attachListener('dark-mode-toggle', 'change', (e) => this.handleDarkModeToggle(e.target.checked));
+    this.attachListener('dark-mode-toggle', 'change', (e) => {
+      this.handleDarkModeToggle(e.target.checked);
+    });
 
     document.querySelectorAll('.theme-toggle').forEach(toggle => {
       toggle.addEventListener('change', (e) => {
         if (e.target.checked) {
-          document.querySelectorAll('.theme-toggle').forEach(o => { if (o !== e.target) o.checked = false; });
+          // Uncheck other theme toggles
+          document.querySelectorAll('.theme-toggle').forEach(other => {
+            if (other !== e.target) other.checked = false;
+          });
           this.switchTheme(e.target.dataset.theme);
         } else {
-          e.target.checked = true;
+          e.target.checked = true; // Keep one theme always selected
         }
       });
     });
   }
 
+  /**
+   * Handle dark mode toggle
+   * @param {boolean} enabled - Whether dark mode is enabled
+   */
   handleDarkModeToggle(enabled) {
     document.body.classList.toggle('dark-mode', enabled);
+    
+    const link = document.getElementById('dark-mode-css');
+    if (link) link.media = enabled ? 'all' : 'not all';
+    
     localStorage.setItem('darkMode', enabled ? 'enabled' : 'disabled');
 
-    const activeSkin = localStorage.getItem('activeTheme') || 'default';
-    const hasPremiumSkin = activeSkin !== 'default' && UserTab.THEME_CLASSES.has(activeSkin);
-
-    if (hasPremiumSkin) {
-      // Premium skin contains its own dark-mode rules — no overlay needed.
-      // Ensure the standalone dark-mode.css is NOT loaded (would conflict).
-      window.removeDarkSkin();
-    } else {
-      // Default theme: load/remove the standalone dark-mode overlay.
-      if (enabled) window.loadDarkSkin();
-      else         window.removeDarkSkin();
-    }
-
-    if (activeSkin === 'matrix-code' && window.app?.initMatrixRain) {
+    // Reinit matrix rain if active
+    if (localStorage.getItem('activeTheme') === 'matrix-code' && window.app?.initMatrixRain) {
       setTimeout(() => window.app.initMatrixRain(), 50);
     }
   }
 
+  /**
+   * Switch to a different theme
+   * @param {string} name - Theme name
+   */
   switchTheme(name) {
-    const dark = localStorage.getItem('darkMode') === 'enabled';
+    // Disable dark mode CSS for non-default themes
+    if (name !== 'default') {
+      document.getElementById('dark-mode-css')?.style && (document.getElementById('dark-mode-css').media = 'not all');
+    }
 
-    // Tear down everything
-    window.removeSkin();
-    window.removeDarkSkin();
-    document.body.classList.remove(...UserTab.THEME_CLASSES, 'dark-mode');
-    document.querySelector('.matrix-rain-container')?.remove();
+    // Remove all theme classes
+    document.body.classList.remove(...UserTab.THEME_CLASSES);
+
+    // Disable all preloaded skin stylesheets and remove any dynamically injected ones
+    document.querySelectorAll('link[id^="skin_"]').forEach(l => l.media = 'not all');
+    document.querySelectorAll('link[data-premium-theme]').forEach(l => l.remove());
+
+    // Clean up matrix rain
+    const rain = document.querySelector('.matrix-rain-container');
+    if (rain) rain.remove();
     if (window.matrixRain) window.matrixRain.destroy();
 
     localStorage.setItem('activeTheme', name);
 
+    // Handle default theme
     if (name === 'default') {
-      // No premium skin — restore dark overlay if needed
-      if (dark) {
-        document.body.classList.add('dark-mode');
-        window.loadDarkSkin();
-      }
+      const darkLink = document.getElementById('dark-mode-css');
+      if (darkLink) darkLink.media = localStorage.getItem('darkMode') === 'enabled' ? 'all' : 'not all';
       return;
     }
 
-    // Premium skin: its CSS file contains both light + dark-mode rules.
+    // Apply premium theme body class
     document.body.classList.add(name);
-    if (dark) document.body.classList.add('dark-mode');
-    window.loadSkin(name); // dark-mode rules are already inside the skin CSS
-    // Do NOT call loadDarkSkin() — the skin handles its own dark mode.
 
+    // Reuse the preloaded skin_ stylesheet if available; otherwise inject dynamically
+    const preloaded = document.getElementById('skin_' + name);
+    if (preloaded) {
+      preloaded.media = 'all';
+    } else {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = `./src/styles/Skins/${name}.css`;
+      link.setAttribute('data-premium-theme', name);
+      document.head.appendChild(link);
+    }
+
+    // Initialize matrix rain if needed
     if (name === 'matrix-code') {
       if (window.matrixRain) window.matrixRain.init();
-      if (window.app?.initMatrixRain) setTimeout(() => window.app.initMatrixRain(), UserTab.CONFIG.THEME_INIT_DELAY);
+      if (window.app?.initMatrixRain) {
+        setTimeout(() => window.app.initMatrixRain(), UserTab.CONFIG.THEME_INIT_DELAY);
+      }
     }
   }
 
+  /** Load saved theme from localStorage */
   loadActiveTheme() {
     try {
       const theme = localStorage.getItem('activeTheme');
@@ -452,18 +604,15 @@ export default class UserTab {
     }
   }
 
+  /** Restore dark mode state from localStorage */
   restoreDarkMode() {
-    const dark  = localStorage.getItem('darkMode') === 'enabled';
-    const theme = localStorage.getItem('activeTheme') || 'default';
-
+    const dark = localStorage.getItem('darkMode') === 'enabled';
     document.body.classList.toggle('dark-mode', dark);
-
-    // Only inject the standalone dark-mode overlay when no premium skin is active
-    if (theme === 'default' && dark) {
-      window.loadDarkSkin();
-    }
-
+    
+    const link = document.getElementById('dark-mode-css');
     const toggle = document.getElementById('dark-mode-toggle');
+    
+    if (link) link.media = dark ? 'all' : 'not all';
     if (toggle) toggle.checked = dark;
   }
 
@@ -472,29 +621,47 @@ export default class UserTab {
   async attachNotificationsHandlers() {
     await this.hydrateNotificationSettings();
 
-    const master    = document.getElementById('master-notifications-toggle');
-    const options   = document.getElementById('notification-options');
+    const master = document.getElementById('master-notifications-toggle');
+    const options = document.getElementById('notification-options');
     const startTime = document.getElementById('notification-start-time');
-    const endTime   = document.getElementById('notification-end-time');
+    const endTime = document.getElementById('notification-end-time');
     const frequency = document.getElementById('notification-frequency');
     const timezoneDisplay = document.getElementById('timezone-display');
 
     let saveTimeout;
-    if (timezoneDisplay) timezoneDisplay.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-    const autoSave = () => { clearTimeout(saveTimeout); saveTimeout = setTimeout(() => this.saveNotificationSettings(), UserTab.CONFIG.AUTOSAVE_DELAY); };
+    // Display detected timezone
+    if (timezoneDisplay) {
+      timezoneDisplay.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    }
+
+    const autoSave = () => {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => this.saveNotificationSettings(), UserTab.CONFIG.AUTOSAVE_DELAY);
+    };
 
     const checkWindowSize = () => {
       if (!startTime?.value || !endTime?.value) return;
+      
       const diffHours = this.calculateTimeWindowHours(startTime.value, endTime.value);
-      const warning   = document.getElementById('frequency-warning');
-      if (warning) warning.style.display = (diffHours < UserTab.CONFIG.MIN_NOTIFICATION_WINDOW && frequency.value === 'full') ? 'block' : 'none';
+      const warning = document.getElementById('frequency-warning');
+      
+      if (warning) {
+        warning.style.display = 
+          (diffHours < UserTab.CONFIG.MIN_NOTIFICATION_WINDOW && frequency.value === 'full') 
+          ? 'block' 
+          : 'none';
+      }
     };
 
+    // Master toggle handler
     master?.addEventListener('change', async (e) => {
       if (e.target.checked) {
         const granted = await this.enablePushNotifications();
-        if (!granted) { e.target.checked = false; return; }
+        if (!granted) {
+          e.target.checked = false;
+          return;
+        }
         this.toggleNotificationOptions(options, true);
       } else {
         await this.disablePushNotifications();
@@ -503,91 +670,178 @@ export default class UserTab {
       autoSave();
     });
 
-    startTime?.addEventListener('change', () => { if (this.validateTimeWindow(startTime, endTime)) { checkWindowSize(); autoSave(); } });
-    endTime?.addEventListener('change',   () => { if (this.validateTimeWindow(startTime, endTime)) { checkWindowSize(); autoSave(); } });
+    // Time window handlers
+    startTime?.addEventListener('change', () => {
+      if (this.validateTimeWindow(startTime, endTime)) {
+        checkWindowSize();
+        autoSave();
+      }
+    });
 
+    endTime?.addEventListener('change', () => {
+      if (this.validateTimeWindow(startTime, endTime)) {
+        checkWindowSize();
+        autoSave();
+      }
+    });
+
+    // Frequency handler
     frequency?.addEventListener('change', () => {
       checkWindowSize();
       autoSave();
+      // Live-update the "what you'll receive" explanation
       const explanationEl = document.getElementById('frequency-explanation');
-      if (explanationEl) explanationEl.innerHTML = this.renderFrequencyExplanationHTML(frequency.value);
+      if (explanationEl) {
+        explanationEl.innerHTML = this.renderFrequencyExplanationHTML(frequency.value);
+      }
     });
 
+    // Manual save button
     this.attachListener('save-notification-settings', 'click', () => {
-      if (this.validateTimeWindow(startTime, endTime)) { clearTimeout(saveTimeout); this.saveNotificationSettings(); }
+      if (this.validateTimeWindow(startTime, endTime)) {
+        clearTimeout(saveTimeout);
+        this.saveNotificationSettings();
+      }
     });
 
     checkWindowSize();
   }
 
+  /**
+   * Calculate hours between two time strings
+   * @param {string} start - Start time (HH:MM)
+   * @param {string} end - End time (HH:MM)
+   * @returns {number} Hours difference
+   */
   calculateTimeWindowHours(start, end) {
-    const toMinutes = t => { const [h,m] = t.split(':').map(Number); return h*60+m; };
+    const toMinutes = time => {
+      const [h, m] = time.split(':').map(Number);
+      return h * 60 + m;
+    };
     return (toMinutes(end) - toMinutes(start)) / 60;
   }
 
+  /**
+   * Validate notification time window
+   * @param {HTMLInputElement} startTime - Start time input
+   * @param {HTMLInputElement} endTime - End time input
+   * @returns {boolean} Whether window is valid
+   */
   validateTimeWindow(startTime, endTime) {
     if (!startTime?.value || !endTime?.value) return true;
-    const isValid = this.timeToMinutes(startTime.value) < this.timeToMinutes(endTime.value);
+
+    const startMin = this.timeToMinutes(startTime.value);
+    const endMin = this.timeToMinutes(endTime.value);
+    const isValid = startMin < endMin;
+
     const warning = document.getElementById('time-validation-warning');
     if (warning) warning.style.display = isValid ? 'none' : 'block';
-    if (!isValid) this.app.showToast('Start time must be before end time', 'warning');
+    
+    if (!isValid) {
+      this.app.showToast('Start time must be before end time', 'warning');
+    }
+
     return isValid;
   }
 
+  /**
+   * Convert time string to minutes
+   * @param {string} time - Time string (HH:MM)
+   * @returns {number} Minutes since midnight
+   */
   timeToMinutes(time) {
-    const [h,m] = time.split(':').map(Number);
-    return h*60+m;
+    const [h, m] = time.split(':').map(Number);
+    return h * 60 + m;
   }
 
+  /**
+   * Toggle notification options visibility
+   * @param {HTMLElement} options - Options container
+   * @param {boolean} enabled - Whether enabled
+   */
   toggleNotificationOptions(options, enabled) {
     if (!options) return;
-    options.style.opacity       = enabled ? '1'    : '.4';
+    options.style.opacity = enabled ? '1' : '.4';
     options.style.pointerEvents = enabled ? 'auto' : 'none';
   }
 
-  async enablePushNotifications() {
-    if (!this.currentUser?.id) { this.app.showToast('Please log in to enable notifications', 'error'); return false; }
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) { this.app.showToast('Push not supported', 'error'); return false; }
+/** Enable push notifications */
+async enablePushNotifications() {
+  // Guard: must be logged in
+  if (!this.currentUser?.id) {
+    this.app.showToast('Please log in to enable notifications', 'error');
+    return false;
+  }
 
-    try {
-      const permission = await Notification.requestPermission();
-      if (permission !== 'granted') { this.app.showToast('Permission denied', 'error'); return false; }
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    this.app.showToast('Push not supported', 'error');
+    return false;
+  }
 
-      const sw  = await navigator.serviceWorker.ready;
-      let sub   = await sw.pushManager.getSubscription();
-
-      if (!sub) {
-        const VAPID = typeof ENV_VAPID_KEY !== 'undefined'
-          ? ENV_VAPID_KEY
-          : 'BGC3GSs75wSk-IXvSHfsmr725CJnQxNuYJHExJZ113yITzwPgAZrVe6-IGyD1zC_t5mtH3-HG1P4GndS8PnSrOc';
-        sub = await sw.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: this.urlBase64ToUint8Array(VAPID) });
-      }
-
-      const res = await fetch('/api/save-sub', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(this.app.auth?.session?.access_token && { Authorization: `Bearer ${this.app.auth.session.access_token}` })
-        },
-        body: JSON.stringify({ ...sub.toJSON(), user_id: this.currentUser.id })
-      });
-
-      if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error || `Save failed (${res.status})`); }
-
-      this.app.showToast('Notifications enabled', 'success');
-      return true;
-
-    } catch (err) {
-      console.error('enablePushNotifications:', err);
-      this.app.showToast('Enable failed: ' + err.message, 'error');
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') {
+      this.app.showToast('Permission denied', 'error');
       return false;
     }
-  }
 
+    const sw = await navigator.serviceWorker.ready;
+    let sub = await sw.pushManager.getSubscription();
+
+    if (!sub) {
+      const VAPID = typeof ENV_VAPID_KEY !== 'undefined'
+        ? ENV_VAPID_KEY
+        : 'BGC3GSs75wSk-IXvSHfsmr725CJnQxNuYJHExJZ113yITzwPgAZrVe6-IGyD1zC_t5mtH3-HG1P4GndS8PnSrOc';
+
+      sub = await sw.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: this.urlBase64ToUint8Array(VAPID)
+      });
+    }
+
+    // Always upsert with user_id (handles re-login on same device too)
+    const payload = {
+      ...sub.toJSON(),
+      user_id: this.currentUser.id   // guaranteed non-null by guard above
+    };
+
+    const res = await fetch('/api/save-sub', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(this.app.auth?.session?.access_token && {
+          Authorization: `Bearer ${this.app.auth.session.access_token}`
+        })
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `Save failed (${res.status})`);
+    }
+
+    this.app.showToast('Notifications enabled', 'success');
+    return true;
+
+  } catch (err) {
+    console.error('enablePushNotifications:', err);
+    this.app.showToast('Enable failed: ' + err.message, 'error');
+    return false;
+  }
+}
+
+  /** Disable push notifications */
   async disablePushNotifications() {
-    this.app.showToast('Notifications disabled', 'success');
-  }
+        this.app.showToast('Notifications disabled', 'success');
+      }
 
+
+  /**
+   * Convert base64 VAPID key to Uint8Array
+   * @param {string} base64 - Base64 encoded key
+   * @returns {Uint8Array} Decoded key
+   */
   urlBase64ToUint8Array(base64) {
     const padding = '='.repeat((4 - base64.length % 4) % 4);
     const b64 = (base64 + padding).replace(/\-/g, '+').replace(/_/g, '/');
@@ -595,56 +849,108 @@ export default class UserTab {
     return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
   }
 
+  /** Save notification settings to localStorage and server */
   saveNotificationSettings() {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
     const settings = {
-      enabled:   document.getElementById('master-notifications-toggle')?.checked || false,
+      enabled: document.getElementById('master-notifications-toggle')?.checked || false,
       window: {
         start: document.getElementById('notification-start-time')?.value || '07:00',
-        end:   document.getElementById('notification-end-time')?.value   || '22:00'
+        end: document.getElementById('notification-end-time')?.value || '22:00'
       },
       frequency: document.getElementById('notification-frequency')?.value || 'minimum',
-      timezone:  Intl.DateTimeFormat().resolvedOptions().timeZone
+      timezone
     };
 
     localStorage.setItem('notification_settings', JSON.stringify(settings));
 
     supabase.from('notification_prefs')
-      .upsert({ user_id: this.currentUser.id, prefs: settings }, { onConflict: 'user_id' })
+      .upsert({
+        user_id: this.currentUser.id,
+        prefs: settings
+      }, { onConflict: 'user_id' })
       .then(({ error }) => {
-        if (error) { console.error('Save error:', error); this.app.showToast('Saved locally only', 'warning'); }
-        else        this.app.showToast('Settings saved', 'success');
+        if (error) {
+          console.error('Save error:', error);
+          this.app.showToast('Saved locally only', 'warning');
+        } else {
+          this.app.showToast('Settings saved', 'success');
+        }
       });
   }
 
+  /** Fetch and restore notification settings */
   async hydrateNotificationSettings() {
     const uid = this.currentUser?.id;
     if (!uid) return;
+
     try {
-      const { data } = await supabase.from('notification_prefs').select('prefs').eq('user_id', uid).single();
-      if (data?.prefs) { localStorage.setItem('notification_settings', JSON.stringify(data.prefs)); this.restoreNotificationUI(data.prefs); }
-      else { const local = localStorage.getItem('notification_settings'); if (local) this.restoreNotificationUI(JSON.parse(local)); }
-    } catch (e) { console.warn('Settings sync error:', e); }
+      const { data, error } = await supabase
+        .from('notification_prefs')
+        .select('prefs')
+        .eq('user_id', uid)
+        .single();
+
+      if (data?.prefs) {
+        localStorage.setItem('notification_settings', JSON.stringify(data.prefs));
+        this.restoreNotificationUI(data.prefs);
+      } else {
+        const local = localStorage.getItem('notification_settings');
+        if (local) {
+          this.restoreNotificationUI(JSON.parse(local));
+        }
+      }
+    } catch (e) {
+      console.warn('Settings sync error:', e);
+    }
   }
 
+  /**
+   * Restore notification UI from settings
+   * @param {Object} settings - Notification settings object
+   */
   restoreNotificationUI(settings) {
     if (!settings) return;
-    const master    = document.getElementById('master-notifications-toggle');
-    const options   = document.getElementById('notification-options');
-    const startTime = document.getElementById('notification-start-time');
-    const endTime   = document.getElementById('notification-end-time');
-    const frequency = document.getElementById('notification-frequency');
-    const tzDisplay = document.getElementById('timezone-display');
 
-    if (master)    { master.checked = settings.enabled || false; this.toggleNotificationOptions(options, settings.enabled); }
-    if (startTime && settings.window?.start) startTime.value = settings.window.start;
-    if (endTime   && settings.window?.end)   endTime.value   = settings.window.end;
-    if (frequency && settings.frequency)     frequency.value = settings.frequency;
-    if (tzDisplay) tzDisplay.textContent = settings.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const master = document.getElementById('master-notifications-toggle');
+    const options = document.getElementById('notification-options');
+    const startTime = document.getElementById('notification-start-time');
+    const endTime = document.getElementById('notification-end-time');
+    const frequency = document.getElementById('notification-frequency');
+    const timezoneDisplay = document.getElementById('timezone-display');
+
+    if (master) {
+      master.checked = settings.enabled || false;
+      this.toggleNotificationOptions(options, settings.enabled);
+    }
+
+    if (startTime && settings.window?.start) {
+      startTime.value = settings.window.start;
+    }
+
+    if (endTime && settings.window?.end) {
+      endTime.value = settings.window.end;
+    }
+
+    if (frequency && settings.frequency) {
+      frequency.value = settings.frequency;
+    }
+
+    if (timezoneDisplay) {
+      timezoneDisplay.textContent = settings.timezone || 
+        Intl.DateTimeFormat().resolvedOptions().timeZone;
+    }
   }
 
   // ============== RULES ==============
 
+  /**
+   * Attach handlers for rules section (collapsible categories)
+   * @param {HTMLElement} panel - Rules panel container
+   */
   attachRulesHandlers(panel) {
+    // Collapse buttons
     panel.querySelectorAll('.rules-collapse-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const target = panel.querySelector('#' + btn.dataset.target);
@@ -653,56 +959,93 @@ export default class UserTab {
         target.classList.toggle('show', !isOpen);
       });
     });
+
+    // Category toggles
     panel.querySelectorAll('.rules-category-title').forEach(title => {
-      title.addEventListener('click', () => title.parentElement.classList.toggle('open'));
+      title.addEventListener('click', () => {
+        title.parentElement.classList.toggle('open');
+      });
     });
   }
 
   // ============== PRICING MODAL ==============
 
+  /** Show pricing modal with theme inheritance */
   showPricingModal() {
     const overlay = document.getElementById('pricing-modal-overlay');
     if (!overlay) return;
 
-    const themeClass = [...UserTab.THEME_CLASSES].find(cls => document.body.classList.contains(cls));
+    // Apply current theme to modal
+    const themeClass = [...UserTab.THEME_CLASSES].find(cls => 
+      document.body.classList.contains(cls)
+    );
     if (themeClass) overlay.classList.add(themeClass);
-    if (document.body.classList.contains('dark-mode')) overlay.classList.add('dark-mode');
+
+    // Apply dark mode if active
+    if (document.body.classList.contains('dark-mode')) {
+      overlay.classList.add('dark-mode');
+    }
 
     overlay.classList.add('show');
     document.body.classList.add('blur-behind');
     this.attachPricingButtons(overlay);
 
-    if (window.innerWidth <= 768) this.initMobileCarousel();
+    // Initialize mobile carousel
+    if (window.innerWidth <= 768) {
+      this.initMobileCarousel();
+    }
   }
 
+  /** Initialize mobile carousel for pricing cards */
   initMobileCarousel() {
     const container = document.getElementById('pricing-cards-container');
-    const dots  = document.querySelectorAll('.pricing-dot');
+    const dots = document.querySelectorAll('.pricing-dot');
     const cards = container.querySelectorAll('.pricing-card');
+
     container.scrollTo({ left: 0, behavior: 'smooth' });
 
+    // Update dots on scroll
+    // Cache card width once to avoid layout thrash in scroll handler
     let _cachedCardWidth = null;
-    const getCardWidth = () => { if (!_cachedCardWidth) _cachedCardWidth = cards[0].offsetWidth + 20; return _cachedCardWidth; };
-
+    const getCardWidth = () => {
+      if (!_cachedCardWidth) _cachedCardWidth = cards[0].offsetWidth + 20;
+      return _cachedCardWidth;
+    };
     container.addEventListener('scroll', () => {
-      const activeIndex = Math.round(container.scrollLeft / getCardWidth());
-      dots.forEach((dot, i) => dot.classList.toggle('active', i === activeIndex));
+      const scrollLeft = container.scrollLeft;
+      const cardWidth = getCardWidth();
+      const activeIndex = Math.round(scrollLeft / cardWidth);
+
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === activeIndex);
+      });
     }, { passive: true });
 
-    dots.forEach((dot, i) => dot.addEventListener('click', () => {
-      container.scrollTo({ left: getCardWidth() * i, behavior: 'smooth' });
-    }));
+    // Click dots to scroll
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        const cardWidth = getCardWidth();
+        container.scrollTo({ left: cardWidth * i, behavior: 'smooth' });
+      });
+    });
   }
 
+  /** Close pricing modal */
   closePricingModal() {
-    document.getElementById('pricing-modal-overlay')?.classList.remove('show');
+    const overlay = document.getElementById('pricing-modal-overlay');
+    if (overlay) overlay.classList.remove('show');
     document.body.classList.remove('blur-behind');
   }
 
+  /**
+   * Attach pricing button handlers
+   * @param {HTMLElement} overlay - Modal overlay element
+   */
   attachPricingButtons(overlay) {
     overlay.querySelectorAll('.pricing-btn').forEach(btn =>
       btn.addEventListener('click', (e) => {
-        this.app.startCheckout(e.currentTarget.dataset.plan);
+        const plan = e.currentTarget.dataset.plan;
+        this.app.startCheckout(plan);
         this.closePricingModal();
       }, { once: true })
     );
@@ -711,38 +1054,55 @@ export default class UserTab {
   // ============== STATUS ==============
 
   static STATUS_COLORS = {
-    online:    '#6b9b37',
+    online:  '#6b9b37',
     available: '#6b9b37',
-    away:      '#e53e3e',
-    guiding:   '#e53e3e',
-    silent:    '#7c3aed',
-    deep:      '#1e40af',
-    offline:   '#9ca3af',
+    away:    '#e53e3e',
+    guiding: '#e53e3e',
+    silent:  '#7c3aed',
+    deep:    '#1e40af',
+    offline: '#9ca3af',
   };
 
+  /**
+   * Update the status ring color around the avatar button
+   * @param {string} status - Status key
+   */
   updateStatusRing(status = 'offline') {
     const color = UserTab.STATUS_COLORS[status] || UserTab.STATUS_COLORS.offline;
     if (this.btn) {
       this.btn.style.setProperty('--status-ring-color', color);
       this.btn.classList.add('has-status-ring');
     }
+    // Highlight the active status button in the picker (if open)
     document.querySelectorAll('.status-option-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.status === status);
     });
   }
 
+  /**
+   * Set user status - updates ring, saves to Supabase, updates local state
+   * @param {string} status - Status key
+   * @param {string} color  - Hex color
+   * @param {string} label  - Display label
+   */
   async setStatus(status, color, label) {
+    // Normalize: keep both field names in sync on the user object
     if (this.currentUser) {
       this.currentUser.community_status = status;
-      this.currentUser.status = status;
+      this.currentUser.status = status; // core.js maps community_status → .status
     }
     this.updateStatusRing(status);
+
+    // Highlight active button
     document.querySelectorAll('.status-option-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.status === status);
     });
 
+    // Optimistic instant update: update own dot in Active Members grid immediately
     const uid = this.currentUser?.id;
-    if (uid && window.ActiveMembers) window.ActiveMembers.updateMemberStatus(uid, status);
+    if (uid && window.ActiveMembers) {
+      window.ActiveMembers.updateMemberStatus(uid, status);
+    }
 
     const STATUS_ACTIVITIES = {
       online:    '✨ Available',
@@ -752,74 +1112,111 @@ export default class UserTab {
       deep:      '🧘 Deep Practice',
       offline:   '💤 Offline',
     };
+    const activity = STATUS_ACTIVITIES[status] || '✨ Available';
 
     try {
+      const uid = this.currentUser?.id;
       if (!uid) throw new Error('Not logged in');
-      const writes = [supabase.from('profiles').update({ community_status: status }).eq('id', uid)];
+
+      // Write to both tables so all listeners (presence + profile) stay in sync
+      const writes = [
+        supabase.from('profiles').update({ community_status: status }).eq('id', uid),
+      ];
+      // CommunityDB.setPresence updates community_presence table (what ActiveMembers reads)
       if (window.CommunityDB?.ready) {
-        writes.push(window.CommunityDB.setPresence(status, STATUS_ACTIVITIES[status] || '✨ Available', window.Core?.state?.currentRoom || null));
+        writes.push(
+          window.CommunityDB.setPresence(
+            status,
+            activity,
+            window.Core?.state?.currentRoom || null
+          )
+        );
       }
-      const results   = await Promise.all(writes);
+      const results = await Promise.all(writes);
       const profileErr = results[0]?.error;
       if (profileErr) throw profileErr;
+
       this.app.showToast(`Status set to ${label}`, 'success');
     } catch (err) {
       console.error('setStatus error:', err);
       this.app.showToast('Could not update status', 'error');
     }
 
+    // Notify other modules (e.g. Community Hub Hero Profile)
     window.dispatchEvent(new CustomEvent('statusChanged', { detail: { status } }));
   }
 
   // ============== AVATAR SYNC ==============
 
+  /** Synchronize avatar display in user button */
   syncAvatar() {
     const { avatar_url, emoji = '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' } = this.currentUser || {};
-    const avImg   = this.btn?.querySelector('.disc-avatar-img');
+    const avImg = this.btn?.querySelector('.disc-avatar-img');
     const avEmoji = this.btn?.querySelector('.disc-avatar-emoji');
 
     if (!avImg || !avEmoji) return;
 
     const hasAvatar = avatar_url?.trim();
-    avImg.classList.toggle('hidden', !hasAvatar);
-    avEmoji.classList.toggle('hidden', !!hasAvatar);
-    this.btn.classList.toggle('avatar-mode', !!hasAvatar);
 
-    if (hasAvatar) avImg.src = avatar_url;
-    else           avEmoji.innerHTML = renderAvatarIcon(emoji);
+    // Toggle visibility
+    avImg.classList.toggle('hidden', !hasAvatar);
+    avEmoji.classList.toggle('hidden', hasAvatar);
+    this.btn.classList.toggle('avatar-mode', hasAvatar);
+
+    // Set content
+    if (hasAvatar) {
+      avImg.src = avatar_url;
+    } else {
+      avEmoji.innerHTML = renderAvatarIcon(emoji);
+    }
   }
 
   // ============== DELETE ACCOUNT ==============
 
+  /** Inject and show the delete account confirmation modal */
   showDeleteAccountModal() {
+    // Inject modal once
     if (!document.getElementById('delete-account-modal-overlay')) {
       document.documentElement.insertAdjacentHTML('afterbegin', Templates.deleteAccountModal());
     }
 
-    const overlay    = document.getElementById('delete-account-modal-overlay');
-    const input      = document.getElementById('delete-account-confirm-input');
+    const overlay = document.getElementById('delete-account-modal-overlay');
+    const input   = document.getElementById('delete-account-confirm-input');
     const confirmBtn = document.getElementById('delete-account-confirm-btn');
     const cancelBtn  = document.getElementById('delete-account-cancel-btn');
 
+    // Reset state each open
     input.value = '';
     confirmBtn.disabled = true;
     overlay.classList.add('show');
 
-    const onInput = () => { confirmBtn.disabled = input.value.trim() !== 'DELETE'; };
+    // Enable confirm button only when user types DELETE exactly
+    const onInput = () => {
+      confirmBtn.disabled = input.value.trim() !== 'DELETE';
+    };
     input.addEventListener('input', onInput);
 
-    const close = () => { overlay.classList.remove('show'); input.removeEventListener('input', onInput); };
+    const close = () => {
+      overlay.classList.remove('show');
+      input.removeEventListener('input', onInput);
+    };
+
     cancelBtn.addEventListener('click', close, { once: true });
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); }, { once: true });
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) close();
+    }, { once: true });
+
     confirmBtn.addEventListener('click', async () => {
       if (input.value.trim() !== 'DELETE') return;
       close();
       await this.handleDeleteAccount();
     }, { once: true });
 
+    // Focus input for faster UX
     setTimeout(() => input.focus(), 100);
   }
 
+  /** Execute full account deletion */
   async handleDeleteAccount() {
     const uid = this.currentUser?.id;
     if (!uid) return;
@@ -828,27 +1225,45 @@ export default class UserTab {
     this.app.showToast('Deleting your account…', 'info');
 
     try {
+      // Get session token to pass to Edge Function
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) throw new Error('No active session');
 
-      const res = await fetch(`${supabase.supabaseUrl}/functions/v1/delete-account`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-          'apikey': supabase.supabaseKey,
-        },
-      });
+      const res = await fetch(
+        `${supabase.supabaseUrl}/functions/v1/delete-account`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': supabase.supabaseKey,
+          },
+        }
+      );
 
       const body = await res.json();
-      if (!res.ok) throw new Error(body?.error || 'Deletion failed');
 
+      if (!res.ok) {
+        throw new Error(body?.error || 'Deletion failed');
+      }
+
+      // Clear all local state
       localStorage.clear();
       sessionStorage.clear();
+
+      // Sign out (session is already gone server-side, but clean up client)
       await supabase.auth.signOut();
 
       this.app.showToast('Account deleted. Goodbye 🙏', 'success');
-      setTimeout(() => { typeof this.app.logout === 'function' ? this.app.logout() : window.location.reload(); }, 1500);
+
+      // Redirect or reload after brief delay
+      setTimeout(() => {
+        if (typeof this.app.logout === 'function') {
+          this.app.logout();
+        } else {
+          window.location.reload();
+        }
+      }, 1500);
 
     } catch (err) {
       console.error('handleDeleteAccount error:', err);
@@ -858,9 +1273,11 @@ export default class UserTab {
 
   // ============== LOGOUT ==============
 
+  /** Handle user logout */
   async handleLogout() {
     try {
       this.toggleDropdown(false);
+
       if (this.app && typeof this.app.logout === 'function') {
         await this.app.logout();
       } else {
@@ -873,12 +1290,17 @@ export default class UserTab {
     }
   }
 
-  // ============== UTILITY ==============
+  // ============== UTILITY METHODS ==============
 
+  /**
+   * Render the "what you'll receive" frequency explanation HTML (used for live updates)
+   * @param {string} frequency - 'minimum' or 'full'
+   * @returns {string} HTML string
+   */
   renderFrequencyExplanationHTML(frequency) {
-    const sun     = `<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg>`;
-    const moon    = `<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
-    const circle  = `<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+    const sun = `<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg>`;
+    const moon = `<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+    const circle = `<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
     const reflect = `<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="9" x2="12" y2="2"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/></svg>`;
     if (frequency === 'minimum') {
       return `<div>${sun} <strong>Awakening:</strong> Checking-in and Focusing</div><div>${moon} <strong>Integration:</strong> Integrating the Day</div>`;
@@ -886,6 +1308,13 @@ export default class UserTab {
     return `<div>${sun} <strong>Awakening:</strong> Checking-in and Focusing</div><div>${circle} <strong>Recharge:</strong> Quick reset and Mindfulness</div><div>${reflect} <strong>Reflect:</strong> Gratitude and Inspiration</div><div>${moon} <strong>Integration:</strong> Integrating the Day</div>`;
   }
 
+  /**
+   * Attach event listener with null safety
+   * @param {string} selector - Element ID
+   * @param {string} event - Event name
+   * @param {Function} handler - Event handler
+   * @param {Object} options - Event listener options
+   */
   attachListener(selector, event, handler, options = {}) {
     document.getElementById(selector)?.addEventListener(event, handler, options);
   }
