@@ -214,19 +214,43 @@ class PracticeRoom {
             document.body.appendChild(wrapper);
         }
 
-        // Phase 2: replace placeholder with real body on next frame
+        // Phase 2: replace placeholder with real body on next frame.
+        // FIX: use replaceWith(...tmp.children) instead of tmp.firstElementChild —
+        // some rooms (SilentRoom, DeepWorkRoom) emit a leading <style> tag from
+        // buildSoundSettings() before the body <div>, so firstElementChild grabbed
+        // the <style> and discarded the actual content.
+        // FIX: call onEnter() here, after body is in the DOM, not in enterRoom()
+        // before the rAF. TarotRoom/_drawAndRenderDaily and timer rooms need their
+        // DOM elements to exist before onEnter() queries them.
         requestAnimationFrame(() => {
-            const ph      = document.getElementById(`${this.roomId}BodyPlaceholder`);
+            const ph = document.getElementById(`${this.roomId}BodyPlaceholder`);
             const bodyHTML = this.buildBody();
             if (ph) {
                 const tmp = document.createElement('div');
                 tmp.innerHTML = bodyHTML;
-                // insertAdjacentElement to avoid re-parsing the full container
-                ph.replaceWith(tmp.firstElementChild || tmp);
+                // Spread all children (handles leading <style> + body <div>)
+                ph.replaceWith(...Array.from(tmp.childNodes));
             } else if (dynamicContent) {
-                // fallback: full replace (should not happen normally)
                 dynamicContent.innerHTML = headerHTML + bodyHTML + modalsHTML;
             }
+            // Now body is in the DOM — safe to run room-specific enter logic
+            this._onEnterDeferred();
+        });
+    }
+
+    // Called after body is painted. Runs onEnter() and deferred sidebar/blessing init.
+    _onEnterDeferred() {
+        this.onEnter?.();
+
+        requestAnimationFrame(() => {
+            this._refreshParticipantSidebar(
+                `${this.roomId}ParticipantListEl`,
+                `${this.roomId}ParticipantCount`
+            );
+            requestAnimationFrame(() => {
+                this._refreshBlessingCounter();
+                this._subscribeToBlessings();
+            });
         });
     }
 
