@@ -4,15 +4,11 @@
  *
  * Daily card: date-seeded - same card for all users, resets at midnight.
  *
- * Optimizations vs previous version:
- * - Removed duplicate _renderParticipantList (now inherited from PracticeRoom)
- * - Removed duplicate _escHTML — replaced with inherited _escapeHtml from ChatMixin
- * - switchTab delegated to TabRoomMixin via onPersonalTabEnter() hook
- * - _buildEnrichedSections HTML cached by card key — not rebuilt on every render
- * - _loadMastery / _loadDrawHistory only re-fetch after draws/clears, not on every tab switch
- * - Interpretation purge runs once per session, not on every load
- * - onEnter no longer calls _refreshParticipantSidebar (PracticeRoom.enterRoom handles it)
- * - personalDeck reuses this.state.personalDeck instead of rebuilding on every draw
+ * Perf patches vs previous version:
+ * - buildBody(): personal tab rendered as lightweight placeholder on enter
+ * - onPersonalTabEnter(): hydrates full personal tab HTML on first switch (lazy)
+ * - _buildPersonalTab(): now called lazily, not on every enterRoom()
+ * - All other optimizations from previous version retained
  */
 
 import { PracticeRoom } from './PracticeRoom.js';
@@ -37,9 +33,11 @@ class TarotRoom extends PracticeRoom {
 
         this._tarotDataReady          = false;
         this._pendingDailyRender      = false;
-        this._interpPurgedToday       = false; // run purge once per session
-        this._enrichedCache           = {};    // cache built HTML by card key
-        this._personalDataLoaded      = false; // only fetch history/mastery when needed
+        this._interpPurgedToday       = false;
+        this._enrichedCache           = {};
+        this._personalDataLoaded      = false;
+        // FIX: track whether personal tab DOM has been hydrated
+        this._personalTabHydrated     = false;
 
         this.state.dailyCard     = null;
         this.state.personalDeck  = [];
@@ -87,14 +85,10 @@ class TarotRoom extends PracticeRoom {
             this._loadInlineTarotData();
         }
 
-        // Build the deck once and reuse throughout the session
         this.state.personalDeck = this._buildFullDeck();
-
-        // Draw the daily card now so buildCardFooter() has it at hub render time
         this._drawDailyCard();
 
         this._tarotDataReady = true;
-        // Refresh the hub card so the Daily Card label appears immediately
         this.updateRoomCard();
         if (this._pendingDailyRender) {
             this._pendingDailyRender = false;
@@ -149,7 +143,7 @@ class TarotRoom extends PracticeRoom {
         };
     }
 
-    // ── Daily card (date-seeded) ───────────────────────────────────────────────
+    // ── Daily card ────────────────────────────────────────────────────────────
 
     _seededRng(seed) {
         let s = seed >>> 0;
@@ -241,7 +235,6 @@ class TarotRoom extends PracticeRoom {
           <img width="280" height="480" loading="lazy" decoding="async" src="${this.getCardImage(card.number, card.suit).replace('.webp', '.jpg')}"
                style="width:min(280px,100%);height:auto;border-radius:12px;box-shadow:var(--shadow);display:block;"
                alt="${this.getCardName(card.number, card.suit)}"
-               loading="lazy" decoding="async"
                onerror="this.src='${this.TAROT_BASE_URL}CardBacks.webp'">
         </picture>
         <h4 style="font-family:var(--serif);font-size:20px;margin:12px 0 4px;text-align:center;">${this.getCardName(card.number, card.suit)}</h4>
@@ -250,11 +243,6 @@ class TarotRoom extends PracticeRoom {
 
     // ── Enriched sections (with HTML caching) ─────────────────────────────────
 
-    /**
-     * Returns cached enriched HTML for a card, or builds and caches it.
-     * Cache key uses card suit+number+showCommunity so daily/personal variants
-     * are stored separately.
-     */
     _getEnrichedHTML(card, showCommunity = true) {
         const cacheKey = `${card.suit}-${card.number}-${showCommunity}`;
         if (!this._enrichedCache[cacheKey]) {
@@ -300,14 +288,11 @@ class TarotRoom extends PracticeRoom {
         const roomId = this.roomId;
 
         return `
-        <!-- ── Attributes & Meaning ── -->
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;">
             ${data.narrative ? `
             <div style="text-align:center;margin-bottom:20px;">
                 <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;margin-bottom:10px;">Represents</div>
-                <p style="font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.8;color:var(--text-muted);max-width:560px;margin:0 auto;">
-                    ${data.narrative}
-                </p>
+                <p style="font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.8;color:var(--text-muted);max-width:560px;margin:0 auto;">${data.narrative}</p>
             </div>` : ''}
             ${keywords ? `
             <div style="margin-bottom:20px;${data.narrative ? 'padding-top:20px;border-top:1px solid var(--border);' : ''}">
@@ -318,8 +303,6 @@ class TarotRoom extends PracticeRoom {
             <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:16px;padding:16px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:20px;">
                 ${attrHTML}
             </div>` : ''}
-
-            <!-- UPRIGHT / REVERSED TOGGLE -->
             <div style="display:flex;justify-content:center;gap:8px;margin-bottom:16px;">
                 <button id="${roomId}UprightBtn"
                     onclick="window.TarotRoom._setMeaningTab('upright')"
@@ -332,48 +315,33 @@ class TarotRoom extends PracticeRoom {
                     Reversed
                 </button>
             </div>
-            <div id="${roomId}MeaningText" style="text-align:center;font-size:15px;line-height:1.7;max-width:560px;margin:0 auto;">
-                ${data.upright || ''}
-            </div>
-            <div id="${roomId}MeaningTextReversed" style="display:none;text-align:center;font-size:15px;line-height:1.7;max-width:560px;margin:0 auto;color:var(--text-muted);">
-                ${data.reversed || ''}
-            </div>
-
+            <div id="${roomId}MeaningText" style="text-align:center;font-size:15px;line-height:1.7;max-width:560px;margin:0 auto;">${data.upright || ''}</div>
+            <div id="${roomId}MeaningTextReversed" style="display:none;text-align:center;font-size:15px;line-height:1.7;max-width:560px;margin:0 auto;color:var(--text-muted);">${data.reversed || ''}</div>
             ${symbolsHTML ? `
             <details style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
                 <summary style="cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.04em;color:var(--text-muted);text-transform:uppercase;list-style:none;display:flex;align-items:center;gap:6px;">
                     <span style="display:inline-block;">▶</span> Symbols Guide
                 </summary>
-                <ul style="margin:12px 0 0 0;padding:0 0 0 4px;list-style:none;">
-                    ${symbolsHTML}
-                </ul>
+                <ul style="margin:12px 0 0 0;padding:0 0 0 4px;list-style:none;">${symbolsHTML}</ul>
             </details>` : ''}
         </div>
-
-        <!-- ── Today's Question ── -->
         ${(data.mysticalQuestion || data.dailyQuestion) ? `
         <div style="background:var(--surface);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;text-align:center;">
             <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:700;margin-bottom:12px;">🔮 Today's Question</div>
             ${data.dailyQuestion ? `<p style="font-family:var(--serif);font-size:17px;line-height:1.7;margin:0 auto;max-width:520px;">${data.dailyQuestion}</p>` : ''}
             ${data.mysticalQuestion ? `<p style="font-size:13px;color:var(--text-muted);margin:10px auto 0;max-width:480px;font-style:italic;">Mystical: ${data.mysticalQuestion}</p>` : ''}
         </div>` : ''}
-
-        <!-- ── Card Journal ── -->
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
                 <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;">📓 Card Journal</div>
-                <button onclick="window.TarotRoom._toggleJournalLog()"
-                    id="${roomId}JournalLogBtn"
+                <button onclick="window.TarotRoom._toggleJournalLog()" id="${roomId}JournalLogBtn"
                     style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;font-weight:600;">View Log</button>
             </div>
-            <p style="font-size:13px;color:var(--text-muted);margin:0 0 14px 0;line-height:1.6;">
-                Look closely at the card. What do you notice? Describe what you see — the characters, their posture, expression, actions. What colors stand out? Any symbols, objects, or small details that catch your eye? How does it make you feel?
-            </p>
+            <p style="font-size:13px;color:var(--text-muted);margin:0 0 14px 0;line-height:1.6;">Look closely at the card. What do you notice? Describe what you see — the characters, their posture, expression, actions. What colors stand out? Any symbols, objects, or small details that catch your eye? How does it make you feel?</p>
             <div id="${roomId}JournalForm">
                 <textarea id="${roomId}JournalInput"
                     placeholder="e.g. A figure stands at the edge of a cliff, looking up… the colors feel warm and golden… I notice a small dog at their feet…"
-                    style="width:100%;box-sizing:border-box;padding:12px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--background);color:var(--text);font-size:14px;line-height:1.6;resize:vertical;min-height:110px;font-family:inherit;"
-                ></textarea>
+                    style="width:100%;box-sizing:border-box;padding:12px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--background);color:var(--text);font-size:14px;line-height:1.6;resize:vertical;min-height:110px;font-family:inherit;"></textarea>
                 <button onclick="window.TarotRoom._saveJournalEntry()"
                     style="margin-top:10px;padding:9px 22px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;">
                     Save to Journal
@@ -383,9 +351,7 @@ class TarotRoom extends PracticeRoom {
                 <div id="${roomId}JournalLogList" style="display:flex;flex-direction:column;gap:10px;max-height:340px;overflow-y:auto;"></div>
             </div>
         </div>
-
         ${showCommunity ? `
-        <!-- ── Community Interpretations ── -->
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;">
             <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;margin-bottom:6px;">🌀 Community Interpretations</div>
             <p style="font-size:13px;color:var(--text-muted);margin:0 0 12px 0;">Share a one-line interpretation of today's card.</p>
@@ -404,15 +370,14 @@ class TarotRoom extends PracticeRoom {
             <div id="${roomId}InterpList" style="display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;">
                 <div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px;">Loading interpretations…</div>
             </div>
-        </div>
-        ` : ''}`;
+        </div>` : ''}`;
     }
 
     _setMeaningTab(tab) {
-        const upBtn  = document.getElementById(`${this.roomId}UprightBtn`);
-        const rvBtn  = document.getElementById(`${this.roomId}ReversedBtn`);
-        const upTxt  = document.getElementById(`${this.roomId}MeaningText`);
-        const rvTxt  = document.getElementById(`${this.roomId}MeaningTextReversed`);
+        const upBtn = document.getElementById(`${this.roomId}UprightBtn`);
+        const rvBtn = document.getElementById(`${this.roomId}ReversedBtn`);
+        const upTxt = document.getElementById(`${this.roomId}MeaningText`);
+        const rvTxt = document.getElementById(`${this.roomId}MeaningTextReversed`);
         if (!upBtn) return;
         if (tab === 'upright') {
             upBtn.style.background = 'var(--accent)'; upBtn.style.color = '#fff'; upBtn.style.borderColor = 'var(--accent)';
@@ -425,7 +390,7 @@ class TarotRoom extends PracticeRoom {
         }
     }
 
-    // ── Journal ──────────────────────────────────────────────────────────────
+    // ── Journal ───────────────────────────────────────────────────────────────
 
     _toggleJournalLog() {
         const logDiv  = document.getElementById(`${this.roomId}JournalLog`);
@@ -578,7 +543,6 @@ class TarotRoom extends PracticeRoom {
         const list  = document.getElementById(`${this.roomId}InterpList`);
         if (!list || !card) return;
 
-        // Purge old entries once per session, not on every load
         if (!this._interpPurgedToday) {
             this._interpPurgedToday = true;
             CommunityDB._sb.from('tarot_interpretations').delete().lt('date', today).then(() => {});
@@ -611,10 +575,22 @@ class TarotRoom extends PracticeRoom {
         }
     }
 
-    // ── Tab hook (replaces switchTab override) ────────────────────────────────
+    // ── Tab hooks ─────────────────────────────────────────────────────────────
 
-    /** Called by TabRoomMixin.switchTab when personal tab is activated. */
+    /**
+     * FIX: Called by TabRoomMixin.switchTab on first personal tab activation.
+     * Hydrates the full personal tab HTML lazily — not on enterRoom().
+     */
     onPersonalTabEnter() {
+        // Hydrate DOM once
+        if (!this._personalTabHydrated) {
+            const container = document.getElementById(`${this.roomId}PersonalTab`);
+            if (container) {
+                container.innerHTML = this._buildPersonalTab();
+                this._personalTabHydrated = true;
+            }
+        }
+        // Load data only when needed
         if (!this._personalDataLoaded) {
             this._loadDrawHistory();
             this._loadMastery();
@@ -624,7 +600,6 @@ class TarotRoom extends PracticeRoom {
     // ── Personal draws ────────────────────────────────────────────────────────
 
     drawPersonalCard() {
-        // Clear selects, shuffle existing deck (no rebuild needed)
         ['Major','Minor','Court'].forEach(s => {
             const el = document.getElementById(`${this.roomId}${s}Select`);
             if (el) el.value = '';
@@ -640,9 +615,7 @@ class TarotRoom extends PracticeRoom {
         if (enriched)  enriched.innerHTML  = this._getEnrichedHTML(card, false);
         container?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         this._logDraw(card);
-        // Mark personal data stale so history/mastery reload on next view
         this._personalDataLoaded = false;
-        // If already on personal tab, reload immediately
         if (this.state.currentTab === 'personal') {
             this._loadDrawHistory();
             this._loadMastery();
@@ -706,7 +679,6 @@ class TarotRoom extends PracticeRoom {
                     <span style="font-size:11px;color:var(--text-muted);white-space:nowrap;">${date} · ${time}</span>
                 </div>`;
             }).join('');
-
             this._personalDataLoaded = true;
         } catch(e) {
             console.warn('[TarotRoom] loadDrawHistory failed', e);
@@ -771,10 +743,12 @@ class TarotRoom extends PracticeRoom {
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     onEnter() {
-        // Build/reuse personal deck
         if (!this.state.personalDeck.length) {
             this.state.personalDeck = this._buildFullDeck();
         }
+
+        // FIX: reset hydration flag so personal tab rebuilds on re-entry
+        this._personalTabHydrated = false;
 
         if (this._tarotDataReady) {
             this._drawAndRenderDaily();
@@ -783,7 +757,6 @@ class TarotRoom extends PracticeRoom {
         }
 
         this.initializeChat();
-        // Participant sidebar is handled by PracticeRoom.enterRoom() — no duplicate call needed.
         requestAnimationFrame(() => document.querySelector(`#${this.roomId}View .tarot-main`)?.scrollTo(0, 0));
     }
 
@@ -810,7 +783,7 @@ class TarotRoom extends PracticeRoom {
                 <div style="width:100%;">
                     ${this.buildTabNav(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="14" y2="14"/></svg> Daily Community Card`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect x="2" y="4" width="14" height="18" rx="2"/><rect x="8" y="2" width="14" height="18" rx="2"/></svg> Solo Card Learning`)}
                     <div id="${this.roomId}DailyTab"    style="display:block;">${this._buildDailyTab()}</div>
-                    <div id="${this.roomId}PersonalTab" style="display:none;">${this._buildPersonalTab()}</div>
+                    <div id="${this.roomId}PersonalTab" style="display:none;">${this._buildPersonalTabPlaceholder()}</div>
                 </div>
             </main>
         </div>`;
@@ -836,6 +809,14 @@ class TarotRoom extends PracticeRoom {
         </div>`;
     }
 
+    // FIX: lightweight placeholder — injected at enterRoom(), costs ~0ms
+    _buildPersonalTabPlaceholder() {
+        return `<div style="display:flex;align-items:center;justify-content:center;padding:60px 20px;">
+            <div style="text-align:center;color:var(--text-muted);font-size:14px;">Loading Solo Card Learning…</div>
+        </div>`;
+    }
+
+    // Full personal tab HTML — only built when the user first switches to it
     _buildPersonalTab() {
         const roomId = this.roomId;
 
@@ -870,63 +851,48 @@ class TarotRoom extends PracticeRoom {
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect x="2" y="4" width="14" height="18" rx="2"/><rect x="8" y="2" width="14" height="18" rx="2"/></svg>
                 Solo Card Learning
             </h3>
-
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
                 <div>
                     <label style="font-weight:700;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Major Arcana</label>
-                    <select id="${roomId}MajorSelect" style="${selectStyle}"
-                            data-action="personalSelectChange" data-source="major">
-                        <option value="">— Select —</option>
-                        ${majorOptions}
+                    <select id="${roomId}MajorSelect" style="${selectStyle}" data-action="personalSelectChange" data-source="major">
+                        <option value="">— Select —</option>${majorOptions}
                     </select>
                 </div>
                 <div>
                     <label style="font-weight:700;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> Minor Arcana</label>
-                    <select id="${roomId}MinorSelect" style="${selectStyle}"
-                            data-action="personalSelectChange" data-source="minor">
-                        <option value="">— Select —</option>
-                        ${minorOptions}
+                    <select id="${roomId}MinorSelect" style="${selectStyle}" data-action="personalSelectChange" data-source="minor">
+                        <option value="">— Select —</option>${minorOptions}
                     </select>
                 </div>
                 <div>
                     <label style="font-weight:700;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><path d="M2 20h20"/><path d="m4 14 4-8 4 8 4-8 4 8"/></svg> Court Cards</label>
-                    <select id="${roomId}CourtSelect" style="${selectStyle}"
-                            data-action="personalSelectChange" data-source="court">
-                        <option value="">— Select —</option>
-                        ${courtOptions}
+                    <select id="${roomId}CourtSelect" style="${selectStyle}" data-action="personalSelectChange" data-source="court">
+                        <option value="">— Select —</option>${courtOptions}
                     </select>
                 </div>
             </div>
-
             <div style="text-align:center;margin-bottom:24px;">
                 <button type="button" data-action="drawPersonalCard"
                         style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:linear-gradient(135deg,var(--neuro-accent),var(--neuro-accent-light));color:white;border:none;border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-size:15px;letter-spacing:0.5px;box-shadow:var(--shadow-raised);">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg> Random Draw
                 </button>
             </div>
-
             <div id="${roomId}PersonalCardContainer" style="display:flex;flex-direction:column;align-items:center;"></div>
             <div id="${roomId}PersonalEnrichedSections"></div>
-
             <div style="margin-top:32px;display:flex;flex-direction:column;gap:20px;">
-                <!-- Mastery Tracker -->
                 <div style="border:2px solid var(--border);border-radius:var(--radius-lg);padding:20px;background:var(--background);">
                     <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Major Arcana Mastery</h4>
-                    <div id="${roomId}MasteryBar" style="margin-bottom:12px;">
-                        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:6px;">
-                            <span>Cards Discovered</span>
-                            <span id="${roomId}MasteryCount">Loading…</span>
-                        </div>
-                        <div style="height:8px;border-radius:4px;background:var(--border);overflow:hidden;">
-                            <div id="${roomId}MasteryProgress" style="height:100%;border-radius:4px;background:linear-gradient(90deg,var(--neuro-accent),var(--neuro-accent-light));width:0%;transition:width 0.5s ease;"></div>
-                        </div>
+                    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:6px;">
+                        <span>Cards Discovered</span>
+                        <span id="${roomId}MasteryCount">Loading…</span>
+                    </div>
+                    <div style="height:8px;border-radius:4px;background:var(--border);overflow:hidden;">
+                        <div id="${roomId}MasteryProgress" style="height:100%;border-radius:4px;background:linear-gradient(90deg,var(--neuro-accent),var(--neuro-accent-light));width:0%;transition:width 0.5s ease;"></div>
                     </div>
                     <div id="${roomId}MasteryCards" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;">
                         <span style="color:var(--text-muted);font-size:13px;">Loading…</span>
                     </div>
                 </div>
-
-                <!-- Draw History -->
                 <div style="border:2px solid var(--border);border-radius:var(--radius-lg);padding:20px;background:var(--background);">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
                         <h4 style="font-family:var(--serif);font-size:18px;margin:0;display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg> Cards You've Drawn</h4>
@@ -969,7 +935,6 @@ class TarotRoom extends PracticeRoom {
             ...super.getActions(),
             drawPersonalCard:     () => this.drawPersonalCard(),
             clearDrawHistory:     () => this._clearDrawHistory(),
-            // Handles all three arcana selects — data-source identifies which
             personalSelectChange: e  => this._onPersonalSelectChange(this._actionEl(e).dataset.source),
         };
     }
@@ -1002,10 +967,8 @@ class TarotRoom extends PracticeRoom {
 Object.assign(TarotRoom.prototype, ChatMixin);
 Object.assign(TarotRoom.prototype, TabRoomMixin);
 
-// Window bridge: preserved for inline onclick handlers
 const tarotRoom = new TarotRoom();
 window.TarotRoom = tarotRoom;
-// Fix #7: signal CommunityHubEngine that this room's enterRoom function is ready.
 window.dispatchRoomReady?.('tarot');
 
 export { TarotRoom, tarotRoom };

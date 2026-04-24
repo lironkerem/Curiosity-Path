@@ -1,14 +1,12 @@
 /**
- * PRACTICE ROOM BASE CLASS v3.1
- * Base class for all practice rooms with shared lifecycle, UI, and presence.
- *
- * Changes from v3.0:
- * - _renderParticipantList: added explicit avatar dimensions (width/height/min-width/min-height)
- *   so subclasses no longer need to override it just for sizing.
- * - _refreshParticipantSidebar: now accepts an optional pre-fetched participants array
- *   to avoid a redundant DB call when enterRoom() has already fetched participants.
- * - fetchRoomParticipants: passes fetched data directly to _refreshParticipantSidebar
- *   so onEnter() hooks don't need to trigger a second fetch.
+ * PRACTICE ROOM BASE CLASS v3.2
+ * Perf patches vs v3.1:
+ * - enterRoom: deferred body render via rAF (paint header first, then body)
+ * - setupEventListeners: defined once; actions map cached on first call
+ * - _teardownDelegatedListeners: defined once
+ * - setTimeout delays replaced with rAF for participant/blessing init
+ * - _showBlessingAnimation: particle init deferred to rAF
+ * - Duplicate method definitions removed
  */
 
 import { SafetyBar } from '../SafetyBar.js';
@@ -26,9 +24,7 @@ const _AVATAR_DEFAULTS = {
     fallbackGradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
 };
 
-// ─── Module-level HTML escape (Issue #3) ────────────────────────────────────────
-// PracticeRoom doesn't mix in ChatMixin, so we define a standalone escaper here.
-// Applied to all user-supplied strings before insertion into innerHTML.
+// ─── Module-level HTML escape ────────────────────────────────────────────────
 function _esc(str) {
     if (!str) return '';
     return String(str)
@@ -39,27 +35,23 @@ function _esc(str) {
         .replace(/'/g, '&#39;');
 }
 
-// ─── Shared SVG icon strings (Issue #10) ────────────────────────────────────────
-// Defined once at module level — avoids repeated identical string allocations
-// each time buildHeader / buildSafetyDropdown / buildCardFooter are called.
+// ─── Shared SVG icon strings ─────────────────────────────────────────────────
 const _ICONS = {
-    bless:        `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.8;"><path d="M12 3L13.5 8.5L19 10L13.5 11.5L12 17L10.5 11.5L5 10L10.5 8.5Z"/><path d="M5 3L5.75 5.25L8 6L5.75 6.75L5 9L4.25 6.75L2 6L4.25 5.25Z"/><path d="M19 14L19.75 16.25L22 17L19.75 17.75L19 20L18.25 17.75L16 17L18.25 16.25Z"/></svg>`,
-    leave:        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20h9"/><path d="M10 12v.01"/><path d="M13 4l-6 2v14l6 2"/></svg>`,
-    shield:       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
-    book:         `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
-    alert:        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`,
-    block:        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>`,
-    mute:         `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`,
-    help:         `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg>`,
+    bless:   `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.8;"><path d="M12 3L13.5 8.5L19 10L13.5 11.5L12 17L10.5 11.5L5 10L10.5 8.5Z"/><path d="M5 3L5.75 5.25L8 6L5.75 6.75L5 9L4.25 6.75L2 6L4.25 5.25Z"/><path d="M19 14L19.75 16.25L22 17L19.75 17.75L19 20L18.25 17.75L16 17L18.25 16.25Z"/></svg>`,
+    leave:   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20h9"/><path d="M10 12v.01"/><path d="M13 4l-6 2v14l6 2"/></svg>`,
+    shield:  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+    book:    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+    alert:   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`,
+    block:   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>`,
+    mute:    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`,
+    help:    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg>`,
 };
 
-// ─── Module-level blocked-users cache (Issue #1) ──────────────────────────────
-// Blocked users rarely change — fetch once per room session, not on every
-// presence tick. Invalidated when the user leaves the room.
+// ─── Blocked-users cache ─────────────────────────────────────────────────────
 const _blockedCache = {
-    data:      null,   // Set<userId> | null
+    data:      null,
     fetchedAt: 0,
-    TTL_MS:    120_000, // 2 minutes
+    TTL_MS:    120_000,
 
     async get() {
         const now = Date.now();
@@ -84,7 +76,7 @@ const _blockedCache = {
 class PracticeRoom {
     constructor(config) {
         this.roomId   = config.roomId;
-        this.roomType = config.roomType; // 'always-open' | 'timed'
+        this.roomType = config.roomType;
 
         this.config = {
             name:            'Practice Room',
@@ -103,11 +95,13 @@ class PracticeRoom {
         };
 
         this.eventListeners = [];
+
+        // FIX: cache actions map — built once per room entry, not on every click
+        this._actionsCache = null;
     }
 
-    // ── Helpers ──────────────────────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────────────
 
-    /** Returns true when CommunityDB is available and ready. */
     _dbReady() {
         return !!(CommunityDB?.ready);
     }
@@ -116,9 +110,7 @@ class PracticeRoom {
 
     init() {
         this.updateRoomCard();
-        window[`${this.roomId}_blessRoom`]         = () => this._blessRoom();
-        // Pre-register schedule modal globals — needed on hub card before room entry
-        // (setupEventListeners hasn't run yet at card render time).
+        window[`${this.roomId}_blessRoom`]          = () => this._blessRoom();
         window[`${this.roomId}_showScheduleModal`]  = () => this.showScheduleModal?.();
         window[`${this.roomId}_closeScheduleModal`] = () => this.closeScheduleModal?.();
         this.mountHubModals();
@@ -132,9 +124,7 @@ class PracticeRoom {
 
         let container = document.getElementById('roomHubModals');
         if (!container) {
-            container = Object.assign(document.createElement('div'), {
-                id: 'roomHubModals',
-            });
+            container = Object.assign(document.createElement('div'), { id: 'roomHubModals' });
             container.style.cssText = 'position:relative;z-index:200000;';
             document.body.appendChild(container);
         }
@@ -148,7 +138,6 @@ class PracticeRoom {
         container.appendChild(slot);
     }
 
-    /** Override to expose hub-card modals before room entry. @returns {string} */
     buildHubModals() { return ''; }
 
     // ── Enter / Leave ─────────────────────────────────────────────────────────
@@ -160,36 +149,90 @@ class PracticeRoom {
         }
 
         PracticeRoom.stopHubPresence();
-        this.createPracticeView();
+
+        // FIX: paint header immediately, defer expensive body HTML to next frame.
+        // This makes the room appear <1 frame after tap instead of after full render.
+        this._createPracticeViewDeferred();
+
         window.Core.navigateTo('practiceRoomView');
         window.Core.showToast(`${this.config.icon} Entered ${this.config.name}`);
 
+        // FIX: invalidate actions cache so subclass overrides are picked up fresh
+        this._actionsCache = null;
         this.setupEventListeners();
         this.onEnter?.();
         this._setRoomPresence(this.roomId);
 
-        // Auto-contribute to the 24h Calm Wave while in a practice room
         if (CollectiveField && !CollectiveField.state.isContributing) {
             CollectiveField._startWave();
         }
 
-        // Fetch participants once and pass to sidebar — avoids double DB call.
-        // _refreshParticipantSidebar will also set up the realtime subscription.
-        setTimeout(async () => {
-            await this._refreshParticipantSidebar(
+        // FIX: replaced setTimeout(300/400) with rAF — no arbitrary delay,
+        // fires after the deferred body paint has committed to the DOM.
+        requestAnimationFrame(() => {
+            this._refreshParticipantSidebar(
                 `${this.roomId}ParticipantListEl`,
                 `${this.roomId}ParticipantCount`
             );
-        }, 300);
-
-        setTimeout(() => {
-            this._refreshBlessingCounter();
-            this._subscribeToBlessings();
-        }, 400);
+            requestAnimationFrame(() => {
+                this._refreshBlessingCounter();
+                this._subscribeToBlessings();
+            });
+        });
 
         CommunityDB.logRoomEntry(this.roomId)
             .then(id => { this._roomEntryId = id; })
             .catch(() => {});
+    }
+
+    /**
+     * FIX: Two-phase view creation.
+     * Phase 1 (sync):  inject header + modal shells → room is visible immediately.
+     * Phase 2 (rAF):   inject body HTML → heavy string work off the tap's frame.
+     */
+    _createPracticeViewDeferred() {
+        SafetyBar.injectModals();
+
+        const dynamicContent = document.getElementById('dynamicRoomContent');
+
+        // Phase 1: header + placeholder body
+        const headerHTML  = this.buildHeader();
+        const modalsHTML  = [
+            this.buildInstructionsModal(),
+            this.buildAdditionalModals?.() ?? '',
+        ].join('');
+        const placeholder = `<div class="ps-body" id="${this.roomId}BodyPlaceholder" style="flex:1;display:flex;align-items:center;justify-content:center;min-height:200px;"><div style="opacity:0.4;font-size:14px;">Loading…</div></div>`;
+
+        if (dynamicContent) {
+            dynamicContent.innerHTML = headerHTML + placeholder + modalsHTML;
+        } else {
+            if (document.getElementById(`${this.roomId}View`)) return;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'view practice-space';
+            wrapper.id = `${this.roomId}View`;
+            wrapper.innerHTML = headerHTML + placeholder + modalsHTML;
+            document.body.appendChild(wrapper);
+        }
+
+        // Phase 2: replace placeholder with real body on next frame
+        requestAnimationFrame(() => {
+            const ph      = document.getElementById(`${this.roomId}BodyPlaceholder`);
+            const bodyHTML = this.buildBody();
+            if (ph) {
+                const tmp = document.createElement('div');
+                tmp.innerHTML = bodyHTML;
+                // insertAdjacentElement to avoid re-parsing the full container
+                ph.replaceWith(tmp.firstElementChild || tmp);
+            } else if (dynamicContent) {
+                // fallback: full replace (should not happen normally)
+                dynamicContent.innerHTML = headerHTML + bodyHTML + modalsHTML;
+            }
+        });
+    }
+
+    // Keep original createPracticeView for any external callers
+    createPracticeView() {
+        this._createPracticeViewDeferred();
     }
 
     leaveRoom() {
@@ -212,22 +255,18 @@ class PracticeRoom {
         }
     }
 
-    /** Shared teardown for both leaveRoom and gentlyLeave. */
     _exitCleanup() {
-       this._teardownDelegatedListeners();
+        this._teardownDelegatedListeners();
         if (CollectiveField?.state.isContributing) {
             CollectiveField._endWave();
         }
 
         this._clearRoomPresence();
-
-        // Invalidate blocked-users cache so the next room entry fetches fresh data.
         _blockedCache.invalidate();
-        // Reset participant diff key and in-flight flag.
-        this._lastParticipantKey = null;
+        this._lastParticipantKey       = null;
         this._participantFetchInFlight = false;
-        // Clear blessing local state (Fix #4).
-        this._blessingRows = null;
+        this._blessingRows             = null;
+        this._actionsCache             = null; // FIX: clear cache on leave
         clearTimeout(this._blessingRefreshTimer);
 
         if (this._roomEntryId) {
@@ -297,7 +336,6 @@ class PracticeRoom {
     async fetchRoomParticipants() {
         if (!this._dbReady()) return;
         try {
-            // Use cached blocked list — avoids a DB round-trip on every presence tick.
             const [participants, blocked] = await Promise.all([
                 CommunityDB.getRoomParticipants(this.roomId),
                 _blockedCache.get(),
@@ -311,10 +349,6 @@ class PracticeRoom {
         }
     }
 
-    // subscribeToRoomParticipants() removed — _refreshParticipantSidebar owns
-    // the single presence subscription. A second subscription here caused double
-    // DB calls on every presence tick (Issue #1).
-
     _updateParticipantUI(participants) {
         const countEl = document.getElementById(`${this.roomId}ParticipantCount`);
         if (countEl) countEl.textContent = this.getParticipantText();
@@ -323,40 +357,26 @@ class PracticeRoom {
         if (stackEl) stackEl.innerHTML = this._buildAvatarStack(participants);
     }
 
-    /**
-     * Fetches participants and renders the sidebar list + realtime subscription.
-     * Called once from enterRoom() — subsequent updates come via the subscription.
-     *
-     * Fix #1: Uses _blockedCache instead of fetching blocked users on every tick.
-     * Fix #2: Skips DOM re-render when the visible participant set hasn't changed.
-     */
     async _refreshParticipantSidebar(listId, countId = null) {
         if (!this._dbReady()) return;
 
         const doRefresh = async () => {
-            // Issue #6: skip if a fetch is already in-flight — prevents duplicate
-            // network requests when initial load and a presence event overlap.
             if (this._participantFetchInFlight) return;
             this._participantFetchInFlight = true;
 
-            // _blockedCache.get() returns cached data within TTL — no extra DB call.
             const [participants, blocked] = await Promise.all([
                 CommunityDB.getRoomParticipants(this.roomId),
                 _blockedCache.get(),
             ]);
             const visible = participants.filter(p => !blocked.has(p.user_id));
 
-            // ── Issue #2: skip render when participant set is unchanged ──────────
             this._participantFetchInFlight = false;
 
             const newKey = visible.map(p => p.user_id).sort().join(',');
             if (newKey === this._lastParticipantKey) return;
             this._lastParticipantKey = newKey;
-            // ────────────────────────────────────────────────────────────────────
 
             this.state.participants = visible.length;
-
-            // Update header avatar stack too
             this._updateParticipantUI(visible);
 
             const listEl = document.getElementById(listId);
@@ -396,20 +416,19 @@ class PracticeRoom {
 
     // ── Avatar rendering ──────────────────────────────────────────────────────
 
-    /** Shared avatar-stack HTML for header and blessings. */
     _buildAvatarStack(rows, size = 22, fontSize = 9) {
         const { MAX, fallbackGradient } = _AVATAR_DEFAULTS;
         const shown    = rows.slice(0, MAX);
         const overflow = rows.length - MAX;
 
         const avatars = shown.map(row => {
-            const p          = row.profiles || {};
-            const name       = _esc(p.name       || 'Member');
-            const avatarUrl  = _esc(p.avatar_url || '');
-            const emoji      = _esc(p.emoji      || '');
-            const initial    = emoji || name.charAt(0).toUpperCase();
-            const gradient   = window.Core?.getAvatarGradient?.(row.user_id || name) ?? fallbackGradient;
-            const inner      = avatarUrl
+            const p         = row.profiles || {};
+            const name      = _esc(p.name       || 'Member');
+            const avatarUrl = _esc(p.avatar_url || '');
+            const emoji     = _esc(p.emoji      || '');
+            const initial   = emoji || name.charAt(0).toUpperCase();
+            const gradient  = window.Core?.getAvatarGradient?.(row.user_id || name) ?? fallbackGradient;
+            const inner     = avatarUrl
                 ? `<img src="${avatarUrl}" width="40" height="40" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${name}" loading="lazy" decoding="async">`
                 : `<span style="color:white;font-size:${fontSize}px;font-weight:700;">${initial}</span>`;
             const bg = avatarUrl ? 'transparent' : gradient;
@@ -423,7 +442,6 @@ class PracticeRoom {
         return avatars + extra;
     }
 
-    /** Header participant stack - larger avatars, clickable. */
     _buildRealAvatars(participants) {
         const { MAX, fallbackGradient } = _AVATAR_DEFAULTS;
         const shown    = participants.slice(0, MAX);
@@ -453,11 +471,6 @@ class PracticeRoom {
             : '');
     }
 
-    /**
-     * Renders the participant sidebar list.
-     * Canonical implementation — subclasses should NOT override this.
-     * Avatar dimensions are explicitly set here to 40x40px.
-     */
     _renderParticipantList(listEl, participants) {
         if (!participants.length) {
             listEl.innerHTML = `<div style="color:var(--text-muted);font-size:13px;padding:8px;">Just you here 🕯️</div>`;
@@ -500,9 +513,6 @@ class PracticeRoom {
             return;
         }
 
-        // Client-side cooldown guard (60s) — mirrors the server-side enforcement.
-        // Prevents the animation + button flicker on rapid re-clicks before the
-        // RPC round-trip returns.
         const now      = Date.now();
         const lastSent = this._lastBlessedAt ?? 0;
         const COOLDOWN = 60_000;
@@ -512,7 +522,6 @@ class PracticeRoom {
             return;
         }
 
-        // Debounce button UI
         if (btn) {
             if (btn.dataset.blessed) return;
             btn.dataset.blessed = '1';
@@ -526,7 +535,6 @@ class PracticeRoom {
             }, 3000);
         }
 
-        // Fire animation immediately — instant feedback, don't wait for DB
         this._lastBlessedAt = now;
         this._showBlessingAnimation(null);
         window.Core.showToast('Blessing sent ✨');
@@ -534,15 +542,13 @@ class PracticeRoom {
         const result = await CommunityDB.blessRoom(this.roomId);
 
         if (result.status === 'cooldown') {
-            // Server rejected it (e.g. client clock skew) — reset client timer
             window.Core.showToast('✦ This room is still holding your last blessing');
-            this._lastBlessedAt = now; // keep guard up
+            this._lastBlessedAt = now;
             return;
         }
 
         if (result.status === 'error') return;
 
-        // Optimistically update the card badge
         this._blessingRows = this._blessingRows ?? [];
         const myUid = CommunityDB.userId;
         if (myUid && !this._blessingRows.some(r => (r.user_id || r.userId) === myUid)) {
@@ -557,7 +563,7 @@ class PracticeRoom {
         if (!this._dbReady()) return;
         try {
             const rows = await CommunityDB.getRoomBlessings(this.roomId);
-            this._blessingRows = rows;   // seed local copy (Fix #4)
+            this._blessingRows = rows;
             this._updateCardBlessingBadge(rows.length);
         } catch (_) {}
     }
@@ -574,29 +580,21 @@ class PracticeRoom {
         if (!this._dbReady()) return;
         CommunityDB.subscribeToBlessings(this.roomId, payload => {
             this._showBlessingAnimation(payload);
-            // Fix #4: optimistically bump the counter from the incoming payload
-            // instead of triggering a full DB fetch on every blessing event.
-            // A debounced full re-sync runs 3 s later to reconcile any drift.
             this._optimisticBlessingBump(payload);
             this._debouncedRefreshBlessingCounter();
         });
     }
 
     _optimisticBlessingBump(payload) {
-        // Increment the in-memory count and re-render immediately — no DB call.
-        // Deduplicate on user_id (payload uses camelCase userId from subscribeToBlessings).
-        // getRoomBlessings rows use snake_case user_id — check both to be safe.
         this._blessingRows = this._blessingRows ?? [];
         const incomingUid = payload?.userId || payload?.user_id;
         if (incomingUid && !this._blessingRows.some(r => (r.user_id || r.userId) === incomingUid)) {
             this._blessingRows = [...this._blessingRows, payload];
         }
-        // _renderBlessingCounter normalises each row internally
         this._renderBlessingCounter(this._blessingRows);
         this._updateCardBlessingBadge(this._blessingRows.length);
     }
 
-    // Fix #4: debounced full re-fetch — fires at most once per 3 s burst of blessings.
     _debouncedRefreshBlessingCounter() {
         clearTimeout(this._blessingRefreshTimer);
         this._blessingRefreshTimer = setTimeout(() => this._refreshBlessingCounter(), 3000);
@@ -606,22 +604,14 @@ class PracticeRoom {
         if (!this._dbReady()) return;
         try {
             const rows = await CommunityDB.getRoomBlessings(this.roomId);
-            this._blessingRows = rows;   // keep local copy in sync
+            this._blessingRows = rows;
             this._renderBlessingCounter(rows);
             this._updateCardBlessingBadge(rows.length);
         } catch (_) {}
     }
 
-    /**
-     * Normalise a blessing row to the shape _buildAvatarStack expects:
-     *   { user_id, profiles: { name, avatar_url, emoji } }
-     *
-     * DB rows (from getRoomBlessings) already have this shape.
-     * Realtime payload rows (from subscribeToBlessings callback) use camelCase:
-     *   { userId, name, avatarUrl, emoji }
-     */
     _normaliseBlessingRow(row) {
-        if (row.profiles) return row; // already DB shape
+        if (row.profiles) return row;
         return {
             user_id:  row.userId  || row.user_id,
             profiles: {
@@ -654,6 +644,7 @@ class PracticeRoom {
             ${extra}`;
     }
 
+    // FIX: particle init deferred to rAF so the tap frame is not blocked
     _showBlessingAnimation(payload) {
         if (document.getElementById('blessingAnimationOverlay')) return;
 
@@ -664,7 +655,6 @@ class PracticeRoom {
         const cx          = W / 2;
         const cy          = H / 2;
 
-        // ── Overlay ──────────────────────────────────────────────────────────
         const overlay = document.createElement('div');
         overlay.id    = 'blessingAnimationOverlay';
         overlay.style.cssText = [
@@ -675,20 +665,15 @@ class PracticeRoom {
         ].join('');
         document.body.appendChild(overlay);
 
-        // Subtle dark tint over the blur so particles pop
         requestAnimationFrame(() => { overlay.style.background = 'rgba(0,0,0,0.25)'; });
 
-        // ── Canvas ───────────────────────────────────────────────────────────
-        const canvas    = document.createElement('canvas');
-        canvas.width    = W;
-        canvas.height   = H;
-        // Must be transparent so the backdrop-filter blur on the overlay shows through.
-        // Trail effect is achieved via clearRect with globalAlpha instead of a black fill.
+        const canvas  = document.createElement('canvas');
+        canvas.width  = W;
+        canvas.height = H;
         canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;background:transparent;';
         overlay.appendChild(canvas);
         const ctx = canvas.getContext('2d');
 
-        // ── "Blessed" animated text ──────────────────────────────────────────
         const blessedText = document.createElement('div');
         blessedText.style.cssText = [
             'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.6);',
@@ -711,7 +696,6 @@ class PracticeRoom {
             blessedText.style.transition = 'opacity 0.4s ease,transform 0.4s ease';
         }, DURATION_MS - 600);
 
-        // ── Sender label ─────────────────────────────────────────────────────
         const senderName = payload?.name ?? null;
         if (senderName) {
             const label = document.createElement('div');
@@ -728,150 +712,119 @@ class PracticeRoom {
             setTimeout(() => { label.style.opacity = '0'; label.style.transition = 'opacity 0.4s ease'; }, DURATION_MS - 500);
         }
 
-        // ── Particles ────────────────────────────────────────────────────────
-        const PARTICLE_N = isMobile ? 120 : 260;
-        const particles  = [];
+        // FIX: build particles inside rAF so tap-frame is not blocked
+        requestAnimationFrame(() => {
+            const PARTICLE_N = isMobile ? 120 : 260;
+            const particles  = [];
 
-        for (let i = 0; i < PARTICLE_N; i++) {
-            const angle  = Math.random() * Math.PI * 2;
-            const radius = 20 + Math.random() * Math.max(W, H) * 0.55;
-            // Golden hues (warm gold + occasional violet accent)
-            const isGold = Math.random() < 0.75;
-            const hue    = isGold ? 38 + Math.random() * 18 : 265 + Math.random() * 25;
-            const sat    = isGold ? 85 + Math.random() * 15 : 70 + Math.random() * 20;
-            const lit    = 60 + Math.random() * 25;
-            particles.push({
-                angle, radius,
-                // Start scattered; will be pulled to centre then erupted
-                x: cx + Math.cos(angle) * radius,
-                y: cy + Math.sin(angle) * radius,
-                size:  1 + Math.random() * (isMobile ? 2 : 3),
-                hue, sat, lit,
-                delay: Math.random() * 0.3,   // staggered implosion start
-                speed: 0.8 + Math.random(),    // eruption speed multiplier
-            });
-        }
-
-        // ── Animation loop ───────────────────────────────────────────────────
-        const startTime = performance.now();
-        let   raf;
-
-        const tick = (now) => {
-            const elapsed  = (now - startTime) / DURATION_MS;   // 0 → 1
-            const eIn      = 0.42;   // implosion ends at 42%
-            const ePeak    = 0.48;   // brief hold at peak brightness
-            const eOut     = 1.0;    // eruption ends at 100%
-
-            // Partial clear for motion trail — leaves faint ghost of previous frame.
-            // Using destination-out composite so canvas stays transparent (no black fill).
-            ctx.globalCompositeOperation = 'destination-out';
-            ctx.globalAlpha = 0.18;
-            ctx.fillStyle   = 'rgba(0,0,0,1)';
-            ctx.fillRect(0, 0, W, H);
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.globalAlpha = 1;
-
-            // Central radial glow — grows at implosion peak, fades on eruption
-            if (elapsed > eIn * 0.6 && elapsed < eOut * 0.85) {
-                const gProg  = elapsed < ePeak
-                    ? (elapsed - eIn * 0.6) / (ePeak - eIn * 0.6)
-                    : 1 - (elapsed - ePeak) / (eOut - ePeak);
-                const gAlpha = Math.max(0, Math.min(1, gProg));
-                const gRad   = 80 + gProg * 120;
-                const glow   = ctx.createRadialGradient(cx, cy, 0, cx, cy, gRad);
-                glow.addColorStop(0,   `rgba(255,220,100,${0.55 * gAlpha})`);
-                glow.addColorStop(0.5, `rgba(200,150, 60,${0.25 * gAlpha})`);
-                glow.addColorStop(1,   `rgba(200,150, 60,0)`);
-                ctx.globalAlpha = 1;
-                ctx.fillStyle   = glow;
-                ctx.beginPath();
-                ctx.arc(cx, cy, gRad, 0, Math.PI * 2);
-                ctx.fill();
+            for (let i = 0; i < PARTICLE_N; i++) {
+                const angle  = Math.random() * Math.PI * 2;
+                const radius = 20 + Math.random() * Math.max(W, H) * 0.55;
+                const isGold = Math.random() < 0.75;
+                const hue    = isGold ? 38 + Math.random() * 18 : 265 + Math.random() * 25;
+                const sat    = isGold ? 85 + Math.random() * 15 : 70 + Math.random() * 20;
+                const lit    = 60 + Math.random() * 25;
+                particles.push({
+                    angle, radius,
+                    x: cx + Math.cos(angle) * radius,
+                    y: cy + Math.sin(angle) * radius,
+                    size:  1 + Math.random() * (isMobile ? 2 : 3),
+                    hue, sat, lit,
+                    delay: Math.random() * 0.3,
+                    speed: 0.8 + Math.random(),
+                });
             }
 
-            particles.forEach(p => {
-                const pElapsed = Math.max(0, elapsed - p.delay * 0.3);
-                let px, py, alpha;
+            const startTime = performance.now();
+            let raf;
 
-                if (pElapsed < eIn) {
-                    // IMPLOSION — spiral inward
-                    const t    = pElapsed / eIn;
-                    const ease = 1 - (1 - t) * (1 - t);   // ease-in-quad
-                    const r    = p.radius * (1 - ease * 0.97);
-                    const spin = ease * Math.PI * 2.5 * (p.radius > 0 ? 1 : -1);
-                    px    = cx + Math.cos(p.angle + spin) * r;
-                    py    = cy + Math.sin(p.angle + spin) * r;
-                    alpha = Math.min(1, ease * 2.5);
+            const tick = (now) => {
+                const elapsed = (now - startTime) / DURATION_MS;
+                const eIn     = 0.42;
+                const ePeak   = 0.48;
+                const eOut    = 1.0;
 
-                } else if (pElapsed < ePeak) {
-                    // PEAK — hold near centre
-                    px    = cx + (Math.random() - 0.5) * 8;
-                    py    = cy + (Math.random() - 0.5) * 8;
-                    alpha = 1;
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.globalAlpha = 0.18;
+                ctx.fillStyle   = 'rgba(0,0,0,1)';
+                ctx.fillRect(0, 0, W, H);
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.globalAlpha = 1;
 
-                } else {
-                    // ERUPTION — burst outward in new direction
-                    const t      = (pElapsed - ePeak) / (eOut - ePeak);
-                    const ease   = t * t;                    // ease-in (accelerate away)
-                    const newAngle = p.angle + Math.PI * (0.7 + Math.random() * 0.6);
-                    const dist   = ease * Math.max(W, H) * 0.7 * p.speed;
-                    px    = cx + Math.cos(newAngle) * dist;
-                    py    = cy + Math.sin(newAngle) * dist;
-                    alpha = Math.max(0, 1 - t * 1.15);
+                if (elapsed > eIn * 0.6 && elapsed < eOut * 0.85) {
+                    const gProg  = elapsed < ePeak
+                        ? (elapsed - eIn * 0.6) / (ePeak - eIn * 0.6)
+                        : 1 - (elapsed - ePeak) / (eOut - ePeak);
+                    const gAlpha = Math.max(0, Math.min(1, gProg));
+                    const gRad   = 80 + gProg * 120;
+                    const glow   = ctx.createRadialGradient(cx, cy, 0, cx, cy, gRad);
+                    glow.addColorStop(0,   `rgba(255,220,100,${0.55 * gAlpha})`);
+                    glow.addColorStop(0.5, `rgba(200,150, 60,${0.25 * gAlpha})`);
+                    glow.addColorStop(1,   `rgba(200,150, 60,0)`);
+                    ctx.globalAlpha = 1;
+                    ctx.fillStyle   = glow;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, gRad, 0, Math.PI * 2);
+                    ctx.fill();
                 }
 
-                if (alpha <= 0) return;
+                particles.forEach(p => {
+                    const pElapsed = Math.max(0, elapsed - p.delay * 0.3);
+                    let px, py, alpha;
 
-                ctx.globalAlpha = alpha;
-                ctx.fillStyle   = `hsl(${p.hue},${p.sat}%,${p.lit}%)`;
-                ctx.shadowBlur  = isMobile ? 4 : 8;
-                ctx.shadowColor = `hsl(${p.hue},100%,70%)`;
-                ctx.beginPath();
-                ctx.arc(px, py, p.size, 0, Math.PI * 2);
-                ctx.fill();
-            });
+                    if (pElapsed < eIn) {
+                        const t    = pElapsed / eIn;
+                        const ease = 1 - (1 - t) * (1 - t);
+                        const r    = p.radius * (1 - ease * 0.97);
+                        const spin = ease * Math.PI * 2.5 * (p.radius > 0 ? 1 : -1);
+                        px    = cx + Math.cos(p.angle + spin) * r;
+                        py    = cy + Math.sin(p.angle + spin) * r;
+                        alpha = Math.min(1, ease * 2.5);
+                    } else if (pElapsed < ePeak) {
+                        px    = cx + (Math.random() - 0.5) * 8;
+                        py    = cy + (Math.random() - 0.5) * 8;
+                        alpha = 1;
+                    } else {
+                        const t      = (pElapsed - ePeak) / (eOut - ePeak);
+                        const ease   = t * t;
+                        const newAngle = p.angle + Math.PI * (0.7 + Math.random() * 0.6);
+                        const dist   = ease * Math.max(W, H) * 0.7 * p.speed;
+                        px    = cx + Math.cos(newAngle) * dist;
+                        py    = cy + Math.sin(newAngle) * dist;
+                        alpha = Math.max(0, 1 - t * 1.15);
+                    }
 
-            ctx.globalAlpha = 1;
-            ctx.shadowBlur  = 0;
+                    if (alpha <= 0) return;
 
-            if (elapsed < 1) {
-                raf = requestAnimationFrame(tick);
-            } else {
-                // Fade out overlay then remove
-                overlay.style.transition = 'opacity 0.3s ease';
-                overlay.style.opacity    = '0';
-                setTimeout(() => overlay.remove(), 350);
-                cancelAnimationFrame(raf);
-            }
-        };
+                    ctx.globalAlpha = alpha;
+                    ctx.fillStyle   = `hsl(${p.hue},${p.sat}%,${p.lit}%)`;
+                    ctx.shadowBlur  = isMobile ? 4 : 8;
+                    ctx.shadowColor = `hsl(${p.hue},100%,70%)`;
+                    ctx.beginPath();
+                    ctx.arc(px, py, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
 
-        raf = requestAnimationFrame(tick);
+                ctx.globalAlpha = 1;
+                ctx.shadowBlur  = 0;
+
+                if (elapsed < 1) {
+                    raf = requestAnimationFrame(tick);
+                } else {
+                    overlay.style.transition = 'opacity 0.3s ease';
+                    overlay.style.opacity    = '0';
+                    setTimeout(() => overlay.remove(), 350);
+                    cancelAnimationFrame(raf);
+                }
+            };
+
+            raf = requestAnimationFrame(tick);
+        });
     }
 
     // ── UI creation ───────────────────────────────────────────────────────────
 
-    createPracticeView() {
-        const roomHTML = [
-            this.buildHeader(),
-            this.buildBody(),
-            this.buildInstructionsModal(),
-            this.buildAdditionalModals?.() ?? '',
-        ].join('');
-
-        SafetyBar.injectModals();
-
-        const dynamicContent = document.getElementById('dynamicRoomContent');
-        if (dynamicContent) {
-            dynamicContent.innerHTML = roomHTML;
-        } else {
-            if (document.getElementById(`${this.roomId}View`)) return;
-            document.body.insertAdjacentHTML('beforeend',
-                `<div class="view practice-space" id="${this.roomId}View">${roomHTML}</div>`);
-        }
-    }
-
     buildHeader() {
-
         return `
         <header class="ps-header" style="padding:12px 16px;display:flex;flex-direction:column;gap:12px;${this.getHeaderGradient()}">
             <div class="ps-info" style="display:flex;flex-direction:column;align-items:flex-start;min-width:0;">
@@ -899,8 +852,6 @@ class PracticeRoom {
     }
 
     buildSafetyDropdown() {
-        // All room-instance interactions now use data-action — no window globals needed.
-        // CommunityModule calls keep their direct onclick (stable global, different module).
         const communityItems = [
             ['CommunityModule.showReportModal()', _ICONS.alert, 'Report Issue'],
             ['CommunityModule.showBlockModal()',  _ICONS.block, 'Block User'],
@@ -1058,7 +1009,7 @@ class PracticeRoom {
         </div>`;
     }
 
-buildCardFooter() {
+    buildCardFooter() {
         if (this.roomType === 'timed' && this.getTimerText) {
             const scheduleLink = this.showScheduleModal
                 ? `<button type="button" class="view-schedule" onclick="event.stopPropagation();window['${this.roomId}_showScheduleModal']()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> View Schedule</button>`
@@ -1077,17 +1028,21 @@ buildCardFooter() {
         </div>`;
     }
 
-setupEventListeners() {
-        // Guard: remove any previously registered delegated handlers first.
-        // Without this, each enterRoom() stacks another document-level listener,
-        // causing exponential handler calls per click on repeated room visits.
+    // ── Event handling ────────────────────────────────────────────────────────
+
+    // FIX: single definition; actions map cached so getActions() object is not
+    // rebuilt on every document click.
+    setupEventListeners() {
         this._teardownDelegatedListeners();
+
+        // Cache actions map once per room entry
+        this._actionsCache = this.getActions();
 
         const clickHandler = e => {
             const el = e.target.closest('[data-action]');
             if (el) {
                 e.stopPropagation();
-                const fn = this.getActions()[el.dataset.action];
+                const fn = this._actionsCache[el.dataset.action];
                 if (fn) { fn(e); return; }
                 console.warn(`[${this.roomId}] Unknown data-action: "${el.dataset.action}"`);
                 return;
@@ -1099,7 +1054,7 @@ setupEventListeners() {
             if (e.target.tagName !== 'SELECT') return;
             const el = e.target.closest('[data-action]');
             if (!el) return;
-            const fn = this.getActions()[el.dataset.action];
+            const fn = this._actionsCache[el.dataset.action];
             if (fn) fn(e);
         };
 
@@ -1128,130 +1083,17 @@ setupEventListeners() {
         this._delegatedChangeHandler = null;
     }
 
-setupEventListeners() {
-        // Guard: remove any previously registered delegated handlers first.
-        // Without this, each enterRoom() stacks another document-level listener,
-        // causing exponential handler calls per click on repeated room visits.
-        this._teardownDelegatedListeners();
-
-        const clickHandler = e => {
-            const el = e.target.closest('[data-action]');
-            if (el) {
-                e.stopPropagation();
-                const fn = this.getActions()[el.dataset.action];
-                if (fn) { fn(e); return; }
-                console.warn(`[${this.roomId}] Unknown data-action: "${el.dataset.action}"`);
-                return;
-            }
-            this._handleOutsideClick(e);
-        };
-
-        const changeHandler = e => {
-            if (e.target.tagName !== 'SELECT') return;
-            const el = e.target.closest('[data-action]');
-            if (!el) return;
-            const fn = this.getActions()[el.dataset.action];
-            if (fn) fn(e);
-        };
-
-        document.addEventListener('click', clickHandler);
-        document.addEventListener('change', changeHandler);
-
-        this._delegatedClickHandler  = clickHandler;
-        this._delegatedChangeHandler = changeHandler;
-
-        this.eventListeners.push(
-            { element: document, event: 'click',  handler: clickHandler  },
-            { element: document, event: 'change', handler: changeHandler }
-        );
-    }
-
-    _teardownDelegatedListeners() {
-        if (!this._delegatedClickHandler) return;
-        document.removeEventListener('click',  this._delegatedClickHandler);
-        document.removeEventListener('change', this._delegatedChangeHandler);
-        this.eventListeners = this.eventListeners.filter(
-            ({ handler }) =>
-                handler !== this._delegatedClickHandler &&
-                handler !== this._delegatedChangeHandler
-        );
-        this._delegatedClickHandler  = null;
-        this._delegatedChangeHandler = null;
-    }
-
-
-// ── Event handling ────────────────────────────────────────────────────────
-
-    setupEventListeners() {
-        this._teardownDelegatedListeners();
-
-        const clickHandler = e => {
-            const el = e.target.closest('[data-action]');
-            if (el) {
-                e.stopPropagation();
-                const fn = this.getActions()[el.dataset.action];
-                if (fn) { fn(e); return; }
-                console.warn(`[${this.roomId}] Unknown data-action: "${el.dataset.action}"`);
-                return;
-            }
-            this._handleOutsideClick(e);
-        };
-
-        const changeHandler = e => {
-            if (e.target.tagName !== 'SELECT') return;
-            const el = e.target.closest('[data-action]');
-            if (!el) return;
-            const fn = this.getActions()[el.dataset.action];
-            if (fn) fn(e);
-        };
-
-        document.addEventListener('click', clickHandler);
-        document.addEventListener('change', changeHandler);
-
-        this._delegatedClickHandler  = clickHandler;
-        this._delegatedChangeHandler = changeHandler;
-
-        this.eventListeners.push(
-            { element: document, event: 'click',  handler: clickHandler  },
-            { element: document, event: 'change', handler: changeHandler }
-        );
-    }
-
-    _teardownDelegatedListeners() {
-        if (!this._delegatedClickHandler) return;
-        document.removeEventListener('click',  this._delegatedClickHandler);
-        document.removeEventListener('change', this._delegatedChangeHandler);
-        this.eventListeners = this.eventListeners.filter(
-            ({ handler }) =>
-                handler !== this._delegatedClickHandler &&
-                handler !== this._delegatedChangeHandler
-        );
-        this._delegatedClickHandler  = null;
-        this._delegatedChangeHandler = null;
-    }
-
-    /**
-     * Action map for this room instance. Base actions cover all shared
-     * functionality from PracticeRoom and its mixins.
-     * Subclasses override and spread super.getActions() to add room-specific actions.
-     */
     getActions() {
         return {
-            // ── Navigation ───────────────────────────────────────────────────
             gentlyLeave:         ()  => this.gentlyLeave(),
-            // ── Safety / instructions ─────────────────────────────────────────
             toggleSafety:        e  => this.toggleSafetyDropdown(e),
             showInstructions:    ()  => this.showInstructions(),
             closeInstructions:   ()  => this.closeInstructions(),
-            // ── Schedule (timed rooms via CycleStateMixin / TimedVideoRoom) ───
             showSchedule:        ()  => this.showScheduleModal?.(),
             closeScheduleModal:  ()  => this.closeScheduleModal?.(),
-            // ── Dim mode (silent-room, deepwork-room) ─────────────────────────
             toggleDimMode:       ()  => this.toggleDimMode?.(),
-            // ── Timer (TimerMixin) ────────────────────────────────────────────
             toggleTimer:         ()  => this.toggleTimer?.(),
             adjustTime:          e  => this.adjustTime?.(+this._actionEl(e).dataset.minutes),
-            // ── Sound (SoundSettingsMixin) ────────────────────────────────────
             toggleSoundSettings: ()  => this.toggleSoundSettings?.(),
             toggle5minBell:      ()  => this.toggle5minBell?.(),
             toggleAmbientSound:  ()  => this.toggleAmbientSound?.(),
@@ -1260,21 +1102,14 @@ setupEventListeners() {
             selectAmbient:       e  => this.selectAmbient?.(this._actionEl(e).dataset.value),
             previewSound:        e  => this.previewSound?.(this._actionEl(e).dataset.value, e),
             previewAmbient:      e  => this.previewAmbient?.(this._actionEl(e).dataset.value, e),
-            // ── Chat (ChatMixin) ──────────────────────────────────────────────
             sendMessage:         e  => this.sendMessage?.(this._actionEl(e).dataset.channel),
-            // ── Tabs (TabRoomMixin) ───────────────────────────────────────────
             switchTab:           e  => this.switchTab?.(this._actionEl(e).dataset.tab),
-            // ── YouTube player (YouTubePlayerMixin) ───────────────────────────
             skipBackward:        ()  => this.skipBackward?.(),
             togglePlayPause:     ()  => this.togglePlayPause?.(),
             skipForward:         ()  => this.skipForward?.(),
         };
     }
 
-    /**
-     * Returns the closest ancestor (or self) that has a data-action attribute.
-     * Centralised so action handlers don't repeat closest() inline.
-     */
     _actionEl(e) {
         return e.target.closest('[data-action]');
     }
@@ -1300,7 +1135,7 @@ setupEventListeners() {
         }
 
         if (container) {
-            const { bottom, right } = container.getBoundingClientRect(); // inside event handler, layout read is acceptable
+            const { bottom, right } = container.getBoundingClientRect();
             Object.assign(dropdown.style, {
                 position:  'fixed',
                 top:       `${bottom + 6}px`,
@@ -1395,11 +1230,6 @@ PracticeRoom.stopHubPresence = function() {
 
 window.PracticeRoom = PracticeRoom;
 
-/**
- * Fix #7: Called by each room module after it registers its enterRoom function.
- * Allows CommunityHubEngine to open a pending room via CustomEvent instead of
- * a polling setInterval.
- */
 window.dispatchRoomReady = function(roomKey) {
     document.dispatchEvent(new CustomEvent('practiceRoomReady', { detail: { roomKey } }));
 };
@@ -1408,10 +1238,6 @@ window.openMemberProfileAboveRoom = function(userId) {
     if (!window.MemberProfileModal || !userId) return;
     MemberProfileModal.open(userId);
     requestAnimationFrame(() => {
-        // Fix #8: cache element references after first lookup — avoids 6 DOM
-        // queries + forced style recalculation on every avatar tap.
-        // Issue #9: invalidate cache if any element is no longer in the DOM
-        // (happens when modal is destroyed and recreated between sessions).
         const _c = openMemberProfileAboveRoom._cachedEls;
         if (!_c || _c.some(el => !el.isConnected)) {
             openMemberProfileAboveRoom._cachedEls = [

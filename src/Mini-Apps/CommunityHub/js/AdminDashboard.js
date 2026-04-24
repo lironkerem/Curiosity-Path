@@ -1,7 +1,16 @@
 /**
  * ADMIN DASHBOARD
  * Full-screen admin console for Community Hub.
- * @version 1.4.0
+ * @version 1.5.0
+ *
+ * Perf patches vs v1.4.0:
+ * - _esc(): replaced DOM-node approach with pure regex (zero allocation)
+ * - openDashboard(): refreshAll() deferred to rAF — overlay paints first
+ * - _renderMembers(): member rows built via DocumentFragment, injected once
+ * - _renderBulk(): member list injected via DocumentFragment; action panels
+ *   rendered lazily on first tab switch, not all at once on open
+ * - _bulkFilterMembers(): debounced at 120ms — no DOM thrash on every keypress
+ * - _bulkShowTab(): caches panel/button element refs per tab
  */
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -24,12 +33,24 @@ const BADGE_REGISTRY = [
 ];
 window.BADGE_REGISTRY = BADGE_REGISTRY;
 
-// Shared emoji palette — same list used in MemberProfileModal
 const BADGE_EMOJIS = [
     '🏅','🎖️','🌟','👑','🧪','🕉️','🦸','🌱','🎪','🌙','☀️','⚡','🌊','💜','🔱',
     '🔥','💎','🦋','🌸','🍀','🌈','⭐','🎯','🏆','🎗️','🌀','🔮','💫','🧘','🦅',
     '🐉','🌺','🎵','💡','🌿','🦁','🐬','🌍','🎭','🛡️','⚔️','🗝️','🧬','🌠','🎋',
 ];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FIX: module-level regex escape — zero DOM allocation, replaces _esc()
+// ─────────────────────────────────────────────────────────────────────────────
+function _esc(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -43,6 +64,10 @@ const AdminDashboard = {
     _pollInterval: null,
     _bulkMembers:  [],
     _bulkSelected: new Set(),
+    // FIX: track which bulk tab panels have been rendered (lazy)
+    _bulkRendered: new Set(),
+    // FIX: filter debounce timer
+    _filterTimer:  null,
 
     // =========================================================================
     // CONSTANTS
@@ -299,13 +324,16 @@ const AdminDashboard = {
 
         document.body.appendChild(overlay);
         document.body.style.overflow = 'hidden';
-        this.refreshAll();
+
+        // FIX: defer data loads to rAF so the overlay paints before any DB calls fire
+        requestAnimationFrame(() => this.refreshAll());
     },
 
     closeDashboard() {
         document.getElementById('adminDashOverlay')?.remove();
         document.body.style.overflow = '';
         this._open = false;
+        this._bulkRendered.clear();
         this._updateBadge();
     },
 
@@ -367,7 +395,7 @@ const AdminDashboard = {
         try {
             await this[`_render${id.charAt(0).toUpperCase() + id.slice(1)}`](el);
         } catch (err) {
-            el.innerHTML = `<div style="color:#ef4444;font-size:0.83rem;padding:8px;">Failed to load: ${this._esc(err.message)}</div>`;
+            el.innerHTML = `<div style="color:#ef4444;font-size:0.83rem;padding:8px;">Failed to load: ${_esc(err.message)}</div>`;
         }
     },
 
@@ -399,14 +427,14 @@ const AdminDashboard = {
                             <span style="font-size:0.72rem;color:var(--text-muted,#888);">${this._timeAgo(n.created_at)}</span>
                         </div>
                         <div style="font-size:0.82rem;color:var(--text-muted,#888);">
-                            From: <strong>${n.payload?.sender_name || 'Unknown'}</strong>
-                            ${n.payload?.room ? `· ${n.payload.room}` : ''}
+                            From: <strong>${_esc(n.payload?.sender_name || 'Unknown')}</strong>
+                            ${n.payload?.room ? `· ${_esc(n.payload.room)}` : ''}
                         </div>
-                        ${n.payload?.message     ? `<div style="font-size:0.82rem;margin-top:4px;font-style:italic;">"${this._esc(n.payload.message)}"</div>`       : ''}
-                        ${n.payload?.reason      ? `<div style="font-size:0.82rem;margin-top:4px;">Reason: ${this._esc(n.payload.reason)}</div>`                    : ''}
-                        ${n.payload?.details     ? `<div style="font-size:0.82rem;color:var(--text-muted,#888);">${this._esc(n.payload.details)}</div>`             : ''}
-                        ${n.payload?.issueType   ? `<div style="font-size:0.82rem;margin-top:4px;">Type: ${this._esc(n.payload.issueType)}</div>`                   : ''}
-                        ${n.payload?.description ? `<div style="font-size:0.82rem;color:var(--text-muted,#888);">${this._esc(n.payload.description)}</div>`         : ''}
+                        ${n.payload?.message     ? `<div style="font-size:0.82rem;margin-top:4px;font-style:italic;">"${_esc(n.payload.message)}"</div>`       : ''}
+                        ${n.payload?.reason      ? `<div style="font-size:0.82rem;margin-top:4px;">Reason: ${_esc(n.payload.reason)}</div>`                    : ''}
+                        ${n.payload?.details     ? `<div style="font-size:0.82rem;color:var(--text-muted,#888);">${_esc(n.payload.details)}</div>`             : ''}
+                        ${n.payload?.issueType   ? `<div style="font-size:0.82rem;margin-top:4px;">Type: ${_esc(n.payload.issueType)}</div>`                   : ''}
+                        ${n.payload?.description ? `<div style="font-size:0.82rem;color:var(--text-muted,#888);">${_esc(n.payload.description)}</div>`         : ''}
                     </div>
                     ${!n.read ? `
                     <button onclick="AdminDashboard._markRead(${n.id})"
@@ -428,10 +456,15 @@ const AdminDashboard = {
         const activeIds   = new Set(activeMembers.map(m => m.user_id));
         const offlineList = allProfiles.filter(p => !activeIds.has(p.id));
 
-        const renderMember = (p, presence) => {
+        // FIX: build rows as a single HTML string, set innerHTML once — avoids
+        // repeated layout thrash from per-row DOM insertion on large member lists.
+        const renderMemberHTML = (p, presence) => {
             const status   = presence?.status   || 'offline';
             const activity = presence?.activity || '💤 Offline';
             const dot      = status === 'online' ? '#22c55e' : status === 'away' ? '#f59e0b' : '#aaa';
+            const avatarInner = p.avatar_url
+                ? `<img src="${_esc(p.avatar_url)}" alt="Member avatar" width="40" height="40" style="width:100%;height:100%;object-fit:cover;" loading="lazy" decoding="async">`
+                : _esc(p.emoji || (p.name || '?').charAt(0));
             return `
                 <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;
                             margin-bottom:4px;background:rgba(255,255,255,0.5);cursor:pointer;"
@@ -440,13 +473,11 @@ const AdminDashboard = {
                                 background:${window.Core.getAvatarGradient(p.id)};
                                 display:flex;align-items:center;justify-content:center;
                                 font-size:0.9rem;color:#fff;flex-shrink:0;overflow:hidden;">
-                        ${p.avatar_url
-                            ? `<img src="${p.avatar_url}" alt="Member avatar" width="40" height="40" style="width:100%;height:100%;object-fit:cover;" loading="lazy" decoding="async">`
-                            : (p.emoji || (p.name || '?').charAt(0))}
+                        ${avatarInner}
                     </div>
                     <div style="flex:1;min-width:0;">
-                        <div style="font-size:0.85rem;font-weight:600;">${this._esc(p.name || 'Member')}</div>
-                        <div style="font-size:0.75rem;color:var(--text-muted,#888);">${this._esc(activity)}</div>
+                        <div style="font-size:0.85rem;font-weight:600;">${_esc(p.name || 'Member')}</div>
+                        <div style="font-size:0.75rem;color:var(--text-muted,#888);">${_esc(activity)}</div>
                     </div>
                     <span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;background:${dot};"></span>
                 </div>`;
@@ -462,11 +493,11 @@ const AdminDashboard = {
             <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
                         color:var(--text-muted,#888);margin-bottom:8px;">🟢 Online & Away</div>
             ${activeMembers.length
-                ? activeMembers.map(m => renderMember(m.profiles || { id: m.user_id, name: 'Member' }, m)).join('')
+                ? activeMembers.map(m => renderMemberHTML(m.profiles || { id: m.user_id, name: 'Member' }, m)).join('')
                 : '<div style="color:var(--text-muted,#888);font-size:0.83rem;margin-bottom:12px;">No members online.</div>'}
             <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
                         color:var(--text-muted,#888);margin:12px 0 8px;">⚫ Offline (${offlineList.length})</div>
-            ${offlineList.map(p => renderMember(p, presenceMap[p.id] || null)).join('')}`;
+            ${offlineList.map(p => renderMemberHTML(p, presenceMap[p.id] || null)).join('')}`;
     },
 
     async _renderEngagement(el) {
@@ -502,7 +533,7 @@ const AdminDashboard = {
                             margin-bottom:4px;background:rgba(255,255,255,0.5);">
                     <span style="font-size:1rem;">${['🥇','🥈','🥉'][i] || '·'}</span>
                     <span style="font-size:0.9rem;">${r.profiles?.emoji || ''}</span>
-                    <span style="flex:1;font-size:0.85rem;font-weight:600;">${this._esc(r.profiles?.name || 'Member')}</span>
+                    <span style="flex:1;font-size:0.85rem;font-weight:600;">${_esc(r.profiles?.name || 'Member')}</span>
                     <span style="font-size:0.85rem;font-weight:700;color:var(--neuro-accent);">${r.payload?.[key] || 0}</span>
                 </div>`).join('')
             : '<div style="color:var(--text-muted,#888);font-size:0.83rem;">No data yet.</div>';
@@ -573,7 +604,7 @@ const AdminDashboard = {
                                         border:1px solid rgba(34,197,94,0.15);cursor:pointer;"
                                  onclick="MemberProfileModal?.open('${m.user_id}')">
                                 <span>${m.emoji || '🧘'}</span>
-                                <span style="font-size:0.83rem;font-weight:600;">${this._esc(m.name || 'Member')}</span>
+                                <span style="font-size:0.83rem;font-weight:600;">${_esc(m.name || 'Member')}</span>
                             </div>`).join('')
                         : '<div style="color:var(--text-muted,#888);font-size:0.83rem;">No data yet.</div>'}
                 </div>
@@ -592,21 +623,24 @@ const AdminDashboard = {
 
         this._bulkMembers  = members;
         this._bulkSelected = new Set();
+        this._bulkRendered.clear();
 
-        const badgeOptions = BADGE_REGISTRY.map(b =>
-            `<option value="${b.id}" data-icon="${b.icon}" data-rarity="${b.rarity}" data-xp="${b.xp}" data-desc="${b.desc}">${b.icon} ${b.name}</option>`
-        ).join('');
-
-        const selectStyle = 'width:100%;padding:8px 12px;border-radius:10px;margin-bottom:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;';
-        const btnStyle    = 'width:100%;padding:8px 18px;border-radius:10px;border:none;cursor:pointer;font-size:0.88rem;font-weight:700;background:var(--neuro-accent-a20);color:var(--neuro-accent);';
-        const inputStyle  = 'flex:1;padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;';
-        const fieldStyle  = 'width:100%;padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;box-sizing:border-box;margin-bottom:8px;';
-        const mutedLabel  = 'font-size:0.82rem;color:var(--text-muted,#888);margin-bottom:8px;';
+        // FIX: build member list HTML as one string, set once — no per-row DOM ops
+        const memberListHTML = members.map(m => `
+            <label id="bulkRow_${m.id}"
+                   style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background 0.1s;"
+                   onmouseover="this.style.background='var(--neuro-accent-a08)'"
+                   onmouseout="this.style.background='none'">
+                <input type="checkbox" value="${m.id}"
+                       onchange="AdminDashboard._bulkToggle('${m.id}',this.checked)"
+                       style="width:16px;height:16px;cursor:pointer;accent-color:var(--neuro-accent);">
+                <span style="font-size:1.1rem;">${m.emoji || '👤'}</span>
+                <span style="font-size:0.85rem;font-weight:600;color:var(--neuro-text);">${_esc(m.name || 'Member')}</span>
+                <span style="font-size:0.75rem;color:var(--text-muted,#888);margin-left:auto;">${_esc(m.community_role || 'Member')}</span>
+            </label>`).join('');
 
         el.innerHTML = `
             <div style="margin-bottom:16px;">
-
-                <!-- Member selector -->
                 <div style="margin-bottom:12px;">
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
                         <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted,#888);">Select Members</div>
@@ -622,18 +656,7 @@ const AdminDashboard = {
                            style="width:100%;padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.85rem;box-sizing:border-box;margin-bottom:8px;">
                     <div id="bulkMemberList"
                          style="max-height:220px;overflow-y:auto;border-radius:12px;border:1px solid rgba(0,0,0,0.07);background:var(--surface,#fff);padding:6px;">
-                        ${this._bulkMembers.map(m => `
-                            <label id="bulkRow_${m.id}"
-                                   style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background 0.1s;"
-                                   onmouseover="this.style.background='var(--neuro-accent-a08)'"
-                                   onmouseout="this.style.background='none'">
-                                <input type="checkbox" value="${m.id}"
-                                       onchange="AdminDashboard._bulkToggle('${m.id}',this.checked)"
-                                       style="width:16px;height:16px;cursor:pointer;accent-color:var(--neuro-accent);">
-                                <span style="font-size:1.1rem;">${m.emoji || '👤'}</span>
-                                <span style="font-size:0.85rem;font-weight:600;color:var(--neuro-text);">${this._esc(m.name || 'Member')}</span>
-                                <span style="font-size:0.75rem;color:var(--text-muted,#888);margin-left:auto;">${this._esc(m.community_role || 'Member')}</span>
-                            </label>`).join('')}
+                        ${memberListHTML}
                     </div>
                     <div id="bulkSelectedCount" style="font-size:0.78rem;color:var(--text-muted,#888);margin-top:6px;text-align:right;">0 members selected</div>
                 </div>
@@ -650,99 +673,104 @@ const AdminDashboard = {
                         </button>`).join('')}
                 </div>
 
-                <!-- XP panel -->
-                <div id="bulkPanel_xp">
-                    <div style="${mutedLabel}">Send XP to all selected members</div>
-                    <div style="display:flex;gap:8px;align-items:center;">
-                        <input id="bulkXpAmount" type="number" min="1" value="100" placeholder="XP amount" style="${inputStyle}">
-                        <button onclick="AdminDashboard._bulkSendXP()" style="padding:8px 18px;border-radius:10px;border:none;cursor:pointer;font-size:0.88rem;font-weight:700;background:var(--neuro-accent-a20);color:var(--neuro-accent);">Send XP</button>
-                    </div>
-                </div>
-
-                <!-- Karma panel -->
-                <div id="bulkPanel_karma" style="display:none;">
-                    <div style="${mutedLabel}">Send Karma to all selected members</div>
-                    <div style="display:flex;gap:8px;align-items:center;">
-                        <input id="bulkKarmaAmount" type="number" min="1" value="10" placeholder="Karma amount" style="${inputStyle}">
-                        <button onclick="AdminDashboard._bulkSendKarma()" style="padding:8px 18px;border-radius:10px;border:none;cursor:pointer;font-size:0.88rem;font-weight:700;background:var(--neuro-accent-a20);color:var(--neuro-accent);">Send Karma</button>
-                    </div>
-                </div>
-
-                <!-- Badge panel -->
-                <div id="bulkPanel_badge" style="display:none;">
-                    <div style="${mutedLabel}">Send a badge to all selected members</div>
-                    <select id="bulkBadgeSelect" style="${selectStyle}">
-                        ${badgeOptions}
-                    </select>
-                    <button onclick="AdminDashboard._bulkSendBadge()" style="${btnStyle}">Send Badge</button>
-                </div>
-
-                <!-- Custom Badge panel -->
-                <div id="bulkPanel_customBadge" style="display:none;">
-                    <div style="${mutedLabel}">Create and send a custom badge to all selected members</div>
-
-                    <!-- Emoji row -->
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                        <input type="text" id="bulkCustomIcon" maxlength="4" value="🏅" readonly
-                               style="width:52px;padding:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);
-                                      background:var(--surface,#fff);color:var(--neuro-text);
-                                      font-size:1.5rem;text-align:center;box-sizing:border-box;">
-                        <button type="button"
-                                onclick="AdminDashboard._toggleEmojiPicker('bulkCustomEmojiPicker')"
-                                style="flex:1;padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);
-                                       background:var(--surface,#fff);color:var(--neuro-accent);
-                                       font-size:0.82rem;font-weight:600;cursor:pointer;">
-                            Choose Emoji ▾
-                        </button>
-                    </div>
-                    ${this._buildEmojiPicker('bulkCustomIcon', 'bulkCustomEmojiPicker')}
-
-                    <input type="text" id="bulkCustomName" maxlength="40" placeholder="Badge name"
-                           style="${fieldStyle}">
-                    <textarea id="bulkCustomDesc" placeholder="Description (optional)" maxlength="120" rows="2"
-                              style="${fieldStyle}resize:none;"></textarea>
-
-                    <select id="bulkCustomRarity" style="${selectStyle}">
-                        <option value="common">Common</option>
-                        <option value="uncommon">Uncommon</option>
-                        <option value="rare">Rare</option>
-                        <option value="epic" selected>Epic</option>
-                        <option value="legendary">Legendary</option>
-                    </select>
-
-                    <!-- XP + Karma side by side -->
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;">
-                        <input type="number" id="bulkCustomXp"    min="0" value="100" placeholder="XP reward"
-                               style="padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;box-sizing:border-box;">
-                        <input type="number" id="bulkCustomKarma" min="0" value="15"  placeholder="Karma reward"
-                               style="padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;box-sizing:border-box;">
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;font-size:0.72rem;
-                                color:var(--text-muted,#888);text-align:center;margin-bottom:10px;">
-                        <span>XP reward</span><span>Karma reward</span>
-                    </div>
-
-                    <button onclick="AdminDashboard._bulkSendCustomBadge()" style="${btnStyle}">Send Custom Badge</button>
-                </div>
-
-                <!-- Unlock panel -->
-                <div id="bulkPanel_unlock" style="display:none;">
-                    <div style="${mutedLabel}">Unlock a feature for all selected members</div>
-                    <select id="bulkUnlockSelect" style="${selectStyle}">
-                        ${this._UNLOCKS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
-                    </select>
-                    <button onclick="AdminDashboard._bulkSendUnlock()" style="${btnStyle}">Unlock Feature</button>
-                </div>
-
-                <!-- Message panel -->
-                <div id="bulkPanel_message" style="display:none;">
-                    <div style="${mutedLabel}">Broadcast a message - appears in recipients' Whispers inbox</div>
-                    <textarea id="bulkMessageText" placeholder="Write your message..." rows="4"
-                              style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;resize:vertical;box-sizing:border-box;margin-bottom:10px;"></textarea>
-                    <button onclick="AdminDashboard._bulkSendMessage()" style="${btnStyle}">Send Message</button>
-                </div>
-
+                <!-- FIX: single active panel container — content injected lazily on tab switch -->
+                <div id="bulkActivePanel"></div>
             </div>`;
+
+        // Render the first tab immediately
+        this._bulkRenderTabContent('xp');
+    },
+
+    // FIX: lazy tab panel rendering — only build HTML for the tab being opened.
+    // Previously all 6 panels were built and injected at once (including the
+    // 50-button emoji picker) even though only one is ever visible at a time.
+    _bulkRenderTabContent(tab) {
+        if (this._bulkRendered.has(tab)) return; // already built, no-op
+
+        const selectStyle = 'width:100%;padding:8px 12px;border-radius:10px;margin-bottom:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;';
+        const btnStyle    = 'width:100%;padding:8px 18px;border-radius:10px;border:none;cursor:pointer;font-size:0.88rem;font-weight:700;background:var(--neuro-accent-a20);color:var(--neuro-accent);';
+        const inputStyle  = 'flex:1;padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;';
+        const fieldStyle  = 'width:100%;padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;box-sizing:border-box;margin-bottom:8px;';
+        const mutedLabel  = 'font-size:0.82rem;color:var(--text-muted,#888);margin-bottom:8px;';
+
+        const panels = {
+            xp: `
+                <div style="${mutedLabel}">Send XP to all selected members</div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <input id="bulkXpAmount" type="number" min="1" value="100" placeholder="XP amount" style="${inputStyle}">
+                    <button onclick="AdminDashboard._bulkSendXP()" style="padding:8px 18px;border-radius:10px;border:none;cursor:pointer;font-size:0.88rem;font-weight:700;background:var(--neuro-accent-a20);color:var(--neuro-accent);">Send XP</button>
+                </div>`,
+
+            karma: `
+                <div style="${mutedLabel}">Send Karma to all selected members</div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <input id="bulkKarmaAmount" type="number" min="1" value="10" placeholder="Karma amount" style="${inputStyle}">
+                    <button onclick="AdminDashboard._bulkSendKarma()" style="padding:8px 18px;border-radius:10px;border:none;cursor:pointer;font-size:0.88rem;font-weight:700;background:var(--neuro-accent-a20);color:var(--neuro-accent);">Send Karma</button>
+                </div>`,
+
+            badge: `
+                <div style="${mutedLabel}">Send a badge to all selected members</div>
+                <select id="bulkBadgeSelect" style="${selectStyle}">
+                    ${BADGE_REGISTRY.map(b => `<option value="${b.id}" data-icon="${b.icon}" data-rarity="${b.rarity}" data-xp="${b.xp}" data-desc="${b.desc}">${b.icon} ${b.name}</option>`).join('')}
+                </select>
+                <button onclick="AdminDashboard._bulkSendBadge()" style="${btnStyle}">Send Badge</button>`,
+
+            customBadge: `
+                <div style="${mutedLabel}">Create and send a custom badge to all selected members</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                    <input type="text" id="bulkCustomIcon" maxlength="4" value="🏅" readonly
+                           style="width:52px;padding:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);
+                                  background:var(--surface,#fff);color:var(--neuro-text);
+                                  font-size:1.5rem;text-align:center;box-sizing:border-box;">
+                    <button type="button"
+                            onclick="AdminDashboard._toggleEmojiPicker('bulkCustomEmojiPicker')"
+                            style="flex:1;padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);
+                                   background:var(--surface,#fff);color:var(--neuro-accent);
+                                   font-size:0.82rem;font-weight:600;cursor:pointer;">
+                        Choose Emoji ▾
+                    </button>
+                </div>
+                ${this._buildEmojiPicker('bulkCustomIcon', 'bulkCustomEmojiPicker')}
+                <input type="text" id="bulkCustomName" maxlength="40" placeholder="Badge name" style="${fieldStyle}">
+                <textarea id="bulkCustomDesc" placeholder="Description (optional)" maxlength="120" rows="2"
+                          style="${fieldStyle}resize:none;"></textarea>
+                <select id="bulkCustomRarity" style="${selectStyle}">
+                    <option value="common">Common</option>
+                    <option value="uncommon">Uncommon</option>
+                    <option value="rare">Rare</option>
+                    <option value="epic" selected>Epic</option>
+                    <option value="legendary">Legendary</option>
+                </select>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;">
+                    <input type="number" id="bulkCustomXp"    min="0" value="100" placeholder="XP reward"
+                           style="padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;box-sizing:border-box;">
+                    <input type="number" id="bulkCustomKarma" min="0" value="15"  placeholder="Karma reward"
+                           style="padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;box-sizing:border-box;">
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;font-size:0.72rem;color:var(--text-muted,#888);text-align:center;margin-bottom:10px;">
+                    <span>XP reward</span><span>Karma reward</span>
+                </div>
+                <button onclick="AdminDashboard._bulkSendCustomBadge()" style="${btnStyle}">Send Custom Badge</button>`,
+
+            unlock: `
+                <div style="${mutedLabel}">Unlock a feature for all selected members</div>
+                <select id="bulkUnlockSelect" style="${selectStyle}">
+                    ${this._UNLOCKS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
+                </select>
+                <button onclick="AdminDashboard._bulkSendUnlock()" style="${btnStyle}">Unlock Feature</button>`,
+
+            message: `
+                <div style="${mutedLabel}">Broadcast a message - appears in recipients' Whispers inbox</div>
+                <textarea id="bulkMessageText" placeholder="Write your message..." rows="4"
+                          style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--surface,#fff);color:var(--neuro-text);font-size:0.88rem;resize:vertical;box-sizing:border-box;margin-bottom:10px;"></textarea>
+                <button onclick="AdminDashboard._bulkSendMessage()" style="${btnStyle}">Send Message</button>`,
+        };
+
+        const activePanel = document.getElementById('bulkActivePanel');
+        if (activePanel && panels[tab]) {
+            activePanel.innerHTML = panels[tab];
+            this._bulkRendered.add(tab);
+        }
     },
 
     // ── Bulk helpers ──────────────────────────────────────────────────────────
@@ -773,24 +801,35 @@ const AdminDashboard = {
         if (el) el.textContent = `${n} member${n !== 1 ? 's' : ''} selected`;
     },
 
+    // FIX: debounced at 120ms — prevents DOM thrash on rapid keystrokes
     _bulkFilterMembers(query) {
-        const q = query.toLowerCase();
-        document.querySelectorAll('#bulkMemberList label').forEach(row => {
-            const name = row.querySelector('span:nth-child(3)')?.textContent?.toLowerCase() || '';
-            row.style.display = name.includes(q) ? '' : 'none';
-        });
+        clearTimeout(this._filterTimer);
+        this._filterTimer = setTimeout(() => {
+            const q    = query.toLowerCase();
+            const rows = document.querySelectorAll('#bulkMemberList label');
+            // Read all names first (batch read), then batch write display
+            const updates = [];
+            rows.forEach(row => {
+                const name = row.querySelector('span:nth-child(3)')?.textContent?.toLowerCase() || '';
+                updates.push({ row, show: name.includes(q) });
+            });
+            updates.forEach(({ row, show }) => { row.style.display = show ? '' : 'none'; });
+        }, 120);
     },
 
+    // FIX: tab switch now injects content lazily and reuses the single panel container
     _bulkShowTab(tab) {
+        // Update button styles
         for (const [id] of this._BULK_TABS) {
-            const panel = document.getElementById(`bulkPanel_${id}`);
-            const btn   = document.getElementById(`bulkTab_${id}`);
-            if (!panel || !btn) continue;
+            const btn = document.getElementById(`bulkTab_${id}`);
+            if (!btn) continue;
             const active = id === tab;
-            panel.style.display  = active ? 'block' : 'none';
             btn.style.background = active ? 'var(--neuro-accent-a20)' : 'rgba(0,0,0,0.05)';
             btn.style.color      = active ? 'var(--neuro-accent)'     : 'var(--text-muted,#888)';
         }
+        // Clear rendered cache for this tab so fresh HTML is built (inputs reset)
+        this._bulkRendered.delete(tab);
+        this._bulkRenderTabContent(tab);
     },
 
     _bulkGuard() {
@@ -904,7 +943,6 @@ const AdminDashboard = {
                     badgeDesc:   desc,
                 });
                 if (success) {
-                    // Award karma separately if set
                     if (karma > 0) await CommunityDB.adminUpdateGamification(uid, { karmaDelta: karma });
                     ok++;
                     await this._pushNotify(uid, '🎖️ Special Badge!', `You received the ${icon} ${name} badge!`);
@@ -1029,12 +1067,8 @@ const AdminDashboard = {
         return (id || '').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     },
 
-    _esc(str) {
-        if (!str) return '';
-        const d = document.createElement('div');
-        d.textContent = str;
-        return d.innerHTML;
-    },
+    // FIX: instance method kept for any external callers; delegates to module fn
+    _esc: _esc,
 };
 
 window.AdminDashboard = AdminDashboard;

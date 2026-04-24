@@ -2,14 +2,12 @@
  * @extends PracticeRoom
  * @mixes ChatMixin, TabRoomMixin
  *
- * Optimizations vs previous version:
- * - Removed duplicate _renderParticipantList (now inherited from PracticeRoom)
- * - Removed duplicate _escapeHtml (now inherited from ChatMixin)
- * - switchTab delegated to TabRoomMixin via onPersonalTabEnter() hook
- * - buildChakraDisplay HTML cached by chakra key — not rebuilt on every render
- * - _loadChakraMastery only re-fetches after journal saves, not on every tab switch
- * - Community energy purge runs once per session, not on every load
- * - onEnter no longer calls _refreshParticipantSidebar (PracticeRoom.enterRoom handles it)
+ * Perf patches vs previous version:
+ * - buildBody(): daily tab renders a skeleton; full chakra HTML injected via rAF
+ *   in onEnter() after the view is painted — eliminates enterRoom() jank
+ * - Personal tab rendered as lightweight placeholder; hydrated lazily on first switch
+ * - _personalTabHydrated flag prevents redundant rebuilds on re-entry
+ * - All other optimizations from previous version retained
  */
 
 import { PracticeRoom } from './PracticeRoom.js';
@@ -32,10 +30,12 @@ class ReikiRoom extends PracticeRoom {
 
         this.initChatState(['daily', 'personal']);
 
-        this._chakraDataReady         = false;
-        this._energyPurgedToday       = false; // run purge once per session
-        this._chakraDisplayCache      = {};    // cache built HTML by chakra key
-        this._masteryLoaded           = false; // only fetch mastery when needed
+        this._chakraDataReady     = false;
+        this._energyPurgedToday   = false;
+        this._chakraDisplayCache  = {};
+        this._masteryLoaded       = false;
+        // FIX: track whether personal tab DOM has been hydrated
+        this._personalTabHydrated = false;
 
         this.state.currentDay         = null;
         this.state.personalFocus      = null;
@@ -132,7 +132,7 @@ class ReikiRoom extends PracticeRoom {
                 location: 'Center of the forehead, one finger above the eyebrows.',
                 visualization: 'Starry night skies, celestial bodies, galaxies',
                 keywords: ['Imagination', 'visualization', 'intuition', 'manifestation', 'creation', 'vision'],
-                roleAndPurpose: 'The sixth chakra is our center of vision — both inner and outer. Through it, we see reality and broadcast images and visions that represent our reality. It is responsible for our good mood and behavior through influence on hormones secreted in the brain.',
+                roleAndPurpose: 'The sixth chakra is our center of vision — both inner and outer. Through it, we see reality and broadcast images and visions that represent our reality.',
                 commonIssues: ['Difficulty planning the future', 'Underdeveloped imagination', 'Vision problems', 'Hormonal imbalance'],
                 fundamentalTruths: ['I feel, think, and express my vision with love!', 'Seek only the truth!'],
                 guidedReflections: ['How clearly do I see my life direction right now?', 'Do I trust my intuition as a valid source of truth, or do I dismiss it?', 'How connected do I feel to my inner wisdom and higher guidance?'],
@@ -168,7 +168,7 @@ class ReikiRoom extends PracticeRoom {
                 location: 'Top of the head, crown of the skull.',
                 visualization: 'Peak of a very high snowy mountain',
                 keywords: ['Cosmic consciousness', 'unity', 'wholeness', 'transcendence', 'inspiration', 'spiritual development'],
-                roleAndPurpose: 'The seventh chakra is our divinity center. It centralizes streams of high spiritual energy and our role and mission in this life. It also reminds us that we are one with the source and all spiritual beings.',
+                roleAndPurpose: 'The seventh chakra is our divinity center. It centralizes streams of high spiritual energy and our role and mission in this life.',
                 commonIssues: ['Lack of direction', 'Dizziness', 'Feelings of disconnection', 'Deep depression', 'Learning disabilities'],
                 fundamentalTruths: ['I feel, think, and express the vision of a higher purpose with love!', 'Live in the moment!'],
                 guidedReflections: ['How connected do I feel to a higher source or divine presence in my daily life?', 'Do I trust that my life has a meaningful purpose?', 'How can I embody the awareness that I am not separate from the universe?'],
@@ -248,10 +248,18 @@ class ReikiRoom extends PracticeRoom {
         </div>`;
     }
 
-    // ── Tab hook (replaces switchTab override) ────────────────────────────────
+    // ── Tab hooks ─────────────────────────────────────────────────────────────
 
-    /** Called by TabRoomMixin.switchTab when personal tab is activated. */
+    /** Called by TabRoomMixin.switchTab on first personal tab activation. */
     onPersonalTabEnter() {
+        // FIX: hydrate personal tab DOM once, lazily
+        if (!this._personalTabHydrated) {
+            const container = document.getElementById(`${this.roomId}PersonalTab`);
+            if (container) {
+                container.innerHTML = this._buildPersonalTab();
+                this._personalTabHydrated = true;
+            }
+        }
         if (!this._masteryLoaded) {
             this._loadChakraMastery();
         }
@@ -299,17 +307,10 @@ class ReikiRoom extends PracticeRoom {
 
     // ── Chakra display (with HTML caching) ────────────────────────────────────
 
-    /**
-     * Returns cached HTML for a chakra display, or builds and caches it.
-     * Cache is keyed by chakra key + prefix (daily/personal) + showCommunity flag.
-     * The image src is updated separately via carousel logic, not by rebuilding HTML.
-     */
     _getChakraDisplayHTML(chakra, imageIndex, isDaily = false, showCommunity = false) {
         const cacheKey = `${chakra.key}-${isDaily ? 'daily' : 'personal'}-${showCommunity}`;
         if (!this._chakraDisplayCache[cacheKey]) {
-            this._chakraDisplayCache[cacheKey] = this.buildChakraDisplay(
-                chakra, imageIndex, isDaily, showCommunity
-            );
+            this._chakraDisplayCache[cacheKey] = this.buildChakraDisplay(chakra, imageIndex, isDaily, showCommunity);
         }
         return this._chakraDisplayCache[cacheKey];
     }
@@ -317,12 +318,10 @@ class ReikiRoom extends PracticeRoom {
     buildChakraDisplay(chakra, imageIndex, isDaily = false, showCommunity = false) {
         const img = imageIndex === 0 ? chakra.image : chakra.image2;
 
-        // ── Keywords pills ──
         const keywords = (chakra.keywords || [])
             .map(k => `<span style="display:inline-block;padding:4px 12px;border:1px solid var(--border);border-radius:20px;font-size:12px;color:var(--text-muted);margin:3px 4px;white-space:nowrap;">${k}</span>`)
             .join('');
 
-        // ── Attribute row ──
         const attrDefs = [
             { label: 'Planet',    value: chakra.planet },
             { label: 'Element',   value: chakra.element },
@@ -341,12 +340,10 @@ class ReikiRoom extends PracticeRoom {
                 <div style="font-size:13px;font-weight:500;">${a.value}</div>
             </div>`).join('');
 
-        // ── Common Issues list ──
         const issuesHTML = (chakra.commonIssues || [])
             .map(i => `<li style="margin:6px 0;font-size:14px;color:var(--text-muted);line-height:1.5;">${i}</li>`)
             .join('');
 
-        // ── Guided reflections ──
         const reflectionsHTML = (chakra.guidedReflections || [])
             .map(q => `<li style="margin:8px 0;font-size:14px;line-height:1.6;color:var(--text);">${q}</li>`)
             .join('');
@@ -356,7 +353,6 @@ class ReikiRoom extends PracticeRoom {
         const prefix = isDaily ? 'Daily' : 'Personal';
 
         return `
-        <!-- ── Image carousel ── -->
         <div style="text-align:center;margin-bottom:24px;display:flex;align-items:center;justify-content:center;gap:8px;">
             <button type="button" data-action="prevChakraImage" data-scope="${scope}" style="background:var(--surface);border:2px solid var(--border);border-radius:50%;width:40px;height:40px;min-width:40px;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">‹</button>
             <img width="500" height="400" id="${roomId}${prefix}CarouselImg"
@@ -365,8 +361,6 @@ class ReikiRoom extends PracticeRoom {
             <button type="button" data-action="nextChakraImage" data-scope="${scope}" style="background:var(--surface);border:2px solid var(--border);border-radius:50%;width:40px;height:40px;min-width:40px;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">›</button>
         </div>
         <h4 style="font-family:var(--serif);font-size:20px;margin:0 0 20px;text-align:center;">${chakra.name}</h4>
-
-        <!-- ── Enriched card ── -->
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;">
             ${chakra.roleAndPurpose ? `
             <div style="text-align:center;margin-bottom:20px;">
@@ -388,14 +382,11 @@ class ReikiRoom extends PracticeRoom {
                 ${attrHTML}
             </div>` : ''}
         </div>
-
-        <!-- ── Fundamental Truths & Visualization ── -->
         ${(chakra.fundamentalTruths?.length || chakra.visualization) ? `
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;">
             <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;margin-bottom:16px;text-align:center;">Fundamental Truths</div>
             <div style="display:flex;flex-direction:column;gap:10px;">
-                ${(chakra.fundamentalTruths || []).map(t => `
-                <p style="font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.7;margin:0;text-align:center;color:var(--text);">"${t}"</p>`).join('')}
+                ${(chakra.fundamentalTruths || []).map(t => `<p style="font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.7;margin:0;text-align:center;color:var(--text);">"${t}"</p>`).join('')}
                 ${chakra.visualization ? `
                 <div style="margin-top:8px;padding-top:12px;border-top:1px solid var(--border);">
                     <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;margin-bottom:6px;text-align:center;">Visualization</div>
@@ -403,39 +394,25 @@ class ReikiRoom extends PracticeRoom {
                 </div>` : ''}
             </div>
         </div>` : ''}
-
-        <!-- ── Common Issues + Guided Reflections ── -->
         ${(issuesHTML || reflectionsHTML) ? `
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;display:flex;flex-direction:column;gap:8px;">
             ${issuesHTML ? `
             <details>
-                <summary style="cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.04em;color:var(--text-muted);text-transform:uppercase;list-style:none;display:flex;align-items:center;gap:6px;">
-                    <span>▶</span> Common Issues
-                </summary>
-                <ul style="margin:12px 0 0 0;padding:0 0 0 4px;list-style:none;">
-                    ${issuesHTML}
-                </ul>
+                <summary style="cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.04em;color:var(--text-muted);text-transform:uppercase;list-style:none;display:flex;align-items:center;gap:6px;"><span>▶</span> Common Issues</summary>
+                <ul style="margin:12px 0 0 0;padding:0 0 0 4px;list-style:none;">${issuesHTML}</ul>
             </details>` : ''}
             ${reflectionsHTML ? `
             <details ${issuesHTML ? 'style="border-top:1px solid var(--border);padding-top:8px;"' : ''}>
-                <summary style="cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.04em;color:var(--text-muted);text-transform:uppercase;list-style:none;display:flex;align-items:center;gap:6px;">
-                    <span>▶</span> Guided Reflections for Clarity &amp; Growth
-                </summary>
-                <p style="font-size:13px;color:var(--text-muted);margin:10px 0 12px 0;line-height:1.6;font-style:italic;">Take a few moments to reflect on each question. Let your answers flow naturally, without overthinking or judgment. There are no wrong answers here.</p>
-                <ul style="margin:0;padding:0;list-style:none;">
-                    ${reflectionsHTML}
-                </ul>
+                <summary style="cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.04em;color:var(--text-muted);text-transform:uppercase;list-style:none;display:flex;align-items:center;gap:6px;"><span>▶</span> Guided Reflections for Clarity &amp; Growth</summary>
+                <p style="font-size:13px;color:var(--text-muted);margin:10px 0 12px 0;line-height:1.6;font-style:italic;">Take a few moments to reflect on each question. Let your answers flow naturally, without overthinking or judgment.</p>
+                <ul style="margin:0;padding:0;list-style:none;">${reflectionsHTML}</ul>
             </details>` : ''}
         </div>` : ''}
-
-        <!-- ── Today's Inquiry ── -->
         ${chakra.inquiry ? `
         <div style="background:var(--surface);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;text-align:center;">
             <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:700;margin-bottom:12px;">${isDaily ? "Today's" : 'Guiding'} Inquiry</div>
             <p style="font-family:var(--serif);font-size:17px;line-height:1.7;margin:0 auto;max-width:520px;">"${chakra.inquiry}"</p>
         </div>` : ''}
-
-        <!-- ── Chakra Journal ── -->
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
                 <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;">📓 Chakra Journal</div>
@@ -443,14 +420,11 @@ class ReikiRoom extends PracticeRoom {
                     id="${roomId}${prefix}JournalLogBtn"
                     style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;font-weight:600;">View Log</button>
             </div>
-            <p style="font-size:13px;color:var(--text-muted);margin:0 0 14px 0;line-height:1.6;">
-                Sit with this chakra's energy for a moment. What do you notice in your body? What emotions or thoughts arise? How does this energy center feel in your life right now?
-            </p>
+            <p style="font-size:13px;color:var(--text-muted);margin:0 0 14px 0;line-height:1.6;">Sit with this chakra's energy for a moment. What do you notice in your body? What emotions or thoughts arise? How does this energy center feel in your life right now?</p>
             <div id="${roomId}${prefix}JournalForm">
                 <textarea id="${roomId}${prefix}JournalInput"
                     placeholder="e.g. I notice tension in my chest… this chakra feels blocked lately… I'm drawn to the color ${chakra.color}…"
-                    style="width:100%;box-sizing:border-box;padding:12px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--background);color:var(--text);font-size:14px;line-height:1.6;resize:vertical;min-height:110px;font-family:inherit;"
-                ></textarea>
+                    style="width:100%;box-sizing:border-box;padding:12px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--background);color:var(--text);font-size:14px;line-height:1.6;resize:vertical;min-height:110px;font-family:inherit;"></textarea>
                 <button type="button" data-action="saveChakraJournal"
                     data-prefix="${prefix}" data-key="${chakra.key}"
                     style="margin-top:10px;padding:9px 22px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;">
@@ -461,9 +435,7 @@ class ReikiRoom extends PracticeRoom {
                 <div id="${roomId}${prefix}JournalLogList" style="display:flex;flex-direction:column;gap:10px;max-height:340px;overflow-y:auto;"></div>
             </div>
         </div>
-
         ${showCommunity ? `
-        <!-- ── Community Energy ── -->
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:12px;">
             <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;margin-bottom:6px;">🌀 Community Energy</div>
             <p style="font-size:13px;color:var(--text-muted);margin:0 0 12px 0;">Share a one-line reflection on today's chakra energy.</p>
@@ -474,8 +446,7 @@ class ReikiRoom extends PracticeRoom {
                     style="flex:1;min-width:0;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--background);color:var(--text);font-size:14px;font-family:inherit;"
                     onkeydown="if(event.key==='Enter')document.getElementById('${roomId}EnergyShareBtn')?.click()"
                 />
-                <button type="button" id="${roomId}EnergyShareBtn"
-                        data-action="submitCommunityEnergy"
+                <button type="button" id="${roomId}EnergyShareBtn" data-action="submitCommunityEnergy"
                     style="padding:9px 18px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
                     Share
                 </button>
@@ -494,31 +465,37 @@ class ReikiRoom extends PracticeRoom {
             <main class="tarot-main" style="flex:1;padding:24px;overflow-y:auto;display:flex;justify-content:center;align-items:flex-start;">
                 <div style="width:100%;">
                     ${this.buildTabNav(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/></svg> Today's Collective Energy`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg> Solo Chakra Work`)}
-                    <div id="${this.roomId}DailyTab"    style="display:block;">${this._buildDailyTab()}</div>
-                    <div id="${this.roomId}PersonalTab" style="display:none;">${this._buildPersonalTab()}</div>
+                    <div id="${this.roomId}DailyTab"    style="display:block;">${this._buildDailyTabSkeleton()}</div>
+                    <div id="${this.roomId}PersonalTab" style="display:none;">${this._buildPersonalTabPlaceholder()}</div>
                 </div>
             </main>
         </div>`;
     }
 
-    _buildDailyTab() {
-        if (!this._chakraDataReady || !this.state.currentDay) {
-            return `<div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:16px;text-align:center;"><div style="color:var(--text-muted);font-size:14px;padding:40px;">Loading today's focus…</div></div>`;
-        }
-        const todayChakra = this.CHAKRA_SCHEDULE[this.state.currentDay];
+    // FIX: skeleton — painted instantly, costs ~0ms; full content injected in onEnter via rAF
+    _buildDailyTabSkeleton() {
         return `
-        <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:24px 16px;margin-bottom:16px;">
-            <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/></svg> Today's Collective Energy</h3>
-            ${this._getChakraDisplayHTML(todayChakra, this.state.dailyImageIndex, true, true)}
+        <div id="${this.roomId}DailyTabContent" style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:24px 16px;margin-bottom:16px;">
+            <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;">Today's Collective Energy</h3>
+            <div style="display:flex;align-items:center;justify-content:center;padding:48px 0;">
+                <div style="color:var(--text-muted);font-size:14px;">Loading today's focus…</div>
+            </div>
         </div>
-        <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:12px 8px 24px;" class="tarot-daily-grid">
+        <div id="${this.roomId}DailyChatSection" style="display:none;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:12px 8px 24px;" class="tarot-daily-grid">
             <div>
-                <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 8px 0;text-align:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Community Discussion</h4>
+                <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 8px 0;text-align:center;">Community Discussion</h4>
                 <div style="display:flex;flex-direction:column;height:100%;">
                     ${this.buildChatContainer('daily', 'Share your thoughts on today\'s chakra...')}
                 </div>
             </div>
             ${this.buildParticipantSidebarHTML('Online Lightworkers', `${this.roomId}ParticipantListEl`, `${this.roomId}ParticipantCount`, 'auto')}
+        </div>`;
+    }
+
+    // FIX: lightweight placeholder for personal tab
+    _buildPersonalTabPlaceholder() {
+        return `<div style="display:flex;align-items:center;justify-content:center;padding:60px 20px;">
+            <div style="text-align:center;color:var(--text-muted);font-size:14px;">Loading Solo Chakra Work…</div>
         </div>`;
     }
 
@@ -540,8 +517,6 @@ class ReikiRoom extends PracticeRoom {
             </button>
             <div id="${this.roomId}PersonalSession" style="margin-top:24px;display:none;"></div>
         </div>
-
-        <!-- Mastery Tracker -->
         <div style="border:2px solid var(--border);border-radius:var(--radius-lg);padding:20px;background:var(--surface);margin-top:16px;">
             <h4 style="font-family:var(--serif);font-size:18px;margin:0 0 16px 0;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:16px;height:16px;vertical-align:middle;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -560,7 +535,7 @@ class ReikiRoom extends PracticeRoom {
         </div>`;
     }
 
-    // ── Journal ──────────────────────────────────────────────────────────────
+    // ── Journal ───────────────────────────────────────────────────────────────
 
     _toggleChakraJournalLog(prefix) {
         const roomId  = this.roomId;
@@ -575,7 +550,7 @@ class ReikiRoom extends PracticeRoom {
         if (!showing) this._loadChakraJournalLog(prefix);
     }
 
-    async _saveChakraJournalEntry(prefix, chakraKey, chakraName) {
+    async _saveChakraJournalEntry(prefix, chakraKey) {
         const roomId = this.roomId;
         const input  = document.getElementById(`${roomId}${prefix}JournalInput`);
         const text   = input?.value?.trim();
@@ -583,6 +558,10 @@ class ReikiRoom extends PracticeRoom {
 
         const user  = window.Core.state.currentUser;
         const today = new Date().toISOString().slice(0,10);
+
+        // Derive chakra name from key
+        const allChakras = Object.values(this.CHAKRA_SCHEDULE || {});
+        const chakraName = allChakras.find(c => c.key === chakraKey)?.name || chakraKey;
 
         try {
             await CommunityDB._sb.from('reiki_sessions').insert({
@@ -594,7 +573,6 @@ class ReikiRoom extends PracticeRoom {
             });
             input.value = '';
             window.Core.showToast('Saved to your chakra journal ✨');
-            // Only reload mastery after an actual save, and mark it stale
             this._masteryLoaded = false;
             if (prefix === 'Personal') this._loadChakraMastery();
         } catch (e) {
@@ -686,7 +664,7 @@ class ReikiRoom extends PracticeRoom {
         }
     }
 
-    // ── Community Energy ─────────────────────────────────────────────────────
+    // ── Community Energy ──────────────────────────────────────────────────────
 
     async _submitCommunityEnergy() {
         const input = document.getElementById(`${this.roomId}EnergyInput`);
@@ -720,7 +698,6 @@ class ReikiRoom extends PracticeRoom {
         const list   = document.getElementById(`${this.roomId}EnergyList`);
         if (!list || !chakra) return;
 
-        // Purge old entries once per session, not on every load
         if (!this._energyPurgedToday) {
             this._energyPurgedToday = true;
             CommunityDB._sb.from('reiki_shares').delete().lt('date', today).then(() => {});
@@ -761,13 +738,13 @@ class ReikiRoom extends PracticeRoom {
         if (!pillsEl) return;
 
         const ALL_CHAKRAS = [
-            { key: 'root',      label: 'Root',        color: '#ef4444' },
-            { key: 'sacral',    label: 'Sacral',      color: '#f97316' },
-            { key: 'solar',     label: 'Solar Plexus',color: '#eab308' },
-            { key: 'heart',     label: 'Heart',       color: '#22c55e' },
-            { key: 'throat',    label: 'Throat',      color: '#3b82f6' },
-            { key: 'third-eye', label: 'Third Eye',   color: '#6366f1' },
-            { key: 'crown',     label: 'Crown',       color: '#a855f7' },
+            { key: 'root',      label: 'Root',         color: '#ef4444' },
+            { key: 'sacral',    label: 'Sacral',       color: '#f97316' },
+            { key: 'solar',     label: 'Solar Plexus', color: '#eab308' },
+            { key: 'heart',     label: 'Heart',        color: '#22c55e' },
+            { key: 'throat',    label: 'Throat',       color: '#3b82f6' },
+            { key: 'third-eye', label: 'Third Eye',    color: '#6366f1' },
+            { key: 'crown',     label: 'Crown',        color: '#a855f7' },
         ];
 
         if (!user?.id) {
@@ -809,15 +786,34 @@ class ReikiRoom extends PracticeRoom {
         }
     }
 
-    // ── onEnter hook ─────────────────────────────────────────────────────────
+    // ── onEnter hook ──────────────────────────────────────────────────────────
 
     onEnter() {
+        // FIX: reset hydration flag so personal tab rebuilds on re-entry
+        this._personalTabHydrated = false;
+        this._masteryLoaded       = false;
+
         this.initializeChat();
-        // Participant sidebar is handled by PracticeRoom.enterRoom() — no duplicate call needed.
+
+        // FIX: inject heavy daily tab content after the view has painted
         requestAnimationFrame(() => {
+            const dailyContent = document.getElementById(`${this.roomId}DailyTabContent`);
+            const chatSection  = document.getElementById(`${this.roomId}DailyChatSection`);
+
+            if (dailyContent && this._chakraDataReady && this.state.currentDay) {
+                const todayChakra = this.CHAKRA_SCHEDULE[this.state.currentDay];
+                dailyContent.innerHTML = `
+                <h3 style="font-family:var(--serif);font-size:24px;margin:0 0 20px 0;text-align:center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/></svg>
+                    Today's Collective Energy
+                </h3>
+                ${this._getChakraDisplayHTML(todayChakra, this.state.dailyImageIndex, true, true)}`;
+
+                if (chatSection) chatSection.style.display = '';
+                this._loadCommunityEnergy();
+            }
+
             document.querySelector(`#${this.roomId}View .tarot-main`)?.scrollTo(0, 0);
-            this._loadCommunityEnergy();
-            // Mastery loaded lazily on first personal tab visit, not on every enter
         });
     }
 
@@ -826,8 +822,7 @@ class ReikiRoom extends PracticeRoom {
     getActions() {
         return {
             ...super.getActions(),
-            startPersonalSession:   () => this.startPersonalSession(),
-            // Carousel: data-scope="daily"|"personal" determines which method to call
+            startPersonalSession:  () => this.startPersonalSession(),
             prevChakraImage: e => {
                 const scope = this._actionEl(e).dataset.scope;
                 scope === 'daily' ? this.previousDailyImage() : this.previousPersonalImage();
@@ -836,12 +831,12 @@ class ReikiRoom extends PracticeRoom {
                 const scope = this._actionEl(e).dataset.scope;
                 scope === 'daily' ? this.nextDailyImage() : this.nextPersonalImage();
             },
-            toggleChakraJournal:    e  => this._toggleChakraJournalLog(this._actionEl(e).dataset.prefix),
-            saveChakraJournal:      e  => {
+            toggleChakraJournal:   e  => this._toggleChakraJournalLog(this._actionEl(e).dataset.prefix),
+            saveChakraJournal:     e  => {
                 const el = this._actionEl(e);
                 this._saveChakraJournalEntry(el.dataset.prefix, el.dataset.key);
             },
-            submitCommunityEnergy:  () => this._submitCommunityEnergy(),
+            submitCommunityEnergy: () => this._submitCommunityEnergy(),
         };
     }
 
@@ -877,10 +872,8 @@ class ReikiRoom extends PracticeRoom {
 Object.assign(ReikiRoom.prototype, ChatMixin);
 Object.assign(ReikiRoom.prototype, TabRoomMixin);
 
-// Window bridge: preserved for inline onclick handlers
 const reikiRoom = new ReikiRoom();
 window.ReikiRoom = reikiRoom;
-// Fix #7: signal CommunityHubEngine that this room's enterRoom function is ready.
 window.dispatchRoomReady?.('reiki');
 
 export { ReikiRoom, reikiRoom };
