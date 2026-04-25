@@ -2,10 +2,10 @@
 import './styles/main-styles.css';
 import './styles/mobile-styles.css';
 import './styles/user-tab-styles.css';
-import './styles/community-hub.css';   // restored: Vite handles hashing correctly at build time
+import './styles/community-hub.css';
 
 // ─── Core shared modules ──────────────────────────────────────────────────────
-import './Core/member-profile-modal.js'; // sets window.MemberProfileModal — used by Dashboard + CommunityHub
+import './Core/member-profile-modal.js'; // sets window.MemberProfileModal
 import './Core/active-members.js';       // sets window.ActiveMembers shim
 
 // ─── Skin / Matrix ───────────────────────────────────────────────────────────
@@ -22,25 +22,12 @@ import './Core/CTA.js';
 import './Core/DB.js';
 import './Core/avatar-icons.js';
 
-// ─── Features (eager — needed on Dashboard at first paint) ───────────────────
-import './Features/AffirmationsEngine.js';
+// ─── Features needed before first paint ──────────────────────────────────────
 import './Features/DailyCards.js';
-import './Features/QuotesEngine.js';
 import './Features/WellnessKit.js';
 
-// ─── Features (deferred — not needed before first paint) ─────────────────────
-const lazyFeatures = () => Promise.all([
-  import('./Features/TarotEngine.js'),
-  import('./Features/TarotVisionAI.js'),
-  import('./Features/KarmaShopEngine.js'),
-  import('./Features/EnergyTracker.js'),
-  import('./Features/ChatBotAI.js'),
-  import('./Features/GratitudeEngine.js'),
-  import('./Features/HappinessEngine.js'),
-  import('./Features/InquiryEngine.js'),
-  import('./Features/JournalEngine.js'),
-  import('./Features/MeditationsEngine.js'),
-]);
+// ─── Deferred — not in Features.js registry ──────────────────────────────────
+const lazyFeatures = () => import('./Features/TarotVisionAI.js');
 
 // ─── Mini-Apps (deferred) ─────────────────────────────────────────────────────
 const lazyMiniApps = () => Promise.all([
@@ -53,8 +40,6 @@ let communityHubLoaded = false;
 window.lazyLoadCommunityHub = async function () {
   if (communityHubLoaded) return;
   communityHubLoaded = true;
-  // CSS is already loaded via the static import above.
-  // Only the JS engine needs to be lazy-loaded here.
   await import('./Mini-Apps/CommunityHub/CommunityHubEngine.js');
 };
 
