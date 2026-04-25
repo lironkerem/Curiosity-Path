@@ -41,18 +41,21 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: 'hidden',
     manifest: false,
-    cssCodeSplit: true,          // each lazy chunk gets its own CSS file
+    cssCodeSplit: true,
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        // communityHub removed — now a dynamic import, not an eager entry
       },
       output: {
         manualChunks(id) {
           // Supabase → own chunk
           if (id.includes('node_modules/@supabase')) return 'supabase';
 
-          // CommunityHub (all its JS files) → own lazy chunk
+          // active-members → isolated small chunk (used by Dashboard widget)
+          // Must be defined BEFORE the broad community-hub rule
+          if (id.includes('CommunityHub/js/active-members')) return 'active-members';
+
+          // Full CommunityHub (all other files) → own lazy chunk
           if (id.includes('Mini-Apps/CommunityHub')) return 'community-hub';
 
           // Heavy features → deferred chunk

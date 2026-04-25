@@ -1,8 +1,8 @@
-// ─── Styles (critical only) ───────────────────────────────────────────────────
+// ─── Styles ───────────────────────────────────────────────────────────────────
 import './styles/main-styles.css';
 import './styles/mobile-styles.css';
 import './styles/user-tab-styles.css';
-// community-hub.css → injected on-demand by lazyLoadCommunityHub()
+import './styles/community-hub.css';   // restored: Vite handles hashing correctly at build time
 
 // ─── Skin / Matrix ───────────────────────────────────────────────────────────
 import './styles/Skins/MatrixRain.js';
@@ -44,17 +44,13 @@ const lazyMiniApps = () => Promise.all([
   import('./Mini-Apps/ShadowAlchemyLab/shadowalchemy.js'),
 ]);
 
-// ─── Community Hub (on-demand — heaviest chunk ~135 KiB) ─────────────────────
+// ─── Community Hub (on-demand — heaviest chunk) ───────────────────────────────
 let communityHubLoaded = false;
 window.lazyLoadCommunityHub = async function () {
   if (communityHubLoaded) return;
   communityHubLoaded = true;
-  // Inject CSS
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = '/src/styles/community-hub.css';
-  document.head.appendChild(link);
-  // Load engine
+  // CSS is already loaded via the static import above.
+  // Only the JS engine needs to be lazy-loaded here.
   await import('./Mini-Apps/CommunityHub/CommunityHubEngine.js');
 };
 
