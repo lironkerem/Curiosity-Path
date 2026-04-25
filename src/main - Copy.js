@@ -1,8 +1,8 @@
-// ─── Styles (critical only) ───────────────────────────────────────────────────
+// ─── Styles ──────────────────────────────────────────────────────────────────
 import './styles/main-styles.css';
 import './styles/mobile-styles.css';
 import './styles/user-tab-styles.css';
-// community-hub.css → injected on-demand by lazyLoadCommunityHub()
+import './styles/community-hub.css';
 
 // ─── Skin / Matrix ───────────────────────────────────────────────────────────
 import './styles/Skins/MatrixRain.js';
@@ -18,45 +18,25 @@ import './Core/CTA.js';
 import './Core/DB.js';
 import './Core/avatar-icons.js';
 
-// ─── Features (eager — needed on Dashboard at first paint) ───────────────────
-import './Features/AffirmationsEngine.js';
-import './Features/DailyCards.js';
-import './Features/QuotesEngine.js';
+// ─── Features ────────────────────────────────────────────────────────────────
+import './Features/TarotEngine.js';
+import './Features/TarotVisionAI.js';
+import './Features/KarmaShopEngine.js';
+import './Features/EnergyTracker.js';
 import './Features/WellnessKit.js';
+import './Features/AffirmationsEngine.js';
+import './Features/ChatBotAI.js';
+import './Features/DailyCards.js';
+import './Features/GratitudeEngine.js';
+import './Features/HappinessEngine.js';
+import './Features/InquiryEngine.js';
+import './Features/JournalEngine.js';
+import './Features/MeditationsEngine.js';
+import './Features/QuotesEngine.js';
 
-// ─── Features (deferred — not needed before first paint) ─────────────────────
-const lazyFeatures = () => Promise.all([
-  import('./Features/TarotEngine.js'),
-  import('./Features/TarotVisionAI.js'),
-  import('./Features/KarmaShopEngine.js'),
-  import('./Features/EnergyTracker.js'),
-  import('./Features/ChatBotAI.js'),
-  import('./Features/GratitudeEngine.js'),
-  import('./Features/HappinessEngine.js'),
-  import('./Features/InquiryEngine.js'),
-  import('./Features/JournalEngine.js'),
-  import('./Features/MeditationsEngine.js'),
-]);
-
-// ─── Mini-Apps (deferred) ─────────────────────────────────────────────────────
-const lazyMiniApps = () => Promise.all([
-  import('./Mini-Apps/FlipTheScript/index.js'),
-  import('./Mini-Apps/ShadowAlchemyLab/shadowalchemy.js'),
-]);
-
-// ─── Community Hub (on-demand — heaviest chunk ~135 KiB) ─────────────────────
-let communityHubLoaded = false;
-window.lazyLoadCommunityHub = async function () {
-  if (communityHubLoaded) return;
-  communityHubLoaded = true;
-  // Inject CSS
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = '/src/styles/community-hub.css';
-  document.head.appendChild(link);
-  // Load engine
-  await import('./Mini-Apps/CommunityHub/CommunityHubEngine.js');
-};
+// ─── Mini-Apps ───────────────────────────────────────────────────────────────
+import './Mini-Apps/FlipTheScript/index.js';
+import './Mini-Apps/ShadowAlchemyLab/shadowalchemy.js';
 
 // ─── Service Worker ───────────────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
@@ -93,13 +73,6 @@ async function init() {
     });
 
     window.app.init();
-
-    // Load non-critical features after app is interactive
-    if (typeof requestIdleCallback === 'function') {
-      requestIdleCallback(() => { lazyFeatures(); lazyMiniApps(); }, { timeout: 3000 });
-    } else {
-      setTimeout(() => { lazyFeatures(); lazyMiniApps(); }, 1500);
-    }
 
   } catch (e) {
     console.error('[FATAL] Bootstrap failed:', e);

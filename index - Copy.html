@@ -261,16 +261,12 @@
   <link rel="preload" href="/Tabs/Header-desktop.webp" as="image" type="image/webp" fetchpriority="high" media="(min-width: 769px)">
   <link rel="preload" href="/Tabs/Header-mobile.webp" as="image" type="image/webp" fetchpriority="high" media="(max-width: 768px)">
 
-  <!-- ===== CDN Preconnect (crossorigin required on both) ===== -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <!-- ===== CDN Preconnect ===== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <!-- ===== Google Fonts — non-blocking ===== -->
-  <link rel="preload"
-        href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&display=swap"
-        as="style"
-        crossorigin
-        onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&display=swap"></noscript>
 
   <!-- ===== Skin stylesheets (toggled via JS) ===== -->
@@ -288,9 +284,9 @@
   <link rel="stylesheet" href="/src/styles/Skins/matrix-code.css"    id="skin_matrix-code"    media="not all">
 
   <!-- ===== PWA / icons ===== -->
-  <script>
-    (function(){var l=document.createElement('link');l.rel='manifest';l.href='/manifest.json';document.head.appendChild(l);})();
-  </script>
+<script>
+  (function(){var l=document.createElement('link');l.rel='manifest';l.href='/manifest.json';document.head.appendChild(l);})();
+</script>
   <meta name="theme-color" content="#6b9b37">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">

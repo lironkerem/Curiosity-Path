@@ -75,6 +75,9 @@ export default class NavigationManager {
      RENDERING
      ========================================================= */
 
+  /**
+   * Render navigation UI
+   */
   render() {
     const appContainer = document.getElementById('app-container');
     if (!appContainer) {
@@ -82,19 +85,23 @@ export default class NavigationManager {
       return;
     }
 
+    // Render navigation HTML (only if not already present)
     if (!document.querySelector('.app-header')) {
       appContainer.insertAdjacentHTML('afterbegin', this._getNavHTML());
     }
 
+    // Render mobile indicator
     if (!document.getElementById('mobile-tab-indicator')) {
       this._renderMobileIndicator();
     }
 
+    // Render user dropdown
     if (!document.getElementById('user-dropdown')) {
       appContainer.insertAdjacentHTML('afterbegin', this.userTab.render());
       this.userTab.init();
     }
 
+    // Initialize
     this.cacheElements();
     this.setupEventListeners();
     this.setupSwipeGestures();
@@ -104,6 +111,9 @@ export default class NavigationManager {
     this.setupSheetSwipeClose();
   }
 
+  /**
+   * Cache DOM elements for performance
+   */
   cacheElements() {
     this.cachedElements = {
       navItems: document.querySelectorAll('.nav-item'),
@@ -123,6 +133,9 @@ export default class NavigationManager {
      EVENT SETUP
      ========================================================= */
 
+  /**
+   * Setup main navigation event listeners
+   */
   setupEventListeners() {
     if (this.listenersAttached) return;
 
@@ -141,6 +154,7 @@ export default class NavigationManager {
       tab.addEventListener('click', clickHandler);
       tab.addEventListener('keydown', keyHandler);
 
+      // Store for cleanup
       tab._clickHandler = clickHandler;
       tab._keyHandler = keyHandler;
     });
@@ -148,6 +162,9 @@ export default class NavigationManager {
     this.listenersAttached = true;
   }
 
+  /**
+   * Setup keyboard navigation
+   */
   setupKeyboardNavigation() {
     const keydownHandler = (e) => {
       if (e.key === 'Escape' && this.sheetOpen) {
@@ -178,6 +195,9 @@ export default class NavigationManager {
     this.eventHandlers.keydown = keydownHandler;
   }
 
+  /**
+   * Setup mobile bottom bar
+   */
   setupMobileBottomBar() {
     if (window.innerWidth > 767) return;
 
@@ -199,6 +219,7 @@ export default class NavigationManager {
       this.vibrate(CONSTANTS.VIBRATION_MS);
     };
 
+    // Find all mobile buttons by data attribute
     const mobileButtons = mobileBar.querySelectorAll('.mobile-tab');
     
     mobileButtons.forEach(btn => {
@@ -206,6 +227,7 @@ export default class NavigationManager {
       const tab = btn.dataset.tab;
       
       if (popup === 'miniapps') {
+        // Mini Apps button
         const handler = (e) => {
           openSheet('sheet-miniapps');
           e.currentTarget.setAttribute('aria-expanded', 'true');
@@ -213,6 +235,7 @@ export default class NavigationManager {
         btn.addEventListener('click', handler);
         btn._clickHandler = handler;
       } else if (popup === 'features') {
+        // Features button
         const handler = (e) => {
           openSheet('sheet-features');
           e.currentTarget.setAttribute('aria-expanded', 'true');
@@ -220,6 +243,7 @@ export default class NavigationManager {
         btn.addEventListener('click', handler);
         btn._clickHandler = handler;
       } else if (tab === 'dashboard') {
+        // Home button
         const handler = () => {
           this.closeSheets();
           this.switchTab('dashboard', 'Main Dashboard');
@@ -227,6 +251,7 @@ export default class NavigationManager {
         btn.addEventListener('click', handler);
         btn._clickHandler = handler;
       } else if (tab === 'community-hub') {
+        // Community button
         const handler = () => {
           this.closeSheets();
           this.switchTab('community-hub', 'Community Hub');
@@ -236,12 +261,14 @@ export default class NavigationManager {
       }
     });
 
+    // Scrim click - close sheets
     const scrimHandler = () => this.closeSheets();
     if (scrim) {
       scrim.addEventListener('click', scrimHandler);
       scrim._clickHandler = scrimHandler;
     }
 
+    // Sheet row clicks
     sheets.forEach(sheet => {
       const sheetHandler = (e) => {
         const row = e.target.closest('.sheet-row');
@@ -259,6 +286,9 @@ export default class NavigationManager {
     });
   }
 
+  /**
+   * Close bottom sheets
+   */
   closeSheets() {
     const { sheets, scrim, mobileBar } = this.cachedElements;
 
@@ -278,7 +308,11 @@ export default class NavigationManager {
      SWIPE GESTURES
      ========================================================= */
 
+  /**
+   * Setup swipe gesture detection
+   */
   setupSwipeGestures() {
+    // Remove old listeners if they exist
     if (this.eventHandlers.touchStart) {
       window.removeEventListener('touchstart', this.eventHandlers.touchStart);
     }
@@ -323,6 +357,9 @@ export default class NavigationManager {
     this.eventHandlers.touchEnd = handleTouchEnd;
   }
 
+  /**
+   * Setup sheet swipe-to-close
+   */
   setupSheetSwipeClose() {
     const { sheets } = this.cachedElements;
 
@@ -373,12 +410,16 @@ export default class NavigationManager {
       sheet.addEventListener('touchmove', touchMoveHandler, { passive: true });
       sheet.addEventListener('touchend', touchEndHandler, { passive: true });
 
+      // Store for cleanup
       sheet._touchStartHandler = touchStartHandler;
       sheet._touchMoveHandler = touchMoveHandler;
       sheet._touchEndHandler = touchEndHandler;
     });
   }
 
+  /**
+   * Setup swipe arrow buttons
+   */
   setupSwipeArrows() {
     if (window.innerWidth > 767) return;
     if (this.arrowListenersAttached) return;
@@ -386,9 +427,11 @@ export default class NavigationManager {
     const { leftArrow, rightArrow, swipeArrows } = this.cachedElements;
     if (!leftArrow || !rightArrow || !swipeArrows) return;
 
+    // Make non-focusable
     leftArrow.tabIndex = -1;
     rightArrow.tabIndex = -1;
 
+    // Add SVG icons if not present
     if (!leftArrow.querySelector('svg')) {
       leftArrow.innerHTML = `<svg viewBox="0 0 200 180" style="transform:scale(0.5); pointer-events:none;"><path d="M115 10 L100 90 L115 170" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"/></svg>`;
     }
@@ -399,6 +442,7 @@ export default class NavigationManager {
     leftArrow.style.padding = '8px';
     rightArrow.style.padding = '8px';
 
+    // Navigate function
     const navigate = (direction) => {
       if (this.arrowDebounce) return;
 
@@ -420,6 +464,7 @@ export default class NavigationManager {
       }, CONSTANTS.ARROW_DEBOUNCE_MS);
     };
 
+    // Touch handlers
     const createTouchHandlers = (direction, button) => {
       const start = (e) => {
         e.preventDefault();
@@ -460,11 +505,13 @@ export default class NavigationManager {
     rightArrow.addEventListener('touchstart', rightHandlers.start, { capture: true, passive: true });
     rightArrow.addEventListener('touchend', rightHandlers.end, { capture: true, passive: true });
 
+    // Store for cleanup
     leftArrow._touchStart = leftHandlers.start;
     leftArrow._touchEnd = leftHandlers.end;
     rightArrow._touchStart = rightHandlers.start;
     rightArrow._touchEnd = rightHandlers.end;
 
+    // Observe sheet open/close state
     if (this.arrowObserver) {
       this.arrowObserver.disconnect();
     }
@@ -482,19 +529,20 @@ export default class NavigationManager {
      TAB SWITCHING
      ========================================================= */
 
+  /**
+   * Switch to tab
+   * @param {string} tabName - Tab identifier
+   * @param {string} label - Tab label for accessibility
+   */
   switchTab(tabName, label) {
     if (tabName === 'calculator' && !window.calculatorChunk) {
       window.calculatorChunk = 'requested';
     }
 
-    // ── Lazy-load CommunityHub on first visit ──────────────────────────────
-    if (tabName === 'community-hub') {
-      window.lazyLoadCommunityHub?.();
-    }
-
     const { navItems } = this.cachedElements;
     const tabContents = document.querySelectorAll('.tab-content');
 
+    // Update nav items
     navItems.forEach(t => {
       const isActive = t.dataset.tab === tabName;
       t.classList.toggle('active', isActive);
@@ -502,6 +550,7 @@ export default class NavigationManager {
       t.tabIndex = isActive ? 0 : -1;
     });
 
+    // Update tab contents
     tabContents.forEach(c => {
       c.classList.remove('active', 'hidden');
       c.style.display = 'none';
@@ -516,12 +565,15 @@ export default class NavigationManager {
       target.setAttribute('aria-hidden', 'false');
     }
 
+    // Initialize tab in app
     this.app.initializeTab(tabName);
 
+    // Update state
     localStorage.setItem('pc_active_tab', tabName);
     window.scrollTo(0, 0);
     this.vibrate(CONSTANTS.VIBRATION_MS);
 
+    // Update mobile bottom bar active state
     const { mobileBar } = this.cachedElements;
     if (mobileBar) {
       mobileBar.querySelectorAll('.mobile-tab[data-tab]').forEach(btn => {
@@ -530,9 +582,16 @@ export default class NavigationManager {
       });
     }
 
+    // Update mobile indicator
     this.updateTabIndicator(tabName);
   }
 
+  /**
+   * Update mobile tab indicator dots.
+   * Uses CSS classes only — no inline style manipulation — to avoid style recalc per dot.
+   * Active/inactive states are defined in index.html <style> block via .tab-dot and .tab-dot.active.
+   * @param {string} tabName - Active tab name
+   */
   updateTabIndicator(tabName) {
     if (window.innerWidth > 767) return;
 
@@ -548,12 +607,20 @@ export default class NavigationManager {
      UTILITIES
      ========================================================= */
 
+  /**
+   * Trigger device vibration
+   * @param {number} duration - Vibration duration in ms
+   */
   vibrate(duration) {
     if (this._userGestured && navigator.vibrate) {
       navigator.vibrate(duration);
     }
   }
 
+  /**
+   * Render mobile indicator
+   * @private
+   */
   _renderMobileIndicator() {
     const indicatorHTML = this._getMobileIndicatorHTML();
     const headerEl = document.querySelector('.app-header');
@@ -572,6 +639,7 @@ export default class NavigationManager {
       this.eventHandlers.resize = updateVisibility;
       window.addEventListener('resize', updateVisibility);
 
+      // Dot click handlers
       document.querySelectorAll('.tab-dot').forEach(dot => {
         const clickHandler = () => this.switchTab(dot.dataset.tab, dot.title);
         dot.addEventListener('click', clickHandler);
@@ -580,6 +648,11 @@ export default class NavigationManager {
     }
   }
 
+  /**
+   * Get navigation HTML template
+   * @private
+   * @returns {string} HTML string
+   */
   _getNavHTML() {
     return `
       <!-- CENTERED HEADER -->
@@ -695,6 +768,12 @@ export default class NavigationManager {
     `;
   }
 
+  /**
+   * Get mobile indicator HTML.
+   * No inline style strings — all visual rules live in the CSS (.tab-dot, .tab-dot.active).
+   * @private
+   * @returns {string} HTML string
+   */
   _getMobileIndicatorHTML() {
     const tabs = [
       { tab: 'dashboard',     title: 'Dashboard',     img: 'DashDot.png',       active: true },
@@ -726,7 +805,11 @@ export default class NavigationManager {
      CLEANUP
      ========================================================= */
 
+  /**
+   * Cleanup and destroy
+   */
   destroy() {
+    // Remove window event listeners
     if (this.eventHandlers.touchStart) {
       window.removeEventListener('touchstart', this.eventHandlers.touchStart);
     }
@@ -740,11 +823,13 @@ export default class NavigationManager {
       window.removeEventListener('resize', this.eventHandlers.resize);
     }
 
+    // Remove nav item listeners
     this.cachedElements.navItems?.forEach(tab => {
       if (tab._clickHandler) tab.removeEventListener('click', tab._clickHandler);
       if (tab._keyHandler) tab.removeEventListener('keydown', tab._keyHandler);
     });
 
+    // Remove mobile bar listeners
     const { mobileBar, scrim } = this.cachedElements;
     if (mobileBar) {
       const centerBtn = mobileBar.querySelector('.mobile-tab.center');
@@ -760,35 +845,47 @@ export default class NavigationManager {
       scrim.removeEventListener('click', scrim._clickHandler);
     }
 
+    // Remove sheet listeners
     this.eventHandlers.sheetHandlers.forEach(({ element, handler }) => {
       element.removeEventListener('click', handler);
     });
 
+    // Remove touch handlers from sheets
     this.cachedElements.sheets?.forEach(sheet => {
-      if (sheet._touchStartHandler) sheet.removeEventListener('touchstart', sheet._touchStartHandler);
-      if (sheet._touchMoveHandler)  sheet.removeEventListener('touchmove',  sheet._touchMoveHandler);
-      if (sheet._touchEndHandler)   sheet.removeEventListener('touchend',   sheet._touchEndHandler);
+      if (sheet._touchStartHandler) {
+        sheet.removeEventListener('touchstart', sheet._touchStartHandler);
+      }
+      if (sheet._touchMoveHandler) {
+        sheet.removeEventListener('touchmove', sheet._touchMoveHandler);
+      }
+      if (sheet._touchEndHandler) {
+        sheet.removeEventListener('touchend', sheet._touchEndHandler);
+      }
     });
 
+    // Remove arrow button handlers
     const { leftArrow, rightArrow } = this.cachedElements;
     if (leftArrow?._touchStart) {
       leftArrow.removeEventListener('touchstart', leftArrow._touchStart, { capture: true });
-      leftArrow.removeEventListener('touchend',   leftArrow._touchEnd,   { capture: true });
+      leftArrow.removeEventListener('touchend', leftArrow._touchEnd, { capture: true });
     }
     if (rightArrow?._touchStart) {
       rightArrow.removeEventListener('touchstart', rightArrow._touchStart, { capture: true });
-      rightArrow.removeEventListener('touchend',   rightArrow._touchEnd,   { capture: true });
+      rightArrow.removeEventListener('touchend', rightArrow._touchEnd, { capture: true });
     }
 
+    // Remove dot click handlers
     this.cachedElements.tabDots?.forEach(dot => {
       if (dot._clickHandler) dot.removeEventListener('click', dot._clickHandler);
     });
 
+    // Disconnect observers
     if (this.arrowObserver) {
       this.arrowObserver.disconnect();
       this.arrowObserver = null;
     }
 
+    // Clear references
     this.eventHandlers = { sheetHandlers: [] };
     this.cachedElements = {};
     this.listenersAttached = false;
