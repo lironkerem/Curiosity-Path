@@ -3,9 +3,9 @@
 
 import { CommunityDB }        from './js/community-supabase.js';
 import { Core }               from './js/core.js';
-import { MemberProfileModal } from './js/member-profile-modal.js';
+import { MemberProfileModal } from '../../Core/member-profile-modal.js';
 import { WhisperModal }       from './js/WhisperModal.js';
-import { ActiveMembersWidget } from './js/active-members.js';
+import { ActiveMembersWidget } from '../../Core/active-members.js';
 
 // ── Group 2: Hub utilities ──────────────────────────────────────────────────
 import './js/rituals.js';
@@ -83,7 +83,6 @@ class CommunityHubEngine {
       tab.innerHTML = this._buildTabHTML();
     }
 
-    // Double rAF ensures DOM is painted before overlay shows
     requestAnimationFrame(() => requestAnimationFrame(() => this._showRitualImmediately()));
 
     if (!this.initialized) {
@@ -95,7 +94,6 @@ class CommunityHubEngine {
 
     this._attachHubVisibility();
 
-    // Scroll to pending section target after DOM is ready (re-visit path)
     if (window._pendingHubScrollTarget) {
       const scrollTarget = window._pendingHubScrollTarget;
       window._pendingHubScrollTarget = null;
@@ -188,7 +186,7 @@ class CommunityHubEngine {
   }
 
   // ---------------------------------------------------------------------------
-  // Ritual overlay — original builders preserved exactly as shipped
+  // Ritual overlay
   // ---------------------------------------------------------------------------
 
   _buildCandleSVG(idSuffix) {
@@ -260,7 +258,6 @@ class CommunityHubEngine {
 
     document.body.appendChild(container);
 
-    // Opening overlay goes into app-container (or body) so it covers all UI chrome
     if (!document.getElementById('openingOverlay')) {
       const el = document.createElement('div');
       el.innerHTML = this._buildRitualCard({
@@ -285,7 +282,6 @@ class CommunityHubEngine {
     document.body.classList.add('ritual-active');
     overlay.classList.add('active');
 
-    // Auto-dismiss after 5 s (mirrors Rituals.config.OPENING_AUTO_CLOSE_MS)
     setTimeout(() => {
       if (window.Rituals) window.Rituals.completeOpening();
       else {
@@ -301,7 +297,6 @@ class CommunityHubEngine {
 
   _refreshHubPresence() {
     try {
-      // Refresh active members widget in-place — no full Core.init() needed
       this._activeMembersWidget?.refresh();
 
       if (window.PracticeRoom?._hubRooms?.length) {
@@ -331,7 +326,7 @@ class CommunityHubEngine {
   }
 
   // ---------------------------------------------------------------------------
-  // Hub visibility — suspend/resume chat subs on tab hide
+  // Hub visibility
   // ---------------------------------------------------------------------------
 
   _attachHubVisibility() {
@@ -403,7 +398,6 @@ class CommunityHubEngine {
       await Core.init();
       window.Core = Core;
 
-      // Mount Active Members widget — non-blocking, owns its container directly
       const hubMembersEl = document.getElementById('activeMembersContainer');
       if (hubMembersEl) {
         if (this._activeMembersWidget) {
@@ -429,7 +423,6 @@ class CommunityHubEngine {
       if (window.Rituals) window.Rituals.state.hasSeenOpening = false;
       if (window.CollectiveFieldDB) await window.CollectiveFieldDB.init();
 
-      // Scroll to pending section target — first-load path
       if (window._pendingHubScrollTarget) {
         const scrollTarget = window._pendingHubScrollTarget;
         window._pendingHubScrollTarget = null;

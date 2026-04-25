@@ -7,7 +7,7 @@
 
 import { InquiryEngine } from '../Features/InquiryEngine.js';
 import DailyCards from '../Features/DailyCards.js';
-import { ActiveMembersWidget } from '/src/Mini-Apps/CommunityHub/js/active-members.js';
+import { ActiveMembersWidget } from './active-members.js';
 
 const CONSTANTS = {
   BADGES_PREVIEW_COUNT: 9,
@@ -54,15 +54,6 @@ const UI_CONSTANTS = {
   DAILY_BONUS_XP: 50
 };
 
-// ---------------------------------------------------------------------------
-// isAdminBadge(badge, allDefs)
-//
-// A badge is "admin-awarded" (not earned through normal gameplay) when its id
-// is NOT present in the game's badge definitions.  This replaces the old
-// hard-coded KNOWN_ADMIN_BADGE_IDS Set, so every badge sent via the Admin
-// Console or Bulk Send — including the full merged registry and any custom_*
-// badges — renders correctly in the dashboard.
-// ---------------------------------------------------------------------------
 function isAdminBadge(badge, allDefs) {
   return !allDefs[badge.id];
 }
@@ -574,18 +565,11 @@ export default class DashboardManager {
       .filter(Boolean);
   }
 
-  /**
-   * Map a stored badge to a renderable object.
-   * Game badges use allDefs for metadata; admin/custom badges fall back to
-   * the badge's own stored fields so nothing is lost.
-   */
   processBadge(badge, allDefs) {
     const def = allDefs[badge.id];
     if (def) {
-      // Normal game badge
       return { ...badge, ...def, earned: true, karma: CONSTANTS.KARMA_BY_RARITY[def.rarity] || 3 };
     }
-    // Admin-awarded or custom badge — use stored metadata directly
     return this._adminBadgeToRenderable(badge);
   }
 
@@ -609,10 +593,6 @@ export default class DashboardManager {
     }));
   }
 
-  /**
-   * Return only the badges that were admin-awarded (not in allDefs).
-   * This covers every badge in BADGE_REGISTRY plus any custom_* badges.
-   */
   getAwardedAdminBadges(badges, allDefs) {
     return badges
       .filter(b => isAdminBadge(b, allDefs))
@@ -721,9 +701,14 @@ export default class DashboardManager {
 
       this.animateProgressBars();
 
+      // ── ActiveMembersWidget — statically imported from src/Core ──
       const dashEl = document.getElementById('dashboardActiveMembersContainer');
       if (dashEl) {
-        if (this._activeMembersWidget) this._activeMembersWidget.destroy();
+        if (this._activeMembersWidget) {
+          this._activeMembersWidget.destroy();
+          this._activeMembersWidget = null;
+        }
+        dashEl.innerHTML = `<div style="height:80px;display:flex;align-items:center;justify-content:center;opacity:0.4;font-size:0.85rem;">Loading active members…</div>`;
         this._activeMembersWidget = new ActiveMembersWidget(dashEl);
         this._activeMembersWidget.render();
       }
