@@ -41,33 +41,16 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: 'hidden',
     manifest: false,
-    cssCodeSplit: true,
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'index.html'),
+        main:         resolve(__dirname, 'index.html'),
+        communityHub: resolve(__dirname, 'src/Mini-Apps/CommunityHub/CommunityHubEngine.js'),
       },
       output: {
         manualChunks(id) {
-          // Supabase → own chunk
-          if (id.includes('node_modules/@supabase')) return 'supabase';
-
-          // active-members → isolated small chunk (used by Dashboard widget)
-          // Must be defined BEFORE the broad community-hub rule
-          if (id.includes('CommunityHub/js/active-members')) return 'active-members';
-
-          // Full CommunityHub (all other files) → own lazy chunk
-          if (id.includes('Mini-Apps/CommunityHub')) return 'community-hub';
-
-          // Heavy features → deferred chunk
-          if (
-            id.includes('TarotVisionAI') ||
-            id.includes('ChatBotAI') ||
-            id.includes('ShadowAlchemyLab') ||
-            id.includes('FlipTheScript')
-          ) return 'features-lazy';
-
-          // SelfAnalysisPro → own chunk
-          if (id.includes('SelfAnalysisPro')) return 'self-analysis';
+          if (id.includes('node_modules/@supabase')) {
+            return 'supabase';
+          }
         },
       },
     },
