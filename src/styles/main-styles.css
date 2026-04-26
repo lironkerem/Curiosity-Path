@@ -4462,6 +4462,16 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   right: 0.35rem;
 }
 
+.nav-item[data-tab="calculator"] {
+  position: relative;
+}
+
+.nav-item[data-tab="calculator"] .premium-badge {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+}
+
 /* ===== GLOBAL MODAL STYLES (Shadow Alchemy popups) ===== */
 .modal-overlay {
   position: fixed;
