@@ -190,15 +190,18 @@ ROOT:.
     |   main.js
     |
     +---Core
+    |       active-members.js
     |       AppState.js
     |       AuthManager.js
     |       avatar-icons.js
+    |       CommunityDB.js
     |       CTA.js
     |       DashboardManager.js
     |       DB.js
     |       Features.js
     |       GamificationEngine.js
     |       Index.js
+    |       member-profile-modal.js
     |       Modal-Compat.js
     |       Modal.js
     |       NavigationManager.js
@@ -236,15 +239,12 @@ ROOT:.
     |   |   |   CommunityHubEngine.js
     |   |   |
     |   |   \---js
-    |   |       |   active-members.js
     |   |       |   AdminDashboard.js
-    |   |       |   avatar-icons.js
     |   |       |   collective-field-db.js
     |   |       |   collective-field.js
     |   |       |   community-module.js
     |   |       |   community-supabase.js
     |   |       |   core.js
-    |   |       |   member-profile-modal.js
     |   |       |   profile-module.js
     |   |       |   resonance.js
     |   |       |   rituals.js
