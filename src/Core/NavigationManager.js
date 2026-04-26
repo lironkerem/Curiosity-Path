@@ -699,6 +699,7 @@ export default class NavigationManager {
           </li>
           <li class="nav-item" data-tab="calculator" data-label="Self Analysis Pro" role="tab" aria-selected="false" tabindex="-1">
             <picture><source srcset="/Tabs/NavAnalysis.webp" type="image/webp"><img class="nav-image" src="/Tabs/NavAnalysis.png" alt="Self Analysis Pro" width="48" height="48" loading="lazy" decoding="async"></picture>
+            <span class="premium-badge">PREMIUM</span>
           </li>
           <li class="nav-item" data-tab="shadow-alchemy" data-label="Shadow Alchemy Lab" role="tab" aria-selected="false" tabindex="-1">
             <picture><source srcset="/Tabs/NavShadow.webp" type="image/webp"><img class="nav-image" src="/Tabs/NavShadow.png" alt="Shadow Alchemy Lab" width="48" height="48" loading="lazy" decoding="async"></picture>

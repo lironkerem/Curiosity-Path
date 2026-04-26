@@ -15,6 +15,43 @@ export default class SelfAnalysisLauncher {
       return;
     }
 
+    // ── Premium lock check ──
+    const isPrivileged = this.bigApp.state?.currentUser?.isAdmin || this.bigApp.state?.currentUser?.isVip;
+    const isLocked = !isPrivileged && !this.bigApp.gamification?.state?.unlockedFeatures?.includes('self_analysis_pro');
+
+    if (isLocked) {
+      host.innerHTML = `
+        <div style="padding:1.5rem;min-height:100vh;">
+          <div class="universal-content">
+            <header class="main-header project-curiosity"
+                    style="--header-img:url('/Tabs/NavAnalysis.webp');
+                           --header-title:'';
+                           --header-tag:'Analyse your \\'Self\\', using Numerology, Astrology, Tree of Life and Tarot'">
+              <h1>Self-Analysis Pro</h1>
+              <h3>Analyse your 'Self', using Numerology, Astrology, Tree of Life and Tarot</h3>
+              <span class="header-sub"></span>
+            </header>
+            <div class="card relative" style="padding:3rem;text-align:center;opacity:0.75;">
+              <div style="margin-bottom:1rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" style="width:5rem;height:5rem;opacity:0.3;">
+                  <rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </div>
+              <h2 style="color:var(--neuro-text);font-size:2rem;margin-bottom:1rem;">Premium Feature Locked</h2>
+              <p style="color:var(--neuro-text-light);font-size:1.2rem;margin-bottom:2rem;">
+                Unlock Self-Analysis Pro in the Karma Shop to access your full Numerology, Astrology &amp; Tree of Life analysis.
+              </p>
+              <button onclick="window.app.nav.switchTab('karma-shop')" class="btn btn-primary" style="padding:1rem 2rem;font-size:1.1rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                Visit Karma Shop
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
     // Only render once
     if (this.isInitialized) {
       this.revalidate();
@@ -34,12 +71,9 @@ export default class SelfAnalysisLauncher {
           throw new Error('app-page element not found in HTML');
         }
 
-        // Build layout with Big-App header (NO WRAPPER CARD - FIXED WIDTH ISSUE)
-host.innerHTML = `
+        host.innerHTML = `
   <div style="padding:1.5rem;min-height:100vh;">
     <div class="universal-content">
-
-      <!-- Big-App Unified Header -->
       <header class="main-header project-curiosity"
               style="--header-img:url('/Tabs/NavAnalysis.webp');
                      --header-title:'';
@@ -48,19 +82,14 @@ host.innerHTML = `
         <h3>Analyse your 'Self', using Numerology, Astrology, Tree of Life and Tarot</h3>
         <span class="header-sub"></span>
       </header>
-
-      <!-- Mini-App Content -->
       <div class="selfanalysis-scope">
         ${appPage.innerHTML}
       </div>
-
     </div>
   </div>
 `;
         
-        // Initialize ALL components BEFORE booting the app
         return this.initializeComponents().then(() => {
-          // Boot the mini-app
           return import(/* @vite-ignore */ '/src/Mini-Apps/SelfAnalysisPro/js/app.js');
         });
       })
@@ -87,7 +116,6 @@ host.innerHTML = `
   /* ---- Initialize ALL Components (Pickers + Location Autocomplete) ---- */
   async initializeComponents() {
     try {
-      // Import picker classes
       const [
         { CustomDatePicker },
         { CustomTimePicker },
@@ -98,29 +126,18 @@ host.innerHTML = `
         import(/* @vite-ignore */ '/src/Mini-Apps/SelfAnalysisPro/js/stepindicator.js')
       ]);
       
-      // Initialize date picker
       if (document.getElementById('date-of-birth')) {
         window.customDatePicker = new CustomDatePicker('date-of-birth');
       }
-      
-      // Initialize time picker
       if (document.getElementById('time-of-birth')) {
         window.customTimePicker = new CustomTimePicker('time-of-birth');
       }
-      
-      // Initialize step indicator
       if (document.getElementById('step-indicator')) {
         window.stepIndicator = new StepIndicator();
-        window.resetStepIndicator = () => {
-          if (window.stepIndicator) {
-            window.stepIndicator.reset();
-          }
-        };
+        window.resetStepIndicator = () => { if (window.stepIndicator) window.stepIndicator.reset(); };
       }
       
-      // Initialize location autocomplete
       this.initializeLocationAutocomplete();
-      
     } catch (err) {
       console.error('❌ Failed to initialize components:', err);
       throw err;
@@ -158,17 +175,11 @@ host.innerHTML = `
       
       dropdown.querySelectorAll('.location-option').forEach(opt => {
         opt.addEventListener('click', () => {
-          const name = opt.dataset.name;
-          const lat = opt.dataset.lat;
-          const lon = opt.dataset.lon;
-          
-          locationInput.value = name;
-          locationInput.dataset.lat = lat;
-          locationInput.dataset.lon = lon;
-          
+          locationInput.value = opt.dataset.name;
+          locationInput.dataset.lat = opt.dataset.lat;
+          locationInput.dataset.lon = opt.dataset.lon;
           dropdown.classList.remove('active');
           dropdown.innerHTML = '';
-          
           locationInput.style.borderColor = '#4caf50';
           setTimeout(() => locationInput.style.borderColor = '', 1000);
         });
@@ -178,17 +189,10 @@ host.innerHTML = `
     const fetchLocations = async (q) => {
       try {
         const res = await fetch(`${GEOCODE_API}?q=${encodeURIComponent(q)}`);
-        
-        if (!res.ok) {
-          const errorText = await res.text();
-          console.error('❌ Geocode error:', errorText);
-          throw new Error('geo err');
-        }
-        
+        if (!res.ok) throw new Error('geo err');
         const data = await res.json();
         cache.set(q.toLowerCase(), data);
         if (cache.size > 50) cache.delete(cache.keys().next().value);
-        
         displayResults(data);
       } catch (e) {
         console.warn('❌ Location fetch error:', e.message);
@@ -201,23 +205,12 @@ host.innerHTML = `
     locationInput.addEventListener('input', () => {
       const q = locationInput.value.trim();
       clearTimeout(debounceTimer);
-      
-      if (q.length < 3) {
-        dropdown.classList.remove('active');
-        dropdown.innerHTML = '';
-        return;
-      }
-      
+      if (q.length < 3) { dropdown.classList.remove('active'); dropdown.innerHTML = ''; return; }
       const key = q.toLowerCase();
-      if (cache.has(key)) {
-        displayResults(cache.get(key));
-        return;
-      }
-      
+      if (cache.has(key)) { displayResults(cache.get(key)); return; }
       debounceTimer = setTimeout(() => fetchLocations(q), 400);
     });
 
-    // Store handler ref for cleanup
     this._outsideClickHandler = (e) => {
       if (e.target !== locationInput && !dropdown.contains(e.target)) {
         dropdown.classList.remove('active');
@@ -228,12 +221,10 @@ host.innerHTML = `
 
   /* ---- Re-validate form when tab is re-entered ---- */
   revalidate() {
-    if (typeof window.revalidateForm === 'function') {
-      window.revalidateForm();
-    }
+    if (typeof window.revalidateForm === 'function') window.revalidateForm();
   }
 
-  /* ---- Cleanup when FeaturesManager destroys this engine ---- */
+  /* ---- Cleanup ---- */
   destroy() {
     if (this._outsideClickHandler) {
       document.removeEventListener('click', this._outsideClickHandler);

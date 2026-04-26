@@ -88,6 +88,7 @@ const AdminDashboard = {
         ['tarot_vision_ai',             'Tarot Vision AI'],
         ['shadow_alchemy_lab',          'Shadow Alchemy Lab'],
         ['advanced_meditations',        'Advanced Meditations'],
+        ['self_analysis_pro', 'Self-Analysis Pro'],
         ['luxury_blush_champagne_skin', 'Blush Champagne Skin'],
         ['luxury_champagne_gold_skin',  'Champagne Gold Skin'],
         ['luxury_marble_bronze_skin',   'Marble Bronze Skin'],

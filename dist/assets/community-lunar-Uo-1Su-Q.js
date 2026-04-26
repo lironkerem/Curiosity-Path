@@ -1,4 +1,4 @@
-var A=Object.defineProperty;var P=(n,e,t)=>e in n?A(n,e,{enumerable:!0,configurable:!0,writable:!0,value:t}):n[e]=t;var I=(n,e,t)=>P(n,typeof e!="symbol"?e+"":e,t);import{_ as x}from"./features-lazy-bN0WDG2L.js";import{b as C}from"./community-hub-DjgyjPgG.js";const d={generateIntentionPracticeContent(n,e,t){const{intention:o="",affirmation:r="",releaseList:i=""}=n,a=e.map(s=>`
+var A=Object.defineProperty;var P=(n,e,t)=>e in n?A(n,e,{enumerable:!0,configurable:!0,writable:!0,value:t}):n[e]=t;var I=(n,e,t)=>P(n,typeof e!="symbol"?e+"":e,t);import{_ as x}from"./features-lazy-bN0WDG2L.js";import{b as C}from"./community-hub-Bv-lWZW8.js";const d={generateIntentionPracticeContent(n,e,t){const{intention:o="",affirmation:r="",releaseList:i=""}=n,a=e.map(s=>`
             <button type="button" data-affirmation="${this._escapeAttr(s)}" class="lunar-affirmation-btn">
                 ${this._escapeHtml(s)}
             </button>`).join("");return`

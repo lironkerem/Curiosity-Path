@@ -161,6 +161,7 @@ export default class DashboardManager {
   /* ---------- Countdown & Intervals ---------- */
 
   startCountdown() {
+    this.updateCountdownDisplays(); // immediate paint — no empty flash on first render
     const interval = setInterval(() => this.updateCountdownDisplays(), CONSTANTS.COUNTDOWN_UPDATE_INTERVAL);
     this.intervals.push(interval);
   }
@@ -173,7 +174,9 @@ export default class DashboardManager {
       const now    = new Date();
       ['daily', 'weekly', 'monthly'].forEach(type => {
         const el = document.getElementById(`countdown-${type}`);
-        if (el) el.textContent = this._formatCountdown(resets[type] - now);
+        if (!el) return; // elements not in DOM yet — skip silently
+        const text = this._formatCountdown(resets[type] - now);
+        if (el.textContent !== text) el.textContent = text; // avoid unnecessary repaints
       });
     } catch (error) {
       console.error('Error updating countdown:', error);
@@ -700,6 +703,7 @@ export default class DashboardManager {
         </div>`;
 
       this.animateProgressBars();
+      this.updateCountdownDisplays(); // paint countdowns immediately after DOM is ready
 
       // ── ActiveMembersWidget — statically imported from src/Core ──
       const dashEl = document.getElementById('dashboardActiveMembersContainer');
