@@ -48,13 +48,19 @@ export default defineConfig({
       },
       output: {
         manualChunks(id) {
-          // Supabase → own chunk
           if (id.includes('node_modules/@supabase')) return 'supabase';
 
-          // Full CommunityHub (all other files) → own lazy chunk
+          // Core shared files — never group into community-hub
+          if (id.includes('src/Core/')) return undefined;
+
+          // CommunityHub sub-chunks — must come BEFORE the catch-all rule
+          if (id.includes('CommunityHub/js/Solar')) return 'community-solar';
+          if (id.includes('CommunityHub/js/Lunar')) return 'community-lunar';
+          if (id.includes('CommunityHub/js/Rooms')) return 'community-rooms';
+
+          // Remaining CommunityHub files → main lazy chunk
           if (id.includes('Mini-Apps/CommunityHub')) return 'community-hub';
 
-          // Heavy features → deferred chunk
           if (
             id.includes('TarotVisionAI') ||
             id.includes('ChatBotAI') ||
@@ -62,7 +68,6 @@ export default defineConfig({
             id.includes('FlipTheScript')
           ) return 'features-lazy';
 
-          // SelfAnalysisPro → own chunk
           if (id.includes('SelfAnalysisPro')) return 'self-analysis';
         },
       },

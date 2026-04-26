@@ -1,54 +1,10 @@
 // Mini-Apps/CommunityHub/CommunityHubEngine.js
-// v4.3 - ActiveMembersWidget + hub scroll + original ritual overlay preserved
+// v4.4 - Lazy static imports, Solar/Lunar/Rooms deferred, AdminDashboard gated
 
-import { CommunityDB }        from './js/community-supabase.js';
-import { Core }               from './js/core.js';
-import { MemberProfileModal } from '../../Core/member-profile-modal.js';
-import { WhisperModal }       from './js/WhisperModal.js';
+import { CommunityDB }         from './js/community-supabase.js';
+import { Core }                from './js/core.js';
+import { MemberProfileModal }  from '../../Core/member-profile-modal.js';
 import { ActiveMembersWidget } from '../../Core/active-members.js';
-
-// ── Group 2: Hub utilities ──────────────────────────────────────────────────
-import './js/rituals.js';
-import './js/profile-module.js';
-import './js/community-module.js';
-import './js/SafetyBar.js';
-import './js/AdminDashboard.js';
-import './js/collective-field-db.js';
-import './js/Rooms/PracticeRoom.js';
-
-// ── Group 3: Mixins + Lunar/Solar foundations ───────────────────────────────
-import './js/Rooms/mixins/YouTubePlayerMixin.js';
-import './js/Rooms/mixins/CycleStateMixin.js';
-import './js/Rooms/mixins/ChatMixin.js';
-import './js/Rooms/mixins/SoundSettingsMixin.js';
-import './js/Rooms/mixins/TimerMixin.js';
-import './js/Solar/solar-config.js';
-import './js/Lunar/lunar-core.js';
-import './js/Lunar/lunar-ui.js';
-import './js/Lunar/lunar-config.js';
-import './js/Lunar/lunarengine.js';
-import './js/Rooms/mixins/TimedVideoRoom.js';
-import './js/Rooms/mixins/TabRoomMixin.js';
-
-// ── Group 4: Solar UI + base room (order-sensitive) ─────────────────────────
-import './js/Solar/solar-ui.js';
-import './js/Solar/solar-base-room.js';
-
-// ── Group 4b: All rooms + dynamic sections ──────────────────────────────────
-import './js/Rooms/silent-room.js';
-import './js/Rooms/guided-room.js';
-import './js/Rooms/osho-room.js';
-import './js/Rooms/breathwork-room.js';
-import './js/Rooms/deepwork-room.js';
-import './js/Rooms/campfire-room.js';
-import './js/Rooms/tarot-room.js';
-import './js/Rooms/reiki-room.js';
-import './js/collective-field.js';
-import './js/resonance.js';
-import './js/upcoming-events.js';
-
-// ── Group 5: Engines ────────────────────────────────────────────────────────
-import './js/Solar/solarengine.js';
 
 const RITUAL_TEXTS = [
   "Enter with intention, leave with gratitude",
@@ -381,6 +337,21 @@ class CommunityHubEngine {
   }
 
   // ---------------------------------------------------------------------------
+  // Admin Dashboard — gated, lazy
+  // ---------------------------------------------------------------------------
+
+  async _initAdminDashboard() {
+    const user = Core?.state?.currentUser;
+    if (!user?.isAdmin && !user?.isModerator) return;
+    try {
+      await import('./js/AdminDashboard.js');
+      // AdminDashboard self-registers on window — no instantiation needed
+    } catch (e) {
+      console.warn('[CommunityHub] AdminDashboard failed to load:', e);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
   // Initialization
   // ---------------------------------------------------------------------------
 
@@ -388,7 +359,29 @@ class CommunityHubEngine {
     try {
       this._preloadYouTubeAPI();
 
-      window.LunarEngine?.init?.();
+      // ── Core utilities (lightweight, needed immediately) ──────────────────
+      await Promise.all([
+        import('./js/rituals.js'),
+        import('./js/community-module.js'),
+        import('./js/SafetyBar.js'),
+        import('./js/collective-field-db.js'),
+        import('./js/resonance.js'),
+        import('./js/upcoming-events.js'),
+      ]);
+
+      // ── Mixins (needed before rooms) ──────────────────────────────────────
+      await Promise.all([
+        import('./js/Rooms/mixins/YouTubePlayerMixin.js'),
+        import('./js/Rooms/mixins/CycleStateMixin.js'),
+        import('./js/Rooms/mixins/ChatMixin.js'),
+        import('./js/Rooms/mixins/SoundSettingsMixin.js'),
+        import('./js/Rooms/mixins/TimerMixin.js'),
+        import('./js/Rooms/mixins/TimedVideoRoom.js'),
+        import('./js/Rooms/mixins/TabRoomMixin.js'),
+      ]);
+
+      // ── PracticeRoom base (rooms depend on this) ──────────────────────────
+      await import('./js/Rooms/PracticeRoom.js');
 
       if (!Core?.init) throw new Error('Core module not found');
 
@@ -398,14 +391,52 @@ class CommunityHubEngine {
       await Core.init();
       window.Core = Core;
 
+      // ── Active members widget ─────────────────────────────────────────────
       const hubMembersEl = document.getElementById('activeMembersContainer');
       if (hubMembersEl) {
-        if (this._activeMembersWidget) {
-          this._activeMembersWidget.destroy();
-        }
+        this._activeMembersWidget?.destroy();
         this._activeMembersWidget = new ActiveMembersWidget(hubMembersEl);
         this._activeMembersWidget.render();
       }
+
+      // ── Deferred: rooms + solar/lunar + profile + admin (parallel) ────────
+      await Promise.all([
+        // Practice rooms — hits community-rooms chunk
+        Promise.all([
+          import('./js/Rooms/silent-room.js'),
+          import('./js/Rooms/guided-room.js'),
+          import('./js/Rooms/osho-room.js'),
+          import('./js/Rooms/breathwork-room.js'),
+          import('./js/Rooms/deepwork-room.js'),
+          import('./js/Rooms/campfire-room.js'),
+          import('./js/Rooms/tarot-room.js'),
+          import('./js/Rooms/reiki-room.js'),
+        ]),
+
+        // Lunar — hits community-lunar chunk
+        import('./js/Lunar/lunar-config.js')
+          .then(() => import('./js/Lunar/lunar-ui.js'))
+          .then(() => import('./js/Lunar/lunarengine.js'))
+          .then(() => import('./js/Lunar/lunar-core.js')),
+
+        // Solar — hits community-solar chunk
+        import('./js/Solar/solar-config.js')
+          .then(() => import('./js/Solar/solar-ui.js'))
+          .then(() => import('./js/Solar/solar-base-room.js'))
+          .then(() => import('./js/Solar/solarengine.js')),
+
+        // Profile module
+        import('./js/profile-module.js'),
+
+        // Collective field UI (DB already loaded above)
+        import('./js/collective-field.js'),
+
+        // Admin — gated
+        this._initAdminDashboard(),
+      ]);
+
+      // ── Post-init renders ─────────────────────────────────────────────────
+      window.LunarEngine?.init?.();
 
       window.CollectiveField?.render();
       window.Resonance?.render();

@@ -1,7 +1,7 @@
 /**
  * ACTIVE MEMBERS MODULE
  * Real presence data from Supabase + realtime updates
- * @version 3.1.0
+ * @version 3.2.0
  * Relocated to src/Core/ — shared by Dashboard and CommunityHub
  */
 
@@ -217,7 +217,7 @@ class ActiveMembersWidget {
             <div class="active-members-grid">
                 ${_buildMemberCards(members)}
             </div>
-            <button type="button" onclick="window.WhisperModal?.open()"
+            <button type="button" onclick="window._openWhisperModal()"
                     style="width:100%;margin-top:12px;padding:12px;border-radius:12px;border:none;
                            cursor:pointer;font-size:0.88rem;font-weight:600;
                            background:var(--neuro-bg,#f0f0f3);color:var(--neuro-text);
@@ -333,6 +333,21 @@ window._activeMembersHandleView = function(userId) {
     } else {
         window.Core?.showToast('Member profiles loading...');
     }
+};
+
+// Lazy-load WhisperModal on first click — works on Dashboard and CommunityHub
+window._openWhisperModal = async function () {
+    if (!window.WhisperModal) {
+        try {
+            const mod = await import('../Mini-Apps/CommunityHub/js/WhisperModal.js');
+            window.WhisperModal = mod.WhisperModal ?? mod.default;
+        } catch (e) {
+            console.warn('[ActiveMembers] WhisperModal failed to load:', e);
+            window.Core?.showToast('Whispers unavailable — please try again.');
+            return;
+        }
+    }
+    window.WhisperModal?.open();
 };
 
 window.addEventListener('avatarChanged', (e) => {
