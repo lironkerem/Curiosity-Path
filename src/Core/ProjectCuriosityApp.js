@@ -15,7 +15,7 @@ import { fetchProgress, saveProgress, clearCache } from '/src/Core/DB.js';
 import { CommunityDB }  from '/src/Mini-Apps/CommunityHub/js/community-supabase.js';
 import { Core as CommunityCore } from '/src/Mini-Apps/CommunityHub/js/core.js';
 import { MemberProfileModal } from './member-profile-modal.js';
-import { WhisperModal } from '/src/Mini-Apps/CommunityHub/js/WhisperModal.js';
+// WhisperModal is loaded lazily on first use via _getWhisperModal()
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -68,6 +68,21 @@ const ls = {
 
 // Expose Supabase client globally for Community Hub scripts (set in Supabase.js too)
 window.AppSupabase = supabase;
+
+// ─── Lazy WhisperModal loader ─────────────────────────────────────────────────
+
+async function _getWhisperModal() {
+  if (!window.WhisperModal) {
+    try {
+      const mod = await import('/src/Mini-Apps/CommunityHub/js/WhisperModal.js');
+      window.WhisperModal = mod.WhisperModal ?? mod.default;
+    } catch (e) {
+      console.warn('[App] WhisperModal failed to load:', e);
+      return null;
+    }
+  }
+  return window.WhisperModal;
+}
 
 // ─── ProjectCuriosityApp ──────────────────────────────────────────────────────
 
@@ -143,7 +158,6 @@ export default class ProjectCuriosityApp {
     let avatarUrl = this.state.currentUser.avatarUrl;
 
     if (profileData.file) {
-      // Validate file type and size before upload
       if (!ALLOWED_AVATAR_TYPES.has(profileData.file.type)) {
         return this.showToast('Please upload a JPEG, PNG, WebP, or GIF image', 'error');
       }
@@ -192,7 +206,6 @@ export default class ProjectCuriosityApp {
 
   /** @private — uploads avatar, returns public URL */
   async _uploadAvatar(file) {
-    // Use a safe filename — no user-controlled characters in the path
     const ext  = file.type.split('/')[1] || 'jpg';
     const path = `avatars/${this.state.currentUser.id}-${Date.now()}.${ext}`;
 
@@ -276,7 +289,6 @@ export default class ProjectCuriosityApp {
     this._gamificationUnsubscribers.push(...subs);
   }
 
-  /** Simple level-up confetti element (supplementary to GamificationEngine spectacle) */
   playLevelUpAnimation() {
     const el = document.createElement('div');
     el.setAttribute('aria-hidden', 'true');
@@ -292,10 +304,6 @@ export default class ProjectCuriosityApp {
     setTimeout(() => el.remove(), ANIMATION_DURATIONS.LEVEL_UP);
   }
 
-  /**
-   * Show achievement modal.
-   * Built entirely via DOM methods — no innerHTML with achievement data (XSS safe).
-   */
   showAchievementModal(achievement) {
     document.getElementById('achievement-modal')?.remove();
 
@@ -323,7 +331,6 @@ export default class ProjectCuriosityApp {
       transition: 'all 0.4s cubic-bezier(0.68,-0.55,0.265,1.55)'
     });
 
-    // Icon — textContent, never innerHTML
     const icon     = document.createElement('div');
     icon.setAttribute('aria-hidden', 'true');
     Object.assign(icon.style, { fontSize: '5rem', marginBottom: '1.5rem' });
@@ -360,7 +367,6 @@ export default class ProjectCuriosityApp {
     modalEl.appendChild(wrapper);
     document.body.appendChild(modalEl);
 
-    // Return focus on close
     const previouslyFocused = document.activeElement;
     const close = () => { modalEl.remove(); previouslyFocused?.focus(); };
     btn.addEventListener('click', close, { once: true });
@@ -369,16 +375,12 @@ export default class ProjectCuriosityApp {
       if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc); }
     });
 
-    // Animate in
     requestAnimationFrame(() => {
-      wrapper.style.opacity          = '1';
-      content.style.transform        = 'scale(1) translateY(0)';
+      wrapper.style.opacity   = '1';
+      content.style.transform = 'scale(1) translateY(0)';
     });
 
-    // Auto-close
     setTimeout(close, ANIMATION_DURATIONS.ACHIEVEMENT_MODAL);
-
-    // Focus the dismiss button
     setTimeout(() => btn.focus(), 100);
   }
 
@@ -411,18 +413,13 @@ export default class ProjectCuriosityApp {
         if (!this._validateState()) this.state.data = this.state.emptyModel();
       }
 
-      // Gamification
       this.gamification = new GamificationEngine(this);
       this.setupGamificationListeners();
 
-      // Daily cards — fire & forget (non-blocking); only await if it gates visible UI
       this.dailyCards = new DailyCards(this);
       const boosterPromise = this.dailyCards.initializeBoosters().catch(e => {
         console.warn('[App] DailyCards.initializeBoosters() failed (non-fatal):', e);
       });
-
-      // ── SHOW APP IMMEDIATELY ─────────────────────────────────────────────────
-      // Render shell now so LCP / Speed Index are not blocked by network calls.
 
       this._hideAuthScreen();
       this._showMainApp();
@@ -438,10 +435,8 @@ export default class ProjectCuriosityApp {
       this.loadModules();
       this.restoreLastTab();
       this._startToastCleanup();
-      // ────────────────────────────────────────────────────────────────────────
 
-      // Community DB is non-critical (only needed for the Active Members widget).
-      // Run after the app is visible — never block initial render on it.
+      // Community DB — non-critical, runs after app is visible
       Promise.resolve().then(async () => {
         try {
           if (!CommunityCore.state.initialized) {
@@ -462,52 +457,43 @@ export default class ProjectCuriosityApp {
         }
       });
 
-      // ── Whisper push notification handlers ───────────────────────────────────
+      // ── Whisper push notification handlers (lazy) ─────────────────────────
 
-      // 1. Handle SW postMessage when app is already open and user taps a
-      //    whisper notification. The SW sends OPEN_WHISPER_THREAD instead of
-      //    navigating, so the currently-open session handles it without a reload.
+      // 1. SW postMessage — app already open, user taps whisper notification
       if (navigator.serviceWorker) {
-        navigator.serviceWorker.addEventListener('message', (event) => {
-          if (event.data?.type === 'OPEN_WHISPER_THREAD') {
-            const { senderId } = event.data;
-            if (!senderId) return;
-            CommunityDB.getProfile(senderId).then(profile => {
-              if (profile) {
-                WhisperModal.openThread(profile.id, profile.name, profile.emoji, profile.avatar_url);
-              }
-            }).catch(e => console.warn('[App] Whisper deep-link profile fetch failed:', e));
-          }
+        navigator.serviceWorker.addEventListener('message', async (event) => {
+          if (event.data?.type !== 'OPEN_WHISPER_THREAD') return;
+          const { senderId } = event.data;
+          if (!senderId) return;
+          const whisper = await _getWhisperModal();
+          if (!whisper) return;
+          CommunityDB.getProfile(senderId).then(profile => {
+            if (profile) whisper.openThread(profile.id, profile.name, profile.emoji, profile.avatar_url);
+          }).catch(e => console.warn('[App] Whisper deep-link profile fetch failed:', e));
         });
       }
 
-      // 2. Handle cold-launch deep-link: push-cron Edge Function sets
-      //    data.url = '/?whisper=<senderId>' so tapping the notification
-      //    when the app is closed opens it here.
+      // 2. Cold-launch deep-link: ?whisper=<senderId>
       const _whisperParam = new URLSearchParams(window.location.search).get('whisper');
       if (_whisperParam) {
-        // CommunityDB may still be initialising — poll until ready.
-        const _tryOpenWhisper = () => {
-          if (CommunityDB.ready) {
-            CommunityDB.getProfile(_whisperParam).then(profile => {
-              if (profile) {
-                WhisperModal.openThread(profile.id, profile.name, profile.emoji, profile.avatar_url);
-                // Remove ?whisper param so refresh doesn't reopen the thread
-                const _cleanUrl = new URL(window.location.href);
-                _cleanUrl.searchParams.delete('whisper');
-                history.replaceState(null, '', _cleanUrl);
-              }
-            }).catch(e => console.warn('[App] Whisper cold-launch profile fetch failed:', e));
-          } else {
-            setTimeout(_tryOpenWhisper, 300);
-          }
+        const _tryOpenWhisper = async () => {
+          if (!CommunityDB.ready) { setTimeout(_tryOpenWhisper, 300); return; }
+          const whisper = await _getWhisperModal();
+          if (!whisper) return;
+          CommunityDB.getProfile(_whisperParam).then(profile => {
+            if (profile) {
+              whisper.openThread(profile.id, profile.name, profile.emoji, profile.avatar_url);
+              const cleanUrl = new URL(window.location.href);
+              cleanUrl.searchParams.delete('whisper');
+              history.replaceState(null, '', cleanUrl);
+            }
+          }).catch(e => console.warn('[App] Whisper cold-launch profile fetch failed:', e));
         };
         _tryOpenWhisper();
       }
 
-      // ─────────────────────────────────────────────────────────────────────────
+      // ─────────────────────────────────────────────────────────────────────
 
-      // Await booster init quietly in the background (already started above)
       await boosterPromise;
 
     } catch (error) {
@@ -567,11 +553,9 @@ export default class ProjectCuriosityApp {
       case TAB_NAMES.DASHBOARD:
         this._initDashboardTab();
         break;
-
       case TAB_NAMES.CALCULATOR:
         this._loadCalculatorTab();
         break;
-
       case TAB_NAMES.ADMIN:
         if (this.state.currentUser?.isAdmin) {
           this._loadAdminTab();
@@ -580,7 +564,6 @@ export default class ProjectCuriosityApp {
           this.showToast('Admin access required', 'error');
         }
         break;
-
       case TAB_NAMES.FLIP_SCRIPT:
       case TAB_NAMES.KARMA_SHOP:
       case TAB_NAMES.MEDITATIONS:
@@ -594,7 +577,6 @@ export default class ProjectCuriosityApp {
       case TAB_NAMES.COMMUNITY_HUB:
         this._initFeatureTab(tab, previousTab);
         break;
-
       default:
         console.warn(`[App] Unknown tab: "${tab}"`);
     }
@@ -605,15 +587,13 @@ export default class ProjectCuriosityApp {
     this.dashboard.render();
   }
 
-_initFeatureTab(tab, previousTab = null) {
+  _initFeatureTab(tab, previousTab = null) {
     if (!this.features) {
       console.error('[App] FeaturesManager not available');
       this.showToast('Feature not available', 'error');
       return;
     }
     if (previousTab && previousTab !== tab && previousTab !== TAB_NAMES.DASHBOARD) {
-      // Community Hub manages its own re-visit refresh internally.
-      // Calculator is loaded via _loadCalculatorTab() and never registered in FeaturesManager.
       if (previousTab !== TAB_NAMES.COMMUNITY_HUB && previousTab !== TAB_NAMES.CALCULATOR) {
         this.features.destroy(previousTab);
       }
@@ -640,7 +620,6 @@ _initFeatureTab(tab, previousTab = null) {
   }
 
   async _loadAdminTab() {
-    // AdminTab removed
     console.warn('[App] AdminTab is no longer available.');
   }
 
