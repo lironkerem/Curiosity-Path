@@ -15,7 +15,7 @@ const CONSTANTS = {
   WELLNESS_POLL_INTERVAL: 3000,
   COUNTDOWN_UPDATE_INTERVAL: 1000,
   RENDER_DEBOUNCE_MS: 100,
-  
+
   RARITY_GRADIENTS: {
     common:    'linear-gradient(135deg, rgba(245, 245, 247, 0.85) 0%, rgba(210, 214, 220, 0.85) 100%), linear-gradient(#f5f5f7, #d2d6dc)',
     uncommon:  'linear-gradient(135deg, rgba(0, 224, 132, 0.85) 0%, rgba(0, 185, 108, 0.85) 100%), linear-gradient(#00e084, #00b96c)',
@@ -23,85 +23,83 @@ const CONSTANTS = {
     epic:      'linear-gradient(135deg, rgba(184, 0, 230, 0.85) 0%, rgba(142, 0, 204, 0.85) 100%), linear-gradient(#b800e6, #8e00cc)',
     legendary: 'linear-gradient(135deg, rgba(255, 195, 0, 0.85) 0%, rgba(255, 135, 0, 0.85) 100%), linear-gradient(#ffc300, #ff8700)'
   },
-  
+
   KARMA_BY_RARITY: {
     common: 3, uncommon: 5, rare: 10, epic: 15, legendary: 30
   },
-  
+
   BADGE_CATEGORIES: {
-    'First Wins':                    ['first_step', 'first_gratitude', 'first_journal', 'first_energy', 'first_tarot', 'first_meditation', 'first_purchase'],
-    'Gratitude Badges':              ['gratitude_warrior', 'gratitude_legend', 'gratitude_200', 'gratitude_500'],
-    'Journaling Badges':             ['journal_keeper', 'journal_master', 'journal_150', 'journal_400'],
-    'Energy Tracking Badges':        ['energy_tracker', 'energy_sage', 'energy_300', 'energy_600'],
-    'Tarot Spreads Badges':          ['tarot_apprentice', 'tarot_mystic', 'tarot_oracle', 'tarot_150', 'tarot_400'],
-    'Meditations Badges':            ['meditation_devotee', 'meditation_master', 'meditation_100', 'meditation_200'],
+    'First Wins':                      ['first_step', 'first_gratitude', 'first_journal', 'first_energy', 'first_tarot', 'first_meditation', 'first_purchase'],
+    'Gratitude Badges':                ['gratitude_warrior', 'gratitude_legend', 'gratitude_200', 'gratitude_500'],
+    'Journaling Badges':               ['journal_keeper', 'journal_master', 'journal_150', 'journal_400'],
+    'Energy Tracking Badges':          ['energy_tracker', 'energy_sage', 'energy_300', 'energy_600'],
+    'Tarot Spreads Badges':            ['tarot_apprentice', 'tarot_mystic', 'tarot_oracle', 'tarot_150', 'tarot_400'],
+    'Meditations Badges':              ['meditation_devotee', 'meditation_master', 'meditation_100', 'meditation_200'],
     'Happiness and Motivation Badges': ['happiness_seeker', 'joy_master', 'happiness_300', 'happiness_700'],
-    'Wellness Exercises Badges':     ['wellness_champion', 'wellness_guru', 'wellness_300', 'wellness_700'],
-    'Streaks Badges':                ['perfect_week', 'dedication_streak', 'unstoppable', 'legendary_streak'],
-    'Quest Completion Badges':       ['weekly_warrior', 'monthly_master', 'quest_crusher', 'daily_champion'],
-    'Karma Currency Badges':         ['karma_collector', 'karma_lord', 'xp_milestone', 'xp_titan'],
-    'Level-Up Badges':               ['level_5_hero', 'level_7_hero', 'level_10_hero'],
-    'Chakra Balance Badges':         ['chakra_balancer', 'chakra_master'],
-    'Cross-Features Badges':         ['triple_threat', 'super_day', 'complete_explorer', 'renaissance_soul']
+    'Wellness Exercises Badges':       ['wellness_champion', 'wellness_guru', 'wellness_300', 'wellness_700'],
+    'Streaks Badges':                  ['perfect_week', 'dedication_streak', 'unstoppable', 'legendary_streak'],
+    'Quest Completion Badges':         ['weekly_warrior', 'monthly_master', 'quest_crusher', 'daily_champion'],
+    'Karma Currency Badges':           ['karma_collector', 'karma_lord', 'xp_milestone', 'xp_titan'],
+    'Level-Up Badges':                 ['level_5_hero', 'level_7_hero', 'level_10_hero'],
+    'Chakra Balance Badges':           ['chakra_balancer', 'chakra_master'],
+    'Cross-Features Badges':           ['triple_threat', 'super_day', 'complete_explorer', 'renaissance_soul']
   }
 };
 
 const UI_CONSTANTS = {
-  MOBILE_BREAKPOINT: 768,
+  MOBILE_BREAKPOINT:    768,
   BADGE_PREVIEW_DESKTOP: 9,
-  BADGE_PREVIEW_MOBILE: 6,
+  BADGE_PREVIEW_MOBILE:  6,
   ANIMATION_FRAME_DELAY: 0,
-  DAILY_BONUS_XP: 50
+  DAILY_BONUS_XP:       50
 };
 
 function isAdminBadge(badge, allDefs) {
   return !allDefs[badge.id];
 }
 
-// Global helper: navigate to Community Hub tab then scroll to a specific section.
 window._navigateToHubSection = function(targetId) {
   window._pendingHubScrollTarget = targetId;
   window.app?.nav?.switchTab('community-hub');
 };
 
 export default class DashboardManager {
-  /** @type {Object} Fallback quote when QuotesData unavailable */
   static FALLBACK_QUOTE = {
-    text: 'What you think, you become. What you feel, you attract. What you imagine, you create.',
+    text:   'What you think, you become. What you feel, you attract. What you imagine, you create.',
     author: 'Buddha'
   };
 
   constructor(app) {
     this.app = app;
     this.currentQuote = null;
-    this.dailyCards = new DailyCards(app);
-    this.intervals = [];
+    this.dailyCards   = new DailyCards(app);
+    this.intervals    = [];
     this.cachedElements = {};
     this._activeMembersWidget = null;
 
     this.globals = { QuotesData: () => window.QuotesData };
-    
+
     if (window.app) window.app.dailyCards = this.dailyCards;
 
     this.setupQuestListeners();
     this.startCountdown();
-    
+
     this.boundMethods = {
       refreshQuote:    this.refreshQuote.bind(this),
       switchQuestTab:  this.switchQuestTab.bind(this),
       toggleAllBadges: this.toggleAllBadges.bind(this)
     };
-    
+
     if (window.app?.dashboard) {
       window.app.dashboard.refreshQuote    = this.boundMethods.refreshQuote;
       window.app.dashboard.switchQuestTab  = this.boundMethods.switchQuestTab;
       window.app.dashboard.toggleAllBadges = this.boundMethods.toggleAllBadges;
     }
-    
+
     this.render = this.debounce(this._render.bind(this), CONSTANTS.RENDER_DEBOUNCE_MS);
   }
 
-  /* ---------- Utility Methods ---------- */
+  /* ---------- Utility ---------- */
 
   debounce(func, wait) {
     let timeout;
@@ -113,7 +111,7 @@ export default class DashboardManager {
   }
 
   _flipCard(cardId, newHtml) {
-    const card = document.getElementById(cardId);
+    const card  = document.getElementById(cardId);
     if (!card) return;
     const inner = card.querySelector('.flip-card-inner');
     const back  = card.querySelector('.flip-card-back');
@@ -130,11 +128,11 @@ export default class DashboardManager {
   }
 
   _getNextResetTimes() {
-    const now = new Date();
-    const daily = new Date(now);
+    const now     = new Date();
+    const daily   = new Date(now);
     daily.setDate(daily.getDate() + 1);
     daily.setHours(0, 0, 0, 0);
-    const weekly = new Date(now);
+    const weekly  = new Date(now);
     weekly.setDate(now.getDate() + ((7 - now.getDay()) % 7));
     weekly.setHours(0, 0, 0, 0);
     if (weekly <= now) weekly.setDate(weekly.getDate() + 7);
@@ -158,10 +156,10 @@ export default class DashboardManager {
     return parts.join(' ');
   }
 
-  /* ---------- Countdown & Intervals ---------- */
+  /* ---------- Countdown ---------- */
 
   startCountdown() {
-    this.updateCountdownDisplays(); // immediate paint — no empty flash on first render
+    this.updateCountdownDisplays();
     const interval = setInterval(() => this.updateCountdownDisplays(), CONSTANTS.COUNTDOWN_UPDATE_INTERVAL);
     this.intervals.push(interval);
   }
@@ -174,9 +172,9 @@ export default class DashboardManager {
       const now    = new Date();
       ['daily', 'weekly', 'monthly'].forEach(type => {
         const el = document.getElementById(`countdown-${type}`);
-        if (!el) return; // elements not in DOM yet — skip silently
+        if (!el) return;
         const text = this._formatCountdown(resets[type] - now);
-        if (el.textContent !== text) el.textContent = text; // avoid unnecessary repaints
+        if (el.textContent !== text) el.textContent = text;
       });
     } catch (error) {
       console.error('Error updating countdown:', error);
@@ -187,7 +185,7 @@ export default class DashboardManager {
 
   setupQuestListeners() {
     if (!this.app.gamification) return;
-    
+
     this.app.gamification.on('questCompleted', quest => {
       if (this.app.gamification.state._bulkMode) return;
       this.app.showToast(`Quest Complete: ${quest.name}! +${quest.xpReward} XP`, 'success');
@@ -196,12 +194,12 @@ export default class DashboardManager {
       }
       this.render();
     });
-    
+
     this.app.gamification.on('bulkQuestsComplete', ({ type, done, xp, karma }) => {
       const typeCapitalized = type.charAt(0).toUpperCase() + type.slice(1);
       this.app.showToast(`${typeCapitalized} quests complete! +${xp} XP${karma ? ` +${karma} Karma` : ''}`, 'success');
     });
-    
+
     this.app.gamification.on('questProgress', () => this.render());
 
     this.app.gamification.on('dailyQuestsComplete', () => {
@@ -212,11 +210,11 @@ export default class DashboardManager {
   /* ---------- Quote Card ---------- */
 
   renderQuoteCard() {
-    const QuotesData = this.globals.QuotesData();
-    this.currentQuote = QuotesData 
+    const QuotesData  = this.globals.QuotesData();
+    this.currentQuote = QuotesData
       ? QuotesData.getQuoteOfTheDay()
       : DashboardManager.FALLBACK_QUOTE;
-    
+
     return `
       <div class="neuro-card flip-card" id="dashboard-quote-card">
         <div class="flip-card-inner">
@@ -290,14 +288,14 @@ export default class DashboardManager {
     }
 
     const statItems = [
-      { value: status.karma, label: 'Karma', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="2" y2="9"/><line x1="12" y1="3" x2="22" y2="9"/></svg>' },
-      { value: stats.totalGratitudes || 0, label: 'Gratitudes', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' },
-      { value: status.totalJournalEntries, label: 'Journaling', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' },
-      { value: status.totalHappinessViews, label: 'Boosters', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>' },
-      { value: status.totalTarotSpreads, label: 'Tarot Spreads', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="11" height="14" rx="2"/><path d="M15.5 5.5 18 3l4 4-5.5 5.5"/><path d="m13 13 4.5 4.5"/><path d="m17.5 17.5 1 1"/></svg>' },
-      { value: stats.totalMeditations || 0, label: 'Meditations', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>' },
-      { value: status.totalWellnessRuns, label: 'Wellness Kit', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22c1.25-1.25 2.5-2.5 3.75-3.75"/><path d="M22 2C11 2 2 11 2 22c5.5 0 11-2.5 14.5-6S22 7.5 22 2z"/></svg>' },
-      { value: status.badges.length, label: 'Badges', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>' }
+      { value: status.karma,                  label: 'Karma',        emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="2" y2="9"/><line x1="12" y1="3" x2="22" y2="9"/></svg>' },
+      { value: stats.totalGratitudes || 0,    label: 'Gratitudes',   emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' },
+      { value: status.totalJournalEntries,     label: 'Journaling',   emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' },
+      { value: status.totalHappinessViews,     label: 'Boosters',     emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>' },
+      { value: status.totalTarotSpreads,       label: 'Tarot Spreads',emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="11" height="14" rx="2"/><path d="M15.5 5.5 18 3l4 4-5.5 5.5"/><path d="m13 13 4.5 4.5"/><path d="m17.5 17.5 1 1"/></svg>' },
+      { value: stats.totalMeditations || 0,    label: 'Meditations',  emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>' },
+      { value: status.totalWellnessRuns,       label: 'Wellness Kit', emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22c1.25-1.25 2.5-2.5 3.75-3.75"/><path d="M22 2C11 2 2 11 2 22c5.5 0 11-2.5 14.5-6S22 7.5 22 2z"/></svg>' },
+      { value: status.badges.length,           label: 'Badges',       emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>' }
     ];
 
     const article = levelInfo.title.match(/^[aeiou]/i) ? 'an' : 'a';
@@ -474,7 +472,7 @@ export default class DashboardManager {
     const clickableClass  = (!quest.completed && quest.tab) ? 'dashboard-quest-clickable' : '';
     const hintHtml        = (!quest.completed && quest.tab) ? '<div class="dashboard-quest-hint"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041-1.041 4.35a.5.5 0 0 1-.949.074z"/></svg> Click to start</div>' : '';
     const clickHandler    = (!quest.completed && quest.tab)
-      ? `onclick="window.app.nav.switchTab('${quest.tab}'); window.scrollTo({top:0,behavior:'smooth'});"` 
+      ? `onclick="window.app.nav.switchTab('${quest.tab}'); window.scrollTo({top:0,behavior:'smooth'});"`
       : '';
 
     return `
@@ -518,43 +516,37 @@ export default class DashboardManager {
       const allDefs = this.app.gamification.getBadgeDefinitions();
       const earned  = new Set((status.badges || []).map(b => b.id));
 
-      const isMobile     = window.innerWidth <= UI_CONSTANTS.MOBILE_BREAKPOINT;
-      const previewCount = isMobile ? UI_CONSTANTS.BADGE_PREVIEW_MOBILE : UI_CONSTANTS.BADGE_PREVIEW_DESKTOP;
+      // window.innerWidth is safe — no layout trigger
+      const isMobile      = window.innerWidth <= UI_CONSTANTS.MOBILE_BREAKPOINT;
+      const previewCount  = isMobile ? UI_CONSTANTS.BADGE_PREVIEW_MOBILE : UI_CONSTANTS.BADGE_PREVIEW_DESKTOP;
 
-      const latestEarned      = this.getLatestEarnedBadges(status, allDefs, previewCount);
-      const gameBadges        = this.getGameBadges(allDefs, earned);
+      const latestEarned       = this.getLatestEarnedBadges(status, allDefs, previewCount);
+      const gameBadges         = this.getGameBadges(allDefs, earned);
       const awardedAdminBadges = this.getAwardedAdminBadges(status.badges || [], allDefs);
-      const fullList          = [...gameBadges, ...awardedAdminBadges];
-      const categories        = this.buildBadgeCategories(fullList, awardedAdminBadges);
-      const categoryHtml      = this.renderBadgeCategories(categories);
+      const fullList           = [...gameBadges, ...awardedAdminBadges];
+      const categories         = this.buildBadgeCategories(fullList, awardedAdminBadges);
+      const categoryHtml       = this.renderBadgeCategories(categories);
 
       const previewHtml = latestEarned.length > 0
         ? latestEarned.map(badge => this.renderBadgeCard(badge)).join('')
         : `<p style="text-align:center;color:var(--neuro-text-secondary);padding:1rem;grid-column:1/-1;">Complete quests and activities to earn your first badge!</p>`;
 
-      const mobileCss = `
-        <style>
-          @media (max-width: ${UI_CONSTANTS.MOBILE_BREAKPOINT}px) {
-            .badges-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 0.5rem !important; }
-            .badge-category-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          }
-        </style>`;
+      // ── Responsive badge grid rules moved to main-styles.css ──
 
       return `
         <div class="card dashboard-achievements mb-8">
           <div style="text-align:center;">
             <h3 class="dashboard-achievements-title"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg> Earned Badges</h3>
-            <div class="badges-grid" style="display: grid; grid-template-columns: repeat(auto-fill,minmax(140px,1fr)); gap: 1rem; margin-bottom: 1rem;">
+            <div class="badges-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1rem;margin-bottom:1rem;">
               ${previewHtml}
             </div>
             <button class="btn btn-secondary" id="show-all-btn" onclick="window.app.dashboard.toggleAllBadges()">
               Show All Badges (${fullList.length})
             </button>
-            <div id="all-badges-container" style="display:none; margin-top:1.5rem;">
+            <div id="all-badges-container" style="display:none;margin-top:1.5rem;">
               ${categoryHtml}
             </div>
           </div>
-          ${mobileCss}
         </div>`;
     } catch (error) {
       console.error('Error rendering badges:', error);
@@ -570,9 +562,7 @@ export default class DashboardManager {
 
   processBadge(badge, allDefs) {
     const def = allDefs[badge.id];
-    if (def) {
-      return { ...badge, ...def, earned: true, karma: CONSTANTS.KARMA_BY_RARITY[def.rarity] || 3 };
-    }
+    if (def) return { ...badge, ...def, earned: true, karma: CONSTANTS.KARMA_BY_RARITY[def.rarity] || 3 };
     return this._adminBadgeToRenderable(badge);
   }
 
@@ -611,12 +601,12 @@ export default class DashboardManager {
   }
 
   renderBadgeCategories(categories) {
-    const allDefs = this.app.gamification.getBadgeDefinitions();
-    const status  = this.app.gamification.getStatusSummary();
-    const earned  = new Set(status.badges.map(b => b.id));
-    const gameBadges         = this.getGameBadges(allDefs, earned);
-    const awardedAdminBadges = this.getAwardedAdminBadges(status.badges, allDefs);
-    const fullList           = [...gameBadges, ...awardedAdminBadges];
+    const allDefs        = this.app.gamification.getBadgeDefinitions();
+    const status         = this.app.gamification.getStatusSummary();
+    const earned         = new Set(status.badges.map(b => b.id));
+    const gameBadges     = this.getGameBadges(allDefs, earned);
+    const adminBadges    = this.getAwardedAdminBadges(status.badges, allDefs);
+    const fullList       = [...gameBadges, ...adminBadges];
 
     return Object.entries(categories).map(([categoryName, badgeIds]) => {
       const categoryBadges = badgeIds.map(id => fullList.find(b => b.id === id)).filter(Boolean);
@@ -624,7 +614,7 @@ export default class DashboardManager {
       return `
         <div class="badge-category">
           <h4 class="badge-category-title">${categoryName}</h4>
-          <div class="badge-category-grid" style="display: grid; grid-template-columns: repeat(${CONSTANTS.BADGE_GRID_COLUMNS}, 1fr); gap: 1rem;">
+          <div class="badge-category-grid" style="display:grid;grid-template-columns:repeat(${CONSTANTS.BADGE_GRID_COLUMNS},1fr);gap:1rem;">
             ${categoryBadges.map(badge => this.renderBadgeCard(badge)).join('')}
           </div>
         </div>`;
@@ -634,7 +624,9 @@ export default class DashboardManager {
   renderBadgeCard(badge) {
     const cardClass = badge.earned ? '' : 'badge-locked';
     const gradient  = CONSTANTS.RARITY_GRADIENTS[badge.rarity] || CONSTANTS.RARITY_GRADIENTS.common;
-    const icon      = badge.earned ? badge.icon : '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+    const icon      = badge.earned
+      ? badge.icon
+      : '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
     return `
       <div class="dashboard-badge-card ${cardClass}" style="background:${gradient};">
         <div class="badge-icon">${icon}</div>
@@ -651,7 +643,7 @@ export default class DashboardManager {
     const container = document.getElementById('all-badges-container');
     const btn       = document.getElementById('show-all-btn');
     if (!container || !btn) return;
-    const isOpen = container.style.display !== 'none';
+    const isOpen         = container.style.display !== 'none';
     container.style.display = isOpen ? 'none' : 'block';
     const allDefs        = this.app.gamification.getBadgeDefinitions();
     const status         = this.app.gamification.getStatusSummary();
@@ -667,7 +659,7 @@ export default class DashboardManager {
     if (!dashboard) return;
 
     try {
-      const status = this.app.gamification 
+      const status = this.app.gamification
         ? this.app.gamification.getStatusSummary()
         : {
             quests: { daily: [], weekly: [], monthly: [] },
@@ -703,9 +695,8 @@ export default class DashboardManager {
         </div>`;
 
       this.animateProgressBars();
-      this.updateCountdownDisplays(); // paint countdowns immediately after DOM is ready
+      this.updateCountdownDisplays();
 
-      // ── ActiveMembersWidget — statically imported from src/Core ──
       const dashEl = document.getElementById('dashboardActiveMembersContainer');
       if (dashEl) {
         if (this._activeMembersWidget) {
@@ -718,36 +709,43 @@ export default class DashboardManager {
       }
 
       this._renderSanctuarySection();
-      
+
     } catch (error) {
       console.error('Error rendering dashboard:', error);
       dashboard.innerHTML = `
-        <div class="card" style="padding: 2rem; text-align: center;">
-          <h2 style="color: var(--neuro-accent);"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Error Loading Dashboard</h2>
+        <div class="card" style="padding:2rem;text-align:center;">
+          <h2 style="color:var(--neuro-accent);"><svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Error Loading Dashboard</h2>
           <p>Please refresh the page or contact support if the issue persists.</p>
         </div>`;
     }
   }
 
+  /**
+   * Animate progress bars.
+   * Batched: all data-attribute reads happen first, then all style writes —
+   * no interleaved read/write that would force per-element reflow.
+   */
   animateProgressBars() {
     requestAnimationFrame(() => {
-      document.querySelectorAll('.dashboard-progress-width, .dashboard-quest-fill').forEach(el => {
-        const width = el.dataset.width;
-        if (width) el.style.width = width + '%';
-      });
+      const els = document.querySelectorAll('.dashboard-progress-width, .dashboard-quest-fill');
+      // ── Phase 1: read all values (no layout query) ──
+      const updates = [];
+      els.forEach(el => { if (el.dataset.width) updates.push({ el, width: el.dataset.width }); });
+      // ── Phase 2: write all widths in one pass ──
+      updates.forEach(({ el, width }) => { el.style.width = width + '%'; });
     });
   }
 
-  /* ---------- Sanctuary / Community Hub Invite ---------- */
+  /* ---------- Sanctuary ---------- */
 
   _renderSanctuarySection() {
     const container = document.getElementById('sanctuaryContainer');
     if (!container) return;
 
     const features = [
-      { emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>', title: '8 Practice & Study Rooms', desc: 'Join live rooms with other practitioners', target: 'roomsGrid' },
-      { emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>', title: 'Chat & Connect', desc: 'Talk, study and share with the community', target: 'communityReflectionsContainer' },
-      { emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>', title: 'Lunar Cycle Room', desc: 'Practice in rhythm with the moon', target: 'celestialLunarSection' },
+      { emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>', title: '8 Practice & Study Rooms',  desc: 'Join live rooms with other practitioners',  target: 'roomsGrid'                       },
+      { emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',    title: 'Chat & Connect',             desc: 'Talk, study and share with the community', target: 'communityReflectionsContainer'    },
+      { emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',                    title: 'Lunar Cycle Room',           desc: 'Practice in rhythm with the moon',         target: 'celestialLunarSection'           },
       { emoji: '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>', title: 'Solar Cycle Room', desc: 'Align your practice with the sun', target: 'celestialSolarSection' },
     ];
 
