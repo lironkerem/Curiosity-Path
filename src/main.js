@@ -1,12 +1,15 @@
-// ─── Styles ───────────────────────────────────────────────────────────────────
+// ─── Critical Styles (always needed) ─────────────────────────────────────────
 import './styles/main-styles.css';
-import './styles/mobile-styles.css';
 import './styles/user-tab-styles.css';
-import './styles/community-hub.css';
+
+// ─── FIX: Mobile styles only on mobile, desktop skips parsing them ────────────
+if (window.innerWidth <= 767) {
+  import('./styles/mobile-styles.css');
+}
 
 // ─── Core shared modules ──────────────────────────────────────────────────────
-import './Core/member-profile-modal.js'; // sets window.MemberProfileModal
-import './Core/active-members.js';       // sets window.ActiveMembers shim
+import './Core/member-profile-modal.js';
+import './Core/active-members.js';
 
 // ─── Skin / Matrix ───────────────────────────────────────────────────────────
 import './styles/Skins/MatrixRain.js';
@@ -22,25 +25,20 @@ import './Core/CTA.js';
 import './Core/DB.js';
 import './Core/avatar-icons.js';
 
-// ─── Features needed before first paint ──────────────────────────────────────
+// ─── Dashboard features (needed before first paint) ───────────────────────────
 import './Features/DailyCards.js';
 import './Features/WellnessKit.js';
 
-// ─── Deferred — not in Features.js registry ──────────────────────────────────
-const lazyFeatures = () => import('./Features/TarotVisionAI.js');
-
-// ─── Mini-Apps (deferred) ─────────────────────────────────────────────────────
-const lazyMiniApps = () => Promise.all([
-  import('./Mini-Apps/FlipTheScript/index.js'),
-  import('./Mini-Apps/ShadowAlchemyLab/shadowalchemy.js'),
-]);
-
-// ─── Community Hub (on-demand — heaviest chunk) ───────────────────────────────
+// ─── Community Hub (on-demand — heaviest chunk + CSS) ────────────────────────
 let communityHubLoaded = false;
 window.lazyLoadCommunityHub = async function () {
   if (communityHubLoaded) return;
   communityHubLoaded = true;
-  await import('./Mini-Apps/CommunityHub/CommunityHubEngine.js');
+  // FIX: Load community CSS only when Community Hub is first opened
+  await Promise.all([
+    import('./styles/community-hub.css'),
+    import('./Mini-Apps/CommunityHub/CommunityHubEngine.js')
+  ]);
 };
 
 // ─── Service Worker ───────────────────────────────────────────────────────────
@@ -79,11 +77,17 @@ async function init() {
 
     window.app.init();
 
-    // Load non-critical features after app is interactive
+    // FIX: Defer non-critical features until after LCP
+    const afterLCP = () => {
+      import('./Features/TarotVisionAI.js');
+      import('./Mini-Apps/FlipTheScript/index.js');
+      import('./Mini-Apps/ShadowAlchemyLab/shadowalchemy.js');
+    };
+
     if (typeof requestIdleCallback === 'function') {
-      requestIdleCallback(() => { lazyFeatures(); lazyMiniApps(); }, { timeout: 3000 });
+      requestIdleCallback(afterLCP, { timeout: 3000 });
     } else {
-      setTimeout(() => { lazyFeatures(); lazyMiniApps(); }, 1500);
+      setTimeout(afterLCP, 1500);
     }
 
   } catch (e) {

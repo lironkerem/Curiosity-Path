@@ -658,15 +658,23 @@ export default class NavigationManager {
       <!-- CENTERED HEADER -->
       <div class="app-header">
         <picture>
-          <source media="(max-width: 768px)" srcset="/Tabs/Header-mobile.webp" type="image/webp">
-          <source srcset="/Tabs/Header-desktop.webp" type="image/webp">
+          <source
+            media="(max-width: 768px)"
+            srcset="/Tabs/Header-mobile.webp"
+            type="image/webp"
+            width="640" height="167">
+          <source
+            srcset="/Tabs/Header-desktop.webp"
+            type="image/webp"
+            width="1200" height="314">
           <img class="header-image"
                src="/Tabs/Header-desktop.webp"
                alt="Aanandoham Header"
-               width="1920" height="500"
+               width="1200" height="314"
                loading="eager"
                fetchpriority="high"
-               decoding="async">
+               decoding="async"
+               sizes="(max-width: 768px) 100vw, 1200px">
         </picture>
       </div>
 

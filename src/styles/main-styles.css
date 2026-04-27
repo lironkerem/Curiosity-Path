@@ -438,19 +438,9 @@ body > * { position: relative; z-index: 1; }
   50% { opacity: .8; transform: scale(1.05); }
 }
 
-@keyframes leafShimmer {
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
-}
-
 @keyframes naturalSheen {
   0% { transform: translateX(-100%) skewX(-15deg); }
   100% { transform: translateX(200%) skewX(-15deg); }
-}
-
-@keyframes earthGlow {
-  0%, 100% { box-shadow: var(--shadow-raised-lg), var(--shadow-glow); }
-  50% { box-shadow: var(--shadow-raised-lg), var(--shadow-intense); }
 }
 
 /* ===== SCROLLBAR (earth tinted) ===== */
@@ -524,12 +514,10 @@ body > * { position: relative; z-index: 1; }
   );
   background-size: 200% 200%;
   box-shadow: var(--shadow-raised-lg), var(--shadow-intense), inset 0 2px 0 rgba(139,195,74,.4);
-  animation: earthGlow 6s ease-in-out infinite;
   border: 1px solid rgba(107,155,55,.5);
   color: #fff;
   contain: layout style paint;
   overflow: hidden;
-  will-change: box-shadow;
 }
 
 .app-header .header-image {
@@ -564,9 +552,7 @@ body > * { position: relative; z-index: 1; }
   );
   background-size: 200% 200%;
   box-shadow: var(--shadow-raised-lg), var(--shadow-intense), inset 0 2px 0 rgba(139,195,74,.4);
-  animation: earthGlow 6s ease-in-out infinite;
   border: 1px solid rgba(107,155,55,.5);
-  will-change: box-shadow;
 }
 
 .main-header.project-curiosity h1,
@@ -740,9 +726,7 @@ button:disabled {
     var(--neuro-forest-dark) 100%
   );
   background-size: 200% 200%;
-  animation: earthGlow 6s ease-in-out infinite;
   color: #fff;
-  will-change: box-shadow;
 }
 
 .community-link-card h3 {
@@ -1071,8 +1055,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   color: #fff;
   border-color: rgba(107,155,55,.6);
   box-shadow: var(--shadow-inset), 0 0 15px rgba(107,155,55,.4);
-  animation: leafShimmer 3s linear infinite;
-  will-change: box-shadow;
 }
 
 .desktop-nav { display: block; }
@@ -2666,10 +2648,8 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
     var(--neuro-forest-dark) 100%
   );
   background-size: 200% 200%;
-  animation: earthGlow 6s ease-in-out infinite;
   border: 1px solid rgba(107,155,55,.5);
   box-shadow: var(--shadow-raised-lg), var(--shadow-intense), inset 0 2px 0 rgba(139,195,74,.4);
-  will-change: box-shadow;
 }
 
 .dashboard-community-sanctuary .dashboard-wellness-title,
@@ -2888,7 +2868,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   );
   background-size: 200% 200%;
   box-shadow: var(--shadow-raised-lg), var(--shadow-intense), inset 0 2px 0 rgba(139,195,74,.4);
-  animation: earthGlow 6s ease-in-out infinite;
   border: 1px solid rgba(107,155,55,.5);
   border-radius: var(--radius-lg) !important;
   cursor: pointer;
@@ -2897,7 +2876,6 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
   font-size: 1rem;
   transition: all var(--transition-normal);
   margin-bottom: 0;
-  will-change: box-shadow;
 }
 
 .lux-toggle:hover { box-shadow: var(--shadow-raised-hover); }
@@ -3155,10 +3133,8 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 #flip-script-tab .voice-input-btn:hover { transform: scale(1.1); }
 
 #flip-script-tab .voice-input-btn.listening {
-  animation: pulse 1.5s ease-in-out infinite;
   background: linear-gradient(135deg, var(--neuro-error), #b85a4a);
   box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), 6px 6px 12px var(--neuro-shadow-dark), -6px -6px 12px var(--neuro-shadow-light);
-  will-change: box-shadow;
 }
 
 @keyframes pulse {
@@ -4749,13 +4725,97 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 .mobile-tab[aria-expanded="true"] {
   background: var(--neuro-surface);
 }
-/* =========================================================
-   END OF MAIN STYLES
-   ========================================================= */
+
 /* Lucide icon sizing */
 .lucide-icon {
   width: 32px;
   height: 32px;
   display: inline-block;
   vertical-align: middle;
+}
+
+/* =========================================================
+   COMPOSITED ANIMATIONS PATCH
+   Paste this block at the END of main-styles.css
+   ========================================================= */
+
+/* ── 1. Remove earthGlow animation from all users ── */
+.app-header,
+.main-header.project-curiosity,
+.community-link-card,
+.dashboard-community-sanctuary,
+.lux-toggle {
+  animation: none !important;
+  box-shadow: var(--shadow-raised-lg), var(--shadow-intense), inset 0 2px 0 rgba(139,195,74,.4);
+}
+
+/* ── Glow pulse via composited opacity-only pseudo layer ── */
+.app-header::after,
+.main-header.project-curiosity::after,
+.community-link-card::after,
+.lux-toggle::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(107,155,55,.35) 0%, transparent 70%);
+  animation: earthGlowOpacity 6s ease-in-out infinite;
+  will-change: opacity;
+}
+
+.app-header > *,
+.main-header.project-curiosity > *,
+.community-link-card > *,
+.lux-toggle > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes earthGlowOpacity {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1; }
+}
+
+/* ── 2. leafShimmer: replace background-position with transform ── */
+.nav-item.active {
+  animation: none !important;
+  background-size: 100% 100% !important;
+}
+
+.nav-item.active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+  transform: translateX(-100%);
+  animation: shimmerSlide 3s linear infinite;
+  will-change: transform;
+}
+
+@keyframes shimmerSlide {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+/* ── 3. voice-input-btn pulse: box-shadow → opacity ── */
+#flip-script-tab .voice-input-btn.listening {
+  animation: none !important;
+  will-change: opacity;
+}
+#flip-script-tab .voice-input-btn.listening::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(239,68,68,.4);
+  animation: pulseOpacity 1.5s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+@keyframes pulseOpacity {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(1.15); }
 }

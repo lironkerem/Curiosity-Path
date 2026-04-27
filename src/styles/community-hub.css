@@ -243,12 +243,6 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     padding: 0 24px;
 }
 
-@keyframes pulse-ring {
-    0%, 100% { box-shadow: 0 0 0 4px var(--neuro-accent-a20); }
-    50% { box-shadow: 0 0 0 8px rgba(107, 155, 55, 0); }
-}
-
-
 .profile-info { flex: 1; }
 
 .profile-name-row {
@@ -965,7 +959,6 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
     flex-shrink: 0; margin-left: -6px; overflow: hidden;
     box-shadow: var(--shadow-raised);
     animation: breathe-dot 3s ease-in-out infinite;
-  will-change: box-shadow;
 }
 .p-avatar:first-child { margin-left: 0; }
 
@@ -973,17 +966,6 @@ body.ritual-active #app-container > *:not(#openingOverlay) {
 .p-avatar:nth-child(2) { animation-delay: 0.5s; }
 .p-avatar:nth-child(3) { animation-delay: 1s; }
 .p-avatar:nth-child(4) { animation-delay: 1.5s; }
-
-@keyframes breathe-dot {
-    0%, 100% { 
-        transform: scale(1);
-        opacity: 0.9;
-    }
-    50% { 
-        transform: scale(1.05);
-        opacity: 1;
-    }
-}
 
 /* Sound settings panel */
 .sound-settings {
@@ -2342,41 +2324,20 @@ button.ref-action.appreciated span:first-child { transform: scale(1.2); display:
 .member-mini-status.online  {
     background: var(--ring-available, #6b9b37);
     animation: pulse-status-online 2s infinite;
-  will-change: transform;
 }
 .member-mini-status.away    {
     background: var(--ring-guiding,   #e53e3e);
     animation: pulse-status-away 2s infinite;
-  will-change: transform;
 }
 .member-mini-status.silent  {
     background: var(--ring-silent,    #7c3aed);
     animation: pulse-status-silent 2s infinite;
-  will-change: transform;
 }
 .member-mini-status.deep    {
     background: var(--ring-deep,      #1e40af);
     animation: pulse-status-deep 2s infinite;
-  will-change: transform;
 }
 .member-mini-status.offline { background: var(--ring-offline,   #9ca3af); }
-
-@keyframes pulse-status-online {
-    0%, 100% { box-shadow: 0 0 0 2px rgba(107,155,55,0.3); }
-    50%       { box-shadow: 0 0 0 4px rgba(107,155,55,0.1); }
-}
-@keyframes pulse-status-away {
-    0%, 100% { box-shadow: 0 0 0 2px rgba(229,62,62,0.3); }
-    50%       { box-shadow: 0 0 0 4px rgba(229,62,62,0.1); }
-}
-@keyframes pulse-status-silent {
-    0%, 100% { box-shadow: 0 0 0 2px rgba(124,58,237,0.3); }
-    50%       { box-shadow: 0 0 0 4px rgba(124,58,237,0.1); }
-}
-@keyframes pulse-status-deep {
-    0%, 100% { box-shadow: 0 0 0 2px rgba(30,64,175,0.3); }
-    50%       { box-shadow: 0 0 0 4px rgba(30,64,175,0.1); }
-}
 
 .member-mini-name {
     font-size: 13px;
@@ -2451,7 +2412,6 @@ button.ref-action.appreciated span:first-child { transform: scale(1.2); display:
     box-shadow: 0 0 0 5px var(--neuro-accent-a20);
     animation: pulse-ring 3s infinite;
     pointer-events: none;
-  will-change: box-shadow;
 }
 
 .edit-avatar {
@@ -5153,4 +5113,65 @@ button.view-schedule:hover {
 .member-avatar-icon .lucide-avatar-icon {
   width: 24px;
   height: 24px;
+}
+
+/* =========================================================
+   Add this block at the END of community-hub.css
+   ========================================================= */
+
+/* ── 4. pulse-status-* animations: box-shadow → opacity ── */
+/* Override the existing @keyframes with opacity-only versions */
+
+@keyframes pulse-status-online {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+@keyframes pulse-status-away {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+@keyframes pulse-status-silent {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+@keyframes pulse-status-deep {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+/* Remove will-change: box-shadow — replace with opacity for status elements */
+.member-mini-status.online,
+.member-mini-status.away,
+.member-mini-status.silent,
+.member-mini-status.deep {
+  will-change: opacity;
+  box-shadow: none;
+}
+
+/* ── 5. pulse-ring: box-shadow → transform + opacity ── */
+@keyframes pulse-ring {
+  0%        { transform: scale(1);    opacity: 0.8; }
+  50%        { transform: scale(1.08); opacity: 0.3; }
+  100%       { transform: scale(1);    opacity: 0.8; }
+}
+
+.profile-status-ring {
+  will-change: transform, opacity;
+  box-shadow: none; /* static ring color via border only */
+  border: 5px solid var(--ring-available);
+}
+
+/* ── 6. breathe-dot: remove box-shadow, keep transform ── */
+.p-avatar {
+  will-change: transform, opacity;
+}
+@keyframes breathe-dot {
+  0%, 100% { transform: scale(1);    opacity: 0.9; }
+  50%       { transform: scale(1.05); opacity: 1;   }
+}
+
+/* ── 7. shimmer on prog-fill: already uses transform, add will-change ── */
+.prog-fill::after,
+.progress-fill::after {
+  will-change: transform;
 }
