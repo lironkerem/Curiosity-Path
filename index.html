@@ -131,6 +131,12 @@
       opacity: 1 !important;
     }
 
+    /* ── Footer CLS fix — reserve space before JS renders content ── */
+    #cta-footer {
+      min-height: 72px;
+      contain: layout;
+    }
+
     /* ── PWA Install Toast — entire toast is the install button ── */
     #pwa-install-toast {
       position: fixed;
@@ -261,6 +267,9 @@
   <link rel="preload" href="/Tabs/Header-desktop.webp" as="image" type="image/webp" fetchpriority="high" media="(min-width: 769px)">
   <link rel="preload" href="/Tabs/Header-mobile.webp" as="image" type="image/webp" fetchpriority="high" media="(max-width: 768px)">
 
+  <!-- ===== JS entry preload ===== -->
+  <link rel="modulepreload" href="/src/main.js">
+
   <!-- ===== CDN Preconnect (crossorigin required on both) ===== -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -273,15 +282,8 @@
         onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&display=swap"></noscript>
 
-  <!-- ===== Skin stylesheets (toggled via JS) ===== -->
-  <link rel="preload" href="/src/styles/dark-mode.css" as="style">
-  <link rel="stylesheet" href="/src/styles/dark-mode.css" id="dark-mode-css" media="not all">
-
-  <link rel="preload" href="/src/styles/Skins/champagne-gold.css" as="style">
-  <link rel="preload" href="/src/styles/Skins/royal-indigo.css"   as="style">
-  <link rel="preload" href="/src/styles/Skins/earth-luxury.css"   as="style">
-  <link rel="preload" href="/src/styles/Skins/matrix-code.css"    as="style">
-
+  <!-- ===== Skin stylesheets (toggled via JS — NOT preloaded to save bandwidth) ===== -->
+  <link rel="stylesheet" href="/src/styles/dark-mode.css"            id="dark-mode-css"      media="not all">
   <link rel="stylesheet" href="/src/styles/Skins/champagne-gold.css" id="skin_champagne-gold" media="not all">
   <link rel="stylesheet" href="/src/styles/Skins/royal-indigo.css"   id="skin_royal-indigo"   media="not all">
   <link rel="stylesheet" href="/src/styles/Skins/earth-luxury.css"   id="skin_earth-luxury"   media="not all">

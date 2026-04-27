@@ -131,6 +131,12 @@
       opacity: 1 !important;
     }
 
+    /* ── Footer CLS fix — reserve space before JS renders content ── */
+    #cta-footer {
+      min-height: 72px;
+      contain: layout;
+    }
+
     /* ── PWA Install Toast — entire toast is the install button ── */
     #pwa-install-toast {
       position: fixed;
@@ -261,6 +267,9 @@
   <link rel="preload" href="/Tabs/Header-desktop.webp" as="image" type="image/webp" fetchpriority="high" media="(min-width: 769px)">
   <link rel="preload" href="/Tabs/Header-mobile.webp" as="image" type="image/webp" fetchpriority="high" media="(max-width: 768px)">
 
+  <!-- ===== JS entry preload ===== -->
+  <link rel="modulepreload" href="/assets/main-DQ47PjxY.js">
+
   <!-- ===== CDN Preconnect (crossorigin required on both) ===== -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -273,10 +282,8 @@
         onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&display=swap"></noscript>
 
-  <!-- ===== Skin stylesheets (toggled via JS) ===== -->
-  <link rel="stylesheet" href="/assets/dark-mode-DGgX0I8s.css" id="dark-mode-css" media="not all">
-
-
+  <!-- ===== Skin stylesheets (toggled via JS — NOT preloaded to save bandwidth) ===== -->
+  <link rel="stylesheet" href="/assets/dark-mode-DGgX0I8s.css"            id="dark-mode-css"      media="not all">
   <link rel="stylesheet" href="/assets/champagne-gold-DooZeu-f.css" id="skin_champagne-gold" media="not all">
   <link rel="stylesheet" href="/assets/royal-indigo-BsVQRXRs.css"   id="skin_royal-indigo"   media="not all">
   <link rel="stylesheet" href="/assets/earth-luxury-0zMPIr4-.css"   id="skin_earth-luxury"   media="not all">
@@ -294,11 +301,11 @@
   <link rel="apple-touch-icon" href="/Icons/apple-touch-icon.png">
   <link rel="icon" href="/Icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/Icons/favicon.ico">
-  <script type="module" crossorigin src="/assets/main-C8GN7e4F.js"></script>
+  <script type="module" crossorigin src="/assets/main-C4hh9ja4.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/features-lazy-bN0WDG2L.js">
   <link rel="modulepreload" crossorigin href="/assets/community-hub-Bv-lWZW8.js">
   <link rel="modulepreload" crossorigin href="/assets/supabase-k82gbVKr.js">
-  <link rel="stylesheet" crossorigin href="/assets/main-8OP2JQHX.css">
+  <link rel="stylesheet" crossorigin href="/assets/main-CeEPzpTz.css">
 </head>
 
 <body>
