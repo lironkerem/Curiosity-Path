@@ -513,7 +513,7 @@ export default class NavigationManager {
             media="(max-width: 768px)"
             srcset="/Tabs/Header-mobile.webp"
             type="image/webp"
-            width="640" height="167">
+            width="512" height="134">
           <source
             srcset="/Tabs/Header-desktop.webp"
             type="image/webp"

@@ -270,7 +270,8 @@
   <!-- ===== JS entry preload ===== -->
   <link rel="modulepreload" href="/src/main.js">
 
-  <!-- ===== CDN Preconnect (crossorigin required on both) ===== -->
+  <!-- ===== CDN Preconnect ===== -->
+  <!-- PATCHED: both must have crossorigin (no value = anonymous, required for font fetches) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 

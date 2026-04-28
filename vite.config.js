@@ -42,6 +42,7 @@ export default defineConfig({
     sourcemap: 'hidden',
     manifest: false,
     cssCodeSplit: true,
+    target: 'es2020', // enables better tree-shaking and modern output
 
     // Raise warning threshold — our chunks are intentionally split
     chunkSizeWarningLimit: 600,
@@ -51,7 +52,6 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
       },
       output: {
-        // Deterministic file names — improves CDN/browser caching
         entryFileNames:  'assets/[name]-[hash].js',
         chunkFileNames:  'assets/[name]-[hash].js',
         assetFileNames:  'assets/[name]-[hash][extname]',
@@ -60,8 +60,17 @@ export default defineConfig({
           // ── Vendor: Supabase ────────────────────────────────────────────────
           if (id.includes('node_modules/@supabase')) return 'supabase';
 
-          // ── Core shared files — let Rollup decide (no forced chunk) ─────────
-          if (id.includes('src/Core/')) return undefined;
+          // ── Vendor: Groq SDK (heavy — isolate from main) ────────────────────
+          if (id.includes('node_modules/groq-sdk')) return 'vendor-groq';
+
+          // ── Vendor: suncalc ─────────────────────────────────────────────────
+          if (id.includes('node_modules/suncalc')) return 'vendor-suncalc';
+
+          // ── Vendor: web-push (server-side only, shouldn't be bundled) ───────
+          if (id.includes('node_modules/web-push')) return 'vendor-webpush';
+
+          // ── Gamification — large, only needed post-auth ──────────────────────
+          if (id.includes('src/Core/GamificationEngine')) return 'gamification';
 
           // ── CommunityHub sub-chunks (must precede catch-all) ────────────────
           if (id.includes('CommunityHub/js/Solar')) return 'community-solar';
@@ -81,7 +90,10 @@ export default defineConfig({
 
           if (id.includes('SelfAnalysisPro')) return 'self-analysis';
 
-          // ── CSS chunks: split user-tab and community from main ───────────────
+          // ── Core shared files — let Rollup decide ────────────────────────────
+          if (id.includes('src/Core/')) return undefined;
+
+          // ── CSS chunks ───────────────────────────────────────────────────────
           if (id.includes('user-tab-styles')) return 'css-user-tab';
           if (id.includes('community-hub.css')) return 'css-community';
         },
