@@ -1,11 +1,5 @@
-// ─── Critical Styles (blocking — above the fold) ─────────────────────────────
+// ─── Critical Styles (blocking — above the fold only) ────────────────────────
 import './styles/main-styles.css';
-
-// ─── Deferred Styles (non-critical — injected after first paint) ──────────────
-window.addEventListener('load', () => {
-  import('./styles/user-tab-styles.css');
-  import('./styles/community-hub.css');
-});
 
 // ─── Mobile styles only on mobile ────────────────────────────────────────────
 if (window.innerWidth <= 767) {
@@ -31,7 +25,7 @@ if ('serviceWorker' in navigator) {
 // ─── Bootstrap ────────────────────────────────────────────────────────────────
 async function init() {
   try {
-    // ── Load only what's needed to boot ──────────────────────────────────────
+    // ── Phase 1: Minimal boot — only what's needed to render auth screen ──────
     const [
       aff,
       { QUOTES, getRandomQuote, getQuoteOfTheDay },
@@ -47,25 +41,7 @@ async function init() {
     window.affirmations = aff.default;
     window.QuotesData   = { QUOTES, getRandomQuote, getQuoteOfTheDay };
 
-    // ── Defer non-critical core modules until after first paint ───────────────
-    // These were previously top-level imports, blocking the main thread.
-    // They are only needed after auth resolves, so load them in parallel here.
-    const coreDeferred = Promise.all([
-      import('./Core/member-profile-modal.js'),
-      import('./Core/active-members.js'),
-      import('./Core/Utils.js'),
-      import('./Core/Features.js'),
-      import('./Core/Modal.js'),
-      import('./Core/Modal-Compat.js'),
-      import('./Core/Toast.js'),
-      import('./Core/CTA.js'),
-      import('./Core/DB.js'),
-      import('./Core/avatar-icons.js'),
-      import('./styles/Skins/MatrixRain.js'),
-      import('./Features/DailyCards.js'),
-      import('./Features/WellnessKit.js'),
-    ]);
-
+    // ── Phase 2: Boot app (auth check happens here) ───────────────────────────
     window.app = new Core.ProjectCuriosityApp({
       AppState:          Core.AppState,
       AuthManager:       Core.AuthManager,
@@ -74,22 +50,45 @@ async function init() {
       UserTab
     });
 
-    // Wait for deferred core modules before booting app
-    await coreDeferred;
-
-    window.app.init();
-
-    // ── Load non-critical features after app is interactive ───────────────────
-    const lazyFeatures  = () => import('./Features/TarotVisionAI.js');
-    const lazyMiniApps  = () => Promise.all([
-      import('./Mini-Apps/FlipTheScript/index.js'),
-      import('./Mini-Apps/ShadowAlchemyLab/shadowalchemy.js'),
+    // ── Phase 3: Load supporting core modules (sequenced, not parallel burst) ──
+    // Split into two groups so the JS engine doesn't spike all at once.
+    // Group A — modal/toast/UI utilities needed right after auth resolves
+    await Promise.all([
+      import('./Core/Toast.js'),
+      import('./Core/Modal.js'),
+      import('./Core/Modal-Compat.js'),
+      import('./Core/Utils.js'),
+      import('./Core/CTA.js'),
     ]);
 
+    // Group B — data/feature support, slightly less urgent
+    await Promise.all([
+      import('./Core/DB.js'),
+      import('./Core/avatar-icons.js'),
+      import('./Core/Features.js'),
+      import('./Core/member-profile-modal.js'),
+      import('./Core/active-members.js'),
+      import('./Features/DailyCards.js'),
+      import('./Features/WellnessKit.js'),
+    ]);
+
+    // ── Phase 4: Start the app (auth + data load) ─────────────────────────────
+    await window.app.init();
+
+    // ── Phase 5: Non-critical skin + lazy features after app is interactive ───
+    const loadIdle = () => {
+      import('./styles/Skins/MatrixRain.js');
+      import('./styles/user-tab-styles.css');
+      import('./styles/community-hub.css');
+      import('./Features/TarotVisionAI.js');
+      import('./Mini-Apps/FlipTheScript/index.js');
+      import('./Mini-Apps/ShadowAlchemyLab/shadowalchemy.js');
+    };
+
     if (typeof requestIdleCallback === 'function') {
-      requestIdleCallback(() => { lazyFeatures(); lazyMiniApps(); }, { timeout: 3000 });
+      requestIdleCallback(loadIdle, { timeout: 4000 });
     } else {
-      setTimeout(() => { lazyFeatures(); lazyMiniApps(); }, 1500);
+      setTimeout(loadIdle, 2000);
     }
 
   } catch (e) {
