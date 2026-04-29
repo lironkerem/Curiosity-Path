@@ -117,4 +117,4 @@ var k=Object.defineProperty;var _=(c,e,t)=>e in c?k(c,e,{enumerable:!0,configura
       box-shadow: 0 0 6px hsl(${p}, 100%, 70%);
       transform: translate(-50%, -50%);
       animation: particle ${1.2+Math.random()*.8}s ${Math.random()*.3}s ease-out forwards;
-    `;const g=Math.random()*Math.PI*2,u=30+Math.random()*50;h.style.setProperty("--dx",`${Math.cos(g)*u}vmin`),h.style.setProperty("--dy",`${Math.sin(g)*u}vmin`),l.appendChild(h)}setTimeout(()=>{r.remove(),i.remove()},s)}export{S as G};
+    `;const g=Math.random()*Math.PI*2,u=30+Math.random()*50;h.style.setProperty("--dx",`${Math.cos(g)*u}vmin`),h.style.setProperty("--dy",`${Math.sin(g)*u}vmin`),l.appendChild(h)}setTimeout(()=>{r.remove(),i.remove()},s)}export{S as GamificationEngine,S as default,w as showLevelUpSpectacle};
