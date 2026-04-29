@@ -14,152 +14,10 @@
 
   <title>The Curiosity Path - by Aanandoham</title>
 
-  <!-- ===== PWA Install Prompt ===== -->
-  <script>
-    window._pwaInstallPrompt = null;
-    window.addEventListener('beforeinstallprompt', function(e) {
-      e.preventDefault();
-      window._pwaInstallPrompt = e;
-    });
-  </script>
+  <!-- PWA manifest (inline to bypass Vite HTML transform) -->
+  <script>!function(){var l=document.createElement('link');l.rel='manifest';l.href='/manifest.json';document.head.appendChild(l)}()</script>
 
-  <!-- ===== Critical Styles ===== -->
-  <style>
-    .hidden { display: none !important; }
-
-    .lucide-icon {
-      width: 32px; height: 32px;
-      display: inline-block; vertical-align: middle;
-    }
-    @media (max-width: 768px) { .lucide-icon { width: 24px; height: 24px; } }
-    @media (max-width: 480px) { .lucide-icon { width: 20px; height: 20px; } }
-
-    #auth-screen {
-      display: flex; align-items: center; justify-content: center;
-      height: 100vh; background: #c4ad91;
-    }
-    #auth-screen-inner {
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 1.5rem; text-align: center;
-      font-family: 'Cinzel', 'Georgia', serif; padding: 2rem;
-    }
-    #auth-screen-logo {
-      width: 160px; height: 160px; border-radius: 36px;
-      box-shadow: 18px 18px 36px #a08968, -12px -12px 24px #e0d4bf,
-                  inset 2px 2px 4px #ebe2d4, 0 8px 32px rgba(107,155,55,.2);
-    }
-    #auth-screen-label {
-      color: #3d2f1f; font-size: 1rem; margin: 0;
-      letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.75;
-    }
-    #auth-spinner {
-      width: 40px; height: 40px; border-radius: 50%;
-      border: 3px solid #a08968; border-top-color: #6b9b37;
-      animation: auth-spin 0.9s linear infinite;
-    }
-    @keyframes auth-spin { to { transform: rotate(360deg); } }
-
-    .tab-dot {
-      display: inline-flex !important; align-items: center; justify-content: center;
-      width: 24px; height: 24px; min-width: 24px; min-height: 24px;
-      border-radius: 50%; background: var(--neuro-shadow-dark, #ccc);
-      box-shadow: inset 2px 2px 4px var(--neuro-shadow-dark, #bbb),
-                  inset -2px -2px 4px var(--neuro-shadow-light, #fff);
-      opacity: 0.6; flex-shrink: 0; transition: all 300ms ease-in-out;
-      cursor: pointer; overflow: hidden; padding: 3px;
-    }
-    .tab-dot img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-    .tab-dot.active {
-      width: 28px !important; height: 28px !important;
-      min-width: 28px !important; min-height: 28px !important;
-      background: linear-gradient(135deg, var(--neuro-accent, #667eea), var(--neuro-accent-light, #764ba2)) !important;
-      box-shadow: 0 0 10px rgba(102,126,234,0.5), 0 2px 6px rgba(102,126,234,0.3),
-                  4px 4px 8px var(--neuro-shadow-dark, #bbb),
-                  -4px -4px 8px var(--neuro-shadow-light, #fff) !important;
-      transform: scale(1.15) !important; opacity: 1 !important;
-    }
-
-    #cta-footer { min-height: 72px; contain: layout; }
-
-    #pwa-install-toast {
-      position: fixed; bottom: 1.5rem; left: 50%;
-      transform: translateX(-50%) translateY(20px); opacity: 0;
-      background: #c4ad91; border-radius: 20px; padding: 0.875rem 1rem;
-      display: grid; grid-template-columns: auto 1fr auto;
-      grid-template-rows: auto auto; align-items: center; column-gap: 0.75rem;
-      box-shadow: 10px 10px 20px #a08968, -6px -6px 12px #e0d4bf,
-                  inset 1px 1px 2px #ebe2d4;
-      z-index: 9999; font-family: 'Cinzel', 'Georgia', serif; color: #3d2f1f;
-      transition: opacity 400ms ease, transform 400ms ease, box-shadow 150ms ease;
-      width: max-content; max-width: calc(100vw - 2rem); box-sizing: border-box;
-      border: none; cursor: pointer; text-align: left;
-      -webkit-tap-highlight-color: transparent;
-    }
-    #pwa-install-toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
-    #pwa-install-toast:hover {
-      box-shadow: 14px 14px 28px #a08968, -10px -10px 20px #e0d4bf,
-                  inset 1px 1px 2px #ebe2d4, 0 4px 24px rgba(107,155,55,.25);
-    }
-    #pwa-install-toast:active {
-      box-shadow: inset 5px 5px 10px #a08968, inset -3px -3px 6px #e0d4bf;
-      transform: translateX(-50%) translateY(0) scale(0.98);
-    }
-    #pwa-install-toast .pwa-toast-icon { grid-column:1; grid-row:1/3; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-    #pwa-install-toast .pwa-toast-icon svg { width:28px; height:28px; stroke:#6b9b37; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
-    #pwa-install-toast .pwa-toast-title { grid-column:2; grid-row:1; font-size:0.85rem; font-weight:600; color:#6b9b37; letter-spacing:0.04em; line-height:1.3; white-space:nowrap; }
-    #pwa-install-toast .pwa-toast-subtitle { grid-column:2; grid-row:2; font-size:0.72rem; font-family:system-ui,sans-serif; color:#6d5a42; line-height:1.3; white-space:nowrap; }
-    #pwa-install-dismiss { grid-column:3; grid-row:1/3; background:none; border:none; color:#a08968; font-size:1rem; cursor:pointer; padding:0.25rem 0.25rem 0.25rem 0.5rem; line-height:1; transition:color 150ms ease; align-self:center; position:relative; z-index:1; }
-    #pwa-install-dismiss:hover { color:#3d2f1f; }
-    #pwa-toast-progress { position:absolute; bottom:0; left:0; height:3px; width:100%; background:rgba(107,155,55,0.15); border-radius:0 0 20px 20px; overflow:hidden; pointer-events:none; }
-    #pwa-toast-progress-bar { height:100%; width:100%; background:#6b9b37; transform-origin:left; animation:pwa-progress 10s linear forwards; }
-    @keyframes pwa-progress { from { transform:scaleX(1); } to { transform:scaleX(0); } }
-  </style>
-
-  <!-- ===== LCP preloads ===== -->
-  <link rel="preload" href="/Icons/icon-192x192-loading.webp" as="image" type="image/webp" fetchpriority="high">
-  <link rel="preload" href="/Tabs/Header-desktop.webp" as="image" type="image/webp" fetchpriority="high" media="(min-width: 769px)">
-  <link rel="preload" href="/Tabs/Header-mobile.webp" as="image" type="image/webp" fetchpriority="high" media="(max-width: 768px)">
-
-  <!-- ===== JS entry preload ===== -->
-  <link rel="modulepreload" href="/src/main.js">
-
-  <!-- ===== CDN Preconnect — injected via JS to bypass Vite HTML transform ===== -->
-  <script>
-  (function() {
-    var origins = [
-      { href: 'https://fonts.googleapis.com', co: true },
-      { href: 'https://fonts.gstatic.com',    co: true }
-    ];
-    origins.forEach(function(o) {
-      var l = document.createElement('link');
-      l.rel  = 'preconnect';
-      l.href = o.href;
-      if (o.co) l.crossOrigin = 'anonymous';
-      document.head.appendChild(l);
-    });
-  })();
-  </script>
-
-  <!-- ===== Google Fonts — non-blocking ===== -->
-  <link rel="preload"
-        href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&display=swap"
-        as="style"
-        crossorigin
-        onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&display=swap"></noscript>
-
-  <!-- ===== Skin stylesheets ===== -->
-  <link rel="stylesheet" href="/src/styles/dark-mode.css"            id="dark-mode-css"      media="not all">
-  <link rel="stylesheet" href="/src/styles/Skins/champagne-gold.css" id="skin_champagne-gold" media="not all">
-  <link rel="stylesheet" href="/src/styles/Skins/royal-indigo.css"   id="skin_royal-indigo"   media="not all">
-  <link rel="stylesheet" href="/src/styles/Skins/earth-luxury.css"   id="skin_earth-luxury"   media="not all">
-  <link rel="stylesheet" href="/src/styles/Skins/matrix-code.css"    id="skin_matrix-code"    media="not all">
-
-  <!-- ===== PWA / icons ===== -->
-  <script>
-    (function(){var l=document.createElement('link');l.rel='manifest';l.href='/manifest.json';document.head.appendChild(l);})();
-  </script>
+  <!-- PWA / mobile meta -->
   <meta name="theme-color" content="#6b9b37">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -168,151 +26,224 @@
   <link rel="apple-touch-icon" href="/Icons/apple-touch-icon.png">
   <link rel="icon" href="/Icons/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/Icons/favicon.ico">
+
+  <!-- LCP preloads -->
+  <link rel="preload" href="/Icons/icon-192x192-loading.webp" as="image" type="image/webp" fetchpriority="high">
+  <link rel="preload" href="/Tabs/Header-desktop.webp" as="image" type="image/webp" fetchpriority="high" media="(min-width: 769px)">
+  <link rel="preload" href="/Tabs/Header-mobile.webp"  as="image" type="image/webp" fetchpriority="high" media="(max-width: 768px)">
+
+  <!-- JS entry preload -->
+  <link rel="modulepreload" href="/src/main.js">
+
+  <!-- CDN preconnect (via JS to bypass Vite HTML transform) -->
+  <script>!function(){['https://fonts.googleapis.com','https://fonts.gstatic.com'].forEach(function(h){var l=document.createElement('link');l.rel='preconnect';l.href=h;l.crossOrigin='anonymous';document.head.appendChild(l)})}()</script>
+
+  <!-- Google Fonts — non-blocking -->
+  <link rel="preload"
+        href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&display=swap"
+        as="style" crossorigin
+        onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&display=swap"></noscript>
+
+  <!-- Skin stylesheets (loaded on demand) -->
+  <link rel="stylesheet" href="/src/styles/dark-mode.css"            id="dark-mode-css"       media="not all">
+  <link rel="stylesheet" href="/src/styles/Skins/champagne-gold.css" id="skin_champagne-gold"  media="not all">
+  <link rel="stylesheet" href="/src/styles/Skins/royal-indigo.css"   id="skin_royal-indigo"    media="not all">
+  <link rel="stylesheet" href="/src/styles/Skins/earth-luxury.css"   id="skin_earth-luxury"    media="not all">
+  <link rel="stylesheet" href="/src/styles/Skins/matrix-code.css"    id="skin_matrix-code"     media="not all">
+
+  <!-- Critical styles — only what's needed before first paint -->
+  <style>
+    .hidden{display:none!important}
+
+    /* Lucide icons */
+    .lucide-icon{width:32px;height:32px;display:inline-block;vertical-align:middle}
+    @media(max-width:768px){.lucide-icon{width:24px;height:24px}}
+    @media(max-width:480px){.lucide-icon{width:20px;height:20px}}
+
+    /* Auth screen */
+    #auth-screen{display:flex;align-items:center;justify-content:center;height:100vh;background:#c4ad91}
+    #auth-screen-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;text-align:center;font-family:'Cinzel','Georgia',serif;padding:2rem}
+    #auth-screen-logo{width:160px;height:160px;border-radius:36px;box-shadow:18px 18px 36px #a08968,-12px -12px 24px #e0d4bf,inset 2px 2px 4px #ebe2d4,0 8px 32px rgba(107,155,55,.2)}
+    #auth-screen-label{color:#3d2f1f;font-size:1rem;margin:0;letter-spacing:.12em;text-transform:uppercase;opacity:.75}
+    #auth-spinner{width:40px;height:40px;border-radius:50%;border:3px solid #a08968;border-top-color:#6b9b37;animation:_spin .9s linear infinite}
+    @keyframes _spin{to{transform:rotate(360deg)}}
+
+    /* Tab dots */
+    .tab-dot{display:inline-flex!important;align-items:center;justify-content:center;width:24px;height:24px;min-width:24px;min-height:24px;border-radius:50%;background:var(--neuro-shadow-dark,#ccc);box-shadow:inset 2px 2px 4px var(--neuro-shadow-dark,#bbb),inset -2px -2px 4px var(--neuro-shadow-light,#fff);opacity:.6;flex-shrink:0;transition:all 300ms ease-in-out;cursor:pointer;overflow:hidden;padding:3px}
+    .tab-dot img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+    .tab-dot.active{width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;background:linear-gradient(135deg,var(--neuro-accent,#667eea),var(--neuro-accent-light,#764ba2))!important;box-shadow:0 0 10px rgba(102,126,234,.5),0 2px 6px rgba(102,126,234,.3),4px 4px 8px var(--neuro-shadow-dark,#bbb),-4px -4px 8px var(--neuro-shadow-light,#fff)!important;transform:scale(1.15)!important;opacity:1!important}
+
+    /* CTA footer reserve */
+    #cta-footer{min-height:72px;contain:layout}
+
+    /* PWA install toast */
+    #pwa-install-toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:#c4ad91;border-radius:20px;padding:.875rem 1rem;display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;align-items:center;column-gap:.75rem;box-shadow:10px 10px 20px #a08968,-6px -6px 12px #e0d4bf,inset 1px 1px 2px #ebe2d4;z-index:9999;font-family:'Cinzel','Georgia',serif;color:#3d2f1f;transition:opacity 400ms ease,transform 400ms ease,box-shadow 150ms ease;width:max-content;max-width:calc(100vw - 2rem);box-sizing:border-box;border:none;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent}
+    #pwa-install-toast.visible{opacity:1;transform:translateX(-50%) translateY(0)}
+    #pwa-install-toast:hover{box-shadow:14px 14px 28px #a08968,-10px -10px 20px #e0d4bf,inset 1px 1px 2px #ebe2d4,0 4px 24px rgba(107,155,55,.25)}
+    #pwa-install-toast:active{box-shadow:inset 5px 5px 10px #a08968,inset -3px -3px 6px #e0d4bf;transform:translateX(-50%) translateY(0) scale(.98)}
+    #pwa-install-toast .pwa-toast-icon{grid-column:1;grid-row:1/3;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    #pwa-install-toast .pwa-toast-icon svg{width:28px;height:28px;stroke:#6b9b37;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+    #pwa-install-toast .pwa-toast-title{grid-column:2;grid-row:1;font-size:.85rem;font-weight:600;color:#6b9b37;letter-spacing:.04em;line-height:1.3;white-space:nowrap}
+    #pwa-install-toast .pwa-toast-subtitle{grid-column:2;grid-row:2;font-size:.72rem;font-family:system-ui,sans-serif;color:#6d5a42;line-height:1.3;white-space:nowrap}
+    #pwa-install-dismiss{grid-column:3;grid-row:1/3;background:none;border:none;color:#a08968;font-size:1rem;cursor:pointer;padding:.25rem .25rem .25rem .5rem;line-height:1;transition:color 150ms ease;align-self:center;position:relative;z-index:1}
+    #pwa-install-dismiss:hover{color:#3d2f1f}
+    #pwa-toast-progress{position:absolute;bottom:0;left:0;height:3px;width:100%;background:rgba(107,155,55,.15);border-radius:0 0 20px 20px;overflow:hidden;pointer-events:none}
+    #pwa-toast-progress-bar{height:100%;width:100%;background:#6b9b37;transform-origin:left;animation:_pwa-prog 10s linear forwards}
+    @keyframes _pwa-prog{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+  </style>
 </head>
 
 <body>
-  <!-- ===== Boot: apply theme before first paint ===== -->
+  <!-- Apply theme before first paint to prevent FOUC -->
   <script>
-  (function() {
-    try {
-      var dark = localStorage.getItem('darkMode') === 'enabled';
-      var skin = localStorage.getItem('activeTheme') || 'default';
-      if (skin !== 'default') {
-        document.body.classList.add(skin);
-        var skinLink = document.getElementById('skin_' + skin);
-        if (skinLink) skinLink.media = 'all';
-      } else if (dark) {
-        var dmLink = document.getElementById('dark-mode-css');
-        if (dmLink) dmLink.media = 'all';
-        document.body.classList.add('dark-mode');
-      }
-    } catch(e) {}
-  })();
+  !function(){try{
+    var skin=localStorage.getItem('activeTheme')||'default';
+    var dark=localStorage.getItem('darkMode')==='enabled';
+    if(skin!=='default'){
+      document.body.classList.add(skin);
+      var s=document.getElementById('skin_'+skin);
+      if(s)s.media='all';
+    } else if(dark){
+      var d=document.getElementById('dark-mode-css');
+      if(d)d.media='all';
+      document.body.classList.add('dark-mode');
+    }
+  }catch(e){}}()
   </script>
 
+  <!-- Auth loading screen -->
   <div id="auth-screen">
     <div id="auth-screen-inner">
       <picture>
         <source srcset="/Icons/icon-192x192-loading.webp" type="image/webp">
-        <img id="auth-screen-logo"
-             src="/Icons/icon-192x192.png"
-             alt="The Curiosity Path"
-             width="160" height="160"
-             fetchpriority="high"
-             decoding="sync">
+        <img id="auth-screen-logo" src="/Icons/icon-192x192.png" alt="The Curiosity Path"
+             width="160" height="160" fetchpriority="high" decoding="sync">
       </picture>
       <div id="auth-spinner"></div>
       <p id="auth-screen-label">Loading your path&hellip;</p>
     </div>
   </div>
 
+  <!-- Main app shell -->
   <div id="app-container">
     <div id="main-app" class="hidden">
       <main id="main-content" role="main">
-        <div id="dashboard-tab"          class="tab-content active"            ></div>
-        <div id="calculator-tab"         class="tab-content hidden" aria-live="polite"></div>
-        <div id="flip-script-tab"        class="tab-content hidden"            ></div>
-        <div id="meditations-tab"        class="tab-content hidden"            ></div>
-        <div id="tarot-tab"              class="tab-content hidden"            ></div>
-        <div id="energy-tab"             class="tab-content hidden"            ></div>
-        <div id="happiness-tab"          class="tab-content hidden"            ></div>
-        <div id="gratitude-tab"          class="tab-content hidden"            ></div>
-        <div id="journal-tab"            class="tab-content hidden"            ></div>
-        <div id="karma-shop-tab"         class="tab-content hidden"            ></div>
-        <div id="shadow-alchemy-tab"     class="tab-content hidden"            ></div>
-        <div id="chatbot-tab"            class="tab-content hidden"            ></div>
-        <div id="community-hub-tab"      class="tab-content hidden"            ></div>
+        <div id="dashboard-tab"      class="tab-content active"             ></div>
+        <div id="calculator-tab"     class="tab-content hidden" aria-live="polite"></div>
+        <div id="flip-script-tab"    class="tab-content hidden"             ></div>
+        <div id="meditations-tab"    class="tab-content hidden"             ></div>
+        <div id="tarot-tab"          class="tab-content hidden"             ></div>
+        <div id="energy-tab"         class="tab-content hidden"             ></div>
+        <div id="happiness-tab"      class="tab-content hidden"             ></div>
+        <div id="gratitude-tab"      class="tab-content hidden"             ></div>
+        <div id="journal-tab"        class="tab-content hidden"             ></div>
+        <div id="karma-shop-tab"     class="tab-content hidden"             ></div>
+        <div id="shadow-alchemy-tab" class="tab-content hidden"             ></div>
+        <div id="chatbot-tab"        class="tab-content hidden"             ></div>
+        <div id="community-hub-tab"  class="tab-content hidden"             ></div>
       </main>
       <div id="modal-container" role="dialog" aria-modal="true" aria-label="Modal" hidden></div>
-      <div id="audio-player"    class="hidden" aria-hidden="true"></div>
+      <div id="audio-player" class="hidden" aria-hidden="true"></div>
     </div>
   </div>
 
-  <div id="toast-container" role="status" aria-live="polite" aria-atomic="true"></div>
-  <div id="toast"           role="alert"  aria-live="assertive" style="display:none;"></div>
+  <div id="toast-container" role="status"  aria-live="polite"    aria-atomic="true"></div>
+  <div id="toast"           role="alert"   aria-live="assertive" style="display:none"></div>
 
-  <!-- ===== External Dependencies ===== -->
+  <!-- pdf-lib — lazy singleton loader -->
   <script>
-  window.loadPdfLib = (function() {
-    var promise = null;
-    return function() {
-      if (window.PDFLib) return Promise.resolve(window.PDFLib);
-      if (promise) return promise;
-      promise = new Promise(function(resolve, reject) {
-        var s = document.createElement('script');
-        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
-        s.crossOrigin = 'anonymous';
-        s.onload  = function() { resolve(window.PDFLib); };
-        s.onerror = function() { reject(new Error('pdf-lib failed to load')); };
+  window.loadPdfLib=(function(){
+    var p=null;
+    return function(){
+      if(window.PDFLib)return Promise.resolve(window.PDFLib);
+      if(p)return p;
+      p=new Promise(function(res,rej){
+        var s=document.createElement('script');
+        s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
+        s.crossOrigin='anonymous';
+        s.onload=function(){res(window.PDFLib)};
+        s.onerror=function(){rej(new Error('pdf-lib failed to load'))};
         document.head.appendChild(s);
       });
-      return promise;
+      return p;
     };
-  })();
+  }())
   </script>
 
-  <!-- ===== Application Entry Point ===== -->
+  <!-- Application entry point -->
   <script type="module" src="/src/main.js"></script>
 
-  <!-- ===== PWA Install Toast ===== -->
+  <!-- PWA install toast — only in browser display mode, deferred until load -->
   <script>
-  (function() {
-    if (!window.matchMedia('(display-mode: browser)').matches) return;
-    window.addEventListener('load', function() {
-      setTimeout(function() {
-        if (!window._pwaInstallPrompt) return;
-        var toast = document.createElement('button');
-        toast.id = 'pwa-install-toast';
-        toast.setAttribute('role', 'button');
-        toast.setAttribute('aria-label', 'Install The Curiosity Path');
-        toast.innerHTML =
-          '<span class="pwa-toast-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>' +
-          '<span class="pwa-toast-title">Install The Curiosity Path</span>' +
-          '<span class="pwa-toast-subtitle">Add to your home screen for the best experience</span>' +
-          '<button id="pwa-install-dismiss" aria-label="Dismiss">&#x2715;</button>' +
+  !function(){
+    // Capture install prompt as early as possible
+    window._pwaInstallPrompt=null;
+    window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window._pwaInstallPrompt=e});
+
+    if(!window.matchMedia('(display-mode: browser)').matches)return;
+    window.addEventListener('load',function(){
+      setTimeout(function(){
+        if(!window._pwaInstallPrompt)return;
+        var t=document.createElement('button');
+        t.id='pwa-install-toast';
+        t.setAttribute('aria-label','Install The Curiosity Path');
+        t.innerHTML=
+          '<span class="pwa-toast-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>'+
+          '<span class="pwa-toast-title">Install The Curiosity Path</span>'+
+          '<span class="pwa-toast-subtitle">Add to your home screen for the best experience</span>'+
+          '<button id="pwa-install-dismiss" aria-label="Dismiss">&#x2715;</button>'+
           '<div id="pwa-toast-progress"><div id="pwa-toast-progress-bar"></div></div>';
-        document.body.appendChild(toast);
-        requestAnimationFrame(function() { requestAnimationFrame(function() { toast.classList.add('visible'); }); });
-        var autoDismissTimer = setTimeout(dismiss, 10000);
-        function dismiss() {
-          clearTimeout(autoDismissTimer);
-          toast.classList.remove('visible');
-          setTimeout(function() { if (toast.parentNode) toast.remove(); }, 400);
+        document.body.appendChild(t);
+        // Double rAF ensures transition fires after paint
+        requestAnimationFrame(function(){requestAnimationFrame(function(){t.classList.add('visible')})});
+        var timer=setTimeout(dismiss,10000);
+        function dismiss(){
+          clearTimeout(timer);
+          t.classList.remove('visible');
+          setTimeout(function(){t.parentNode&&t.remove()},400);
         }
-        toast.addEventListener('click', function() {
-          if (!window._pwaInstallPrompt) return;
+        t.addEventListener('click',function(){
+          if(!window._pwaInstallPrompt)return;
           window._pwaInstallPrompt.prompt();
-          window._pwaInstallPrompt.userChoice.then(function() { window._pwaInstallPrompt = null; dismiss(); });
+          window._pwaInstallPrompt.userChoice.then(function(){window._pwaInstallPrompt=null;dismiss()});
         });
-        document.getElementById('pwa-install-dismiss').addEventListener('click', function(e) { e.stopPropagation(); dismiss(); });
-      }, 2500);
+        document.getElementById('pwa-install-dismiss').addEventListener('click',function(e){e.stopPropagation();dismiss()});
+      },2500);
     });
-  })();
+  }()
   </script>
 
-  <!-- ===== Theme Management ===== -->
+  <!-- Theme API — exposed on window for UserTab.switchTheme and legacy callers -->
   <script>
-  window.setSkin = function(name) {
-    if (window.app && window.app.userTab && window.app.userTab.switchTheme) { window.app.userTab.switchTheme(name); return; }
-    document.querySelectorAll('link[id^="skin_"]').forEach(function(l) { l.media = 'not all'; });
-    if (name !== 'default') {
-      var wanted = document.getElementById('skin_' + name);
-      if (wanted) wanted.media = 'all';
-      var dm = document.getElementById('dark-mode-css');
-      if (dm) dm.media = 'not all';
-    } else if (localStorage.getItem('darkMode') === 'enabled') {
-      var dm2 = document.getElementById('dark-mode-css');
-      if (dm2) dm2.media = 'all';
-    }
-    try { localStorage.setItem('activeTheme', name); } catch(e) {}
-  };
-  window.shareTheme = function(name) { try { localStorage.setItem('activeTheme', name); } catch(e) {} window.setSkin(name); };
-  window.setDark = function(enable) {
-    try { localStorage.setItem('darkMode', enable ? 'enabled' : 'disabled'); } catch(e) {}
-    document.body.classList.toggle('dark-mode', enable);
-    var premiumActive = document.querySelector('link[id^="skin_"][media="all"]');
-    if (!premiumActive) { var dm = document.getElementById('dark-mode-css'); if (dm) dm.media = enable ? 'all' : 'not all'; }
-  };
+  !function(){
+    // setSkin: activate a named skin or fall back to dark-mode/default
+    window.setSkin=function(name){
+      if(window.app&&window.app.userTab&&window.app.userTab.switchTheme){window.app.userTab.switchTheme(name);return}
+      document.querySelectorAll('link[id^="skin_"]').forEach(function(l){l.media='not all'});
+      if(name!=='default'){
+        var s=document.getElementById('skin_'+name);
+        if(s)s.media='all';
+        var d=document.getElementById('dark-mode-css');
+        if(d)d.media='not all';
+      } else if(localStorage.getItem('darkMode')==='enabled'){
+        var d2=document.getElementById('dark-mode-css');
+        if(d2)d2.media='all';
+      }
+      try{localStorage.setItem('activeTheme',name)}catch(e){}
+    };
+    // setDark: toggle dark mode independent of premium skins
+    window.setDark=function(on){
+      try{localStorage.setItem('darkMode',on?'enabled':'disabled')}catch(e){}
+      document.body.classList.toggle('dark-mode',on);
+      if(!document.querySelector('link[id^="skin_"][media="all"]')){
+        var d=document.getElementById('dark-mode-css');
+        if(d)d.media=on?'all':'not all';
+      }
+    };
+    // shareTheme: alias kept for any external callers
+    window.shareTheme=window.setSkin;
+  }()
   </script>
 </body>
 </html>

@@ -6,14 +6,6 @@ if (window.innerWidth <= 767) {
   import('./styles/mobile-styles.css');
 }
 
-// ─── Community Hub (on-demand — heaviest chunk) ───────────────────────────────
-let communityHubLoaded = false;
-window.lazyLoadCommunityHub = async function () {
-  if (communityHubLoaded) return;
-  communityHubLoaded = true;
-  await import('./Mini-Apps/CommunityHub/CommunityHubEngine.js');
-};
-
 // ─── Service Worker ───────────────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -25,7 +17,7 @@ if ('serviceWorker' in navigator) {
 // ─── Bootstrap ────────────────────────────────────────────────────────────────
 async function init() {
   try {
-    // ── Phase 1: Minimal boot — only what's needed to render auth screen ──────
+    // Phase 1: Minimal boot — only what's needed to render auth screen
     const [
       aff,
       { QUOTES, getRandomQuote, getQuoteOfTheDay },
@@ -41,7 +33,7 @@ async function init() {
     window.affirmations = aff.default;
     window.QuotesData   = { QUOTES, getRandomQuote, getQuoteOfTheDay };
 
-    // ── Phase 2: Boot app (auth check happens here) ───────────────────────────
+    // Phase 2: Boot app (auth check happens inside init())
     window.app = new Core.ProjectCuriosityApp({
       AppState:          Core.AppState,
       AuthManager:       Core.AuthManager,
@@ -50,32 +42,13 @@ async function init() {
       UserTab
     });
 
-    // ── Phase 3: Load supporting core modules (sequenced, not parallel burst) ──
-    // Split into two groups so the JS engine doesn't spike all at once.
-    // Group A — modal/toast/UI utilities needed right after auth resolves
-    await Promise.all([
-      import('./Core/Toast.js'),
-      import('./Core/Modal.js'),
-      import('./Core/Modal-Compat.js'),
-      import('./Core/Utils.js'),
-      import('./Core/CTA.js'),
-    ]);
-
-    // Group B — data/feature support, slightly less urgent
-    await Promise.all([
-      import('./Core/DB.js'),
-      import('./Core/avatar-icons.js'),
-      import('./Core/Features.js'),
-      import('./Core/member-profile-modal.js'),
-      import('./Core/active-members.js'),
-      import('./Features/DailyCards.js'),
-      import('./Features/WellnessKit.js'),
-    ]);
-
-    // ── Phase 4: Start the app (auth + data load) ─────────────────────────────
+    // Phase 3: Start the app (auth + data load)
+    // All supporting modules (Toast, Modal, DB, Features, etc.) are imported
+    // transitively by ProjectCuriosityApp and its dependencies — no need to
+    // re-import them here. Vite bundles them into the correct chunks already.
     await window.app.init();
 
-    // ── Phase 5: Non-critical skin + lazy features after app is interactive ───
+    // Phase 4: Non-critical skin + lazy features after app is interactive
     const loadIdle = () => {
       import('./styles/Skins/MatrixRain.js');
       import('./styles/user-tab-styles.css');

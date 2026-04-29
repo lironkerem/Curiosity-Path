@@ -1,9 +1,8 @@
-import { EMOJI_TO_KEY } from './avatar-icons.js';
 /**
  * AuthManager - Authentication & User Session Management
  * Handles Google OAuth, Email/Password auth, session management, lockout tracking
  */
-/* global window, document, location, localStorage, alert */
+/* global window, document, location, localStorage */
 import { supabase } from './Supabase.js';
 
 const CONFIG = {MAX_FAILED_ATTEMPTS:5,LOCKOUT_TIME:900000,PASSWORD_MIN_LENGTH:6,PASSWORD_DEBOUNCE:300,TOAST_DURATION:3000,REDIRECT_DELAY:2000};
@@ -17,7 +16,6 @@ const STORAGE_KEYS = {
   QUEST_RESET: 'last_quest_reset',
   DAILY_TAROT: 'daily_tarot_card',
   THEME: 'activeTheme',
-  // Gamification keys — must be cleared on sign-out to prevent data leaking to next user
   GAMIFICATION_STATE: 'gamificationState',
   KARMA_BOOSTS: 'karma_active_boosts',
   KARMA_HISTORY: 'karma_purchase_history',
@@ -32,7 +30,7 @@ const STORAGE_KEYS = {
 const ASSETS = {LOGO_URL:'/Tabs/Header-desktop.webp'};
 
 export default class AuthManager {
-  constructor(app) { 
+  constructor(app) {
     this.app = app;
     this.failedAttempts = 0;
     this.maxFailedAttempts = CONFIG.MAX_FAILED_ATTEMPTS;
@@ -48,16 +46,6 @@ export default class AuthManager {
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) { await this._setAuthenticated(session.user); return true; }
     this._clearLocalUser(); return false;
-  }
-
-  _restoreLocalUser() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEYS.USER);
-      if (!raw) return false;
-      this.app.state.currentUser = JSON.parse(raw);
-      this.app.state.isAuthenticated = true;
-      return true;
-    } catch (error) { console.warn('Failed to restore user:', error); localStorage.removeItem(STORAGE_KEYS.USER); return false; }
   }
 
   renderAuthScreen() {
@@ -193,12 +181,11 @@ export default class AuthManager {
   checkCapsLock(event) {
     const capsWarning = event.target.closest('.form-group')?.querySelector('.caps-warning');
     if (!capsWarning) return;
-    const isCapsLockOn = event.getModifierState && event.getModifierState('CapsLock');
-    capsWarning.style.display = isCapsLockOn ? 'block' : 'none';
+    capsWarning.style.display = (event.getModifierState?.('CapsLock')) ? 'block' : 'none';
   }
 
-  showPasswordHint(svg) { const tooltip = svg.parentElement.querySelector('.tooltip'); if (tooltip) tooltip.style.display = 'block'; }
-  hidePasswordHint(svg) { const tooltip = svg.parentElement.querySelector('.tooltip'); if (tooltip) tooltip.style.display = 'none'; }
+  showPasswordHint(svg) { const t = svg.parentElement.querySelector('.tooltip'); if (t) t.style.display = 'block'; }
+  hidePasswordHint(svg) { const t = svg.parentElement.querySelector('.tooltip'); if (t) t.style.display = 'none'; }
 
   debouncedPasswordCheck(input) {
     clearTimeout(this.passwordStrengthTimeout);
@@ -207,33 +194,29 @@ export default class AuthManager {
 
   checkPasswordStrength(input) {
     const password = input.value;
-    const strengthBars = input.closest('.form-group')?.querySelectorAll('.password-strength span');
-    if (!strengthBars?.length) return;
+    const bars = input.closest('.form-group')?.querySelectorAll('.password-strength span');
+    if (!bars?.length) return;
     let strength = 0;
-    if (password.length >= 6) strength++;
+    if (password.length >= 6)  strength++;
     if (password.length >= 10) strength++;
     if (/[A-Z]/.test(password) && /[a-z]/.test(password)) strength++;
     if (/[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password)) strength++;
-    strengthBars.forEach((bar, i) => {
+    bars.forEach((bar, i) => {
       bar.className = '';
-      if (i < strength) {
-        if (strength <= 1) bar.classList.add('active-weak');
-        else if (strength <= 2) bar.classList.add('active-medium');
-        else bar.classList.add('active-strong');
-      }
+      if (i < strength) bar.classList.add(strength <= 1 ? 'active-weak' : strength <= 2 ? 'active-medium' : 'active-strong');
     });
   }
 
   showError(input, message) {
     input.classList.add('error');
-    const errorSpan = input.closest('.form-group')?.querySelector('.error-message');
-    if (errorSpan) { errorSpan.textContent = message; errorSpan.style.display = 'block'; }
+    const el = input.closest('.form-group')?.querySelector('.error-message');
+    if (el) { el.textContent = message; el.style.display = 'block'; }
   }
 
   clearError(input) {
     input.classList.remove('error');
-    const errorSpan = input.closest('.form-group')?.querySelector('.error-message');
-    if (errorSpan) errorSpan.style.display = 'none';
+    const el = input.closest('.form-group')?.querySelector('.error-message');
+    if (el) el.style.display = 'none';
   }
 
   showSuccess(message) {
@@ -245,28 +228,26 @@ export default class AuthManager {
   }
 
   _isAccountLocked() {
-    const lockoutData = localStorage.getItem(STORAGE_KEYS.LOCKOUT);
-    if (!lockoutData) return false;
-    try { const { lockedUntil } = JSON.parse(lockoutData); return Date.now() < lockedUntil; }
-    catch { localStorage.removeItem(STORAGE_KEYS.LOCKOUT); return false; }
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.LOCKOUT);
+      if (!raw) return false;
+      const { lockedUntil } = JSON.parse(raw);
+      return Date.now() < lockedUntil;
+    } catch { localStorage.removeItem(STORAGE_KEYS.LOCKOUT); return false; }
   }
 
   _getLockoutMessage() {
-    const lockoutData = localStorage.getItem(STORAGE_KEYS.LOCKOUT);
-    if (!lockoutData) return '';
     try {
-      const { lockedUntil } = JSON.parse(lockoutData);
-      const remainingMs = lockedUntil - Date.now();
-      const remainingMins = Math.ceil(remainingMs / 60000);
-      return `⚠️ Too many failed attempts. Please try again in ${remainingMins} minute${remainingMins !== 1 ? 's' : ''}.`;
+      const { lockedUntil } = JSON.parse(localStorage.getItem(STORAGE_KEYS.LOCKOUT));
+      const mins = Math.ceil((lockedUntil - Date.now()) / 60000);
+      return `⚠️ Too many failed attempts. Please try again in ${mins} minute${mins !== 1 ? 's' : ''}.`;
     } catch { return ''; }
   }
 
   _recordFailedAttempt() {
     this.failedAttempts++;
     if (this.failedAttempts >= this.maxFailedAttempts) {
-      const lockedUntil = Date.now() + this.lockoutTime;
-      localStorage.setItem(STORAGE_KEYS.LOCKOUT, JSON.stringify({ lockedUntil }));
+      localStorage.setItem(STORAGE_KEYS.LOCKOUT, JSON.stringify({ lockedUntil: Date.now() + this.lockoutTime }));
       this.renderAuthScreen();
     }
   }
@@ -290,34 +271,30 @@ export default class AuthManager {
 
   async handleLogin(e) {
     e.preventDefault();
-    if (this.isSubmitting) return;
-    if (this._isAccountLocked()) return;
+    if (this.isSubmitting || this._isAccountLocked()) return;
     this.isSubmitting = true;
     const form = e.target;
-    const btn = form.querySelector('button[type="submit"]');
+    const btn        = form.querySelector('button[type="submit"]');
     const emailInput = form.querySelector('input[type="email"]');
-    const passInput = form.querySelector('input[type="password"]');
+    const passInput  = form.querySelector('input[type="password"]');
     this._setButtonLoading(btn, true);
     this.clearError(emailInput);
     this.clearError(passInput);
-    const email = emailInput.value.trim();
-    const password = passInput.value;
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({email,password});
+      const { data, error } = await supabase.auth.signInWithPassword({ email: emailInput.value.trim(), password: passInput.value });
       if (error) throw error;
       this._resetFailedAttempts();
-      const rememberMe = document.getElementById('remember-me')?.checked;
-      if (rememberMe) localStorage.setItem(STORAGE_KEYS.REMEMBER_ME, 'true');
+      if (document.getElementById('remember-me')?.checked) localStorage.setItem(STORAGE_KEYS.REMEMBER_ME, 'true');
       await this._setAuthenticated(data.user);
     } catch (error) {
       console.error('Login error:', error);
       this._recordFailedAttempt();
-      if (error.message.includes('Invalid login')) {
-        const attemptsLeft = this.maxFailedAttempts - this.failedAttempts;
-        const message = attemptsLeft > 0 ? `Invalid email or password. ${attemptsLeft} attempt${attemptsLeft !== 1 ? 's' : ''} remaining.` : 'Invalid email or password';
-        this.showError(emailInput, message);
-        this.showError(passInput, message);
-      } else { this.showError(emailInput, error.message); }
+      const attemptsLeft = this.maxFailedAttempts - this.failedAttempts;
+      const msg = error.message.includes('Invalid login')
+        ? (attemptsLeft > 0 ? `Invalid email or password. ${attemptsLeft} attempt${attemptsLeft !== 1 ? 's' : ''} remaining.` : 'Invalid email or password')
+        : error.message;
+      this.showError(emailInput, msg);
+      if (error.message.includes('Invalid login')) this.showError(passInput, msg);
     } finally { this._setButtonLoading(btn, false); this.isSubmitting = false; }
   }
 
@@ -325,24 +302,19 @@ export default class AuthManager {
     e.preventDefault();
     if (this.isSubmitting) return;
     this.isSubmitting = true;
-    const form = e.target;
-    const btn = form.querySelector('button[type="submit"]');
-    const nameInput = form.querySelector('input[type="text"]');
+    const form       = e.target;
+    const btn        = form.querySelector('button[type="submit"]');
+    const nameInput  = form.querySelector('input[type="text"]');
     const emailInput = form.querySelector('input[type="email"]');
-    const passInput = form.querySelector('input[type="password"]');
+    const passInput  = form.querySelector('input[type="password"]');
     this._setButtonLoading(btn, true);
-    this.clearError(nameInput);
-    this.clearError(emailInput);
-    this.clearError(passInput);
-    const name = nameInput.value.trim();
-    const email = emailInput.value.trim();
-    const password = passInput.value;
+    [nameInput, emailInput, passInput].forEach(i => this.clearError(i));
     try {
-      if (password.length < CONFIG.PASSWORD_MIN_LENGTH) throw new Error(`Password must be at least ${CONFIG.PASSWORD_MIN_LENGTH} characters`);
-      const { data, error } = await supabase.auth.signUp({email,password,options:{data:{name}}});
+      if (passInput.value.length < CONFIG.PASSWORD_MIN_LENGTH) throw new Error(`Password must be at least ${CONFIG.PASSWORD_MIN_LENGTH} characters`);
+      const { data, error } = await supabase.auth.signUp({ email: emailInput.value.trim(), password: passInput.value, options: { data: { name: nameInput.value.trim() } } });
       if (error) throw error;
       if (data.user) {
-        if (data.user.identities && data.user.identities.length === 0) {
+        if (data.user.identities?.length === 0) {
           this.showSuccess('Check your email to verify your account!');
           setTimeout(() => this.renderAuthScreen(), CONFIG.REDIRECT_DELAY);
         } else {
@@ -362,14 +334,13 @@ export default class AuthManager {
     e.preventDefault();
     if (this.isSubmitting) return;
     this.isSubmitting = true;
-    const form = e.target;
-    const btn = form.querySelector('button[type="submit"]');
+    const form       = e.target;
+    const btn        = form.querySelector('button[type="submit"]');
     const emailInput = form.querySelector('input[type="email"]');
     this._setButtonLoading(btn, true);
     this.clearError(emailInput);
-    const email = emailInput.value.trim();
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {redirectTo: `${window.location.origin}/reset-password`});
+      const { error } = await supabase.auth.resetPasswordForEmail(emailInput.value.trim(), { redirectTo: `${window.location.origin}/reset-password` });
       if (error) throw error;
       this.showSuccess('Password reset link sent! Check your email.');
       setTimeout(() => this.renderAuthScreen(), CONFIG.REDIRECT_DELAY);
@@ -379,17 +350,16 @@ export default class AuthManager {
 
   _setButtonLoading(btn, loading) {
     if (!btn) return;
-    const btnText = btn.querySelector('.btn-text');
-    const btnSpinner = btn.querySelector('.btn-spinner');
     btn.disabled = loading;
-    if (btnText) btnText.style.display = loading ? 'none' : 'block';
-    if (btnSpinner) btnSpinner.style.display = loading ? 'block' : 'none';
+    const txt = btn.querySelector('.btn-text');
+    const spn = btn.querySelector('.btn-spinner');
+    if (txt) txt.style.display = loading ? 'none' : 'block';
+    if (spn) spn.style.display = loading ? 'block' : 'none';
   }
 
   async _initUserProgress(uid) {
     try {
-      const payload = this.app.state.emptyModel();
-      const { error } = await supabase.from('user_progress').insert({user_id:uid,payload,updated_at:new Date().toISOString()});
+      const { error } = await supabase.from('user_progress').insert({ user_id: uid, payload: this.app.state.emptyModel(), updated_at: new Date().toISOString() });
       if (error) throw error;
     } catch (error) { console.error('Failed to init user_progress:', error); }
   }
@@ -403,50 +373,49 @@ export default class AuthManager {
 
   async _setAuthenticated(u) {
     const isGoogle = u.app_metadata?.provider === 'google';
-    let isAdmin = false;
-    let isVip = false;
+    let isAdmin = false, isVip = false;
     try {
       const { data: profile } = await supabase.from('profiles').select('is_admin, is_vip').eq('id', u.id).single();
       isAdmin = profile?.is_admin || false;
-      isVip = profile?.is_vip || false;
+      isVip   = profile?.is_vip   || false;
     } catch (error) { console.warn('Admin check failed:', error); }
+
     const user = {
-      id:u.id,
-      name:u.user_metadata?.full_name || u.user_metadata?.name || u.email.split('@')[0],
-      email:u.email,
-      phone:u.user_metadata?.phone || '',
-      birthday:u.user_metadata?.birthday || '',
-      emoji:u.user_metadata?.emoji || '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
-      avatarUrl:u.user_metadata?.avatar_url || u.user_metadata?.avatarUrl || null,
-      tier:'Premium',
-      joinDate:u.created_at,
-      provider:isGoogle ? 'google' : 'email',
+      id:        u.id,
+      name:      u.user_metadata?.full_name || u.user_metadata?.name || u.email.split('@')[0],
+      email:     u.email,
+      phone:     u.user_metadata?.phone    || '',
+      birthday:  u.user_metadata?.birthday || '',
+      emoji:     u.user_metadata?.emoji    || '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+      avatarUrl: u.user_metadata?.avatar_url || u.user_metadata?.avatarUrl || null,
+      tier:      'Premium',
+      joinDate:  u.created_at,
+      provider:  isGoogle ? 'google' : 'email',
       isAdmin,
       isVip
     };
-    this.app.state.currentUser = user;
+
+    this.app.state.currentUser  = user;
     this.app.state.isAuthenticated = true;
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+
     const authScreen = document.getElementById('auth-screen');
     if (authScreen) { authScreen.style.display = 'none'; authScreen.innerHTML = ''; }
-    // Ensure user_progress row exists for all providers (not just Google)
+
     await this._ensureUserProgress(user.id);
     document.documentElement.classList.add('theme-loaded');
-    // Load Supabase data BEFORE initializeApp so GamificationEngine.loadState()
-    // finds cloud data in state.data instead of falling back to localStorage.
     await this.app.state.loadData();
     await this.app.initializeApp();
   }
 
   _clearLocalUser() {
     localStorage.removeItem(STORAGE_KEYS.USER);
-    this.app.state.currentUser = null;
+    this.app.state.currentUser     = null;
     this.app.state.isAuthenticated = false;
   }
 
   async signOut() {
     try {
-      // Destroy app first — cleans up gamification engine, intervals, event listeners
       if (this.app?.destroy) this.app.destroy();
       await supabase.auth.signOut();
     } catch (error) { console.error('Sign out error:', error); }
@@ -454,52 +423,4 @@ export default class AuthManager {
     Object.values(STORAGE_KEYS).forEach(key => localStorage.removeItem(key));
     location.reload();
   }
-
 }
-
-function attachProfileHelpers() {
-  if (!window.app) { requestAnimationFrame(attachProfileHelpers); return; }
-  window.app.saveQuickProfile = async function () {
-    const uid = this.state?.currentUser?.id;
-    if (!uid) return this.showToast('Not logged in', 'error');
-    const payload = {
-      name:document.getElementById('profile-name')?.value.trim() || null,
-      email:document.getElementById('profile-email')?.value.trim() || null,
-      phone:document.getElementById('profile-phone')?.value.trim() || null,
-      birthday:document.getElementById('profile-birthday')?.value || null,
-      emoji:document.getElementById('profile-emoji')?.value || '<svg xmlns="http://www.w3.org/2000/svg" class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
-      avatarUrl:document.getElementById('profile-avatar-img')?.src || ''
-    };
-    let savedOnServer = false;
-    try {
-      const { error } = await supabase.from('profiles').upsert({id:uid,...payload},{onConflict:'id'});
-      if (!error) savedOnServer = true;
-    } catch (error) { console.warn('Profile server save failed:', error); }
-    const localKey = `profile_${uid}`;
-    localStorage.setItem(localKey, JSON.stringify(payload));
-    Object.assign(this.state.currentUser, payload);
-    this.userTab?.syncAvatar();
-    this.showToast(savedOnServer ? '✅ Profile saved & synced' : '⚠️ Saved locally (offline)', savedOnServer ? 'success' : 'warning');
-  };
-  window.app.hydrateUserProfile = async function () {
-    const uid = this.state?.currentUser?.id;
-    if (!uid) return;
-    const localKey = `profile_${uid}`;
-    let data = null;
-    try {
-      const { data: row, error } = await supabase.from('profiles').select('*').eq('id', uid).single();
-      if (!error && row) data = row;
-    } catch (error) { console.warn('Profile fetch error:', error); }
-    if (!data) {
-      try { const cached = localStorage.getItem(localKey); if (cached) data = JSON.parse(cached); }
-      catch (error) { console.warn('Failed to parse cached profile:', error); }
-    }
-    if (data) {
-      const target = this.state.currentUser;
-      const fields = ['name','email','phone','birthday','emoji','avatarUrl'];
-      fields.forEach(key => { if (data[key] !== undefined && data[key] !== null) target[key] = data[key]; });
-      this.userTab?.syncAvatar();
-    }
-  };
-}
-attachProfileHelpers();
