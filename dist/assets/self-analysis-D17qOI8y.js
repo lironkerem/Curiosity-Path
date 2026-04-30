@@ -1,4 +1,4 @@
-import{_ as Y}from"./features-lazy-BwdvZW0A.js";class St{constructor(e){this.bigApp=e,this.instance=null,this.isInitialized=!1}render(){const e=document.getElementById("calculator-tab");if(!e){console.error("❌ Calculator tab not found");return}if(!(this.bigApp.state?.currentUser?.isAdmin||this.bigApp.state?.currentUser?.isVip)&&!this.bigApp.gamification?.state?.unlockedFeatures?.includes("self_analysis_pro")){e.innerHTML=`
+import{_ as Y}from"./features-lazy-DBLChGA-.js";class St{constructor(e){this.bigApp=e,this.instance=null,this.isInitialized=!1}render(){const e=document.getElementById("calculator-tab");if(!e){console.error("❌ Calculator tab not found");return}if(!(this.bigApp.state?.currentUser?.isAdmin||this.bigApp.state?.currentUser?.isVip)&&!this.bigApp.gamification?.state?.unlockedFeatures?.includes("self_analysis_pro")){e.innerHTML=`
         <div style="padding:1.5rem;min-height:100vh;">
           <div class="universal-content">
             <header class="main-header project-curiosity"

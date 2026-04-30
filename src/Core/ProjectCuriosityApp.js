@@ -10,6 +10,7 @@ import DailyCards       from '../Features/DailyCards.js';
 import CTA              from './CTA.js';
 import { clearCache }   from '/src/Core/DB.js';
 import FeaturesManager from './Features.js';
+import '../Features/WellnessKit.js';
 import { CommunityDB }  from '/src/Mini-Apps/CommunityHub/js/community-supabase.js';
 import { Core as CommunityCore } from '/src/Mini-Apps/CommunityHub/js/core.js';
 

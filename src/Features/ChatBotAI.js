@@ -5,7 +5,6 @@
  * Provides streaming responses, abort capability, and conversation history
  */
 export class ChatBotAI {
-  // Configuration constants
   static API_URL = '/api/chat';
   static MAX_INPUT_HEIGHT = 120;
   static MIN_INPUT_HEIGHT = 52;
@@ -19,22 +18,17 @@ export class ChatBotAI {
     this.abortCtrl = null;
     this.isInitialized = false;
     this.currentConversationId = null;
-    this.conversations = []; // cached list
+    this.conversations = [];
   }
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
   render() {
     const tab = this._getOrCreateTab();
-
-    if (this.isInitialized) {
-      this._showTab(tab);
-      return;
-    }
-
+    if (this.isInitialized) { this._showTab(tab); return; }
     tab.innerHTML = this._getHTML();
     this.attachHandlers();
-    this._startNewConversation(false); // start fresh, no greeting yet
+    this._startNewConversation();
     this.isInitialized = true;
   }
 
@@ -76,7 +70,6 @@ export class ChatBotAI {
 
           <div class="card" style="display:flex;flex-direction:column;height:calc(100vh - 300px);min-height:500px;">
 
-            <!-- Toolbar -->
             <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;align-items:center;">
               <button id="chatbot-history-btn" class="btn btn-primary" style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;min-width:52px;height:52px;padding:0 1rem;" aria-label="Conversation history">
                 ${this._getHistoryIcon()} History
@@ -86,12 +79,10 @@ export class ChatBotAI {
               </button>
             </div>
 
-            <!-- Messages -->
             <div class="chatbot-messages"
                  style="flex:1;overflow-y:auto;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;background:var(--neuro-bg);border-radius:12px;margin-bottom:1rem;">
             </div>
 
-            <!-- Input row -->
             <div style="display:flex;gap:0.75rem;align-items:flex-end;">
               <textarea
                 id="chatbot-input"
@@ -115,7 +106,6 @@ export class ChatBotAI {
         </div>
       </div>
 
-      <!-- History Modal -->
       <div id="chatbot-history-modal" role="dialog" aria-modal="true" aria-label="Conversation History"
            style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;">
         <div style="background:var(--neuro-card-bg,var(--neuro-bg-secondary,var(--neuro-bg)));border-radius:16px;width:min(480px,90vw);max-height:70vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
@@ -133,12 +123,12 @@ export class ChatBotAI {
   // ─── Event Handlers ───────────────────────────────────────────────────────
 
   attachHandlers() {
-    const btn   = document.getElementById('chatbot-send');
-    const input = document.getElementById('chatbot-input');
-    const histBtn   = document.getElementById('chatbot-history-btn');
-    const newBtn    = document.getElementById('chatbot-new-btn');
-    const modal     = document.getElementById('chatbot-history-modal');
-    const closeBtn  = document.getElementById('chatbot-history-close');
+    const btn      = document.getElementById('chatbot-send');
+    const input    = document.getElementById('chatbot-input');
+    const histBtn  = document.getElementById('chatbot-history-btn');
+    const newBtn   = document.getElementById('chatbot-new-btn');
+    const modal    = document.getElementById('chatbot-history-modal');
+    const closeBtn = document.getElementById('chatbot-history-close');
 
     if (!btn || !input) { console.error('ChatBot: Required elements not found'); return; }
 
@@ -152,21 +142,20 @@ export class ChatBotAI {
     });
 
     histBtn.addEventListener('click', () => this._openHistoryModal());
-    newBtn.addEventListener('click',  () => this._startNewConversation(true));
-
+    newBtn.addEventListener('click',  () => this._startNewConversation());
     closeBtn.addEventListener('click', () => this._closeHistoryModal());
     modal.addEventListener('click', e => { if (e.target === modal) this._closeHistoryModal(); });
   }
 
   // ─── Conversation Management ──────────────────────────────────────────────
 
-  _startNewConversation(showGreeting = true) {
+  // Fixed: removed dead if/else — always greet
+  _startNewConversation() {
     this.currentConversationId = null;
     this.messages = [];
     const container = document.querySelector('.chatbot-messages');
     if (container) container.innerHTML = '';
-    if (showGreeting) this._pushMessage(ChatBotAI.GREETING, 'bot');
-    else              this._pushMessage(ChatBotAI.GREETING, 'bot'); // always greet on new
+    this._pushMessage(ChatBotAI.GREETING, 'bot');
   }
 
   async _openHistoryModal() {
@@ -176,8 +165,7 @@ export class ChatBotAI {
   }
 
   _closeHistoryModal() {
-    const modal = document.getElementById('chatbot-history-modal');
-    modal.style.display = 'none';
+    document.getElementById('chatbot-history-modal').style.display = 'none';
   }
 
   async _loadAndRenderHistory() {
@@ -185,8 +173,6 @@ export class ChatBotAI {
     list.innerHTML = '<p style="text-align:center;opacity:0.5;padding:2rem 0;margin:0;">Loading…</p>';
 
     let convos = [];
-
-    // Try Supabase first
     try {
       const supabase = this._getSupabase();
       if (supabase) {
@@ -201,13 +187,9 @@ export class ChatBotAI {
       console.warn('ChatBot: Supabase history load failed, falling back to localStorage', e);
     }
 
-    // Fallback to localStorage
     if (!convos.length) {
       convos = this._getLSConversations().map(c => ({
-        id: c.id,
-        title: c.title,
-        created_at: c.created_at,
-        updated_at: c.updated_at
+        id: c.id, title: c.title, created_at: c.created_at, updated_at: c.updated_at
       }));
     }
 
@@ -245,7 +227,6 @@ export class ChatBotAI {
         </div>`;
     }).join('');
 
-    // Load on row click, delete on ✕
     list.querySelectorAll('[data-convo-id]').forEach(row => {
       row.addEventListener('click', e => {
         const deleteBtn = e.target.closest('[data-delete-id]');
@@ -261,57 +242,39 @@ export class ChatBotAI {
 
   async _loadConversation(id) {
     let messages = null;
-
-    // Try Supabase
     try {
       const supabase = this._getSupabase();
       if (supabase) {
         const { data, error } = await supabase
-          .from('chat_conversations')
-          .select('messages')
-          .eq('id', id)
-          .single();
+          .from('chat_conversations').select('messages').eq('id', id).single();
         if (!error && data) messages = data.messages;
       }
     } catch (e) { /* fallback */ }
 
-    // Fallback to localStorage
     if (!messages) {
-      const ls = this._getLSConversations();
-      const found = ls.find(c => c.id === id);
+      const found = this._getLSConversations().find(c => c.id === id);
       if (found) messages = found.messages;
     }
-
     if (!messages) return;
 
     this.currentConversationId = id;
     this.messages = messages;
-
-    // Re-render messages
     const container = document.querySelector('.chatbot-messages');
     if (!container) return;
     container.innerHTML = '';
     messages.forEach(m => this._renderBubble(m.text, m.sender));
     this._scrollToBottom(container);
-
     this._closeHistoryModal();
   }
 
   async _deleteConversation(id) {
-    // Supabase delete
     try {
       const supabase = this._getSupabase();
       if (supabase) await supabase.from('chat_conversations').delete().eq('id', id);
     } catch (e) { /* ignore */ }
-
-    // localStorage delete
     const ls = this._getLSConversations().filter(c => c.id !== id);
     this._saveLSConversations(ls);
-
-    // If deleting current, start fresh
-    if (this.currentConversationId === id) this._startNewConversation(false);
-
-    // Refresh list
+    if (this.currentConversationId === id) this._startNewConversation();
     await this._loadAndRenderHistory();
   }
 
@@ -319,20 +282,12 @@ export class ChatBotAI {
 
   async _saveConversation() {
     if (!this.messages.length) return;
-
-    // Auto-title from first user message
     const firstUserMsg = this.messages.find(m => m.sender === 'user');
     const title = firstUserMsg
       ? firstUserMsg.text.slice(0, 60) + (firstUserMsg.text.length > 60 ? '…' : '')
       : 'Conversation';
+    const payload = { title, messages: this.messages, updated_at: new Date().toISOString() };
 
-    const payload = {
-      title,
-      messages: this.messages,
-      updated_at: new Date().toISOString()
-    };
-
-    // Supabase
     try {
       const supabase = this._getSupabase();
       if (supabase) {
@@ -347,7 +302,6 @@ export class ChatBotAI {
       console.warn('ChatBot: Supabase save failed, using localStorage only', e);
     }
 
-    // localStorage mirror
     const ls = this._getLSConversations();
     const now = new Date().toISOString();
     if (this.currentConversationId) {
@@ -359,7 +313,7 @@ export class ChatBotAI {
       this.currentConversationId = newId;
       ls.unshift({ id: newId, ...payload, created_at: now });
     }
-    this._saveLSConversations(ls.slice(0, 100)); // cap at 100
+    this._saveLSConversations(ls.slice(0, 100));
   }
 
   // ─── Message Flow ─────────────────────────────────────────────────────────
@@ -369,7 +323,6 @@ export class ChatBotAI {
     const btn   = document.getElementById('chatbot-send');
     const text  = input?.value.trim();
     if (!text || btn?.disabled) return;
-
     this._pushMessage(text, 'user');
     input.value = '';
     input.style.height = 'auto';
@@ -379,7 +332,6 @@ export class ChatBotAI {
   _pushMessage(text, sender) {
     const container = document.querySelector('.chatbot-messages');
     if (!container) return;
-
     this.messages.push({ text, sender, timestamp: Date.now() });
     this._renderBubble(text, sender);
     this._scrollToBottom(container);
@@ -442,7 +394,6 @@ export class ChatBotAI {
       btn.disabled = false;
       btn.innerHTML = this._getSendIcon();
       this.abortCtrl = null;
-      // Auto-save after each bot response
       await this._saveConversation();
     }
   }
@@ -451,7 +402,6 @@ export class ChatBotAI {
     const reader  = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
-
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
@@ -459,7 +409,6 @@ export class ChatBotAI {
       bubble.textContent = buffer;
       this._scrollToBottom(container);
     }
-
     this.messages.push({ text: buffer, sender: 'bot', timestamp: Date.now() });
   }
 
@@ -475,13 +424,12 @@ export class ChatBotAI {
     catch (e) { console.warn('ChatBot: localStorage save failed', e); }
   }
 
-  // ─── Supabase Helper ──────────────────────────────────────────────────────
+  // ─── Supabase Helper — fixed: use window.AppSupabase ──────────────────────
 
   _getSupabase() {
-    // Tries common patterns used across the app to find the Supabase client
     return this.app?.supabase
       || this.app?.core?.supabase
-      || window.supabase
+      || window.AppSupabase
       || null;
   }
 
@@ -527,9 +475,9 @@ if (!document.getElementById('chatbot-spinner-style')) {
       border: 2px solid rgba(255,255,255,0.3);
       border-top-color: #fff;
       border-radius: 50%;
-      animation: spin 0.6s linear infinite;
+      animation: chatbot-spin 0.6s linear infinite;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes chatbot-spin { to { transform: rotate(360deg); } }
   `;
   document.head.appendChild(style);
 }
