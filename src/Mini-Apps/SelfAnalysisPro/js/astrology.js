@@ -59,13 +59,10 @@ export class AstrologyEngine {
   async analyze(formData) {
     try {
       const { dateOfBirth, timeOfBirth, locationLat, locationLon, tzone } = formData;
-
       if (!dateOfBirth) throw new Error('Date of birth is required.');
 
       const parts = dateOfBirth.split('-').map(Number);
-      const year  = parts[0];
-      const month = parts[1];
-      const day   = parts[2];
+      const [year, month, day] = parts;
 
       if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) {
         throw new Error('Invalid date of birth format.');
@@ -74,43 +71,34 @@ export class AstrologyEngine {
       const zodiac = this.getZodiacSign(month, day);
       const sefira = this.getSefiraFromPlanet(zodiac.planet);
 
-      // Basic-only path — no time/location
-      if (!timeOfBirth || !locationLat || !locationLon ||
-          locationLat === '' || locationLon === '' || timeOfBirth === '') {
-        console.warn('Missing time/location — returning basic astrology only');
+      // Basic-only path — no time/location provided
+      if (!timeOfBirth || !locationLat || !locationLon || timeOfBirth === '') {
         return { zodiac, sefira, planets: null, houses: null, aspects: null, natalChart: null };
       }
 
-      // Validate coordinates
       const lat = parseFloat(locationLat);
       const lon = parseFloat(locationLon);
-      if (!isFinite(lat) || !isFinite(lon)) {
-        throw new Error('Invalid location coordinates.');
-      }
+      if (!isFinite(lat) || !isFinite(lon)) throw new Error('Invalid location coordinates.');
 
       const timeParts = timeOfBirth.split(':').map(Number);
-      const hour   = timeParts[0];
-      const minute = timeParts[1];
-
+      const [hour, minute] = timeParts;
       if (!Number.isInteger(hour) || !Number.isInteger(minute)) {
         throw new Error('Invalid time of birth format.');
       }
 
       const params = {
-        year,
-        month,
-        date:      day,
-        hours:     hour,
-        minutes:   minute,
-        seconds:   0,
+        year, month, date: day,
+        hours: hour, minutes: minute, seconds: 0,
         latitude:  lat,
         longitude: lon,
         timezone:  typeof tzone === 'number' ? tzone : 0
       };
 
-      const planets    = await getPlanets(params);
-      const houses     = await getHouses(params);
-      const natalChart = await getNatalWheelChart(params);
+      const [planets, houses, natalChart] = await Promise.all([
+        getPlanets(params),
+        getHouses(params),
+        getNatalWheelChart(params)
+      ]);
 
       return { zodiac, sefira, planets, houses, natalChart };
 

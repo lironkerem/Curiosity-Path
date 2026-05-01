@@ -1,6 +1,9 @@
-// js/dashboardRenderer.js (PATCHED FOR BIG-APP INTEGRATION)
+// js/dashboardRenderer.js
 import { state, getNextLevelInfo } from '/src/Mini-Apps/ShadowAlchemyLab/js/core/state.js';
 import { getCompanionVisual, getArchetypeIcon } from '/src/Mini-Apps/ShadowAlchemyLab/js/core/utils.js';
+
+// FIXED: track saved-work expanded state across re-renders
+let savedWorkOpen = false;
 
 export function renderDashboard() {
   const main = document.getElementById('shadow-alchemy-main-content');
@@ -28,19 +31,19 @@ export function renderDashboard() {
 
   const recentHTML = allEntries.length
     ? allEntries.slice(0, 5).map(entry => {
-        if (entry.type === 'journey') return journeyRow(entry);
-        if (entry.type === 'trigger') return triggerRow(entry);
+        if (entry.type === 'journey')  return journeyRow(entry);
+        if (entry.type === 'trigger')  return triggerRow(entry);
         return dialogueRow(entry);
       }).join('')
     : '<p class="muted">No entries saved yet.</p>';
 
   /* ---------- cards ---------- */
-  const engine = window.archetypesEngine;
-  const hasActive = (engine.state.activeArchetypeId || engine.state.activeShadowId) && engine.state.progress > 0;
-  const universal = engine.getUniversalArchetypes();
-  const completedShadows = engine.getCompletedShadows();
-  const allShadows = engine.getAllShadows();
-  const shadowPct = allShadows.length ? Math.round((completedShadows.length / allShadows.length) * 100) : 0;
+  const engine          = window.archetypesEngine;
+  const hasActive       = (engine.state.activeArchetypeId || engine.state.activeShadowId) && engine.state.progress > 0;
+  const universal       = engine.getUniversalArchetypes();
+  const completedShadows= engine.getCompletedShadows();
+  const allShadows      = engine.getAllShadows();
+  const shadowPct       = allShadows.length ? Math.round((completedShadows.length / allShadows.length) * 100) : 0;
 
   main.innerHTML = `
     ${statsBarHTML}
@@ -51,14 +54,25 @@ export function renderDashboard() {
       ${savedWorkCard(recentHTML)}
     </div>`;
 
-  const swHeader = document.getElementById('saved-work-header');
-  const swCard   = document.getElementById('saved-work-card');
+  /* FIXED: listener added once per render on freshly injected DOM — no stacking */
+  const swHeader  = document.getElementById('saved-work-header');
+  const swContent = document.getElementById('saved-work-content');
   const swChevron = document.getElementById('saved-work-chevron');
-  if (swHeader && swCard) {
+  const swCard    = document.getElementById('saved-work-card');
+
+  // Restore open state without animation flash
+  if (savedWorkOpen && swContent) {
+    swContent.style.maxHeight = '5000px';
+    swCard?.classList.add('expanded');
+    if (swChevron) swChevron.style.transform = 'rotate(90deg)';
+  }
+
+  if (swHeader && swContent) {
     swHeader.addEventListener('click', () => {
-      const open = swCard.classList.toggle('expanded');
-      swCard.querySelector('#saved-work-content').style.maxHeight = open ? '5000px' : '0';
-      if (swChevron) swChevron.style.transform = open ? 'rotate(90deg)' : '';
+      savedWorkOpen = !savedWorkOpen;
+      swCard?.classList.toggle('expanded', savedWorkOpen);
+      swContent.style.maxHeight = savedWorkOpen ? '5000px' : '0';
+      if (swChevron) swChevron.style.transform = savedWorkOpen ? 'rotate(90deg)' : '';
     });
   }
 }
@@ -69,7 +83,7 @@ function shadowLabCard() {
     <div class="card">
       <div style="text-align:center;margin-bottom:var(--spacing-lg)">
         <div style="margin-bottom:var(--spacing-sm)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></svg></div>
-        <h3 style="margin:0 0 var(--spacing-xs) 0;display:flex;align-items:center;justify-content:center;gap:0.5rem;">Shadow Lab</h3>
+        <h3 style="margin:0 0 var(--spacing-xs) 0;display:flex;align-items:center;justify-content:center;gap:0.5rem">Shadow Lab</h3>
         <p style="color:var(--neuro-text-light);font-size:0.95rem;max-width:500px;margin:0 auto">Your primary ritual for reflection and integration.</p>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--spacing-lg);margin-top:var(--spacing-xl)">
@@ -86,7 +100,7 @@ function archetypeCard(universal, hasActive) {
     <div class="card">
       <div style="text-align:center;margin-bottom:var(--spacing-lg)">
         <div style="margin-bottom:var(--spacing-sm)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
-        <h3 style="margin:0 0 var(--spacing-xs) 0;display:flex;align-items:center;justify-content:center;gap:0.5rem;">The Six Archetypes Integration Studio</h3>
+        <h3 style="margin:0 0 var(--spacing-xs) 0;display:flex;align-items:center;justify-content:center;gap:0.5rem">The Six Archetypes Integration Studio</h3>
         <p style="color:var(--neuro-text-light);font-size:0.95rem;max-width:500px;margin:0 auto">Enter a personalized Shadow Alchemy journey.</p>
       </div>
       ${hasActive ? `
@@ -110,7 +124,7 @@ function subShadowsCard(allShadows, completedShadows, shadowPct) {
     <div class="card">
       <div style="text-align:center;margin-bottom:var(--spacing-lg)">
         <div style="margin-bottom:var(--spacing-sm)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg></div>
-        <h3 style="margin:0 0 var(--spacing-xs) 0;display:flex;align-items:center;justify-content:center;gap:0.5rem;">Sub-Shadows Lab</h3>
+        <h3 style="margin:0 0 var(--spacing-xs) 0;display:flex;align-items:center;justify-content:center;gap:0.5rem">Sub-Shadows Lab</h3>
         <p style="color:var(--neuro-text-light);font-size:0.95rem;max-width:500px;margin:0 auto">Deep dive into 17 specific shadow patterns.</p>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--spacing-md);margin:var(--spacing-lg) 0">
@@ -118,27 +132,23 @@ function subShadowsCard(allShadows, completedShadows, shadowPct) {
         <div style="text-align:center;padding:var(--spacing-md);background:var(--neuro-bg);border-radius:var(--radius-md);box-shadow:var(--shadow-inset-sm)"><div style="margin-bottom:var(--spacing-xs)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg></div><div style="font-weight:600;font-size:0.9rem;margin-bottom:2px">+5 Light-Particles</div><div style="font-size:0.8rem;color:var(--neuro-text-light)">Per completion</div></div>
         <div style="text-align:center;padding:var(--spacing-md);background:var(--neuro-bg);border-radius:var(--radius-md);box-shadow:var(--shadow-inset-sm)"><div style="margin-bottom:var(--spacing-xs)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div><div style="font-weight:600;font-size:0.9rem;margin-bottom:2px">17 Patterns</div><div style="font-size:0.8rem;color:var(--neuro-text-light)">To explore</div></div>
       </div>
-      <button id="open-sub-shadows-lab" class="btn btn-primary" style="width:100%;padding:var(--spacing-lg);font-size:1.1rem;font-weight:700;margin-top:var(--spacing-sm);display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg> Explore All ${allShadows.length} Shadow Patterns</button>
+      <button id="open-sub-shadows-lab" class="btn btn-primary" style="width:100%;padding:var(--spacing-lg);font-size:1.1rem;font-weight:700;margin-top:var(--spacing-sm);display:inline-flex;align-items:center;justify-content:center;gap:0.4rem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg> Explore All ${allShadows.length} Shadow Patterns</button>
     </div>`;
 }
 
 function savedWorkCard(recentHTML) {
   return `
     <div class="card calc-expandable-card" id="saved-work-card">
-      <div id="saved-work-header" style="padding:24px;cursor:pointer;display:flex;align-items:center;gap:12px;">
-        <span id="saved-work-chevron" style="font-size:1.5rem;transition:transform var(--transition-normal);color:var(--neuro-accent);display:inline-block;">&#8250;</span>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-             style="color:var(--neuro-accent);flex-shrink:0;">
+      <div id="saved-work-header" style="padding:24px;cursor:pointer;display:flex;align-items:center;gap:12px">
+        <span id="saved-work-chevron" style="font-size:1.5rem;transition:transform var(--transition-normal);color:var(--neuro-accent);display:inline-block">&#8250;</span>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--neuro-accent);flex-shrink:0">
           <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
           <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
         </svg>
-        <div style="color:var(--neuro-text);margin:0;font-size:1.5rem;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,0.1);letter-spacing:0.025em;">
-          Your Saved Work
-        </div>
+        <div style="color:var(--neuro-text);margin:0;font-size:1.5rem;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,0.1);letter-spacing:0.025em">Your Saved Work</div>
       </div>
-      <div id="saved-work-content" style="max-height:0;overflow:hidden;transition:max-height var(--transition-slow);">
-        <div style="padding:0 24px 24px;">
+      <div id="saved-work-content" style="max-height:0;overflow:hidden;transition:max-height var(--transition-slow)">
+        <div style="padding:0 24px 24px">
           <div class="space-y-4">${recentHTML}</div>
         </div>
       </div>

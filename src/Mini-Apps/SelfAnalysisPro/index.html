@@ -4,10 +4,8 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Self-Analysis Generator Pro</title>
-
-  <!-- 3rd-party libs -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-<link rel="stylesheet" href="../../Assets/CSS/neumorphic-theme.css"/>
+  <!-- pdf-lib loaded lazily by PDFAssembler — no eager script needed -->
+  <link rel="stylesheet" href="../../Assets/CSS/neumorphic-theme.css"/>
 </head>
 <body>
 <div class="sr-only" id="status-announcer" role="status" aria-live="polite"></div>
@@ -188,77 +186,31 @@ Run analysis to see your own unique, private analysis narrative, from all the in
       <div class="cta-welcome-text">
         <strong class="cta-welcome-title">Aanandoham's Project Curiosity</strong><br>
         Founded in 2010, Project Curiosity is a sanctuary for those ready to awaken their potential, deepen self-awareness, and experience genuine transformation.
-        
-        <!-- Social Media Links -->
-        <div class="lux-social-row" style="
-          display:flex;
-          gap:.9rem;
-          justify-content:center;
-          margin-top:1.5rem;
-          flex-wrap:wrap;
-        ">
-          
+
+        <!-- Social Media Links — styles moved to CSS class .lux-social-row / .lux-social-chip -->
+        <div class="lux-social-row">
           <a href="https://lironkerem.wixsite.com/project-curiosity"
              target="_blank" rel="noopener"
              class="lux-social-chip"
-             style="
-                display:inline-flex;
-                flex-direction:column;
-                align-items:center;
-                gap:.3rem;
-                padding:.65rem .9rem;
-                background:var(--neuro-bg);
-                border-radius:999px;
-                box-shadow:var(--shadow-raised);
-                color:var(--neuro-text);
-                text-decoration:none;
-                transition:all .2s;
-             "
              aria-label="Official Website">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-            <span style="font-weight:600;font-size:1rem">Website</span>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            <span>Website</span>
           </a>
 
           <a href="https://www.facebook.com/AanandohamsProjectCuriosity"
              target="_blank" rel="noopener"
              class="lux-social-chip"
-             style="
-                display:inline-flex;
-                flex-direction:column;
-                align-items:center;
-                gap:.3rem;
-                padding:.65rem .9rem;
-                background:var(--neuro-bg);
-                border-radius:999px;
-                box-shadow:var(--shadow-raised);
-                color:var(--neuro-text);
-                text-decoration:none;
-                transition:all .2s;
-             "
              aria-label="Facebook Page">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-            <span style="font-weight:600;font-size:1rem">Facebook</span>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            <span>Facebook</span>
           </a>
 
           <a href="https://www.youtube.com/@Aanandoham-Project-Curiosity"
              target="_blank" rel="noopener"
              class="lux-social-chip"
-             style="
-                display:inline-flex;
-                flex-direction:column;
-                align-items:center;
-                gap:.3rem;
-                padding:.65rem .9rem;
-                background:var(--neuro-bg);
-                border-radius:999px;
-                box-shadow:var(--shadow-raised);
-                color:var(--neuro-text);
-                text-decoration:none;
-                transition:all .2s;
-             "
              aria-label="YouTube Channel">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-            <span style="font-weight:600;font-size:1rem">YouTube</span>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            <span>YouTube</span>
           </a>
         </div>
       </div>
@@ -266,17 +218,6 @@ Run analysis to see your own unique, private analysis narrative, from all the in
   </article>
 </section>
 
-<style>
-/* Hover effect for social chips */
-.lux-social-chip:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-raised-lg) !important;
-}
-
-.lux-social-chip:active {
-  transform: translateY(0);
-}
-</style>
 </div><!-- /app-page -->
 
 <div id="toast-container" aria-live="polite"></div>
@@ -290,8 +231,11 @@ Run analysis to see your own unique, private analysis narrative, from all the in
 <script type="module" src="/Mini-Apps/SelfAnalysisPro/js/astroAPI.js"></script>
 <script type="module" src="/Mini-Apps/SelfAnalysisPro/js/app.js"></script>
 
-<!-- ======  MAX DATE = TODAY  ====== -->
-<script>document.getElementById('date-of-birth')&&(document.getElementById('date-of-birth').max=new Date().toISOString().split('T')[0]);</script>
+<!-- Set max date = today -->
+<script>
+  const d = document.getElementById('date-of-birth');
+  if (d) d.max = new Date().toISOString().split('T')[0];
+</script>
 
 </body>
 </html>

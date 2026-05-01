@@ -2,7 +2,7 @@
 (function (window, document) {
   'use strict';
 
-  const STORAGE_KEY = 'daily_journey_v1';
+  const STORAGE_KEY   = 'daily_journey_v1';
   const REWARD_TOKENS = 5;
 
   /* ========== DATA LAYER ========== */
@@ -57,33 +57,33 @@
   ];
 
   const THEME_KEYWORDS = {
-    rejection: ['reject', 'rejected', 'rejection', 'ignored', 'left out'],
-    control: ['control', 'controlled', 'controlling', 'micromanage', 'must'],
-    worth: ['worth', 'worthless', 'deserve', 'deserved', 'value'],
-    shame: ['shame', 'ashamed', 'embarrass', 'humiliat'],
+    rejection:   ['reject', 'rejected', 'rejection', 'ignored', 'left out'],
+    control:     ['control', 'controlled', 'controlling', 'micromanage', 'must'],
+    worth:       ['worth', 'worthless', 'deserve', 'deserved', 'value'],
+    shame:       ['shame', 'ashamed', 'embarrass', 'humiliat'],
     abandonment: ['abandon', 'abandoned', 'left'],
-    fear: ['fear', 'afraid', 'scared', 'panic'],
-    anger: ['angry', 'anger', 'rage', 'mad'],
-    grief: ['loss', 'grief', 'grieve', 'sad'],
-    envy: ['envy', 'jealous', 'jealousy'],
-    perfection: ['perfect', 'must', 'should', 'ought']
+    fear:        ['fear', 'afraid', 'scared', 'panic'],
+    anger:       ['angry', 'anger', 'rage', 'mad'],
+    grief:       ['loss', 'grief', 'grieve', 'sad'],
+    envy:        ['envy', 'jealous', 'jealousy'],
+    perfection:  ['perfect', 'must', 'should', 'ought']
   };
 
   const PRACTICE_SUGGESTIONS = {
-    grounding: { id: 'grounding', title: 'Grounding Body Scan', desc: '3–5 minute grounding body scan to settle energy.' },
-    breath: { id: 'breath', title: 'Heart Breath', desc: '4-6 breathing cycles focusing on the heart center.' },
-    mirror: { id: 'mirror', title: 'Mirror Compassion', desc: '2–4 minutes of soft mirror-gazing and kind phrases.' },
-    movement: { id: 'movement', title: 'Somatic Release', desc: 'Safe movement or shaking for 2–5 minutes to discharge energy.' },
-    boundary: { id: 'boundary', title: 'Boundary Script', desc: 'Write and rehearse a short, clear boundary message.' },
-    journal: { id: 'journal', title: 'Free Vent Page', desc: 'Continue to write uncensored for 5–10 minutes.' }
+    grounding: { id: 'grounding', title: 'Grounding Body Scan',   desc: '3–5 minute grounding body scan to settle energy.' },
+    breath:    { id: 'breath',    title: 'Heart Breath',           desc: '4-6 breathing cycles focusing on the heart center.' },
+    mirror:    { id: 'mirror',    title: 'Mirror Compassion',      desc: '2–4 minutes of soft mirror-gazing and kind phrases.' },
+    movement:  { id: 'movement',  title: 'Somatic Release',        desc: 'Safe movement or shaking for 2–5 minutes to discharge energy.' },
+    boundary:  { id: 'boundary',  title: 'Boundary Script',        desc: 'Write and rehearse a short, clear boundary message.' },
+    journal:   { id: 'journal',   title: 'Free Vent Page',         desc: 'Continue to write uncensored for 5–10 minutes.' }
   };
 
   const ARCHETYPE_SUGGESTIONS = {
-    perfectionist: { id: 'perfectionist', name: 'Perfectionist', short: 'Control and high standards' },
-    wounded_child: { id: 'wounded_child', name: 'Wounded Child', short: 'Need for safety and validation' },
-    warrior: { id: 'warrior', name: 'Warrior', short: 'Boundary and agency' },
-    lover: { id: 'lover', name: 'Lover', short: 'Desire and intimacy' },
-    sage: { id: 'sage', name: 'Sage', short: 'Wisdom and perspective' }
+    perfectionist:  { id: 'perfectionist',  name: 'Perfectionist',  short: 'Control and high standards' },
+    wounded_child:  { id: 'wounded_child',  name: 'Wounded Child',  short: 'Need for safety and validation' },
+    warrior:        { id: 'warrior',        name: 'Warrior',        short: 'Boundary and agency' },
+    lover:          { id: 'lover',          name: 'Lover',          short: 'Desire and intimacy' },
+    sage:           { id: 'sage',           name: 'Sage',           short: 'Wisdom and perspective' }
   };
 
   /* ========== STORAGE LAYER ========== */
@@ -98,11 +98,8 @@
   }
 
   function saveAllJourneys(list) {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-    } catch (e) {
-      console.warn('DailyJourneyEngine: save error', e);
-    }
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+    catch (e) { console.warn('DailyJourneyEngine: save error', e); }
   }
 
   /* ========== ANALYSIS LAYER ========== */
@@ -121,8 +118,8 @@
     const t = (text || '').toLowerCase();
     for (const em of EMOTIONS) if (t.includes(em)) return em;
     if (t.match(/(afraid|scared|panic)/)) return 'fear';
-    if (t.match(/(angry|mad|rage)/)) return 'anger';
-    if (t.match(/(sad|loss|grief)/)) return 'sadness';
+    if (t.match(/(angry|mad|rage)/))      return 'anger';
+    if (t.match(/(sad|loss|grief)/))      return 'sadness';
     return 'neutral';
   }
 
@@ -134,17 +131,17 @@
 
   function suggestPractice(themes) {
     if (!themes || !themes.length) return PRACTICE_SUGGESTIONS.journal;
-    if (themes.includes('shame') || themes.includes('rejection')) return PRACTICE_SUGGESTIONS.mirror;
+    if (themes.includes('shame')   || themes.includes('rejection'))  return PRACTICE_SUGGESTIONS.mirror;
     if (themes.includes('control') || themes.includes('perfection')) return PRACTICE_SUGGESTIONS.boundary;
-    if (themes.includes('anger') || themes.includes('grief')) return PRACTICE_SUGGESTIONS.movement;
-    if (themes.includes('fear') || themes.includes('anxiety')) return PRACTICE_SUGGESTIONS.breath;
+    if (themes.includes('anger')   || themes.includes('grief'))      return PRACTICE_SUGGESTIONS.movement;
+    if (themes.includes('fear')    || themes.includes('anxiety'))    return PRACTICE_SUGGESTIONS.breath;
     return PRACTICE_SUGGESTIONS.grounding;
   }
 
   function suggestArchetype(themes) {
-    if (!themes || !themes.length) return ARCHETYPE_SUGGESTIONS.wounded_child;
-    if (themes.includes('perfection')) return ARCHETYPE_SUGGESTIONS.perfectionist;
-    if (themes.includes('control')) return ARCHETYPE_SUGGESTIONS.warrior;
+    if (!themes || !themes.length)          return ARCHETYPE_SUGGESTIONS.wounded_child;
+    if (themes.includes('perfection'))      return ARCHETYPE_SUGGESTIONS.perfectionist;
+    if (themes.includes('control'))         return ARCHETYPE_SUGGESTIONS.warrior;
     if (themes.includes('worth') || themes.includes('money')) return ARCHETYPE_SUGGESTIONS.wounded_child;
     return ARCHETYPE_SUGGESTIONS.wounded_child;
   }
@@ -153,20 +150,20 @@
   function buildQuestions(caseId) {
     const caseLabel = (CASES.find(c => c.id === caseId) || {}).label || caseId;
     let tpl = QUESTIONS_TEMPLATE;
-    switch (caseId) {
-      case 'spirituality': tpl = QUESTIONS_SPIRITUALITY; break;
-      case 'purpose':      tpl = QUESTIONS_PURPOSE;      break;
-      case 'play':          tpl = QUESTIONS_PLAY;         break;
-    }
+    if (caseId === 'spirituality') tpl = QUESTIONS_SPIRITUALITY;
+    else if (caseId === 'purpose') tpl = QUESTIONS_PURPOSE;
+    else if (caseId === 'play')    tpl = QUESTIONS_PLAY;
     return tpl.map((text, idx) => ({
-      id: `q${idx + 1}`,
+      id:   `q${idx + 1}`,
       text: text.replace('{case}', caseLabel)
     }));
   }
 
-  function awardTokens(tokens = REWARD_TOKENS) {
-    if (window.AppController && typeof window.AppController.addTokens === 'function') {
-      try { window.AppController.addTokens(tokens); } catch (e) { console.warn('DailyJourneyEngine: addTokens error', e); }
+  /* FIXED: was calling addTokens (old name) — now calls addLightParticles */
+  function awardTokens(n = REWARD_TOKENS) {
+    if (window.AppController && typeof window.AppController.addLightParticles === 'function') {
+      try { window.AppController.addLightParticles(n); }
+      catch (e) { console.warn('DailyJourneyEngine: addLightParticles error', e); }
     }
   }
 
@@ -179,13 +176,11 @@
     const caseGrid = CASES.map(c => `
       <button class="btn case-btn" data-case-id="${c.id}">
         <strong>${c.label}</strong>
-        <span class="muted" style="font-size: 0.8rem; font-weight: 400;">${c.intro}</span>
-      </button>
-    `).join('');
+        <span class="muted" style="font-size:0.8rem;font-weight:400">${c.intro}</span>
+      </button>`).join('');
     root.innerHTML = `
-      <p style="color:var(--neuro-text-light);font-size:0.95rem;line-height:1.5;text-align:center;margin:0 0 var(--spacing-md) 0;">Choose an area of life to journal about today</p>
-      <div class="case-selection-grid" style="margin-bottom: 1.5rem">${caseGrid}</div>
-    `;
+      <p style="color:var(--neuro-text-light);font-size:0.95rem;line-height:1.5;text-align:center;margin:0 0 var(--spacing-md) 0">Choose an area of life to journal about today</p>
+      <div class="case-selection-grid" style="margin-bottom:1.5rem">${caseGrid}</div>`;
     root.querySelector('.case-selection-grid').addEventListener('click', e => {
       const btn = e.target.closest('.case-btn');
       if (btn) callback(btn.dataset.caseId);
@@ -193,22 +188,21 @@
   }
 
   function renderStep(root, session, questions, stepIndex, onBack, onNext) {
-    const q = questions[stepIndex];
-    const progressPercent = Math.round(((stepIndex) / questions.length) * 100);
+    const q               = questions[stepIndex];
+    const progressPercent = Math.round((stepIndex / questions.length) * 100);
     root.querySelector('#journey-progress').innerHTML = `
       <div class="muted" style="font-size:0.9rem">Step ${stepIndex + 1} of ${questions.length}</div>
       <div class="progress-bar" style="margin-top:8px">
         <div class="progress-fill" style="width:${progressPercent}%"></div>
-      </div>
-    `;
+      </div>`;
     const emotionOptions = EMOTIONS.concat(['other', 'neutral'])
       .map(em => `<option value="${em}">${em.charAt(0).toUpperCase() + em.slice(1)}</option>`)
       .join('');
     root.querySelector('#journey-question-box').innerHTML = `
       <h4>${q.text}</h4>
-      <textarea id="journey-answer" class="form-input" placeholder="Write your response here..." 
-        style="min-height: 120px; margin-top: 0.5rem;"></textarea>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; align-items: center;">
+      <textarea id="journey-answer" class="form-input" placeholder="Write your response here..."
+        style="min-height:120px;margin-top:0.5rem"></textarea>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;align-items:center">
         <div>
           <label class="form-label">Primary emotion:</label>
           <select id="journey-emotion" class="form-input">${emotionOptions}</select>
@@ -217,32 +211,28 @@
           <label class="form-label">Intensity: <span id="intensity-value">5</span></label>
           <input id="journey-intensity" type="range" min="1" max="10" value="5">
         </div>
-      </div>
-    `;
+      </div>`;
     const intensitySlider = root.querySelector('#journey-intensity');
-    const intensityValue = root.querySelector('#intensity-value');
+    const intensityValue  = root.querySelector('#intensity-value');
     intensitySlider.addEventListener('input', () => { intensityValue.textContent = intensitySlider.value; });
     const existing = session.steps.find(s => s.qid === q.id);
     if (existing) {
-      root.querySelector('#journey-answer').value = existing.answerText || '';
-      root.querySelector('#journey-emotion').value = existing.emotion || 'neutral';
-      intensitySlider.value = existing.intensity || 5;
-      intensityValue.textContent = intensitySlider.value;
+      root.querySelector('#journey-answer').value    = existing.answerText || '';
+      root.querySelector('#journey-emotion').value   = existing.emotion    || 'neutral';
+      intensitySlider.value                          = existing.intensity  || 5;
+      intensityValue.textContent                     = intensitySlider.value;
     }
     root.querySelector('#journey-nav').innerHTML =
       (stepIndex > 0 ? '<button id="journey-back" class="btn">Back</button>' : '') +
-      `<button id="journey-next" class="btn btn-primary">
-        ${stepIndex === questions.length - 1 ? 'Proceed to Vent' : 'Save & Next'}
-      </button>`;
+      `<button id="journey-next" class="btn btn-primary">${stepIndex === questions.length - 1 ? 'Proceed to Vent' : 'Save & Next'}</button>`;
     root.querySelector('#journey-next').addEventListener('click', () => {
-      const stepEntry = {
-        qid: q.id,
-        question: q.text,
+      onNext({
+        qid:        q.id,
+        question:   q.text,
         answerText: root.querySelector('#journey-answer').value.trim(),
-        emotion: root.querySelector('#journey-emotion').value,
-        intensity: Number(root.querySelector('#journey-intensity').value)
-      };
-      onNext(stepEntry);
+        emotion:    root.querySelector('#journey-emotion').value,
+        intensity:  Number(root.querySelector('#journey-intensity').value)
+      });
     });
     const backBtn = root.querySelector('#journey-back');
     if (backBtn) backBtn.addEventListener('click', onBack);
@@ -251,113 +241,119 @@
   function renderVent(root, onBack, onFinish) {
     root.querySelector('#journey-progress').innerHTML = `
       <div class="muted" style="font-size:0.9rem">Integration & Release</div>
-      <div class="progress-bar" style="margin-top:8px">
-        <div class="progress-fill" style="width:95%"></div>
-      </div>
-    `;
+      <div class="progress-bar" style="margin-top:8px"><div class="progress-fill" style="width:95%"></div></div>`;
     root.querySelector('#journey-question-box').innerHTML = `
       <h4>Cathartic Venting</h4>
       <p class="muted">This space is for release, not editing. Write freely.</p>
-      <textarea id="journey-vent" class="form-input" placeholder="Venting box..."
-        style="min-height: 180px; margin-top: 0.5rem;"></textarea>
-    `;
+      <textarea id="journey-vent" class="form-input" placeholder="Venting box..." style="min-height:180px;margin-top:0.5rem"></textarea>`;
     root.querySelector('#journey-nav').innerHTML = `
       <button id="journey-back" class="btn">Back to Questions</button>
-      <button id="journey-finish" class="btn btn-primary">Finish Journey</button>
-    `;
+      <button id="journey-finish" class="btn btn-primary">Finish Journey</button>`;
     root.querySelector('#journey-back').addEventListener('click', onBack);
     root.querySelector('#journey-finish').addEventListener('click', () => {
       onFinish(root.querySelector('#journey-vent').value.trim());
     });
   }
 
+  /* FIXED: removed "earned tokens" copy → "earned Light-Particles" */
   function renderComplete(root, summary) {
     root.innerHTML = `
       <h3>Journey Complete</h3>
-      <p class="muted">Your reflection is saved. You earned tokens for your practice.</p>
-      <div class="neuro-stat" style="text-align: left; margin-top: 1.5rem;">
+      <p class="muted">Your reflection is saved. You earned Light-Particles for your practice.</p>
+      <div class="neuro-stat" style="text-align:left;margin-top:1.5rem">
         <div><strong>Primary themes</strong>: ${(summary.themes || []).slice(0, 3).join(', ') || 'None detected'}</div>
         <div style="margin-top:6px"><strong>Suggested practice</strong>: ${(summary.suggestedPractice || {}).title || 'None'}</div>
         <div style="margin-top:6px"><strong>Suggested archetype</strong>: ${(summary.suggestedArchetype || {}).name || 'None'}</div>
       </div>
       <div class="card-actions">
         <button id="return-dash" class="btn">Return to Dashboard</button>
-      </div>
-    `;
+      </div>`;
   }
 
   /* ========== ENGINE CLASS ========== */
   const DailyJourneyEngine = {
     _lastSummary: null,
-    init() {
-      loadAllJourneys();
-    },
+    init() { loadAllJourneys(); },
     getAllJourneys() { return loadAllJourneys(); },
+
     startDailyJourney(containerOrSelector, options = {}) {
       const root = (typeof containerOrSelector === 'string')
         ? document.querySelector(containerOrSelector)
         : containerOrSelector;
       if (!root) { console.warn('DailyJourneyEngine: no container found'); return; }
+
       const chosenCase = options.caseId || null;
       if (!chosenCase) {
-        renderCaseSelection(root, (caseId) => { this.startDailyJourney(root, { caseId }); });
+        renderCaseSelection(root, caseId => { this.startDailyJourney(root, { caseId }); });
         return;
       }
+
       const questions = buildQuestions(chosenCase);
-      const session = {
-        id: uid('journey-'),
-        caseId: chosenCase,
+      const session   = {
+        id:        uid('journey-'),
+        caseId:    chosenCase,
         startedAt: Date.now(),
-        steps: [],
-        vent: '',
-        meta: {}
+        steps:     [],
+        vent:      '',
+        meta:      {}
       };
       const caseLabel = (CASES.find(c => c.id === chosenCase) || {}).label || chosenCase;
+
       root.innerHTML = `
         <h3>Daily Journey – ${caseLabel}</h3>
         <p class="muted">A guided 5-step reflection. Move slowly, breathe, and answer from the heart.</p>
-        <div id="journey-progress" style="margin: 1rem 0;"></div>
-        <div id="journey-question-box" style="margin-top: 8px;"></div>
-        <div id="journey-nav" class="card-actions" style="margin-top: 1rem;"></div>
-      `;
+        <div id="journey-progress" style="margin:1rem 0"></div>
+        <div id="journey-question-box" style="margin-top:8px"></div>
+        <div id="journey-nav" class="card-actions" style="margin-top:1rem"></div>`;
+
       const self = this;
       function showStep() {
         const stepIndex = session.steps.length;
         if (stepIndex >= questions.length) {
           renderVent(root,
             () => { session.steps.pop(); showStep(); },
-            (vent) => { session.vent = vent; self.completeJourney(session); renderComplete(root, self._lastSummary || {}); }
+            vent => { session.vent = vent; self.completeJourney(session); renderComplete(root, self._lastSummary || {}); }
           );
         } else {
           renderStep(root, session, questions, stepIndex,
             () => { session.steps.pop(); showStep(); },
-            (stepEntry) => { session.steps.push(stepEntry); showStep(); }
+            stepEntry => { session.steps.push(stepEntry); showStep(); }
           );
         }
       }
       showStep();
     },
+
     completeJourney(session) {
-      const allText = session.steps.map(s => s.answerText).join(' ') + ' ' + (session.vent || '');
       const themes = [];
       session.steps.forEach(s => extractThemes(s.answerText || '').forEach(f => { if (!themes.includes(f)) themes.push(f); }));
       extractThemes(session.vent || '').forEach(f => { if (!themes.includes(f)) themes.push(f); });
+
       const entry = {
-        id: uid('entry-'),
-        sessionId: session.id,
-        caseId: session.caseId,
-        date: new Date().toISOString(),
-        steps: session.steps.slice(),
-        vent: session.vent,
-        meta: session.meta || {},
+        id:                uid('entry-'),
+        sessionId:         session.id,
+        caseId:            session.caseId,
+        date:              new Date().toISOString(),
+        steps:             session.steps.slice(),
+        vent:              session.vent,
+        meta:              session.meta || {},
         themes,
-        primaryEmotion: detectPrimaryEmotion(allText),
-        intensity: calculateAverageIntensity(session.steps),
+        primaryEmotion:    detectPrimaryEmotion(session.steps.map(s => s.answerText).join(' ') + ' ' + (session.vent || '')),
+        intensity:         calculateAverageIntensity(session.steps),
         suggestedPractice: suggestPractice(themes),
-        suggestedArchetype: suggestArchetype(themes)
+        suggestedArchetype:suggestArchetype(themes)
       };
-      const all = loadAllJourneys(); all.push(entry); saveAllJourneys(all); awardTokens(REWARD_TOKENS);
-      this._lastSummary = { themes: entry.themes, suggestedPractice: entry.suggestedPractice, suggestedArchetype: entry.suggestedArchetype };
+
+      const all = loadAllJourneys();
+      all.push(entry);
+      saveAllJourneys(all);
+      awardTokens(REWARD_TOKENS);
+
+      this._lastSummary = {
+        themes:              entry.themes,
+        suggestedPractice:   entry.suggestedPractice,
+        suggestedArchetype:  entry.suggestedArchetype
+      };
       return { entry, summary: this._lastSummary };
     }
   };
